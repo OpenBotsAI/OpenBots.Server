@@ -166,8 +166,8 @@ export class NgxRegisterComponent implements OnInit {
     };
     this.httpService.post(url, RegCredentials, headers).subscribe((response) => {
     this.submitted = false;
-        if (response && response.message) {
-            this.httpService.success(response.message);
+    if (response && response.message) {
+        this.httpService.success(response.message);
     }
       this.router.navigate(['auth/login']);
       this.registerForm.reset();
