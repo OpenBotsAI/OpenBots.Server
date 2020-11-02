@@ -192,33 +192,27 @@ export class AllProcessLogsComponent implements OnInit {
 
 
     pageChanged(event): void {
-      console.log("got here")
     if (this.processlogFilter != undefined || this.processlogFilter != "" ||
         this.processjoblogFilter != undefined || this.processjoblogFilter != "") {
-        console.log("got here2")
         this.page.pageNumber = event;
         this.pagination(event, this.page.pageSize);
 
       if (this.processlogFilter) {
         this.page.pageNumber = event;
           this.filterByProceessLogPage(event, this.page.pageSize, this.processlogFilter, this.filterOrderBy);
-          console.log("got here3")
       }
       else if (this.processjoblogFilter) {
         this.page.pageNumber = event;
           this.filterByProceessLogPage(event, this.page.pageSize, this.processjoblogFilter, this.filterOrderBy);
-          console.log("got here4")
       }
     }
     else if (this.processlogFilter == null && this.processjoblogFilter == null) {
       this.page.pageNumber = event;
         this.pagination(event, this.page.pageSize, `${this.filterOrderBy}`);
-        console.log("got here5")
     }
     else if (this.filterOrderBy == "" || this.filterOrderBy == undefined) {
       this.page.pageNumber = event;
         this.pagination(event, this.page.pageSize);
-        console.log("got here6")
     }
 
     // if (this.filterOrderBy) {

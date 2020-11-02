@@ -50,6 +50,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         readonly IPasswordPolicyRepository passwordPolicyRepository;
         readonly IOrganizationManager organizationManager;
         readonly IAccessRequestsManager accessRequestManager;
+        readonly IAccessRequestRepository accessRequestRepository;
         readonly IOrganizationMemberRepository organizationMemberRepository;
         readonly ITermsConditionsManager termsConditionsManager;
         readonly IAgentRepository agentRepository;
@@ -82,6 +83,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
            IEmailManager emailSender,
            IOrganizationManager organizationManager,
            IAccessRequestsManager accessRequestManager,
+           IAccessRequestRepository accessRequestRepository,
            IOrganizationMemberRepository organizationMemberRepository,
            IAgentRepository agentRepository,
            ITermsConditionsManager termsConditionsManager,
@@ -99,6 +101,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             this.passwordPolicyRepository = passwordPolicyRepository;
             this.organizationManager = organizationManager;
             this.accessRequestManager = accessRequestManager;
+            this.accessRequestRepository = accessRequestRepository;
             this.organizationMemberRepository = organizationMemberRepository;
             this.termsConditionsManager = termsConditionsManager;
             this.agentRepository = agentRepository;
@@ -262,7 +265,11 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                 }
                 // Make a request to join organization
                 var oldOrganization = organizationManager.GetDefaultOrganization();
-                if (oldOrganization != null)
+                accessRequestRepository.ForceIgnoreSecurity();
+                var existingRequest = accessRequestRepository.Find(null, m => m.PersonId == emailAddress.PersonId)?.Items?.FirstOrDefault();
+                accessRequestRepository.ForceSecurity();
+
+                if (oldOrganization != null && existingRequest == null)
                 {
                     //Update user 
                     if (!IsPasswordValid(signupModel.Password))
@@ -299,6 +306,12 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     accessRequestManager.AddAnonymousAccessRequest(accessRequest);
                     return Ok(new { message = "Access Request has been created for existing user" });
                 }
+                else
+                {
+                    ModelState.AddModelError("Register", "Access request already exists or no organization was found");
+                    return BadRequest(ModelState);
+                }
+
             }
 
             var user = new ApplicationUser()
