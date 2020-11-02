@@ -3,17 +3,21 @@ import {
   HttpRequest,
   HttpHandler,
   HttpEvent,
-  HttpInterceptor, HttpErrorResponse
+  HttpInterceptor,
+  HttpErrorResponse,
 } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { catchError, filter, switchMap, take } from 'rxjs/operators';
 import { NbToastrService } from '@nebular/theme';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { throwError } from 'rxjs/internal/observable/throwError';
+import { Observable } from 'rxjs/internal/Observable';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
+  private isRefreshing = false;
+  private refreshTokenSubject = new BehaviorSubject<any>(null);
   constructor(
     private toastrService: NbToastrService,
     private authService: AuthService,
@@ -46,13 +50,25 @@ export class TokenInterceptor implements HttpInterceptor {
   }
 
   handleError(request: HttpRequest<unknown>, next: HttpHandler) {
-    return this.authService.refreshToken().pipe(
-      switchMap((token: any) => {
-        localStorage.setItem('accessToken', token.jwt);
-        localStorage.setItem('refreshToken', token.refreshToken);
-        return next.handle(this.attachToken(request, token.jwt));
-      })
-    );
+    if (!this.isRefreshing) {
+      this.isRefreshing = true;
+      this.refreshTokenSubject.next(null);
+      return this.authService.refreshToken().pipe(
+        switchMap((token: any) => {
+          this.isRefreshing = false;
+          this.refreshTokenSubject.next(token.jwt);
+          return next.handle(this.attachToken(request, token.jwt));
+        })
+      );
+    } else {
+      return this.refreshTokenSubject.pipe(
+        filter((token) => token != null),
+        take(1),
+        switchMap((token) => {
+          return next.handle(this.attachToken(request, token));
+        })
+      );
+    }
   }
 
   handleErrorGlobal(error) {
