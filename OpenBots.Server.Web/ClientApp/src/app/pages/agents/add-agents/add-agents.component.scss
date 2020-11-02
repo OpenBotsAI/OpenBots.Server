@@ -1,0 +1,98 @@
+/*!
+ * Copyright (c) Akveo 2019. All Rights Reserved.
+ * Licensed under the Single Application / Multi Application License.
+ * See LICENSE_SINGLE_APP / LICENSE_MULTI_APP in the 'docs' folder for license information on type of purchased license.
+ */
+
+ nb-checkbox {
+    margin-bottom: 1rem;
+  }
+  
+  .form-inline [fullWidth] {
+    flex: 1;
+  }
+  
+  .form-inline > * {
+    margin: 0 1.5rem 1.5rem 0;
+  }
+  
+  nb-card.inline-form-card nb-card-body {
+    padding-bottom: 0;
+  }
+  
+
+  .invalid-feedback-frm {
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 80%;
+    color: #dc3545;
+}
+
+  .checkbox.checbox-switch {
+    padding-left: 0;
+  }
+  
+  .checkbox.checbox-switch label,
+  .checkbox-inline.checbox-switch {
+    display: inline-block;
+    position: relative;
+    padding-left: 0;
+  }
+  .checkbox.checbox-switch label input,
+  .checkbox-inline.checbox-switch input {
+    display: none;
+  }
+  .checkbox.checbox-switch label span,
+  .checkbox-inline.checbox-switch span {
+    
+    width: 45px;
+    border-radius: 20px;
+    height: 24px;
+    border: 1px solid #dbdbdb;
+    background-color: #dcd1d1;
+    border-color: #f3efef;
+    box-shadow: #dfdfdf 0px 0px 0px 0px inset;
+    -webkit-transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s;
+    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+  }
+  .checkbox.checbox-switch label span:before,
+  .checkbox-inline.checbox-switch span:before {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgb(255,255,255);
+    content: " ";
+    top: 0;
+    position: relative;
+    left: 2px;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    top:3px;
+  }
+  .checkbox.checbox-switch label > input:checked + span:before,
+  .checkbox-inline.checbox-switch > input:checked + span:before {
+    left: 25px;top:3px;
+  }
+  
+  /* Switch Primary */
+  .checkbox.checbox-switch.switch-primary label > input:checked + span,
+  .checkbox-inline.checbox-switch.switch-primary > input:checked + span {
+    background-color: rgb(0, 105, 217);
+    border-color: rgb(0, 105, 217);
+    /*box-shadow: rgb(0, 105, 217) 0px 0px 0px 8px inset;*/
+    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
+  }
+  .checkbox.checbox-switch.switch-primary label > input:checked:disabled + span,
+  .checkbox-inline.checbox-switch.switch-primary > input:checked:disabled + span {
+    background-color: rgb(0, 105, 217);
+    border-color: rgb(0, 105, 217);
+   /* box-shadow: rgb(109, 163, 221) 0px 0px 0px 8px inset;*/
+    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
+  }
+  label.label{
+    margin-bottom: 8px !important;
+  }

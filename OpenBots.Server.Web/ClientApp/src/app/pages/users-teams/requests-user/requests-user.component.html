@@ -1,0 +1,145 @@
+<!--
+  ~ Copyright (c) Akveo 2019. All Rights Reserved.
+  ~ Licensed under the Single Application / Multi Application License.
+  ~ See LICENSE_SINGLE_APP / LICENSE_MULTI_APP in the 'docs' folder for license information on type of purchased license.
+  -->
+
+<nb-card>
+  <nb-card-header>
+    <div class="titleHeader">
+      <div class="titleLeft">
+        <div class="LeftBgIcon">
+          <img class="img-head-logo" src="../../../../assets/icons/Team.svg" />
+        </div>
+        <div class="LeftBgText">
+          <h2>Pending Approvals Members of {{ admin_name }}</h2>
+          <p>Showing all Pending Approvals Members</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- <div class="row">
+          <div class="col-md-1 col-lg-1 col-xxxl-2 noRightPadding">
+            <img class="img-head-logo" src="../../../../assets/icons/Team.svg" >
+        </div>
+       
+          <div class="col-md-7 col-lg-7 col-xxxl-10 noLeftPadding">
+                         
+            <h2>Pending Approvals Members of {{admin_name}}</h2>
+            <p>
+              Showing all Pending Approvals Members
+            </p>
+        </div>
+        </div> -->
+  </nb-card-header>
+  <nb-card-body>
+    <!-- <div class="col-md-12"> -->
+    <!-- <h4>Bootstrap Snipp for Datatable</h4> -->
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">
+            Name
+            <i
+              (click)="onSortClick($event, 'name')"
+              class="my-icon fa fa-chevron-up"
+            ></i>
+          </th>
+          <th scope="col">
+            Email Address
+            <i
+              (click)="onSortClick($event, 'emailAddress')"
+              class="my-icon fa fa-chevron-up"
+            ></i>
+          </th>
+          <th scope="col" *ngIf="isAdmin == 'true'">Accept</th>
+          <th scope="col" *ngIf="isAdmin == 'true'">Reject</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- <tr *ngFor="let people of pendingRequestList"> -->
+
+        <tr
+          *ngFor="
+            let people of pendingRequestList
+              | paginate
+                : {
+                    id: '1',
+                    itemsPerPage: page.pageSize,
+                    currentPage: page.pageNumber,
+                    totalItems: page.totalCount
+                  }
+          "
+        >
+          <th>{{ people.name }}</th>
+          <td>{{ people.email }}</td>
+          <td *ngIf="isAdmin == 'true'">
+            <a (click)="ApproveRequest(people.id)" class="apr-btnstyle"
+              ><img
+                src="../../../assets/images/check-icon.png"
+                alt="Cross Icon"
+            /></a>
+          </td>
+          <td *ngIf="isAdmin == 'true'">
+            <a (click)="DenyRequest(people.id)" class="apr-btnstyle">
+              <img
+                src="../../../assets/images/cancel-icon.png"
+                alt="Cross Icon"
+            /></a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- </div> -->
+  </nb-card-body>
+  <nb-card-body class="noTopPadding">
+    <div class="row pagerow">
+      <div class="col-md-8 col-lg-8 no-left-padding">
+        <pagination-controls
+          id="1"
+          class="paginateDiv"
+          previousLabel="Prev"
+          nextLabel="Next"
+          responsive="true"
+          (pageChange)="pageChanged($event)"
+          (pageBoundsCorrection)="pageChanged($event)"
+          directionLinks="true"
+          autoHide="true"
+          screenReaderPaginationLabel="Pagination"
+          screenReaderPageLabel="page"
+          screenReaderCurrentLabel="You're on page"
+        ></pagination-controls>
+      </div>
+
+      <div
+        class="col-md-4 col-lg-4 text-right no-right-padding"
+        *ngIf="get_perPage"
+      >
+        <label class="label">Total {{ showpage.totalCount }} /</label>
+        <!-- <label class="label">Show</label>
+         -->
+        <!-- <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
+                <option [value]="5"> 5 per page
+                </option>
+                <option [value]="10"> 10 per page
+                </option>
+                <option [value]="25"> 25 per page
+                </option>
+                <option [value]="50"> 50 per page
+                </option>
+                <option [value]="100"> 100 per page
+                </option>
+              </select> -->
+        <select
+          class="custom-select per-page-drop"
+          (change)="per_page($event.target.value)"
+        >
+          <option *ngFor="let item of itemsPerPage" [value]="item.id">
+            {{ item.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>

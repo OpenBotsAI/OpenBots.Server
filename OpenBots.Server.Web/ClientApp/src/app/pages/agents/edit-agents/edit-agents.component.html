@@ -1,0 +1,105 @@
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>Update Agent </nb-card-header>
+      <nb-card-body>
+        <form [formGroup]="addagent">
+          <div class="row">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="agentname" class="label"  >Agent name</label>
+              <input type="input" nbInput fullWidth id="agentname" formControlName="name" class="form-control" (keypress)="handleInput($event)"
+                placeholder="Please enter agent name">
+                <div *ngIf="(f.name.touched || f.name.dirty)  && f.name.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.name.errors && f.name.errors.required"> Agent Name is required.</div>
+                <div *ngIf="f.name.errors.minlength">
+                  Agent Name at least 3 characters long.
+                </div>
+                <div *ngIf="f.name.errors.maxlength">
+                  Agent Name at least 100 characters long.
+                </div>
+                <div *ngIf="f.name.errors.pattern">
+                  Please enter valid agent name .
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="machinename"  class="label" >Machine name</label>
+
+              <input type="input" nbInput fullWidth id="machineName" formControlName="machineName" class="form-control" (keypress)="handleInput($event)"
+                placeholder="Please enter machine name">
+                <div *ngIf="(f.machineName.touched || f.machineName.dirty) && f.machineName.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.machineName.errors && f.machineName.errors.required"> Machine Name is required.</div>
+                <div *ngIf="f.machineName.errors.pattern">
+                  Please enter valid machine name .
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+
+          <div class="row rowPadTOp">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="macaddress" class="label"  >Mac Addresses</label>
+              <input type="input" nbInput fullWidth id="macAddresses" formControlName="macAddresses" (keypress)="handleInput($event)"
+                class="form-control" placeholder="Please enter macaddress">
+              <div *ngIf="f.macAddresses.touched && f.macAddresses.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.macAddresses.errors && f.macAddresses.errors.required"> Mac Address is required.</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="ipadd" class="label"  >Ip Address</label>
+              <input type="input" nbInput fullWidth id="ipAddresses" formControlName="ipAddresses" class="form-control" (keypress)="handleInput($event)"
+                placeholder="Please enter ipAddress">
+                <div *ngIf="(f.ipAddresses.touched || f.ipAddresses.dirty) && f.ipAddresses.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.ipAddresses.errors && f.ipAddresses.errors.required"> IpAddress is required.</div>
+                <div *ngIf="f.ipAddresses.errors.pattern">
+                  Please enter valid Ip .
+                </div>
+              </div>
+            </div>
+         
+          </div>
+
+
+
+          <div class="row rowPadTOp">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="queueitemtype" class="label">OS Logon Credentials</label>
+              <select class="custom-select" formControlName="CredentialId">
+                <option value='' [disabled]='true' selected>Please select OS Logon Credentials </option>
+                <option *ngFor="let item of cred_value" [value]="item.credentialId">{{item.credentialName}}</option>
+              </select>
+              <div *ngIf="f.CredentialId.touched && f.CredentialId.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.CredentialId.errors && f.CredentialId.errors.required"> Credential is required.</div>
+              </div>
+              </div>
+
+              <div class="col-md-6 col-lg-6 col-xxxl-6">
+                <label class="label">Agent Enabled</label>
+              <div class="checkbox checbox-switch switch-primary">
+                <label>
+                  <input type="checkbox" name="isAdmin" formControlName="isEnabled" />
+                  <span></span>
+                </label>
+
+              </div>    
+              </div>
+          </div>
+
+
+
+
+          <div class="row rowPadTOp">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <button type="submit" class="btn btn-primary"  status="primary" (click)="onSubmit()">Save</button>
+            </div>
+
+          </div>
+        </form>
+      </nb-card-body>
+    </nb-card>
+
+
+  </div>
+</div>

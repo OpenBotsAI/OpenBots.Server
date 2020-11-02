@@ -1,0 +1,37 @@
+ <div class="col-md-10 noMobPadding">
+   <div class="logoCont">
+     <a (click)="toggleSidebar()" href="#" class="sidebar-toggle">
+       <nb-icon icon="menu-2-outline"></nb-icon>
+     </a>
+     <a class="logo" (click)="navigateHome()">
+       <img src="../../../assets/images/OBServer_logo.png" alt="OpenBots Server Logo" />
+     </a>
+   </div>
+ </div>
+
+
+ <div class="col-md-2 noMobRightPadding">
+  
+   <div class="navbar navbar-expand-xl navbar-dark  pmd-navbar pmd-z-depth">
+     <div class="dropdown pmd-dropdown pmd-user-info ml-auto">
+       <a href="javascript:void(0);" class="btn-user dropdown-toggle media align-items-center" data-toggle="dropdown"
+         data-sidebar="true" aria-expanded="false">
+         <img class="mr-2" src="../../../../assets/images/avatar.jpg" width="40" height="40" alt="avatar">
+       </a>
+       <ul class="dropdown-menu dropdown-menu-right" role="menu">
+         <li>
+           <a class="dropdown-item" href="javascript:void(0);" (click)="changePassword()">
+             <nb-icon class="control-item" icon="lock-outline"></nb-icon>
+             Change Password
+           </a>
+         </li>
+         <a class="dropdown-item" href="javascript:void(0);" (click)="logout()">
+           <nb-icon class="control-item" icon="log-out-outline"></nb-icon>
+           Logout
+         </a>
+       </ul>
+     </div>
+   </div>
+ </div>
+
+ 

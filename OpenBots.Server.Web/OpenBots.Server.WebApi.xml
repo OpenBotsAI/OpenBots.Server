@@ -1,0 +1,1923 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>OpenBots.Server.Web</name>
+    </assembly>
+    <members>
+        <member name="T:OpenBots.Server.WebAPI.Controllers.ApplicationBaseController">
+            <summary>
+            Default base controller for controllers that are not implementing EntityController 
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.Core.LookupValuesController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all LookupValues
+            </summary>
+            <response code="200">OK,a Paginated list of all LookupValues</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            <returns>Paginated list of all LookupValues </returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.Core.LookupValuesController.Get(System.String)">
+            <summary>
+            Provides an LookupValue details for a particular LookupValue Id.
+            </summary>
+            <param name="codeType">LookupValue id</param>
+            <response code="200">OK, If an LookupValue exists with the given Id.</response>
+            <response code="304">Not modified</response>
+            <response code="400">BadRequest,If LookupValue id is not in proper format or proper Guid.</response>
+            <response code="403">Forbidden</response>
+            <response code="404">NotFound, when no LookupValue exists for the given LookupValue id</response>
+            <returns>LookupValue details for the given Id</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.Core.LookupValuesController.Post(OpenBots.Server.Model.Core.LookupValue)">
+             <summary>
+             Adds a new LookupValue to the existing LookupValues
+             </summary>
+             <remarks>
+             Adds the LookupValue with unique LookupValue Id to the existing LookupValues
+             </remarks>
+             <param name="value"></param>
+             <response code="200">OK,new LookupValue created and returned</response>
+             <response code="400">BadRequest,When the LookupValue value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict,concurrency error</response> 
+             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <returns> newly created unique LookupValue Id with route name </returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.Core.LookupValuesController.Put(System.String,OpenBots.Server.Model.Core.LookupValue)">
+            <summary>
+            Updates an LookupValue 
+            </summary>
+            <remarks>
+            Provides an action to update an LookupValue, when LookupValue id and the new details of LookupValue are given
+            </remarks>
+            <param name="id">LookupValue Id,produces Bad request if Id is null or Id's don't match</param>
+            <param name="value">LookupValue details to be updated</param>
+            <response code="200">OK, If the LookupValue details for the given LookupValue Id has been updated.</response>
+            <response code="400">BadRequest,if the LookupValue Id is null or Id's don't match</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">UnprocessableEntity</response>
+            <returns>OK response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.Core.LookupValuesController.Delete(System.String)">
+            <summary>
+            Deletes an LookupValue with a specified id from the LookupValues.
+            </summary>
+            <param name="id">LookupValue ID to be deleted- throws BadRequest if null or empty Guid/</param>
+            <response code="200">OK,when LookupValue is softdeleted,( isDeleted flag is set to true in DB) </response>
+            <response code="400">BadRequest,If LookupValue Id is null or empty Guid</response>
+            <response code="403">Forbidden </response>
+            <returns>OK response with deleted value </returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.Core.LookupValuesController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Core.LookupValue})">
+            <summary>
+            Updates partial details of LookupValue.
+            </summary>
+            <param name="id">LookupValue identifier</param>
+            <param name="value">Value of the LookupValue to be updated.</param>
+            <response code="200">OK,If update of LookupValue is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial LookupValue values has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.EntityController`1.PostEntity(`0,System.String)">
+            <summary>
+            Post action
+            </summary>
+            <param name="value"></param>
+            <param name="resultRoute"></param>
+            <returns></returns>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityValidationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.CannotInsertDuplicateConstraintException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityAlreadyExistsException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityConcurrencyException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityOperationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.UnauthorizedOperationException"></exception>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.EntityController`1.PutEntity(System.String,`0)">
+            <summary>
+            Put action
+            </summary>
+            <param name="id"></param>
+            <param name="value"></param>
+            <returns></returns>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityValidationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityDoesNotExistException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityConcurrencyException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityOperationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.UnauthorizedOperationException"></exception>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.EntityController`1.PatchEntity(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{`0})">
+            <summary>
+            Patch action
+            </summary>
+            <param name="id"></param>
+            <param name="value"></param>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityDoesNotExistException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityOperationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityConcurrencyException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.UnauthorizedOperationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityValidationException"></exception>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.EntityController`1.DeleteEntity(System.String,System.String)">
+            <summary>
+            Delete action
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityDoesNotExistException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.UnauthorizedOperationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityOperationException"></exception>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.#ctor(OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Identity.SignInManager{OpenBots.Server.Security.ApplicationUser},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.AspNetCore.Identity.IUserClaimsPrincipalFactory{OpenBots.Server.Security.ApplicationUser},Microsoft.Extensions.Logging.ILogger{Microsoft.AspNetCore.Identity.SignInManager{OpenBots.Server.Security.ApplicationUser}},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController},OpenBots.Server.Business.IMembershipManager,OpenBots.Server.DataAccess.Repositories.IPersonRepository,OpenBots.Server.DataAccess.Repositories.IPersonEmailRepository,OpenBots.Server.DataAccess.Repositories.IEmailVerificationRepository,OpenBots.Server.DataAccess.Repositories.IPasswordPolicyRepository,OpenBots.Server.Business.IEmailManager,OpenBots.Server.Business.IOrganizationManager,OpenBots.Server.Business.IAccessRequestsManager,OpenBots.Server.DataAccess.Repositories.IOrganizationMemberRepository,OpenBots.Server.Business.ITermsConditionsManager)">
+            <summary>
+            
+            </summary>
+            <param name="userManager"></param>
+            <param name="signInManager"></param>
+            <param name="httpContextAccessor"></param>
+            <param name="claimsFactory"></param>
+            <param name="signInManagerlogger"></param>
+            <param name="configuration"></param>
+            <param name="logger"></param>
+            <param name="membershipManager"></param>
+            <param name="personRepository"></param>
+            <param name="personEmailRepository"></param>
+            <param name="emailVerificationRepository"></param>
+            <param name="emailSender"></param>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.CreateToken(OpenBots.Server.Model.Identity.LoginModel)">
+            <summary>
+            Login with username and password
+            </summary>
+            <param name="loginModel">Input model</param>
+            <returns>JWT Token</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.Register(OpenBots.Server.Model.Identity.SignUpViewModel)">
+            <summary>
+            Signup /  Register new user
+            </summary>
+            <param name="signupModel">Signup model</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.ChangePassword(OpenBots.Server.Security.ViewModel.ChangePasswordBindingModel)">
+            <summary>
+            Change / Reset with new password
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.VerifyUserToken(System.String,System.String)">
+            <summary>
+            Verify User Token before resetting the password
+            </summary>
+            <param name="userId"></param>
+            <param name="code"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.SetPassword(OpenBots.Server.Security.ViewModel.ResetPasswordBindingModel)">
+            <summary>
+            Set new password 
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.SetUserPassword(OpenBots.Server.Security.ViewModel.SetPasswordBindingModel)">
+            <summary>
+            Set new password 
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.ConfirmEmail(System.String,System.String)">
+            <summary>
+            Confirm new user
+            </summary>
+            <param name="userId"></param>
+            <param name="code"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.ForgotPassword(OpenBots.Server.Security.ViewModel.ForgotPasswordBindingModel)">
+            <summary>
+            forgot password using email address
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.GetUserInfo">
+            <summary>
+            Get user info for logged authenticated user
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.ResendEmailConfirmation(System.String)">
+            <summary>
+            Resend confirmation mail to registered email address 
+            </summary>
+            <param name="emailAddress">Email address needed for confirmation</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.ConfirmEmailAddress(System.String,System.String)">
+            <summary>
+            Confirm email address
+            </summary>
+            <param name="token"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.Refresh(OpenBots.Server.Security.ViewModel.RefreshModel)">
+            <summary>
+            Used to refresh expired access and old refresh token
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.AccessRequestsController.Get(System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides all the access requests for the given Organization Id.
+            </summary>
+            <param name="organizationId">Organization Identifier</param>
+            <param name="filter">search using a field</param>
+            <param name="orderBy">sort ascending or  descending</param>
+            <param name="top">fetches the first 'n' number of rows</param>
+            <param name="skip">skips the 'n' number of rows</param>
+            <response code="200">Ok, If all the access requests for the Organization Id has been returned.</response>
+            <response code="400">BadRequest,If the Organization ID is not provided or improper Guid. </response>
+            <response code="403">Forbidden,Unauthorized access by user</response>
+            <response code="404">NotFound, No access request exists for the given Organization Id.</response>
+            <response code="422">Unprocessable entity,Validation error</response>
+            <returns>Paginated List of all Access requests for the Organization Id</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.AccessRequestsController.GetPending(System.String)">
+            <summary>
+            Pending Access Requests
+            </summary>
+            <remarks>Provides the paginated pending access requests for the organization.</remarks>
+            <param name="organizationId">The organization identifier.</param>
+            <response code="200">OK,Paginated list of all access requests with Id and name of the user</response>
+            <response code="400">BadRequest,If Organization Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access</response>
+            <response code="422">Unprocessable entity,Validation error</response>
+            <returns>A List of Pending Access Requests with ID and Name of the user.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.AccessRequestsController.Get(System.String,System.String)">
+            <summary>
+            Get the access requests for a particular organization.
+            </summary>
+            <remarks></remarks>
+            <param name="organizationId"></param>
+            <param name="id">Access Request Identifier.</param>
+            <response code="200">Ok,If access request exists for the given Id</response>
+            <response code="304">NotModified</response>
+            <response code="400">BadRequest, if the Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access</response>
+            <response code="404">NotFound, AccessRequest with the particular id does not exist.</response>
+            <response code="422">Unprocessable Entity, Validation Error</response>
+            <returns>Ok response, if access request exists for the given id</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.AccessRequestsController.Post(System.String,OpenBots.Server.Model.Membership.AccessRequest)">
+            <summary>
+            Adds a new access request for the Organization
+            </summary>
+            <param name="organizationId">Organization Identifier</param>
+            <param name="value">Access Request details</param>
+            <response code="200">Ok,If the access request has been created successfully.</response>
+            <response code="400">BadRequest,If the Organization Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access</response>
+            <response code="409">Conflict,When access request with the particular id already exists.</response>
+            <response code="422">UnprocessableEntity,validation error or cannot insert duplicate constraint.</response>
+            <returns>Ok response,Creates a new access request with a new access request id.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.AccessRequestsController.Put(System.String,System.String,OpenBots.Server.Model.Membership.AccessRequest)">
+            <summary>
+            Update the access request 
+            </summary>
+            <remarks>Updates the access request with the particular id ,for the given organization </remarks>
+            <param name="organizationId">Organization identifier</param>
+            <param name="id">access request Id</param>
+            <param name="value">new value of the access request to be updated .</param>
+            <response code="200">OK,If the update of the access request for the particular id has been successful.</response>
+            <response code="400">BadRequest,If the Id is not provided or Guid is not in proper format.</response>
+            <response code="403">Forbidden,Unauthorized access by the user</response>
+            <response code="404">NotFound,If no access request exists for the given id.</response>
+            <response code="409">Conflict</response>
+            <response code="422">Unprocessable Entity,Validation error.</response>
+            <returns>Ok response , If the access request has been updated.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.AccessRequestsController.Approve(System.String,System.String)">
+            <summary>
+            Approves the specified AccessRequest by an Organization Administrator.
+            </summary>
+            <param name="organizationId">The organization identifier.</param>
+            <param name="id">The identifier.</param>
+            <response code="200">OK,If the access request is approved.</response>
+            <response code="400">BadRequest,if the Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,if the user doesnt have permission to approve access request.</response>
+            <response code="422">Unprocessable Entity,Validation error.</response> 
+            <returns>OK response if the approval is successful</returns> 
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.AccessRequestsController.Reject(System.String,System.String)">
+            <summary>
+            Rejects the specified AccessRequest by an Organization Administrator.
+            </summary>
+            <param name="organizationId">The organization identifier.</param>
+            <param name="id">The Access Request identifier.</param>
+            <response code="200">Ok,If the acccess Request is rejected.</response>
+            <response code="400">BadRequest,If the Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,if the user doesnt have permission to reject access request</response>
+            <response code="422">Unprocessable Entity,Validation error.</response>
+            <returns>OK response if the access is rejected .</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.AccessRequestsController.Delete(System.String)">
+            <summary>
+            Deletes access request 
+            </summary>
+            <param name="id">Access request identifier.</param>
+            <response code="200">OK, if the access request with the given id has been deleted.</response>
+            <response code="400">BadRequest,if the id is not provided or not proper Guid.</response>
+            <response code="403">Unauthorized access, if the user doesn't have permission to delete the access request.</response>
+            <response code="422">Unprocessable Entity,Validation error.</response>
+            <returns>OK response, if the access request with the given id has been deleted.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.AccessRequestsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Membership.AccessRequest})">
+            <summary>
+            Updates partial details of Access request.
+            </summary>
+            <param name="id">Access request identifier</param>
+            <param name="value">details of Access request to be updated.</param>
+            <response code="200">OK,If update of access requestis successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial Access request details has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.GetPeople(System.String,System.Int32,System.Int32)">
+            <summary>
+            Gets the People in the Organization
+            </summary>
+            <param name="organizationId">The organization identifier.</param>
+            <param name="top">The top.</param>
+            <param name="skip">The skip.</param>
+            <returns>List of TeamMember (View Model) for each person in the Organization</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.Get(System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Gets all the members of the given Organization
+            </summary>
+            <param name="organizationId">Organization identifier</param>
+            <param name="filter">search using a field</param>
+            <param name="orderBy">sort ascending or  descending</param>
+            <param name="top">fetches the first 100 rows</param>
+            <param name="skip">skips the 'n' number of rows</param>
+            <response code="200">Ok, If all the members for the Organization Id has been returned.</response>
+            <response code="400">BadRequest,If the Organization ID is not provided or improper Guid. </response>
+            <response code="403">Forbidden,Unauthorized access by user</response>
+            <response code="404">NotFound, No member exists for the given Organization Id.</response>
+            <response code="422">Unprocessable entity,Validation error</response>
+            <returns>Paginated List of all the members of an Organization.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.Get(System.String,System.String)">
+            <summary>
+            Get all the members for a particular organization.
+            </summary>
+            <remarks></remarks>
+            <param name="organizationId">Organization Id</param>
+            <param name="id">Organization member Identifier.</param>
+            <response code="200">Ok,If Organization member exists for the given Id</response>
+            <response code="304">NotModified</response>
+            <response code="400">BadRequest, if the Organization Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access</response>
+            <response code="404">NotFound, Organization member with the particular id does not exist.</response>
+            <response code="422">Unprocessable Entity, Validation Error</response>
+            <returns>Ok response, if Organization member exists for the given  id</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.Post(System.String,OpenBots.Server.Model.Membership.OrganizationMember)">
+            <summary>
+            Adds a new access member to the Organization
+            </summary>
+            <param name="organizationId">Organization Identifier</param>
+            <param name="value">Org member details</param>
+            <response code="200">Ok,If the member  has been added successfully.</response>
+            <response code="400">BadRequest,If the Organization Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access by the user</response>
+            <response code="409">Conflict,When Organization member  with the particular id already exists.</response>
+            <response code="422">UnprocessableEntity,validation error or cannot insert duplicate constraint.</response>
+            <returns>Ok response,Creates a new member  with a new Organization member id.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.Put(System.String,System.String,OpenBots.Server.Model.Membership.OrganizationMember)">
+            <summary>
+            Update the Organization member details
+            </summary>
+            <remarks>Updates the Organization member details with the particular id ,for the given organization </remarks>
+            <param name="organizationId">Organization identifier</param>
+            <param name="id">Org member  Id</param>
+            <param name="value">new value of the Organization member  to be updated .</param>
+            <response code="200">OK,If the update of the Org member for the particular id has been successful.</response>
+            <response code="400">BadRequest,If the Id is not provided or Guid is not in proper format.</response>
+            <response code="403">Forbidden,Unauthorized access by the user</response>
+            <response code="404">NotFound,If no access request exists for the given id.</response>
+            <response code="409">Conflict</response>
+            <response code="422">Unprocessable Entity,Validation error.</response>
+            <returns>Ok response , If the Organization member  has been updated.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.Delete(System.String,System.String)">
+            <summary>
+            Deletes Organization member 
+            </summary>
+            <param name="id">Organization member identifier.</param>
+            <response code="200">OK, if the Organization member with the given id has been deleted.</response>
+            <response code="400">BadRequest,if the id is not provided or not proper Guid.</response>
+            <response code="403">Unauthorized access, if the user doesn't have permission to delete the Organization member.</response>
+            <response code="422">Unprocessable Entity,Validation error.</response>
+            <returns>OK response, if the Organization member with the given id has been deleted.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Membership.OrganizationMember})">
+            <summary>
+            Updates the partial details of Organization members.
+            </summary>
+            <param name="id">Organization member identifier.</param>
+            <param name="value">values to be updated</param>
+            <response code="200">OK,If update of Organization member is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial Organization member values has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all organizations
+            </summary>
+            <response code="200">OK,a Paginated list of all Organizations</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            <returns>Paginated list of all Organizations </returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationsController.Get">
+            <summary>
+            Provides count of organizations
+            </summary>
+            <response code="200">OK,an Organization count</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            <returns>All Organization count</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationsController.Get(System.String)">
+            <summary>
+            Provides an organization details for a particular organization Id.
+            </summary>
+            <param name="id">Organization id</param>
+            <response code="200">OK, If an organization exists with the given Id.</response>
+            <response code="304">Not modified</response>
+            <response code="400">BadRequest,If Organization id is not in proper format or proper Guid.</response>
+            <response code="403">Forbidden</response>
+            <response code="404">NotFound, when no organization exists for the given Organization id</response>
+            <returns>Organization details for the given Id</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationsController.Post(OpenBots.Server.Model.Membership.Organization)">
+             <summary>
+             Adds a new Organization to the existing Organizations
+             </summary>
+             <remarks>
+             Adds the organization with unique Organization Id to the existing organizations
+             </remarks>
+             <param name="value"></param>
+             <response code="200">OK,new organization created and returned</response>
+             <response code="400">BadRequest,When the Organization value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict,concurrency error</response> 
+             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <returns> newly created unique Organization Id with route name </returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationsController.Put(System.String,OpenBots.Server.Model.Membership.Organization)">
+            <summary>
+            Updates an organization 
+            </summary>
+            <remarks>
+            Provides an action to update an Organization, when Organization id and the new details of organization are given
+            </remarks>
+            <param name="id">Organization Id,produces Bad request if Id is null or Id's don't match</param>
+            <param name="value">Organization details to be updated</param>
+            <response code="200">OK, If the organization details for the given organization Id has been updated.</response>
+            <response code="400">BadRequest,if the Organization Id is null or Id's don't match</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">UnprocessableEntity</response>
+            <returns>OK response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationsController.Delete(System.String)">
+            <summary>
+            Deletes an organization with a specified id from the Organizations.
+            </summary>
+            <param name="id">Organization ID to be deleted- throws BadRequest if null or empty Guid/</param>
+            <response code="200">OK,when organization is softdeleted,( isDeleted flag is set to true in DB) </response>
+            <response code="400">BadRequest,If Organization Id is null or empty Guid</response>
+            <response code="403">Forbidden </response>
+            <returns>OK response with deleted value </returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Membership.Organization})">
+            <summary>
+            Updates partial details of Organization.
+            </summary>
+            <param name="id">Organization identifier</param>
+            <param name="value">Value of the Organization to be updated.</param>
+            <response code="200">OK,If update of Organization is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial Organization values has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationSettingsController.Get(System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Gets all the Business process and their priorities and status for an Organization
+            </summary>
+            <param name="organizationId">Organization identifier</param>
+            <param name="filter"></param>
+            <param name="orderBy"></param>
+            <param name="top"></param>
+            <response code="200">OK,provides a paginated list of the business process priority and status. </response>
+            <response code="400">BadRequest,If the organization Id is not provided or improper guid. </response>
+            <response code="403">Forbidden,Unauthorized access by the user</response>
+            <response code="404">NotFound</response>
+            <response code="422">Unprocessable entity,validation error.</response>
+            <param name="skip"></param>
+            <returns>Paginated List of all the Business process status and priority for an organization</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationSettingsController.Get(System.String,System.String)">
+            <summary>
+            Gets a particular  Business process for an organization.
+            </summary>
+            <param name="organizationId">Organization identifier</param>
+            <param name="id">Organization Setting identifier</param>
+            <response code="200">OK,Provides business process status and priority for Business process with the id and belongs to OrganizationId.></response>
+            <response code="400">BadRequest, If the Organization Id/Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access by user.</response>
+            <response code="404">NotFound</response>
+            <response code="422">Unprocessable entity,validation error.</response>
+            <returns>OK response,If the Business process with a specific id for an Organization has been returned</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationSettingsController.Post(System.String,OpenBots.Server.Model.Membership.OrganizationSetting)">
+            <summary>
+            Adds a Business process for the Organization 
+            </summary>
+            <param name="organizationId">Organization Identifier</param>
+            <param name="value">details of the Business process, Status and priority</param>
+            <response code="200">OK,If the new process has been added successfully.</response>
+            <response code="400">BadRequest,If the Organization Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access by user.</response>
+            <response code="409">Conflict,concurrency error </response>
+            <response code="422">UnprocessableEntity,If a duplicate record is being entered.</response>
+            <returns>OK response,If a Business process with a unique identifer has been added for an Organization.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationSettingsController.Put(System.String,System.String,OpenBots.Server.Model.Membership.OrganizationSetting)">
+            <summary>
+            Updates the process for an Organization
+            </summary>
+            <param name="organizationId">Organization IDentifier</param>
+            <param name="id">Organization Setting Identifier </param>
+            <param name="value">Value to be updated</param>
+            <response code="200">OK, If the value has been updated for the Organization setting for an Organization.</response>
+            <response code="400">BadRequest,If the Organization Id/Setting Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access</response>
+            <response code="409">Conflict,concurrency error.</response>
+            <response code="422">UnprocessableEntity,Validation error.</response>
+            <returns>OK response,If the ORganization setting has been updated with the new value.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationSettingsController.Delete(System.String)">
+            <summary>
+            Deletes setting with the specific id
+            </summary>
+            <param name="id">Organization setting identifier</param>
+            <response code="200">OK,If the setting has been deleted.</response>
+            <response code="400">BadRequest,If the Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access</response>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationSettingsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Membership.OrganizationSetting})">
+             <summary>
+            Partial Updates the Organization settings 
+             </summary>
+             <param name="id">Organization setting identifier. </param>
+             <param name="value">Values to be updated , Org ID/Business process key prefix/BP prioritiescsv/BP status CSV</param>
+             <response code="200">OK,If update of Organization setting is successful. </response>
+             <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+             <response code="403">Forbidden,unauthorized access</response>
+             <response code="422">Unprocessable entity,validation error</response>
+             <returns>Ok response, if the partial Organization settings values has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationUnitMembersController.Get(System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Gets all the members of an Organization Unit (department)
+            </summary>
+            <param name="organizationId">organization identifier</param>
+            <param name="filter">search using a field</param>
+            <param name="orderBy">sort ascending or  descending</param>
+            <param name="top">fetches the first 100 rows</param>
+            <param name="skip">skips the 'n' number of rows</param>
+            <response code="200">OK, Paginated list of the members of an Organization Unit</response>
+            <response code="400">BadRequest,If the Organization ID is not provided or improper Guid.</response>
+            <response code="403">Forbidden,unauthorized access by user</response>
+            <response code="404">NotFound</response>
+            <response code="422">Unprocessable entity,validation error.</response>
+            <returns>Paginated list of all the members of the Organization Unit.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationUnitMembersController.Get(System.String,System.String)">
+            <summary>
+            Gets the Organization unit member for a particular Organization.
+            </summary>
+            <param name="organizationId">organization identifier</param>
+            <param name="id">Organization Unit member id </param>
+            <response code="200">OK,If Organization unit is available with the id for an Organization.></response>
+            <response code="400">BadRequest, If the Organization Id/Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access by user.</response>
+            <response code="404">NotFound</response>
+            <response code="422">Unprocessable entity,validation error.</response>
+            <returns>Ok response, If the member has been found with the particular id.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationUnitMembersController.Post(System.String,OpenBots.Server.Model.Membership.OrganizationUnitMember)">
+            <summary>
+            Adds a Organization unit member to  an Organization unit
+            </summary>
+            <param name="organizationId">organization identifier</param>
+            <param name="value">details of the organization unit member</param>
+            <response code="200">OK,If the member has been added successfully for an Organization unit</response>
+            <response code="400">BadRequest,If the Organization Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access by user.</response>
+            <response code="409">Conflict,concurrency error </response>
+            <response code="422">UnprocessableEntity,If a duplicate record is being entered.</response> 
+            <returns>Ok response,If the organization unit member has been added to Organization unit</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationUnitMembersController.Put(System.String,System.String,OpenBots.Server.Model.Membership.OrganizationUnitMember)">
+            <summary>
+            Updates a member of an Organization unit
+            </summary>
+            <param name="organizationId">organization identifier</param>
+            <param name="id">Member Identifier</param>
+            <param name="value">Member Value to be updated </param>
+            <response code="200">OK, If the value has been updated for the Organization member for an Organization.</response>
+            <response code="400">BadRequest,If the Organization Id/member Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access</response>
+            <response code="409">Conflict,concurrency error.</response>
+            <response code="422">UnprocessableEntity,Validation error.</response>
+            <returns>OK response,If the ORganization member has been updated with the new value.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationUnitMembersController.Delete(System.String)">
+            <summary>
+            Deletes member from an organization unit
+            </summary>
+            <param name="id">Org. member identifier</param>
+            <response code="200">OK, if the Organization member with the given id has been deleted for an Organization unit</response>
+            <response code="400">BadRequest,if the id is not provided or not proper Guid.</response>
+            <response code="403">Unauthorized access, if the user doesn't have permission to delete the Organization member.</response>
+            <response code="422">Unprocessable Entity,Validation error.</response>
+            <returns>OK response, if the Organization member with the given id has been deleted for an organization unit.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationUnitMembersController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Membership.OrganizationUnitMember})">
+            <summary>
+            Updates the partial details of the Organization Unit member
+            </summary>
+            <param name="id">Organization unit member identifier</param>
+            <param name="value">Value of the ORganization unit members to be updated - Org Id/Org UnitID/Person Id/IsAdmin</param>
+            <response code="200">OK,If update of Organization is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial Organization values has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationUnitsController.Get(System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Gets all Organization units details(departments ) that are part of an Organization Id.
+            </summary>
+            <param name="organizationId">Organization identifier</param>
+            <param name="filter">search using a field</param>
+            <param name="orderBy">sort ascending or  descending</param>
+            <param name="top">fetches the first 100 rows</param>
+            <param name="skip">skips the 'n' number of rows</param>
+            <response code="200">OK, Paginated list of the Organization Units bleongign to a particular organization</response>
+            <response code="400">BadRequest,If the Organization ID is not provided or improper Guid.</response>
+            <response code="403">Forbidden,unauthorized access by user</response>
+            <response code="404">NotFound</response>
+            <response code="422">Unprocessable entity,validation error.</response>
+            <returns>Paginated list of all the Organization Units for a particulatular Organization ID.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationUnitsController.Get(System.String,System.String)">
+            <summary>
+            Provides the Organization unit details for a particular id
+            </summary>
+            <param name="organizationId">organization identifier</param>
+            <param name="id">Organization unit identifier</param>
+            <response code="200">OK,If Organization unit detail is available with the given id .></response>
+            <response code="400">BadRequest, If the Organization Id/Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access by user.</response>
+            <response code="404">NotFound</response>
+            <response code="422">Unprocessable entity,validation error.</response>
+            <returns>Ok response, If an organization unit has been found with the particular id.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationUnitsController.Post(System.String,OpenBots.Server.Model.Membership.OrganizationUnit)">
+            <summary>
+            Adds a Organization unit to  an Organization
+            </summary>
+            <param name="organizationId">Organization identifier</param>
+            <param name="value">.value of organization unit to be added</param>
+            <response code="200">OK,If the unit has been added successfully to an organization</response>
+            <response code="400">BadRequest,If the Organization Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access by user.</response>
+            <response code="409">Conflict,concurrency error </response>
+            <response code="422">UnprocessableEntity,If a duplicate record is being entered.</response> 
+            <returns>Ok response,If the organization unit has been added to an Organization </returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationUnitsController.Put(System.String,System.String,OpenBots.Server.Model.Membership.OrganizationUnit)">
+            <summary>
+            Updates a member of an Organization unit
+            </summary>
+            <param name="organizationId">Organization identifier</param>
+            <param name="id">ORganization unit identifier</param>
+            <param name="value">value of the organization unit to be updated</param>
+            <response code="200">OK, If the value has been updated for the Organization unit.</response>
+            <response code="400">BadRequest,If the Organization Id/unit Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access</response>
+            <response code="409">Conflict,concurrency error.</response>
+            <response code="422">UnprocessableEntity,Validation error.</response>
+            <returns>OK response,If the ORganization unit has been updated with the new value.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationUnitsController.Delete(System.String,System.String)">
+            <summary>
+            Deletes an organization unit 
+            </summary>
+            <param name="id">Organization unit identifier</param>
+            <response code="200">OK, if the Organization member with the given id has been deleted for an Organization unit</response>
+            <response code="400">BadRequest,if the id is not provided or not proper Guid.</response>
+            <response code="403">Unauthorized access, if the user doesn't have permission to delete the Organization member.</response>
+            <response code="422">Unprocessable Entity,Validation error.</response>
+            <returns>OK response, if the Organization unit with the given id has been deleted.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationUnitsController.Patch(System.String,System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Membership.OrganizationUnit})">
+            <summary>
+            Updates the partial details of Organization Unit.
+            </summary>
+            <param name="id">Organization Unit identifier</param>
+            <param name="value">details of the Organization unit to be updated</param>
+            <response code="200">OK,If update of Organization unit is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial Organization unit details has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationApi.UserAgreementController.Get">
+            <summary>
+            Get latest terms and conditions for user consent
+            </summary>
+            <response code="200">OK,latest terms and conditions for user consent</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            /// <returns>user agreement</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationApi.UserAgreementController.Get(System.String)">
+            <summary>
+            Check that the UserConcent has been recorded for logged user on the latest user agreement and IsAccepted is True AND has not Expired. 
+            If there is NO record of acceptance for the latest version of the Terms and Conditions, then response will be FALSE which will force to have user consent before proceeding
+            </summary>
+            <response code="200">OK,True or False</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            <returns>bool</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationApi.UserConsentController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all user consents
+            </summary>
+            <response code="200">OK,a Paginated list of all user consents</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            <returns>Paginated list of all user consents </returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationApi.UserConsentController.Get(System.String)">
+            <summary>
+            Provides an UserConsent details for a particular organization Id.
+            </summary>
+            <param name="id">UserConsent id</param>
+            <response code="200">OK, If an UserConsent exists with the given Id.</response>
+            <response code="304">Not modified</response>
+            <response code="400">BadRequest,If UserConsent id is not in proper format or proper Guid.</response>
+            <response code="403">Forbidden</response>
+            <response code="404">NotFound, when no UserConsent exists for the given UserConsent id</response>
+            <returns>UserConsent details for the given Id</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationApi.UserConsentController.Post(OpenBots.Server.Model.Identity.UserConsent)">
+             <summary>
+             Save user constent
+             </summary>
+             <remarks>
+             Save user constent
+             </remarks>
+             <param name="value"></param>
+             <response code="200">OK,user constent saved </response>
+             <response code="400">BadRequest,When the user consent value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict,concurrency error</response> 
+             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <returns> newly created user constent </returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationApi.UserConsentController.Put(System.String,OpenBots.Server.Model.Identity.UserConsent)">
+            <summary>
+            Updates an UserConsent 
+            </summary>
+            <remarks>
+            Provides an action to update an UserConsent, when UserConsent id and the new details of UserConsent are given
+            </remarks>
+            <param name="id">UserConsent Id,produces Bad request if Id is null or Id's don't match</param>
+            <param name="value">UserConsent details to be updated</param>
+            <response code="200">OK, If the UserConsent details for the given UserConsent Id has been updated.</response>
+            <response code="400">BadRequest,if the UserConsent Id is null or Id's don't match</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">UnprocessableEntity</response>
+            <returns>OK response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationApi.UserConsentController.Delete(System.String)">
+            <summary>
+            Deletes an UserConsent with a specified id from the UserConsents.
+            </summary>
+            <param name="id">UserConsent ID to be deleted- throws BadRequest if null or empty Guid/</param>
+            <response code="200">OK,when UserConsent is softdeleted,( isDeleted flag is set to true in DB) </response>
+            <response code="400">BadRequest,If Organization Id is null or empty Guid</response>
+            <response code="403">Forbidden </response>
+            <returns>OK response with deleted value </returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationApi.UserConsentController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Identity.UserConsent})">
+            <summary>
+            Updates partial details of Organization.
+            </summary>
+            <param name="id">Organization identifier</param>
+            <param name="value">Value of the Organization to be updated.</param>
+            <response code="200">OK,If update of Organization is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial Organization values has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.EmailVerificationsController.Get(System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Gets all the email verfication details for a particular person 
+            </summary>
+            <remarks>Gets all the details - email address,Is verified,Verification email count,Verfication code,expires on,Is verfication email sent,sent on for a person.</remarks>
+            <param name="personId">Person IDentifier</param>
+            <param name="filter">search using a field</param>
+            <param name="orderBy">sort ascending or  descending</param>
+            <param name="top">fetches the first 100 rows</param>
+            <param name="skip">skips the 'n' number of rows</param>
+            <response code="200">OK, Paginated list of the email verfications for a particular person.</response>
+            <response code="400">BadRequest,If the Person ID is not provided or improper Guid.</response>
+            <response code="403">Forbidden,unauthorized access by user</response>
+            <response code="404">NotFound</response>
+            <response code="422">Unprocessable entity,validation error.</response>
+            <returns>Paginated list of all the email verfications for a particular person.</returns>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.EmailVerificationsController.Get(System.String,System.String)">
+            <summary>
+            Provides the email verification details for a particular id
+            </summary>
+            <remarks>Gets all the details - email address,Is verified,Verification email count,Verfication code,expires on,Is verfication email sent,sent on for a particular person.</remarks>
+            <param name="personId">Person identifier</param>
+            <param name="id">Email verfication id</param>
+            <response code="200">OK,If email verfication detail is available with the given id .></response>
+            <response code="400">BadRequest, If the Person Id/Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access by user.</response>
+            <response code="404">NotFound</response>
+            <response code="422">Unprocessable entity,validation error.</response>
+            <returns>Ok response, If an email verification unit details  has been found with the particular id.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.EmailVerificationsController.Post(System.String,OpenBots.Server.Model.Identity.EmailVerification)">
+            <summary>
+            Adds email verfication detail for a person
+            </summary>
+            <remarks>adds all the details - email address,Is verified,Verification email count,Verfication code,expires on,Is verfication email sent,sent on for a particular person.</remarks>
+            <param name="personId">Person Identifier</param>
+            <param name="value">Value of the email verfication detail to be added.</param>
+            <response code="200">OK,If the email verfication  has been added successfully for a person</response>
+            <response code="400">BadRequest,If the Person Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access by user.</response>
+            <response code="409">Conflict,concurrency error </response>
+            <response code="422">UnprocessableEntity,If a duplicate record is being entered.</response> 
+            <returns>Ok response,If the email verification has been added for a person. </returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.EmailVerificationsController.Put(System.String,System.String,OpenBots.Server.Model.Identity.EmailVerification)">
+            <summary>
+            Updates the email verfication details for a person
+            </summary>
+            <remarks>updates all the details - email address,Is verified,Verification email count,Verfication code,expires on,Is verfication email sent,sent on for a particular person.</remarks>
+            <param name="personId">Person identifier</param>
+            <param name="id">Email verfication identifier</param>
+            <param name="value">value to be updated for a person</param>
+            <response code="200">OK, If the email verification value has been updated for the Person.</response>
+            <response code="400">BadRequest,If the Person Id/email verification  Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access</response>
+            <response code="409">Conflict,concurrency error.</response>
+            <response code="422">UnprocessableEntity,Validation error.</response>
+            <returns>OK response,If the value for email verification id has been updated with the new value.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.EmailVerificationsController.Delete(System.String)">
+            <summary>
+            Deletes email verification details
+            </summary>
+            <remarks>deletes all the details - email address,Is verified,Verification email count,Verfication code,expires on,Is verfication email sent,sent on for a particular person.</remarks>
+            <param name="id">Email verification identifier</param>
+            <response code="200">OK, if the email verification  with the given id has been deleted.</response>
+            <response code="400">BadRequest,if the id is not provided or not proper Guid.</response>
+            <response code="403">Unauthorized access, if the user doesn't have permission to delete the Organization member.</response>
+            <response code="422">Unprocessable Entity,Validation error.</response>
+            <returns>OK response, if the email verification  with the given id has been deleted.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.EmailVerificationsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Identity.EmailVerification})">
+            <summary>
+            Updates the portion of email verification details
+            </summary>
+            <param name="id">Email verification identifier</param>
+            <param name="value">Values to be updated</param>
+            <response code="200">OK,If update of values of email verfication is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial email verification values has been updated.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonApi.MembershipController.GetSuggestions(System.String)">
+            <summary>
+            Provides a list of Organizations that can be presented to the user as Suggestions to apply for access request.
+            </summary>
+            <remarks>
+            This method will return all Organizations that are visible to users with a certain email domain.
+            All the Emails of the user are matched to the Allowed Domains of Organiation.
+            </remarks>
+            <param  name="personId" >ID of the currently logged in user. If the userID is not the same, then the request will be rejected</param>
+            <returns>Paginated List of Organizations that are being suggested. The Object Organization will not have any child objects</returns>
+            <response code="400">BadRequest: If no personId is provided or it is not a proper Guid</response>
+            <response code="200">OK: Paginated List of Organizations that are being suggested. The Object Organization will not have any child objects</response>
+            <response code="403">Forbidden: Person ID passed in the URL is not the same as the currently logged in user</response>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonApi.MembershipController.Get(System.String)">
+            <summary>
+            Get Cards for Organizations I have access to.
+            </summary>
+            <param name="personId">PErson Identifier</param>
+            <response code="200">Ok,Paginated list of ORganizations that user have access to</response>
+            <response code="400">BadRequest,If the person Id is not entered or improper Guid</response>
+            <response code="403">Forbidden: Person ID passed in the URL is not the same as the currently logged in user</response>
+            <response code="404">NotFound</response>
+            <response code="422">Unprocessable entity,Validation error</response>
+            <returns>OrganizationCards for all Organizations user has access to.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonApi.MembershipController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Get Organizations I have access to.
+            </summary>
+            <param name="personId">Person identifier</param>
+            <param name="startsWith">Search criteria</param>
+            <param name="skip">no of records to be skipped</param>
+            <param name="take"></param>
+            <response code="200">Ok,Paginated listing of all organizations the user has access to.</response>
+            <response code="400">BadRequest, If the Person Id is not provided or improper Guid</response>
+            <response code="403">Forbidden: Person ID passed in the URL is not the same as the currently logged in user</response>
+            <response code="404">NotFound</response>
+            <response code="422">UnprocessableEntity,validation error</response>
+            <returns>OrganizationCards for all Organizations user has access to.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonApi.MembershipController.Post(System.String,System.String)">
+            <summary>
+            Request for Joining an Organization
+            </summary>
+            <param name="personId">UserID of the person logged in.</param>
+            <param name="id">Organization ID that the user wants to be a member of </param>
+            <response code="200">OK,if the user has been successfully added to the organization</response>
+            <response code="400">BadRequest,If no personId is provided or it is not a proper Guid.</response>
+            <response code="400">BadRequest,if no Organization Id is provided or it is not a proper Guid.</response> 
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonApi.MembershipController.RevokeAdmin(System.String,System.String)">
+            <summary>
+            Revoke admin permission of an admin
+            </summary>
+            <param name="personId">user who's admin permission needs to be revoked</param>
+            <param name="id">Organization Id</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonApi.MembershipController.GrantAdmin(System.String,System.String)">
+            <summary>
+            Grant admin permission to non-admin users of the organization
+            </summary>
+            <param name="personId">user who's admin permission needs to be grant</param>
+            <param name="id">Organization Id</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonApi.MembershipController.Delete(System.String,System.String)">
+            <summary>
+            Leave a particular organization
+            </summary>
+            <param name="personId">ID of the currently logged in user. If the userID is not the same, then the request will be rejected</param>
+            <param name="id">ID of the organization that the user wants to delete the membership from</param>
+            <returns>OK response if the delete is successful or BadRequest if the userID or Organization ID is not provided/ not a proper Guid</returns>
+            <response code="400">BadRequest,If no personId is provided or it is not a proper Guid</response>
+            <responce code="200">Ok, when membershop to Organization has been deleted for the logged in user.</responce>
+            <returns>Ok, if the membership to the organization is deleted for the user.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PeopleController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Gets all the people 
+            </summary>
+            <remarks>
+            returns a paginated list of all the people with their names,company and department
+            </remarks>
+            <param name="filter"></param>
+            <param name="orderBy"></param>
+            <param name="top">returns the top 100 </param>
+            <param name="skip"></param>
+            <response code="400">BadRequest: If it is not a proper Guid</response>
+            <response code="200">OK: Paginated List of all people .</response>
+            <response code="403">Forbidden: Person ID passed in the URL is not the same as the currently logged in user</response>
+            <response code="422">UnprocessableEntity,Validation error</response>
+            <returns>returns a paginated list of all the people with their names,company and department</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PeopleController.Get(System.String)">
+            <summary>
+            Retrieves the person details for a particular user.
+            </summary>
+            <param name="id">People identifier</param>
+            <response code="200">OK,If people detail is available for the given id .></response>
+            <response code="400">BadRequest, If the people Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Person ID passed in the URL is not the same as the currently logged in user</response>
+            <response code="404">NotFound</response>
+            <response code="422">Unprocessable entity,validation error.</response>
+            <returns>Ok response, If Person details  has been found for the particular id.</returns> 
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PeopleController.Post(OpenBots.Server.Model.Identity.Person)">
+            <summary>
+            Adds a Person to a department 
+            </summary>
+            <param name="value"></param>
+            <response code="200">OK,If the person details  has been added for a department</response>
+            <response code="400">BadRequest,if improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access by user.</response>
+            <response code="409">Conflict,concurrency error</response>
+            <response code="422">UnprocessableEntity,If a duplicate record is being entered, Person record already exists</response> 
+            <returns>Ok response,If the person detils has been added for a person. </returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PeopleController.Put(System.String,OpenBots.Server.Model.Identity.Person)">
+            <summary>
+            Updates person details in  a department
+            </summary>
+            <param name="id">person id</param>
+            <param name="value">Details to be updated</param>
+            <response code="200">OK,If the details of person has been updated.</response>
+            <response code="400">BadRequest,if person id is not provided/improper Guid.</response>
+            <response code="403">Forbidden,unauthorized access by user</response>
+            <response code="409">Conflict,concurrency error</response>
+            <response code="422">Unprocessable entity,validation error.</response>
+            <returns>Ok response, if the person detials has been updated for the given person id.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PeopleController.Delete(System.String)">
+            <summary>
+            Deletes the person details
+            </summary>
+            <param name="id">Person id</param>
+            <response code="200">OK, if the person details for the particular id has been deleted.</response>
+            <response code="400">BadRequest,If person id is not provided or improper guid.</response>
+            <response code="403">Forbidden,Person ID passed in the URL is not the same as the currently logged in user</response>
+            <returns>Ok response,if the person details for the particular id has been deleted.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PeopleController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Identity.Person})">
+            <summary>
+            Updates Person details 
+            </summary>
+            <param name="id">People identifier</param>
+            <param name="value">Firstname/Lastname/Company/Department to be updated</param>
+            <response code="200">OK,If update of Person detail is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial Person values has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonEmailsController.Get(System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Gets all the email address and verification id for a particular person
+            </summary>
+            <remarks>
+            returns a paginated list of all the email addresses for a particualr person.
+            </remarks>
+            <param name="personId">person identifier</param>
+            <param name="filter"></param>
+            <param name="orderBy"></param>
+            <param name="top">returns the top 100</param>
+            <param name="skip"></param>
+            <response code="400">BadRequest: If person id is not provided/improper Guid</response>
+            <response code="200">OK: Paginated List of all email addresses .</response>
+            <response code="403">Forbidden: Person ID passed in the URL is not the same as the currently logged in user</response>
+            <response code="422">UnprocessableEntity,Validation error</response>
+            <returns>A paginated list of all the email addresses for a particular person.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonEmailsController.Get(System.String,System.String)">
+            <summary>
+            Gets the email address and verfiication id for a particular email for person
+            </summary>
+            <param name="personId">person identifier</param>
+            <param name="id">email identifier</param>
+            <response code="200">OK,If email detail is available for the given id .></response>
+            <response code="400">BadRequest, If the email Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Person ID passed in the URL is not the same as the currently logged in user</response>
+            <response code="404">NotFound</response>
+            <response code="422">Unprocessable entity,validation error.</response>
+            <returns>Ok response, If email details  has been found for the particular id.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonEmailsController.Post(System.String,OpenBots.Server.Model.Identity.PersonEmail)">
+            <summary>
+            Adds a new email id and verification id for a person
+            </summary>
+            <param name="personId">person identifier</param>
+            <param name="value">email details to be added </param>
+            <response code="200">OK,If the email details  has been added for a department</response>
+            <response code="400">BadRequest,if person id is not provided/improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access by user.</response>
+            <response code="409">Conflict,concurrency error </response>
+            <response code="422">UnprocessableEntity,If a duplicate record is being entered, email detials already exists</response> 
+            <returns>Ok response, if the details has been added</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonEmailsController.Put(System.String,System.String,OpenBots.Server.Model.Identity.PersonEmail)">
+            <summary>
+            Updates the email details for person
+            </summary>
+            <param name="personId">person identifier</param>
+            <param name="id">email identifier</param>
+            <param name="value">value to be updated</param>
+            <response code="200">OK,If the details of email has been updated.</response>
+            <response code="400">BadRequest,if person id/email id is not provided/improper Guid.</response>
+            <response code="403">Forbidden,unauthorized access by user</response>
+            <response code="409">Conflict,concurrency error</response>
+            <response code="422">Unprocessable entity,validation error.</response>
+            <returns>Ok response,if the email details to be updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonEmailsController.Delete(System.String)">
+            <summary>
+            Deletes the email details 
+            </summary>
+            <param name="id">email identifier</param>
+            <response code="200">OK, if the email details for the particular id has been deleted.</response>
+            <response code="400">BadRequest,If email id is not provided or improper guid.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <returns>Ok response,if the delete is successful.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonEmailsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Identity.PersonEmail})">
+            <summary>
+            Updates partial details of Person Email
+            </summary>
+            <param name="id">Person Email identifier</param>
+            <param name="value">Values to be updated</param>
+            <response code="200">OK,If update of Person Email details is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial Person Email values has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonPhonesController.Get(System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Gets all the phone numbers for a user.
+            </summary>
+            <param name="personId">person identifier</param>
+            <param name="filter"></param>
+            <param name="orderBy"></param>
+            <param name="top">fetches the top 100</param>
+            <param name="skip"></param>
+            <response code="200">OK: Paginated List of all phone numbers .</response>       
+            <response code="400">BadRequest: If person id is not provided/improper Guid</response>
+            <response code="403">Forbidden: Person ID passed in the URL is not the same as the currently logged in user</response>
+            <response code="422">UnprocessableEntity,Validation error</response>
+            <returns>A paginated list of all the phone numbers for a particular person.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonPhonesController.Get(System.String,System.String)">
+            <summary>
+            Gets the phone number detail for a particular person 
+            </summary>
+            <param name="personId">person identifier</param>
+            <param name="id">Phone number identifier</param>
+            <response code="200">OK,If phone number is available for the given id .></response>
+            <response code="400">BadRequest, If the person Id/Phone Id is not provided or improper Guid.</response>
+            <response code="403">Forbidden,Person ID passed in the URL is not the same as the currently logged in user</response>
+            <response code="404">NotFound</response>
+            <response code="422">Unprocessable entity,validation error.</response>
+            <returns>Phone number detail for a particular id</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonPhonesController.Post(System.String,OpenBots.Server.Model.Identity.PersonPhone)">
+            <summary>
+            Adds a phone number for a person
+            </summary>
+            <param name="personId">person identifier</param>
+            <param name="value">phone number to be added</param>
+            <response code="200">OK,If the phone number details  has been added for a department</response>
+            <response code="400">BadRequest,if person id is not provided/improper Guid.</response>
+            <response code="403">Forbidden,Unauthorized access by user.</response>
+            <response code="409">Conflict,concurrency error </response>
+            <response code="422">UnprocessableEntity,If a duplicate record is being entered, phone details already exists</response>
+            <returns>OK response, If the phone number has been added.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonPhonesController.Put(System.String,System.String,OpenBots.Server.Model.Identity.PersonPhone)">
+            <summary>
+            Updates the phone number for a person
+            </summary>
+            <param name="personId">person identifier</param>
+            <param name="id">phone number identifier</param>
+            <param name="value">value to be updated</param>
+            <response code="200">OK,If the details of phone number has been updated.</response>
+            <response code="400">BadRequest,if person id/phone id is not provided/improper Guid.</response>
+            <response code="403">Forbidden,unauthorized access by user</response>
+            <response code="409">Conflict,concurrency error</response>
+            <response code="422">Unprocessable entity,validation error.</response>
+            <returns>Ok response, if the phone number has been updated.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonPhonesController.Delete(System.String)">
+            <summary>
+            Deletes the phone number for a person
+            </summary>
+            <param name="id">phone number identifier</param>
+            <response code="200">OK, if the phone details for the particular id has been deleted.</response>
+            <response code="400">BadRequest,If phone id is not provided or improper guid.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <returns>Ok response, if the phone number for the id has been deleted.</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.PersonPhonesController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Identity.PersonPhone})">
+            <summary>
+            Updates Person/ Phone number detail
+            </summary>
+            <param name="id">Person phone identifier</param>
+            <param name="value">Person Identifier,Phone number</param>
+            <response code="200">OK,If update of Phone number/Person Identifier is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the phone number/ Person Id has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.ReadOnlyEntityController`1.GetMany(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="parentid"></param>
+            <returns></returns>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityOperationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityDoesNotExistException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.UnauthorizedOperationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityValidationException"></exception>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.ReadOnlyEntityController`1.GetEntity(System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="id"></param>
+            <param name="parentid"></param>
+            <returns></returns>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityOperationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityDoesNotExistException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.UnauthorizedOperationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityValidationException"></exception>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all Agents
+            </summary>
+            <response code="200">OK,a Paginated list of all Agents</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            /// <returns>Paginated list of all Agents </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Get(System.String)">
+            <summary>
+            Provides an Agent details for a particular Agent Id.
+            </summary>
+            <param name="id">Agent id</param>
+            <response code="200">OK, If an Agent exists with the given Id.</response>
+            <response code="304">Not modified</response>
+            <response code="400">BadRequest,If Agent id is not in proper format or proper Guid.</response>
+            <response code="403">Forbidden</response>
+            <response code="404">NotFound, when no Agent exists for the given Agent id</response>
+            <returns>Agent details for the given Id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Connect(OpenBots.Server.ViewModel.AgentViewModels.ConnectAgentViewModel)">
+            <summary>
+            Provides an Agent id if the provided machine matches an Agent
+            </summary>
+            <response code="200">OK,AgentId</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            <returns>AgentId that matches provided machine details </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Post(OpenBots.Server.Model.AgentModel)">
+             <summary>
+             Adds a new Agent to the existing Agents
+             </summary>
+             <remarks>
+             Adds the Agent with unique Agent Id to the existing Agents
+             </remarks>
+             <param name="value"></param>
+             <response code="200">OK,new Agent created and returned</response>
+             <response code="400">BadRequest,When the Agent value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict,concurrency error</response> 
+             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <returns> newly created unique Agent Id with route name </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Put(System.String,OpenBots.Server.Model.AgentModel)">
+            <summary>
+            Updates an Agent 
+            </summary>
+            <remarks>
+            Provides an action to update an Agent, when Agent id and the new details of Agent are given
+            </remarks>
+            <param name="id">Agent Id,produces Bad request if Id is null or Id's don't match</param>
+            <param name="value">Agent details to be updated</param>
+            <response code="200">OK, If the Agent details for the given Agent Id has been updated.</response>
+            <response code="400">BadRequest,if the Agent Id is null or Id's don't match</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">UnprocessableEntity</response>
+            <returns>OK response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Delete(System.String)">
+            <summary>
+            Deletes an Agent with a specified id from the Agents.
+            </summary>
+            <param name="id">Agent ID to be deleted- throws BadRequest if null or empty Guid/</param>
+            <response code="200">OK,when Agent is softdeleted,( isDeleted flag is set to true in DB) </response>
+            <response code="400">BadRequest,If Agent Id is null or empty Guid</response>
+            <response code="403">Forbidden </response>
+            <returns>OK response with deleted value </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.AgentModel})">
+            <summary>
+            Updates partial details of Agent.
+            </summary>
+            <param name="id">Agent identifier</param>
+            <param name="value">Value of the Agent to be updated.</param>
+            <response code="200">OK,If update of Agent is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial Agent values has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Heartbeat(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.AgentModel})">
+            <summary>
+            Performs a Heatbeat on Agent id.
+            </summary>
+            <param name="id">Agent identifier</param>
+            <param name="value">Value of the Agent to be updated.</param>
+            <response code="200">OK,If update of Agent is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the heartbeat Agent values have been updated</returns>
+        </member>
+        <member name="T:OpenBots.Server.Web.Controllers.AuditLogsController">
+            <summary>
+            AuditLog Controller
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AuditLogsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAuditLogRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Audit Log Controller Constructor
+            </summary>
+            <param name="repository"></param>
+            <param name="membershipManager"></param>
+            <param name="userManager"></param>
+            <param name="httpContextAccessor"></param>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AuditLogsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all audit logs
+            </summary>
+            <response code="200">Ok, a Paginated list of all Audit Logs</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">UnprocessableEntity</response>
+            <returns>Paginated list of all audit logs</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AuditLogsController.GetResults(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of audit logs filtered by updated by (person id), service name, method name, or timestamp
+            </summary>
+            <response code="200">Ok, a Paginated list of all Audit Logs</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">UnprocessableEntity</response>
+            <returns>Paginated list of all audit logs</returns>
+            <returns>Paginated list of audit logs by filter</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AuditLogsController.GetDetails(System.Guid)">
+            <summary>
+            Provides additional details on a specific Audit Log
+            </summary>
+            <param name="id">Audit Log Id</param>
+            <response code="200">OK, If an Audit Log exists with the given Id</response>
+            <response code="304">NotModified</response>
+            <response code="400">BadRequest, If Audit Log Id is not in proper format or Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">NotFound, When no Audit Log exists for the given Audit Log Id</response>
+            <response code="422">UnprocessableEntity</response>
+            <returns>Audit Log details for the given Id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.BinaryObjectsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all BinaryObjects
+            </summary>
+            <response code="200">OK,a Paginated list of all BinaryObjects</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            <returns>Paginated list of all BinaryObjects </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.BinaryObjectsController.Get(System.String)">
+            <summary>
+            Provides an BinaryObject details for a particular BinaryObject Id.
+            </summary>
+            <param name="id">BinaryObject id</param>
+            <response code="200">OK, If an BinaryObject exists with the given Id.</response>
+            <response code="304">Not modified</response>
+            <response code="400">BadRequest,If BinaryObject id is not in proper format or proper Guid.</response>
+            <response code="403">Forbidden</response>
+            <response code="404">NotFound, when no BinaryObject exists for the given BinaryObject id</response>
+            <returns>BinaryObject details for the given Id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.BinaryObjectsController.Post(OpenBots.Server.Model.BinaryObject)">
+             <summary>
+             Adds a new BinaryObject to the existing BinaryObjects
+             </summary>
+             <remarks>
+             Adds the BinaryObject with unique BinaryObject Id to the existing BinaryObjects
+             </remarks>
+             <param name="value"></param>
+             <response code="200">OK,new BinaryObject created and returned</response>
+             <response code="400">BadRequest,When the BinaryObject value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict,concurrency error</response> 
+             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <returns> newly created unique BinaryObject Id with route name </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.BinaryObjectsController.Put(System.String,OpenBots.Server.Model.BinaryObject)">
+            <summary>
+            Updates an BinaryObject 
+            </summary>
+            <remarks>
+            Provides an action to update an BinaryObject, when BinaryObject id and the new details of BinaryObject are given
+            </remarks>
+            <param name="id">BinaryObject Id,produces Bad request if Id is null or Id's don't match</param>
+            <param name="value">BinaryObject details to be updated</param>
+            <response code="200">OK, If the BinaryObject details for the given BinaryObject Id has been updated.</response>
+            <response code="400">BadRequest,if the BinaryObject Id is null or Id's don't match</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">UnprocessableEntity</response>
+            <returns>OK response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.BinaryObjectsController.Delete(System.String)">
+            <summary>
+            Deletes an BinaryObject with a specified id from the BinaryObjects.
+            </summary>
+            <param name="id">BinaryObject ID to be deleted- throws BadRequest if null or empty Guid/</param>
+            <response code="200">OK,when BinaryObject is softdeleted,( isDeleted flag is set to true in DB) </response>
+            <response code="400">BadRequest,If BinaryObject Id is null or empty Guid</response>
+            <response code="403">Forbidden </response>
+            <returns>OK response with deleted value </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.BinaryObjectsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.BinaryObject})">
+            <summary>
+            Updates partial details of BinaryObject.
+            </summary>
+            <param name="id">BinaryObject identifier</param>
+            <param name="value">Value of the BinaryObject to be updated.</param>
+            <response code="200">OK,If update of BinaryObject is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial BinaryObject values has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all QueueItems
+            </summary>
+            <response code="200">OK,a Paginated list of all QueueItems</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            <returns>Paginated list of all QueueItems </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Get(System.String)">
+            <summary>
+            Provides an QueueItem details for a particular QueueItem Id.
+            </summary>
+            <param name="id">QueueItem id</param>
+            <response code="200">OK, If an QueueItem exists with the given Id.</response>
+            <response code="304">Not modified</response>
+            <response code="400">BadRequest,If QueueItem id is not in proper format or proper Guid.</response>
+            <response code="403">Forbidden</response>
+            <response code="404">NotFound, when no QueueItem exists for the given QueueItem id</response>
+            <returns>QueueItem details for the given Id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Post(OpenBots.Server.Model.QueueItem)">
+             <summary>
+             Adds a new QueueItem to the existing QueueItems
+             </summary>
+             <remarks>
+             Adds the QueueItem with unique QueueItem Id to the existing QueueItems
+             </remarks>
+             <param name="value"></param>
+             <response code="200">OK,new QueueItem created and returned</response>
+             <response code="400">BadRequest,When the QueueItem value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict,concurrency error</response> 
+             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <returns> newly created unique QueueItem Id with route name </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Put(System.String,OpenBots.Server.Model.QueueItem)">
+            <summary>
+            Updates an QueueItem 
+            </summary>
+            <remarks>
+            Provides an action to update an QueueItem, when QueueItem id and the new details of QueueItem are given
+            </remarks>
+            <param name="id">QueueItem Id,produces Bad request if Id is null or Id's don't match</param>
+            <param name="value">QueueItem details to be updated</param>
+            <response code="200">OK, If the QueueItem details for the given QueueItem Id has been updated.</response>
+            <response code="400">BadRequest,if the QueueItem Id is null or Id's don't match</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">UnprocessableEntity</response>
+            <returns>OK response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Delete(System.String)">
+            <summary>
+            Deletes an QueueItem with a specified id from the QueueItems.
+            </summary>
+            <param name="id">QueueItem ID to be deleted- throws BadRequest if null or empty Guid/</param>
+            <response code="200">OK,when QueueItem is softdeleted,( isDeleted flag is set to true in DB) </response>
+            <response code="400">BadRequest,If QueueItem Id is null or empty Guid</response>
+            <response code="403">Forbidden </response>
+            <returns>OK response with deleted value </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.QueueItem})">
+            <summary>
+            Updates partial details of QueueItem.
+            </summary>
+            <param name="id">QueueItem identifier</param>
+            <param name="value">Value of the QueueItem to be updated.</param>
+            <response code="200">OK,If update of QueueItem is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial QueueItem values has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Enqueue(OpenBots.Server.Model.QueueItem)">
+            <summary>
+            Enqueue QueueItem.
+            </summary>
+            <param name="value">Value of the QueueItem to be added.</param>
+            <response code="200">OK,Guid of QueueItem. </response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>        
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Dequeue(System.String,System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Dequeue QueueItem.
+            </summary>
+            <param name="topic">topic to be added.</param>
+            <param name="subtopic">subtopic to be added.</param>
+            <param name="entityName">entityName to be added.</param>
+            <param name="status">status to be added.</param>
+            <param name="includeError">includeError to be added.</param>
+            <response code="200">OK,QueueItem. </response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>        
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Commit(System.String,System.String)">
+            <summary>
+            Commit QueueItem.
+            </summary>
+            <param name="id">QueueItem Id to be commited.</param>
+            <param name="transactionKey">transactionKeyId to be verified.</param>
+            <response code="200">OK</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>        
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Rollback(System.String,System.String,System.String)">
+            <summary>
+            Rollback QueueItem.
+            </summary>
+            <param name="id">QueueItem Id to be commited.</param>
+            <param name="transactionKey">transactionKeyId to be verified.</param>
+            <param name="error">error to be stored.</param>
+            <response code="200">OK</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>        
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Extend(System.String,System.String)">
+            <summary>
+            Extend QueueItem.
+            </summary>
+            <param name="id">QueueItem Id to be commited.</param>
+            <param name="transactionKey">transactionKeyId to be verified.</param>
+            <response code="200">OK</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>        
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueuesController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all Queues
+            </summary>
+            <response code="200">OK,a Paginated list of all Queue</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            <returns>Paginated list of all Queues </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueuesController.Get(System.String)">
+            <summary>
+            Provides an Queue details for a particular queue Id.
+            </summary>
+            <param name="id">Queue id</param>
+            <response code="200">OK, If an Queue exists with the given Id.</response>
+            <response code="304">Not modified</response>
+            <response code="400">BadRequest,If Queue id is not in proper format or proper Guid.</response>
+            <response code="403">Forbidden</response>
+            <response code="404">NotFound, when no Queue exists for the given id</response>
+            <returns>Queue details for the given Id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueuesController.Post(OpenBots.Server.ViewModel.QueueViewModel)">
+             <summary>
+             Adds a new Queue
+             </summary>
+             <param name="value"></param>
+             <response code="200">OK,new Queue created and returned</response>
+             <response code="400">BadRequest,When the Queue value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict,concurrency error</response> 
+             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <returns> newly created unique Queue Id with route name </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueuesController.Put(System.String,OpenBots.Server.ViewModel.QueueViewModel)">
+            <summary>
+            Updates an Queue 
+            </summary>
+            <remarks>
+            Provides an action to update an Queue, when Queue id and the new details of Queue are given
+            </remarks>
+            <param name="id">Queue Id,produces Bad request if Id is null or Id's don't match</param>
+            <param name="value">Queue details to be updated</param>
+            <response code="200">OK, If the Queue details for the given Queue Id has been updated.</response>
+            <response code="400">BadRequest,if the Queue Id is null or Id's don't match</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">UnprocessableEntity</response>
+            <returns>OK response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueuesController.Delete(System.String)">
+            <summary>
+            Deletes an Queue with a specified id from the Queues.
+            </summary>
+            <param name="id">Queue ID to be deleted- throws BadRequest if null or empty Guid/</param>
+            <response code="200">OK,when Queue is softdeleted,( isDeleted flag is set to true in DB) </response>
+            <response code="400">BadRequest,If Queue Id is null or empty Guid</response>
+            <response code="403">Forbidden </response>
+            <returns>OK response with deleted value </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueuesController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Queue})">
+            <summary>
+            Updates partial details of Queue.
+            </summary>
+            <param name="id">Queue identifier</param>
+            <param name="value">Value of the Queue to be updated.</param>
+            <response code="200">OK,If update of Queue is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial Queue values has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AssetsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all Assets
+            </summary>
+            <response code="200">OK,a Paginated list of all Assets</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            <returns>Paginated list of all Assets </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AssetsController.Get(System.String)">
+            <summary>
+            Provides an Asset's details for a particular Asset Id.
+            </summary>
+            <param name="id">Asset id</param>
+            <response code="200">OK, If an Asset exists with the given Id.</response>
+            <response code="304">Not modified</response>
+            <response code="400">BadRequest,If Asset id is not in proper format or proper Guid.</response>
+            <response code="403">Forbidden</response>
+            <response code="404">NotFound, when no Asset exists for the given Asset id</response>
+            <returns>Asset details for the given Id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AssetsController.Post(OpenBots.Server.Model.Asset)">
+             <summary>
+             Adds a new Asset to the existing Assets
+             </summary>
+             <remarks>
+             Adds the Asset with unique Asset Id to the existing Assets
+             </remarks>
+             <param name="value"></param>
+             <response code="200">OK,new Asset created and returned</response>
+             <response code="400">BadRequest,When the Asset value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict,concurrency error</response> 
+             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <returns> newly created unique Asset Id with route name </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AssetsController.Put(System.String,OpenBots.Server.Model.Asset)">
+            <summary>
+            Updates an Asset 
+            </summary>
+            <remarks>
+            Provides an action to update an Asset, when Asset id and the new details of Asset are given
+            </remarks>
+            <param name="id">Asset Id,produces Bad request if Id is null or Id's don't match</param>
+            <param name="value">Asset details to be updated</param>
+            <response code="200">OK, If the Asset details for the given Asset Id has been updated.</response>
+            <response code="400">BadRequest,if the Asset Id is null or Id's don't match</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">UnprocessableEntity</response>
+            <returns>OK response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AssetsController.Delete(System.String)">
+            <summary>
+            Deletes an Asset with a specified id from the Asset.
+            </summary>
+            <param name="id">Asset ID to be deleted- throws BadRequest if null or empty Guid/</param>
+            <response code="200">OK,when Asset is softdeleted,( isDeleted flag is set to true in DB) </response>
+            <response code="400">BadRequest,If Asset Id is null or empty Guid</response>
+            <response code="403">Forbidden </response>
+            <returns>OK response with deleted value </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AssetsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Asset})">
+            <summary>
+            Updates partial details of Asset.
+            </summary>
+            <param name="id">Asset identifier</param>
+            <param name="value">Value of the Asset to be updated.</param>
+            <response code="200">OK,If update of Asset is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial Asset values has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.CredentialsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all Credentials
+            </summary>
+            <response code="200">OK,a Paginated list of all Credentials</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            <returns>Paginated list of all Credentials </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.CredentialsController.Get(System.String)">
+            <summary>
+            Provides a Credential's details for a particular Credential Id.
+            </summary>
+            <param name="id">Credential id</param>
+            <response code="200">OK, If an Credential exists with the given Id.</response>
+            <response code="304">Not modified</response>
+            <response code="400">BadRequest,If Credential id is not in proper format or proper Guid.</response>
+            <response code="403">Forbidden</response>
+            <response code="404">NotFound, when no Credential exists for the given Credential id</response>
+            <returns>Credential details for the given Id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.CredentialsController.Post(OpenBots.Server.Model.Credential)">
+             <summary>
+             Adds a new Credential to the existing Credentials
+             </summary>
+             <remarks>
+             Adds the Credential with unique Id to the existing Credentials
+             </remarks>
+             <param name="value"></param>
+             <response code="200">OK,new Credential created and returned</response>
+             <response code="400">BadRequest,When the Credential value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict,concurrency error</response> 
+             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <returns> newly created unique Credential Id with route name </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.CredentialsController.Put(System.String,OpenBots.Server.Model.Credential)">
+            <summary>
+            Updates an Credential 
+            </summary>
+            <remarks>
+            Provides an action to update a Credential, when id and the new details of Credential are given
+            </remarks>
+            <param name="id">Credential Id,produces Bad request if Id is null or Id's don't match</param>
+            <param name="value">Credential details to be updated</param>
+            <response code="200">OK, If the Credential details for the given Credential Id has been updated.</response>
+            <response code="400">BadRequest,if the Credential Id is null or Id's don't match</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">UnprocessableEntity</response>
+            <returns>OK response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.CredentialsController.Delete(System.String)">
+            <summary>
+            Deletes a Credential with a specified id from the Credential.
+            </summary>
+            <param name="id">Credential ID to be deleted- throws BadRequest if null or empty Guid/</param>
+            <response code="200">OK,when Credential is softdeleted,( isDeleted flag is set to true in DB) </response>
+            <response code="400">BadRequest,If Credential Id is null or empty Guid</response>
+            <response code="403">Forbidden </response>
+            <returns>OK response with deleted value </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.CredentialsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Credential})">
+            <summary>
+            Updates partial details of Credential.
+            </summary>
+            <param name="id">Credential identifier</param>
+            <param name="value">Value of the Credential to be updated.</param>
+            <response code="200">OK,If update of Credential is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial Credential values has been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.JobsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all Jobs
+            </summary>
+            <response code="200">OK,a Paginated list of all Jobs</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            <returns>Paginated list of all Jobs </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.JobsController.Get(System.String)">
+            <summary>
+            Provides a Job's details for a particular Job Id.
+            </summary>
+            <param name="id">Job id</param>
+            <response code="200">OK, If a Job exists with the given Id.</response>
+            <response code="304">Not modified</response>
+            <response code="400">BadRequest,If Job ID is not in the proper format or proper Guid.</response>
+            <response code="403">Forbidden</response>
+            <response code="404">NotFound, when no Job exists for the given Job ID</response>
+            <returns>Job details for the given ID</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.JobsController.Post(OpenBots.Server.Model.Job)">
+             <summary>
+             Adds a new Job to the existing Jobs
+             </summary>
+             <remarks>
+             Adds the Job with unique Job Id to the existing Jobs
+             </remarks>
+             <param name="value"></param>
+             <response code="200">OK,new Job created and returned</response>
+             <response code="400">BadRequest,When the Job value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict,concurrency error</response> 
+             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <returns> newly created unique Job Id with route name </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.JobsController.Put(System.String,OpenBots.Server.Model.Job)">
+            <summary>
+            Updates an Job 
+            </summary>
+            <remarks>
+            Provides an action to update a Job, when Job id and the new details of Job are given
+            </remarks>
+            <param name="id">Job Id,produces Bad request if Id is null or Id's don't match</param>
+            <param name="value">Job details to be updated</param>
+            <response code="200">OK, If the Job details for the given Job Id has been updated.</response>
+            <response code="400">BadRequest,if the Job Id is null or Id's don't match</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">UnprocessableEntity</response>
+            <returns>OK response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.JobsController.Delete(System.String)">
+            <summary>
+            Deletes a Job with a specified id from the Job.
+            </summary>
+            <param name="id">Job ID to be deleted- throws BadRequest if null or empty Guid/</param>
+            <response code="200">OK,when Job is softdeleted,( isDeleted flag is set to true in DB) </response>
+            <response code="400">BadRequest,If Job Id is null or empty Guid</response>
+            <response code="403">Forbidden </response>
+            <returns>OK response with deleted value </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.JobsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Job})">
+            <summary>
+            Updates partial details of Job.
+            </summary>
+            <param name="id">Job identifier</param>
+            <param name="value">Value of the Job to be updated.</param>
+            <response code="200">OK,If update of Job is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial Job values has been updated</returns>
+        </member>
+    </members>
+</doc>

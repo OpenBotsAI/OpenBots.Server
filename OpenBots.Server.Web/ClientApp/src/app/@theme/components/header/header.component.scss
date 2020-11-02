@@ -1,0 +1,133 @@
+/*!
+ * Copyright (c) Akveo 2019. All Rights Reserved.
+ * Licensed under the Single Application / Multi Application License.
+ * See LICENSE_SINGLE_APP / LICENSE_MULTI_APP in the 'docs' folder for license information on type of purchased license.
+ */
+
+@import '~bootstrap/scss/mixins/breakpoints';
+@import '~@nebular/theme/styles/global/breakpoints';
+@import '../../styles/themes';
+
+@include nb-install-component() {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+
+  .logo-container {
+    display: flex;
+    align-items: center;
+    width: calc(#{nb-theme(sidebar-width)} - #{nb-theme(header-padding)});
+  }
+
+  nb-action {
+    height: auto;
+    display: flex;
+    align-content: center;
+  }
+
+  nb-user {
+    cursor: pointer;
+  }
+
+  ::ng-deep nb-search button {
+    padding: 0!important;
+  }
+
+  .header-container {
+    display: flex;
+    align-items: center;
+    width: auto;
+
+    .sidebar-toggle {
+      @include nb-ltr(padding-right, 1.25rem);
+      @include nb-rtl(padding-left, 1.25rem);
+      text-decoration: none;
+      color: nb-theme(text-hint-color);
+      nb-icon {
+        font-size: 1.75rem;
+      }
+    }
+
+    .logo {
+      padding: 0 1.25rem;
+      font-size: 1.75rem;
+      @include nb-ltr(border-left, 1px solid nb-theme(divider-color));
+      @include nb-rtl(border-right, 1px solid nb-theme(divider-color));
+      white-space: nowrap;
+      text-decoration: none;
+    }
+  }
+
+  @include media-breakpoint-down(sm) {
+    .control-item {
+      display: none;
+    }
+    .user-action {
+      border: none;
+      padding: 0;
+    }
+  }
+
+  @include media-breakpoint-down(is) {
+    nb-select {
+      display: none;
+    }
+  } 
+}
+.logoCont a{
+  display: inline-block;
+  vertical-align: middle;
+}
+.logoCont img{
+    max-width: 143px;
+    border-left: 1px solid lightgray;
+    padding-left: 12px;
+    margin-left: 12px;
+}
+::ng-deep a.sidebar-toggle nb-icon{
+    font-size: 29px !important;
+}
+.dropdown-menu-right{
+  margin-top: 17px;
+}
+img.mr-2{
+  -webkit-border-radius: 40px;
+  -moz-border-radius: 40px;
+  border-radius: 40px;
+}
+.pmd-user-info {
+  display: flex;
+  flex-direction: column;
+}
+.ml-auto, .mx-auto {
+  margin-left: auto!important;
+}
+.dropdown-toggle::after{
+  display:none;
+}
+.dropdown-item{
+  text-decoration: none;
+}
+
+@media only screen and (min-width: 10px)and (max-width: 450px) {
+  .logoCont img {
+      max-width: 96px;
+      padding-left: 5px;
+      margin-left: 5px;
+  }
+  .navbar, .noMobPadding{
+    padding: 0% !important;
+  }
+  .noMobRightPadding{
+      padding-right:0px;
+  }
+  img.mr-2{
+      margin-right:0 !important;
+  }
+}
+
+
+
+
+
+

@@ -1,0 +1,114 @@
+.table tbody tr:nth-child(even) {
+    background-color: #f1f1f1;
+}
+.label {
+    padding: 3px;
+}
+.filter-row {
+    padding-bottom: 12px;
+}
+.perpage {
+    text-align: right;
+}
+.per-page-drop {
+    width: 141px;
+    height: 37px;
+}
+.no-left-padding {
+    padding: 0px;
+}
+::ng-deep .ngx-pagination {
+    padding-left: 0px !important;
+}
+.ngx-pagination .current, .btn-info {
+    background: #17a2b8 !important;
+    border: transparent !important;
+    border-radius: 20px !important;
+}
+.ngx-pagination .current:hover {
+    background: #17a2b8 !important;
+    border-radius: 20px !important;
+    border: transparent !important;
+}
+.top-perpage {
+    top: 10px
+}
+.paginateDiv {
+    width: 100%;
+}
+.titleRight button i.fa-download{
+    margin-right: 10px;
+}
+@media only screen and (min-width: 10px)and (max-width: 768px) {
+    .filter-row select{
+        margin-bottom: 15px;
+    }
+}
+@media only screen and (max-width: 750px) {
+    .checkbox.checbox-switch label{
+      margin-bottom: 0px;
+    }
+    table, thead, tbody, th, td, tr {
+      display: block;
+    }
+    thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+    tr {
+      border: 1px solid #ccc;
+    }
+    td {
+      border: none;
+      border-bottom: 1px solid #e0e0e0;
+      position: relative;
+      padding-left: 20px;
+      margin-left: 150px;
+      min-height: 50px;
+    }
+    td:before {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 151px;
+      padding: 12px;
+      white-space: nowrap;
+      margin-left: -150px;
+      min-height: 50px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    td:nth-of-type(1):before {
+      content: "Process Name";
+    }
+    td:nth-of-type(2):before {
+      content: "Machine Name";
+    }
+    td:nth-of-type(3):before {
+      content: "Message";
+    }
+    td:nth-of-type(4):before { 
+      content: "Message Template";
+    }
+    td:nth-of-type(5):before { 
+        content: "Level";
+    }
+    td:nth-of-type(6):before { 
+        content: "Logger";
+    }
+    td:nth-of-type(7):before { 
+        content: "Jobs";
+    }
+    td:nth-of-type(8):before { 
+        content: "View";
+    }
+}
+@media only screen and (max-width: 500px) {
+    td:before {
+      width: 111px;
+      margin-left: -101px;
+    }
+    td{
+      margin-left: 100px;
+    }
+} 

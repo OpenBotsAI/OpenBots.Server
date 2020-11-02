@@ -1,0 +1,147 @@
+<nb-card>
+  <nb-card-header>
+    <div class="titleHeader">
+      <div class="titleLeft">
+        <div class="LeftBgIcon">
+          <img class="img-head-logo" src="../../../../assets/icons/Log.svg" />
+        </div>
+        <div class="LeftBgText">
+          <h2>Change History</h2>
+          <p>
+              Audit Logs of changes done to keep track of who has changed what and when.
+          </p>
+        </div>
+      </div>
+      <div class="titleRight">
+        <button type="button" *ngIf="showExportbtn" class="btn btn-primary" (click)="exportFile()">
+          <i class="fa fa-download"></i> Export
+        </button>
+      </div>
+    </div>
+  </nb-card-header> 
+  <nb-card-body>
+    <form [formGroup]="auditlog">
+      <div class="row row-fil">
+        <div class="col-md-8 col-lg-8">
+          <label class="label-ser">Service Name:</label>
+          <select
+            class="custom-select service-name"
+            (change)="get_service_name($event.target.value)"
+            formControlName="page_name"
+          >
+            <option value="" selected>All</option>
+            <option *ngFor="let item of show_service_name" [value]="item">
+              {{ item }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </form>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">
+            Service
+            <i
+              (click)="onSortClick($event, 'serviceName')"
+              [class]="show_allagents | chevron: page.totalCount"
+            >
+            </i>
+          </th>
+          <th scope="col">
+            Method
+            <i
+              (click)="onSortClick($event, 'methodName')"
+              [class]="show_allagents | chevron: page.totalCount"
+            ></i>
+          </th>
+          <th scope="col">
+            Created By
+            <i
+              (click)="onSortClick($event, 'createdBy')"
+              [class]="show_allagents | chevron: page.totalCount"
+            ></i>
+          </th>
+          <th scope="col">
+            Created On
+            <i
+              (click)="onSortClick($event, 'createdOn')"
+              [class]="show_allagents | chevron: page.totalCount"
+            ></i>
+          </th>
+          <th scope="col">View</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="
+            let audit of show_allagents
+              | paginate
+                : {
+                    id: '1',
+                    itemsPerPage: page.pageSize,
+                    currentPage: page.pageNumber,
+                    totalItems: page.totalCount
+                  }
+          "
+        >
+          <td>
+            <ngx-tooltip [data]="audit?.serviceName" [size]="40"> </ngx-tooltip>
+          </td>
+          <td scope="row">
+            <ngx-tooltip [data]="audit?.methodName" [size]="12"> </ngx-tooltip>
+          </td>
+          <td>
+            <ngx-tooltip [data]="audit?.createdBy" [size]="22"> </ngx-tooltip>
+          </td>
+          <td>
+            <ngx-tooltip
+              [data]="audit?.createdOn | timeDate: 'lll'"
+              [size]="19"
+            >
+            </ngx-tooltip>
+          </td>
+          <td>
+            <a (click)="gotodetail(audit.id)">
+              <i class="fa fa-eye" aria-hidden="true"></i>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </nb-card-body>
+  <nb-card-body class="noTopPadding">
+    <div class="row pagerow">
+      <div class="col-md-8 col-lg-8 no-left-padding">
+        <pagination-controls
+          id="1"
+          class="paginateDiv"
+          previousLabel="Prev"
+          nextLabel="Next"
+          responsive="true"
+          (pageChange)="pageChanged($event)"
+          (pageBoundsCorrection)="pageChanged($event)"
+          directionLinks="true"
+          autoHide="true"
+          screenReaderPaginationLabel="Pagination"
+          screenReaderPageLabel="page"
+          screenReaderCurrentLabel="You're on page"
+        ></pagination-controls>
+      </div>
+      <div
+        class="col-md-4 col-lg-4 text-right no-right-padding"
+        *ngIf="get_perPage"
+      >
+        <label class="label">Total {{ showpage.totalCount }} /</label>
+        <select
+          class="custom-select per-page-drop"
+          (change)="per_page($event.target.value)"
+        >
+          <option *ngFor="let item of itemsPerPage" [value]="item.id">
+            {{ item.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>

@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>OpenBots.Server.ViewModel</name>
+    </assembly>
+    <members>
+        <member name="T:OpenBots.Server.ViewModel.AuditLogViewModel">
+            <summary>
+            ViewModel for Audit Log model
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.ViewModel.AuditLogViewModel.ServiceName">
+            <summary>
+            Name of Service used
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.ViewModel.AuditLogViewModel.MethodName">
+            <summary>
+            Name of Method used
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.ViewModel.AuditLogViewModel.CreatedBy">
+            <summary>
+            Who made the changes to the entity
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.ViewModel.AuditLogViewModel.CreatedOn">
+             <summary>
+            When update was made
+             </summary>
+        </member>
+        <member name="P:OpenBots.Server.ViewModel.AuditLogViewModel.ObjectId">
+            <summary>
+            Id of object being changed
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.ViewModel.AuditLogViewModel.Id">
+            <summary>
+            Id of audit log
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.ViewModel.AuditLogViewModel.Map(OpenBots.Server.Model.AuditLog)">
+            <summary>
+            Mapping for entity and viewmodel
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="T:OpenBots.Server.Model.Identity.SignUpViewModel">
+            <summary>
+            Represents a Person
+            </summary>
+            <seealso cref="T:OpenBots.Server.Model.Core.NamedEntity" />
+        </member>
+    </members>
+</doc>

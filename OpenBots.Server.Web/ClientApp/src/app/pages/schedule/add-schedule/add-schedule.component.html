@@ -1,0 +1,117 @@
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+        <h2>{{ title }} Schedule</h2>
+      </nb-card-header>
+      <nb-card-body>
+        <form autocomplete="off" [formGroup]="scheduleForm">
+          <div class="row rowPadBottom">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="name" class="label">Name *</label>
+              <input type="input" nbInput fullWidth id="name" formControlName="name" placeholder="Please enter name"
+                ngxSpecialChar trim="blur" />
+              <div *ngIf=" formControls.name.invalid &&(formControls.name.dirty || formControls.name.touched) "
+                class="invalid-feedback-frm">
+                <div *ngIf="formControls.name.errors.required">
+                  Name is required.
+                </div>
+                <div *ngIf="formControls.name.errors.minlength">
+                  Name must be at least 3 characters long.
+                </div>
+                <div *ngIf="formControls.name.errors.maxlength">
+                  Name can be 100 characters long.
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="subtopic" class="label">Agent Name *</label>
+              <select class="custom-select" formControlName="agentId">
+                <option value="" disabled>Please select agent name</option>
+                <option *ngFor="let item of allAgents" [value]="item?.agentId">
+                  {{ item?.agentName }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="row rowPadBottom">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="processId" class="label">Processes *</label>
+              <select class="custom-select" formControlName="processId">
+                <option value="" disabled>Please select process name</option>
+                <option *ngFor="let item of allProcesses" [value]="item?.processId">
+                  {{ item?.processNameWithVersion }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="checkbox checbox-switch switch-primary">
+                <label class="label">Disabled</label><br>
+                <label>
+                  <input type="checkbox" formControlName="isDisabled" />
+                  <span></span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+          <div class="row rowPadBottom">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label class="label">Starting Type *</label>
+              <nb-radio-group formControlName="startingType">
+                <nb-radio class="startingtype" value="oneTime" (click)="radioSetValidator('oneTime')" required>One Time
+                </nb-radio>
+                <nb-radio class="startingtype" value="recurrence" (click)="radioSetValidator('recurrence')" required>
+                  Recurrence
+                </nb-radio>
+                <nb-radio class="startingtype" value="manual" (click)="radioSetValidator('manual')" required>
+                  Manual
+                </nb-radio>
+              </nb-radio-group>
+              <div
+                *ngIf=" formControls.startingType.invalid &&(formControls.startingType.dirty || formControls.startingType.touched) "
+                class="invalid-feedback-frm">
+                <div *ngIf="formControls.startingType.errors.required">
+                  Starting type is required.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row rowPadBottom">
+            <div class="col-md-6 col-lg-6 col-xxxl-6"
+              *ngIf="scheduleForm.value.startingType == 'oneTime' || scheduleForm.value.startingType == 'recurrence'">
+              <label for="startDate" class="label">Start Date *</label>
+              <input nbInput fullWidth formControlName="startDate" [owlDateTimeTrigger]="dtPicker1"
+                [owlDateTime]="dtPicker1" [min]="min" />
+              <owl-date-time #dtPicker1></owl-date-time>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6" *ngIf="scheduleForm.value.startingType == 'recurrence'">
+              <label for="expiryDate" class="label">Expiry Date *</label>
+              <input nbInput fullWidth formControlName="expiryDate" [owlDateTimeTrigger]="dtPicker1"
+                [owlDateTime]="dtPicker1" [min]="min" />
+              <owl-date-time #dtPicker1></owl-date-time>
+            </div>
+          </div>
+
+          <div class="row rowPaddingTop" *ngIf="scheduleForm.value.startingType == 'recurrence'">
+            <div class="col-md-12 col-lg-12 col-xxxl-6">
+              <label for="cronExpression" class="label  col-form-label">Cron Expression *</label>
+              <cron-editor [(cron)]="cronExpression" [disabled]="isCronDisabled" [(options)]="cronOptions">
+              </cron-editor>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12 col-lg-12 col-xxxl-6">
+              <button class="btn btn-primary btnMargnTop" status="primary"
+                [disabled]="!scheduleForm.valid || isSubmitted || scheduleForm.value.startingType == 'recurrence' && cronExpression == '0/0 * 0/0 * *'"
+                (click)="onScheduleSubmit()">
+                Save
+              </button>
+            </div>
+          </div>
+        </form>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

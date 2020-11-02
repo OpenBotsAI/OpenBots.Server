@@ -1,0 +1,28 @@
+@import '~jsoneditor/dist/jsoneditor.min.css';
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap');
+
+@import 'themes';
+
+@import '~@nebular/theme/styles/globals';
+@import '~@nebular/auth/styles/all';
+
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins';
+@import '~bootstrap/scss/grid';
+
+@import './pace.theme';
+
+@import './layout';
+@import './overrides';
+@import '../../style.css';
+
+@include nb-install() {
+  @include nb-theme-global();
+  @include nb-auth-global();
+
+  @include ngx-layout();
+  @include ngx-pace-theme();
+
+  @include nb-overrides();
+}

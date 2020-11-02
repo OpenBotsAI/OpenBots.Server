@@ -1,0 +1,160 @@
+<div class="row">
+    <div class="col-md-12">
+        <nb-card>
+            <nb-card-header>
+                <div class="row">
+                    <div class="col-md-8 col-lg-8 col-xxxl-6">
+                        <h2>Email Detail</h2>
+                    </div>
+
+                    <div class="col-md-4 col-lg-4 col-xxxl-6 text-right">
+                        <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn" (click)="gotoaudit()">
+              <img class="img" src="../../../../assets/images/auditLog.svg" />
+            </button>
+                    </div>
+                </div>
+            </nb-card-header>
+            <nb-card-body>
+                <form [formGroup]="emailform">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="agentname" class="label col-form-label">Name</label>
+
+                                <input type="input" nbInput fullWidth id="agentname" formControlName="name" style="color: #000000" />
+                                <div *ngIf=" (f.name.touched || f.name.dirty) && f.name.invalid " class="invalid-feedback-frm">
+                                    <div *ngIf="f.name.errors && f.name.errors.required">
+                                        Name is required.
+                                    </div>
+                                    <div *ngIf="f.name.errors.minlength">
+                                        Name at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.name.errors.maxlength">
+                                        Name at least 100 characters long.
+                                    </div>
+                                    <div *ngIf="f.name.errors.pattern">
+                                        Please enter valid name .
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="agentname" class="label col-form-label">Email Address
+                </label>
+
+                                <input type="input" nbInput fullWidth id="agentname" formControlName="fromEmailAddress" style="color: #000000" />
+
+                                <div *ngIf=" (f.fromEmailAddress.touched || f.fromEmailAddress.dirty) && f.fromEmailAddress.invalid " class="invalid-feedback-frm">
+                                    <div *ngIf="f.fromEmailAddress.errors && f.fromEmailAddress.errors.required">
+                                        Email Address is required.
+                                    </div>
+                                    <div *ngIf="f.fromEmailAddress.errors.pattern">
+                                        Please enter valid email address .
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">Provider</label >
+                           <select class="custom-select" formControlName="provider">
+                         <option value="" disabled>Please select provider name</option>
+                           <option  value="SMTP">
+                               SMTP
+                       </option>
+                        </select>
+
+
+
+                                <div *ngIf=" (f.provider.touched || f.provider.dirty) && f.provider.invalid " class="invalid-feedback-frm">
+                                    <div *ngIf="f.provider.errors && f.provider.errors.required">
+                                        provider is required.
+                                    </div>
+                                    <div *ngIf="f.provider.errors.minlength">
+                                        provider at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.provider.errors.maxlength">
+                                        provider at least 100 characters long.
+                                    </div>
+                                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="agentname" class="label col-form-label"
+                  >From Name
+                </label>
+
+                                <input type="input" nbInput fullWidth id="agentname" formControlName="fromName" style="color: #000000" />
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">User Name </label>
+
+                                <input type="input" nbInput fullWidth formControlName="username" style="color: #000000" placeholder="Please enter user name" />
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">Password </label>
+
+                                <input type="password" nbInput fullWidth formControlName="passwordHash" style="color: #000000" placeholder="Please enter password" />
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="agentname" class="label col-form-label">Host</label>
+
+                                <input type="input" nbInput fullWidth id="agentname" formControlName="host" style="color: #000000" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">port </label>
+
+                                <input type="number" nbInput fullWidth formControlName="port" style="color: #000000"
+                                    placeholder="Please enter port" />
+
+
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="row rowPadTOp">
+                        <div class="col-md-12 col-lg-12 col-xxxl-6">
+                            <button type="submit" class="btn btn-primary" [disabled]="submitted || !emailform.valid" status="primary" (click)="onSubmit()">
+                Save
+              </button>
+                        </div>
+                    </div>
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
+</div>

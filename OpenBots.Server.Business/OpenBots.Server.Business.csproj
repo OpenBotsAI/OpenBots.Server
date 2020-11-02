@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Platforms>AnyCPU;x64</Platforms>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <PackageProjectUrl>https://openbots.ai/product/openbots-server</PackageProjectUrl>
+    <Copyright>OpenBots Inc</Copyright>
+    <FileVersion>1.1.0.0</FileVersion>
+    <PackageTags></PackageTags>
+    <RepositoryUrl>https://github.com/OpenBotsAI/OpenBots.Server</RepositoryUrl>
+    <Version>1.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Exceptions\**" />
+    <EmbeddedResource Remove="Exceptions\**" />
+    <None Remove="Exceptions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Breeze.Sharp" Version="0.8.0" />
+    <PackageReference Include="DotNetZip" Version="1.13.8" />
+    <PackageReference Include="Hangfire" Version="1.7.13" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.13" />
+    <PackageReference Include="Hangfire.Core" Version="1.7.13" />
+    <PackageReference Include="System.CodeDom" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenBots.Server.DataAccess\OpenBots.Server.DataAccess.csproj" />
+    <ProjectReference Include="..\OpenBots.Server.Infrastructure.Azure\OpenBots.Server.Infrastructure.Azure.csproj" />
+    <ProjectReference Include="..\OpenBots.Server.Infrastructure\OpenBots.Server.Infrastructure.csproj" />
+    <ProjectReference Include="..\OpenBots.Server.Model\OpenBots.Server.Model.csproj" />
+    <ProjectReference Include="..\OpenBots.Server.Security\OpenBots.Server.Security.csproj" />
+    <ProjectReference Include="..\OpenBots.Server.ViewModel\OpenBots.Server.ViewModel.csproj" />
+  </ItemGroup>
+
+</Project>

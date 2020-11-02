@@ -1,0 +1,122 @@
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+        <h2>Add Asset</h2>
+      </nb-card-header>
+      <nb-card-body>
+        <form [formGroup]="addasset">
+          <div class="row">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="agentname" class="label"> Asset Name *</label>
+              <input type="input" nbInput fullWidth id="agentname" formControlName="name" class="form-control"  trim="blur" ngxSpecialChar 
+                placeholder="Please enter asset name">
+              <div *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.name.errors && f.name.errors.required"> Asset Name is required.</div>
+                <div *ngIf="f.name.errors.minlength">
+                  Asset Name at least 3 characters long.
+                </div>
+                <div *ngIf="f.name.errors.maxlength">
+                  Asset Name at least 100 characters long.
+                </div>
+                <div *ngIf=" f.name.errors.pattern">
+                  Please enter valid Asset Name .
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="queueitemtype" class="label">Select Type *</label>
+              <select class="custom-select" formControlName="type" (change)="get_val($event.target.value)">
+                <option value='' [disabled]='true' selected>Please select Type</option>
+                <option *ngFor="let item of value" [value]="item">{{item}}</option>
+              </select>
+              <div *ngIf="f.type.touched && f.type.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.type.errors && f.type.errors.required"> Type is required.</div>
+              </div>
+            </div>
+          </div>
+ 
+
+          <div class="row rowPadTOp" *ngIf="file">
+          <div class="col-md-6 col-lg-6 col-xxxl-6">
+            <label class="label">Upload File *</label>
+            <label class="upload-button">
+                <input type="file" ngFileSelect [options]="options"
+                 (uploadOutput)="onUploadOutput($event)" [uploadInput]="uploadInput" multiple>
+                 
+              </label>
+              <div *ngIf="show_upload" class="invalid-feedback-frm">
+                Please Upload  File 
+            </div>
+        </div>
+          </div>
+
+          <div class="row rowPadTOp" *ngIf="json">
+            <div class="col-md-12 col-lg-12 col-xxxl-12"> 
+            <label for="JsonValue" class="label">Json * </label>
+              <json-editor [options]="editorOptions" formControlName="JsonValue"></json-editor>
+              <div *ngIf="f.JsonValue.touched && f.JsonValue.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.JsonValue.errors && f.JsonValue.errors.required"> Json is required.</div>
+                <div *ngIf="f.JsonValue.errors.minlength">
+                  Json at least 2 characters long.
+                </div>
+                <div *ngIf="f.JsonValue.errors.maxlength">
+                  Json at least 100 characters long.
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+
+
+          <div class="row rowPadTOp" *ngIf="textvalue">
+            <div class="col-md-12 col-lg-12 col-xxxl-12"> 
+            <label for="TextValue" class="label">Text * </label>
+
+            <textarea type="input" rows="10" nbInput fullWidth id="TextValue" formControlName="TextValue"
+              class="form-control" placeholder="Please enter text value"> </textarea>
+            <div *ngIf="f.TextValue.touched && f.TextValue.invalid" class="invalid-feedback-frm">
+              <div *ngIf="f.TextValue.errors && f.TextValue.errors.required"> Text is required.</div>
+              <div *ngIf="f.TextValue.errors.minlength">
+                Text at least 2 characters long.
+              </div>
+              <div *ngIf="f.TextValue.errors.maxlength">
+                Text at least 100 characters long.
+              </div>
+            </div>
+
+
+          </div>
+           
+          </div>
+
+          <div class="row rowPadTOp" *ngIf="numbervalue">
+            <div class="col-md-12 col-lg-12 col-xxxl-12"> 
+            <label for="NumberValue" class="label">Number * </label>
+
+              <input type="number" nbInput fullWidth id="NumberValue" formControlName="NumberValue" class="form-control"
+                placeholder="Please enter number ">
+              <div *ngIf="f.NumberValue.touched && f.NumberValue.invalid" class="invalid-feedback-frm">
+
+                <div *ngIf=" f.NumberValue.errors.required"> Number is required.</div>
+
+
+                <div *ngIf="f.NumberValue.errors.pattern">Enter only number.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row rowPadTOp">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <button type="submit" class="btn btn-primary"   status="primary" [disabled]="submitted || !addasset.valid"
+                (click)="onSubmit()">Save</button>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6"></div>
+          </div>
+          
+        </form>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

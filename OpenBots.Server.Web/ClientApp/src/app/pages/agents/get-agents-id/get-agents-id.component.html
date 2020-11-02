@@ -1,0 +1,122 @@
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+        <div class="row">
+          <div class="col-md-8 col-lg-8 col-xxxl-6">
+            <h2>Agent Detail</h2>
+          </div>
+
+          <div class="col-md-4 col-lg-4 col-xxxl-6 text-right">
+            <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn " (click)="gotoaudit()"  > 
+              <img class="img" src="../../../../assets/images/auditLog.svg">   </button>
+          </div>
+        </div>
+      </nb-card-header>
+      <nb-card-body>
+        <form [formGroup]="addagent">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label class="label  col-form-label">Agent Name</label>
+
+                <input type="input" nbInput fullWidth id="agentname" formControlName="name" readonly
+                  style="color:#000000">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label class="label  col-form-label">Machine Name</label>
+
+                <input type="input" nbInput fullWidth id="agentname" formControlName="machineName"
+                  style="color:#000000">
+              </div>
+            </div>
+
+          </div>
+          <div class="row">
+
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label class="label  col-form-label">MAC Address</label>
+
+                <input type="input" nbInput fullWidth id="agentname" formControlName="macAddresses"
+                  style="color:#000000">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label class="label  col-form-label">IP (v4) Address </label>
+
+                <input type="input" nbInput fullWidth id="agentname" formControlName="ipAddresses"
+                  style="color:#000000">
+              </div>
+            </div>
+
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label class="label  col-form-label">OS Logon Credentials</label>
+
+                <input type="input" nbInput fullWidth formControlName="credentialName" style="color:#000000">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label class="label  col-form-label">Is Enabled</label>
+                <div class="checkbox checbox-switch switch-primary">
+                  <label>
+                    <input type="checkbox" name="isAdmin" formControlName="isEnabled" />
+                    <span></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+          <hr>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label class="label  col-form-label">Last Reported Status By</label>
+
+                <input type="input" nbInput fullWidth id="agentname" formControlName="lastReportedStatus"
+                  style="color:#000000">
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label class="label  col-form-label">Is Healthy</label>
+
+                <input type="input" nbInput fullWidth id="agentname" formControlName="isHealthy" style="color:#000000">
+              </div>
+            </div>
+
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label class="label  col-form-label">Last Reported Message</label>
+
+                <input type="input" nbInput fullWidth id="agentname" formControlName="lastReportedMessage"
+                  style="color:#000000">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label class="label  col-form-label">Last Reported On</label>
+
+                <input type="input" nbInput fullWidth id="agentname" formControlName="lastReportedOn"
+                  style="color:#000000">
+              </div>
+            </div>
+          </div>
+        </form>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

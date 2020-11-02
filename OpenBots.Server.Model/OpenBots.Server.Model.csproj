@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Platforms>AnyCPU;x64</Platforms>
+    <Version>1.1.0</Version>
+    <Copyright>OpenBots Inc</Copyright>
+    <PackageProjectUrl>https://openbots.ai/product/openbots-server</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/OpenBotsAI/OpenBots.Server</RepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>OpenBots.Server.Model.xml</DocumentationFile>
+    <NullableReferenceTypes>true</NullableReferenceTypes>
+
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DocumentationFile>OpenBots.Server.Model.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="OpenBots.Server.Model.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="OpenBots.Server.Model.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="4.1.1" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,130 @@
+<div class="row">
+    <div class="col-md-12">
+      <nb-card>
+        <nb-card-header>
+          <div class="row">
+            <div class="col-md-8 col-lg-8 col-xxxl-6">
+              <h2>File Detail </h2>
+            </div>
+  
+            <div class="col-md-4 col-lg-4 col-xxxl-6 text-right"  >
+              <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn " (click)="gotoaudit()"  > 
+                <img class="img" src="../../../../assets/images/auditLog.svg">   </button>
+            </div>
+          </div>
+        </nb-card-header>
+        <nb-card-body>
+          <form [formGroup]="objectViewForm" autocomplete="off">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="name" class="label col-form-label">Name</label>
+                  <input type="input" nbInput fullWidth id="name" style="color: #000000;" formControlName="name" />
+               
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="provider" class="label col-form-label">Storage Provider</label>
+                  <input type="input" nbInput fullWidth id="provider" style="color: #000000;" formControlName="storageProvider" />
+                </div>
+              </div>
+            </div>
+                
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="createdBy" class="label col-form-label">Content Type </label>
+                  <input type="input" nbInput fullWidth id="createdBy" style="color: #000000;" formControlName="contentType" />
+                </div>
+              </div>
+  
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="createdOn" class="label col-form-label">Size </label>
+                  <input type="input" nbInput fullWidth id="createdOn"  style="color: #000000;"formControlName="sizeInBytes" />
+                </div>
+              </div>
+             
+            </div>
+             
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="folder" class="label col-form-label">Folder Name </label>
+                  <input type="input" nbInput fullWidth id="folder"  style="color: #000000;"formControlName="folder" />
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="entity" class="label col-form-label">Correlation Entity Id</label>
+                  <input type="input" nbInput fullWidth id="entity" style="color: #000000;" formControlName="correlationEntityId" />
+                </div>
+              </div>
+  
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="correlationEntity" class="label col-form-label">Correlation Entity </label>
+                  <input type="input" nbInput fullWidth id="correlationEntity"  style="color: #000000;"formControlName="correlationEntity" />
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="createdBy" class="label col-form-label">Created By</label>
+                  <input type="input" nbInput fullWidth id="createdBy" style="color: #000000;" formControlName="createdBy" />
+                </div>
+              </div>
+  
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="createdOn" class="label col-form-label">Created On</label>
+                  <input type="input" nbInput fullWidth id="createdOn"  style="color: #000000;"formControlName="createdOn" />
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6  ">
+                <!-- <label for="createdBy" class="label">Download</label>
+               <br /> -->
+                <button class="btn-down" (click)="onDown()"><i class="fa fa-download"></i> Download</button>
+              </div>
+              
+              <!-- <div class="col-md-6 text-right" *ngIf="show_del == null || show_del == '' || show_del == 'BinaryObjectAPI' "> -->
+              <div class="col-md-6 text-right" *ngIf="show_del == 'BinaryObjectAPI'">
+                <button class="btn-down" (click)="openDeleteDialog(deleteDialog)"><i class="fa fa-trash"></i> Delete</button>
+              </div>
+            </div>
+            
+          </form>
+        </nb-card-body>
+      </nb-card>
+    </div>
+  </div>
+
+
+
+  <ng-template #deleteDialog let-data let-ref="dialogRef">
+    <nb-card>
+      <nb-card-header>
+        <h6>Delete File</h6>
+      </nb-card-header>
+      <nb-card-body>
+        <div aria-labelledby="title">
+          <p>Are you sure you want to delete?</p>
+        </div>
+      </nb-card-body>
+      <nb-card-footer>
+        <button class="btn btn-danger" (click)="deleteBinaryObjects(ref)">
+          Delete
+        </button>
+        <button nbButton style="margin-left: 11px" (click)="ref.close()">
+          Cancel
+        </button>
+      </nb-card-footer>
+    </nb-card>
+  </ng-template>

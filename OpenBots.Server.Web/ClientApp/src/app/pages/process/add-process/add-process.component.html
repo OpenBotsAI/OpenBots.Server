@@ -1,0 +1,98 @@
+<!-- <div class="form-group">
+    <label for="exampleInputEmail1" class="label">Email address</label>
+    <input type="email" nbInput fullWidth id="exampleInputEmail1" placeholder="Email">
+  </div> -->
+<div class="row">
+    <div class="col-md-12">
+        <nb-card>
+            <nb-card-header><h2>Add Process</h2></nb-card-header>
+            <nb-card-body>  
+                <form [formGroup]="showprocess">
+                    <div class="row">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label for="agentname" class="label">
+                                Process Name *</label>
+                                <input type="input" nbInput fullWidth id="name" formControlName="name" trim="blur"ngxSpecialChar
+                                class="form-control" placeholder="Please enter Process name" />
+                                <div *ngIf="f.name.touched && f.name.invalid" class="invalid-feedback-frm">
+                                    <div *ngIf="f.name.errors && f.name.errors.required">
+                                        Process Name is required.
+                                    </div>
+                                    <div *ngIf="f.name.errors.minlength">
+                                        Process Name at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.name.errors.maxlength">
+                                        Process Name at least 100 characters long.
+                                    </div>
+                                    <div *ngIf=" f.name.errors.pattern">
+                                        Please enter valid process Name .
+                                    </div>
+                                </div>
+                        </div>
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label for="agentname" class="label">Status *</label>
+                            <input type="input" nbInput fullWidth id="name" formControlName="status" trim="blur" ngxSpecialChar
+                                class="form-control"  readonly/>
+                            <!-- <select class="custom-select" formControlName="status" > 
+                                <option value="" > </option>
+                                <option *ngFor="let item of value" [value]="item" >
+                                    {{ item }}
+                                </option>
+                            </select>
+                             <div *ngIf="f.status.touched && f.status.invalid" class="invalid-feedback-frm"> 
+                                <div *ngIf="f.status.errors && f.status.errors.required">
+                                    Status  is required.
+                                </div>
+                            </div> -->
+                        </div>
+                        
+                    </div>
+
+                    
+                    <div class="row rowPadTOp">
+                        <!-- <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label class="label">Version</label>
+                            <input type="input" nbInput fullWidth  formControlName="version"
+                            class="form-control" placeholder="Please enter Version" />
+                            <div *ngIf="f.version.touched && f.version.invalid" class="invalid-feedback-frm">
+                                <div *ngIf="f.version.errors && f.version.errors.required">
+                                    Version is required.
+                                </div>
+                                <div *ngIf="f.version.errors.minlength">
+                                    Version at least 1 characters long.
+                                </div>
+                                <div *ngIf="f.version.errors.maxlength">
+                                    Version at least 100 characters long.
+                                </div>
+                                <div *ngIf="f.version.errors.pattern">Enter only number.</div>
+                            </div>
+                        </div> -->
+                        
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label class="label">Upload Process File *</label>
+                            <label class="upload-button">
+                                <input type="file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)" [uploadInput]="uploadInput" multiple>
+                                 
+                              </label>
+                              <div *ngIf="show_upload" class="invalid-feedback-frm">
+                                Please Upload Process File 
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row rowPadTOp">
+                        <div class="col-md-12 col-lg-12 col-xxxl-6">
+                          <button type="submit"  class="btn btn-primary"  status="primary" [disabled]="submitted || !showprocess.valid"
+                            (click)="onSubmit()">
+                            Save
+                          </button>
+                        </div>
+                      </div>
+
+                </form>
+            </nb-card-body>
+        </nb-card>
+
+
+    </div>
+</div>

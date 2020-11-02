@@ -1,0 +1,155 @@
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+        <h2>Add Agent</h2>
+      </nb-card-header>
+      <nb-card-body>
+        <form [formGroup]="addagent">
+          <div class="row">
+            <div class="col-md-6 col-sm-6 col-xxxl-6">
+              <div class="form-group">
+                <label for="agentname" class="label">Agent Name *</label>
+                <input type="input" nbInput fullWidth id="agentname" formControlName="name" class="form-control" (keyup)="handleInput($event)"
+                  placeholder="Please enter agent name">
+                <div *ngIf="(f.name.touched || f.name.dirty)  && f.name.invalid" class="invalid-feedback-frm">
+                  <div *ngIf="f.name.errors && f.name.errors.required"> Agent Name is required.</div>
+                  <div *ngIf="f.name.errors.minlength">
+                    Agent Name at least 3 characters long.
+                  </div>
+                  <div *ngIf="f.name.errors.maxlength">
+                    Agent Name at least 100 characters long.
+                  </div>
+                  <div *ngIf=" f.name.errors.pattern">
+                    Please enter valid agent name .
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xxxl-6">
+              <div class="form-group">
+                <label for="machinename" class="label">Machine Name *</label>
+                <input type="input" nbInput fullWidth id="machineName" formControlName="machineName"
+                  class="form-control" placeholder="Please enter machine name" />
+                <div *ngIf="(f.machineName.touched || f.machineName.dirty) && f.machineName.invalid" class="invalid-feedback-frm">
+                  <div *ngIf="f.machineName.errors && f.machineName.errors.required"> Machine Name is required.</div>
+                  <div *ngIf="f.machineName.errors.minlength">
+                    Machine Name at least 3 characters long.
+                  </div>
+                  <div *ngIf="f.machineName.errors.maxlength">
+                    Machine Name at least 100 characters long.
+                  </div>
+                  <div *ngIf="f.machineName.errors.pattern">
+                    Please enter valid machine name .
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-sm-6 col-xxxl-6">
+              <div class="form-group">
+                <label for="macaddress" class="label">Mac Addresses </label>
+                <input type="input" nbInput fullWidth id="macAddresses" formControlName="macAddresses" (keyup)="handleInput($event)"
+                  class="form-control" placeholder="Please enter macaddress">
+                <div *ngIf="f.macAddresses.touched && f.macAddresses.invalid" class="invalid-feedback-frm">
+                  <div *ngIf="f.macAddresses.errors && f.macAddresses.errors.required"> Mac Address is required.</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xxxl-6">
+              <div class="form-group">
+                <label for="ipadd" class="label">IP (V4) Address</label>
+
+                <input type="input" nbInput fullWidth id="ipAddresses" formControlName="ipAddresses"  (keyup)="handleInput($event)"
+                  class="form-control" placeholder="Please enter ipAddress" disallow-spaces>
+
+                <div *ngIf="(f.ipAddresses.touched || f.ipAddresses.dirty) && f.ipAddresses.invalid" class="invalid-feedback-frm">
+                  <div *ngIf="f.ipAddresses.errors && f.ipAddresses.errors.required"> IP (V4) Address is required.</div>
+                  <div *ngIf="f.ipAddresses.errors.pattern">
+                    Please enter valid Ip .
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-sm-6 col-xxxl-6">
+
+              <div class="form-group">
+                <label for="queueitemtype" class="label"> OS Logon Credentials * </label>
+                <select class="custom-select" formControlName="CredentialId">
+                  <option value=''  selected> </option>
+                  <option *ngFor="let item of cred_value" [value]="item.credentialId">{{item.credentialName}}</option>
+                </select>
+                <div *ngIf="f.CredentialId.touched && f.CredentialId.invalid" class="invalid-feedback-frm">
+                  <div *ngIf="f.CredentialId.errors && f.CredentialId.errors.required"> Credential is required.</div>
+                </div>
+                 
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xxxl-6">
+              <div class="form-group">
+                <label class="label">Agent Enabled </label>
+
+                <div class="checkbox checbox-switch switch-primary">
+                  <label>
+                    <input type="checkbox" name="isAdmin" formControlName="isEnabled" />
+                    <span></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+          </div>
+   
+
+
+          <div class="row">
+            <div class="col-md-6 col-sm-6 col-xxxl-6">
+              <div class="form-group">
+                <label for="userName" class="label">User Name </label>
+                <input type="input" nbInput fullWidth id="userName" formControlName="userName" 
+                  class="form-control" placeholder="Please enter userName">
+                <div *ngIf="f.userName.touched && f.userName.invalid" class="invalid-feedback-frm">
+                  <div *ngIf="f.userName.errors && f.userName.errors.required"> User Name is required.</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xxxl-6">
+              <div class="form-group">
+                <label for="ipadd" class="label">Password</label>
+
+                <input type="password" nbInput fullWidth id="password" formControlName="password"  
+                  class="form-control" placeholder="Please enter password"  >
+
+                <div *ngIf="(f.password.touched || f.password.dirty) && f.password.invalid" class="invalid-feedback-frm">
+                  <div *ngIf="f.password.errors && f.password.errors.required"> password is required.</div>
+                   
+                </div>
+              </div>
+            </div>
+          </div>
+
+     
+
+
+          <div class="row">
+            <div class="col-md-6 col-sm-6 col-xxxl-6">
+
+              <div class="form-group">
+
+                <button type="submit" class="btn btn-primary"   status="primary" [disabled]="submitted || !addagent.valid"
+                  (click)="onSubmit()">Save</button>
+              </div>
+            </div>
+          </div>
+
+        </form>
+
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

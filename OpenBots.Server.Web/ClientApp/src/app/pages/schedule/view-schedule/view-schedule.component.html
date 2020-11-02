@@ -1,0 +1,145 @@
+<div class="row">
+    <div class="col-md-12">
+        <nb-card>
+            <nb-card-header>
+                <div class="row">
+                    <div class="col-md-8 col-lg-8 col-xxxl-6">
+                        <h2>Schedule Detail </h2>
+                    </div>
+                    <div class="col-md-4 col-lg-4 col-xxxl-6 text-right">
+                        <button class="btn btn-primary" (click)="runNowJob()" *ngIf="this.scheduleData && 
+                        this.scheduleData.processId && this.scheduleData.agentId">Run Now</button>
+                        <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn "
+                            (click)="gotoaudit()">
+                            <img class="img" src="../../../../assets/images/auditLog.svg"> </button>
+                    </div>
+                    <!-- <div class="col-md-2 col-lg-2 col-xxxl-3 text-right">
+                        <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn "
+                            (click)="gotoaudit()">
+                            <img class="img" src="../../../../assets/images/auditLog.svg"> </button>
+                    </div> -->
+                </div>
+            </nb-card-header>
+            <nb-card-body>
+                <form [formGroup]="scheduleForm" autocomplete="off">
+                    <div class="row">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <div class="form-group">
+                                <label for="name" class="label  col-form-label">Name</label>
+                                <input type="input" nbInput fullWidth id="name" formControlName="name">
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label for="subtopic" class="label">Agent Name</label>
+                            <select class="custom-select" formControlName="agentId">
+                                <option value="" disabled>Pleace select agent name</option>
+                                <option *ngFor="let item of allAgents" [value]="item?.agentId">
+                                    {{ item?.agentName }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label for="status" class="label  col-form-label">Process Name</label>
+                            <select class="custom-select" formControlName="processId">
+                                <option value="" disabled>Pleace select agent name</option>
+                                <option *ngFor="let item of allProcesses" [value]="item?.processId">
+                                    {{ item?.processName }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <div class="form-group">
+                                <div class="checkbox checbox-switch switch-primary">
+                                    <label class="label">Disabled</label><br>
+                                    <label>
+                                        <input type="checkbox" formControlName="isDisabled" />
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <div class="form-group">
+                                <label class="label">Starting Type</label>
+                                <nb-radio-group formControlName="startingType">
+                                    <nb-radio class="startingtype" value="oneTime" [disabled]="true">One Time</nb-radio>
+                                    <nb-radio class="startingtype" value="recurrence" [disabled]="true">Recurrence
+                                    </nb-radio>
+                                    <nb-radio class="startingtype" value="manual" [disabled]="true">Manual</nb-radio>
+                                </nb-radio-group>
+                            </div>
+                        </div>
+                        <!-- <div class="col-md-6 col-lg-6 col-xxxl-6" *ngIf="this.scheduleData && 
+                        this.scheduleData.processId && this.scheduleData.agentId">
+                            <div class="form-group">
+                                <label class="label">Create Job Now</label>
+                                <button class="btn btn-primary" (click)="runNowJob()">Run Now</button>
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="row rowPadBottom">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6"
+                            *ngIf="scheduleForm.value.startingType == 'oneTime' || scheduleForm.value.startingType == 'recurrence'">
+                            <div class="form-group">
+                                <label for="startDate" class="label">Start Date</label>
+                                <input id="startDate" nbInput fullWidth formControlName="startDate" />
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-6 col-xxxl-6"
+                            *ngIf="scheduleForm.value.startingType == 'recurrence'">
+                            <div class="form-group">
+                                <label for="expiryDate" class="label">Expiry Date</label>
+                                <input nbInput fullWidth formControlName="expiryDate" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row rowPadBottom">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <div class="form-group">
+                                <label for="createdBy" class="label  col-form-label">Created By</label>
+                                <input type="input" nbInput fullWidth id="createdBy" formControlName="createdBy">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <div class="form-group">
+                                <label for="createdOn" class="label  col-form-label">Created On</label>
+                                <input type="input" nbInput fullWidth id="createdOn" formControlName="createdOn">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row rowPadBottom">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <div class="form-group" *ngIf="scheduleForm.value.updatedBy">
+                                <label for="updatedBy" class="label  col-form-label">Updated By</label>
+                                <input type="input" nbInput fullWidth id="updatedBy" formControlName="updatedBy">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <div class="form-group" *ngIf="scheduleForm.value.updatedOn">
+                                <label for="updatedOn" class="label  col-form-label">Updated On</label>
+                                <input type="input" nbInput fullWidth id="updatedOn" formControlName="updatedOn">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row rowPadBottom">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6"
+                            *ngIf="scheduleForm.value.startingType == 'recurrence'">
+                            <div class="form-group ">
+                                <label for="cronExpression" class="label  col-form-label">Cron Expression</label>
+                                <cron-editor [(cron)]="cronExpression" [disabled]="true" [(options)]="cronOptions">
+                                </cron-editor>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
+</div>

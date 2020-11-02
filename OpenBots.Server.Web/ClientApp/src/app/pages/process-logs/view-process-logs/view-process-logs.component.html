@@ -1,0 +1,100 @@
+<nb-card>
+  <nb-card-header>
+    <div class="row">
+      <div class="col-md-8 col-lg-8 col-xxxl-6">
+        <h2>Process Log Detail</h2>
+      </div>
+      <div class="col-md-4 col-lg-4 col-xxxl-6 text-right">
+        <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn"
+          (click)="navigateToAudit()">
+          <img class="img" src="../../../../assets/images/auditLog.svg" />
+        </button>
+      </div>
+    </div>
+  </nb-card-header>
+  <nb-card-body>
+    <form [formGroup]="processLogsForm" autocomplete="off">
+      <div class="row">
+        <div class="col-md-6 col-lg-6 col-xxxl-6">
+          <label for="agentName" class="label">Agent Name</label>
+          <input type="input" nbInput fullWidth id="agentName" formControlName="agentName" style="color:#000000" />
+          <p class="link" *ngIf="processLogsForm && processLogsForm.value.agentId">
+            <a (click)="navigateToAgent()">
+              <u>View details</u>
+            </a>
+          </p>
+        </div>
+
+        <div class="col-md-6 col-lg-6 col-xxxl-6">
+          <label for="processName" class="label">Process Name</label>
+          <input type="input" nbInput fullWidth id="processName" formControlName="processName" style="color:#000000" />
+          <p class="link" *ngIf="processLogsForm && processLogsForm.value.processId">
+            <a (click)="navigateToProcess()">
+              <u>View details</u>
+            </a>
+          </p>
+        </div>
+      </div>
+      <div class="row rowPadTop">
+        <div class="col-md-6 col-lg-6 col-xxxl-6">
+          <label for="machineName" class="label">Machine Name</label>
+          <input type="input" nbInput fullWidth id="machineName" formControlName="machineName" style="color:#000000" />
+        </div>
+        <div class="col-md-6 col-lg-6 col-xxxl-6">
+          <label for="message" class="label">Message</label>
+          <input type="input" nbInput fullWidth id="message" formControlName="message" style="color:#000000" />
+        </div>
+      </div>
+      <div class="row rowPadTop">
+        <div class="col-md-6 col-lg-6 col-xxxl-6">
+          <label for="messageTemplate" class="label">Message Template</label>
+          <input type="input" nbInput fullWidth id="messageTemplate" formControlName="messageTemplate"
+            style="color:#000000" />
+        </div>
+        <div class="col-md-6 col-lg-6 col-xxxl-6">
+          <label for="level" class="label">Level</label>
+          <input type="input" nbInput fullWidth id="level" formControlName="level" style="color:#000000" />
+        </div>
+      </div>
+      <div class="row rowPadTop">
+        <div class="col-md-6 col-lg-6 col-xxxl-6">
+          <label for="logger" class="label">Logger</label>
+          <input type="input" nbInput fullWidth id="logger" formControlName="logger" style="color:#000000" />
+        </div>
+        <div class="col-md-6 col-lg-6 col-xxxl-6">
+          <label for="exception" class="label">Exception</label>
+          <input type="input" nbInput fullWidth id="exception" formControlName="exception" style="color:#000000" />
+        </div>
+      </div>
+
+      <div class="row rowPadTop">
+        <div class="col-md-6 col-lg-6 col-xxxl-6">
+          <label for="processLogTimeStamp" class="label">Process Log Time Stamp</label>
+          <input type="input" nbInput fullWidth id="processLogTimeStamp" formControlName="processLogTimeStamp"
+            style="color:#000000" />
+        </div>
+        <div class="col-md-6 col-lg-6 col-xxxl-6">
+          <label for="createdOn" class="label">Created On</label>
+          <input type="input" nbInput fullWidth id="createdOn" formControlName="createdOn" style="color: #000000" />
+        </div>
+      </div>
+      <div class="row rowPadTop">
+        <div class="col-md-6 col-lg-6 col-xxxl-6">
+          <label for="createdBy" class="label">Created By</label>
+          <input type="input" nbInput fullWidth id="createdBy" formControlName="createdBy" />
+        </div>
+      </div>
+      <div class="row rowPadTop">
+        <div class="col-md-12 col-lg-12 col-xxxl-6">
+          <label class="label">Properties</label>
+          <!-- <json-editor [options]="editorOptions" formControlName="properties"></json-editor> -->
+          <!-- <ace #aceEditor [config]="config" [mode]="'text'" [theme]="'github'" [(value)]="aceXmlValue"></ace> -->
+          <!-- <ace  [mode]="'xml'" [theme]="'github'" [(value)]="value"></ace> -->
+          <!-- <ace [mode]="'xml'" [theme]="'github'" [(value)]="aceXmlValue">text</ace> -->
+
+          <textarea style="color: #000000" rows="8" nbInput fullWidth formControlName="properties"></textarea>
+        </div>
+      </div>
+    </form>
+  </nb-card-body>
+</nb-card>

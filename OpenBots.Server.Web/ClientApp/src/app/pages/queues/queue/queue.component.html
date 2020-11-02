@@ -1,0 +1,71 @@
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+        <h2>{{title}} Queue</h2>
+      </nb-card-header>
+      <nb-card-body>
+        <form [formGroup]="queueForm" autocomplete="off">
+          <div class="row rowPadding">
+            <div class="col-md-12 col-lg-12 col-xxxl-12">
+              <label for="name" class="label">Queue Name *</label>
+              <input type="input" nbInput fullWidth id="name" formControlName="name"
+                placeholder="Please enter queue name" ngxSpecialChar trim="blur">
+              <div *ngIf="formControls.name.invalid && (formControls.name.dirty || formControls.name.touched)"
+                class="invalid-feedback-frm">
+                <div *ngIf="formControls.name.errors.required">
+                  Name is required.
+                </div>
+                <div *ngIf="formControls.name.errors.minlength">
+                  Name must be at least 3 characters long.
+                </div>
+                <div *ngIf="formControls.name.errors.maxlength">
+                  Name can be 100 characters long.
+                </div>
+                <div *ngIf="formControls.name.errors.pattern">
+                  Name cannot contain white spaces.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row rowTopPadding">
+            <div class="col-md-12 col-lg-12 col-xxxl-12">
+              <label for="retryCount" class="label">Max Retry Count</label>
+              <input type="number" nbInput fullWidth id="name" formControlName="maxRetryCount"
+                placeholder="Please enter retry count" ngxSpecialChar trim="blur">
+
+              <div
+                *ngIf="formControls.maxRetryCount.invalid && (formControls.maxRetryCount.dirty || formControls.maxRetryCount.touched)"
+                class="invalid-feedback-frm">
+                <!-- <div *ngIf="formControls.maxRetryCount.errors.required">
+                  Max retry count is required.
+                </div> -->
+                <div *ngIf="formControls.maxRetryCount.errors.pattern">
+                  Max retry count value between 0-99
+                </div>
+                <!-- <div *ngIf="formControls.maxRetryCount.errors.minlength">
+                  Max retry count must be at least 1 characters long.
+                </div> -->
+                <!-- <div *ngIf="formControls.maxRetryCount.errors.maxlength">
+                  Max retry count can be 100 characters long.
+                </div> -->
+              </div>
+            </div>
+          </div>
+          <div class="row rowTopPadding">
+            <div class="col-md-12 col-lg-12 col-xxxl-12">
+              <label for="description" class="label col-sm-2 col-form-label">Description</label>
+              <textarea type="input" nbInput rows="5" fullWidth id="description" formControlName="description"
+                placeholder="Please enter description" ngxSpecialChar trim="blur"></textarea>
+            </div>
+          </div>
+          <div class="row rowTopPadding">
+            <div class="col-md-6 col-lg-6 col-xxxl-12"><button type="submit" class="btn btn-primary" status="primary"
+                [disabled]="queueForm.invalid || isSubmitted" (click)="onSubmit()">Save</button></div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6"></div>
+          </div>
+        </form>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

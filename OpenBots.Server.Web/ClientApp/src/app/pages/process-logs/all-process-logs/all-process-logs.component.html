@@ -1,0 +1,139 @@
+<nb-card>
+    <nb-card-header>
+        <div class="titleHeader">
+            <div class="titleLeft">
+                <div class="LeftBgIcon">
+                    <img class="img-head-logo" src="../../../../assets/icons/Log.svg">
+                </div>
+                <div class="LeftBgText">
+                    <h2>Process Logs</h2>
+                    <p>
+                        Process Logs to keep track of changes done during the execution of a process.
+                    </p>
+                </div>
+            </div>
+            <div class="titleRight">
+                <button type="button" class="btn btn-primary" (click)="exportFile()"> <i
+                        class="fa fa-download"></i>Export</button>
+            </div>
+        </div>
+    </nb-card-header>
+    <nb-card-body>
+            <form [formGroup]="showprocessjob">
+                <div class="row filter-row">
+                    <div class="col-md-3 col-lg-3">
+                        <label for="queueitemtype" class="label col-form-label" style="width: 100px">Agent Name</label>
+                        <select class="custom-select" (change)="comon_process('agent',$event.target.value)"
+                            formControlName="agentId">
+                            <option selected></option>
+                            <option *ngFor="let item of show_filter_agent" [value]="item.agentId">
+                                {{ item.agentName }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 col-lg-3">
+                        <label for="queueitemtype" class="label col-form-label" style="width: 105px">Process Name
+                        </label>
+                        <select class="custom-select" (change)="comon_process('process',$event.target.value)"
+                            formControlName="processId">
+                            <option selected> </option>
+                            <option *ngFor="let item of show_filter_process" [value]="item.processId">
+                                {{ item.processNameWithVersion }}
+                            </option>
+                        </select>
+                    </div>
+                      <!-- <div class="col-md-3 col-lg-3">
+                          <label for="queueitemtype" class="label col-form-label" style="width: 105px">Process Name
+                          </label>
+                          <select class="custom-select" (change)="comon_process('process',$event.target.value)"
+                              formControlName="processId">
+                              <option selected> </option>
+                              <option *ngFor="let item of show_filter_jobs" [value]="item.processId">
+                                  {{ item.processNameWithVersion }}
+                              </option>
+                          </select>
+                      </div> -->
+
+                </div>
+            </form>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">
+                        Process Name
+                        <i (click)="onSortClick($event, 'processName')"
+                            [class]="allProcessLogs | chevron: page.totalCount"></i>
+                    </th>
+                    <th scope="col">Machine Name
+                        <i (click)="onSortClick($event, 'machineName')"
+                            [class]="allProcessLogs | chevron: page.totalCount"></i>
+                    </th>
+                    <th scope="col">Message
+                        <i (click)="onSortClick($event, 'message')"
+                            [class]="allProcessLogs | chevron: page.totalCount"></i>
+                    </th>
+                    <!-- <th scope="col">Message Template
+                        <i (click)="onSortClick($event, 'messageTemplate')"
+                            [class]="allProcessLogs | chevron: page.totalCount"></i>
+                    </th> -->
+                    <th scope="col">Level
+                        <i (click)="onSortClick($event, 'level')"
+                            [class]="allProcessLogs | chevron: page.totalCount"></i>
+                    </th>
+                    <th scope="col">Logger
+                        <i (click)="onSortClick($event, 'logger')"
+                            [class]="allProcessLogs | chevron: page.totalCount"></i> </th>
+                    <th scope="col">Jobs</th>
+                    <th scope="col">View</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of this.allProcessLogs  | paginate : {
+                    id: '1', itemsPerPage: page.pageSize,
+                    currentPage: page.pageNumber, totalItems: page.totalCount }">
+                    <td>
+                        <ngx-tooltip [data]="data?.processName" [size]="34"> </ngx-tooltip>
+                    </td>
+                    <td>
+                        <ngx-tooltip [data]="data?.machineName" [size]="14"> </ngx-tooltip>
+                    </td>
+                    <td>
+                        <ngx-tooltip [data]="data?.message" [size]="50"> </ngx-tooltip>
+                    </td>
+                    <!-- <td>
+                        <ngx-tooltip [data]="data?.messageTemplate" [size]="18"> </ngx-tooltip>
+                    </td> -->
+                    <td>
+                        <ngx-tooltip [data]="data?.level" [size]="7"> </ngx-tooltip>
+                    </td>
+                    <td>
+                        <ngx-tooltip [data]="data?.logger" [size]="8"> </ngx-tooltip>
+                    </td>
+                    <td><a (click)="navigateToJobs(data?.jobId)"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                    </td>
+                    <td> <a (click)="navigateToProcessView(data?.id)"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </nb-card-body>
+    <nb-card-body>
+        <div class="row pagerow">
+            <div class="col-md-8 col-lg-8 no-left-padding">
+                <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+                    (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)"
+                    directionLinks="true" autoHide="true" screenReaderPaginationLabel="Pagination"
+                    screenReaderPageLabel="page" screenReaderCurrentLabel="You're on page">
+                </pagination-controls>
+            </div>
+            <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="page.totalCount > 5">
+                <label class="label">Show {{ page.totalCount }} /</label>
+                <select class="custom-select per-page-drop" (change)="selectChange($event)">
+                    <option *ngFor="let item of itemsPerPage" [value]="item.id">
+                        {{ item.name }}
+                    </option>
+                </select>
+            </div>
+        </div>
+    </nb-card-body>
+</nb-card>

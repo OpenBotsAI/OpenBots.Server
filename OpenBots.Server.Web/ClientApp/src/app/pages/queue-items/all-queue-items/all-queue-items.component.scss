@@ -1,0 +1,322 @@
+@media only screen and (max-width: 750px) {
+
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+  }
+
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  tr {
+    border: 1px solid #ccc;
+  }
+
+  td {
+    border: none;
+    border-bottom: 1px solid #eee;
+    position: relative;
+    padding-left: 20px;
+    margin-left: 150px;
+  }
+
+  td:before {
+    position: absolute;
+    top: 12px;
+    left: 6px;
+    width: 200px;
+    padding-right: 40px;
+    white-space: nowrap;
+    margin-left: -150px;
+  }
+
+  td:nth-of-type(1):before {
+    content: "Name";
+  }
+
+  td:nth-of-type(2):before {
+    content: "State";
+  }
+
+  td:nth-of-type(3):before {
+    content: "State Message";
+  }
+
+  td:nth-of-type(4):before {
+    content: "Locked By";
+  }
+
+  td:nth-of-type(5):before {
+    content: "Start Time";
+  }
+
+  td:nth-of-type(6):before {
+    content: "Expiration Time";
+  }
+
+  td:nth-of-type(7):before {
+    content: "End Time";
+  }
+
+  td:nth-of-type(8):before {
+    content: "View";
+  }
+
+  td:nth-of-type(9):before {
+    content: "Edit";
+  }
+
+  td:nth-of-type(10):before {
+    content: "Delete";
+  }
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #f1f1f1;
+}
+.label-size {
+  width: 151px;
+}
+
+.drop-size {
+  width: 532px;
+}
+
+
+.add-que {
+  left: 146px;
+  top: 27px;
+}
+
+.add-watch {
+  top: 41px;
+  left: 206px;
+  padding-left: 177px;
+}
+
+.my-icon {
+  font-size: 14px;
+  color: gray;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.filter-row {
+  padding-bottom: 12px;
+}
+
+
+
+.checkbox.checbox-switch {
+  padding-left: 0px;
+}
+
+.checkbox.checbox-switch label,
+.checkbox-inline.checbox-switch {
+  display: inline-block;
+  position: relative;
+  padding-left: 0;
+}
+
+.checkbox.checbox-switch label input,
+.checkbox-inline.checbox-switch input {
+  display: none;
+}
+
+.checkbox.checbox-switch label span,
+.checkbox-inline.checbox-switch span {
+
+  width: 45px;
+  border-radius: 20px;
+  height: 24px;
+  border: 1px solid #dbdbdb;
+  background-color: #dcd1d1;
+  border-color: #f3efef;
+  box-shadow: #dfdfdf 0px 0px 0px 0px inset;
+  -webkit-transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s;
+  transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+.checkbox.checbox-switch label span:before,
+.checkbox-inline.checbox-switch span:before {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgb(255, 255, 255);
+  content: " ";
+  top: 0;
+  position: relative;
+  left: 2px;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  top: 1px;
+}
+
+.checkbox.checbox-switch label>input:checked+span:before,
+.checkbox-inline.checbox-switch>input:checked+span:before {
+  left: 25px;
+  top: 1px;
+}
+
+/* Switch Primary */
+.checkbox.checbox-switch.switch-primary label>input:checked+span,
+.checkbox-inline.checbox-switch.switch-primary>input:checked+span {
+  background-color: rgb(0, 105, 217);
+  border-color: rgb(0, 105, 217);
+  /*box-shadow: rgb(0, 105, 217) 0px 0px 0px 8px inset;*/
+  transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
+}
+
+.checkbox.checbox-switch.switch-primary label>input:checked:disabled+span,
+.checkbox-inline.checbox-switch.switch-primary>input:checked:disabled+span {
+  background-color: rgb(0, 105, 217);
+  border-color: rgb(0, 105, 217);
+  /* box-shadow: rgb(109, 163, 221) 0px 0px 0px 8px inset;*/
+  transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
+}
+
+.table {
+  width: 100%;
+  margin-bottom: 0rem;
+  color: #212529;
+}
+
+
+.table-image {
+
+  td,
+  th {
+    vertical-align: middle;
+  }
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #f1f1f1;
+}
+
+
+::ng-deep .ngx-pagination {
+  padding-left: 0px !important;
+}
+
+.ngx-pagination .current,
+.btn-info {
+  background: #17a2b8 !important;
+  border: transparent !important;
+  border-radius: 20px !important;
+}
+
+.ngx-pagination .current:hover {
+  background: #17a2b8 !important;
+  border-radius: 20px !important;
+  border: transparent !important;
+}
+
+
+
+.top-perpage {
+  top: 10px
+}
+
+.paginateDiv {
+  width: 100%;
+  ;
+}
+
+.row.pagerow {
+  width: 100%;
+  margin: 0px;
+}
+
+.top-perpage {
+  top: 10px
+}
+
+
+.perpage {
+  text-align: right;
+}
+
+.per-page-drop {
+  width: 141px;
+  height: 37px;
+}
+
+.no-right-padding {
+  padding: 0px;
+}
+
+.no-left-padding {
+  padding: 0px;
+}
+
+.customQueueForm {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 15px;
+}
+
+.customQueueForm label,
+.customQueueForm select {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.customQueueForm select {
+  width: 319px;
+}
+
+.customQueueForm .btn.btn-primary {
+  padding: 3px 18px !important;
+}
+
+.queueForms {
+  margin-bottom: 0px !important;
+  overflow: hidden;
+  padding: 20px 0px;
+  margin-top: 20px;
+  border-top: 1px solid #edf1f7;
+  border-bottom: 1px solid #edf1f7;
+}
+
+.nb-theme-default nb-card-header {
+  border-bottom: none !important;
+}
+
+.watch {
+  float: right;
+}
+
+@media only screen and (min-width: 10px)and (max-width: 736px) {
+  .customQueueForm select {
+    width: 250px;
+  }
+}
+
+@media only screen and (min-width: 10px)and (max-width: 600px) {
+  .nb-theme-default nb-card-header {
+    border-bottom: none !important;
+    padding-bottom: 0px !important;
+  }
+
+  .customQueueForm {
+    display: block;
+    margin-bottom: 15px;
+    margin-right: 0px;
+  }
+
+  .customQueueForm select {
+    width: 100%;
+  }
+}

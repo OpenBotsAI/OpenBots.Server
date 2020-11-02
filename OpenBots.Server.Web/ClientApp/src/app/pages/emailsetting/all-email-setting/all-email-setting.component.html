@@ -1,0 +1,188 @@
+<div class="row">
+    <div class="col-md-12">
+        <nb-card>
+            <nb-card-header>
+                <div class="row">
+                    <div class="col-md-8 col-lg-8 col-xxxl-6">
+                        <h2>Email Settings</h2>
+                    </div>
+
+                </div>
+            </nb-card-header>
+            <nb-card-body>
+                <form [formGroup]="emailform">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">Allow Domains</label>
+
+                                <input type="input" nbInput fullWidth formControlName="allowedDomains"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">
+                                    Block Domains
+                                </label>
+
+                                <input type="input" nbInput fullWidth formControlName="blockedDomains"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">Add BCC Address</label>
+
+                                <input type="input" nbInput fullWidth formControlName="addBCCAddress"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">
+                                    Add CC Address
+                                </label>
+
+                                <input type="input" nbInput fullWidth formControlName="addCCAddress"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">Body Add Prefix</label>
+
+                                <input type="input" nbInput fullWidth formControlName="bodyAddPrefix"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">
+                                    Body Add Suffix
+                                </label>
+
+                                <input type="input" nbInput fullWidth formControlName="bodyAddSuffix"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">Subject Add Prefix</label>
+
+                                <input type="input" nbInput fullWidth formControlName="subjectAddPrefix"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">
+                                    Subject Add Suffix
+                                </label>
+
+                                <input type="input" nbInput fullWidth formControlName="subjectAddSuffix"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">Updated By</label>
+
+                                <input type="input" readonly nbInput fullWidth formControlName="updatedBy"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">
+                                    Updated on
+                                </label>
+
+                                <input type="input" readonly nbInput fullWidth formControlName="updatedOn"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">is Deleted</label>
+
+                                <div class="checkbox checbox-switch switch-primary">
+                                    <label>
+                                        <input type="checkbox" name="isDeleted" formControlName="isDeleted" />
+                                        <span></span>
+                                    </label>
+
+                                </div>
+                            </div>
+                        </div> -->
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">
+                                Are all emails disabled?
+                                </label>
+
+                                <div class="checkbox checbox-switch switch-primary">
+                                    <label>
+                                        <input type="checkbox" name="isEmailDisabled"
+                                            formControlName="isEmailDisabled" />
+                                        <span></span>
+                                    </label>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row rowPadTOp" *ngIf="showupdate">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <button type="submit" class="btn btn-primary" status="primary"
+                                (click)="onSubmit()">Save</button>
+                        </div>
+
+                    </div>
+
+                    <div class="row rowPadTOp" *ngIf="!showupdate">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <button type="submit" class="btn btn-primary" status="primary"
+                                (click)="formEnable()">Enable</button>
+                        </div>
+
+                    </div>
+
+
+
+
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
+</div>

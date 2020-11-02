@@ -1,0 +1,98 @@
+<!-- <div class="form-group">
+    <label for="exampleInputEmail1" class="label">Email address</label>
+    <input type="email" nbInput fullWidth id="exampleInputEmail1" placeholder="Email">
+  </div> -->
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+        <!-- Process details of {{show_allprocess.name}} -->
+
+
+        
+            <div class="row">
+              <div class="col-md-8 col-lg-8 col-xxxl-6">
+                <h2>Process Detail </h2>
+              </div>
+    
+              <div class="col-md-4 col-lg-4 col-xxxl-6 text-right"  >
+                <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn " (click)="gotoaudit()"  > 
+                  <img class="img" src="../../../../assets/images/auditLog.svg">   </button>
+              </div>
+            </div>
+
+      </nb-card-header>
+      <nb-card-body>
+        <form [formGroup]="showprocess">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label for="name" class="label  col-form-label">Process Name </label>
+
+                <input type="input" nbInput fullWidth id="name" formControlName="name" style="color:#000000">
+<!-- 
+                <p class="link">
+                  <a (click)="gotoaudit()">
+                    <u>View details</u>
+                  </a>
+                </p> -->
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label class="label  col-form-label">Status</label>
+
+                <input type="input" nbInput fullWidth id="status" formControlName="status" style="color:#000000">
+              </div>
+            </div>
+
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label class="label  col-form-label">Created On </label>
+
+                <input type="input" nbInput fullWidth formControlName="createdOn" style="color:#000000">
+
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label class="label  col-form-label">Created By </label>
+
+                <input type="input" nbInput fullWidth formControlName="createdBy" style="color:#000000">
+              </div>
+            </div>
+
+          </div>
+
+          <div class="row">
+
+
+            <div class="col-md-6">
+
+              <!-- <label for="createdBy" class="label  col-form-label">Download now </label>
+
+              <br /> -->
+              <button class="btn-down" (click)="onDown()"><i class="fa fa-download"></i> Download</button>
+
+            </div>
+          </div>
+
+
+
+
+
+
+
+
+
+        </form>
+      </nb-card-body>
+    </nb-card>
+
+
+  </div>
+</div>

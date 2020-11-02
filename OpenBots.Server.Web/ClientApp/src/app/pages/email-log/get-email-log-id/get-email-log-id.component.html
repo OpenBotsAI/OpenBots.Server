@@ -1,0 +1,117 @@
+<div class="row">
+    <div class="col-md-12">
+        <nb-card>
+            <nb-card-header>
+                <div class="row">
+                    <div class="col-md-8 col-lg-8 col-xxxl-6">
+                        <h2>Email Log Detail</h2>
+                    </div>
+
+                    <!-- <div class="col-md-4 col-lg-4 col-xxxl-6 text-right">
+                        <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn" (click)="gotoaudit()">
+              <img class="img" src="../../../../assets/images/auditLog.svg" />
+            </button>
+                    </div> -->
+                </div>
+            </nb-card-header>
+            <nb-card-body>
+                <form [formGroup]="emailform">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="agentname" class="label col-form-label">Email Account Id</label>
+
+                                <input type="input" nbInput fullWidth id="agentname" formControlName="emailAccountId"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="agentname" class="label col-form-label">
+                                    Sender Address
+                                </label>
+
+                                <input type="input" nbInput fullWidth id="agentname" formControlName="senderAddress"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="agentname" class="label col-form-label">Sender User Id</label>
+
+                                <input type="input" nbInput fullWidth id="agentname" formControlName="senderUserId"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="agentname" class="label col-form-label">Sender Name</label>
+
+                                <input type="input" nbInput fullWidth id="agentname" formControlName="senderName"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+
+                        </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="agentname" class="label col-form-label">Sent On UTC
+                                </label>
+
+                                <input type="input" nbInput fullWidth id="agentname" formControlName="sentOnUTC"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="agentname" class="label col-form-label">reason</label>
+
+                                <input type="input" nbInput fullWidth id="agentname" formControlName="reason"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="createdBy" class="label col-form-label">Created By
+                                </label>
+
+                                <input type="input" nbInput fullWidth id="createdBy" formControlName="createdBy"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="createdOn" class="label col-form-label">Created On
+                                </label>
+
+                                <input type="input" nbInput fullWidth id="createdOn" formControlName="createdOn"
+                                    style="color: #000000" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="createdBy" class="label col-form-label">Content
+                                </label>
+                                <textarea type="input" nbInput fullWidth rows="10" id="createdOn"
+                                    formControlName="emailObjectJson" style="color: #000000"></textarea>
+                                <!-- <div class="p-text" [innerHTML]="jsonValue"></div> -->
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
+</div>

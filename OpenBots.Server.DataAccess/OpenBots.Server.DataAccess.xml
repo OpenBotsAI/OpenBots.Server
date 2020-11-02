@@ -1,0 +1,341 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>OpenBots.Server.DataAccess</name>
+    </assembly>
+    <members>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.AuditLogRepository">
+            <summary>
+            Audit Log Repository
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.AuditLogRepository.#ctor(OpenBots.Server.DataAccess.StorageContext,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.Model.AuditLog},Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Constructor for AuditLogRepository
+            </summary>
+            <param name="context"></param>
+            <param name="logger"></param>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.AuditLogRepository.DbTable">
+            <summary>
+            Retrieves audit logs
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.BinaryObjectRepository">
+            <summary>
+            Binary Object Repository
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.BinaryObjectRepository.#ctor(OpenBots.Server.DataAccess.StorageContext,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.Model.BinaryObject},Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Constructor for Binary Object Repository
+            </summary>
+            <param name="context"></param>
+            <param name="logger"></param>
+            <param name="entityEventSink"></param>
+            <param name="httpContextAccessor"></param>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.BinaryObjectRepository.DbTable">
+            <summary>
+            Access Binary Objects Data Table
+            </summary>
+            <returns>Binary Object</returns>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.BinaryObjectRepository.UpdateEntity(Microsoft.AspNetCore.Http.IFormFile,System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Update an Entity to the Binary Objects data table
+            </summary>
+            <param name="file"></param>
+            <param name="filePath"></param>
+            <param name="binaryObjectId"></param>
+            <param name="apiComponent"></param>
+            <param name="name"></param>
+            <returns>Nothing</returns>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.EntityRepository`1">
+            <summary>
+            Entity Repository
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.EntityRepository`1.#ctor(OpenBots.Server.DataAccess.StorageContext,Microsoft.Extensions.Logging.ILogger{`0},Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Initializes a new instance of the <see cref="T:OpenBots.Server.DataAccess.Repositories.EntityRepository`1"/> class.
+            </summary>
+            <param name="context">The context.</param>
+            <param name="logger">The logger.</param>
+            <param name="httpContextAccessor"></param>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.EntityRepository`1.AuthorizeOperation(`0,OpenBots.Server.Model.Core.EntityOperationType)">
+            <summary>
+            Authorizes the operation.
+            </summary>
+            <param name="entity">The entity.</param>
+            <param name="operation">The operation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.EntityRepository`1.Add(`0)">
+            <summary>
+            Add entity to appropriate data table
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityValidationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityAlreadyExistsException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityOperationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.UnauthorizedOperationException"></exception>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.EntityRepository`1.HandleDuplicateConstraint(Microsoft.Data.SqlClient.SqlException)">
+            <summary>
+            Duplicate constraint error handling
+            </summary>
+            <param name="ex"></param>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.CannotInsertDuplicateConstraintException"></exception>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.EntityRepository`1.Delete(System.Guid)">
+            <summary>Deletes the specified identifier.</summary>
+            <param name="id">The identifier.</param>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityDoesNotExistException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.UnauthorizedOperationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityOperationException"></exception>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.EntityRepository`1.SoftDelete(System.Guid)">
+            <summary>
+            Softs the delete.
+            </summary>
+            <param name="id">The identifier.</param>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityDoesNotExistException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.UnauthorizedOperationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityOperationException"></exception>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.EntityRepository`1.Update(`0,System.Byte[])">
+            <summary>
+            Updates the specified entity.
+            </summary>
+            <param name="entity">The entity.</param>
+            <param name="originalTimestamp">Timestamp value of original </param>
+            <returns></returns>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityValidationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityDoesNotExistException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityConcurrencyException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.EntityOperationException"></exception>
+            <exception cref="T:OpenBots.Server.DataAccess.Exceptions.UnauthorizedOperationException"></exception>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.EntityRepository`1.TrackChange(`0,OpenBots.Server.Model.Core.EntityOperationType,Microsoft.EntityFrameworkCore.ChangeTracking.PropertyValues,Microsoft.EntityFrameworkCore.ChangeTracking.PropertyValues,System.Byte[])">
+            <summary>
+            This method creates a changeset style model for Changes being made to the entity.
+            This can be used to create audit logs or event queues in conjunction with IEntityOperationEventSink
+            </summary>
+            <param name="timestamp"></param>
+            <param name="entity"></param>
+            <param name="operation"></param>
+            <param name="currentValues"></param>
+            <param name="originalValues"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.EntityRepository`1.Validate(`0)">
+            <summary>
+            Validates the specified entity.
+            </summary>
+            <param name="entity">The entity.</param>
+            <returns></returns> 
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IAuditLogRepository">
+            <summary>
+            Interface for AuditLogRepository
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository">
+            <summary>
+            Binary Object Repository Interface
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IEmailAccountRepository">
+            <summary>
+            Interface for EmailAccountRepository
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IEmailLogRepository">
+            <summary>
+            Interface for EmailLogRepository
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IEmailSettingsRepository">
+            <summary>
+            Interface for EmailSettingsRepository
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IPasswordPolicyRepository">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IProcessRepository">
+            <summary>
+            Interface for ProcessRepository
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.ProcessRepository">
+            <summary>
+            Process Repository
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ProcessRepository.#ctor(OpenBots.Server.DataAccess.StorageContext,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.Model.Process},Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Construtor for Process Repository
+            </summary>
+            <param name="storageContext"></param>
+            <param name="logger"></param>
+            <param name="entityEventSink"></param>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ProcessRepository.DbTable">
+            <summary>
+            Retrieves processes
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.dbContext">
+            <summary>
+            The database context/
+            </summary>
+        </member>
+        <member name="F:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.userContext">
+            <summary>
+            The user context
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.#ctor(OpenBots.Server.DataAccess.StorageContext,Microsoft.Extensions.Logging.ILogger{`0})">
+            <summary>
+            Initializes a new instance of the <see cref="T:OpenBots.Server.DataAccess.Repositories.EntityRepository`1"/> class.
+            </summary>
+            <param name="context">The context.</param>
+            <param name="logger">The logger.</param>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.AuthorizeRows(System.Linq.IQueryable{`0})">
+            <summary>
+            Requesting Authorization the entire record set before serving it.
+            Override if you need entire Resultset for validation and a Lambda is not good enough.
+            </summary>
+            <param name="entities">The entities.</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.AuthorizeRow(`0)">
+            <summary>
+            Authorizes the row.
+            </summary>
+            <param name="entity">The entity.</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.AuthorizeRead">
+            <summary>
+            Authorizes the read.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.Find(System.Int32,System.Int32)">
+            <summary>
+            Finds the specified skip.
+            </summary>
+            <param name="skip">The skip.</param>
+            <param name="take">The take.</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.Find(System.Nullable{System.Guid},System.Func{`0,System.Boolean},System.Func{`0,System.Object},OpenBots.Server.Model.Core.OrderByDirectionType,System.Int32,System.Int32)">
+            <summary>
+            Finds the specified predicate.
+            </summary>
+            <param name="parentId"></param>
+            <param name="predicate">The predicate.</param>
+            <param name="sort"></param>
+            <param name="direction"></param>
+            <param name="skip">The skip.</param>
+            <param name="take">The take.</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.Find``1(System.Nullable{System.Guid},System.Func{`0,System.Boolean},System.Func{`0,System.Object},OpenBots.Server.Model.Core.OrderByDirectionType,System.Int32,System.Int32)">
+            <summary>
+            Finds the specified predicate.
+            </summary>
+            <param name="parentId"></param>
+            <param name="predicate">The predicate.</param>
+            <param name="sort"></param>
+            <param name="direction"></param>
+            <param name="skip">The skip.</param>
+            <param name="take">The take.</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.Query(System.Nullable{System.Guid},System.Func{`0,System.Boolean},System.Func{`0,System.Object},OpenBots.Server.Model.Core.OrderByDirectionType,System.Int32,System.Int32)">
+            <summary>
+            Finds the specified predicate.
+            </summary>
+            <param name="parentId"></param>
+            <param name="predicate">The predicate.</param>
+            <param name="sort"></param>
+            <param name="direction"></param>
+            <param name="skip">The skip.</param>
+            <param name="take">The take.</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.Count(System.Func{`0,System.Boolean})">
+            <summary>
+            Counts the specified predicate.
+            </summary>
+            <param name="predicate">The predicate.</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.Count">
+            <summary>
+            Counts this instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.GetOne(System.Guid)">
+            <summary>
+            </summary>
+            <param name="Id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.Exists(System.Guid)">
+            <summary>
+            Existses the specified identifier.
+            </summary>
+            <param name="Id">The identifier.</param>
+            <returns></returns>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.ScheduleRepository">
+            <summary>
+            Schedule Repository
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ScheduleRepository.#ctor(OpenBots.Server.DataAccess.StorageContext,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.Model.Schedule},Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Constructor for Schedule Repository
+            </summary>
+            <param name="context"></param>
+            <param name="logger"></param>
+            <param name="httpContextAccessor"></param>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.TenantEntityRepository`1.AuthorizeRow(`0)">
+            <summary>
+            Authorizes the row.
+            </summary>
+            <param name="entity">The entity.</param>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.TenantEntityRepository`1.AuthorizeRead">
+            <summary>
+            Authorizes the read.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.TenantEntityRepository`1.AuthorizeOperation(`0,OpenBots.Server.Model.Core.EntityOperationType)">
+            <summary>
+            Authorizes the operation.
+            </summary>
+            <param name="entity">The entity.</param>
+            <param name="operation">The operation.</param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

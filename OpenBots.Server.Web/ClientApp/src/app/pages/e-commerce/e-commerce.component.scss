@@ -1,0 +1,73 @@
+::ng-deep .ngx-charts {
+  float: none;
+  height: 300px !important;
+}
+
+.whiteBK {
+  background-color: white;
+  overflow: hidden;
+  padding: 25px;
+}
+
+.job{
+  background-color: white;
+  overflow: hidden;
+  padding: 25px;
+  margin-top: 25px;
+}
+.whiteBK h3 {
+  padding-bottom: 20px;
+}
+.job h3 {
+  padding-bottom: 20px;
+}
+
+.mainPaddingBotm {
+  padding-bottom: 20px;
+}
+
+.chartTop {
+  background-color: #3366ff;
+  padding: 15px;
+  font-size: 16px;
+  color: white;
+}
+
+.chartGreen {
+  background-color: #009688;
+}
+
+.chartPurple {
+  background-color: #5425a1;
+}
+
+.chartRed {
+  background-color: #a93927;
+}
+
+.chartTop span {
+  display: block;
+}
+.showmore{
+  display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media only screen and
+(min-width: 10px)and
+(max-width: 768px) {
+  .chartTop{
+      margin-bottom:18px;
+  }
+  .mainPaddingBotm{
+      padding-bottom:0px;
+  }
+}
+@media only screen and
+(min-width: 10px)and
+(max-width: 500px) {
+  .chartTop.chartRed{
+      margin-bottom:0px;
+  }
+}

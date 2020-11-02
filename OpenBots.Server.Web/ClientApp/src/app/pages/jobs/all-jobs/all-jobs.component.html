@@ -1,0 +1,178 @@
+<nb-card>
+  <nb-card-header>
+    <div class="titleHeader">
+      <div class="titleLeft">
+        <div class="LeftBgIcon">
+          <img class="img-head-logo" src="../../../../assets/icons/Job.svg">
+        </div>
+        <div class="LeftBgText">
+          <h2>Jobs</h2>
+          <p>
+              Work for an agent to execute a specific Process executed.
+          </p>
+        </div>
+      </div>
+      <div class="titleRight">
+        <button type="button" class="btn btn-primary" (click)="exportFile()">
+          <i class="fa fa-download"></i> Export
+        </button>
+      </div>
+    </div>
+  </nb-card-header>
+  <nb-card-body>
+    <form [formGroup]="showjobs">
+      <div class="row filter-row">
+        <div class="col-md-3 col-lg-3">
+          <label for="queueitemtype" class="label col-form-label" style="width: 100px">Agent Name</label>
+          <select class="custom-select" (change)="common_agent($event.target.value)" formControlName="agentId">
+            <option selected></option>
+            <option *ngFor="let item of show_filter_agent" [value]="item.agentId">
+              {{ item.agentName }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-3 col-lg-3">
+          <label for="queueitemtype" class="label col-form-label" style="width: 105px">Process Name
+          </label>
+          <select class="custom-select" (change)="comon_process($event.target.value)" formControlName="processId">
+            <option selected> </option>
+            <option *ngFor="let item of show_filter_process" [value]="item.processId">
+              {{ item.processNameWithVersion }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-3 col-lg-3">
+          <label for="queueitemtype" class="label col-form-label" style="width: 100px">Status</label>
+          <select class="custom-select" (change)="comon_job($event.target.value)">
+            <option></option>
+            <option value="New">New</option>
+            <option value="InProgress">InProgress</option>
+            <option value="Completed">Completed</option>
+            <option value="Failed">Failed</option>
+          </select>
+        </div>
+        <div class="col-md-3 col-lg-3">
+          <label for="queueitemtype" class="label col-form-label">Successful</label>
+          <select class="custom-select" (change)="comon_succesful($event.target.value)">
+            <option></option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+      </div>
+    </form>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">
+            Agent Name
+            <i (click)="onSortClick($event, 'agentname')" [class]="show_alljobs | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
+            Process Name
+            <i (click)="onSortClick($event, 'processName')" [class]="show_alljobs | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
+            Start Time
+            <i (click)="onSortClick($event, 'startTime')" [class]="show_alljobs | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
+            End Time
+            <i (click)="onSortClick($event, 'endTime')" [class]="show_alljobs | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
+            Job Status
+            <i (click)="onSortClick($event, 'jobStatus')" [class]="show_alljobs | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
+            Successful
+            <i (click)="onSortClick($event, 'isSuccessful')" [class]="show_alljobs | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">Log</th>
+          <th scope="col">View</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="
+            let jobs of show_alljobs
+              | paginate
+                : {
+                    id: '1',
+                    itemsPerPage: page.pageSize,
+                    currentPage: page.pageNumber,
+                    totalItems: page.totalCount
+                  }
+          ">
+          <td scope="row">
+            <ngx-tooltip [data]="jobs?.agentName" [size]="12">
+            </ngx-tooltip>
+          </td>
+          <td scope="row" *ngIf="jobs.processName == null">
+            Unavailable
+          </td>
+          <td scope="row" *ngIf="jobs.processName != null">
+            <ngx-tooltip [data]="jobs?.processName" [size]="14">
+            </ngx-tooltip>
+          </td>
+          <td scope="row">
+            <ngx-tooltip [data]="jobs?.startTime | timeDate: 'lll'" [size]="20">
+            </ngx-tooltip>
+          </td>
+          <td scope="row">
+            <ngx-tooltip [data]="jobs?.endTime | timeDate: 'lll' " [size]="20">
+            </ngx-tooltip>
+          </td>
+
+          <td scope="row">
+            <ngx-tooltip [data]=" jobs?.jobStatus " [size]="12">
+            </ngx-tooltip>
+          </td>
+          <td scope="row" *ngIf="jobs.isSuccessful == true">
+            <ngx-tooltip [data]="'Yes'" [size]="12">
+            </ngx-tooltip>
+          </td>
+          <td scope="row" *ngIf="jobs.isSuccessful == false">
+            <ngx-tooltip [data]="'No'" [size]="12">
+            </ngx-tooltip>
+          </td>
+          <td scope="row" *ngIf="jobs.isSuccessful == null">
+            <ngx-tooltip [data]="''" [size]="12">
+            </ngx-tooltip>
+          </td>
+          <td>
+            <a (click)="gotoprocesslog(jobs.id)">
+              <i class="fa fa-eye" aria-hidden="true"></i>
+            </a>
+            </td>
+            <td>
+            <a (click)="gotodetail(jobs.id)">
+              <i class="fa fa-eye" aria-hidden="true"></i>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </nb-card-body>
+
+  <nb-card-body class="noTopPadding">
+    <div class="row pagerow">
+      <div class="col-md-8 col-lg-8 no-left-padding">
+        <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+          (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks="true"
+          autoHide="true" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
+          screenReaderCurrentLabel="You're on page"></pagination-controls>
+      </div>
+
+      <div class="col-md-4 col-lg-4 text-right no-right-padding">
+        <label class="label">Total {{showpage.totalCount}} / </label>
+        <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
+          <option [value]="5">5 per page</option>
+          <option [value]="10">10 per page</option>
+          <option [value]="25">25 per page</option>
+          <option [value]="50">50 per page</option>
+          <option [value]="100">100 per page</option>
+        </select>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>

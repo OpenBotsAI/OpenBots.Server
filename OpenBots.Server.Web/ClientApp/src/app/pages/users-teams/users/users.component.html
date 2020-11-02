@@ -1,0 +1,164 @@
+<nb-card>
+  <nb-card-header>
+    <div class="titleHeader">
+      <div class="titleLeft">
+        <div class="LeftBgIcon">
+          <img class="img-head-logo" src="../../../../assets/icons/Team.svg" />
+        </div>
+        <div class="LeftBgText">
+          <h2>Members of {{ admin_name }}</h2>
+          <p>Showing all Active Members</p>
+        </div>
+      </div>
+      <div class="titleRight">
+        <button type="button" class="btn btn-primary" (click)="gotoadd()">
+          Add User
+        </button>
+      </div>
+    </div>
+  </nb-card-header>
+  <nb-card-body>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">
+            Name
+            <i
+              (click)="onSortClick($event, 'name')"
+              class="my-icon fa fa-chevron-up"
+            ></i>
+          </th>
+          <th scope="col" *ngIf="isAdmin == 'true'">Is Admin</th>
+          <th scope="col">
+            Email Address
+            <i
+              (click)="onSortClick($event, 'emailAddress')"
+              class="my-icon fa fa-chevron-up"
+            ></i>
+          </th>
+          <th scope="col">
+            Status
+            <i
+              (click)="onSortClick($event, 'status')"
+              [class]="get_allpeople | chevron"
+            ></i>
+          </th>
+          <th scope="col" *ngIf="isAdmin == 'true'">Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="
+            let people of get_allpeople
+              | paginate
+                : {
+                    id: '1',
+                    itemsPerPage: page.pageSize,
+                    currentPage: page.pageNumber,
+                    totalItems: page.totalCount
+                  }
+          "
+        >
+          <td scope="row">
+            <ngx-tooltip [data]="people?.name" [size]="25"> </ngx-tooltip>
+          </td>
+          <td *ngIf="isAdmin == 'true'">
+            <div class="checkbox checbox-switch switch-primary">
+              <label>
+                <input
+                  type="checkbox"
+                  name="isAdmin"
+                  (change)="onChange($event, people.personId)"
+                  [checked]="people.isAdmin"
+                  [disabled]="people.personId == AmIAdmin"
+                />
+                <span></span>
+              </label>
+            </div>
+          </td>
+          <td>
+            <ngx-tooltip [data]="people?.emailAddress" [size]="30">
+            </ngx-tooltip>
+          </td>
+          <td>
+            <ngx-tooltip [data]="people?.status" [size]="15"> </ngx-tooltip>
+          </td>
+          <td *ngIf="isAdmin == 'true'">
+            <a
+              (click)="openDialog(deleteDialog, people.organizationMemberId)"
+              [disabled]="people.personId == AmIAdmin"
+              class="apr-btnstyle"
+            >
+              <img src="../../../assets/images/del-icon.png" alt="Delete Icon"
+            /></a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </nb-card-body>
+  <nb-card-body class="noTopPadding">
+    <div class="row pagerow">
+      <div class="col-md-8 col-lg-8 no-left-padding">
+        <pagination-controls
+          id="1"
+          class="paginateDiv"
+          previousLabel="Prev"
+          nextLabel="Next"
+          responsive="true"
+          (pageChange)="pageChanged($event)"
+          (pageBoundsCorrection)="pageChanged($event)"
+          directionLinks="true"
+          autoHide="true"
+          screenReaderPaginationLabel="Pagination"
+          screenReaderPageLabel="page"
+          screenReaderCurrentLabel="You're on page"
+        ></pagination-controls>
+      </div>
+      <div
+        class="col-md-4 col-lg-4 text-right no-right-padding"
+        *ngIf="get_perPage"
+      >
+        <label class="label">Total {{ showpage.totalCount }} /</label>
+        <!-- <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
+          <option [value]="5">5 per page</option>
+          <option [value]="10">10 per page</option>
+          <option [value]="25">25 per page</option>
+          <option [value]="50">50 per page</option>
+          <option [value]="100">100 per page</option>
+        </select> -->
+        <select
+          class="custom-select per-page-drop"
+          (change)="per_page($event.target.value)"
+        >
+          <option *ngFor="let item of itemsPerPage" [value]="item.id">
+            {{ item.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+<ng-template #deleteDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <h6>Delete Team Member</h6>
+    </nb-card-header>
+    <nb-card-body>
+      <div aria-labelledby="title">
+        <p>Are you sure want to delete?</p>
+      </div>
+    </nb-card-body>
+    <nb-card-footer>
+      <button
+        [disabled]="isDeleted"
+        class="btn btn-danger"
+        (click)="deleteUser(ref)"
+      >
+        Delete
+      </button>
+      <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
+        Cancel
+      </button>
+    </nb-card-footer>
+  </nb-card>
+</ng-template>

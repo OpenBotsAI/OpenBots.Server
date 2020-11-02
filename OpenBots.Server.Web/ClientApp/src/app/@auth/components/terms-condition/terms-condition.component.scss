@@ -1,0 +1,60 @@
+.termpage h2, .termpage h3{
+    font-size: 20px;
+    font-weight: 400;
+}
+.termpage h2{
+    margin-top: 0px;
+}
+.termpage{
+    font-size: 14px;
+    font-weight: 300;
+}
+p{
+    margin: 20px 0 10px;
+}
+p span{
+    display: block;
+}
+.termpage ul li{
+    padding-bottom: 7px;
+}
+.add-btn, .rej-btn{
+    border: 1px solid #406A9C;
+    background-color: #406a9c;
+    color: white;
+    padding: 3px 37px;
+    font-size: 18px;
+    font-weight: 400;
+    margin-top:15px;
+    margin-left: 5px;
+}
+.rej-btn{
+    border: 1px solid #f70f0f;
+    background-color: #f70f0f;
+}
+ 
+.nb-theme-default [nbButton].appearance-filled.status-warning {
+    background-color: #ff0000;
+    border-color: #ff0000;
+    color: #ffffff;
+}
+.termLogout{
+    display: none;
+}
+@media only screen and
+(min-width: 10px)and
+(max-width: 1000px) {
+    ::ng-deep .mainHeader.termsHeader{
+        display: none !important;        
+    }
+    .termLogout{
+        display: inline-block;
+    }
+}
+@media only screen and
+(min-width: 10px)and
+(max-width: 500px) {
+    .termLogout{
+        margin-top: 6px;
+    }
+}

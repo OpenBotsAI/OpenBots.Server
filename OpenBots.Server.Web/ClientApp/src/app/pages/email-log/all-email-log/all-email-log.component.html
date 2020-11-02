@@ -1,0 +1,113 @@
+<nb-card>
+    <nb-card-header>
+        <div class="titleHeader">
+            <div class="titleLeft">
+                <div class="LeftBgIcon">
+                    <img class="img-head-logo" src="../../../../assets/icons/mail.svg" />
+                </div>
+                <div class="LeftBgText">
+                    <h2>All Email Logs </h2>
+                    <p>
+                        Saved logs of all emails sent out from the server.
+                    </p>
+                </div>
+            </div>
+            <!-- <div class="titleRight">
+                <button type="button" class="btn btn-primary" (click)="gotoadd()">
+            Add Email Account
+          </button>
+            </div> -->
+        </div>
+    </nb-card-header>
+    <nb-card-body>
+<form [formGroup]="emaillogfilter">
+    <div class="row row-fil">
+        <div class="col-md-8 col-lg-8">
+            <label class="label-ser">Email Account :</label>
+            <select class="custom-select service-name" (change)="getEmailAccount($event.target.value)"
+                formControlName="page_name">
+                <option value="" selected>All</option>
+                <option *ngFor="let item of showallemailaccount" [value]="item.emailAccountId">
+                    {{ item.emailAccountName }}
+                </option>
+            </select>
+        </div>
+    </div>
+</form>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">
+                        Id
+                        <i (click)="onSortClick($event, 'id')" [class]="showallEmail | chevron: page.totalCount"></i>
+                    </th>
+                    <th scope="col">
+                        Sender User Id
+                        <i (click)="onSortClick($event, 'senderUserId')" [class]="showallEmail | chevron: page.totalCount"></i>
+                    </th>
+                    <th scope="col">
+                       Sent On UTC
+                        <i (click)="onSortClick($event, 'sentOnUTC')" [class]="showallEmail | chevron: page.totalCount"></i>
+                    </th>
+                    <th scope="col">View</th>
+                   
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="
+              let email of showallEmail
+                | paginate
+                  : {
+                      id: '1',
+                      itemsPerPage: page.pageSize,
+                      currentPage: page.pageNumber,
+                      totalItems: page.totalCount
+                    }
+            ">
+                    <td scope="row" *ngIf="email.id != null">
+                        <ngx-tooltip [data]="email?.id" [size]="50"> </ngx-tooltip>
+                    </td>
+                    <td scope="row" *ngIf="email.id == null">No Id</td>
+                    <td scope="row" >
+                        <ngx-tooltip [data]="email?.senderUserId  " [size]="40"> </ngx-tooltip>
+                    </td>
+                    <td scope="row">
+                        <ngx-tooltip [data]="email?.sentOnUTC | timeDate: 'lll'" [size]="30"> </ngx-tooltip>
+                    </td>
+                    <td>
+                        <a (click)="gotodetail(email.id)">
+                            <i class="fa fa-eye" aria-hidden="true"></i>
+                        </a>
+                    </td>
+                  
+                    
+                </tr>
+            </tbody>
+        </table>
+    </nb-card-body>
+    <nb-card-body class="noTopPadding">
+        <div class="row pagerow">
+            <div class="col-md-8 col-lg-8 no-left-padding">
+                <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks="true" autoHide="true" screenReaderPaginationLabel="Pagination"
+                    screenReaderPageLabel="page" screenReaderCurrentLabel="You're on page"></pagination-controls>
+            </div>
+            <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
+                <label class="label">Total {{ showpage.totalCount }} /</label>
+                <!-- <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
+            <option [value]="5">5 per page</option>
+            <option [value]="10">10 per page</option>
+            <option [value]="25">25 per page</option>
+            <option [value]="50">50 per page</option>
+            <option [value]="100">100 per page</option>
+          </select> -->
+                <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
+            <option *ngFor="let item of itemsPerPage" [value]="item.id">
+              {{ item.name }}
+            </option>
+          </select>
+            </div>
+        </div>
+    </nb-card-body>
+</nb-card>
+
+ 

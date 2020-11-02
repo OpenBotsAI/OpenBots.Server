@@ -1,0 +1,41 @@
+.p-text{
+    background-color: #f7f9fc;
+    border-radius: 7px;
+}
+.text-color{
+   
+    color: #000000;
+}
+
+.btn {
+    background-color: DodgerBlue;
+    border: none;
+    color: white;
+    padding: 8px 30px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  /* Darker background on mouse-over */
+  .btn:hover {
+    background-color: RoyalBlue;
+  }
+
+
+  
+  .invalid-feedback-frm {
+    width: 100%;
+    margin-top: 0.25rem;
+    color: #dc3545;
+}
+.rowPadTOp{
+  padding-top: 15px;
+}
+label.label{
+  margin-bottom: 8px !important;
+}
+label.upload-button{
+  border:1px solid #e4e9f2;
+  display: block;
+  padding: 7px;
+}

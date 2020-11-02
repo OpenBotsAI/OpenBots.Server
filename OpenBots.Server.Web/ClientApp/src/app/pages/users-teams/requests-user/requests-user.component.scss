@@ -1,0 +1,200 @@
+/*!
+ * Copyright (c) Akveo 2019. All Rights Reserved.
+ * Licensed under the Single Application / Multi Application License.
+ * See LICENSE_SINGLE_APP / LICENSE_MULTI_APP in the 'docs' folder for license information on type of purchased license.
+ */
+ 
+ 
+
+h4 {
+  margin: 2rem 0rem 1rem;
+}
+
+.table-image {
+  td, th {
+    vertical-align: middle;
+  }
+}
+.table tbody tr:nth-child(even) {
+		background-color: #f1f1f1;
+	}
+	.table tbody tr td:first-child {
+		color: #3163c4;
+  }
+  
+
+
+
+  .material-switch > input[type="checkbox"] {
+    display: none;   
+}
+
+.material-switch > label {
+    cursor: pointer;
+    height: 0px;
+    position: relative; 
+    width: 40px;  
+}
+
+.material-switch > label::before {
+    background: rgb(0, 0, 0);
+    box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    content: '';
+    height: 16px;
+    margin-top: -8px;
+    position:absolute;
+    opacity: 0.3;
+    transition: all 0.4s ease-in-out;
+    width: 40px;
+}
+.material-switch > label::after {
+    background: rgb(255, 255, 255);
+    border-radius: 16px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+    content: '';
+    height: 24px;
+    left: -4px;
+    margin-top: -8px;
+    position: absolute;
+    top: -4px;
+    transition: all 0.3s ease-in-out;
+    width: 24px;
+}
+.material-switch > input[type="checkbox"]:checked + label::before {
+    background: inherit;
+    opacity: 0.5;
+}
+.material-switch > input[type="checkbox"]:checked + label::after {
+    background: inherit;
+    left: 20px;
+}
+
+.tog-btn{
+  background-color: green;
+}
+
+a.apr-btnstyle:hover{
+  text-decoration: none;
+}
+.apr-btnstyle img{
+  width: 24px;
+  height: 24px;
+  -webkit-border-radius: 25px;
+  -moz-border-radius: 25px;
+  border-radius: 25px;
+}
+ 
+
+
+
+.table {
+  width: 100%;
+  margin-bottom: 0rem;
+  color: #212529;
+}
+
+
+
+::ng-deep .ngx-pagination {
+  padding-left: 0px !important;
+  margin-bottom:0px !important;
+} 
+
+.ngx-pagination .current,
+.btn-info {
+  background: #17a2b8 !important;
+  border: transparent !important;
+  border-radius: 20px !important;
+}
+
+.ngx-pagination .current:hover {
+  background: #17a2b8 !important;
+  border-radius: 20px !important; 
+  border: transparent !important;
+}
+.paginateDiv {
+  width: 100%;;
+}
+
+.row.pagerow{
+  width: 100%;
+  margin: 0px;
+}
+.top-perpage{
+  top:10px
+}
+
+
+.perpage{
+  text-align: right;
+}
+.per-page-drop{
+  width: 141px;
+  height: 37px;
+}
+.no-right-padding{
+  padding:0px;
+}
+.no-left-padding{
+  padding: 0px;
+}
+.label{
+  padding: 3px;
+}
+
+.btn{
+  padding: 6px;
+}
+
+
+@media only screen and (max-width: 750px) {
+  .checkbox.checbox-switch label{
+    margin-bottom: 0px;
+  }
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  tr {
+    border: 1px solid #ccc;
+  }
+  td {
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+    position: relative;
+    padding-left: 20px;
+    margin-left: 150px;
+    min-height: 50px;
+  }
+  td:before {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 151px;
+    padding: 12px;
+    white-space: nowrap;
+    margin-left: -150px;
+    min-height: 50px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  td:nth-of-type(1):before {
+    content: "Name";
+  }
+  td:nth-of-type(2):before {
+    content: "Email Address";
+  }
+}
+@media only screen and (max-width: 500px) {
+  td:before {
+    width: 111px;
+    margin-left: -101px;
+  }
+  td{
+    margin-left: 100px;
+  }
+} 

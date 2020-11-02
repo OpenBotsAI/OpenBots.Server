@@ -1,0 +1,98 @@
+<div class="row">
+    <div class="col-md-12">
+        <nb-card> 
+            <nb-card-header>
+                
+                <div class="row">
+                    <div class="col-md-8 col-lg-8 col-xxxl-6">
+                      <h2> Change Log </h2>
+                    </div>
+          
+                    <!-- <div class="col-md-4 col-lg-4 col-xxxl-6 text-right"  >
+                      <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn " (click)="goto()"  > 
+                        <img class="img" src="../../../../assets/images/auditLog.svg">   </button>
+                    </div> -->
+                  </div>
+               </nb-card-header>
+            <nb-card-body>
+                <!-- [class.col-md-4]="show_allaudit.objectId != null"
+                            [class.col-md-6]="show_allaudit.objectId == null" -->
+                <form [formGroup]="changelogform">
+                  <div class="row">
+                        <div class="col-md-6" >
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Service Name </label>
+                                <input type="input" nbInput fullWidth formControlName="serviceName"
+                                    style="color:#000000">
+                            </div>
+                        </div>
+                        <div class="col-md-6"  >
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Entity ID </label>
+
+                                <input type="input" nbInput fullWidth formControlName="objectId" style="color:#000000">
+                                <p class="link" *ngIf="show_allaudit.objectId != null">
+                                    <a (click)="goto()">
+                                        <u>View Details</u>
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                       
+                            
+                         
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Method Name</label>
+
+                                <input type="input" nbInput fullWidth id="status" formControlName="methodName"
+                                    style="color:#000000">
+                            </div>
+                            </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label class="label  col-form-label">On</label>
+
+                                <input type="input" nbInput fullWidth formControlName="createdOn" style="color:#000000">
+
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label class="label  col-form-label">By</label>
+
+                                <input type="input" nbInput fullWidth formControlName="createdBy" style="color:#000000">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6" *ngIf="show_allaudit.methodName != 'Add' && showChangedFromJson  ">
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Changed From Json </label>
+                                <p class="p-text">
+                                    <ngx-json-viewer [json]="changedFromJson" [expanded]="false"></ngx-json-viewer>
+                                </p>
+
+                            </div>
+                        </div>
+                        <div class="col-md-6" *ngIf="showChangedToJson">
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Changed To Json </label>
+                                <p class="p-text">
+                                    <ngx-json-viewer [json]="changedToJson" [expanded]="false"></ngx-json-viewer>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
+</div>

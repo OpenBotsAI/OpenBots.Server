@@ -1,0 +1,191 @@
+<nb-card>
+  <nb-card-header>
+    <div class="titleHeader">
+      <div class="titleLeft">
+        <div class="LeftBgIcon">
+          <img class="img-head-logo" src="../../../../assets/icons/Queue.svg" />
+        </div>
+        <div class="LeftBgText">
+          <h2>Queue Items</h2>
+          <p>
+              Items enqueued/published by processes and other sources for automation processes to consume.
+          </p>
+        </div>
+      </div>
+      <div class="titleRight">
+        <button type="button" class="btn btn-primary" (click)="addItem()">
+          Add Queue Item
+        </button>
+      </div>
+    </div>
+    <form [formGroup]="queueForm" class="form-group queueForms">
+      <div class="customQueueForm">
+        <label for="queueitemtype" class="label">Queue:</label>
+        <select class="custom-select" (change)="selectChange($event, 'nothing')" formControlName="id">
+          <option *ngFor="let item of queuesArr" [value]="item?.id">
+            {{ item?.name }}
+          </option>
+        </select>
+      </div>
+      <!-- <div class="customQueueForm">
+        <button class="btn btn-primary" (click)="addQueue()" [disabled]="!show">
+          <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+      </div> -->
+      <div class="customQueueForm watch">
+        <div class="checkbox checbox-switch switch-primary">
+          <label for="queueitemtype" class="label">Watch</label>
+          <label>
+            <input type="checkbox" (click)="watchRealTimeData($event)" />
+            <span></span>
+          </label>
+        </div>
+      </div>
+    </form>
+
+  </nb-card-header>
+  <nb-card-body>
+
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">
+            Name
+            <i (click)="onSortClick($event, 'name')" [class]="allQueueItemData | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
+            State
+            <i (click)="onSortClick($event, 'state')" [class]="allQueueItemData | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
+            State Message
+            <i (click)="onSortClick($event, 'stateMessage')" [class]="allQueueItemData | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
+            Locked By
+            <i (click)="onSortClick($event, 'lockedBy')" [class]="allQueueItemData | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
+            Start Time
+            <i (click)="onSortClick($event, 'lockedOn')" [class]="allQueueItemData | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
+            Expiration Time
+            <i (click)="onSortClick($event, 'lockedUntil')" [class]="allQueueItemData | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
+            End Time
+            <i (click)="onSortClick($event, 'lockedEndTime')" [class]="allQueueItemData | chevron: page.totalCount"></i>
+          </th>
+          <th *ngIf="show" scope="col">View</th>
+          <th *ngIf="show" scope="col">Edit</th>
+          <th *ngIf="show" scope="col">Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="
+            let data of allQueueItemData
+              | paginate
+                : {
+                    id: '1',
+                    itemsPerPage: page.pageSize,
+                    currentPage: page.pageNumber,
+                    totalItems: page.totalCount
+                  }
+          ">
+          <td>
+            <ngx-tooltip [data]="data?.name" [size]="30"> </ngx-tooltip>
+          </td>
+          <td>
+            <ngx-tooltip [data]="data?.state" [size]="16"> </ngx-tooltip>
+          </td>
+          <td>
+            <ngx-tooltip [data]="data?.stateMessage" [size]="20"> </ngx-tooltip>
+          </td>
+          <td>
+            <ngx-tooltip [data]="data?.lockedBy" [size]="20"> </ngx-tooltip>
+          </td>
+          <td>
+            <!-- <ngx-tooltip [data]="data?.lockedOn | timeDate: 'lll'" [size]="12">
+            </ngx-tooltip> -->
+            <ngx-tooltip [data]="data?.lockedOnUTC | timeDate: 'lll'" [size]="15">
+            </ngx-tooltip>
+          </td>
+          <td>
+            <!-- <ngx-tooltip [data]="data?.lockedUntil | timeDate: 'lll'" [size]="17">
+            </ngx-tooltip> -->
+            <ngx-tooltip [data]="data?.lockedUntilUTC | timeDate: 'lll'" [size]="17">
+            </ngx-tooltip>
+          </td>
+          <td>
+            <!-- <ngx-tooltip [data]="data?.lockedEndTime | timeDate: 'lll'" [size]="10">
+            </ngx-tooltip> -->
+            <ngx-tooltip [data]="data?.lockedEndTimeUTC | timeDate: 'lll'" [size]="10">
+            </ngx-tooltip>
+          </td>
+          <td *ngIf="show">
+            <a (click)="viewQueueItem(data?.id)"><i class="fa fa-eye" aria-hidden="true"></i></a>
+          </td>
+          <td *ngIf="show">
+            <a (click)="editQueueItem(data?.id)" *ngIf="
+                data &&
+                (data.state.toLowerCase() === 'new' || data.state.toLowerCase() == 'error' ||
+                 data.state.toLowerCase() == 'failed' ||  data.state.toLowerCase() == 'fail')
+              ">
+              <i class="fa fa-edit"> </i>
+            </a>
+          </td>
+          <td *ngIf="show">
+            <a (click)="openDeleteDialog(deleteDialog, data?.id)">
+              <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </nb-card-body>
+
+  <nb-card-body>
+    <div class="row pagerow">
+      <div class="col-md-8 col-lg-8 no-left-padding">
+        <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+          (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks="true"
+          autoHide="true" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
+          screenReaderCurrentLabel="You're on page" *ngIf="show"></pagination-controls>
+      </div>
+
+      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="page.totalCount > 5">
+        <form [formGroup]="queueForm">
+          <label class="label">Total {{ page.totalCount }} /</label>
+          <select class="custom-select per-page-drop" (change)="selectChange($event, 'pageSize')"
+            formControlName="itemsPerPage">
+            <option *ngFor="let item of itemsPerPage" [value]="item.id">
+              {{ item.name }}
+            </option>
+          </select>
+        </form>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<ng-template #deleteDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <h6>Delete Queue Item</h6>
+    </nb-card-header>
+    <nb-card-body>
+      <div aria-labelledby="title">
+        <p>Are you Sure you want to delete?</p>
+      </div>
+    </nb-card-body>
+    <nb-card-footer>
+      <button [disabled]="isDeleted" class="btn btn-danger" (click)="deleteQueueItem(ref)">
+        Delete
+      </button>
+      <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
+        Cancel
+      </button>
+    </nb-card-footer>
+  </nb-card>
+</ng-template>

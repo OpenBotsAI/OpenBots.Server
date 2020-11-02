@@ -1,0 +1,90 @@
+::ng-deep body {
+    background-image:url(../../../../assets/images/login-Bk.jpg);
+    background-repeat:no-repeat;
+    background-size:cover;
+    font-family: 'Roboto', sans-serif !important;
+    overflow: initial !important;
+}
+::ng-deep .nb-theme-default nb-layout .layout{
+    background-color: transparent !important;
+}
+::ng-deep nb-card.loginPage{
+    height: initial !important;
+    background-color:transparent !important;
+    border:initial !important;
+}
+::ng-deep ngx-login{
+    width: 100% !important;
+}
+::ng-deep nb-card.loginPage nb-auth-block{
+    max-width:100% !important;
+}
+.whiteBk{
+    background-color: white;
+    overflow: hidden;
+    padding: 8%;
+    -webkit-border-radius: 40px;
+    -moz-border-radius: 40px;
+    border-radius: 40px;
+}
+.loginFormInner{
+    padding: 4% 12%;
+}
+::ng-deep .nb-theme-default h1, ::ng-deep .nb-theme-default .h1{
+    font-family: 'Roboto', sans-serif !important;
+    font-size: 30px !important;
+    font-weight: 500 !important;
+}
+::ng-deep .nb-theme-default .loginFormInner [nbInput].size-medium {
+    font-size: 14px !important;
+    font-weight: 300 !important;
+    padding: 4% !important;
+    background-color: white !important;
+    border-color: #80808059;
+}
+::ng-deep .nb-theme-default .loginFormInner .warning{
+    margin-bottom: 15px !important;
+}
+.loginFormInner .forgotStyle a{
+    font-size: 12px !important;
+    text-decoration: none !important;
+    color: #3366ff !important;
+}
+::ng-deep .nb-theme-default .loginFormInner .appearance-filled.size-large {
+    padding: 14px 35px !important;
+    text-transform: initial !important;
+}
+.another-action{
+    font-size: 12px;
+    padding-top: 20px;
+    margin-top: 0rem !important;
+    text-align: left !important;
+}
+.footerPnl{
+    padding-top: 30px;
+}
+.footerPnl p{
+    font-size: 12px !important;
+    color:#324572 !important;
+    margin: 0px !important;
+}
+.nb-theme-default nb-card.loginPage a, ::ng-deep .nb-theme-default nb-card.loginPage nb-auth-block .text-link {
+    color: #3366ff !important;
+}
+
+@media only screen and
+(min-width: 10px)and
+(max-width: 1100px) {
+    img.imgMaxWidth{
+        max-width:100%;
+        height: auto;
+    }
+}
+@media only screen and
+(min-width: 10px)and
+(max-width: 768px) {
+    img.imgMaxWidth{
+       display: none;
+    }
+}
+

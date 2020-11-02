@@ -1,0 +1,33 @@
+<h3>{{ orgName }}</h3>
+<div class="whiteBK">
+  <div class="row mainPaddingBotm">
+    <div class="col-md-3 col-sm-6 col-xxl-3">
+      <div class="chartTop">{{ dataProcess }} <span>Processes</span></div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-xxl-3">
+      <div class="chartTop chartPurple">
+        {{ totalAgents }}<span>Agents</span>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-xxl-3">
+      <div class="chartTop chartGreen">{{ dataJobs }} <span>Jobs</span></div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-xxl-3">
+      <div class="chartTop chartRed">
+        {{ dataQueue }} <span>Queue Items</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="job">
+  <h3>Jobs Status</h3>
+
+  <div class="row mainPaddingBotm" id="charts"></div>
+
+  <div class="row">
+    <div class="col-md-12 showmore">
+      <button type="button" class="btn btn-primary" [disabled]="pageMore" (click)="loadmore(true)">Show More </button>
+    </div>
+  </div>
+</div>

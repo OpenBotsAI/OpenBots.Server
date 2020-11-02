@@ -1,0 +1,9 @@
+{
+  "prettier.singleQuote": true,
+  "typescript.format.placeOpenBraceOnNewLineForControlBlocks": false,
+  "typescript.format.placeOpenBraceOnNewLineForFunctions": false,
+  "editor.formatOnSave": true,
+  "html.format.enable": false,
+  "html.format.endWithNewline": false,
+  "eslint.format.enable": false
+}

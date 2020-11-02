@@ -1,0 +1,35 @@
+export interface QueueItem {
+  createdBy: string;
+  createdOn: string;
+  dataJson: string;
+  dataText: string;
+  deleteOn: string;
+  deletedBy: string;
+  dontDequeueAfter: string;
+  dontDequeueUntil: string;
+  jsonType: string;
+  event: string;
+  id: string;
+  isDeleted: boolean;
+  isDequeued: boolean | string;
+  isError: boolean | string;
+  isLocked: boolean | string;
+  lastOccuredError?: any;
+  lockTransactionKey: string;
+  lockedBy: string;
+  lockedOn: string;
+  lockedUntil?: any;
+  name: string;
+  organizationId: string;
+  priority: number;
+  processID: string;
+  type: string;
+  retryCount?: any;
+  source: string;
+  subtopic: string;
+  timestamp: string;
+  updatedBy: string;
+  updatedOn: string;
+  expireOnUTC: string;
+  postponeUntilUTC: string;
+}

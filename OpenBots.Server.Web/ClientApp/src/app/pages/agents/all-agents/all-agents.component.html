@@ -1,0 +1,212 @@
+<nb-card>
+  <nb-card-header>
+    <div class="titleHeader">
+      <div class="titleLeft">
+        <div class="LeftBgIcon">
+          <img class="img-head-logo" src="../../../../assets/icons/Agent.svg" />
+        </div>
+        <div class="LeftBgText">
+          <h2>Agents</h2>
+          <p>
+            Agents are pyhsical/virtual machines that will be executing
+            automation process
+          </p>
+        </div>
+      </div>
+      <div class="titleRight">
+        <button type="button" class="btn btn-primary" (click)="gotoadd()">
+          Add Agent
+        </button>
+      </div>
+    </div>
+  </nb-card-header>
+  <nb-card-body>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">
+            Name
+            <i
+              (click)="onSortClick($event, 'MachineName')"
+              class="my-icon fa fa-chevron-up"
+            ></i>
+          </th>
+
+          <th scope="col">
+            Status
+            <i
+              (click)="onSortClick($event, 'lastReportedStatus')"
+              class="my-icon fa fa-chevron-up"
+            ></i>
+          </th>
+          <th scope="col">
+            Health
+            <i
+              (click)="onSortClick($event, 'isHealthy')"
+              class="my-icon fa fa-chevron-up"
+            ></i>
+          </th>
+          <th scope="col">
+            Is Enabled
+            <i
+              (click)="onSortClick($event, 'isEnabled')"
+              class="my-icon fa fa-chevron-up"
+            ></i>
+          </th>
+          <th scope="col">Jobs</th>
+          <th scope="col">View</th>
+          <th scope="col">Edit</th>
+          <th scope="col">Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="
+            let agent of show_allagents
+              | paginate
+                : {
+                    id: '1',
+                    itemsPerPage: page.pageSize,
+                    currentPage: page.pageNumber,
+                    totalItems: page.totalCount
+                  }
+          "
+        >
+          <td scope="row" *ngIf="agent.name != null">
+            <ngx-tooltip [data]="agent?.name" [size]="30"> </ngx-tooltip>
+          </td>
+          <td scope="row" *ngIf="agent.name == null">
+            <p (click)="gotodetail(agent.id)">No Name</p>
+          </td>
+          <td scope="row">
+            <ngx-tooltip [data]="agent?.lastReportedStatus" [size]="8">
+            </ngx-tooltip>
+          </td>
+          <td scope="row" *ngIf="agent.isHealthy == false">
+            <p>
+              Not Healthy
+              <span *ngIf="agent.lastReportedOn == '0001-01-01T00:00:00 '">
+                <i>
+                  -
+                  <ngx-tooltip
+                    [data]="agent?.lastReportedOn | timeago"
+                    [size]="8"
+                  >
+                  </ngx-tooltip>
+                </i>
+              </span>
+            </p>
+          </td>
+          <td scope="row" *ngIf="agent.isHealthy == true">
+            <p>
+              Healthy
+              <span *ngIf="agent.lastReportedOn == '0001-01-01T00:00:00 '">
+                <i>
+                  -
+                  <ngx-tooltip
+                    [data]="agent?.lastReportedOn | timeago"
+                    [size]="8"
+                  >
+                  </ngx-tooltip>
+                </i>
+              </span>
+            </p>
+          </td>
+          <td scope="row" *ngIf="agent.isHealthy == null">
+            <p></p>
+          </td>
+          <td>
+            <div class="checkbox checbox-switch switch-primary">
+              <label>
+                <input
+                  type="checkbox"
+                  name="isAdmin"
+                  [checked]="agent.isEnabled"
+                  (click)="patch_Agent($event, agent.id)"
+                />
+                <span></span>
+              </label>
+            </div>
+          </td>
+          <td>
+            <a (click)="gotojobs(agent.id)">
+              <i class="fa fa-eye" aria-hidden="true"></i>
+            </a>
+          </td>
+          <td>
+            <a (click)="gotodetail(agent.id)">
+              <i class="fa fa-eye" aria-hidden="true"></i>
+            </a>
+          </td>
+          <td>
+            <a (click)="gotoedit(agent.id)">
+              <i class="fa fa-edit"> </i>
+            </a>
+          </td>
+          <td>
+            <a (click)="open2(dialog, agent.id)">
+              <img
+                src="../../../assets/images/del-icon.png"
+                alt="Delete Icon"
+              />
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </nb-card-body>
+  <nb-card-body class="noTopPadding">
+    <div class="row pagerow">
+      <div class="col-md-8 col-lg-8 no-left-padding">
+        <pagination-controls
+          id="1"
+          class="paginateDiv"
+          previousLabel="Prev"
+          nextLabel="Next"
+          responsive="true"
+          (pageChange)="pageChanged($event)"
+          (pageBoundsCorrection)="pageChanged($event)"
+          directionLinks="true"
+          autoHide="true"
+          screenReaderPaginationLabel="Pagination"
+          screenReaderPageLabel="page"
+          screenReaderCurrentLabel="You're on page"
+        ></pagination-controls>
+      </div>
+      <div
+        class="col-md-4 col-lg-4 text-right no-right-padding"
+        *ngIf="get_perPage"
+      >
+        <label class="label">Total {{ showpage.totalCount }} /</label>
+
+        <select
+          class="custom-select per-page-drop"
+          (change)="per_page($event.target.value)"
+        >
+          <option *ngFor="let item of itemsPerPage" [value]="item.id">
+            {{ item.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<ng-template #dialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <h6>Delete Agent</h6>
+    </nb-card-header>
+    <nb-card-body>
+      <div aria-labelledby="title">
+        <p>Are you sure you want to delete?</p>
+      </div>
+    </nb-card-body>
+    <nb-card-footer>
+      <button class="btn btn-danger" [disabled]="isDeleted" (click)="del_agent(ref)">Delete </button>
+      <button   class="btn btn-light"    style="margin-left: 11px" (click)="ref.close()">
+        Cancel
+      </button>
+    </nb-card-footer>
+  </nb-card>
+</ng-template>

@@ -1,0 +1,82 @@
+
+<div class="container">
+    <div class="row">
+      <div class="col-md-6 col-lg-6">
+        <div class="whiteBk">
+          <img src="../../../assets/images/OBServer_logo.png" class="loginLogo" alt="OpenBots Server Logo" />
+          <div class="loginFormInner">
+              <h1>Login</h1>
+              <nb-alert *ngIf="showMessages.error && errors?.length && !submitted" outline="danger" role="alert">
+                <p class="alert-title"><b>Oh snap!</b></p>
+                <ul class="alert-message-list">
+                  <li *ngFor="let error of errors" class="alert-message">{{ error }}</li>
+                </ul>
+              </nb-alert>
+              <nb-alert *ngIf="showMessages.success && messages?.length && !submitted" outline="success" role="alert">
+                <p class="alert-title"><b>Hooray!</b></p>
+                <ul class="alert-message-list">
+                  <li *ngFor="let message of messages" class="alert-message">{{ message }}</li>
+                </ul>
+              </nb-alert>
+
+              <form [formGroup]="loginForm" aria-labelledby="title" autocomplete="off">
+                <div class="form-control-group">
+                  <label for="input-email">Email</label>
+                  <input nbInput fullWidth id="input-email" formControlName="email"
+                    [status]="email.dirty ? (email.invalid  ? 'danger' : 'success') : ''"
+                    [attr.aria-invalid]="email.invalid && email.touched ? true : null" placeholder="Email address">
+                  <ngx-validation-message label="Email" [showPattern]="email?.hasError('pattern') && email.touched"
+                    [showRequired]="email?.errors?.required && email.touched"></ngx-validation-message>
+                </div>
+              
+                <div class="form-control-group">
+                  <span class="label-with-link">
+                    <label for="input-password">Password</label>
+                    <!-- <a class="forgot-password caption-2" routerLink="../request-password">Forgot Password?</a> -->
+                  </span>
+                  <input nbInput fullWidth id="input-password" formControlName="password" type="password"
+                    [status]="password.dirty ? (password.invalid  ? 'danger' : 'success') : ''" placeholder="Password">
+                   
+                  <ngx-validation-message label="Password" [showMinLength]="password?.hasError('minlength') && password.touched"
+                    [showMaxLength]="password?.hasError('maxlength') && password.touched"
+                    [showRequired]="password?.errors?.required && password.touched" [minLength]="minLength" [maxLength]="maxLength">
+                  </ngx-validation-message>
+                  <div class="forgotStyle text-right">
+                    <a routerLink="../request-password">Forgot Password?</a>
+                  </div>
+                </div>
+              
+                <button nbButton status="primary" size="large" (click)="login()" [disabled]="submitted || !loginForm.valid"
+                  [class.btn-pulse]="submitted">
+                  Login
+                </button>
+                <section class="another-action" aria-label="Register">
+                  Can’t Login?  <a class="text-link" routerLink="../register">Request Access.</a><br />
+                 
+                  <!-- <a   class="text-link" href="/healthcheck-ui">
+                    Check Health Status
+                  </a>
+                  <p class="sub-title">  Version 1.0</p> -->
+                </section>
+              </form>
+            </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-6">
+         <img class="imgMaxWidth" src="../../../../assets/images/login-bk.png" alt="Login"/>
+      </div>
+    </div>
+    <div class="col-md-12 col-lg-12 footerPnl">
+        <p>© Copyright 2021 |  OpenBots Server  |  Version 1.0 |  <a href="/healthcheck-ui" target="_blank" >Health</a> | <a href="https://openbots.ai/">www.openbots.ai</a></p>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+

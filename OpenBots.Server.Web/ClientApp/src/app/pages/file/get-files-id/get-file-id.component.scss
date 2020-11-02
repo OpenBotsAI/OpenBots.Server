@@ -1,0 +1,31 @@
+.label{
+    margin-bottom: 8px !important;
+  }
+  .lab-del{
+    margin-right: 70px !important;
+  }
+  .link{
+    color: cornflowerblue;
+      font-size: 14px;
+  }
+  .img{
+    height: 29px;
+  }
+  .btnimg{
+    background-color: #e4e9f2;
+  }
+  
+.btn-down {
+  background-color: DodgerBlue;
+  border: none;
+  color: white;
+  padding: 8px 30px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Darker background on mouse-over */
+.btn-down:hover {
+  background-color: RoyalBlue;
+}
+  

@@ -1,0 +1,130 @@
+<nb-card>
+  <nb-card-header>
+
+
+    <div class="titleHeader headerSchdule">
+      <div class="titleLeft">
+        <div class="LeftBgIcon">
+          <img class="img-head-logo" src="../../../../assets/icons/Schedule.svg">
+        </div>
+        <div class="LeftBgText">
+          <h2>Schedules</h2>
+          <p>
+              Schedule for executing various processes on various agents in the environment.
+          </p>
+        </div>
+      </div>
+      <div class="titleRight">
+
+        <button class="btn scheduleBtn" nbTooltip="View Hangfire Dashboard" nbTooltipPlacement="top">
+
+          <a href="/hangfire?access_token={{token}}" target="_blank">
+
+            <img src="../../../../assets/images/hangfire-dashboard.svg" alt="Schedule Icon" />
+          </a></button>
+        <button class="btn btn-primary" (click)="addSchedule()">Add Schedule</button>
+      </div>
+
+    </div>
+  </nb-card-header>
+  <nb-card-body>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">
+            Name
+            <i (click)="onSortClick($event, 'name')" [class]="allScehduleData | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
+            Agent Name
+            <i (click)="onSortClick($event, 'agentName')" [class]="allScehduleData | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
+            Process Name
+            <i (click)="onSortClick($event, 'processName')" [class]="allScehduleData | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
+            Status
+            <i (click)="onSortClick($event, 'status')" [class]="allScehduleData | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col"> View</th>
+          <th scope="col"> Edit</th>
+          <th scope="col">Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of allScehduleData  | paginate: {  id: '1', itemsPerPage: page.pageSize,
+            currentPage: page.pageNumber,totalItems: page.totalCount}">
+          <td>
+            <ngx-tooltip [data]="data?.name" [size]="30">
+            </ngx-tooltip>
+          </td>
+          <td>
+            <ngx-tooltip [data]="data?.agentName" [size]="16">
+            </ngx-tooltip>
+          </td>
+          <td>
+            <ngx-tooltip [data]="data?.processName" [size]="16">
+            </ngx-tooltip>
+          </td>
+          <td>
+            <ngx-tooltip [data]="data?.status" [size]="16">
+            </ngx-tooltip>
+          </td>
+          <td><a (click)="viewSchedule(data?.id)"><i class="fa fa-eye" aria-hidden="true"></i></a></td>
+          <td>
+            <a (click)="editSchedule(data?.id)">
+              <i class="fa fa-edit"> </i>
+            </a>
+          </td>
+          <td>
+            <a (click)="openDeleteDialog(deleteDialog, data?.id)">
+              <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </nb-card-body>
+  <nb-card-body class="noTopPadding">
+    <div class="row pagerow">
+      <div class="col-md-8 col-lg-8 no-left-padding">
+        <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+          (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks="true"
+          autoHide="true" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
+          screenReaderCurrentLabel="You're on page"></pagination-controls>
+      </div>
+
+      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="page.totalCount > 5">
+        <label class="label">Total {{page.totalCount}} /</label>
+        <select class="custom-select per-page-drop" (change)="selectChange($event)">
+          <option *ngFor="let item of itemsPerPage" [value]="item.id">
+            {{ item.name }}
+          </option>
+        </select>
+
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<ng-template #deleteDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <h6>Delete Binary Object</h6>
+    </nb-card-header>
+    <nb-card-body>
+      <div aria-labelledby="title">
+        <p>Are you sure you want to delete?</p>
+      </div>
+    </nb-card-body>
+    <nb-card-footer>
+      <button class="btn btn-danger" (click)="deleteSchedule(ref)" [disabled]="isDeleted">
+        Delete
+      </button>
+      <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
+        Cancel
+      </button>
+    </nb-card-footer>
+  </nb-card>
+</ng-template>

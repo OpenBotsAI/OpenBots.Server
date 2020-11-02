@@ -1,0 +1,87 @@
+<!-- <div class="form-group">
+    <label for="exampleInputEmail1" class="label">Email address</label>
+    <input type="email" nbInput fullWidth id="exampleInputEmail1" placeholder="Email">
+  </div> -->
+<div class="row">
+    <div class="col-md-12">
+        <nb-card>
+            <nb-card-header>Update Process
+
+            </nb-card-header>
+            <nb-card-body>
+                <form [formGroup]="showprocess">
+                    <div class="row">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label for="agentname">
+                                Process Name</label>
+
+                            <input type="input" nbInput fullWidth id="name" formControlName="name" class="form-control"
+                                placeholder="Please enter Process name" />
+                            <div *ngIf="f.name.touched && f.name.invalid" class="invalid-feedback-frm">
+                                <div *ngIf="f.name.errors && f.name.errors.required">
+                                    Process Name is required.
+                                </div>
+                                <div *ngIf="f.name.errors.minlength">
+                                    Process Name at least 2 characters long.
+                                </div>
+                                <div *ngIf="f.name.errors.maxlength">
+                                    Process Name at least 100 characters long.
+                                </div>
+                                 <div *ngIf=" f.name.errors.pattern">
+                                     Please enter valid process Name .
+                                 </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+
+                            <label>
+                                Status</label>
+
+                            <select class="custom-select" formControlName="status">
+                                <option value="">
+                                    
+                                </option>
+                                <option *ngFor="let item of value" [value]="item">
+                                    {{ item }}
+                                </option>
+                            </select>
+                            <div *ngIf="f.status.touched && f.status.invalid" class="invalid-feedback-frm">
+                                <div *ngIf="f.status.errors && f.status.errors.required">
+                                    Status is required.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                       <div class="row rowPadTOp">
+
+
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label class="label">Upload Process File</label>
+                            <label class="upload-button">
+                                <input type="file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)" [uploadInput]="uploadInput" multiple>
+                                 
+                              </label>
+                              <div *ngIf="show_upload" class="invalid-feedback-frm">
+                                Please Upload Process File 
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row rowPadTOp">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <button type="submit" class="btn btn-primary"   status="primary" [disabled]="submitted || !showprocess.valid"
+                                (click)="onSubmit()">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+
+
+
+                </form>
+            </nb-card-body>
+        </nb-card>
+
+
+    </div>
+</div>

@@ -1,0 +1,87 @@
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+        <h2>Update Asset</h2>
+      </nb-card-header>
+      <nb-card-body>
+        <form [formGroup]="assetagent">
+          <div class="row">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="agentname" class="label">Asset Name</label>
+              <input type="input" nbInput fullWidth id="agentname" formControlName="name" class="form-control" trim="blur" ngxSpecialChar 
+                placeholder="Please enter Asset name">
+              <div *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.name.errors && f.name.errors.required"> Asset Name is required.</div>
+                <div *ngIf=" f.name.errors.pattern">
+                  Please enter valid Asset Name .
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="macaddress" class="label">Type</label>
+              <input type="input" nbInput fullWidth id="type" formControlName="type" class="form-control"
+                placeholder="Please enter Type" readonly>
+              <div *ngIf="f.type.touched && f.type.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.type.errors && f.type.errors.required"> Type is required.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row rowPadTOp" *ngIf="show_allagents.type == 'Number'">
+            <div class="col-md-12 col-lg-12 col-xxxl-6">
+              <label for="numberValue" class="label">Number </label>
+               <input type="text" nbInput fullWidth id="NumberValue" formControlName="numberValue" class="form-control"
+                placeholder="Please enter number ">
+              <div *ngIf="f.numberValue.touched && f.numberValue.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.numberValue.errors && f.numberValue.errors.required"> Number is required.</div>
+              </div>
+            </div>
+          </div>
+
+
+
+          <div class="row rowPadTOp" *ngIf="show_allagents.type == 'File'">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+
+              <label class="label">Upload Asset File</label>
+              <label class="upload-button">
+                  <input type="file" ngFileSelect [options]="options"
+                   (uploadOutput)="onUploadOutput($event)" [uploadInput]="uploadInput" multiple>
+                   
+                </label>
+                <div *ngIf="show_upload" class="invalid-feedback-frm">
+                  Please Upload  File 
+              </div>
+            </div>
+          </div>
+
+          <div class="row rowPadTOp" *ngIf="show_allagents.type == 'JSON'">
+            <div class="col-md-12 col-lg-12 col-xxxl-6">
+              <label for="jsonValue" class="label">Json </label>
+              <json-editor [options]="editorOptions" formControlName="jsonValue"></json-editor>
+              <div *ngIf="f.jsonValue.touched && f.jsonValue.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.jsonValue.errors && f.jsonValue.errors.required"> Json is required.</div>
+              </div>
+            </div>
+          </div>
+          <div class="row rowPadTOp" *ngIf="show_allagents.type == 'Text'">
+            <div class="col-md-12 col-lg-12 col-xxxl-6">
+              <label for="textValue" class="label">Text </label>
+              <textarea type="input" rows="10" nbInput fullWidth id="textValue" formControlName="textValue"
+                class="form-control" placeholder="Please enter text value"></textarea>
+              <div *ngIf="f.textValue.touched && f.textValue.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.textValue.errors && f.textValue.errors.required"> Text is required.</div>
+              </div>
+            </div>
+          </div>
+          <div class="row rowPadTOp">
+            <div class="col-md-12 col-lg-12 col-xxxl-6">
+              <button type="submit" class="btn btn-primary" [disabled]="submitted || !assetagent.valid"    status="primary" (click)="onSubmit()">Save</button>
+            </div>
+          </div>
+        </form>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

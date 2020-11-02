@@ -1,0 +1,228 @@
+<div class="row">
+    <div class="col-md-12">
+        <nb-card>
+            <nb-card-header>
+                <div class="row">
+                    <div class="col-md-8 col-lg-8 col-xxxl-6">
+                        <h2>Add Emai Account</h2>
+                    </div>
+
+
+                </div>
+            </nb-card-header>
+            <nb-card-body>
+                <form [formGroup]="emailform">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">Name *</label>
+
+                                <input type="input" nbInput fullWidth formControlName="name" style="color: #000000"
+                                    placeholder="Please enter name" />
+                                <div *ngIf=" (f.name.touched || f.name.dirty) && f.name.invalid "
+                                    class="invalid-feedback-frm">
+                                    <div *ngIf="f.name.errors && f.name.errors.required">
+                                        Name is required.
+                                    </div>
+                                    <div *ngIf="f.name.errors.minlength">
+                                        Name at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.name.errors.maxlength">
+                                        Name at least 100 characters long.
+                                    </div>
+                                    <div *ngIf="f.name.errors.pattern">
+                                        Please enter valid name .
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">Email * </label>
+
+                                <input type="input" nbInput fullWidth formControlName="fromEmailAddress"
+                                    style="color: #000000" placeholder="Please enter email" />
+                                <div *ngIf=" (f.fromEmailAddress.touched || f.fromEmailAddress.dirty) && f.fromEmailAddress.invalid "
+                                    class="invalid-feedback-frm">
+                                    <div *ngIf="f.fromEmailAddress.errors && f.fromEmailAddress.errors.required">
+                                        Email is required.
+                                    </div>
+                                    <div *ngIf="f.fromEmailAddress.errors.pattern">
+                                        Please enter valid email .
+                                    </div>
+                                    <!-- <div *ngIf="f.fromEmailAddress.errors.minlength">
+                                          Email Address at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.fromEmailAddress.errors.maxlength">
+                                          Email Address at least 100 characters long.
+                                    </div> -->
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">Provider *</label>
+
+
+                                <select class="custom-select" formControlName="provider">
+                                    <option value="" disabled>Please select provider name</option>
+                                    <option value="SMTP">
+                                        SMTP
+                                    </option>
+                                </select>
+
+
+
+                                <div *ngIf=" (f.provider.touched || f.provider.dirty) && f.provider.invalid "
+                                    class="invalid-feedback-frm">
+                                    <div *ngIf="f.provider.errors && f.provider.errors.required">
+                                        Provider is required.
+                                    </div>
+                                    <div *ngIf="f.provider.errors.minlength">
+                                        Provider at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.provider.errors.maxlength">
+                                        Provider at least 100 characters long.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">From Name </label>
+
+                                <input type="input" nbInput fullWidth formControlName="fromName" style="color: #000000"
+                                    placeholder="Please enter from name" />
+
+                                <!-- <div *ngIf=" (f.fromName.touched || f.fromName.dirty) && f.fromName.invalid " class="invalid-feedback-frm">
+                                    <div *ngIf="f.fromName.errors && f.fromName.errors.required">
+                                        FromName is required.
+                                    </div>
+                                    <div *ngIf="f.fromName.errors.minlength">
+                                        From Name at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.fromName.errors.maxlength">
+                                        From Name at least 100 characters long.
+                                    </div>
+                                </div> -->
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">User Name </label>
+
+                                <input type="input" nbInput fullWidth formControlName="username" style="color: #000000"
+                                    placeholder="Please enter user name" />
+                                <!-- <div *ngIf=" (f.username.touched || f.username.dirty) && f.username.invalid " class="invalid-feedback-frm">
+                                    <div *ngIf="f.username.errors && f.username.errors.required">
+                                        username is required.
+                                    </div>
+                                    <div *ngIf="f.username.errors.minlength">
+                                        username at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.username.errors.maxlength">
+                                        username at least 100 characters long.
+                                    </div>
+                                </div> -->
+
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">Password </label>
+
+                                <input type="password" nbInput fullWidth formControlName="passwordHash"
+                                    style="color: #000000" placeholder="Please enter password" />
+                                <!-- <div *ngIf=" (f.passwordHash.touched || f.passwordHash.dirty) && f.provider.invalid " class="invalid-feedback-frm">
+                                    <div *ngIf="f.passwordHash.errors && f.passwordHash.errors.required">
+                                        Password is required.
+                                    </div>
+                                    <div *ngIf="f.passwordHash.errors.minlength">
+                                        Password at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.passwordHash.errors.maxlength">
+                                        Password at least 100 characters long.
+                                    </div>
+                                </div> -->
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">Host </label>
+
+                                <input type="input" nbInput fullWidth formControlName="host" style="color: #000000"
+                                    placeholder="Please enter host" />
+
+                                <!-- 
+                                <div *ngIf=" (f.host.touched || f.host.dirty) && f.host.invalid " class="invalid-feedback-frm">
+                                    <div *ngIf="f.host.errors && f.host.errors.required">
+                                        Host is required.
+                                    </div>
+                                    <div *ngIf="f.host.errors.minlength">
+                                        Host at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.host.errors.maxlength">
+                                        Host at least 100 characters long.
+                                    </div>
+                                </div> -->
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="label col-form-label">Port </label>
+
+                                <input type="number" nbInput fullWidth formControlName="port" style="color: #000000"
+                                    placeholder="Please enter port" />
+
+
+                                <!-- <div *ngIf=" (f.port.touched || f.port.dirty) && f.port.invalid " class="invalid-feedback-frm">
+                                    <div *ngIf="f.port.errors && f.port.errors.required">
+                                        Port is required.
+                                    </div>
+                                    <div *ngIf="f.port.errors.minlength">
+                                        Port at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.port.errors.maxlength">
+                                        Port at least 100 characters long.
+                                    </div>
+                                </div> -->
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+                    <div class="row rowPadTOp">
+                        <div class="col-md-12 col-lg-12 col-xxxl-6">
+                            <button type="submit" class="btn btn-primary" [disabled]="submitted || !emailform.valid"
+                                status="primary" (click)="onSubmit()">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
+</div>

@@ -1,0 +1,203 @@
+.invalid-feedback-frm {
+  width: 100%;
+  margin-top: 0.25rem;
+  color: #dc3545;
+}
+
+.label {
+  margin-bottom: 8px !important;
+}
+
+.rowPaddingTop {
+  padding-top: 8px;
+}
+
+.btnMargnTop {
+  margin-top: 18px;
+}
+
+::ng-deep.nav-tabs {
+  border-bottom: 1px solid #ddd !important;
+}
+
+::ng-deep .nav-tabs>li {
+  float: left !important;
+  margin-bottom: -1px !important;
+  position: relative !important;
+  display: block !important;
+}
+
+::ng-deep .nav>li>a {
+  position: relative !important;
+  display: block !important;
+  padding: 10px 15px !important;
+  margin-right: 2px !important;
+  line-height: 1.42857143 !important;
+  border: 1px solid transparent !important;
+  border-radius: 4px 4px 0 0 !important;
+}
+
+::ng-deep .nav-tabs>li.active>a,
+::ng-deep .nav-tabs>li.active>a:focus,
+::ng-deep .nav-tabs>li.active>a:hover {
+  color: #555 !important;
+  cursor: default !important;
+  background-color: #fff !important;
+  border: 1px solid #ddd !important;
+  border-bottom-color: transparent !important;
+}
+
+::ng-deep .nav-tabs li a {
+  cursor: pointer !important;
+}
+
+::ng-deep .tab-content {
+  padding: 17px !important;
+}
+
+::ng-deep .tab-content select {
+  margin-left: 3px !important;
+  margin-right: 10px !important;
+}
+
+::ng-deep .well.well-small:nth-child(1) {
+  margin-bottom: 15px;
+}
+
+dp-day-calendar.dp-material .dp-calendar-day,
+dp-day-calendar.dp-material .dp-calendar-month {
+  box-sizing: border-box !important;
+  background: #fff !important;
+  border-radius: 50% !important;
+  border: none !important;
+  outline: none !important;
+}
+
+dp-day-calendar.dp-material .dp-calendar-day:hover,
+dp-day-calendar.dp-material .dp-calendar-month:hover {
+  background: #e0e0e0 !important;
+}
+
+dp-day-calendar .dp-next-month,
+dp-day-calendar .dp-prev-month {
+  opacity: 0.5 !important;
+}
+
+dp-day-calendar.dp-material .dp-selected:hover {
+  background: #106cc8 !important;
+}
+
+dp-day-calendar.dp-material .dp-calendar-day:hover,
+dp-day-calendar.dp-material .dp-calendar-month:hover {
+  background: #e0e0e0 !important;
+}
+
+dp-day-calendar.dp-material .dp-current-day {
+  border: 1px solid #106cc8 !important;
+}
+
+dp-day-calendar.dp-material .dp-selected {
+  background: #106cc8 !important;
+  color: #fff !important;
+}
+
+::ng-deep .nb-theme-default nb-card-body {
+  overflow: initial !important;
+}
+
+::ng-deep .cron-editor-container .months-small {
+  width: 81px !important;
+}
+
+::ng-deep nb-radio-group {
+  display: block !important;
+}
+
+.startingtype {
+  display: inline-block !important;
+}
+
+
+
+
+
+.checkbox.checbox-switch {
+  padding-left: 0;
+}
+
+.checkbox.checbox-switch label,
+.checkbox-inline.checbox-switch {
+  display: inline-block;
+  position: relative;
+  padding-left: 0;
+}
+
+.checkbox.checbox-switch label input,
+.checkbox-inline.checbox-switch input {
+  display: none;
+}
+
+.checkbox.checbox-switch label span,
+.checkbox-inline.checbox-switch span {
+
+  width: 45px;
+  border-radius: 20px;
+  height: 24px;
+  border: 1px solid #dbdbdb;
+  background-color: #dcd1d1;
+  border-color: #f3efef;
+  box-shadow: #dfdfdf 0px 0px 0px 0px inset;
+  -webkit-transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s;
+  transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+.checkbox.checbox-switch label span:before,
+.checkbox-inline.checbox-switch span:before {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgb(255, 255, 255);
+  content: " ";
+  top: 0;
+  position: relative;
+  left: 2px;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  top: 3px;
+}
+
+.checkbox.checbox-switch label>input:checked+span:before,
+.checkbox-inline.checbox-switch>input:checked+span:before {
+  left: 25px;
+  top: 3px;
+}
+
+/* Switch Primary */
+.checkbox.checbox-switch.switch-primary label>input:checked+span,
+.checkbox-inline.checbox-switch.switch-primary>input:checked+span {
+  background-color: rgb(0, 105, 217);
+  border-color: rgb(0, 105, 217);
+  /*box-shadow: rgb(0, 105, 217) 0px 0px 0px 8px inset;*/
+  transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
+}
+
+.checkbox.checbox-switch.switch-primary label>input:checked:disabled+span,
+.checkbox-inline.checbox-switch.switch-primary>input:checked:disabled+span {
+  background-color: rgb(0, 105, 217);
+  border-color: rgb(0, 105, 217);
+  /* box-shadow: rgb(109, 163, 221) 0px 0px 0px 8px inset;*/
+  transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
+}
+
+@media only screen and (min-width: 10px)and (max-width: 768px) {
+  .label {
+      margin-top: 18px !important;
+  }
+  .rowPadBottom{
+    padding-bottom: 0px !important;
+  }
+}

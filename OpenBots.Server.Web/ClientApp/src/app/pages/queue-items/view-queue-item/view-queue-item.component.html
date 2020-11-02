@@ -1,0 +1,198 @@
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+
+        <div class="row">
+          <div class="col-md-8 col-lg-8 col-xxxl-6">
+            <h2>Queue Item Detail</h2>
+          </div>
+
+          <div class="col-md-4 col-lg-4 col-xxxl-6 text-right">
+            <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn "
+              (click)="gotoaudit()">
+              <img class="img" src="../../../../assets/images/auditLog.svg"> </button>
+          </div>
+        </div>
+
+      </nb-card-header>
+      <nb-card-body>
+        <form [formGroup]="showQueueItemForm" autocomplete="off">
+          <div class="row">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="name" class="label  col-form-label">Name</label>
+                <input type="input" nbInput fullWidth id="name" formControlName="name">
+                <!-- <p class="link"  >
+                        <a (click)="gotoaudit()">
+                            <u>View details</u>
+                        </a>
+                    </p> -->
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="state" class="label  col-form-label">State</label>
+                <input type="input" nbInput fullWidth id="state" formControlName="state">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="event" class="label  col-form-label">Event</label>
+                <input type="input" nbInput fullWidth id="event" formControlName="event">
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="source" class="label  col-form-label">Source</label>
+                <input type="input" nbInput fullWidth id="source" formControlName="source">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="expireOnUTC" class="label  col-form-label">Expire On</label>
+                <input type="input" nbInput fullWidth id="expireOnUTC" formControlName="expireOnUTC">
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="postponeUntilUTC" class="label  col-form-label">Postpone Until</label>
+                <input type="input" nbInput fullWidth id="postponeUntilUTC" formControlName="postponeUntilUTC">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="stateMessage" class="label  col-form-label">State Message</label>
+                <input type="input" nbInput fullWidth id="stateMessage" formControlName="stateMessage">
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="type" class="label  col-form-label">Queue Item Type</label>
+                <input type="input" nbInput fullWidth id="type" formControlName="type">
+              </div>
+            </div>
+          </div>
+          <div *ngIf="showQueueItemForm && showQueueItemForm.value.type == 'Json'">
+            <div class="row">
+              <div class="col-md-6 col-lg-6 col-xxxl-6">
+                <div class="form-group ">
+                  <label for="jsonType" class="label  col-form-label">Entity Type</label>
+                  <input type="input" nbInput fullWidth id="jsonType" formControlName="jsonType">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group" *ngIf="showQueueItemForm && showQueueItemForm.value.type == 'Json'">
+                <label for="isError" class="label  col-form-label">Data Json</label>
+                <json-editor [options]="editorOptions" formControlName="dataJson" contenteditable="false">
+                </json-editor>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="row" *ngIf="showQueueItemForm && showQueueItemForm.value.type == 'Text'">
+            <div class="col-md-12">
+              <div class="form-group ">
+                <label for="dataJson" class="label  col-form-label">Data Text</label>
+                <textarea type="input" nbInput fullWidth id="dataJson" formControlName="dataJson">
+                           </textarea>
+              </div>
+            </div>
+
+          </div>
+          <div class="row">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="isDequeued" class="label  col-form-label">Dequeued</label>
+                <input type="input" nbInput fullWidth id="isDequeued" formControlName="isDequeued">
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="isLocked" class="label  col-form-label">Locked</label>
+                <input type="input" nbInput fullWidth id="isLocked" formControlName="isLocked">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="lockedOn" class="label  col-form-label">Locked On</label>
+                <input type="input" nbInput fullWidth id="lockedOn" formControlName="lockedOnUTC">
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="lockedUntil" class="label  col-form-label">Locked Until</label>
+                <input type="input" nbInput fullWidth id="lockedUntil" formControlName="lockedUntilUTC">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="lockedBy" class="label  col-form-label">Locked By</label>
+                <input type="input" nbInput fullWidth id="lockedBy" formControlName="lockedBy">
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="lockTransactionKey" class="label  col-form-label">Lock Transaction Key</label>
+                <input type="input" nbInput fullWidth id="lockTransactionKey" formControlName="lockTransactionKey">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="retryCount" class="label  col-form-label">Retry Count</label>
+                <input type="input" nbInput fullWidth id="retryCount" formControlName="retryCount">
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="isError" class="label  col-form-label">Error</label>
+                <input type="input" nbInput fullWidth id="isError" formControlName="isError">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="errorCode" class="label  col-form-label">Error Code</label>
+                <input type="input" nbInput fullWidth id="errorCode" formControlName="errorCode">
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="errorMessage" class="label  col-form-label">Error Message</label>
+                <input type="input" nbInput fullWidth id="errorMessage" formControlName="errorMessage">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <div class="form-group ">
+                <label for="lastOccuredError" class="label  col-form-label">Last Occured Error</label>
+                <input type="input" nbInput fullWidth id="lastOccuredError" formControlName="lastOccuredError">
+              </div>
+            </div>
+          </div>
+        </form>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

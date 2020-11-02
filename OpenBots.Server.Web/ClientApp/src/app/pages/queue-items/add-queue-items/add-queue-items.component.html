@@ -1,0 +1,167 @@
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+        <h2>{{ title }} Queue Item</h2>
+      </nb-card-header>
+      <nb-card-body>
+        <form [formGroup]="queueItemForm" autocomplete="off">
+          <div class="row rowPadding">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="queueId" class="label">Queue *</label>
+              <select class="custom-select" formControlName="queueId">
+                <option value="" [disabled]="true">Please select Queue</option>
+                <option *ngFor="let item of queuesArr" [value]="item?.id">
+                  {{ item?.name }}
+                </option>
+              </select>
+              <div *ngIf="
+                  controls.queueId.invalid &&
+                  (controls.queueId.dirty || controls.queueId.touched)
+                " class="invalid-feedback-frm">
+                <div *ngIf="controls.queueId.errors.required">
+                  Queue is required.
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="name" class="label">Name *</label>
+              <input type="input" nbInput fullWidth id="name" formControlName="name" placeholder="Please enter name"
+                ngxSpecialChar trim="blur" />
+              <div *ngIf="
+                  controls.name.invalid &&
+                  (controls.name.dirty || controls.name.touched)
+                " class="invalid-feedback-frm">
+                <div *ngIf="controls.name.errors.required">
+                  Name is required.
+                </div>
+                <div *ngIf="controls.name.errors.minlength">
+                  Name must be at least 3 characters long.
+                </div>
+                <div *ngIf="controls.name.errors.maxlength">
+                  Name can be 100 characters long.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row rowPadding">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="source" class="label">Source</label>
+              <input type="input" nbInput fullWidth id="source" formControlName="source"
+                placeholder="Please enter source" ngxSpecialChar trim="blur" />
+              <div *ngIf="
+                controls.source.invalid &&
+                (controls.source.dirty || controls.source.touched)
+              " class="invalid-feedback-frm">
+                <!-- <div *ngIf="controls.source.errors.required">
+                source is required.
+              </div> -->
+                <div *ngIf="controls.source.errors.minlength">
+                  Source must be at least 3 characters long.
+                </div>
+                <div *ngIf="controls.source.errors.maxlength">
+                  Source can be 100 characters long.
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="event" class="label">Event</label>
+              <input type="input" nbInput fullWidth id="event" formControlName="event" placeholder="Please enter event"
+                ngxSpecialChar trim="blur" />
+              <div *ngIf="
+                controls.event.invalid &&
+                (controls.event.dirty || controls.event.touched)
+              " class="invalid-feedback-frm">
+                <!-- <div *ngIf="controls.source.errors.required">
+                source is required.
+              </div> -->
+                <div *ngIf="controls.event.errors.minlength">
+                  Event must be at least 3 characters long.
+                </div>
+                <div *ngIf="controls.event.errors.maxlength">
+                  Event can be 100 characters long.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row rowPadding">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="expireOnUTC" class="label">Expire On</label>
+              <input nbInput fullWidth formControlName="expireOnUTC" [owlDateTimeTrigger]="dtPicker1"
+                [owlDateTime]="dtPicker1" [min]="min" placeholder="Please select expire on" />
+              <owl-date-time #dtPicker1></owl-date-time>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="postponeUntilUTC" class="label">Postpone Until</label>
+              <input nbInput fullWidth formControlName="postponeUntilUTC" [owlDateTimeTrigger]="datePicker1"
+                [owlDateTime]="datePicker1" [min]="min" placeholder="Please select postpone untill" />
+              <owl-date-time #datePicker1></owl-date-time>
+            </div>
+          </div>
+          <div class="row rowPadding">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="type" class="label">Queue Item Type *</label>
+              <select class="custom-select" formControlName="type" (change)="onQueueItemchange()"
+                placeholder="Please Choose queue item type">
+                <option value="" disabled="true" selected>
+                  Please choose queue item type
+                </option>
+                <option *ngFor="let item of queueItemsType" [value]="item">
+                  {{ item }}
+                </option>
+              </select>
+              <div *ngIf="
+                  controls.type.invalid &&
+                  (controls.type.dirty || controls.type.touched)
+                " class="invalid-feedback-frm">
+                <div *ngIf="controls.type.errors.required">
+                  Queue item type is required.
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6" *ngIf="queueItemForm && queueItemForm.value.type == 'Json'">
+              <label for="jsonType" class="label">Json Type *</label>
+              <input type="input" nbInput fullWidth id="jsonType" formControlName="jsonType"
+                placeholder="Please enter json type" ngxSpecialChar trim="blur" />
+              <div *ngIf="
+                controls.jsonType.invalid &&
+                (controls.jsonType.dirty || controls.jsonType.touched)
+              " class="invalid-feedback-frm">
+                <div *ngIf="controls.jsonType.errors.required">
+                  Json type is required.
+                </div>
+                <!-- <div *ngIf="controls.jsonType.errors.minlength">
+                  Json type must be at least 3 characters long.
+                </div>
+                <div *ngIf="controls.jsonType.errors.maxlength">
+                  Json type can be 100 characters long.
+                </div> -->
+              </div>
+            </div>
+          </div>
+          <div class="row rowPadding">
+            <div class="col-md-12 col-lg-12 col-xxxl-12" *ngIf="queueItemForm && queueItemForm.value.type == 'Json'">
+              <label for="priority" class="label col-sm-2 col-form-label">Data JSON</label>
+              <json-editor [options]="editorOptions" formControlName="dataJson">
+              </json-editor>
+            </div>
+            <div class="col-md-12 col-lg-12 col-xxxl-12" *ngIf="queueItemForm && queueItemForm.value.type == 'Text'">
+              <label for="dataJson" class="label">Data Text *</label>
+              <textarea type="input" rows="5" nbInput fullWidth id="dataJson" formControlName="dataJson"
+                placeholder="Please enter data text" ngxSpecialChar trim="blur"></textarea>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <button type="submit" class="btn btn-primary" status="primary"
+                [disabled]="queueItemForm.invalid || isSubmitted" (click)="addQueueItem()">
+                Save
+              </button>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6"></div>
+          </div>
+        </form>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

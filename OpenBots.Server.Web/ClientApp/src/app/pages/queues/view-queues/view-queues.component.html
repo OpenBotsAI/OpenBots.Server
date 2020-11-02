@@ -1,0 +1,51 @@
+<div class="row">
+    <div class="col-md-12">
+        <nb-card>
+            <nb-card-header>
+                <h2>Queue</h2>
+            </nb-card-header>
+            <nb-card-body>
+                <form [formGroup]="viewQueueForm" autocomplete="off">
+                    <div class="row rowPadding">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label for="name" class="label">Queue Name *</label>
+                            <input type="input" nbInput fullWidth id="name" formControlName="name">
+                        </div>
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label for="retryCount" class="label">Max Retry Count</label>
+                            <input type="number" nbInput fullWidth id="name" formControlName="maxRetryCount">
+                        </div>
+                    </div>
+                    <div class="row rowTopPadding">
+                        <div class="col-md-12 col-lg-12 col-xxxl-12">
+                            <label for="description" class="label col-sm-2 col-form-label">Description</label>
+                            <textarea type="input" nbInput rows="5" fullWidth id="description"
+                                formControlName="description"></textarea>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row rowPadding">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label for="createdOn" class="label col-sm-2 col-form-label">Created On</label>
+                            <input type="input" nbInput fullWidth id="createdOn" formControlName="createdOn">
+                        </div>
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label for="createdBy" class="label col-sm-2 col-form-label">Created By</label>
+                            <input type="input" nbInput fullWidth id="createdBy" formControlName="createdBy">
+                        </div>
+                    </div>
+                    <div class="row rowPadding">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label for="updatedOn" class="label col-sm-2 col-form-label">Updated On</label>
+                            <input type="input" nbInput fullWidth id="updatedOn" formControlName="updatedOn">
+                        </div>
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label for="updatedBy" class="label col-sm-2 col-form-label">Updated By</label>
+                            <input type="input" nbInput fullWidth id="updatedBy" formControlName="updatedBy">
+                        </div>
+                    </div>
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
+</div>

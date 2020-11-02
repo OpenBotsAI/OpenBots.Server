@@ -1,0 +1,466 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>OpenBots.Server.Model</name>
+    </assembly>
+    <members>
+        <member name="T:OpenBots.Server.Model.DoNotAuditAttribute">
+            <summary>
+            Attribute to determine if a field will not be shown in audit log
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Model.DoNotAuditAttribute.#ctor(System.Boolean)">
+            <summary>
+            NonAuditable Attribute constructor
+            </summary>
+            <param name="nonauditable"></param>
+        </member>
+        <member name="P:OpenBots.Server.Model.DoNotAuditAttribute.Nonauditable">
+            <summary>
+            Property to get nonauditable boolean value
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.RequiredIfAttribute">
+            <summary>
+            Provides conditional validation based on related property value.
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.RequiredIfAttribute.OtherProperty">
+            <summary>
+            Gets or sets the other property name that will be used during validation.
+            </summary>
+            <value>
+            The other property name.
+            </value>
+        </member>
+        <member name="P:OpenBots.Server.Model.RequiredIfAttribute.OtherPropertyDisplayName">
+            <summary>
+            Gets or sets the display name of the other property.
+            </summary>
+            <value>
+            The display name of the other property.
+            </value>
+        </member>
+        <member name="P:OpenBots.Server.Model.RequiredIfAttribute.OtherPropertyValue">
+            <summary>
+            Gets or sets the other property value that will be relevant for validation.
+            </summary>
+            <value>
+            The other property value.
+            </value>
+        </member>
+        <member name="P:OpenBots.Server.Model.RequiredIfAttribute.IsInverted">
+            <summary>
+            Gets or sets a value indicating whether other property's value should match or differ from provided other property's value (default is <c>false</c>).
+            </summary>
+            <value>
+              <c>true</c> if other property's value validation should be inverted; otherwise, <c>false</c>.
+            </value>
+            <remarks>
+            How this works
+            - true: validated property is required when other property doesn't equal provided value
+            - false: validated property is required when other property matches provided value
+            </remarks>
+        </member>
+        <member name="P:OpenBots.Server.Model.RequiredIfAttribute.RequiresValidationContext">
+            <summary>
+            Gets a value that indicates whether the attribute requires validation context.
+            </summary>
+            <returns><c>true</c> if the attribute requires validation context; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:OpenBots.Server.Model.RequiredIfAttribute.#ctor(System.String,System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:OpenBots.Server.Model.RequiredIfAttribute"/> class.
+            </summary>
+            <param name="otherProperty">The other property.</param>
+            <param name="otherPropertyValue">The other property value.</param>
+        </member>
+        <member name="M:OpenBots.Server.Model.RequiredIfAttribute.FormatErrorMessage(System.String)">
+            <summary>
+            Applies formatting to an error message, based on the data field where the error occurred.
+            </summary>
+            <param name="name">The name to include in the formatted message.</param>
+            <returns>
+            An instance of the formatted error message.
+            </returns>
+        </member>
+        <member name="M:OpenBots.Server.Model.RequiredIfAttribute.IsValid(System.Object,System.ComponentModel.DataAnnotations.ValidationContext)">
+            <summary>
+            Validates the specified value with respect to the current validation attribute.
+            </summary>
+            <param name="value">The value to validate.</param>
+            <param name="validationContext">The context information about the validation operation.</param>
+            <returns>
+            An instance of the <see cref="T:System.ComponentModel.DataAnnotations.ValidationResult" /> class.
+            </returns>
+        </member>
+        <member name="T:OpenBots.Server.Model.Attributes.V1Attribute">
+            <summary>
+            Attribute for API version 1.0
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Model.Attributes.V1Attribute.#ctor">
+            <summary>
+            Version 1 Attribute
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.AuditLog">
+            <summary>
+            Audit Log model (inherits Entity model)
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.AuditLog.ObjectId">
+            <summary>
+            Id of object being changed
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.AuditLog.ServiceName">
+            <summary>
+            Name of Service used
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.AuditLog.MethodName">
+            <summary>
+            Name of Methos used
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.AuditLog.ParametersJson">
+            <summary>
+            Parameters needed to make the change
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.AuditLog.ExceptionJson">
+            <summary>
+            Any exceptions that occurred while making changes to the entity
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.AuditLog.ChangedFromJson">
+            <summary>
+            Information about entity before it was changed
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.AuditLog.ChangedToJson">
+            <summary>
+            Information about entity after it was changed
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.BinaryObject">
+            <summary>
+            Binary Object data model
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.BinaryObject.OrganizationId">
+            <summary>
+            Organization Id
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.BinaryObject.ContentType">
+            <summary>
+            Content Type
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.BinaryObject.CorrelationEntityId">
+            <summary>
+            Correlation Identity Id
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.BinaryObject.CorrelationEntity">
+            <summary>
+            Correlation Identity
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.BinaryObject.Folder">
+            <summary>
+            Folder
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.BinaryObject.StoragePath">
+            <summary>
+            Storage Path
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.BinaryObject.StorageProvider">
+            <summary>
+            Storage Provider
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.BinaryObject.SizeInBytes">
+            <summary>
+            Size in Bytes
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.BinaryObject.HashCode">
+            <summary>
+            Hash Code
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.Configuration.GlobalQueueMaxRetryCountOptions">
+            <summary>
+            GlobalQueueMaxRetryCountOptions Configuration model
+            </summary>
+        </member>
+        <member name="F:OpenBots.Server.Model.Configuration.GlobalQueueMaxRetryCountOptions.GlobalQueueMaxRetryCount">
+            <summary>
+            Configuration Name
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Configuration.GlobalQueueMaxRetryCountOptions.DefaultMaxRetryCount">
+            <summary>
+            Max Number of Retries
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Core.EmailAttachment.ContentStorageAddress">
+            <summary>
+            Address where Content of the Attachment is Stored
+            </summary>
+            <seealso cref="P:OpenBots.Server.Model.Core.EmailAttachment.ContentStorageAddress"/>
+        </member>
+        <member name="T:OpenBots.Server.Model.Core.EmailMessage">
+            <summary>
+            MailMessageStub is a simple serializable Stub for a Email message
+            This would serve as a translation between various formats of mail messages 
+            eg.: Aspose, System.Net, Amazon SES, Outlook etc.
+            It can be serialized to a JSON object and can be stored in Entity or Blob Storage
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.Core.OrderByClause`1">
+            <summary>
+            Represents Order by clause provided in OData Query Expression
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Core.OrderByClause`1.OrderByNodes">
+            <summary>
+            Collection of order by node 
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Model.Core.OrderByClause`1.#ctor">
+            <summary>
+            Creates new instance of OrderByClause
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Model.Core.OrderByClause`1.Parse(System.String)">
+            <summary>
+            Try and Parse Orderby expression from OData Query
+            </summary>
+            <exception cref="T:System.ArgumentNullException">If <paramref name="expression"/> is not null or empty.</exception>
+            <exception cref="T:System.ArgumentException">property name provided in field does not belong to <typeparamref name="T"/>></exception>
+            <exception cref="T:System.InvalidOperationException">property name provided in field does not belong to <typeparamref name="T"/>></exception>
+            <param name="expression">order by expression</param>
+        </member>
+        <member name="M:OpenBots.Server.Model.Core.OrderByClause`1.CreateExpression(OpenBots.Server.Model.Core.OrderByNode{`0})">
+            <summary>
+            Creates Expression for OrderBy/OrderByDescending
+            </summary>
+            <param name="node">Order by node to create expression</param>
+        </member>
+        <member name="T:OpenBots.Server.Model.Core.OrderByNode`1">
+            <summary>
+            Represents single order by field node
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Core.OrderByNode`1.Sequence">
+            <summary>
+            Field Sequence
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Core.OrderByNode`1.PropertyName">
+            <summary>
+            Property Name
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Core.OrderByNode`1.Direction">
+            <summary>
+            Order by direction (Asc or Dsc)
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Core.OrderByNode`1.Expression">
+            <summary>
+            Gets or sets Order by expression to use in LINQ
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.Core.OrderByDirectionType">
+            <summary>
+            Order by direction type
+            </summary>
+        </member>
+        <member name="F:OpenBots.Server.Model.Core.OrderByDirectionType.Ascending">
+            <summary>
+            sort data in ascending order
+            </summary>
+        </member>
+        <member name="F:OpenBots.Server.Model.Core.OrderByDirectionType.Descending">
+            <summary>
+            sort data in descending order
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.Identity.Person">
+            <summary>
+            Represents a Person
+            </summary>
+            <seealso cref="T:OpenBots.Server.Model.Core.NamedEntity" />
+        </member>
+        <member name="P:OpenBots.Server.Model.Identity.Person.FirstName">
+            <summary>
+            First Name of the Person
+            </summary>
+            <value>
+            The first name.
+            </value>
+        </member>
+        <member name="T:OpenBots.Server.Model.INonAuditable">
+            <summary>
+            Interface to determine entities that are nonauditable
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.Process">
+            <summary>
+            Process model (inherits NamedEntity model)
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Process.Version">
+            <summary>
+            Version of Process
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Process.Status">
+            <summary>
+            Status of Process
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Process.BinaryObjectId">
+            <summary>
+            Id linked to Binary Object data table
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Process.VersionId">
+            <summary>
+            Id to match other versions of the same process
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.Queue">
+            <summary>
+            Queue Model
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Queue.Description">
+            <summary>
+            Describes the Queue
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Queue.MaxRetryCount">
+            <summary>
+            Maximum number of QueueItem retries
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.QueueItem">
+            <summary>
+            QueueItem Model
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.IsLocked">
+            <summary>
+            Whether a QueueItem is locked by a job or not
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.LockedOnUTC">
+            <summary>
+            When the QueueItem was locked
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.LockedUntilUTC">
+            <summary>
+            When to lock QueueItem if still being executed
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.LockedBy">
+            <summary>
+            Which Agent locked the QueueItem
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.QueueId">
+            <summary>
+            Which Queue the QueueItem belongs to
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.Type">
+            <summary>
+            Format of Data
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.JsonType">
+            <summary>
+            Describes the type of item the queue is dealing with
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.DataJson">
+            <summary>
+            Data in JSON or Text format
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.State">
+            <summary>
+            Failed, Expired, Successful, New
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.StateMessage">
+            <summary>
+            Message given to user after state of QueueItem was changed
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.LockTransactionKey">
+            <summary>
+            Guid generated when item is dequeued
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.LockedEndTimeUTC">
+            <summary>
+            Tells when QueueItem has been executed and when IsLocked has been turned back to false
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.RetryCount">
+            <summary>
+            Number of time a QueueItem has been retried
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.Priority">
+            <summary>
+            Priority of when queue item should be dequeued
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.ExpireOnUTC">
+            <summary>
+            DateTime the queue item will expire on
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.PostponeUntilUTC">
+            <summary>
+            DateTime to postpone the queue item from being processed until
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.ErrorCode">
+            <summary>
+            Error Code received when processing a queue item
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.ErrorMessage">
+            <summary>
+            Error message received when processing a queue item
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.ErrorSerialized">
+            <summary>
+            ErrorCode and ErrorMessage serialized into JSON string
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.Source">
+            <summary>
+            System of event that was raised (ex: "Employee.Onboarded")
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.Event">
+            <summary>
+            Event raised from an application (ex: "New employee joins the company.")
+            </summary>
+        </member>
+    </members>
+</doc>
