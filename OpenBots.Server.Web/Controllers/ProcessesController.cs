@@ -346,6 +346,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (existingProcess == null) return NotFound();
 
                 existingProcess.Name = value.Name;
+                existingProcess.Status = value.Status;
 
                 return await base.PutEntity(id, existingProcess);
             }
