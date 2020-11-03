@@ -308,7 +308,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                 }
                 else
                 {
-                    ModelState.AddModelError("Register", "Access request already exists or no organization was found");
+                    ModelState.AddModelError("Register", "Access request already exists");
                     return BadRequest(ModelState);
                 }
 
@@ -398,7 +398,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     emailMessage.Body = SendConfirmationEmail(code, user.Id, passwordString, "en");
                     emailMessage.Subject = "Confirm your account at " + Constants.PRODUCT;
                     await emailSender.SendEmailAsync(emailMessage).ConfigureAwait(false);
-                    return Ok();
+                    return Ok(new { message = "You have successfully registered. A confirmation email has been sent" });
                 }
                 else
                 {
