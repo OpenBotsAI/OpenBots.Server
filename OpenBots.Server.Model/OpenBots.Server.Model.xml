@@ -194,21 +194,6 @@
             Hash Code
             </summary>
         </member>
-        <member name="T:OpenBots.Server.Model.Configuration.GlobalQueueMaxRetryCountOptions">
-            <summary>
-            GlobalQueueMaxRetryCountOptions Configuration model
-            </summary>
-        </member>
-        <member name="F:OpenBots.Server.Model.Configuration.GlobalQueueMaxRetryCountOptions.GlobalQueueMaxRetryCount">
-            <summary>
-            Configuration Name
-            </summary>
-        </member>
-        <member name="P:OpenBots.Server.Model.Configuration.GlobalQueueMaxRetryCountOptions.DefaultMaxRetryCount">
-            <summary>
-            Max Number of Retries
-            </summary>
-        </member>
         <member name="P:OpenBots.Server.Model.Core.EmailAttachment.ContentStorageAddress">
             <summary>
             Address where Content of the Attachment is Stored

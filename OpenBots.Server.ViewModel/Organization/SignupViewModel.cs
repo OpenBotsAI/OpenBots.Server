@@ -28,6 +28,7 @@ namespace OpenBots.Server.Model.Identity
 
         [Required(ErrorMessage = "Please enter your password.")] 
         public string Password { get; set; }
+        public bool CreateNewOrganization { get; set; }
     }
 
     public class InviteUserViewModel

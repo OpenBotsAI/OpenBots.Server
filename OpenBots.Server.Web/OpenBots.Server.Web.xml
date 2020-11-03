@@ -1950,7 +1950,7 @@
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailAccountsController.GetCount(System.String)">
             <summary>
-            Gets count of processes in database
+            Gets count of email accounts in database
             </summary>
             <param name="filter"></param>
             <response code="200">Ok, a count of all email accounts</response>
@@ -2175,7 +2175,7 @@
             Controller for email settings
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailSettingsController.#ctor(OpenBots.Server.DataAccess.Repositories.IEmailSettingsRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+        <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailSettingsController.#ctor(OpenBots.Server.DataAccess.Repositories.IEmailSettingsRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IOrganizationManager)">
             <summary>
             EmailSettingsController constructor
             </summary>

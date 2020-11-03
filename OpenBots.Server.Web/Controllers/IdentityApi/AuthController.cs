@@ -250,6 +250,16 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            if (signupModel.CreateNewOrganization)
+            {
+                var checkOrganization = organizationManager.GetDefaultOrganization();
+                if (checkOrganization != null)
+                {
+                    ModelState.AddModelError("", "Default organization exists, you can not create new organization.");
+                    return BadRequest(ModelState);
+                }
+            }
+
             EmailVerification emailAddress = emailVerificationRepository.Find(null, p => p.Address.Equals(signupModel.Email, StringComparison.OrdinalIgnoreCase)).Items?.FirstOrDefault();
             if (emailAddress != null)
             {
@@ -314,6 +324,12 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
 
             }
 
+            if (signupModel.CreateNewOrganization == true && string.IsNullOrWhiteSpace(signupModel.Organization))
+            {
+                ModelState.AddModelError("", "Organization Name is required");
+                return BadRequest(ModelState);
+            }
+
             var user = new ApplicationUser()
             {
                 Name = signupModel.Name,
@@ -338,8 +354,6 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             }
             
             var loginResult = await userManager.CreateAsync(user, passwordString).ConfigureAwait(false);
-            bool IsEmailAllowed = emailSender.IsEmailAllowed();
-
             if (!loginResult.Succeeded)
             {
                 return GetErrorResult(loginResult);
@@ -364,20 +378,47 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     EmailVerifications = emailIds
                 };
                 var person = personRepository.Add(newPerson);
-                                
-                var oldOrganization = organizationManager.GetDefaultOrganization();
-                if (oldOrganization != null)
-                {
-                    //Add it to access requests
-                    Model.Membership.AccessRequest accessRequest = new Model.Membership.AccessRequest()
-                    {
-                        OrganizationId = oldOrganization.Id,
-                        PersonId = person.Id,
-                        IsAccessRequested = true,
-                        AccessRequestedOn = DateTime.UtcNow
-                    };
 
-                    accessRequestManager.AddAnonymousAccessRequest(accessRequest);
+                //Create new organization if count is zero
+                if (signupModel.CreateNewOrganization)
+                {
+                    Model.Membership.Organization value = new Model.Membership.Organization();
+                    value.Name = signupModel.Organization;
+                    value.Description = "System created organization";
+                    var newOrganization = organizationManager.AddNewOrganization(value);
+
+                    if (newOrganization != null && newOrganization.Id != null)
+                    {
+                        Model.Membership.OrganizationMember newOrgMember = new Model.Membership.OrganizationMember()
+                        {
+                            PersonId = person.Id,
+                            OrganizationId = newOrganization.Id,
+                            IsAutoApprovedByEmailAddress = true,
+                            IsAdministrator = true
+                        };
+
+                        organizationMemberRepository.ForceIgnoreSecurity();
+                        organizationMemberRepository.Add(newOrgMember);
+                        organizationMemberRepository.ForceSecurity();
+                    }
+                }
+                else
+                {
+
+                    var oldOrganization = organizationManager.GetDefaultOrganization();
+                    if (oldOrganization != null)
+                    {
+                        //Add it to access requests
+                        Model.Membership.AccessRequest accessRequest = new Model.Membership.AccessRequest()
+                        {
+                            OrganizationId = oldOrganization.Id,
+                            PersonId = person.Id,
+                            IsAccessRequested = true,
+                            AccessRequestedOn = DateTime.UtcNow
+                        };
+
+                        accessRequestManager.AddAnonymousAccessRequest(accessRequest);
+                    }
                 }
 
                 //Update the user 
@@ -389,6 +430,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     await userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
                 }
 
+                bool IsEmailAllowed = emailSender.IsEmailAllowed();
                 if (IsEmailAllowed)
                 {
                     string code = await userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
@@ -404,8 +446,6 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                 {
                     return Ok(new { message = "Email is disabled.  Verification email was not sent." });
                 }
-
-                
             }
         }
      

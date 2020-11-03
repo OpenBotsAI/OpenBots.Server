@@ -122,9 +122,6 @@ namespace OpenBots.Server.Web
             services.Configure<ConfigurationValue>(Configuration.GetSection(
                                         ConfigurationValue.Values));
 
-            services.Configure<GlobalQueueMaxRetryCountOptions>(Configuration.GetSection(
-                                        GlobalQueueMaxRetryCountOptions.GlobalQueueMaxRetryCount));
-
             services.AddApplicationInsightsTelemetry();
 
             services.AddLogging(

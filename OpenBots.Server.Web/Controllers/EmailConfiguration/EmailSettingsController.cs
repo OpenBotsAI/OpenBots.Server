@@ -13,6 +13,7 @@ using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.Security;
 using OpenBots.Server.WebAPI.Controllers;
+using HealthChecks.UI.Configuration;
 
 namespace OpenBots.Server.Web.Controllers.EmailConfiguration
 {
@@ -25,6 +26,8 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
     [Authorize]
     public class EmailSettingsController : EntityController<EmailSettings>
     {
+        private readonly IOrganizationManager organizationManager;
+
         /// <summary>
         /// EmailSettingsController constructor
         /// </summary>
@@ -37,8 +40,10 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
             IConfiguration configuration,
-            IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
+            IHttpContextAccessor httpContextAccessor,
+            IOrganizationManager organizationManager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
+            this.organizationManager = organizationManager;
         }
 
         /// <summary>
@@ -69,7 +74,17 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         [FromQuery(Name = "$skip")] int skip = 0
         )
         {
-            return base.GetMany();
+            var response = base.GetMany();
+
+            if (response.Items.Count == 0)
+            {
+                var settings = new EmailSettings();
+                settings.IsEmailDisabled = true;
+                settings.OrganizationId = (Guid)organizationManager.GetDefaultOrganization().Id;
+                repository.Add(settings);
+                response = base.GetMany();
+            }
+            return response;
         }
 
         /// <summary>

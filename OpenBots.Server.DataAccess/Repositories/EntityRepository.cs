@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace OpenBots.Server.DataAccess.Repositories
 {
@@ -35,7 +36,7 @@ namespace OpenBots.Server.DataAccess.Repositories
         public EntityRepository(StorageContext context, ILogger<T> logger, IHttpContextAccessor httpContextAccessor)
             : base(context, logger)
         {
-            _caller = (httpContextAccessor.HttpContext != null) ? httpContextAccessor.HttpContext.User : new ClaimsPrincipal(); 
+            _caller = (httpContextAccessor.HttpContext != null) ? httpContextAccessor.HttpContext.User : new ClaimsPrincipal();
         }
 
         /// <summary>
@@ -72,7 +73,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                 if (Exists(entity.Id.Value))
                     throw new EntityAlreadyExistsException();
 
-                //get null value from database because it hasn't been added yet
+                //Get null value from database because it hasn't been added yet
                 PropertyValues originalValues = null;
                 var currentValues = DbContext.Entry(entity).CurrentValues;
                 var newValues = currentValues.Clone();
@@ -215,6 +216,7 @@ namespace OpenBots.Server.DataAccess.Repositories
             var newValues = currentValues;
 
             T newEntity = new T();
+
             ChangeNonAuditableProperties(newValues, entity, newEntity);
             newValues = DbContext.Entry(newEntity).CurrentValues;
 
@@ -256,12 +258,15 @@ namespace OpenBots.Server.DataAccess.Repositories
 
                 try
                 {
-                    var originalValues = DbContext.Entry(entity).OriginalValues;
+                    var originalValues = DbContext.Entry(entity).GetDatabaseValues();
                     var oldValues = originalValues.Clone();
 
-                    T oldEntity = new T();
-                    ChangeNonAuditableProperties(oldValues, entity, oldEntity);
-                    oldValues = DbContext.Entry(oldEntity).CurrentValues;
+                    //T oldEntity = new T();
+                    //ChangeNonAuditableProperties(oldValues, entity, oldEntity);
+                    //oldValues = DbContext.Entry(oldEntity).CurrentValues;
+                    T originalEntity = (T)oldValues.ToObject();
+                    ChangeNonAuditableProperties(oldValues, originalEntity, originalEntity);
+                    oldValues = DbContext.Entry(originalEntity).CurrentValues;
 
                     if (originalTimestamp != null)
                         entity.Timestamp = originalTimestamp;
@@ -300,7 +305,7 @@ namespace OpenBots.Server.DataAccess.Repositories
             throw new UnauthorizedOperationException(EntityOperationType.Add);
         }
 
-     
+
         /// <summary>
         /// This method creates a changeset style model for Changes being made to the entity.
         /// This can be used to create audit logs or event queues in conjunction with IEntityOperationEventSink
