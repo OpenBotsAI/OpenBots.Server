@@ -35,7 +35,7 @@ export class AssetService {
   }
 
   addAsset(obj) {
-    // let addassetUrl = `/Assets/upload`;
+
     let addassetUrl = `/Assets`;
     return this.http.post(`${this.apiUrl}` + addassetUrl, obj);
   }

@@ -107,7 +107,6 @@ export class EditAssetComponent implements OnInit {
         FileUploadformData.append('file', this.native_file, this.native_file_name);
         FileUploadformData.append('name', this.assetagent.value.name);
         FileUploadformData.append('type', this.assetagent.value.type);
-        // FileUploadformData.append('Organizationid', localStorage.getItem('ActiveOrganizationID'));
 
 
         this.assetService
@@ -124,10 +123,7 @@ export class EditAssetComponent implements OnInit {
           'name': this.assetagent.value.name,
           'type': this.assetagent.value.type
         }
-        // let formData = new FormData();
-        // formData.append('name', this.assetagent.value.name);
-        // formData.append('type', this.assetagent.value.type);
-        // formData.append('Organizationid', localStorage.getItem('ActiveOrganizationID'));
+
 
         this.assetService
           .editAsset(this.agent_id, fileObj)
