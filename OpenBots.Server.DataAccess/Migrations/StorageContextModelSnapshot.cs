@@ -269,11 +269,11 @@ namespace OpenBots.Server.DataAccess.Migrations
                 b.Property<Guid?>("OrganizationId")
                     .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("OriginalFileName")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("OriginalFileName")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("SizeInBytes")
-                        .HasColumnType("bigint");
+                b.Property<long?>("SizeInBytes")
+                    .HasColumnType("bigint");
 
                 b.Property<string>("StoragePath")
                     .HasColumnType("nvarchar(max)");

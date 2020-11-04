@@ -15,12 +15,14 @@ namespace OpenBots.Server.Business
         private readonly IJobRepository repo;
         private readonly IAgentRepository agentRepo;
         private readonly IProcessRepository processRepo;
+        private readonly IJobParameterRepository jobParameterRepo;
 
-        public JobManager(IJobRepository repo, IAgentRepository agentRepo, IProcessRepository processRepo)
+        public JobManager(IJobRepository repo, IAgentRepository agentRepo, IProcessRepository processRepo, IJobParameterRepository jobParameterRepository)
         {
             this.repo = repo;
             this.agentRepo = agentRepo;
             this.processRepo = processRepo;
+            this.jobParameterRepo = jobParameterRepository;
         }
 
         public JobViewModel GetJobView(JobViewModel jobView)
@@ -49,10 +51,13 @@ namespace OpenBots.Server.Business
               .OrderBy(j => j.CreatedOn)
               .FirstOrDefault();
 
+            var jobParameters = jobParameterRepo.Find(0, 1).Items?.Where(j => j.Job == job);
+
             NextJobViewModel nextJob = new NextJobViewModel()
             {
                 IsJobAvailable = job == null ? false : true,
-                AssignedJob = job
+                AssignedJob = job,
+                JobParameters = jobParameters
             };
 
             return nextJob;

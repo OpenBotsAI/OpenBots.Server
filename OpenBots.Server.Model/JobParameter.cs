@@ -7,7 +7,7 @@ using System.Text;
 
 namespace OpenBots.Server.Model
 {
-    public class JobParameter : Entity
+    public class JobParameter : NamedEntity
     {
         [Required]
         [Display(Name = "DataType")]

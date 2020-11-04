@@ -49,6 +49,7 @@ namespace OpenBots.Server.Web
 
             services.AddTransient(typeof(IJobRepository), typeof(JobRepository));
             services.AddTransient(typeof(IJobManager), typeof(JobManager));
+            services.AddTransient(typeof(IJobParameterRepository), typeof(JobParameterRepository));
             services.AddTransient(typeof(ICredentialRepository), typeof(CredentialRepository));
             services.AddTransient(typeof(ICredentialManager), typeof(CredentialManager));
             services.AddTransient(typeof(IProcessExecutionLogRepository), typeof(ProcessExecutionLogRepository));
