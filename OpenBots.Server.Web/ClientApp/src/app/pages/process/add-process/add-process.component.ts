@@ -77,10 +77,7 @@ export class AddProcessComponent implements OnInit {
     let formData = new FormData();
     if (this.native_file) {
       formData.append('file', this.native_file, this.native_file_name);
-      // formData.append('name', this.showprocess.value.name);
-      // formData.append('status', this.showprocess.value.status);
-      // formData.append('Organizationid', this.showprocess.value.Organizationid);
-      // formData.append('ApiComponent', this.showprocess.value.ApiComponent);
+
       let processobj = {
         'name': this.showprocess.value.name,
         'status': this.showprocess.value.status
