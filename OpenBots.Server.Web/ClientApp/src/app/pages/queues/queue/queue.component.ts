@@ -62,7 +62,7 @@ export class AddQueueComponent implements OnInit {
         (response) => {
           if (response && response.status == 201) {
             this.isSubmitted = false;
-            this.httpService.success('New Queue has been created');
+            this.httpService.success('New Queue created successfully');
             this.router.navigate(['pages/queueslist']);
             this.queueForm.reset();
           }

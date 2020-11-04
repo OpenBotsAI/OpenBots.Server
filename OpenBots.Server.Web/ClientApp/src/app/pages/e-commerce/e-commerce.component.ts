@@ -46,7 +46,6 @@ export class ECommerceComponent implements OnInit {
     event: MouseEvent;
     active: {}[];
   }): void {}
-  /// end //
 
   constructor(private httpService: HttpService) {}
 
