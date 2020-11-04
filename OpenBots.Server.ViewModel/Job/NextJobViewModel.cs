@@ -6,5 +6,6 @@ namespace OpenBots.Server.ViewModel
     {
         public bool IsJobAvailable { get; set; }
         public Job AssignedJob { get; set; }
+        public JobParameter JobParameter { get; set; }
     }
 }

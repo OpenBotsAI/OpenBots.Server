@@ -1,0 +1,24 @@
+﻿using OpenBots.Server.Model.Core;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace OpenBots.Server.Model
+{
+    public class JobParameter : Entity
+    {
+        [Required]
+        [Display(Name = "DataType")]
+        public string DataType { get; set; }
+        
+        [Required]
+        [Display(Name = "Value")]
+        public string Value { get; set; }
+
+        [ForeignKey("JobId")]
+        [Display(Name = "Job")]
+        public Job? Job { get; set; }
+    }
+}
