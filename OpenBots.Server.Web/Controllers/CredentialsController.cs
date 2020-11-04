@@ -260,6 +260,13 @@ namespace OpenBots.Server.Web
                     ModelState.AddModelError("Credential", "Credential Name Already Exists");
                     return BadRequest(ModelState);
                 }
+
+                if (!credentialManager.ValidateStartAndEndDates(request))
+                {
+                    ModelState.AddModelError("Credential", "Start and End Date are not valid");
+                    return BadRequest(ModelState);
+                }
+
                 return await base.PostEntity(request);
             }
             catch (Exception ex)
