@@ -164,10 +164,12 @@ export class NgxRegisterComponent implements OnInit {
       CreateNeworganization: this.CreateNeworganization,
       Password: this.registerForm.value.password,
     };
+
     this.httpService.post(url, RegCredentials, headers).subscribe((response) => {
     this.submitted = false;
-    if (response && response.message) {
-        this.httpService.success(response.message);
+
+      if (response) {
+        this.httpService.success('You have registered successfully');
     }
       this.router.navigate(['auth/login']);
       this.registerForm.reset();

@@ -38,10 +38,7 @@
                                 Status</label>
 
                             <select class="custom-select" formControlName="status">
-                                <option value="">
-                                    
-                                </option>
-                                <option *ngFor="let item of value" [value]="item">
+                             <option *ngFor="let item of value" [value]="item">
                                     {{ item }}
                                 </option>
                             </select>
@@ -53,8 +50,6 @@
                         </div>
                     </div>
                        <div class="row rowPadTOp">
-
-
                         <div class="col-md-6 col-lg-6 col-xxxl-6">
                             <label class="label">Upload Process File</label>
                             <label class="upload-button">
