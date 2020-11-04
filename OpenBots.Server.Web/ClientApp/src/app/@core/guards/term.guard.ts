@@ -1,17 +1,16 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TermGuard implements CanActivate {
-  constructor(private router: Router) { }
+  constructor(private router: Router) {}
   canActivate(): boolean {
-    if (localStorage.getItem('isUserConsentRequired') === 'true') {
+    if (JSON.parse(localStorage.getItem('isUserConsentRequired'))) {
       this.router.navigate(['auth/terms-condition']);
-      return false
+      return false;
     } else {
       return true;
     }
   }
 }
-

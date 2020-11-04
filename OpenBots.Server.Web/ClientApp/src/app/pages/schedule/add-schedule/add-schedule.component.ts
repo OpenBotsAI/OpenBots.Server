@@ -5,7 +5,6 @@ import { Agents } from '../../../interfaces/agnets';
 import { NbDateService } from '@nebular/theme';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CronOptions } from '../../../interfaces/cronJobConfiguration';
-
 import { TimeDatePipe } from '../../../@core/pipe';
 import { Processes } from '../../../interfaces/processes';
 
@@ -151,7 +150,7 @@ export class AddScheduleComponent implements OnInit {
       .subscribe(
         (response) => {
           if (response && response.status === 201) {
-            this.httpService.success('Schedule has created successfully');
+            this.httpService.success('Schedule added successfully');
             this.scheduleForm.reset();
             this.isSubmitted = false;
           }

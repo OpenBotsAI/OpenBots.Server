@@ -77,7 +77,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         }
 
         /// <summary>
-        /// Gets count of processes in database
+        /// Gets count of email accounts in database
         /// </summary>
         /// <param name="filter"></param>
         /// <response code="200">Ok, a count of all email accounts</response>

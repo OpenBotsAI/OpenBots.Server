@@ -64,23 +64,8 @@ value = ['Published', 'Commited'];
      
     case 'addedToQueue':
       if (typeof output.file !== 'undefined') {
-
-        // this.native_file = output.file.nativeFile
-        // this.native_file_name = output.file.nativeFile.name
         this.native_file = output.file.nativeFile
         this.native_file_name = output.file.nativeFile.name
-        // let formData = new FormData();
-        // formData.append('file', this.native_file, this.native_file_name);
-        // formData.append('name', this.showprocess.value.name);
-        // //  formData.append('status', this.showprocess.value.status);
-        // //     formData.append('Organizationid', this.showprocess.value.Organizationid);
-        // //     formData.append('ApiComponent', this.showprocess.value.ApiComponent);
-        // this.processService.uploadUpdateProcessFile(formData,this.process_id).subscribe((data:any) =>
-        // {
-        //   this.showprocess.value.binaryObjectId = data.binaryObjectId
-        //   this.toastrService.success('File Upload Successfully','Success')
-        
-        // })
       }
       break;
      
@@ -93,18 +78,15 @@ value = ['Published', 'Commited'];
  get f() { return this.showprocess.controls; }
 
  
- onSubmit() {
-
-
-
+  onSubmit() {
    if (this.native_file) {
      let formData = new FormData();
      formData.append('file', this.native_file, this.native_file_name);
      formData.append('name', this.showprocess.value.name);
-     // FileUploadformData.append('Organizationid', localStorage.getItem('ActiveOrganizationID'));
+     formData.append('status', this.showprocess.value.status);
      this.processService.uploadUpdateProcessFile(formData, this.process_id).subscribe((data: any) => {
        this.showprocess.value.binaryObjectId = data.binaryObjectId
-       this.toastrService.success('File Upload Successfully', 'Success')
+       this.toastrService.success('Updated successfully', 'Success')
        this.router.navigate(['pages/process/list']);
        this.native_file = undefined;
        this.native_file_name = undefined;
@@ -112,11 +94,12 @@ value = ['Published', 'Commited'];
    }
    else if (this.native_file == undefined) {
      let processobj = {
-       'name': this.showprocess.value.name
+       'name': this.showprocess.value.name,
+       'status': this.showprocess.value.status
      }
      this.processService.updateProcess(processobj, this.process_id).subscribe(
        (data) => {
-         this.toastrService.success('Process Update  Successfully!', 'Success');
+         this.toastrService.success('Updated successfully', 'Success');
          this.router.navigate(['pages/process/list']);
          this.native_file = undefined;
          this.native_file_name = undefined;

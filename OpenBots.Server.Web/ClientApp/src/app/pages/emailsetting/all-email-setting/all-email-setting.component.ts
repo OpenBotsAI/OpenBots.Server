@@ -57,18 +57,21 @@ export class AllEmailSettingComponent implements OnInit {
 
   get_allagent() {
     this.esettingService.getEmailbyId().subscribe((data: any) => {
-      this.showEmail = data.items[0];
-      this.emailId = this.showEmail.id;
+      console.log('data', data);
+      if (data && data.items.length) {
+        this.showEmail = data.items[0];
+        this.emailId = this.showEmail.id;
 
-      const filterPipe = new TimeDatePipe();
+        const filterPipe = new TimeDatePipe();
 
-      data.items[0].updatedOn = filterPipe.transform(
-        data.items[0].updatedOn,
-        'lll'
-      );
+        data.items[0].updatedOn = filterPipe.transform(
+          data.items[0].updatedOn,
+          'lll'
+        );
 
-      this.emailform.patchValue(this.showEmail);
-      this.emailform.disable();
+        this.emailform.patchValue(this.showEmail);
+        this.emailform.disable();
+      }
     });
   }
 

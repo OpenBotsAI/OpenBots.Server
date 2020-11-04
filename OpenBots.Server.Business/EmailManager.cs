@@ -310,13 +310,15 @@ namespace OpenBots.Server.Business
 
         public bool IsEmailAllowed()
         {
-            var organizationId = Guid.Parse(_organizationManager.GetDefaultOrganization().Id.ToString());
+            var organizationId = Guid.Parse(_organizationManager.GetDefaultOrganization()?.Id?.ToString());
             var emailSettings = _emailSettingsRepository.Find(null, s => s.OrganizationId == organizationId).Items.FirstOrDefault();
             var existingAccount = _emailAccountRepository.Find(null, s => s.IsDefault)?.Items?.FirstOrDefault();
 
             if (emailSettings == null || existingAccount == null)
                 return false;
             else if (emailSettings.IsEmailDisabled || existingAccount.IsDisabled)
+                return false;
+            else if (organizationId.Equals(Guid.Empty))
                 return false;
             else return true;
         }
