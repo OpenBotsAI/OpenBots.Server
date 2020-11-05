@@ -28,9 +28,9 @@ namespace OpenBots.Server.Business
 
         public JobViewModel GetJobView(JobViewModel jobView)
         {
-            jobView.AgentName = agentRepo.GetOne(jobView.AgentId)?.Name;
-            jobView.ProcessName = processRepo.GetOne(jobView.ProcessId)?.Name;
-            jobView.JobParameters = GetJobParameters(jobView.Id);
+            jobView.AgentName = agentRepo.GetOne(jobView.AgentId ?? Guid.Empty)?.Name;
+            jobView.ProcessName = processRepo.GetOne(jobView.ProcessId ?? Guid.Empty)?.Name;
+            jobView.JobParameters = GetJobParameters(jobView.Id ?? Guid.Empty);
 
             return jobView;
         }
@@ -40,7 +40,7 @@ namespace OpenBots.Server.Business
             return repo.GetJobAgentsLookup();
         }
 
-        public PaginatedList<JobViewModel> GetJobAgentsandProcesses(Predicate<JobViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        public PaginatedList<AllJobsViewModel> GetJobAgentsandProcesses(Predicate<AllJobsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
             return repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
@@ -53,7 +53,7 @@ namespace OpenBots.Server.Business
               .OrderBy(j => j.CreatedOn)
               .FirstOrDefault();
 
-            var jobParameters = GetJobParameters(job.Id);
+            var jobParameters = GetJobParameters(job.Id ?? Guid.Empty);
 
             NextJobViewModel nextJob = new NextJobViewModel()
             {
@@ -65,10 +65,20 @@ namespace OpenBots.Server.Business
             return nextJob;
         }
 
-        public IEnumerable<JobParameter> GetJobParameters(Guid? id)
+        public IEnumerable<JobParameter> GetJobParameters(Guid jobId)
         {
-            var jobParameters = jobParameterRepo.Find(0, 1)?.Items?.Where(p => p.JobId == id);
+            var jobParameters = jobParameterRepo.Find(0, 1)?.Items?.Where(p => p.JobId == jobId);
             return jobParameters;
+        }
+
+        public void DeleteExistingParameters(Guid jobId)
+        {
+            var jobParameters = GetJobParameters(jobId);
+            foreach (var parmeter in jobParameters)
+            {
+                jobParameterRepo.SoftDelete(parmeter.Id ?? Guid.Empty);
+            }
+            
         }
 
         public string GetCsv(Job[] jobs)

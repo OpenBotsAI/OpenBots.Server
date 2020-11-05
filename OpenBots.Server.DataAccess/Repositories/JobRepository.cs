@@ -21,9 +21,9 @@ namespace OpenBots.Server.DataAccess.Repositories
             return dbContext.Jobs;
         }
 
-        public PaginatedList<JobViewModel> FindAllView(Predicate<JobViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        public PaginatedList<AllJobsViewModel> FindAllView(Predicate<AllJobsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
-            PaginatedList<JobViewModel> paginatedList = new PaginatedList<JobViewModel>();
+            PaginatedList<AllJobsViewModel> paginatedList = new PaginatedList<AllJobsViewModel>();
             
             var jobsList = base.Find(null, j => j.IsDeleted == false);
             if (jobsList != null && jobsList.Items != null && jobsList.Items.Count > 0)
@@ -33,7 +33,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                                 from a in table1.DefaultIfEmpty()
                                 join p in dbContext.Processes on j.ProcessId equals p.Id into table2
                                 from p in table2.DefaultIfEmpty()
-                                select new JobViewModel
+                                select new AllJobsViewModel
                                 {
                                     Id = j?.Id,
                                     CreatedOn = j?.CreatedOn,
@@ -57,7 +57,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                     else if (direction == OrderByDirectionType.Descending)
                         jobRecord = jobRecord.OrderByDescending(j => j.GetType().GetProperty(sortColumn).GetValue(j)).ToList();
 
-                List<JobViewModel> filterRecord = null;
+                List<AllJobsViewModel> filterRecord = null;
                 if (predicate != null)
                     filterRecord = jobRecord.ToList().FindAll(predicate);
                 else

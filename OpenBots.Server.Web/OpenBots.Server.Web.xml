@@ -3289,7 +3289,7 @@
             <response code="422">Unprocessable entity</response>
             <returns> Downloadable file</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.JobsController.Post(OpenBots.Server.ViewModel.CreateNewJobViewModel)">
+        <member name="M:OpenBots.Server.Web.JobsController.Post(OpenBots.Server.ViewModel.CreateJobViewModel)">
              <summary>
              Adds a new job to the existing jobs
              </summary>
@@ -3304,7 +3304,7 @@
              <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
              <returns>Newly created job details</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.JobsController.Put(System.String,OpenBots.Server.Model.Job)">
+        <member name="M:OpenBots.Server.Web.JobsController.Put(System.String,OpenBots.Server.ViewModel.CreateJobViewModel)">
             <summary>
             Updates a job 
             </summary>

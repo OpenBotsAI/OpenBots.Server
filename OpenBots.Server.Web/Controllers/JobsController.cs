@@ -105,21 +105,21 @@ namespace OpenBots.Server.Web
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Paginated list of all jobs</returns>
         [HttpGet("view")]
-        [ProducesResponseType(typeof(PaginatedList<JobViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<AllJobsViewModel>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<JobViewModel> View(
+        public PaginatedList<AllJobsViewModel> View(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            ODataHelper<JobViewModel> oData = new ODataHelper<JobViewModel>();
+            ODataHelper<AllJobsViewModel> oData = new ODataHelper<AllJobsViewModel>();
 
             string queryString = "";
 
@@ -133,11 +133,11 @@ namespace OpenBots.Server.Web
             Guid parentguid = Guid.Empty;
             var newNode = oData.ParseOrderByQuerry(queryString);
             if (newNode == null)
-                newNode = new OrderByNode<JobViewModel>();
+                newNode = new OrderByNode<AllJobsViewModel>();
 
-            Predicate<JobViewModel> predicate = null;
+            Predicate<AllJobsViewModel> predicate = null;
             if (oData != null && oData.Filter != null)
-                predicate = new Predicate<JobViewModel>(oData.Filter);
+                predicate = new Predicate<AllJobsViewModel>(oData.Filter);
             int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
             
             return jobManager.GetJobAgentsandProcesses(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
@@ -453,12 +453,11 @@ namespace OpenBots.Server.Web
             {
 
                 Job job = request.Map(request);
-                job.Id = Guid.NewGuid();
                 var response = await base.PostEntity(job);
 
                 foreach (var parameter in request.JobParameters)
                 {
-                    parameter.JobId = job.Id;
+                    parameter.JobId = entityId;
                     parameter.CreatedBy = applicationUser?.UserName;
                     parameter.CreatedOn = DateTime.UtcNow;
                     parameter.Id = Guid.NewGuid();
@@ -520,13 +519,21 @@ namespace OpenBots.Server.Web
 
                 var response = await base.PutEntity(id, existingJob);
 
-                foreach (var parameter in request.JobParameters)
+                jobManager.DeleteExistingParameters(entityId);
+
+                var set = new HashSet<string>();
+                foreach (var parameter in request.JobParameters ?? Enumerable.Empty<JobParameter>())
                 {
-                    parameter.JobId = existingJob.Id;
+                    if (!set.Add(parameter.Name)) 
+                    {
+                        ModelState.AddModelError("Agent", "Agent Name Already Exists");
+                        return BadRequest(ModelState);
+                    }
+                    parameter.JobId = entityId;
                     parameter.CreatedBy = applicationUser?.UserName;
                     parameter.CreatedOn = DateTime.UtcNow;
                     parameter.Id = Guid.NewGuid();
-                    jobParameterRepo.Update(parameter);
+                    jobParameterRepo.Add(parameter);
                 }
 
                 //Send SignalR notification to all connected clients 
@@ -642,6 +649,8 @@ namespace OpenBots.Server.Web
         public async Task<IActionResult> Delete(string id)
         {
             var response = await base.DeleteEntity(id);
+            jobManager.DeleteExistingParameters(new Guid(id));
+
             //Send SignalR notification to all connected clients 
             await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} deleted.", id));
 
