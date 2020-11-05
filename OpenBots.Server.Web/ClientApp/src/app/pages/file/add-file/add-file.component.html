@@ -31,15 +31,7 @@
                 <label class="label">Folder Name </label>
                 <input type="input" nbInput fullWidth formControlName="folder" class="form-control"
                   placeholder="Please enter folder name">
-                <!-- <div *ngIf="(f.folder.touched || f.folder.dirty) && f.folder.invalid" class="invalid-feedback-frm">
-                  <div *ngIf="f.folder.errors && f.folder.errors.required"> Folder Name is required.</div>
-                  <div *ngIf="f.folder.errors.minlength">
-                    Folder Name at least 3 characters long.
-                  </div>
-                  <div *ngIf="f.folder.errors.maxlength">
-                    Folder Name at least 100 characters long.
-                  </div>
-                </div> -->
+                
               </div>
             </div>
             <div class="col-md-6 col-sm-6 col-xxxl-6">
@@ -57,7 +49,6 @@
           </div>
           <div class="row">
             <div class="col-md-6 col-sm-6 col-xxxl-6">
-              <!-- [disabled]="submitted || !addfile.valid" -->
               <div class="form-group">
                 <button type="submit" class="btn btn-primary" status="primary" [disabled]="submitted || !addfile.valid"
                   (click)="onSubmit()">Save</button>
