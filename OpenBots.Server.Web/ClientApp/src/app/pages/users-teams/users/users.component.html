@@ -119,13 +119,7 @@
         *ngIf="get_perPage"
       >
         <label class="label">Total {{ showpage.totalCount }} /</label>
-        <!-- <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
-          <option [value]="5">5 per page</option>
-          <option [value]="10">10 per page</option>
-          <option [value]="25">25 per page</option>
-          <option [value]="50">50 per page</option>
-          <option [value]="100">100 per page</option>
-        </select> -->
+        
         <select
           class="custom-select per-page-drop"
           (change)="per_page($event.target.value)"

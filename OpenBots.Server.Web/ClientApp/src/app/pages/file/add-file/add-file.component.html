@@ -2,7 +2,7 @@
   <div class="col-md-12">
     <nb-card>
       <nb-card-header>
-        <h2>{{title}} File</h2>
+        <h2>{{ title }} File</h2>
       </nb-card-header>
       <nb-card-body>
         <form [formGroup]="addfile">
@@ -10,10 +10,21 @@
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
                 <label class="label">File Name *</label>
-                <input type="input" nbInput fullWidth formControlName="name" class="form-control"
-                  placeholder="Please enter File name">
-                <div *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid" class="invalid-feedback-frm">
-                  <div *ngIf="f.name.errors && f.name.errors.required"> File name is required.</div>
+                <input
+                  type="input"
+                  nbInput
+                  fullWidth
+                  formControlName="name"
+                  class="form-control"
+                  placeholder="Please enter File name"
+                />
+                <div
+                  *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid"
+                  class="invalid-feedback-frm"
+                >
+                  <div *ngIf="f.name.errors && f.name.errors.required">
+                    File name is required.
+                  </div>
                   <div *ngIf="f.name.errors.minlength">
                     File name at least 3 characters long.
                   </div>
@@ -29,44 +40,53 @@
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
                 <label class="label">Folder Name </label>
-                <input type="input" nbInput fullWidth formControlName="folder" class="form-control"
-                  placeholder="Please enter folder name">
-                <!-- <div *ngIf="(f.folder.touched || f.folder.dirty) && f.folder.invalid" class="invalid-feedback-frm">
-                  <div *ngIf="f.folder.errors && f.folder.errors.required"> Folder Name is required.</div>
-                  <div *ngIf="f.folder.errors.minlength">
-                    Folder Name at least 3 characters long.
-                  </div>
-                  <div *ngIf="f.folder.errors.maxlength">
-                    Folder Name at least 100 characters long.
-                  </div>
-                </div> -->
+                <input
+                  type="input"
+                  nbInput
+                  fullWidth
+                  formControlName="folder"
+                  class="form-control"
+                  placeholder="Please enter folder name"
+                />
               </div>
             </div>
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
                 <label class="label">Upload File *</label>
                 <label class="upload-button">
-                  <input type="file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
-                    [uploadInput]="uploadInput" multiple>
+                  <input
+                    type="file"
+                    ngFileSelect
+                    [options]="options"
+                    (uploadOutput)="onUploadOutput($event)"
+                    [uploadInput]="uploadInput"
+                  />
                 </label>
                 <div *ngIf="show_upload" class="invalid-feedback-frm">
                   Please upload file.
+                </div>
+                <div *ngIf="fileSize" class="invalid-feedback-frm">
+                  You cannot upload empty file.
                 </div>
               </div>
             </div>
           </div>
           <div class="row">
             <div class="col-md-6 col-sm-6 col-xxxl-6">
-              <!-- [disabled]="submitted || !addfile.valid" -->
               <div class="form-group">
-                <button type="submit" class="btn btn-primary" status="primary" [disabled]="submitted || !addfile.valid"
-                  (click)="onSubmit()">Save</button>
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  status="primary"
+                  [disabled]="submitted || !addfile.valid || fileSize"
+                  (click)="onSubmit()"
+                >
+                  Save
+                </button>
               </div>
             </div>
           </div>
-
         </form>
-
       </nb-card-body>
     </nb-card>
   </div>

@@ -25,10 +25,7 @@
             Name
             <i (click)="onSortClick($event, 'name')" [class]="binaryObjectsData | chevron: page.totalCount"></i>
           </th>
-          <!-- <th scope="col">
-            Content Type
-            <i (click)="onSortClick($event, 'contentType')" [class]="binaryObjectsData | chevron: page.totalCount"></i>
-          </th> -->
+          
           <th scope="col">
             Correlation Entity
             <i (click)="onSortClick($event, 'correlationEntity')"
@@ -61,10 +58,7 @@
             <ngx-tooltip [data]=" data?.name " [size]="100">
             </ngx-tooltip>
           </td>
-          <!-- <td>
-            <ngx-tooltip [data]="data?.contentType" [size]="14">
-            </ngx-tooltip>
-          </td> -->
+          
           <td>
             <ngx-tooltip [data]="data?.correlationEntity" [size]="20">
             </ngx-tooltip>

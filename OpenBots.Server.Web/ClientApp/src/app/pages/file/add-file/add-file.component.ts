@@ -39,6 +39,7 @@ export class AddFileComponent implements OnInit {
   urlId: string;
   fileByIdData: BinaryFile;
   title = 'Add';
+  fileSize = false;
   constructor(
     private formBuilder: FormBuilder,
     protected router: Router,
@@ -70,6 +71,8 @@ export class AddFileComponent implements OnInit {
     switch (output.type) {
       case 'addedToQueue':
         if (typeof output.file !== 'undefined') {
+          if (!output.file.size) this.fileSize = true;
+          else this.fileSize = false;
           this.native_file = output.file.nativeFile;
           this.native_file_name = output.file.nativeFile.name;
           this.confrimUpoad = true;
@@ -152,6 +155,7 @@ export class AddFileComponent implements OnInit {
 
   updateFile(): void {
     if (this.confrimUpoad) {
+      this.saveForm.append('folder', this.addfile.value.folder);
       this.httpService
         .put(`binaryobjects/${this.urlId}/update`, this.saveForm, {
           observe: 'response',

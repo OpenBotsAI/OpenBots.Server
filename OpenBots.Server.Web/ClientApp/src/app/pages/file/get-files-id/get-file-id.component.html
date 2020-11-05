@@ -89,12 +89,10 @@
             </div>
             <div class="row">
               <div class="col-md-6  ">
-                <!-- <label for="createdBy" class="label">Download</label>
-               <br /> -->
+                 
                 <button class="btn-down" (click)="onDown()"><i class="fa fa-download"></i> Download</button>
               </div>
               
-              <!-- <div class="col-md-6 text-right" *ngIf="show_del == null || show_del == '' || show_del == 'BinaryObjectAPI' "> -->
               <div class="col-md-6 text-right" *ngIf="show_del == 'BinaryObjectAPI'">
                 <button class="btn-down" (click)="openDeleteDialog(deleteDialog)"><i class="fa fa-trash"></i> Delete</button>
               </div>
