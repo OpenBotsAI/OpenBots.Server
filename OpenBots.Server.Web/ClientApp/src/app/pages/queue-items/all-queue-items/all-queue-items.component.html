@@ -27,11 +27,7 @@
           </option>
         </select>
       </div>
-      <!-- <div class="customQueueForm">
-        <button class="btn btn-primary" (click)="addQueue()" [disabled]="!show">
-          <i class="fa fa-plus" aria-hidden="true"></i>
-        </button>
-      </div> -->
+      
       <div class="customQueueForm watch">
         <div class="checkbox checbox-switch switch-primary">
           <label for="queueitemtype" class="label">Watch</label>
@@ -106,20 +102,17 @@
             <ngx-tooltip [data]="data?.lockedBy" [size]="20"> </ngx-tooltip>
           </td>
           <td>
-            <!-- <ngx-tooltip [data]="data?.lockedOn | timeDate: 'lll'" [size]="12">
-            </ngx-tooltip> -->
+            
             <ngx-tooltip [data]="data?.lockedOnUTC | timeDate: 'lll'" [size]="15">
             </ngx-tooltip>
           </td>
           <td>
-            <!-- <ngx-tooltip [data]="data?.lockedUntil | timeDate: 'lll'" [size]="17">
-            </ngx-tooltip> -->
+            
             <ngx-tooltip [data]="data?.lockedUntilUTC | timeDate: 'lll'" [size]="17">
             </ngx-tooltip>
           </td>
           <td>
-            <!-- <ngx-tooltip [data]="data?.lockedEndTime | timeDate: 'lll'" [size]="10">
-            </ngx-tooltip> -->
+            
             <ngx-tooltip [data]="data?.lockedEndTimeUTC | timeDate: 'lll'" [size]="10">
             </ngx-tooltip>
           </td>

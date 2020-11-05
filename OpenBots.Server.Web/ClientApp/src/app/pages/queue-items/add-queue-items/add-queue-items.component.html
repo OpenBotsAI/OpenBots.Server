@@ -53,9 +53,7 @@
                 controls.source.invalid &&
                 (controls.source.dirty || controls.source.touched)
               " class="invalid-feedback-frm">
-                <!-- <div *ngIf="controls.source.errors.required">
-                source is required.
-              </div> -->
+             
                 <div *ngIf="controls.source.errors.minlength">
                   Source must be at least 3 characters long.
                 </div>
@@ -72,9 +70,7 @@
                 controls.event.invalid &&
                 (controls.event.dirty || controls.event.touched)
               " class="invalid-feedback-frm">
-                <!-- <div *ngIf="controls.source.errors.required">
-                source is required.
-              </div> -->
+                
                 <div *ngIf="controls.event.errors.minlength">
                   Event must be at least 3 characters long.
                 </div>
@@ -130,12 +126,7 @@
                 <div *ngIf="controls.jsonType.errors.required">
                   Json type is required.
                 </div>
-                <!-- <div *ngIf="controls.jsonType.errors.minlength">
-                  Json type must be at least 3 characters long.
-                </div>
-                <div *ngIf="controls.jsonType.errors.maxlength">
-                  Json type can be 100 characters long.
-                </div> -->
+                 
               </div>
             </div>
           </div>
