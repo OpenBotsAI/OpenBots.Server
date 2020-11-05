@@ -9,16 +9,14 @@ namespace OpenBots.Server.Model
 {
     public class JobParameter : NamedEntity
     {
-        [Required]
-        [Display(Name = "DataType")]
-        public string DataType { get; set; }
         
-        [Required]
+        [Display(Name = "DataType")]
+        public string DataType { get; set; }     
+        
         [Display(Name = "Value")]
         public string Value { get; set; }
 
-        [ForeignKey("JobId")]
-        [Display(Name = "Job")]
-        public Job? Job { get; set; }
+        [Display(Name = "JobId")]
+        public Guid? JobId { get; set; }
     }
 }

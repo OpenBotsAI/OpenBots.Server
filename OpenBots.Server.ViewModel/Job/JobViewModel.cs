@@ -1,6 +1,7 @@
 ﻿using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
 using System;
+using System.Collections.Generic;
 
 namespace OpenBots.Server.ViewModel
 {
@@ -23,6 +24,7 @@ namespace OpenBots.Server.ViewModel
         public string ErrorReason { get; set; }
         public string ErrorCode { get; set; }
         public string SerializedErrorString { get; set; }
+        public IEnumerable<JobParameter>? JobParameters { get; set; }
 
         public JobViewModel Map(Job entity)
         {
@@ -42,7 +44,7 @@ namespace OpenBots.Server.ViewModel
                 CreatedBy = entity.CreatedBy,
                 ErrorReason = entity.ErrorReason,
                 ErrorCode = entity.ErrorCode,
-                SerializedErrorString = entity.SerializedErrorString        
+                SerializedErrorString = entity.SerializedErrorString 
             };
 
             return jobViewModel;

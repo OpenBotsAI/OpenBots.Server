@@ -4,6 +4,7 @@ using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.ViewModel;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -29,6 +30,7 @@ namespace OpenBots.Server.Business
         {
             jobView.AgentName = agentRepo.GetOne(jobView.AgentId)?.Name;
             jobView.ProcessName = processRepo.GetOne(jobView.ProcessId)?.Name;
+            jobView.JobParameters = GetJobParameters(jobView.Id);
 
             return jobView;
         }
@@ -51,7 +53,7 @@ namespace OpenBots.Server.Business
               .OrderBy(j => j.CreatedOn)
               .FirstOrDefault();
 
-            var jobParameters = jobParameterRepo.Find(0, 1).Items?.Where(j => j.Job == job);
+            var jobParameters = GetJobParameters(job.Id);
 
             NextJobViewModel nextJob = new NextJobViewModel()
             {
@@ -61,6 +63,12 @@ namespace OpenBots.Server.Business
             };
 
             return nextJob;
+        }
+
+        public IEnumerable<JobParameter> GetJobParameters(Guid? id)
+        {
+            var jobParameters = jobParameterRepo.Find(0, 1)?.Items?.Where(p => p.JobId == id);
+            return jobParameters;
         }
 
         public string GetCsv(Job[] jobs)

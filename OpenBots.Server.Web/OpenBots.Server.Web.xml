@@ -3159,7 +3159,7 @@
             Controller for Jobs
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.JobsController.#ctor(OpenBots.Server.DataAccess.Repositories.IJobRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IJobManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+        <member name="M:OpenBots.Server.Web.JobsController.#ctor(OpenBots.Server.DataAccess.Repositories.IJobRepository,OpenBots.Server.DataAccess.Repositories.IJobParameterRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IJobManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
             <summary>
             JobsController constructor
             </summary>
@@ -3289,7 +3289,7 @@
             <response code="422">Unprocessable entity</response>
             <returns> Downloadable file</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.JobsController.Post(OpenBots.Server.Model.Job)">
+        <member name="M:OpenBots.Server.Web.JobsController.Post(OpenBots.Server.ViewModel.CreateNewJobViewModel)">
              <summary>
              Adds a new job to the existing jobs
              </summary>

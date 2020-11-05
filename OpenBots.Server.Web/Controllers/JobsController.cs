@@ -31,6 +31,7 @@ namespace OpenBots.Server.Web
     public class JobsController : EntityController<Job>
     {
         IJobManager jobManager;
+        IJobParameterRepository jobParameterRepo;
         private IHubContext<NotificationHub> _hub;
         
         /// <summary>
@@ -45,6 +46,7 @@ namespace OpenBots.Server.Web
         /// <param name="httpContextAccessor"></param>
         public JobsController(
             IJobRepository repository,
+            IJobParameterRepository jobParameterRepository,
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
             IJobManager jobManager,
@@ -53,6 +55,7 @@ namespace OpenBots.Server.Web
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.jobManager = jobManager;
+            this.jobParameterRepo = jobParameterRepository;
             this.jobManager.SetContext(base.SecurityContext);
             _hub = hub;
         }
@@ -283,7 +286,7 @@ namespace OpenBots.Server.Web
                     JobViewModel view = okResult.Value as JobViewModel;
                     view = jobManager.GetJobView(view);
                 }
-
+                
                 return actionResult;
             }
             catch (Exception ex)
@@ -434,7 +437,7 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Post([FromBody] Job request)
+        public async Task<IActionResult> Post([FromBody] CreateJobViewModel request)
         {
             if (request == null)
             {
@@ -448,7 +451,19 @@ namespace OpenBots.Server.Web
 
             try
             {
-                var response = await base.PostEntity(request);
+
+                Job job = request.Map(request);
+                job.Id = Guid.NewGuid();
+                var response = await base.PostEntity(job);
+
+                foreach (var parameter in request.JobParameters)
+                {
+                    parameter.JobId = job.Id;
+                    parameter.CreatedBy = applicationUser?.UserName;
+                    parameter.CreatedOn = DateTime.UtcNow;
+                    parameter.Id = Guid.NewGuid();
+                    jobParameterRepo.Add(parameter);
+                }
 
                 //Send SignalR notification to all connected clients 
                 await _hub.Clients.All.SendAsync("botnewjobnotification", request.AgentId.ToString());
@@ -484,7 +499,7 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Put(string id, [FromBody] Job request)
+        public async Task<IActionResult> Put(string id, [FromBody] CreateJobViewModel request)
         {
             try
             {
@@ -502,11 +517,18 @@ namespace OpenBots.Server.Web
                 existingJob.JobStatus = request.JobStatus;
                 existingJob.Message = request.Message;
                 existingJob.IsSuccessful = request.IsSuccessful;
-                existingJob.ErrorReason = request.ErrorReason;
-                existingJob.ErrorCode = request.ErrorCode;
-                existingJob.SerializedErrorString = request.SerializedErrorString;
 
                 var response = await base.PutEntity(id, existingJob);
+
+                foreach (var parameter in request.JobParameters)
+                {
+                    parameter.JobId = existingJob.Id;
+                    parameter.CreatedBy = applicationUser?.UserName;
+                    parameter.CreatedOn = DateTime.UtcNow;
+                    parameter.Id = Guid.NewGuid();
+                    jobParameterRepo.Update(parameter);
+                }
+
                 //Send SignalR notification to all connected clients 
                 await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", existingJob.Id));
 

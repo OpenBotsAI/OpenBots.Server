@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenBots.Server.DataAccess;
 
 namespace OpenBots.Server.DataAccess.Migrations
 {
     [DbContext(typeof(StorageContext))]
-    partial class StorageContextModelSnapshot : ModelSnapshot
+    [Migration("20201104174356_AddJobParameters")]
+    partial class AddJobParameters
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1330,6 +1332,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DataType")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DeleteOn")
@@ -1364,9 +1367,12 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Value")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("JobId");
 
                     b.ToTable("JobParameters");
                 });
@@ -2343,6 +2349,13 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasForeignKey("UserAgreementID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("OpenBots.Server.Model.JobParameter", b =>
+                {
+                    b.HasOne("OpenBots.Server.Model.Job", "Job")
+                        .WithMany()
+                        .HasForeignKey("JobId");
                 });
 
             modelBuilder.Entity("OpenBots.Server.Model.Membership.AccessRequest", b =>
