@@ -53,7 +53,9 @@ export class AllProcessLogsComponent implements OnInit {
     this.itemsPerPage = this.helperService.getItemsPerPage();
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
-    if (this.agentID || this.processID || this.jobID) {
+    if (this.jobID) {
+      this.filterByJobId();
+    } else if (this.agentID || this.processID) {
       this.filterAgentProcess();
       this.patchAgentAndProcessValue();
     } else {
@@ -61,13 +63,28 @@ export class AllProcessLogsComponent implements OnInit {
     }
   }
 
+  filterByJobId(): void {
+    this.showprocessjob.disable();
+    let url: string;
+    const filterParam = `jobId+eq+guid'${this.jobID}'`;
+    const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+    if (this.filterOrderBy) {
+      url = `processlogs?$filter=${filterParam}&$orderby=${this.filterOrderBy}&$top=${this.page.pageSize}&$skip=${skip}`;
+    } else {
+      url = `processlogs?$filter=${filterParam}&$orderby=createdOn+desc&$top=${this.page.pageSize}&$skip=${skip}`;
+    }
+    this.getByFilterParam(url);
+  }
+
   /**
    *TODO Patching values to agentId and processId
    *@returns void
    */
   patchAgentAndProcessValue(): void {
-    this.showprocessjob.patchValue({ agentId: this.agentID });
-    this.showprocessjob.patchValue({ processId: this.processID });
+    this.showprocessjob.patchValue({
+      agentId: this.agentID,
+      processId: this.processID,
+    });
   }
 
   /**
@@ -109,9 +126,6 @@ export class AllProcessLogsComponent implements OnInit {
       filterQueryParam =
         filterQueryParam + `ProcessID+eq+guid'${this.processID}' and `;
     }
-    if (this.jobID) {
-      filterQueryParam = filterQueryParam + `jobId+eq+guid'${this.jobID}' and `;
-    }
     if (filterQueryParam.endsWith(' and ')) {
       filterQueryParam = filterQueryParam.substring(
         0,
@@ -123,20 +137,23 @@ export class AllProcessLogsComponent implements OnInit {
       let url: string;
       const skip = (this.page.pageNumber - 1) * this.page.pageSize;
       if (this.filterOrderBy) {
-        url = `/processlogs?$filter=${filterQueryParam}&$orderby=${this.filterOrderBy}&$top=${this.page.pageSize}&$skip=${skip}`;
+        url = `processlogs?$filter=${filterQueryParam}&$orderby=${this.filterOrderBy}&$top=${this.page.pageSize}&$skip=${skip}`;
       } else {
-        url = `/processlogs?$filter=${filterQueryParam}&$orderby=createdOn+desc&$top=${this.page.pageSize}&$skip=${skip}`;
+        url = `processlogs?$filter=${filterQueryParam}&$orderby=createdOn+desc&$top=${this.page.pageSize}&$skip=${skip}`;
       }
-
-      this.httpService.get(url).subscribe((data: any) => {
-        if (data) {
-          this.allProcessLogs = data.items;
-          this.page.totalCount = data.totalCount;
-        }
-      });
+      this.getByFilterParam(url);
     } else {
       this.pagination(this.page.pageNumber, this.page.pageSize);
     }
+  }
+
+  getByFilterParam(url: string) {
+    this.httpService.get(url).subscribe((data: any) => {
+      if (data) {
+        this.allProcessLogs = data.items;
+        this.page.totalCount = data.totalCount;
+      }
+    });
   }
 
   getProcessLogsList(top: number, skip: number, orderBy?: string): void {
@@ -154,7 +171,8 @@ export class AllProcessLogsComponent implements OnInit {
   }
   pageChanged(event): void {
     this.page.pageNumber = event;
-    if (this.jobID || this.processID || this.agentID) {
+    if (this.jobID) this.filterByJobId();
+    else if (this.processID || this.agentID) {
       this.filterAgentProcess();
     } else {
       this.pagination(event, this.page.pageSize);
@@ -174,7 +192,8 @@ export class AllProcessLogsComponent implements OnInit {
       classList.remove('fa-chevron-up');
       classList.add('fa-chevron-down');
       this.filterOrderBy = `${param}+asc`;
-      if (this.jobID || this.processID || this.agentID) {
+      if (this.jobID) this.filterByJobId();
+      else if (this.processID || this.agentID) {
         this.filterAgentProcess();
       } else {
         this.pagination(
@@ -187,7 +206,8 @@ export class AllProcessLogsComponent implements OnInit {
       classList.remove('fa-chevron-down');
       classList.add('fa-chevron-up');
       this.filterOrderBy = `${param}+desc`;
-      if (this.jobID || this.processID || this.agentID) {
+      if (this.jobID) this.filterByJobId();
+      else if (this.processID || this.agentID) {
         this.filterAgentProcess();
       } else {
         this.pagination(
@@ -229,7 +249,8 @@ export class AllProcessLogsComponent implements OnInit {
     if (event.target.value) {
       this.page.pageNumber = 1;
       this.page.pageSize = +event.target.value;
-      if (this.jobID || this.processID || this.agentID) {
+      if (this.jobID) this.filterByJobId();
+      else if (this.processID || this.agentID) {
         this.filterAgentProcess();
       } else {
         this.pagination(this.page.pageNumber, this.page.pageSize);
