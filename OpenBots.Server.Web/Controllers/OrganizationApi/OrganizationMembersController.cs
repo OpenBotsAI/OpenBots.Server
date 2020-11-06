@@ -18,6 +18,8 @@ using System.Net;
 using System.IO;
 using OpenBots.Server.Model.Attributes;
 using Microsoft.Extensions.Configuration;
+using OpenBots.Server.Web.Extensions;
+using OpenBots.Server.ViewModel.Email;
 
 namespace OpenBots.Server.WebAPI.Controllers
 {
@@ -551,12 +553,21 @@ namespace OpenBots.Server.WebAPI.Controllers
 
                 string emailBody = "";
 
-                using (StreamReader reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email/accountCreation.html")))
+                //using (StreamReader reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email/accountCreation.html")))
+                //{
+                //    emailBody = reader.ReadToEnd();
+                //    emailBody = emailBody.Replace("^Password^", password, StringComparison.OrdinalIgnoreCase);
+                //    emailBody = emailBody.Replace("^Confirm^", confirmationLink, StringComparison.OrdinalIgnoreCase);
+                //}
+
+                var templateObj = new EmailTemplateData
                 {
-                    emailBody = reader.ReadToEnd();
-                    emailBody = emailBody.Replace("^Password^", password, StringComparison.OrdinalIgnoreCase);
-                    emailBody = emailBody.Replace("^Confirm^", confirmationLink, StringComparison.OrdinalIgnoreCase);
-                }
+                    Password = password,
+                    HrefLink = confirmationLink,
+                    Url = AppDomain.CurrentDomain.BaseDirectory,
+                    FileName = "Email/accountCreation.html"
+                };
+                emailBody = EmailTextFormatter.Format(templateObj);
 
                 return emailBody;
             }

@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Authorization;
 using System.IO;
 using OpenBots.Server.Model.Attributes;
 using Microsoft.Extensions.Configuration;
+using OpenBots.Server.Web.Extensions;
+using OpenBots.Server.ViewModel.Email;
 
 namespace OpenBots.Server.WebAPI.Controllers
 {
@@ -152,11 +154,19 @@ namespace OpenBots.Server.WebAPI.Controllers
 
                 string emailBody = "";
 
-                using (StreamReader reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email/confirm-en.html")))
+                //using (StreamReader reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email/confirm-en.html")))
+                //{
+                //    emailBody = reader.ReadToEnd();
+                //    emailBody = emailBody.Replace("^Confirm^", confirmationLink);
+                //}
+
+                var templateObj = new EmailTemplateData
                 {
-                    emailBody = reader.ReadToEnd();
-                    emailBody = emailBody.Replace("^Confirm^", confirmationLink);
-                }
+                    HrefLink = confirmationLink,
+                    Url = AppDomain.CurrentDomain.BaseDirectory,
+                    FileName = "Email/confirm-en.html"
+                };
+                emailBody = EmailTextFormatter.Format(templateObj);
 
                 var subject = "Confirm your email address at " + Constants.PRODUCT;
 
