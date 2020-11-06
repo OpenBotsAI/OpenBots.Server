@@ -10,8 +10,8 @@ using OpenBots.Server.DataAccess;
 namespace OpenBots.Server.DataAccess.Migrations
 {
     [DbContext(typeof(StorageContext))]
-    [Migration("20201022165429_UpdateEmailLogs2")]
-    partial class UpdateEmailLogs2
+    [Migration("20201105020543_RemoveParamFK")]
+    partial class RemoveParamFK
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -271,9 +271,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<Guid?>("OrganizationId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("OriginalFileName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<long?>("SizeInBytes")
                         .HasColumnType("bigint");
 
@@ -299,6 +296,283 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BinaryObjects");
+                });
+
+            modelBuilder.Entity("OpenBots.Server.Model.Configuration.ConfigurationValue", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("ConfigurationValues");
+
+                    b.HasData(
+                        new
+                        {
+                            Name = "BinaryObjects:Adapter",
+                            Value = "FileSystemAdapter"
+                        },
+                        new
+                        {
+                            Name = "BinaryObjects:Path",
+                            Value = "BinaryObjects"
+                        },
+                        new
+                        {
+                            Name = "BinaryObjects:StorageProvider",
+                            Value = "FileSystem.Default"
+                        },
+                        new
+                        {
+                            Name = "Queue.Global:DefaultMaxRetryCount",
+                            Value = "2"
+                        },
+                        new
+                        {
+                            Name = "App:MaxExportRecords",
+                            Value = "100"
+                        },
+                        new
+                        {
+                            Name = "App:MaxReturnRecords",
+                            Value = "100"
+                        },
+                        new
+                        {
+                            Name = "App:EnableSwagger",
+                            Value = "true"
+                        });
+                });
+
+            modelBuilder.Entity("OpenBots.Server.Model.Configuration.EmailAccount", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ApiKey")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<DateTime?>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeleteOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("EncryptedPassword")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndOnUTC")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FromEmailAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FromName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Host")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDisabled")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSslEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Port")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Provider")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartOnUTC")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EmailAccounts");
+                });
+
+            modelBuilder.Entity("OpenBots.Server.Model.Configuration.EmailLog", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<DateTime?>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeleteOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<Guid>("EmailAccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EmailObjectJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SenderAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SenderName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("SenderUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("SentOnUTC")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EmailLogs");
+                });
+
+            modelBuilder.Entity("OpenBots.Server.Model.Configuration.EmailSettings", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AddBCCAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AddCCAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AddToAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AllowedDomains")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BlockedDomains")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BodyAddPrefix")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BodyAddSuffix")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<DateTime?>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeleteOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEmailDisabled")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SubjectAddPrefix")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SubjectAddSuffix")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EmailSettings");
                 });
 
             modelBuilder.Entity("OpenBots.Server.Model.Core.ApplicationVersion", b =>
@@ -837,62 +1111,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.ToTable("PersonEmails");
                 });
 
-            modelBuilder.Entity("OpenBots.Server.Model.Identity.PersonPhone", b =>
-                {
-                    b.Property<Guid?>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("newid()");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasMaxLength(100);
-
-                    b.Property<DateTime?>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getutcdate()");
-
-                    b.Property<DateTime?>("DeleteOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasMaxLength(100);
-
-                    b.Property<bool?>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<Guid?>("PersonId")
-                        .IsRequired()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(99)")
-                        .HasMaxLength(99);
-
-                    b.Property<byte[]>("Timestamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasMaxLength(100);
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PersonId");
-
-                    b.ToTable("PersonPhones");
-                });
-
             modelBuilder.Entity("OpenBots.Server.Model.Identity.UserAgreement", b =>
                 {
                     b.Property<Guid?>("Id")
@@ -1100,6 +1318,61 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.ToTable("Jobs");
                 });
 
+            modelBuilder.Entity("OpenBots.Server.Model.JobParameter", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<DateTime?>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DataType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeleteOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("JobId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("JobParameters");
+                });
+
             modelBuilder.Entity("OpenBots.Server.Model.Membership.AccessRequest", b =>
                 {
                     b.Property<Guid?>("Id")
@@ -1171,9 +1444,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("newid()");
 
-                    b.Property<double?>("AllowedStorageInBytes")
-                        .HasColumnType("float");
-
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
@@ -1194,51 +1464,15 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasMaxLength(500);
 
-                    b.Property<string>("EMailDomain")
-                        .HasColumnType("nvarchar(250)")
-                        .HasMaxLength(250);
-
                     b.Property<bool?>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<bool?>("IsDocumentStorageEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("IsDocumentStorageQuotaFull")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("IsPublic")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("IsVisibleToEmailDomain")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("MyProperty")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
-
-                    b.Property<string>("PrivateKey")
-                        .HasColumnType("nvarchar(500)")
-                        .HasMaxLength(500);
-
-                    b.Property<int?>("ProcessKeyNumber")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ProcessKeyPrefix")
-                        .HasColumnType("char(1)");
-
-                    b.Property<string>("Salt")
-                        .HasColumnType("nvarchar(500)")
-                        .HasMaxLength(500);
-
-                    b.Property<double?>("StorageUsedInBytes")
-                        .HasColumnType("float");
 
                     b.Property<byte[]>("Timestamp")
                         .IsConcurrencyToken()
@@ -1353,15 +1587,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("newid()");
 
-                    b.Property<string>("BusinesProcessKeyPrefix")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BusinessProcessPrioritiesCSV")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BusinessProcessStatusCSV")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
@@ -1385,9 +1610,6 @@ namespace OpenBots.Server.DataAccess.Migrations
 
                     b.Property<Guid?>("OrganizationId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("SMTPConfiguration")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StorageLocation")
                         .HasColumnType("nvarchar(max)");
@@ -1925,73 +2147,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.ToTable("QueueItems");
                 });
 
-            modelBuilder.Entity("OpenBots.Server.Model.Report.AspNetUsers", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("ForcedPasswordChange")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("IsUserConsentRequired")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("PersonId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Utm_Campaign")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Utm_Content")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Utm_Medium")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Utm_Source")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Utm_Term")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AspNetUsers");
-                });
-
             modelBuilder.Entity("OpenBots.Server.Model.Schedule", b =>
                 {
                     b.Property<Guid?>("Id")
@@ -2098,244 +2253,56 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.ToTable("Schedules");
                 });
 
-            modelBuilder.Entity("OpenBots.Server.Model.SystemConfiguration.ConfigurationValue", b =>
+            modelBuilder.Entity("OpenBots.Server.Security.AspNetUsers", b =>
                 {
-                    b.Property<string>("Name")
+                    b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Value")
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Name");
-
-                    b.ToTable("ConfigurationValues");
-                });
-
-            modelBuilder.Entity("OpenBots.Server.Model.SystemConfiguration.EmailAccount", b =>
-                {
-                    b.Property<Guid?>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ApiKey")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasMaxLength(100);
-
-                    b.Property<DateTime?>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeleteOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasMaxLength(100);
-
-                    b.Property<string>("EncryptedPassword")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("EndOnUTC")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FromEmailAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FromName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Host")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDefault")
+                    b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<bool?>("IsDeleted")
+                    b.Property<bool>("ForcedPasswordChange")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsDisabled")
+                    b.Property<bool?>("IsUserConsentRequired")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsSslEnabled")
+                    b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(100)")
-                        .HasMaxLength(100);
-
-                    b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Port")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Provider")
+                    b.Property<string>("NormalizedEmail")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("StartOnUTC")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("NormalizedUserName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<byte[]>("Timestamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                    b.Property<Guid>("PersonId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasMaxLength(100);
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("Username")
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("EmailAccounts");
-                });
-
-            modelBuilder.Entity("OpenBots.Server.Model.SystemConfiguration.EmailLog", b =>
-                {
-                    b.Property<Guid?>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasMaxLength(100);
-
-                    b.Property<DateTime?>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeleteOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasMaxLength(100);
-
-                    b.Property<Guid>("EmailAccountId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("EmailObjectJson")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Reason")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SenderAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SenderName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("SenderUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("SentOnUTC")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<byte[]>("Timestamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasMaxLength(100);
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EmailLogs");
-                });
-
-            modelBuilder.Entity("OpenBots.Server.Model.SystemConfiguration.EmailSettings", b =>
-                {
-                    b.Property<Guid?>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AddBCCAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AddCCAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AddToAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AllowedDomains")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BlockedDomains")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BodyAddPrefix")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BodyAddSuffix")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasMaxLength(100);
-
-                    b.Property<DateTime?>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeleteOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasMaxLength(100);
-
-                    b.Property<bool?>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsEmailDisabled")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("SubjectAddPrefix")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SubjectAddSuffix")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<byte[]>("Timestamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasMaxLength(100);
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EmailSettings");
+                    b.ToTable("AspNetUsers");
                 });
 
             modelBuilder.Entity("OpenBots.Server.Model.Identity.EmailVerification", b =>
@@ -2360,15 +2327,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                 {
                     b.HasOne("OpenBots.Server.Model.Identity.Person", "Person")
                         .WithMany("Emails")
-                        .HasForeignKey("PersonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("OpenBots.Server.Model.Identity.PersonPhone", b =>
-                {
-                    b.HasOne("OpenBots.Server.Model.Identity.Person", "Person")
-                        .WithMany("Phones")
                         .HasForeignKey("PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

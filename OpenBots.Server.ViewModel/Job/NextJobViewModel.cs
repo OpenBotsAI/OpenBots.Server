@@ -1,4 +1,5 @@
 ﻿using OpenBots.Server.Model;
+using System.Collections.Generic;
 
 namespace OpenBots.Server.ViewModel
 {
@@ -6,5 +7,6 @@ namespace OpenBots.Server.ViewModel
     {
         public bool IsJobAvailable { get; set; }
         public Job AssignedJob { get; set; }
+        public IEnumerable<JobParameter> JobParameters { get; set; }
     }
 }

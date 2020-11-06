@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OpenBots.Server.ViewModel
 {
-    public class JobViewModel : IViewModel<Job, JobViewModel>
+    public class AllJobsViewModel : IViewModel<Job, AllJobsViewModel>
     {
         public Guid? Id { get; set; }
         public string AgentName { get; set; }
@@ -16,7 +16,7 @@ namespace OpenBots.Server.ViewModel
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public DateTime? EnqueueTime { get; set; }
-        public DateTime? DequeueTime { get; set; }  
+        public DateTime? DequeueTime { get; set; }
         [Required]
         public Guid? ProcessId { get; set; }
         public JobStatusType? JobStatus { get; set; }
@@ -27,11 +27,10 @@ namespace OpenBots.Server.ViewModel
         public string ErrorReason { get; set; }
         public string ErrorCode { get; set; }
         public string SerializedErrorString { get; set; }
-        public IEnumerable<JobParameter>? JobParameters { get; set; }
 
-        public JobViewModel Map(Job entity)
+        public AllJobsViewModel Map(Job entity)
         {
-            JobViewModel jobViewModel = new JobViewModel
+            AllJobsViewModel jobViewModel = new AllJobsViewModel
             {
                 Id = entity.Id,
                 AgentId = entity.AgentId,
@@ -47,7 +46,7 @@ namespace OpenBots.Server.ViewModel
                 CreatedBy = entity.CreatedBy,
                 ErrorReason = entity.ErrorReason,
                 ErrorCode = entity.ErrorCode,
-                SerializedErrorString = entity.SerializedErrorString 
+                SerializedErrorString = entity.SerializedErrorString
             };
 
             return jobViewModel;

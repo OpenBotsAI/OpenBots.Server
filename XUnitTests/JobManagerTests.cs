@@ -48,6 +48,7 @@ namespace XUnitTests
             var jobLogger = Mock.Of<ILogger<Job>>();
             var agentLogger = Mock.Of<ILogger<AgentModel>>();
             var processLogger = Mock.Of<ILogger<Process>>();
+            var jobParameterLogger = Mock.Of<ILogger<JobParameter>>();
 
             var httpContextAccessor = new Mock<IHttpContextAccessor>();
             httpContextAccessor.Setup(req => req.HttpContext.User.Identity.Name).Returns(It.IsAny<string>());
@@ -55,8 +56,9 @@ namespace XUnitTests
             var jobRepository = new JobRepository(context, jobLogger, httpContextAccessor.Object);
             var agentRepo = new AgentRepository(context, agentLogger, httpContextAccessor.Object);
             var processRepo = new ProcessRepository(context, processLogger, httpContextAccessor.Object);
+            var jobParameterRepo = new JobParameterRepository(context, jobParameterLogger, httpContextAccessor.Object);
 
-            var manager = new JobManager(jobRepository, agentRepo, processRepo);
+            var manager = new JobManager(jobRepository, agentRepo, processRepo, jobParameterRepo);
 
             // act
             var jobsAvailable = manager.GetNextJob(newJobAgentId);

@@ -303,16 +303,8 @@ namespace OpenBots.Server.Web.Controllers
                 var existingBinaryObject = repository.GetOne(entityId);
                 if (existingBinaryObject == null) return NotFound();
 
-                existingBinaryObject.Name = request.Name;
-                existingBinaryObject.OrganizationId = request.OrganizationId;
-                existingBinaryObject.ContentType = request.ContentType;
-                existingBinaryObject.CorrelationEntityId = request.CorrelationEntityId;
-                existingBinaryObject.CorrelationEntity = request.CorrelationEntity;
+                existingBinaryObject.Name = request.Name ?? existingBinaryObject.Name;
                 existingBinaryObject.Folder = request.Folder;
-                existingBinaryObject.StoragePath = request.StoragePath;
-                existingBinaryObject.StorageProvider = request.StorageProvider;
-                existingBinaryObject.SizeInBytes = request.SizeInBytes;
-                existingBinaryObject.HashCode = request.HashCode;
                 
                 return await base.PutEntity(id, existingBinaryObject);
                                      

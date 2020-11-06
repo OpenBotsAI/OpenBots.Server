@@ -30,6 +30,7 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
         public string UserName { get; set; }
         [Required(ErrorMessage = "Please enter your password.")]
         public string Password { get; set; }
+
         public AgentModel Map(CreateAgentViewModel viewModel)
         {
             AgentModel agent = new AgentModel

@@ -31,6 +31,7 @@ namespace OpenBots.Server.Web
     public class JobsController : EntityController<Job>
     {
         IJobManager jobManager;
+        IJobParameterRepository jobParameterRepo;
         private IHubContext<NotificationHub> _hub;
         
         /// <summary>
@@ -45,6 +46,7 @@ namespace OpenBots.Server.Web
         /// <param name="httpContextAccessor"></param>
         public JobsController(
             IJobRepository repository,
+            IJobParameterRepository jobParameterRepository,
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
             IJobManager jobManager,
@@ -53,6 +55,7 @@ namespace OpenBots.Server.Web
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.jobManager = jobManager;
+            this.jobParameterRepo = jobParameterRepository;
             this.jobManager.SetContext(base.SecurityContext);
             _hub = hub;
         }
@@ -102,21 +105,21 @@ namespace OpenBots.Server.Web
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Paginated list of all jobs</returns>
         [HttpGet("view")]
-        [ProducesResponseType(typeof(PaginatedList<JobViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<AllJobsViewModel>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<JobViewModel> View(
+        public PaginatedList<AllJobsViewModel> View(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            ODataHelper<JobViewModel> oData = new ODataHelper<JobViewModel>();
+            ODataHelper<AllJobsViewModel> oData = new ODataHelper<AllJobsViewModel>();
 
             string queryString = "";
 
@@ -130,11 +133,11 @@ namespace OpenBots.Server.Web
             Guid parentguid = Guid.Empty;
             var newNode = oData.ParseOrderByQuerry(queryString);
             if (newNode == null)
-                newNode = new OrderByNode<JobViewModel>();
+                newNode = new OrderByNode<AllJobsViewModel>();
 
-            Predicate<JobViewModel> predicate = null;
+            Predicate<AllJobsViewModel> predicate = null;
             if (oData != null && oData.Filter != null)
-                predicate = new Predicate<JobViewModel>(oData.Filter);
+                predicate = new Predicate<AllJobsViewModel>(oData.Filter);
             int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
             
             return jobManager.GetJobAgentsandProcesses(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
@@ -283,7 +286,7 @@ namespace OpenBots.Server.Web
                     JobViewModel view = okResult.Value as JobViewModel;
                     view = jobManager.GetJobView(view);
                 }
-
+                
                 return actionResult;
             }
             catch (Exception ex)
@@ -434,7 +437,7 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Post([FromBody] Job request)
+        public async Task<IActionResult> Post([FromBody] CreateJobViewModel request)
         {
             if (request == null)
             {
@@ -448,7 +451,18 @@ namespace OpenBots.Server.Web
 
             try
             {
-                var response = await base.PostEntity(request);
+
+                Job job = request.Map(request);
+                var response = await base.PostEntity(job);
+
+                foreach (var parameter in request.JobParameters)
+                {
+                    parameter.JobId = entityId;
+                    parameter.CreatedBy = applicationUser?.UserName;
+                    parameter.CreatedOn = DateTime.UtcNow;
+                    parameter.Id = Guid.NewGuid();
+                    jobParameterRepo.Add(parameter);
+                }
 
                 //Send SignalR notification to all connected clients 
                 await _hub.Clients.All.SendAsync("botnewjobnotification", request.AgentId.ToString());
@@ -484,7 +498,7 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Put(string id, [FromBody] Job request)
+        public async Task<IActionResult> Put(string id, [FromBody] CreateJobViewModel request)
         {
             try
             {
@@ -502,11 +516,26 @@ namespace OpenBots.Server.Web
                 existingJob.JobStatus = request.JobStatus;
                 existingJob.Message = request.Message;
                 existingJob.IsSuccessful = request.IsSuccessful;
-                existingJob.ErrorReason = request.ErrorReason;
-                existingJob.ErrorCode = request.ErrorCode;
-                existingJob.SerializedErrorString = request.SerializedErrorString;
 
                 var response = await base.PutEntity(id, existingJob);
+
+                jobManager.DeleteExistingParameters(entityId);
+
+                var set = new HashSet<string>();
+                foreach (var parameter in request.JobParameters ?? Enumerable.Empty<JobParameter>())
+                {
+                    if (!set.Add(parameter.Name)) 
+                    {
+                        ModelState.AddModelError("Agent", "Agent Name Already Exists");
+                        return BadRequest(ModelState);
+                    }
+                    parameter.JobId = entityId;
+                    parameter.CreatedBy = applicationUser?.UserName;
+                    parameter.CreatedOn = DateTime.UtcNow;
+                    parameter.Id = Guid.NewGuid();
+                    jobParameterRepo.Add(parameter);
+                }
+
                 //Send SignalR notification to all connected clients 
                 await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", existingJob.Id));
 
@@ -620,6 +649,8 @@ namespace OpenBots.Server.Web
         public async Task<IActionResult> Delete(string id)
         {
             var response = await base.DeleteEntity(id);
+            jobManager.DeleteExistingParameters(new Guid(id));
+
             //Send SignalR notification to all connected clients 
             await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} deleted.", id));
 

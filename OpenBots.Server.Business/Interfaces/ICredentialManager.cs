@@ -5,6 +5,7 @@ namespace OpenBots.Server.Business
     public interface ICredentialManager : IManager
     {
         bool ValidateRetrievalDate(Credential credential);
+        bool ValidateStartAndEndDates(Credential credential);
     }
 }
 
