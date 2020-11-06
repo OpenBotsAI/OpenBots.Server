@@ -23,19 +23,19 @@ namespace OpenBots.Server.Model.Options
         public string Url {get; set;}
 
         /// <summary>
-        /// Relative path to be used when loging in
+        /// Relative path to be used to login
         /// </summary>
-        public string login { get; set; }
+        public string Login { get; set; }
 
         /// <summary>
         /// Relative path to be used when resetting password
         /// </summary>
-        public string forgotpassword { get; set; }
+        public string Forgotpassword { get; set; }
 
         /// <summary>
         /// Redirection path for when a token error occurs
         /// </summary>
-        public string tokenerror { get; set; }
+        public string Tokenerror { get; set; }
 
         /// <summary>
         /// Redirection path for when no user exists
@@ -45,6 +45,6 @@ namespace OpenBots.Server.Model.Options
         /// <summary>
         /// Redirection path for when email has been confirmed
         /// </summary>
-        public string emailaddressconfirmed { get; set; }
+        public string Emailaddressconfirmed { get; set; }
     }
 }

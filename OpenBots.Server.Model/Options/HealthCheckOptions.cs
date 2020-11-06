@@ -2,7 +2,6 @@
 
 namespace OpenBots.Server.Model.Options
 {
-
     /// <summary>
     /// Options for HealthCheckSetupOptions Configuration
     /// </summary>
