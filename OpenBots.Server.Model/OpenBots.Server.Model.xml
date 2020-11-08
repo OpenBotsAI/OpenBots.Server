@@ -297,6 +297,11 @@
             Interface to determine entities that are nonauditable
             </summary>
         </member>
+        <member name="T:OpenBots.Server.Model.JobStatusType">
+            <summary>
+            Stores the current status of a job
+            </summary>
+        </member>
         <member name="T:OpenBots.Server.Model.Options.AppInsightOptions">
             <summary>
             Options for ApplicationInsights Configuration
@@ -531,7 +536,7 @@
         </member>
         <member name="P:OpenBots.Server.Model.Options.WebAppUrlOptions.Login">
             <summary>
-            Relative path to be used when loging in
+            Relative path to be used to login
             </summary>
         </member>
         <member name="P:OpenBots.Server.Model.Options.WebAppUrlOptions.Forgotpassword">
