@@ -184,11 +184,15 @@ export class AddScheduleComponent implements OnInit {
       this.scheduleForm.get('startDate').setValidators([Validators.required]);
       this.scheduleForm.get('startDate').updateValueAndValidity();
     } else if (value === 'recurrence') {
+      this.scheduleForm.get('startDate').setValidators([Validators.required]);
+      this.scheduleForm.get('startDate').updateValueAndValidity();
       this.scheduleForm.get('expiryDate').setValidators([Validators.required]);
       this.scheduleForm.get('expiryDate').updateValueAndValidity();
     } else if (value === 'manual') {
       this.scheduleForm.get('startDate').clearValidators();
       this.scheduleForm.get('startDate').updateValueAndValidity();
+      this.scheduleForm.get('expiryDate').clearValidators();
+      this.scheduleForm.get('expiryDate').updateValueAndValidity();
     }
   }
 }
