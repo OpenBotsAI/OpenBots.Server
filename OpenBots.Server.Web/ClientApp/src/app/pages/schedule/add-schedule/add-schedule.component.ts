@@ -7,6 +7,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CronOptions } from '../../../interfaces/cronJobConfiguration';
 import { TimeDatePipe } from '../../../@core/pipe';
 import { Processes } from '../../../interfaces/processes';
+import { HelperService } from '../../../@core/services/helper.service';
 
 @Component({
   selector: 'ngx-add-schedule',
@@ -55,10 +56,13 @@ export class AddScheduleComponent implements OnInit {
     private httpService: HttpService,
     private dateService: NbDateService<Date>,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private helperService: HelperService
   ) {}
 
   ngOnInit(): void {
+    this.min = new Date();
+    this.max = new Date();
     this.currentScheduleId = this.route.snapshot.params['id'];
     this.scheduleForm = this.initScheduleForm();
     this.getAllAgents();
@@ -67,8 +71,6 @@ export class AddScheduleComponent implements OnInit {
       this.title = 'Update';
       this.getScheduleById();
     }
-    this.min = new Date();
-    this.max = new Date();
     this.min = this.dateService.addMonth(this.dateService.today(), 0);
     this.max = this.dateService.addMonth(this.dateService.today(), 1);
   }
@@ -92,7 +94,8 @@ export class AddScheduleComponent implements OnInit {
       startingType: ['', [Validators.required]],
       status: [''],
       expiryDate: [''],
-      startDate: ['', [Validators.required]],
+      // startDate: ['', [Validators.required]],
+      startDate: [''],
     });
   }
 
@@ -110,15 +113,13 @@ export class AddScheduleComponent implements OnInit {
   onScheduleSubmit(): void {
     this.isSubmitted = true;
     if (this.scheduleForm.value.startDate) {
-      this.myDate = new TimeDatePipe();
-      this.scheduleForm.value.startDate = this.myDate.transform(
+      this.scheduleForm.value.startDate = this.helperService.transformDate(
         this.scheduleForm.value.startDate,
         'lll'
       );
     }
     if (this.scheduleForm.value.expiryDate) {
-      this.myDate = new TimeDatePipe();
-      this.scheduleForm.value.expiryDate = this.myDate.transform(
+      this.scheduleForm.value.expiryDate = this.helperService.transformDate(
         this.scheduleForm.value.expiryDate,
         'lll'
       );
@@ -165,7 +166,8 @@ export class AddScheduleComponent implements OnInit {
       .get(`Schedules/${this.currentScheduleId}`)
       .subscribe((response) => {
         if (response) {
-          this.cronExpression = response.cronExpression;
+          if (response.cronExpression)
+            this.cronExpression = response.cronExpression;
           this.scheduleForm.patchValue(response);
         }
       });
@@ -178,7 +180,10 @@ export class AddScheduleComponent implements OnInit {
   }
 
   radioSetValidator(value: string): void {
-    if (value === 'recurrence') {
+    if (value === 'oneTime') {
+      this.scheduleForm.get('startDate').setValidators([Validators.required]);
+      this.scheduleForm.get('startDate').updateValueAndValidity();
+    } else if (value === 'recurrence') {
       this.scheduleForm.get('expiryDate').setValidators([Validators.required]);
       this.scheduleForm.get('expiryDate').updateValueAndValidity();
     } else if (value === 'manual') {
