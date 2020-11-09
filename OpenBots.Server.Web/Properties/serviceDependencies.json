@@ -7,9 +7,6 @@
     "mssql1": {
       "type": "mssql",
       "connectionId": "Default"
-    },
-    "secrets1": {
-      "type": "secrets"
     }
   }
 }
