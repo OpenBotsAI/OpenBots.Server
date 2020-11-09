@@ -61,7 +61,7 @@ namespace OpenBots.Server.Web.Controllers
             _hub = hub;
             this.queueRepository = queueRepository;
             this.hubManager = hubManager;
-            this.scheduleRepo = scheduleRepo;
+            this.scheduleRepo = scheduleRepository;
             Configuration = configuration;
         }
 
@@ -216,10 +216,23 @@ namespace OpenBots.Server.Web.Controllers
             {
                 var response = await manager.Enqueue(request);
 
-                Schedule schedule = scheduleRepo.Find(0, 1).Items.Where(s => s.QueueId == response.QueueId).FirstOrDefault();
-
-                if (schedule != null && schedule.IsDisabled == false && !schedule.StartingType.ToLower().Equals("queuearrial"))
+                // Check if a 'QueueArrival' schedule exists for this Queue
+                Schedule existingSchedule = scheduleRepo.Find(0, 1).Items?.Where(s => s.QueueId == response.QueueId)?.FirstOrDefault();
+                if (existingSchedule != null && existingSchedule.IsDisabled == false && existingSchedule.StartingType.ToLower().Equals("queuearrival"))
                 {
+                    Schedule schedule = new Schedule();
+                    schedule.AgentId = existingSchedule.AgentId;
+                    schedule.CRONExpression = "";
+                    schedule.LastExecution = DateTime.Now;
+                    schedule.NextExecution = DateTime.Now;
+                    schedule.IsDisabled = false;
+                    schedule.ProjectId = null;
+                    schedule.StartingType = "";
+                    schedule.Status = "New";
+                    schedule.ExpiryDate = DateTime.Now.AddDays(1);
+                    schedule.StartDate = DateTime.Now;
+                    schedule.ProcessId = existingSchedule.ProcessId;
+
                     var jsonScheduleObj = System.Text.Json.JsonSerializer.Serialize<Schedule>(schedule);
                     var jobId = BackgroundJob.Enqueue(() => hubManager.StartNewRecurringJob(jsonScheduleObj));
                 }

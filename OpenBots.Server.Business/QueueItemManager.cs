@@ -11,12 +11,10 @@ namespace OpenBots.Server.Business
     public class QueueItemManager : BaseManager, IQueueItemManager
     {
         private readonly IQueueItemRepository repo;
-        private readonly IScheduleRepository scheduleRepo;
 
-        public QueueItemManager(IQueueItemRepository repo, IScheduleRepository scheduleRepository)
+        public QueueItemManager(IQueueItemRepository repo)
         {
             this.repo = repo;
-            this.scheduleRepo = scheduleRepository;
         }
 
         public async Task<QueueItem> Enqueue(QueueItem item)
@@ -26,13 +24,6 @@ namespace OpenBots.Server.Business
             item.IsLocked = false;
             if (item.Priority == 0)
                 item.Priority = 100;
-
-            //find a schedule that shares this items queue ID
-            //if one exists and it's type is queue arrival, then run now
-            scheduleRepo.Find(0,1).Items.Where(s => s.QueueId == item.QueueId).FirstOrDefault();
-
-            var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(schedule); 
-                var jobId = BackgroundJob.Enqueue(() => hubManager.StartNewRecurringJob(jsonScheduleObj));
 
             return item;
         }
