@@ -17,7 +17,7 @@ export class EmailAccountsService {
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
-  getAllAssetOrder(tpage: any, spage: any, name) {
+  getAllEmailOrder(tpage: any, spage: any, name) {
     let getagentUrl = `/EmailAccounts?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }

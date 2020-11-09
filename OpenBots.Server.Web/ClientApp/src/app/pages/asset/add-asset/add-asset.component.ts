@@ -21,6 +21,7 @@ export class AddAssetComponent implements OnInit {
   native_file: any;
   native_file_name: any;
   ///// end declartion////
+  fileSize = false;
   show_upload: boolean = false;
   save_value: any = [];
   addasset: FormGroup;
@@ -78,7 +79,14 @@ export class AddAssetComponent implements OnInit {
     switch (output.type) {
       case 'addedToQueue':
         if (typeof output.file !== 'undefined') {
-
+          if (!output.file.size) {
+            this.fileSize = true;
+            this.submitted = true;
+          }
+          else {
+            this.fileSize = false;
+            this.submitted = false;
+          }
           this.native_file = output.file.nativeFile
           this.native_file_name = output.file.nativeFile.name;
           this.show_upload = false;
@@ -86,6 +94,8 @@ export class AddAssetComponent implements OnInit {
         break;
     }
   }
+
+
 
   get f() {
     return this.addasset.controls;

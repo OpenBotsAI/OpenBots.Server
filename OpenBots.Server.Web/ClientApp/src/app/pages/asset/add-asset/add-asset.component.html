@@ -48,6 +48,9 @@
               <div *ngIf="show_upload" class="invalid-feedback-frm">
                 Please Upload  File 
             </div>
+             <div *ngIf="fileSize" class="invalid-feedback-frm">
+                  You cannot upload empty file.
+                </div>
         </div>
           </div>
 

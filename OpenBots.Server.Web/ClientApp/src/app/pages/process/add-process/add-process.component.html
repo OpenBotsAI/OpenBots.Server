@@ -10,7 +10,7 @@
                             <label for="agentname" class="label">
                                 Process Name *</label>
                                 <input type="input" nbInput fullWidth id="name" formControlName="name" trim="blur"ngxSpecialChar
-                                class="form-control" placeholder="Please enter Process name" />
+                                class="form-control" placeholder="Please enter process name" />
                                 <div *ngIf="f.name.touched && f.name.invalid" class="invalid-feedback-frm">
                                     <div *ngIf="f.name.errors && f.name.errors.required">
                                         Process Name is required.
@@ -47,6 +47,9 @@
                               <div *ngIf="show_upload" class="invalid-feedback-frm">
                                 Please Upload Process File 
                             </div>
+                             <div *ngIf="fileSize" class="invalid-feedback-frm">
+                  You cannot upload empty file.
+                </div>
                         </div>
                     </div>
 
