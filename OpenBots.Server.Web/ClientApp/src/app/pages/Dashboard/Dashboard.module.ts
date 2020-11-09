@@ -14,12 +14,13 @@ import {
   NbIconModule,
   NbSelectModule,
   NbListModule,
-  
+
 } from '@nebular/theme';
 import { ThemeModule } from '../../@theme/theme.module';
-import { ECommerceComponent } from './e-commerce.component';
+
 import { ChartsModule } from 'ng2-charts';
- 
+import { DashboardComponent } from './Dashboard.component';
+
 
 @NgModule({
   imports: [
@@ -35,11 +36,11 @@ import { ChartsModule } from 'ng2-charts';
     ChartsModule
   ],
   declarations: [
-    ECommerceComponent,
-    
+    DashboardComponent,
+
   ],
   providers: [
-   
+
   ],
 })
-export class ECommerceModule { }
+export class dashboardModule { }

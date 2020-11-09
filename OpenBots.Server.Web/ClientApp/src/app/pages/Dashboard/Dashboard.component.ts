@@ -3,11 +3,11 @@ import { HttpService } from '../../@core/services/http.service';
 import { Chart } from 'chart.js';
 
 @Component({
-  selector: 'ngx-ecommerce',
-  styleUrls: ['./e-commerce.component.scss'],
-  templateUrl: './e-commerce.component.html',
+  selector: 'ngx-Dashboard',
+  styleUrls: ['./Dashboard.component.scss'],
+  templateUrl: './Dashboard.component.html',
 })
-export class ECommerceComponent implements OnInit {
+export class DashboardComponent implements OnInit {
   topPage: any;
   pageMore = false;
   allProcess = [];
@@ -18,6 +18,8 @@ export class ECommerceComponent implements OnInit {
   dataJobs = [];
   dataQueue = [];
   totalCount: any = [];
+  showMorebtn: boolean = false;
+
   count = 0;
   donutCount = 0;
 
@@ -37,7 +39,7 @@ export class ECommerceComponent implements OnInit {
   }: {
     event: MouseEvent;
     active: {}[];
-  }): void {}
+  }): void { }
 
   public chartHovered({
     event,
@@ -45,9 +47,9 @@ export class ECommerceComponent implements OnInit {
   }: {
     event: MouseEvent;
     active: {}[];
-  }): void {}
+  }): void { }
 
-  constructor(private httpService: HttpService) {}
+  constructor(private httpService: HttpService) { }
 
   ngOnInit() {
     if (localStorage.getItem('ActiveOrgname')) {
@@ -116,6 +118,7 @@ export class ECommerceComponent implements OnInit {
   }
 
   demoCountByStatusGraph(job, count, name) {
+    this.showMorebtn = true;
     let colorArr = [];
     const keys = Object.entries(job).map(([key, value]) => key);
     const values = Object.entries(job).map(([key, value]) => value);

@@ -33,7 +33,6 @@ namespace OpenBots.Server.Web
         readonly IJobManager jobManager;
         readonly IJobParameterRepository jobParameterRepo;
         readonly IProcessRepository processRepo;
-
         private IHubContext<NotificationHub> _hub;
         
         /// <summary>
@@ -456,7 +455,6 @@ namespace OpenBots.Server.Web
 
             try
             {
-
                 Job job = request.Map(request); //Assign request to job entity
                 Process process = processRepo.GetOne(job.ProcessId ?? Guid.Empty);
                 

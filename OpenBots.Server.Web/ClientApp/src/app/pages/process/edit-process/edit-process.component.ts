@@ -21,7 +21,7 @@ export class EditProcessComponent implements OnInit {
   native_file: any;
   native_file_name: any;
     ///// end declartion////
-
+  fileSize = false;
 value = ['Published', 'Commited'];
  showprocess: FormGroup;
  save_value: any = [];
@@ -64,6 +64,14 @@ value = ['Published', 'Commited'];
      
     case 'addedToQueue':
       if (typeof output.file !== 'undefined') {
+        if (!output.file.size) {
+          this.fileSize = true;
+          this.submitted = true;
+        }
+        else {
+          this.fileSize = false;
+          this.submitted = false;
+        }
         this.native_file = output.file.nativeFile
         this.native_file_name = output.file.nativeFile.name
       }

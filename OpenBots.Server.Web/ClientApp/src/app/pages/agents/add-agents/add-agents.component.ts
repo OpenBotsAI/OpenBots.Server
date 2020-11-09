@@ -29,9 +29,7 @@ export class AddAgentsComponent implements OnInit {
           Validators.required,
           Validators.minLength(3),
           Validators.maxLength(100),
-          Validators.pattern(
-            '^[A-Za-z0-9_.-]{3,100}$'
-          ),
+          Validators.pattern('^[A-Za-z0-9_.-]{3,100}$'),
         ],
       ],
       machineName: [
@@ -43,12 +41,11 @@ export class AddAgentsComponent implements OnInit {
           ),
         ],
       ],
-
       macAddresses: [''],
       ipAddresses: [
         '',
         Validators.pattern(
-          '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
+          '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|(::[1])$'
         ),
       ],
       isEnabled: [true],
@@ -73,18 +70,19 @@ export class AddAgentsComponent implements OnInit {
     if (this.addagent.invalid) {
       return;
     }
-    this.agentService.addAgent(this.addagent.value).subscribe((data) => {
-      this.toastrService.success('Agent added successfully', 'Success');
-      this.router.navigate(['pages/agents/list']);
-    }, () => this.submitted = false);
-
+    this.agentService.addAgent(this.addagent.value).subscribe(
+      (data) => {
+        this.toastrService.success('Agent added successfully', 'Success');
+        this.router.navigate(['pages/agents/list']);
+      },
+      () => (this.submitted = false)
+    );
   }
 
   onReset() {
     this.submitted = false;
     this.addagent.reset();
   }
-
 
   keyPressAlphaNumericWithCharacters(event) {
     var inp = String.fromCharCode(event.keyCode);

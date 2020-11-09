@@ -104,7 +104,7 @@
           <div class="row">
             <div class="col-md-12 col-lg-12 col-xxxl-6">
               <button class="btn btn-primary btnMargnTop" status="primary"
-                [disabled]="!scheduleForm.valid || isSubmitted || scheduleForm.value.startingType == 'recurrence' && cronExpression == '0/0 * 0/0 * *'"
+                [disabled]="!scheduleForm.valid || isSubmitted || (scheduleForm.value.startingType == 'recurrence' && cronExpression == '0/0 * 0/0 * *')"
                 (click)="onScheduleSubmit()">
                 Save
               </button>

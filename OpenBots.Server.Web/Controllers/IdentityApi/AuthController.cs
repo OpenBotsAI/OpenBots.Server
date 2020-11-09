@@ -28,6 +28,8 @@ using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Attributes;
 using System.Configuration;
 using OpenBots.Server.Model.Options;
+using OpenBots.Server.Web.Extensions;
+using OpenBots.Server.ViewModel.Email;
 
 namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
 {
@@ -743,11 +745,21 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
 
                 string emailBody = "";
 
-                using (StreamReader reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email/confirm-en.html")))
+                //using (StreamReader reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email/confirm-en.html")))
+                //{
+                //    emailBody = reader.ReadToEnd();
+                //    emailBody = emailBody.Replace("^Confirm^", confirmationLink);
+                //}
+
+                var templateObj = new EmailTemplateData
                 {
-                    emailBody = reader.ReadToEnd();
-                    emailBody = emailBody.Replace("^Confirm^", confirmationLink);
-                }
+                    HrefLink = confirmationLink,
+                    Url = AppDomain.CurrentDomain.BaseDirectory,
+                    ApiUrl = configuration["WebAppUrl:ApiUrl"],
+                    FileName = "Email/confirm-en.html"
+                };
+                emailBody = EmailTextFormatter.Format(templateObj);
+
 
                 bool IsEmailAllowed = emailSender.IsEmailAllowed();
                 if (IsEmailAllowed)
@@ -992,12 +1004,22 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
 
                 string emailBody = "";
 
-                using (StreamReader reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email/accountCreation.html")))
+                //using (StreamReader reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email/accountCreation.html")))
+                //{
+                //    emailBody = reader.ReadToEnd();
+                //    emailBody = emailBody.Replace("^Password^", password);
+                //    emailBody = emailBody.Replace("^Confirm^", confirmationLink);
+                //}
+
+                var templateObj = new EmailTemplateData
                 {
-                    emailBody = reader.ReadToEnd();
-                    emailBody = emailBody.Replace("^Password^", password);
-                    emailBody = emailBody.Replace("^Confirm^", confirmationLink);
-                }
+                    Password = password,
+                    HrefLink = confirmationLink,
+                    Url = AppDomain.CurrentDomain.BaseDirectory,
+                    ApiUrl = configuration["WebAppUrl:ApiUrl"],
+                    FileName = "Email/accountCreation.html"
+                };
+                emailBody = EmailTextFormatter.Format(templateObj);
 
                 return emailBody;
             }
@@ -1015,9 +1037,19 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                                }, protocol: HttpContext.Request.Scheme);
             if (language == "en")
             {
-                StreamReader reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email/forgotPassword-en.html"));
-                string emailBody = reader.ReadToEnd();
-                emailBody = emailBody.Replace("^resetpassword^", confirmationLink);
+                //StreamReader reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email/forgotPassword-en.html"));
+                //string emailBody = reader.ReadToEnd();
+                //emailBody = emailBody.Replace("^resetpassword^", confirmationLink);
+
+                var templateObj = new EmailTemplateData
+                {
+                    HrefLink = confirmationLink,
+                    Url = AppDomain.CurrentDomain.BaseDirectory,
+                    ApiUrl = configuration["WebAppUrl:ApiUrl"],
+                    FileName = "Email/forgotPassword-en.html"
+                };
+                string emailBody = EmailTextFormatter.Format(templateObj);
+
                 return emailBody;
             }
             return null;

@@ -39,7 +39,7 @@ export class AddFileComponent implements OnInit {
   urlId: string;
   fileByIdData: BinaryFile;
   title = 'Add';
-  fileSize = false;
+  fileSize = false; 
   constructor(
     private formBuilder: FormBuilder,
     protected router: Router,
