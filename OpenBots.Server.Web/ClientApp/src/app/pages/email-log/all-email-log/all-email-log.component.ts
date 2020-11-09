@@ -100,7 +100,7 @@ export class AllEmailLogComponent implements OnInit {
     this.del_id = id;
   }
 
-  get_allasset(top, skip) {
+  getAllEmailLog(top, skip) {
     this.get_perPage = false;
     this.emailService.getAllEmail(top, skip).subscribe((data: any) => {
       for (const item of data.items) {
@@ -113,7 +113,13 @@ export class AllEmailLogComponent implements OnInit {
       this.showallEmail = data.items;
 
       this.page.totalCount = data.totalCount;
-      this.get_perPage = true;
+      if (data.totalCount == 0) {
+        this.get_perPage = false;
+      }
+      else if (data.totalCount != 0) {
+        this.get_perPage = true;
+      }
+
     });
   }
 
@@ -171,7 +177,7 @@ export class AllEmailLogComponent implements OnInit {
       const top: number = pageSize;
       const skip = (pageNumber - 1) * pageSize;
       if (this.feild_name.length == 0) {
-        this.get_allasset(top, skip);
+        this.getAllEmailLog(top, skip);
       } else if (this.feild_name.lenght != 0) {
         this.emailService
           .getAllEmaillogOrder(top, skip, this.feild_name)

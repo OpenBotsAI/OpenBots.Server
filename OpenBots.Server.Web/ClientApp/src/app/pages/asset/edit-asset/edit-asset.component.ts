@@ -26,6 +26,8 @@ export class EditAssetComponent implements OnInit {
   submitted = false;
   agent_id: any = [];
   show_allagents: any = [];
+  show_upload: boolean = false;
+  fileSize = false;
   public editorOptions: JsonEditorOptions;
   @ViewChild(JsonEditorComponent, { static: false })
   editor: JsonEditorComponent;
@@ -90,8 +92,17 @@ export class EditAssetComponent implements OnInit {
     switch (output.type) {
       case 'addedToQueue':
         if (typeof output.file !== 'undefined') {
+          if (!output.file.size) {
+            this.fileSize = true;
+            this.submitted = true;
+          }
+          else {
+            this.fileSize = false;
+            this.submitted = false;
+          }
           this.native_file = output.file.nativeFile
           this.native_file_name = output.file.nativeFile.name
+          this.show_upload = false;
         }
         break;
 
@@ -123,8 +134,6 @@ export class EditAssetComponent implements OnInit {
           'name': this.assetagent.value.name,
           'type': this.assetagent.value.type
         }
-
-
         this.assetService
           .editAsset(this.agent_id, fileObj)
           .subscribe(() => {
@@ -133,6 +142,11 @@ export class EditAssetComponent implements OnInit {
             this.native_file = undefined;
             this.native_file_name = undefined;
           });
+      }
+      else {
+        this.show_upload = true;
+        this.native_file_name = undefined;
+        this.native_file = undefined;
       }
 
     }
@@ -185,6 +199,7 @@ export class EditAssetComponent implements OnInit {
         });
     }
     this.submitted = false;
+    
 
   }
 

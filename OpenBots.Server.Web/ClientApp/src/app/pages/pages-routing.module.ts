@@ -2,9 +2,9 @@ import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { PagesComponent } from './pages.component';
 import { NotFoundComponent } from './miscellaneous/not-found/not-found.component';
-import { ECommerceComponent } from './e-commerce/e-commerce.component';
 import { LoginGuard } from '../@core/guards/login.guard';
 import { TermGuard } from '../@core/guards/term.guard';
+import { DashboardComponent } from './Dashboard/Dashboard.component';
 
 const routes: Routes = [
   {
@@ -14,7 +14,7 @@ const routes: Routes = [
     children: [
       {
         path: 'dashboard',
-        component: ECommerceComponent,
+        component: DashboardComponent,
         canActivate: [TermGuard, LoginGuard],
       },
 
