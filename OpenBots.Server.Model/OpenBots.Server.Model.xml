@@ -336,7 +336,7 @@
         </member>
         <member name="F:OpenBots.Server.Model.Options.CorsPolicyOptions.Origins">
             <summary>
-            Configuration Name in App Settings For CorsPloicyOptions
+            Configuration Name in App Settings For CorsPolicyOtions
             </summary>
         </member>
         <member name="P:OpenBots.Server.Model.Options.CorsPolicyOptions.AllowedOrigins">
