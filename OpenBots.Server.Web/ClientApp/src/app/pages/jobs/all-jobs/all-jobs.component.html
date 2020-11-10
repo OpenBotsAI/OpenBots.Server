@@ -101,7 +101,7 @@
                     itemsPerPage: page.pageSize,
                     currentPage: page.pageNumber,
                     totalItems: page.totalCount
-                  }
+                  };trackBy: trackByFn
           ">
           <td scope="row">
             <ngx-tooltip [data]="jobs?.agentName" [size]="12">

@@ -8,7 +8,7 @@
         <div class="LeftBgText">
           <h2>Files</h2>
           <p>
-              Storage used for files that can be shared by processes.
+            Storage used for files that can be shared by processes.
           </p>
         </div>
       </div>
@@ -25,7 +25,7 @@
             Name
             <i (click)="onSortClick($event, 'name')" [class]="binaryObjectsData | chevron: page.totalCount"></i>
           </th>
-          
+
           <th scope="col">
             Correlation Entity
             <i (click)="onSortClick($event, 'correlationEntity')"
@@ -52,13 +52,13 @@
                     itemsPerPage: page.pageSize,
                     currentPage: page.pageNumber,
                     totalItems: page.totalCount
-                  }
+                  };trackBy: trackByFn
           ">
           <td>
             <ngx-tooltip [data]=" data?.name " [size]="100">
             </ngx-tooltip>
           </td>
-          
+
           <td>
             <ngx-tooltip [data]="data?.correlationEntity" [size]="20">
             </ngx-tooltip>

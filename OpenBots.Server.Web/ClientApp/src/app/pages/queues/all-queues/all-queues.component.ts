@@ -135,4 +135,9 @@ export class AllQueuesComponent implements OnInit {
   addQueue(): void {
     this.router.navigate([`/pages/queueslist/add`]);
   }
+
+  trackByFn(index: number, item: unknown): number | null {
+    if (!item) return null;
+    return index;
+  }
 }

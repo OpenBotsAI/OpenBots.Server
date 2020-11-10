@@ -42,7 +42,7 @@
                       itemsPerPage: page.pageSize,
                       currentPage: page.pageNumber,
                       totalItems: page.totalCount
-                    }
+                    };trackBy: trackByFn
             ">
                     <td scope="row" *ngIf="email.name != null">
                         <ngx-tooltip [data]="email?.name" [size]="50"> </ngx-tooltip>

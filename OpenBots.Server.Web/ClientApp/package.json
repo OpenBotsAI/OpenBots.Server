@@ -72,7 +72,6 @@
     "ngx-json-viewer": "^2.4.0",
     "ngx-pagination": "^5.0.0",
     "ngx-uploader": "^10.0.0",
-    "ngx-xml2json": "^1.0.2",
     "node-sass": "^4.12.0",
     "normalize.css": "6.0.0",
     "popper.js": "^1.16.1",

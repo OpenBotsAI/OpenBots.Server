@@ -5,7 +5,6 @@ import { JsonEditorComponent, JsonEditorOptions } from 'ang-jsoneditor';
 import { HttpService } from '../../../@core/services/http.service';
 import { Agents } from '../../../interfaces/agnets';
 import { TimeDatePipe } from '../../../@core/pipe';
-import { NgxXml2jsonService } from 'ngx-xml2json';
 
 @Component({
   selector: 'ngx-view-process-logs',
@@ -28,8 +27,7 @@ export class ViewProcessLogsComponent implements OnInit, AfterViewInit {
     private httpService: HttpService,
     private route: ActivatedRoute,
     private fb: FormBuilder,
-    private router: Router,
-    private ngxXml2jsonService: NgxXml2jsonService
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -43,9 +41,7 @@ export class ViewProcessLogsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngAfterViewInit() {
-
-  }
+  ngAfterViewInit() {}
 
   initializeForm() {
     return this.fb.group({
@@ -89,10 +85,6 @@ export class ViewProcessLogsComponent implements OnInit, AfterViewInit {
             response.createdOn,
             'lll'
           );
-
-          const parser = new DOMParser();
-          const xml = parser.parseFromString(response.properties, 'text/xml');
-          const obj = this.ngxXml2jsonService.xmlToJson(xml);
           this.processLogsForm.patchValue(response);
           this.processLogsForm.disable();
         }

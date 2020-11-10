@@ -34,7 +34,7 @@ export class AllAssetComponent implements OnInit {
     protected assestService: AssetService,
     private helperService: HelperService,
     private toastrService: NbToastrService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.page.pageNumber = 1;
@@ -76,13 +76,15 @@ export class AllAssetComponent implements OnInit {
   del_agent(ref) {
     this.isDeleted = true;
     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-    this.assestService.delAssetbyID(this.del_id).subscribe(() => {
-      this.isDeleted = false;
-      this.toastrService.success('Deleted Successfully');
-      ref.close();
-      this.get_allasset(this.page.pageSize, skip);
-    },
-      () => (this.isDeleted = false));
+    this.assestService.delAssetbyID(this.del_id).subscribe(
+      () => {
+        this.isDeleted = false;
+        this.toastrService.success('Deleted Successfully');
+        ref.close();
+        this.get_allasset(this.page.pageSize, skip);
+      },
+      () => (this.isDeleted = false)
+    );
   }
 
   get_allasset(top, skip) {
@@ -180,7 +182,11 @@ export class AllAssetComponent implements OnInit {
           this.showallassets = data.items;
           this.page.totalCount = data.totalCount;
         });
-
     }
+  }
+
+  trackByFn(index: number, item: unknown): number | null {
+    if (!item) return null;
+    return index;
   }
 }
