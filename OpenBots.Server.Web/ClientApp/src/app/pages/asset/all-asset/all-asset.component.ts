@@ -184,7 +184,9 @@ export class AllAssetComponent implements OnInit {
         });
     }
   }
-  trackByFn(index, item) {
-    return item.id;
+
+  trackByFn(index: number, item: unknown): number | null {
+    if (!item) return null;
+    return index;
   }
 }

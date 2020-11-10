@@ -47,11 +47,7 @@
                     totalItems: page.totalCount
                   }; trackBy: trackByFn
           ">
-          <td scope="row" *ngIf="asset.name != null">
-            <ngx-tooltip [data]="asset?.name" [size]="50"> </ngx-tooltip>
-          </td>
-          <td scope="row" *ngIf="asset.name == null">No Name</td>
-          <td scope="row">
+          <td>
             <ngx-tooltip [data]="asset?.type" [size]="13"> </ngx-tooltip>
           </td>
           <td>

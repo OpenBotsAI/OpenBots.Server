@@ -366,6 +366,7 @@ export class AllChangeLogComponent implements OnInit {
       }
     }
   }
+
   trackByFn(index: number, item: unknown): number | null {
     if (!item) return null;
     return index;
