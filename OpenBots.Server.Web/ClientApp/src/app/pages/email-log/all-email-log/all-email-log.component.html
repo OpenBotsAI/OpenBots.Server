@@ -53,14 +53,14 @@
             </thead>
             <tbody>
                 <tr *ngFor="
-              let email of showallEmail;trackBy: trackByFn
+              let email of showallEmail
                 | paginate
                   : {
                       id: '1',
                       itemsPerPage: page.pageSize,
                       currentPage: page.pageNumber,
                       totalItems: page.totalCount
-                    }
+                    };trackBy: trackByFn
             ">
                     <td scope="row" *ngIf="email.id != null">
                         <ngx-tooltip [data]="email?.id" [size]="50"> </ngx-tooltip>

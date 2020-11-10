@@ -38,14 +38,14 @@
       </thead>
       <tbody>
         <tr *ngFor="
-            let asset of showallassets; index as i; trackBy: trackByFn
+            let asset of showallassets
               | paginate
                 : {
                     id: '1',
                     itemsPerPage: page.pageSize,
                     currentPage: page.pageNumber,
                     totalItems: page.totalCount
-                  }
+                  }; trackBy: trackByFn
           ">
           <td scope="row" *ngIf="asset.name != null">
             <ngx-tooltip [data]="asset?.name" [size]="50"> </ngx-tooltip>

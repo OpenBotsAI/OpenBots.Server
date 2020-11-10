@@ -74,9 +74,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let data of this.allProcessLogs;trackBy: trackByFn | paginate : { id: '1',
+        <tr *ngFor="let data of this.allProcessLogs | paginate : { id: '1',
                     itemsPerPage: page.pageSize, currentPage: page.pageNumber,
-                    totalItems: page.totalCount} ">
+                    totalItems: page.totalCount} ;trackBy: trackByFn">
           <td>
             <ngx-tooltip [data]="data?.processName" [size]="34"> </ngx-tooltip>
           </td>

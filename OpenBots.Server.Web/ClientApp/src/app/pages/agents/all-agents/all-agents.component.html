@@ -49,14 +49,14 @@
       </thead>
       <tbody>
         <tr *ngFor="
-            let agent of show_allagents;trackBy: trackByFn
+            let agent of show_allagents
               | paginate
                 : {
                     id: '1',
                     itemsPerPage: page.pageSize,
                     currentPage: page.pageNumber,
                     totalItems: page.totalCount
-                  }
+                  };trackBy: trackByFn
           ">
           <td scope="row" *ngIf="agent.name != null">
             <ngx-tooltip [data]="agent?.name" [size]="30"> </ngx-tooltip>

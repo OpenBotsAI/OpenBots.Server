@@ -39,14 +39,14 @@
       </thead>
       <tbody>
         <tr *ngFor="
-            let people of get_allpeople;trackBy: trackByFn
+            let people of get_allpeople
               | paginate
                 : {
                     id: '1',
                     itemsPerPage: page.pageSize,
                     currentPage: page.pageNumber,
                     totalItems: page.totalCount
-                  }
+                  };trackBy: trackByFn
           ">
           <td scope="row">
             <ngx-tooltip [data]="people?.name" [size]="25"> </ngx-tooltip>
@@ -68,8 +68,8 @@
             <ngx-tooltip [data]="people?.status" [size]="15"> </ngx-tooltip>
           </td>
           <td *ngIf="isAdmin == 'true'">
-            <a (click)="openDialog(deleteDialog, people.organizationMemberId)" [disabled]="people.personId == AmIAdmin"
-              class="apr-btnstyle">
+            <a (click)="openDialog(deleteDialog, people.organizationMemberId)"
+              [attr.disabled]="people.personId == AmIAdmin" class="apr-btnstyle">
               <img src="../../../assets/images/del-icon.png" alt="Delete Icon" /></a>
           </td>
         </tr>

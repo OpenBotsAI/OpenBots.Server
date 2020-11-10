@@ -47,14 +47,14 @@
 
       <tbody>
         <tr *ngFor="
-              let data of allQueues;trackBy: trackByFn
+              let data of allQueues
                 | paginate
                   : {
                       id: '1',
                       itemsPerPage: page.pageSize,
                       currentPage: page.pageNumber,
                       totalItems: page.totalCount
-                    }
+                    };trackBy: trackByFn
             ">
           <td>
             <ngx-tooltip [data]="data?.name" [size]="30"> </ngx-tooltip>

@@ -59,14 +59,14 @@
       </thead>
       <tbody>
         <tr *ngFor="
-            let audit of show_allagents;trackBy: trackByFn
+            let audit of show_allagents
               | paginate
                 : {
                     id: '1',
                     itemsPerPage: page.pageSize,
                     currentPage: page.pageNumber,
                     totalItems: page.totalCount
-                  }
+                  };trackBy: trackByFn
           ">
           <td>
             <ngx-tooltip [data]="audit?.serviceName" [size]="40"> </ngx-tooltip>
