@@ -241,10 +241,6 @@ namespace OpenBots.Server.Web
                 return BadRequest(ModelState);
             }
 
-            Guid entityId = Guid.NewGuid();
-            if (request.Id == null || request.Id.HasValue || request.Id.Equals(Guid.Empty))
-                request.Id = entityId;
-
             try
             {
                 applicationUser = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
