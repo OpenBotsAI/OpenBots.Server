@@ -8,7 +8,7 @@
         <div class="LeftBgText">
           <h2>Assets</h2>
           <p>
-              Resources to be consumed by various automation processes (usually Text, Files, Numbers/Counters and JSONs).
+            Resources to be consumed by various automation processes (usually Text, Files, Numbers/Counters and JSONs).
           </p>
         </div>
       </div>
@@ -25,17 +25,11 @@
         <tr>
           <th scope="col">
             Name
-            <i
-              (click)="onSortClick($event, 'name')"
-              [class]="showallassets | chevron: page.totalCount"
-            ></i>
+            <i (click)="onSortClick($event, 'name')" [class]="showallassets | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Type
-            <i
-              (click)="onSortClick($event, 'type')"
-              [class]="showallassets | chevron: page.totalCount"
-            ></i>
+            <i (click)="onSortClick($event, 'type')" [class]="showallassets | chevron: page.totalCount"></i>
           </th>
           <th scope="col">View</th>
           <th scope="col">Edit</th>
@@ -43,9 +37,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          *ngFor="
-            let asset of showallassets
+        <tr *ngFor="
+            let asset of showallassets; index as i; trackBy: trackByFn
               | paginate
                 : {
                     id: '1',
@@ -53,8 +46,7 @@
                     currentPage: page.pageNumber,
                     totalItems: page.totalCount
                   }
-          "
-        >
+          ">
           <td scope="row" *ngIf="asset.name != null">
             <ngx-tooltip [data]="asset?.name" [size]="50"> </ngx-tooltip>
           </td>
@@ -74,10 +66,7 @@
           </td>
           <td>
             <a (click)="open2(dialog, asset.id)">
-              <img
-                src="../../../assets/images/del-icon.png"
-                alt="Delete Icon"
-              />
+              <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
             </a>
           </td>
         </tr>
@@ -87,36 +76,21 @@
   <nb-card-body class="noTopPadding">
     <div class="row pagerow">
       <div class="col-md-8 col-lg-8 no-left-padding">
-        <pagination-controls
-          id="1"
-          class="paginateDiv"
-          previousLabel="Prev"
-          nextLabel="Next"
-          responsive="true"
-          (pageChange)="pageChanged($event)"
-          (pageBoundsCorrection)="pageChanged($event)"
-          directionLinks="true"
-          autoHide="true"
-          screenReaderPaginationLabel="Pagination"
-          screenReaderPageLabel="page"
-          screenReaderCurrentLabel="You're on page"
-        ></pagination-controls>
+        <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+          (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks="true"
+          autoHide="true" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
+          screenReaderCurrentLabel="You're on page"></pagination-controls>
       </div>
-      <div
-        class="col-md-4 col-lg-4 text-right no-right-padding"
-        *ngIf="get_perPage">
+      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
         <label class="label">Total {{ showpage.totalCount }} /</label>
 
-        <select
-          class="custom-select per-page-drop"
-          (change)="per_page($event.target.value)"
-        >
+        <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
           <option *ngFor="let item of itemsPerPage" [value]="item.id">
             {{ item.name }}
           </option>
         </select>
       </div>
-    </div> 
+    </div>
   </nb-card-body>
 </nb-card>
 
@@ -132,7 +106,7 @@
     </nb-card-body>
     <nb-card-footer>
       <button class="btn btn-danger" [disabled]="isDeleted" (click)="del_agent(ref)">Delete</button>
-      <button class="btn btn-light"  style="margin-left: 11px" (click)="ref.close()">
+      <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
         Cancel
       </button>
 

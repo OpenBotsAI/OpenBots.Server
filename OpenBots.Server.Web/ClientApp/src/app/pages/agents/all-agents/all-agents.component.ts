@@ -118,20 +118,22 @@ export class AllAgentsComponent implements OnInit {
   open2(dialog: TemplateRef<any>, id: any) {
     this.del_id = [];
     this.view_dialog = dialog;
-    this.dialogService.openDialog(dialog)
+    this.dialogService.openDialog(dialog);
     this.del_id = id;
   }
 
   del_agent(ref) {
     this.isDeleted = true;
     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-    this.agentService.delAgentbyID(this.del_id).subscribe(() => {
-      this.isDeleted = false;
-      this.toastrService.success('Agent Delete Successfully', 'Success');
-      ref.close();
-      this.get_allagent(this.page.pageSize, skip);
-    },
-      () => (this.isDeleted = false));
+    this.agentService.delAgentbyID(this.del_id).subscribe(
+      () => {
+        this.isDeleted = false;
+        this.toastrService.success('Agent Delete Successfully', 'Success');
+        ref.close();
+        this.get_allagent(this.page.pageSize, skip);
+      },
+      () => (this.isDeleted = false)
+    );
   }
 
   get_allagent(top, skip) {
@@ -162,5 +164,10 @@ export class AllAgentsComponent implements OnInit {
       const skip = (pageNumber - 1) * this.per_page_num;
       this.get_allagent(top, skip);
     }
+  }
+
+  trackByFn(index: number, item: unknown): number | null {
+    if (!item) return null;
+    return index;
   }
 }

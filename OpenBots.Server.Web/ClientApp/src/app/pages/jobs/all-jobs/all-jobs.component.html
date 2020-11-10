@@ -8,7 +8,7 @@
         <div class="LeftBgText">
           <h2>Jobs</h2>
           <p>
-              Work for an agent to execute a specific Process executed.
+            Work for an agent to execute a specific Process executed.
           </p>
         </div>
       </div>
@@ -94,7 +94,7 @@
       </thead>
       <tbody>
         <tr *ngFor="
-            let jobs of show_alljobs
+            let jobs of show_alljobs;trackBy: trackByFn
               | paginate
                 : {
                     id: '1',
@@ -143,8 +143,8 @@
             <a (click)="gotoprocesslog(jobs.id)">
               <i class="fa fa-eye" aria-hidden="true"></i>
             </a>
-            </td>
-            <td>
+          </td>
+          <td>
             <a (click)="gotodetail(jobs.id)">
               <i class="fa fa-eye" aria-hidden="true"></i>
             </a>

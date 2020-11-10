@@ -21,7 +21,6 @@ export class AddScheduleComponent implements OnInit {
   isSubmitted = false;
   min: Date;
   max: Date;
-  myDate: TimeDatePipe;
   currentScheduleId: string;
   title = 'Add';
   status = [

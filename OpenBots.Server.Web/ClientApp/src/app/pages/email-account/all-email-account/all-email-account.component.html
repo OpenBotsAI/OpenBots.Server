@@ -14,8 +14,8 @@
             </div>
             <div class="titleRight">
                 <button type="button" class="btn btn-primary" (click)="gotoadd()">
-            Add Email Account
-          </button>
+                    Add Email Account
+                </button>
             </div>
         </div>
     </nb-card-header>
@@ -27,7 +27,7 @@
                         Name
                         <i (click)="onSortClick($event, 'name')" [class]="showallEmail | chevron: page.totalCount"></i>
                     </th>
-                   
+
                     <th scope="col">View</th>
                     <th scope="col">Edit</th>
                     <th scope="col">Delete</th>
@@ -35,7 +35,7 @@
             </thead>
             <tbody>
                 <tr *ngFor="
-              let email of showallEmail
+              let email of showallEmail;trackBy: trackByFn
                 | paginate
                   : {
                       id: '1',
@@ -48,7 +48,7 @@
                         <ngx-tooltip [data]="email?.name" [size]="50"> </ngx-tooltip>
                     </td>
                     <td scope="row" *ngIf="email.name == null">No Name</td>
-                    
+
                     <td>
                         <a (click)="gotodetail(email.id)">
                             <i class="fa fa-eye" aria-hidden="true"></i>
@@ -71,17 +71,19 @@
     <nb-card-body class="noTopPadding">
         <div class="row pagerow">
             <div class="col-md-8 col-lg-8 no-left-padding">
-                <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks="true" autoHide="true" screenReaderPaginationLabel="Pagination"
+                <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+                    (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)"
+                    directionLinks="true" autoHide="true" screenReaderPaginationLabel="Pagination"
                     screenReaderPageLabel="page" screenReaderCurrentLabel="You're on page"></pagination-controls>
             </div>
             <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
                 <label class="label">Total {{ showpage.totalCount }} /</label>
-                
+
                 <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
-            <option *ngFor="let item of itemsPerPage" [value]="item.id">
-              {{ item.name }}
-            </option>
-          </select>
+                    <option *ngFor="let item of itemsPerPage" [value]="item.id">
+                        {{ item.name }}
+                    </option>
+                </select>
             </div>
         </div>
     </nb-card-body>
@@ -100,9 +102,9 @@
         <nb-card-footer>
             <button class="btn btn-danger" [disabled]="isDeleted" (click)="del_agent(ref)">Delete</button>
             <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
-          Cancel
-        </button>
- 
+                Cancel
+            </button>
+
         </nb-card-footer>
     </nb-card>
 </ng-template>

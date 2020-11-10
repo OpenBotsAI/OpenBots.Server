@@ -222,4 +222,9 @@ export class UsersComponent implements OnInit {
     this.orgMemberId = id;
     this.dialogService.openDialog(ref);
   }
+
+  trackByFn(index: number, item: unknown): number | null {
+    if (!item) return null;
+    return index;
+  }
 }
