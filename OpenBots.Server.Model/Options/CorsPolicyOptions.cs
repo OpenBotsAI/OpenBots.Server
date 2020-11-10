@@ -10,7 +10,7 @@
     public class CorsPolicyOptions
     {
         /// <summary>
-        /// Configuration Name in App Settings For CorsPloicyOptions
+        /// Configuration Name in App Settings For CorsPolicyOtions
         /// </summary>
         public const string Origins = "Origins";
 
