@@ -229,6 +229,7 @@ namespace OpenBots.Server.Web.Controllers
                 requestObj.ExpiryDate = request.ExpiryDate;
                 requestObj.StartDate = request.StartDate;
                 requestObj.ProcessId = request.ProcessId;
+                requestObj.QueueId = request.QueueId;
 
                 var response = await base.PostEntity(requestObj);
                 try

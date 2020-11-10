@@ -18,7 +18,8 @@ namespace OpenBots.Server.Business
         private readonly IProcessRepository processRepo;
         private readonly IJobParameterRepository jobParameterRepo;
 
-        public JobManager(IJobRepository repo, IAgentRepository agentRepo, IProcessRepository processRepo, IJobParameterRepository jobParameterRepository)
+        public JobManager(IJobRepository repo, IAgentRepository agentRepo, IProcessRepository processRepo,
+            IJobParameterRepository jobParameterRepository)
         {
             this.repo = repo;
             this.agentRepo = agentRepo;

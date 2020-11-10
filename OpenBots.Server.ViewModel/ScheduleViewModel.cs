@@ -23,5 +23,6 @@ namespace OpenBots.Server.ViewModel
         public DateTime? CreatedOn { get; set; }
         public string? CreatedBy { get; set; }
         public bool? ScheduleNow { get; set; }
+        public Guid? QueueId { get; set; }
     }
 }

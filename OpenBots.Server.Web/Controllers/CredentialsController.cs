@@ -241,10 +241,6 @@ namespace OpenBots.Server.Web
                 return BadRequest(ModelState);
             }
 
-            Guid entityId = Guid.NewGuid();
-            if (request.Id == null || request.Id.HasValue || request.Id.Equals(Guid.Empty))
-                request.Id = entityId;
-
             try
             {
                 applicationUser = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
@@ -309,6 +305,12 @@ namespace OpenBots.Server.Web
                 if (credential != null && credential.Id != entityId)
                 {
                     ModelState.AddModelError("Credential", "Credential Name Already Exists");
+                    return BadRequest(ModelState);
+                }
+
+                if (!credentialManager.ValidateStartAndEndDates(request))
+                {
+                    ModelState.AddModelError("Credential", "Start and End Date are not valid");
                     return BadRequest(ModelState);
                 }
 
@@ -379,6 +381,7 @@ namespace OpenBots.Server.Web
             Guid entityId = new Guid(id);
             for (int i = 0; i < request.Operations.Count; i++)
             {
+                // Verify that Credential name is not taken
                 if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")
                 {
                     var credential = repository.Find(null, d => d.Name.ToLower(null) == request.Operations[i].value.ToString().ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
@@ -388,13 +391,36 @@ namespace OpenBots.Server.Web
                         return BadRequest(ModelState);
                     }
                 }
-                    
-                if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/passwordsecret")
+                   
+                // Generate new password hash
+                if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/passwordsecret" )
                 {
                     applicationUser = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
 
                     var passwordHash = userManager.PasswordHasher.HashPassword(applicationUser, request.Operations[i].value.ToString());
                     request.Replace(e => e.PasswordHash, passwordHash);
+                }
+
+                // Verify start-end date range
+                if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/startdate" 
+                    | request.Operations[i].path.ToString().ToLower() == "/enddate")
+                {
+                    Credential existingCredential = repository.GetOne(new Guid(id));
+
+                    if (request.Operations[i].path.ToString().ToLower() == "/startdate")
+                    {
+                        existingCredential.StartDate = Convert.ToDateTime(request.Operations[i].value.ToString());
+                    }
+                    else
+                    {
+                        existingCredential.EndDate = Convert.ToDateTime(request.Operations[i].value.ToString());
+                    }
+
+                    if (!credentialManager.ValidateStartAndEndDates(existingCredential))
+                    {
+                        ModelState.AddModelError("Credential", "Start and End Date are not valid. End Date must be after the Start Date");
+                        return BadRequest(ModelState);
+                    }
                 }
             }
             return await base.PatchEntity(id, request);

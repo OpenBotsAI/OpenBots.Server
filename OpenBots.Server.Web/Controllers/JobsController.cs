@@ -30,8 +30,9 @@ namespace OpenBots.Server.Web
     [Authorize]
     public class JobsController : EntityController<Job>
     {
-        IJobManager jobManager;
-        IJobParameterRepository jobParameterRepo;
+        readonly IJobManager jobManager;
+        readonly IJobParameterRepository jobParameterRepo;
+        readonly IProcessRepository processRepo;
         private IHubContext<NotificationHub> _hub;
         
         /// <summary>
@@ -46,16 +47,19 @@ namespace OpenBots.Server.Web
         /// <param name="httpContextAccessor"></param>
         public JobsController(
             IJobRepository repository,
+            IProcessRepository processRepository,
             IJobParameterRepository jobParameterRepository,
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
             IJobManager jobManager,
             IHubContext<NotificationHub> hub,
             IConfiguration configuration,
-            IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
+            IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor,
+                membershipManager, configuration)
         {
             this.jobManager = jobManager;
             this.jobParameterRepo = jobParameterRepository;
+            this.processRepo = processRepository;
             this.jobManager.SetContext(base.SecurityContext);
             _hub = hub;
         }
@@ -445,17 +449,20 @@ namespace OpenBots.Server.Web
                 return BadRequest(ModelState);
             }
 
-            Guid entityId = Guid.NewGuid();
-            if (request.Id == null || request.Id.HasValue || request.Id.Equals(Guid.Empty))
-                request.Id = entityId;
-
             try
             {
+                Job job = request.Map(request); //Assign request to job entity
+                Process process = processRepo.GetOne(job.ProcessId ?? Guid.Empty);
+                
+                if (process == null) //No process was found
+                {
+                    ModelState.AddModelError("Save", "No process was found for the specified process ID");
+                    return NotFound(ModelState);
+                }
+                job.ProcessVersion = process.Version;
+                job.ProcessVersionId = process.VersionId;
 
-                Job job = request.Map(request);
-                var response = await base.PostEntity(job);
-
-                foreach (var parameter in request.JobParameters)
+                foreach (var parameter in request.JobParameters ?? Enumerable.Empty<JobParameter>())
                 {
                     parameter.JobId = entityId;
                     parameter.CreatedBy = applicationUser?.UserName;
@@ -469,7 +476,7 @@ namespace OpenBots.Server.Web
                 await _hub.Clients.All.SendAsync("sendjobnotification", "New Job added.");
                 await _hub.Clients.All.SendAsync("broadcastnewjobs", Tuple.Create(request.Id,request.AgentId,request.ProcessId));
 
-                return response;
+                return await base.PostEntity(job);
             }
             catch (Exception ex)
             {
@@ -506,6 +513,15 @@ namespace OpenBots.Server.Web
 
                 var existingJob = repository.GetOne(entityId);
                 if (existingJob == null) return NotFound("Unable to find a Job for the specified ID");
+
+                Process process = processRepo.GetOne(existingJob.ProcessId ?? Guid.Empty);
+                if (process == null) //No process was found
+                {
+                    ModelState.AddModelError("Save", "No process was found for the specified process ID");
+                    return NotFound(ModelState);
+                }
+                existingJob.ProcessVersion = process.Version;
+                existingJob.ProcessVersionId = process.VersionId;
 
                 existingJob.AgentId = request.AgentId;
                 existingJob.StartTime = request.StartTime;

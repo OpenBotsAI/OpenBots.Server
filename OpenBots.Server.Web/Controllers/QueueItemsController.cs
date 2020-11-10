@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,7 @@ using OpenBots.Server.ViewModel;
 using OpenBots.Server.Web.Hubs;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Web.Controllers
@@ -30,6 +32,8 @@ namespace OpenBots.Server.Web.Controllers
         readonly IQueueItemManager manager;
         readonly IQueueRepository queueRepository;
         private IHubContext<NotificationHub> _hub;
+        private IHubManager hubManager;
+        readonly IScheduleRepository scheduleRepo;
         public IConfiguration Configuration { get; }
         
         /// <summary>
@@ -49,11 +53,15 @@ namespace OpenBots.Server.Web.Controllers
             ApplicationIdentityUserManager userManager,
             IHubContext<NotificationHub> hub,
             IHttpContextAccessor httpContextAccessor,
+            IHubManager hubManager,
+            IScheduleRepository scheduleRepository,
             IConfiguration configuration) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.manager = manager;
             _hub = hub;
             this.queueRepository = queueRepository;
+            this.hubManager = hubManager;
+            this.scheduleRepo = scheduleRepository;
             Configuration = configuration;
         }
 
@@ -207,6 +215,27 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 var response = await manager.Enqueue(request);
+
+                // Check if a 'QueueArrival' schedule exists for this Queue
+                Schedule existingSchedule = scheduleRepo.Find(0, 1).Items?.Where(s => s.QueueId == response.QueueId)?.FirstOrDefault();
+                if (existingSchedule != null && existingSchedule.IsDisabled == false && existingSchedule.StartingType.ToLower().Equals("queuearrival"))
+                {
+                    Schedule schedule = new Schedule();
+                    schedule.AgentId = existingSchedule.AgentId;
+                    schedule.CRONExpression = "";
+                    schedule.LastExecution = DateTime.Now;
+                    schedule.NextExecution = DateTime.Now;
+                    schedule.IsDisabled = false;
+                    schedule.ProjectId = null;
+                    schedule.StartingType = "";
+                    schedule.Status = "New";
+                    schedule.ExpiryDate = DateTime.Now.AddDays(1);
+                    schedule.StartDate = DateTime.Now;
+                    schedule.ProcessId = existingSchedule.ProcessId;
+
+                    var jsonScheduleObj = System.Text.Json.JsonSerializer.Serialize<Schedule>(schedule);
+                    var jobId = BackgroundJob.Enqueue(() => hubManager.StartNewRecurringJob(jsonScheduleObj));
+                }
 
                 await base.PostEntity(response);
                 //Send SignalR notification to all connected clients
