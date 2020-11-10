@@ -12,24 +12,24 @@
                     </p>
                 </div>
             </div>
-
+            
         </div>
     </nb-card-header>
     <nb-card-body>
-        <form [formGroup]="emaillogfilter">
-            <div class="row row-fil">
-                <div class="col-md-8 col-lg-8">
-                    <label class="label-ser">Email Account :</label>
-                    <select class="custom-select service-name" (change)="getEmailAccount($event.target.value)"
-                        formControlName="page_name">
-                        <option value="" selected>All</option>
-                        <option *ngFor="let item of showallemailaccount" [value]="item.emailAccountId">
-                            {{ item.emailAccountName }}
-                        </option>
-                    </select>
-                </div>
-            </div>
-        </form>
+<form [formGroup]="emaillogfilter">
+    <div class="row row-fil">
+        <div class="col-md-8 col-lg-8">
+            <label class="label-ser">Email Account :</label>
+            <select class="custom-select service-name" (change)="getEmailAccount($event.target.value)"
+                formControlName="page_name">
+                <option value="" selected>All</option>
+                <option *ngFor="let item of showallemailaccount" [value]="item.emailAccountId">
+                    {{ item.emailAccountName }}
+                </option>
+            </select>
+        </div>
+    </div>
+</form>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -39,21 +39,19 @@
                     </th>
                     <th scope="col">
                         Sender User Id
-                        <i (click)="onSortClick($event, 'senderUserId')"
-                            [class]="showallEmail | chevron: page.totalCount"></i>
+                        <i (click)="onSortClick($event, 'senderUserId')" [class]="showallEmail | chevron: page.totalCount"></i>
                     </th>
                     <th scope="col">
-                        Sent On UTC
-                        <i (click)="onSortClick($event, 'sentOnUTC')"
-                            [class]="showallEmail | chevron: page.totalCount"></i>
+                       Sent On UTC
+                        <i (click)="onSortClick($event, 'sentOnUTC')" [class]="showallEmail | chevron: page.totalCount"></i>
                     </th>
                     <th scope="col">View</th>
-
+                   
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="
-              let email of showallEmail;trackBy: trackByFn
+              let email of showallEmail
                 | paginate
                   : {
                       id: '1',
@@ -66,7 +64,7 @@
                         <ngx-tooltip [data]="email?.id" [size]="50"> </ngx-tooltip>
                     </td>
                     <td scope="row" *ngIf="email.id == null">No Id</td>
-                    <td scope="row">
+                    <td scope="row" >
                         <ngx-tooltip [data]="email?.senderUserId  " [size]="40"> </ngx-tooltip>
                     </td>
                     <td scope="row">
@@ -77,8 +75,8 @@
                             <i class="fa fa-eye" aria-hidden="true"></i>
                         </a>
                     </td>
-
-
+                  
+                    
                 </tr>
             </tbody>
         </table>
@@ -86,20 +84,20 @@
     <nb-card-body class="noTopPadding">
         <div class="row pagerow">
             <div class="col-md-8 col-lg-8 no-left-padding">
-                <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
-                    (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)"
-                    directionLinks="true" autoHide="true" screenReaderPaginationLabel="Pagination"
+                <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks="true" autoHide="true" screenReaderPaginationLabel="Pagination"
                     screenReaderPageLabel="page" screenReaderCurrentLabel="You're on page"></pagination-controls>
             </div>
             <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
                 <label class="label">Total {{ showpage.totalCount }} /</label>
-
+                 
                 <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
-                    <option *ngFor="let item of itemsPerPage" [value]="item.id">
-                        {{ item.name }}
-                    </option>
-                </select>
+            <option *ngFor="let item of itemsPerPage" [value]="item.id">
+              {{ item.name }}
+            </option>
+          </select>
             </div>
         </div>
     </nb-card-body>
 </nb-card>
+
+ 

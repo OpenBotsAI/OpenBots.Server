@@ -39,7 +39,10 @@ export class AllScheduleComponent implements OnInit {
   }
 
   gotoHangfire() {
-    window.open('/hangfire?access_token={{token}}', '_blank');
+    window.open(
+      '/hangfire?access_token={{token}}',
+      '_blank'
+    );
   }
 
   getAllSchedule(top, skip, orderBy?): void {
@@ -128,9 +131,5 @@ export class AllScheduleComponent implements OnInit {
 
   addSchedule(): void {
     this.router.navigate(['/pages/schedules/add']);
-  }
-  trackByFn(index: number, item: unknown): number | null {
-    if (!item) return null;
-    return index;
   }
 }

@@ -115,11 +115,15 @@ export class AllEmailLogComponent implements OnInit {
       this.page.totalCount = data.totalCount;
       if (data.totalCount == 0) {
         this.get_perPage = false;
-      } else if (data.totalCount != 0) {
+      }
+      else if (data.totalCount != 0) {
         this.get_perPage = true;
       }
+
     });
   }
+
+
 
   onSortClick(event, fil_val) {
     let target = event.currentTarget,
@@ -194,9 +198,5 @@ export class AllEmailLogComponent implements OnInit {
           this.page.totalCount = data.totalCount;
         });
     }
-  }
-  trackByFn(index: number, item: unknown): number | null {
-    if (!item) return null;
-    return index;
   }
 }

@@ -144,8 +144,4 @@ export class AllProcessComponent implements OnInit {
       this.get_AllJobs(top, skip);
     }
   }
-  trackByFn(index: number, item: unknown): number | null {
-    if (!item) return null;
-    return index;
-  }
 }

@@ -32,9 +32,4 @@ export interface QueueItem {
   updatedOn: string;
   expireOnUTC: string;
   postponeUntilUTC: string;
-  state: string;
-  lockedOnUTC: Date;
-  lockedUntilUTC: Date;
-  lockedEndTimeUTC: Date;
-  stateMessage: string;
 }

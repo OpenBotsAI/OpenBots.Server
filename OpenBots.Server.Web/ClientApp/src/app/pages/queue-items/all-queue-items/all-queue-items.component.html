@@ -8,7 +8,7 @@
         <div class="LeftBgText">
           <h2>Queue Items</h2>
           <p>
-            Items enqueued/published by processes and other sources for automation processes to consume.
+              Items enqueued/published by processes and other sources for automation processes to consume.
           </p>
         </div>
       </div>
@@ -27,7 +27,7 @@
           </option>
         </select>
       </div>
-
+      
       <div class="customQueueForm watch">
         <div class="checkbox checbox-switch switch-primary">
           <label for="queueitemtype" class="label">Watch</label>
@@ -80,7 +80,7 @@
       </thead>
       <tbody>
         <tr *ngFor="
-            let data of allQueueItemData;trackBy: trackByFn
+            let data of allQueueItemData
               | paginate
                 : {
                     id: '1',
@@ -102,17 +102,17 @@
             <ngx-tooltip [data]="data?.lockedBy" [size]="20"> </ngx-tooltip>
           </td>
           <td>
-
+            
             <ngx-tooltip [data]="data?.lockedOnUTC | timeDate: 'lll'" [size]="15">
             </ngx-tooltip>
           </td>
           <td>
-
+            
             <ngx-tooltip [data]="data?.lockedUntilUTC | timeDate: 'lll'" [size]="17">
             </ngx-tooltip>
           </td>
           <td>
-
+            
             <ngx-tooltip [data]="data?.lockedEndTimeUTC | timeDate: 'lll'" [size]="10">
             </ngx-tooltip>
           </td>

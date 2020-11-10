@@ -218,9 +218,4 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.closeHubConnection();
   }
-
-  trackByFn(index: number, item: unknown): number | null {
-    if (!item) return null;
-    return index;
-  }
 }

@@ -257,9 +257,4 @@ export class AllProcessLogsComponent implements OnInit {
       }
     }
   }
-
-  trackByFn(index: number, item: unknown): number | null {
-    if (!item) return null;
-    return index;
-  }
 }

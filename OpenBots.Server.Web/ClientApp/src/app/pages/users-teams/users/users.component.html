@@ -23,23 +23,33 @@
         <tr>
           <th scope="col">
             Name
-            <i (click)="onSortClick($event, 'name')" class="my-icon fa fa-chevron-up"></i>
+            <i
+              (click)="onSortClick($event, 'name')"
+              class="my-icon fa fa-chevron-up"
+            ></i>
           </th>
           <th scope="col" *ngIf="isAdmin == 'true'">Is Admin</th>
           <th scope="col">
             Email Address
-            <i (click)="onSortClick($event, 'emailAddress')" class="my-icon fa fa-chevron-up"></i>
+            <i
+              (click)="onSortClick($event, 'emailAddress')"
+              class="my-icon fa fa-chevron-up"
+            ></i>
           </th>
           <th scope="col">
             Status
-            <i (click)="onSortClick($event, 'status')" [class]="get_allpeople | chevron"></i>
+            <i
+              (click)="onSortClick($event, 'status')"
+              [class]="get_allpeople | chevron"
+            ></i>
           </th>
           <th scope="col" *ngIf="isAdmin == 'true'">Delete</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="
-            let people of get_allpeople;trackBy: trackByFn
+        <tr
+          *ngFor="
+            let people of get_allpeople
               | paginate
                 : {
                     id: '1',
@@ -47,15 +57,21 @@
                     currentPage: page.pageNumber,
                     totalItems: page.totalCount
                   }
-          ">
+          "
+        >
           <td scope="row">
             <ngx-tooltip [data]="people?.name" [size]="25"> </ngx-tooltip>
           </td>
           <td *ngIf="isAdmin == 'true'">
             <div class="checkbox checbox-switch switch-primary">
               <label>
-                <input type="checkbox" name="isAdmin" (change)="onChange($event, people.personId)"
-                  [checked]="people.isAdmin" [disabled]="people.personId == AmIAdmin" />
+                <input
+                  type="checkbox"
+                  name="isAdmin"
+                  (change)="onChange($event, people.personId)"
+                  [checked]="people.isAdmin"
+                  [disabled]="people.personId == AmIAdmin"
+                />
                 <span></span>
               </label>
             </div>
@@ -68,9 +84,13 @@
             <ngx-tooltip [data]="people?.status" [size]="15"> </ngx-tooltip>
           </td>
           <td *ngIf="isAdmin == 'true'">
-            <a (click)="openDialog(deleteDialog, people.organizationMemberId)" [disabled]="people.personId == AmIAdmin"
-              class="apr-btnstyle">
-              <img src="../../../assets/images/del-icon.png" alt="Delete Icon" /></a>
+            <a
+              (click)="openDialog(deleteDialog, people.organizationMemberId)"
+              [disabled]="people.personId == AmIAdmin"
+              class="apr-btnstyle"
+            >
+              <img src="../../../assets/images/del-icon.png" alt="Delete Icon"
+            /></a>
           </td>
         </tr>
       </tbody>
@@ -79,15 +99,31 @@
   <nb-card-body class="noTopPadding">
     <div class="row pagerow">
       <div class="col-md-8 col-lg-8 no-left-padding">
-        <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
-          (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks="true"
-          autoHide="true" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
-          screenReaderCurrentLabel="You're on page"></pagination-controls>
+        <pagination-controls
+          id="1"
+          class="paginateDiv"
+          previousLabel="Prev"
+          nextLabel="Next"
+          responsive="true"
+          (pageChange)="pageChanged($event)"
+          (pageBoundsCorrection)="pageChanged($event)"
+          directionLinks="true"
+          autoHide="true"
+          screenReaderPaginationLabel="Pagination"
+          screenReaderPageLabel="page"
+          screenReaderCurrentLabel="You're on page"
+        ></pagination-controls>
       </div>
-      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
+      <div
+        class="col-md-4 col-lg-4 text-right no-right-padding"
+        *ngIf="get_perPage"
+      >
         <label class="label">Total {{ showpage.totalCount }} /</label>
-
-        <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
+        
+        <select
+          class="custom-select per-page-drop"
+          (change)="per_page($event.target.value)"
+        >
           <option *ngFor="let item of itemsPerPage" [value]="item.id">
             {{ item.name }}
           </option>
@@ -107,7 +143,11 @@
       </div>
     </nb-card-body>
     <nb-card-footer>
-      <button [disabled]="isDeleted" class="btn btn-danger" (click)="deleteUser(ref)">
+      <button
+        [disabled]="isDeleted"
+        class="btn btn-danger"
+        (click)="deleteUser(ref)"
+      >
         Delete
       </button>
       <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">

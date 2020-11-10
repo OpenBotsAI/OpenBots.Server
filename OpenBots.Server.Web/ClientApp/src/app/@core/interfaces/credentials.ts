@@ -1,5 +1,4 @@
 export interface Credentils {
-  id?: string;
   name: string;
   provider: string;
   domain: string;
