@@ -41,7 +41,6 @@ namespace XUnitTests
                 AgentId = completedJobAgentId,
                 CreatedOn = DateTime.Now
             };
-
             Seed(context, newDummyJob);
             Seed(context, completedDummyJob);
 

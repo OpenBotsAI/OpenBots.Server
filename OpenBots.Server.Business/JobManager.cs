@@ -54,7 +54,7 @@ namespace OpenBots.Server.Business
               .OrderBy(j => j.CreatedOn)
               .FirstOrDefault();
 
-            var jobParameters = GetJobParameters(job.Id ?? Guid.Empty);
+            var jobParameters = GetJobParameters(job?.Id ?? Guid.Empty);
 
             NextJobViewModel nextJob = new NextJobViewModel()
             {
