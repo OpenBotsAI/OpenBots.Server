@@ -404,7 +404,7 @@ namespace OpenBots.Server.Web
             var webAppUrlOptions = Configuration.GetSection(WebAppUrlOptions.WebAppUrl).Get<WebAppUrlOptions>();
             var options = new DashboardOptions
             {
-                AppPath = webAppUrlOptions.Url,
+                AppPath = webAppUrlOptions.Url, 
                 DashboardTitle = "OpenBots Server",
                 Authorization = new IDashboardAuthorizationFilter[]
                   {
