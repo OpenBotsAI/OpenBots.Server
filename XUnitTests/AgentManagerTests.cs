@@ -95,28 +95,8 @@ namespace XUnitTests
 
         private void Seed(StorageContext context, AgentModel agent, Credential credential, AspNetUsers aspNetUser, Job job)
         {
-            var agents = new[]
-            {
-                agent
-            };
-
-            var credentials = new[]
-            {
-                credential
-            };
-
-            var aspNetUsers = new[]
-            {
-                aspNetUser
-            };
-
-            var jobs = new[]
-            {
-                job
-            };
-
-            context.Agents.AddRange(agents);
-            context.Credentials.AddRange(credentials);
+            context.Agents.AddRange(agent);
+            context.Credentials.AddRange(credential);
             context.AspNetUsers.AddRange(aspNetUser);
             context.Jobs.Add(job);
             context.SaveChanges();
