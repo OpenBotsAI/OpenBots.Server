@@ -327,6 +327,7 @@ namespace OpenBots.Server.Web.Controllers
             }
 
             Person person = personRepo.Find(0, 1).Items?.Where(p => p.IsAgent && p.Name == agent.Name && !(p.IsDeleted ?? false))?.FirstOrDefault();
+            AgentHeartbeat agentHeartbeat = agentHeartbeatRepo.Find(0, 1).Items?.Where(h => h.AgentId == new Guid(id))?.FirstOrDefault();
             var aspUser = usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
 
             if (aspUser == null)
@@ -345,6 +346,7 @@ namespace OpenBots.Server.Web.Controllers
             }
 
             personRepo.SoftDelete(person.Id ?? Guid.Empty);
+            agentHeartbeatRepo.SoftDelete(agentHeartbeat.Id ?? Guid.Empty);
 
             return await base.DeleteEntity(id);
         }
