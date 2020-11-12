@@ -23,8 +23,13 @@ export class AgentsService {
   }
 
   getAgentbyID(id) {
+    let options = {};
+    options = {
+      observe: 'response' as 'body',
+      responseType: 'json',
+    };
     let getagentUrlbyId = `/Agents/${id}`;
-    return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
+    return this.http.get(`${this.apiUrl}` + getagentUrlbyId, options);
   }
   getCred() {
     let getagentUrlbyId = `/Credentials/GetLookup`;
@@ -40,9 +45,13 @@ export class AgentsService {
     return this.http.post(`${this.apiUrl}` + addagentUrl, obj);
   }
 
-  editAgent(id,obj) {
+  editAgent(id, obj, etag) {
+    const headers = new HttpHeaders({ 'If-Match': etag });
+
+    // headers.append('Content-Type', 'application/json');
+    // headers.append('If-Match', etag);
     let editagentUrl = `/Agents/${id}`;
-    return this.http.put(`${this.apiUrl}` + editagentUrl, obj);
+    return this.http.put(`${this.apiUrl}` + editagentUrl, obj, { headers: headers });
   }
 
   patchAgent(id,isenable) {
