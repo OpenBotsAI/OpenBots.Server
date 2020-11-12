@@ -39,8 +39,6 @@ namespace OpenBots.Server.DataAccess.Repositories
                 var agentView = from a in agent.Items
                                 join c in dbContext.Credentials on a.CredentialId equals c.Id into table1
                                 from c in table1.DefaultIfEmpty()
-                                join u in dbContext.AspNetUsers on a.Name equals u.Name into table2
-                                from u in table2.DefaultIfEmpty()
                                 select new AgentViewModel
                                 {
                                     Id = (a == null || a.Id == null) ? Guid.Empty : a.Id.Value,
