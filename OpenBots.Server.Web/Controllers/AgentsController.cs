@@ -285,11 +285,6 @@ namespace OpenBots.Server.Web.Controllers
                 existingAgent.MacAddresses = request.MacAddresses;
                 existingAgent.IPAddresses = request.IPAddresses;
                 existingAgent.IsEnabled = request.IsEnabled;
-/*                existingAgent.LastReportedOn = request.LastReportedOn;
-                existingAgent.LastReportedStatus = request.LastReportedStatus;
-                existingAgent.LastReportedWork = request.LastReportedWork;
-                existingAgent.LastReportedMessage = request.LastReportedMessage;
-                existingAgent.IsHealthy = request.IsHealthy;*/
                 existingAgent.CredentialId = request.CredentialId;
 
                 return await base.PutEntity(id, existingAgent);
@@ -534,7 +529,7 @@ namespace OpenBots.Server.Web.Controllers
                 }
                 
                 //Update HeartBeat Values
-                AgentHeartbeat agentHeartbeat = agentHeartbeatRepo.Find(0, 1)?.Items?.Where(j => j.AgentId == entityId)?.FirstOrDefault();
+                AgentHeartbeat agentHeartbeat = agentHeartbeatRepo.Find(0, 1)?.Items?.Where(h => h.AgentId == entityId)?.FirstOrDefault();
                 if (agentHeartbeat == null)
                 {
                     return NotFound("The Agent ID provided does not have any existing agent heartbeat");
@@ -546,8 +541,6 @@ namespace OpenBots.Server.Web.Controllers
                 agentHeartbeat.LastReportedWork = request.LastReportedWork ?? agentHeartbeat.LastReportedWork;
                 agentHeartbeat.LastReportedMessage = request.LastReportedMessage ?? agentHeartbeat.LastReportedMessage;
                 agentHeartbeat.IsHealthy = request.IsHealthy ?? agentHeartbeat.IsHealthy;
-
-                //Set Entity values
 
                 agentHeartbeatRepo.Update(agentHeartbeat);
                 return Ok();

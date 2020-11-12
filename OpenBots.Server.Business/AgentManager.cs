@@ -13,21 +13,31 @@ namespace OpenBots.Server.Business
         private readonly IJobRepository jobRepo;
         private readonly IAspNetUsersRepository usersRepo;
         private readonly ICredentialRepository credentialRepo;
+        private readonly IAgentHeartbeatRepository agentHeartbeatRepo;
 
         public AgentManager(IAgentRepository agentRepository, IScheduleRepository scheduleRepository, IJobRepository jobRepository, IAspNetUsersRepository usersRepository,
-            ICredentialRepository credentialRepository)
+            ICredentialRepository credentialRepository, IAgentHeartbeatRepository agentHeartbeatRepository)
         {
             this.agentRepo = agentRepository;
             this.scheduleRepo = scheduleRepository;
             this.jobRepo = jobRepository;
             this.usersRepo = usersRepository;
             this.credentialRepo = credentialRepository;
+            this.agentHeartbeatRepo = agentHeartbeatRepository;
         }
 
         public AgentViewModel GetAgentDetails(AgentViewModel agentView)
         {
             agentView.UserName = usersRepo.Find(null, u => u.Name == agentView.Name).Items?.FirstOrDefault()?.UserName;
             agentView.CredentialName = credentialRepo.GetOne(agentView.CredentialId??Guid.Empty)?.Name;
+
+            AgentHeartbeat agentHeartBeat = agentHeartbeatRepo.Find(0,1).Items?.Where(a=>a.AgentId == agentView.Id).FirstOrDefault();
+
+            agentView.LastReportedOn = agentHeartBeat.LastReportedOn;
+            agentView.LastReportedStatus = agentHeartBeat.LastReportedStatus;
+            agentView.LastReportedWork = agentHeartBeat.LastReportedWork;
+            agentView.LastReportedMessage = agentHeartBeat.LastReportedMessage;
+            agentView.IsHealthy = agentHeartBeat.IsHealthy;
 
             return agentView;
         }

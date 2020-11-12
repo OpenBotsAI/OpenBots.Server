@@ -26,6 +26,7 @@ namespace OpenBots.Server.ViewModel
         public bool IsConnected { get; set; }
         public Guid? CredentialId { get; set; }
         public string CredentialName { get; set; }
+
         public AgentViewModel Map(AgentModel entity)
         {
             AgentViewModel agentView = new AgentViewModel
@@ -36,11 +37,6 @@ namespace OpenBots.Server.ViewModel
                 MacAddresses = entity.MacAddresses,
                 IPAddresses = entity.IPAddresses,
                 IsEnabled = entity.IsEnabled,
-                LastReportedOn = entity.LastReportedOn,
-                LastReportedStatus = entity.LastReportedStatus,
-                LastReportedWork = entity.LastReportedWork,
-                LastReportedMessage = entity.LastReportedMessage,
-                IsHealthy = entity.IsHealthy,
                 IsConnected = entity.IsConnected,
                 CredentialId = entity.CredentialId
             };
