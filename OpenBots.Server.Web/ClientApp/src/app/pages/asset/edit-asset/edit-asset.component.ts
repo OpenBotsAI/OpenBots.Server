@@ -121,8 +121,6 @@ export class EditAssetComponent implements OnInit {
         FileUploadformData.append('file', this.native_file, this.native_file_name);
         FileUploadformData.append('name', this.assetagent.value.name);
         FileUploadformData.append('type', this.assetagent.value.type);
-
-
         this.assetService
           .editAssetbyUpload(this.agent_id, FileUploadformData, this.etag)
           .subscribe(() => {
@@ -130,7 +128,13 @@ export class EditAssetComponent implements OnInit {
             this.router.navigate(['pages/asset/list']);
             this.native_file = undefined;
             this.native_file_name = undefined;
-          });
+          }), (error) => {
+
+            if (error.status == 409) {
+              this.toastrService.danger("Data change by another person ", 'error')
+              this.get_allagent(this.agent_id)
+            }
+          }
       }
       else if (this.native_file == undefined) {
         let fileObj = {
@@ -144,7 +148,13 @@ export class EditAssetComponent implements OnInit {
             this.router.navigate(['pages/asset/list']);
             this.native_file = undefined;
             this.native_file_name = undefined;
-          });
+          }), (error) => {
+
+            if (error.status == 409) {
+              this.toastrService.danger("Data change by another person ", 'error')
+              this.get_allagent(this.agent_id)
+            }
+          }
       }
       else {
         this.show_upload = true;
@@ -170,7 +180,13 @@ export class EditAssetComponent implements OnInit {
         .subscribe(() => {
           this.toastrService.success('Asset Details Upate Successfully!', 'Success');
           this.router.navigate(['pages/asset/list']);
-        });
+        }), (error) => {
+
+          if (error.status == 409) {
+            this.toastrService.danger("Data change by another person ", 'error')
+            this.get_allagent(this.agent_id)
+          }
+        }
     }
     else if (this.show_allagents.type == 'Text') {
       let textdata = {
@@ -184,7 +200,13 @@ export class EditAssetComponent implements OnInit {
         .subscribe(() => {
           this.toastrService.success('Asset Details Upate Successfully!', 'Success');
           this.router.navigate(['pages/asset/list']);
-        });
+        }), (error) => {
+
+          if (error.status == 409) {
+            this.toastrService.danger("Data change by another person ", 'error')
+            this.get_allagent(this.agent_id)
+          }
+        }
     }
     else if (this.show_allagents.type == 'Number') {
 
@@ -199,7 +221,13 @@ export class EditAssetComponent implements OnInit {
         .subscribe(() => {
           this.toastrService.success('Asset Details Upate Successfully!', 'Success');
           this.router.navigate(['pages/asset/list']);
-        });
+        }), (error) => {
+
+          if (error.status == 409) {
+            this.toastrService.danger("Data change by another person ", 'error')
+            this.get_allagent(this.agent_id)
+          }
+        }
     }
     this.submitted = false;
     

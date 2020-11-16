@@ -60,8 +60,9 @@ namespace OpenBots.Server.WebAPI.Controllers
             {
                 problem.Title = string.Concat("Entity Concurrency Error.", ex.Message);
                 problem.Status = 409;
+                problem.serviceErrors = new string[1] { "Record is updated by another user, please try again." };
             }
-            if(ex is EntityDoesNotExistException)
+            if (ex is EntityDoesNotExistException)
             {
                 problem.Title = string.Concat("Entity Does Not Exist.", ex.Message);
                 problem.Status = 400;

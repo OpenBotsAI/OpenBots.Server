@@ -98,6 +98,12 @@ value = ['Published', 'Commited'];
        this.router.navigate(['pages/process/list']);
        this.native_file = undefined;
        this.native_file_name = undefined;
+     }, (error) => {
+       if (error.status == 409) {
+         this.toastrService.danger("Data change by another person ", 'error')
+         this.get_process(this.process_id)
+       }
+
      })
    }
    else if (this.native_file == undefined) {
@@ -111,6 +117,12 @@ value = ['Published', 'Commited'];
          this.router.navigate(['pages/process/list']);
          this.native_file = undefined;
          this.native_file_name = undefined;
+       }, (error) => {
+
+         if (error.status == 409) {
+           this.toastrService.danger("Data change by another person ", 'error')
+           this.get_process(this.process_id)
+         }
        });
    }
        
