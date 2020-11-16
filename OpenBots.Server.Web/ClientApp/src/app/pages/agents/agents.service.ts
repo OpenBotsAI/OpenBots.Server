@@ -47,9 +47,6 @@ export class AgentsService {
 
   editAgent(id, obj, etag) {
     const headers = new HttpHeaders({ 'If-Match': etag });
-
-    // headers.append('Content-Type', 'application/json');
-    // headers.append('If-Match', etag);
     let editagentUrl = `/Agents/${id}`;
     return this.http.put(`${this.apiUrl}` + editagentUrl, obj, { headers: headers });
   }
