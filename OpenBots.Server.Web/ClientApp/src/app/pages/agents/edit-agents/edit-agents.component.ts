@@ -66,7 +66,14 @@ export class EditAgentsComponent implements OnInit {
       this.addagent.patchValue(this.show_allagents);
       this.addagent.patchValue({
         CredentialId: this.show_allagents.credentialId,
-      });
+      }
+      ), (error) => {
+
+        if (error.status == 409) {
+          this.toastrService.danger("Data change by another person ", 'error')
+          this.get_allagent(this.agent_id)
+        }
+      }
     });
   }
   get_cred() {
