@@ -43,6 +43,7 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IQueueItemRepository), typeof(QueueItemRepository));
             services.AddTransient(typeof(IQueueItemManager), typeof(QueueItemManager));
             services.AddTransient(typeof(IBinaryObjectRepository), typeof(BinaryObjectRepository));
+            services.AddTransient(typeof(IAgentHeartbeatRepository), typeof(AgentHeartbeatRepository));
             services.AddTransient(typeof(IAgentRepository), typeof(AgentRepository));
             services.AddTransient(typeof(IAgentManager), typeof(AgentManager));
             services.AddTransient(typeof(IAssetRepository), typeof(AssetRepository));

@@ -30,12 +30,14 @@ namespace OpenBots.Server.Web.Controllers
         IAgentRepository agentRepo;
         IPersonRepository personRepo;
         IAspNetUsersRepository usersRepo;
+        IAgentHeartbeatRepository agentHeartbeatRepo;
         private IHttpContextAccessor _accessor;
 
         public AgentsController(
             IAgentRepository agentRepository,
             IPersonRepository personRepository,
             IAspNetUsersRepository usersRepository,
+            IAgentHeartbeatRepository agentHeartbeatRepository,
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
             IAgentManager agentManager,
@@ -46,6 +48,7 @@ namespace OpenBots.Server.Web.Controllers
             this.agentRepo = agentRepository;
             this.personRepo = personRepository;
             this.usersRepo = usersRepository;
+            this.agentHeartbeatRepo = agentHeartbeatRepository;
             this.agentManager = agentManager;
             this.agentManager.SetContext(base.SecurityContext);
             _accessor = accessor;
@@ -172,6 +175,10 @@ namespace OpenBots.Server.Web.Controllers
                     return BadRequest(ModelState);
                 }
 
+                Guid entityId = Guid.NewGuid();
+                if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
+                    request.Id = entityId;
+
                 //create Agent app user
                 var user = new ApplicationUser()
                 {
@@ -206,6 +213,15 @@ namespace OpenBots.Server.Web.Controllers
                     var registeredUser = userManager.FindByNameAsync(user.UserName).Result;
                     registeredUser.PersonId = (Guid)person.Id;
                     await userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
+
+                    // Create new Agent Heartbeat
+                    AgentHeartbeat agentHeartbeat = new AgentHeartbeat
+                    {
+                        AgentId = entityId,
+                        CreatedBy = applicationUser?.UserName,
+                        CreatedOn = DateTime.UtcNow
+                    };
+                    agentHeartbeatRepo.Add(agentHeartbeat);
 
                     //post Agent entity
                     AgentModel newAgent = request.Map(request);
@@ -269,11 +285,6 @@ namespace OpenBots.Server.Web.Controllers
                 existingAgent.MacAddresses = request.MacAddresses;
                 existingAgent.IPAddresses = request.IPAddresses;
                 existingAgent.IsEnabled = request.IsEnabled;
-                existingAgent.LastReportedOn = request.LastReportedOn;
-                existingAgent.LastReportedStatus = request.LastReportedStatus;
-                existingAgent.LastReportedWork = request.LastReportedWork;
-                existingAgent.LastReportedMessage = request.LastReportedMessage;
-                existingAgent.IsHealthy = request.IsHealthy;
                 existingAgent.CredentialId = request.CredentialId;
 
                 return await base.PutEntity(id, existingAgent);
@@ -316,6 +327,7 @@ namespace OpenBots.Server.Web.Controllers
             }
 
             Person person = personRepo.Find(0, 1).Items?.Where(p => p.IsAgent && p.Name == agent.Name && !(p.IsDeleted ?? false))?.FirstOrDefault();
+            AgentHeartbeat agentHeartbeat = agentHeartbeatRepo.Find(0, 1).Items?.Where(h => h.AgentId == new Guid(id))?.FirstOrDefault();
             var aspUser = usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
 
             if (aspUser == null)
@@ -334,6 +346,7 @@ namespace OpenBots.Server.Web.Controllers
             }
 
             personRepo.SoftDelete(person.Id ?? Guid.Empty);
+            agentHeartbeatRepo.SoftDelete(agentHeartbeat.Id ?? Guid.Empty);
 
             return await base.DeleteEntity(id);
         }
@@ -504,7 +517,7 @@ namespace OpenBots.Server.Web.Controllers
                 }
 
                 Guid entityId = new Guid(id);
-                var agent = agentRepo.GetOne(entityId);
+                AgentModel agent = agentRepo.GetOne(entityId);
 
                 if (agent == null)
                 {
@@ -516,16 +529,23 @@ namespace OpenBots.Server.Web.Controllers
                     ModelState.AddModelError("HeartBeat", "Agent is not connected");
                     return BadRequest(ModelState);
                 }
+                
+                //Update HeartBeat Values
+                AgentHeartbeat agentHeartbeat = agentHeartbeatRepo.Find(0, 1)?.Items?.Where(h => h.AgentId == entityId)?.FirstOrDefault();
+                if (agentHeartbeat == null)
+                {
+                    return NotFound("The Agent ID provided does not have any existing agent heartbeat");
+                }
 
-                JsonPatchDocument<AgentModel> heartbeatPatch = new JsonPatchDocument<AgentModel>();
+                // Set Heartbeat Values
+                agentHeartbeat.LastReportedOn = request.LastReportedOn ?? agentHeartbeat.LastReportedOn;
+                agentHeartbeat.LastReportedStatus = request.LastReportedStatus ?? agentHeartbeat.LastReportedStatus;
+                agentHeartbeat.LastReportedWork = request.LastReportedWork ?? agentHeartbeat.LastReportedWork;
+                agentHeartbeat.LastReportedMessage = request.LastReportedMessage ?? agentHeartbeat.LastReportedMessage;
+                agentHeartbeat.IsHealthy = request.IsHealthy ?? agentHeartbeat.IsHealthy;
 
-                heartbeatPatch.Replace(e => e.LastReportedOn, request.LastReportedOn);
-                heartbeatPatch.Replace(e => e.LastReportedStatus, request.LastReportedStatus);
-                heartbeatPatch.Replace(e => e.LastReportedWork, request.LastReportedWork);
-                heartbeatPatch.Replace(e => e.LastReportedMessage, request.LastReportedMessage);
-                heartbeatPatch.Replace(e => e.IsHealthy, request.IsHealthy);
-
-                return await base.PatchEntity(id, heartbeatPatch);
+                agentHeartbeatRepo.Update(agentHeartbeat);
+                return Ok();
             }
 
             catch (Exception ex)

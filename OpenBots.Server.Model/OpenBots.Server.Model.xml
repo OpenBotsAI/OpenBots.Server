@@ -4,6 +4,11 @@
         <name>OpenBots.Server.Model</name>
     </assembly>
     <members>
+        <member name="T:OpenBots.Server.Model.AgentHeartbeat">
+            <summary>
+            Stores the heartbeat values for the specified Agent ID
+            </summary>
+        </member>
         <member name="T:OpenBots.Server.Model.DoNotAuditAttribute">
             <summary>
             Attribute to determine if a field will not be shown in audit log
@@ -300,6 +305,11 @@
         <member name="T:OpenBots.Server.Model.JobStatusType">
             <summary>
             Stores the current status of a job
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.JobParameter">
+            <summary>
+            Stores the values corresponding to a job's parameters
             </summary>
         </member>
         <member name="T:OpenBots.Server.Model.Options.AppInsightOptions">

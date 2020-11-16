@@ -17,11 +17,6 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
         public string IPAddresses { get; set; }
         [Required]
         public bool IsEnabled { get; set; }
-        public DateTime? LastReportedOn { get; set; }
-        public string? LastReportedStatus { get; set; }
-        public string? LastReportedWork { get; set; }
-        public string? LastReportedMessage { get; set; }
-        public bool? IsHealthy { get; set; }
         [Required]
         public bool isConnected { get; set; }
         public Guid? CredentialId { get; set; }
@@ -41,11 +36,6 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
                 MacAddresses = viewModel.MacAddresses,
                 IPAddresses = viewModel.IPAddresses,
                 IsEnabled = viewModel.IsEnabled,
-                LastReportedOn = viewModel.LastReportedOn,
-                LastReportedStatus = viewModel.LastReportedStatus,
-                LastReportedWork = viewModel.LastReportedWork,
-                LastReportedMessage = viewModel.LastReportedMessage,
-                IsHealthy = viewModel.IsHealthy,
                 IsConnected = viewModel.isConnected,
                 CredentialId = viewModel.CredentialId
             };

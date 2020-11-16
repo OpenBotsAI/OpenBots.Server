@@ -13,6 +13,7 @@ namespace OpenBots.Server.DataAccess
         public DbSet<QueueItem> QueueItems { get; set; }
         public DbSet<BinaryObject> BinaryObjects { get; set; }
         public DbSet<AgentModel> Agents { get; set; }
+        public DbSet<AgentHeartbeat> AgentHeartbeats { get; set; }
         public DbSet<Queue> Queues { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<Asset> Assets { get; set; }

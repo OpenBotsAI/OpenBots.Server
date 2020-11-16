@@ -47,11 +47,6 @@ namespace OpenBots.Server.DataAccess.Repositories
                                     MacAddresses = a.MacAddresses,
                                     IPAddresses = a.IPAddresses,
                                     IsEnabled = a.IsEnabled,
-                                    LastReportedOn = a.LastReportedOn,
-                                    LastReportedStatus = a.LastReportedStatus,
-                                    LastReportedWork = a.LastReportedWork,
-                                    LastReportedMessage = a.LastReportedMessage,
-                                    IsHealthy = a.IsHealthy,
                                     IsConnected = a.IsConnected,
                                     CredentialId = a.CredentialId,
                                     CredentialName = c?.Name
