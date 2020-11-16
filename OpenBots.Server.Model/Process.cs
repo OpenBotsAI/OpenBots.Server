@@ -24,5 +24,9 @@ namespace OpenBots.Server.Model
         /// Id to match other versions of the same process
         /// </summary>
         public Guid VersionId { get; set; }
+        /// <summary>
+        /// Original name of file
+        /// </summary>
+        public string OriginalPackageName { get; set; }
     }
 }

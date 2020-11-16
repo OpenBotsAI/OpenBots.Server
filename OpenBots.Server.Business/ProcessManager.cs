@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using OpenBots.Server.DataAccess.Repositories;
+using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
 using OpenBots.Server.ViewModel;
 using System;
@@ -15,16 +16,19 @@ namespace OpenBots.Server.Business
         private readonly IBinaryObjectRepository binaryObjectRepository;
         private readonly IBinaryObjectManager binaryObjectManager;
         private readonly IBlobStorageAdapter blobStorageAdapter;
+        private readonly IProcessVersionRepository processVersionRepository;
 
         public ProcessManager(IProcessRepository repo,
             IBinaryObjectManager binaryObjectManager,
             IBinaryObjectRepository binaryObjectRepository,
-            IBlobStorageAdapter blobStorageAdapter)
+            IBlobStorageAdapter blobStorageAdapter,
+            IProcessVersionRepository processVersionRepository)
         {
             this.repo = repo;
             this.binaryObjectManager = binaryObjectManager;
             this.binaryObjectRepository = binaryObjectRepository;
             this.blobStorageAdapter = blobStorageAdapter;
+            this.processVersionRepository = processVersionRepository;
         }
 
         public async Task<FileObjectViewModel> Export(string binaryObjectId)
@@ -35,6 +39,9 @@ namespace OpenBots.Server.Business
         public bool DeleteProcess(Guid processId)
         {
             var process = repo.GetOne(processId);
+            Guid processVersionId = process.VersionId;
+            processVersionRepository.SoftDelete(processVersionId);
+            
             bool isDeleted = false;
 
             if (process != null)
@@ -60,7 +67,7 @@ namespace OpenBots.Server.Business
                     if (processVersion < process.Version)
                     {
                         processVersion = process.Version;
-                        versionId = process.VersionId;
+                        //versionId = process.VersionId;
                     }
                 }
 
@@ -115,6 +122,25 @@ namespace OpenBots.Server.Business
             string organizationId = binaryObjectManager.GetOrganizationId();
 
             return organizationId;
+        }
+
+        public void AddProcessVersion(Process process)
+        {
+            ProcessVersion processVersion = new ProcessVersion();
+            processVersion.ProcessId = (Guid)process.Id;
+            processVersion.Status = process.Status;
+            processVersion.VersionNumber = process.Version;
+            if (processVersion.Status.Equals("Published"))
+            {
+                processVersion.PublishedBy = process.CreatedBy;
+                processVersion.PublishedOnUTC = (DateTime)process.CreatedOn;
+            }
+            else
+            {
+                processVersion.PublishedBy = null;
+                processVersion.PublishedOnUTC = null;
+            }
+            processVersionRepository.Add(processVersion);
         }
     }
 }

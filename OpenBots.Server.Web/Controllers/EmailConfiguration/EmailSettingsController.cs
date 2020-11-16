@@ -74,18 +74,18 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         [FromQuery(Name = "$skip")] int skip = 0
         )
         {
-            var response = base.GetMany();
+                var response = base.GetMany();
 
-            if (response.Items.Count == 0)
-            {
-                var settings = new EmailSettings();
-                settings.IsEmailDisabled = true;
-                settings.OrganizationId = (Guid)organizationManager.GetDefaultOrganization().Id;
-                repository.Add(settings);
-                response = base.GetMany();
+                if (response.Items.Count == 0)
+                {
+                    var settings = new EmailSettings();
+                    settings.IsEmailDisabled = true;
+                    settings.OrganizationId = (Guid)organizationManager.GetDefaultOrganization().Id;
+                    repository.Add(settings);
+                    response = base.GetMany();
+                }
+                return response;
             }
-            return response;
-        }
 
         /// <summary>
         /// Gets count of email settings in database
@@ -146,12 +146,12 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// Adds a new email setting to the existing email settings
         /// </summary>
         /// <param name="request"></param>
-        /// <response code="200">OK, new email setting created and returned</response>
+        /// <response code="200">Ok, new email setting created and returned</response>
         /// <response code="400">Bad request, when the email setting value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
         /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
-        /// <returns> Newly created unique email settings </returns>
+        /// <returns>Newly created unique email settings</returns>
         [HttpPost]
         [ProducesResponseType(typeof(EmailSettings), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -187,7 +187,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// </remarks>
         /// <param name="id">Email setting id, produces bad request if id is null or ids don't match</param>
         /// <param name="request">Email setting details to be updated</param>
-        /// <response code="200">Ok, if the email setting details for the given email setting id has been updated.</response>
+        /// <response code="200">Ok, if the email setting details for the given email setting id have been updated</response>
         /// <response code="400">Bad request, if the email setting id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict</response>
@@ -236,11 +236,11 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// </summary>
         /// <param name="id"></param>
         /// <param name="request"></param>
-        /// <response code="200">Ok, If update of email settings is successful</response>
-        /// <response code="400">Bad request, if the id is null or ids dont match.</response>
+        /// <response code="200">Ok, if update of email settings is successful</response>
+        /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
-        /// <returns>200 Ok response</returns>
+        /// <returns>Ok response</returns>
         [HttpPatch("{id}")]
         [ProducesResponseType(typeof(EmailSettings), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -255,7 +255,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// <summary>
         /// Delete email settings with a specified id from email settings data table.
         /// </summary>
-        /// <param name="id">Email setting id to be deleted - throws bad request if null or empty Guid/</param>
+        /// <param name="id">Email setting id to be deleted - throws bad request if null or empty Guid</param>
         /// <response code="200">Ok, when email setting is soft deleted, (isDeleted flag is set to true in database)</response>
         /// <response code="400">Bad request, if email setting id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>

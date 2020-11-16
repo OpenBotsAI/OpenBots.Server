@@ -1,13 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using OpenBots.Server.Model.Core;
 
 namespace OpenBots.Server.Model.Configuration
 {
-    public class ConfigurationValue
+    public class ConfigurationValue : NamedEntity
     {
         public const string Values = "Values";
-
-        [Key]
-        public string Name { get; set; }
+        public new string Name { get; set; }
         public string Value { get; set; }
+        public string? Description { get; set; }
+        public string? UIHint { get; set; }
+        public string? ValidationRegex { get; set; }
     }
 }

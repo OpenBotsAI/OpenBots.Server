@@ -18,6 +18,7 @@ namespace OpenBots.Server.DataAccess
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<Asset> Assets { get; set; }
         public DbSet<Process> Processes { get; set; }
+        public DbSet<ProcessVersion> ProcessVersions { get; set; }
         public DbSet<Job> Jobs { get; set; }
         public DbSet<JobParameter> JobParameters { get; set; }
         public DbSet<Credential> Credentials { get; set; }
@@ -28,6 +29,7 @@ namespace OpenBots.Server.DataAccess
         public DbSet<EmailAccount> EmailAccounts { get; set; }
         public DbSet<EmailSettings> EmailSettings { get; set; }
         public DbSet<EmailLog> EmailLogs { get; set; }
+        public DbSet<EmailAttachment> EmailAttachments { get; set; }
 
         public StorageContext(DbContextOptions<StorageContext> options)
       : base(options)
@@ -42,21 +44,6 @@ namespace OpenBots.Server.DataAccess
             CreateMembershipModel(modelBuilder);
             CreateIdentityModel(modelBuilder);
             CreateCoreModel(modelBuilder);
-            InitializeSeedData(modelBuilder);
-        }
-
-        private void InitializeSeedData(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<ConfigurationValue>()
-                .HasData(
-                    new ConfigurationValue { Name = "BinaryObjects:Adapter", Value = "FileSystemAdapter" },
-                    new ConfigurationValue { Name = "BinaryObjects:Path", Value = "BinaryObjects" },
-                    new ConfigurationValue { Name = "BinaryObjects:StorageProvider", Value = "FileSystem.Default" },
-                    new ConfigurationValue { Name = "Queue.Global:DefaultMaxRetryCount", Value = "2" },
-                    new ConfigurationValue { Name = "App:MaxExportRecords", Value = "100" },
-                    new ConfigurationValue { Name = "App:MaxReturnRecords", Value = "100" },
-                    new ConfigurationValue { Name = "App:EnableSwagger", Value = "true" }
-                    );
         }
         #region core entitites
 
