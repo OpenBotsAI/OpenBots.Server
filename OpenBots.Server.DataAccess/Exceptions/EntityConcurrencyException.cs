@@ -9,5 +9,10 @@ namespace OpenBots.Server.DataAccess.Exceptions
         public EntityConcurrencyException()
         {
         }
+
+        public EntityConcurrencyException(Exception exception) : base(exception)
+        {
+
+        }
     }
 }
