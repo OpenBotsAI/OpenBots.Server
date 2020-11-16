@@ -19,6 +19,10 @@ namespace OpenBots.Server.ViewModel
         public DateTime? DequeueTime { get; set; }
         [Required]
         public Guid? ProcessId { get; set; }
+        [Required]
+        public int? ProcessVersion { get; set; }
+        [Required]
+        public Guid? ProcessVersionId { get; set; }
         public JobStatusType? JobStatus { get; set; }
         public string? Message { get; set; }
         public bool? IsSuccessful { get; set; }
@@ -37,9 +41,11 @@ namespace OpenBots.Server.ViewModel
                 StartTime = entity.StartTime,
                 EndTime = entity.EndTime,
                 EnqueueTime = entity.EnqueueTime,
-                DequeueTime = entity.DequeueTime,
-                JobStatus = entity.JobStatus,
+                DequeueTime = entity.DequeueTime,                
                 ProcessId = entity.ProcessId,
+                ProcessVersion = entity.ProcessVersion,
+                ProcessVersionId = entity.ProcessVersionId,
+                JobStatus = entity.JobStatus,
                 Message = entity.Message,
                 IsSuccessful = entity.IsSuccessful,
                 CreatedOn = entity.CreatedOn,

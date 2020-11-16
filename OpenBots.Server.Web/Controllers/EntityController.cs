@@ -61,7 +61,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             }
 
             Guid entityId = Guid.NewGuid();
-            if (value.Id == null || value.Id.HasValue || value.Id.Equals(Guid.Empty))
+            if (value.Id == null || !value.Id.HasValue || value.Id.Equals(Guid.Empty))
                 value.Id = entityId;
 
             try

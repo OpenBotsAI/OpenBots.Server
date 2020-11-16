@@ -26,6 +26,8 @@ using OpenBots.Server.Model;
 using Newtonsoft.Json;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Attributes;
+using System.Configuration;
+using OpenBots.Server.Model.Options;
 using OpenBots.Server.Web.Extensions;
 using OpenBots.Server.ViewModel.Email;
 
@@ -57,6 +59,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         readonly ITermsConditionsManager termsConditionsManager;
         readonly IAgentRepository agentRepository;
         readonly IAuditLogRepository auditLogRepository;
+        readonly WebAppUrlOptions webAppUrlOptions;
 
         /// <summary>
         /// AuthController constructor
@@ -108,6 +111,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             this.termsConditionsManager = termsConditionsManager;
             this.agentRepository = agentRepository;
             this.auditLogRepository = auditLogRepository;
+            this.webAppUrlOptions = configuration.GetSection(WebAppUrlOptions.WebAppUrl).Get<WebAppUrlOptions>();
+
         }
 
         /// <summary>
@@ -493,14 +498,14 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         {
             ApplicationUser user = await userManager.FindByIdAsync(userId).ConfigureAwait(false);
             if (user == null)
-                return Redirect(string.Format("{0}{1}", configuration["WebAppUrl:Url"], configuration["WebAppUrl:NoUserExists"]));
+                return Redirect(string.Format("{0}{1}", webAppUrlOptions.Url, webAppUrlOptions.NoUserExists));
             if (userManager.VerifyUserTokenAsync(user, userManager.Options.Tokens.PasswordResetTokenProvider, "ResetPassword", code).Result)
             {
-                string baseUrl = string.Format(@"{0}{1}", configuration["WebAppUrl:Url"], configuration["WebAppUrl:forgotpassword"]);
+                string baseUrl = string.Format(@"{0}{1}", webAppUrlOptions.Url, webAppUrlOptions.Forgotpassword);
                 var callbackUrl = string.Format(@"{0}?userid={1}&token={2}", baseUrl, WebUtility.UrlEncode(userId), WebUtility.UrlEncode(code));
                 return Redirect(callbackUrl);
             }
-            else return Redirect(string.Format("{0}{1}", configuration["WebAppUrl:Url"], configuration["WebAppUrl:tokenerror"]));
+            else return Redirect(string.Format("{0}{1}", webAppUrlOptions.Url, webAppUrlOptions.Tokenerror));
         }
 
         /// <summary>
@@ -593,7 +598,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             {
                 applicationUser = userManager.FindByIdAsync(userId).Result;
                 if (applicationUser == null)
-                    return Redirect(string.Format("{0}{1}", configuration["WebAppUrl:Url"], configuration["WebAppUrl:NoUserExists"]));
+                    return Redirect(string.Format("{0}{1}", webAppUrlOptions.Url, webAppUrlOptions.NoUserExists));
                 result = await userManager.ConfirmEmailAsync(applicationUser, code);
             }
             catch (InvalidOperationException ioe)
@@ -625,11 +630,11 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     emailVerificationRepository.Update(emailVerification);
                 }
                 
-                return Redirect(string.Format("{0}{1}", configuration["WebAppUrl:Url"], configuration["WebAppUrl:login"]));
+                return Redirect(string.Format("{0}{1}", webAppUrlOptions.Url, webAppUrlOptions.Login));
             }
 
             // If we got this far, something failed.
-            return Redirect(string.Format("{0}{1}", configuration["WebAppUrl:Url"], configuration["WebAppUrl:tokenerror"]));
+            return Redirect(string.Format("{0}{1}", webAppUrlOptions.Url, webAppUrlOptions.Tokenerror));
         }
 
         /// <summary>
@@ -798,7 +803,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             Guid personId = new Guid(_key);
             if (when < DateTime.UtcNow.AddHours(-24))
             {
-                return Redirect(string.Format("{0}{1}", configuration["WebAppUrl:Url"], configuration["WebAppUrl:tokenerror"]));
+                return Redirect(string.Format("{0}{1}", webAppUrlOptions.Url, webAppUrlOptions.Tokenerror));
             }
 
             var emailVerification = emailVerificationRepository.Find(null, p => p.PersonId == personId && p.Address.Equals(emailAddress, StringComparison.OrdinalIgnoreCase) && p.IsVerified != true)?.Items?.FirstOrDefault();
@@ -821,7 +826,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                 emailVerification.IsVerified = true;
                 emailVerificationRepository.Update(emailVerification);
             }
-            return Redirect(string.Format("{0}{1}", configuration["WebAppUrl:Url"], configuration["WebAppUrl:emailaddressconfirmed"]));
+            return Redirect(string.Format("{0}{1}", webAppUrlOptions.Url, webAppUrlOptions.Emailaddressconfirmed));
         }
 
         /// <summary>

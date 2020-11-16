@@ -20,17 +20,15 @@ namespace OpenBots.Server.Web
             .ConfigureAppConfiguration((hostingContext, configBuilder) =>
             {
                 var config = configBuilder.Build();
+                configBuilder.AddEnvironmentVariables(prefix: "OPENBOTS_");
                 var configSource = new EFConfigurationSource(
                     options => options.UseSqlServer(config.GetConnectionString("Sql")));
                 configBuilder.Add(configSource);
-
-                configBuilder.AddEnvironmentVariables(prefix: "OPENBOTS_");
             })
             .ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.UseIIS();
-                webBuilder.UseStartup<Startup>();
-               
+                webBuilder.UseStartup<Startup>();             
             });
     }
 }

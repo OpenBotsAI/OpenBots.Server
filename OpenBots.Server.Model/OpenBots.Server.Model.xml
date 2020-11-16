@@ -297,6 +297,268 @@
             Interface to determine entities that are nonauditable
             </summary>
         </member>
+        <member name="T:OpenBots.Server.Model.JobStatusType">
+            <summary>
+            Stores the current status of a job
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.Options.AppInsightOptions">
+            <summary>
+            Options for ApplicationInsights Configuration
+            </summary>
+            <remarks>
+            Application Insights monitors request rates, response times, and failure rates
+            </remarks>
+        </member>
+        <member name="F:OpenBots.Server.Model.Options.AppInsightOptions.ApplicationInsights">
+            <summary>
+            Configuration Name in App Settings for AppInsightOptions
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.AppInsightOptions.InstrumentationKey">
+            <summary>
+            Identifies the resource that you want to associate your telemetry data with
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.AppInsightOptions.IsEnabled">
+            <summary>
+            Used to Enable Logs for Application Insights
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.Options.CorsPolicyOptions">
+            <summary>
+            Options for Cross-Origin Resource Sharing(CORS) Configuration
+            </summary>
+            <remarks>
+            CORS policy allows a server to explicitly allow some cross-origin requests while rejecting
+            others.
+            </remarks>
+        </member>
+        <member name="F:OpenBots.Server.Model.Options.CorsPolicyOptions.Origins">
+            <summary>
+            Configuration Name in App Settings For CorsPolicyOtions
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.CorsPolicyOptions.AllowedOrigins">
+            <summary>
+            List of origin URLs that are permitted to make requests in the current policy. If none
+            are provided, then all origins will be allowed
+            </summary>
+            <remarks>
+            Multiple origins can be specified by seperating them with a semicolon in appsettings
+            </remarks>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.CorsPolicyOptions.ExposedHeaders">
+            <summary>
+            List of Headers that are exposed to the application in addition to the default headers
+            </summary>
+            <remarks>
+            Multiple headers can be specified by seperating them with a semicolon in appsettings
+            </remarks>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.CorsPolicyOptions.PolicyName">
+            <summary>
+            Specifies the name of the policy to be created
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.Options.HealthCheckSetupOptions">
+            <summary>
+            Options for HealthCheckSetupOptions Configuration
+            </summary>
+            <remarks>
+            HealthChecks let you validate if any external resource needed for your application is 
+            working properly
+            </remarks>
+        </member>
+        <member name="F:OpenBots.Server.Model.Options.HealthCheckSetupOptions.HealthChecks">
+            <summary>
+            Configuration Name in App Settings For HealthChecks
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.HealthCheckSetupOptions.isEnabled">
+            <summary>
+            Used to enable health checks in the application
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.HealthCheckSetupOptions.Endpoint">
+            <summary>
+            Defines the relative path that will be used to check the health status of the application
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.HealthCheckSetupOptions.HealthChecksUI">
+            <summary>
+            References the HealthChecksUIOptions subsection in appsettings
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.Options.HealthChecksUIOptions">
+            <summary>
+            Options for HealthChecksUIOptions Configuration
+            </summary>
+            <remarks>
+            HealthChecksUI provides an interface for users to verify the status of their application
+            </remarks>
+        </member>
+        <member name="F:OpenBots.Server.Model.Options.HealthChecksUIOptions.HealthChecksUI">
+            <summary>
+            Configuration Name in App Settings For HealthChecksUI
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.HealthChecksUIOptions.HealthChecksUIEnabled">
+            <summary>
+            Used to enable the UI portion of the health checks
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.HealthChecksUIOptions.UIRelativePath">
+            <summary>
+            Defines the relative path that will be used to access the health checks UI
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.HealthChecksUIOptions.ApiRelativePath">
+            <summary>
+            Defines the relative path that will be used to access the health checks api
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.HealthChecksUIOptions.HealthChecks">
+            <summary>
+            List which contains name and uri of status to be displayed in UI
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.HealthChecksUIOptions.EvaluationTimeOnSeconds">
+            <summary>
+            Configures the number of seconds it takes for the UI to poll for healtchecks
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.HealthChecksUIOptions.MinimumSecondsBetweenFailureNotifications">
+            <summary>
+            Sets minimum number of seconds between failure notifications to avoid receiver flooding
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.Options.KestrelOptions">
+            <summary>
+            Options for KestrelOptions Configuration
+            </summary>
+        </member>
+        <member name="F:OpenBots.Server.Model.Options.KestrelOptions.Kestrel">
+            <summary>
+            Configuration Name in App Settings For Kestrel
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.KestrelOptions.IsEnabled">
+            <summary>
+            Used to enable kestrel configuration in the application
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.KestrelOptions.Port">
+            <summary>
+            Specifies the port number to be used by application
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.KestrelOptions.IPAddress">
+            <summary>
+            Sets the IP Address of the host
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.KestrelOptions.Certificates">
+            <summary>
+            References the CertificatesOptions subsection in appsettings
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.KestrelOptions.UseIISIntegration">
+            <summary>
+            Confgures Kestrel to use IIS integration
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.Options.CertificatesOptions">
+            <summary>
+            Options for Kestrel Certificates
+            </summary>
+        </member>
+        <member name="F:OpenBots.Server.Model.Options.CertificatesOptions.Certificates">
+            <summary>
+            Configuration Name in App Settings For Certificates
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.CertificatesOptions.Path">
+            <summary>
+            Path for certificate file
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.CertificatesOptions.Password">
+            <summary>
+            Password to verify kestrel certificate
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.Options.TokensOptions">
+            <summary>
+            Options for Tokens Configuration
+            </summary>
+            <remarks>
+            Tokens allows us to authenticate any api request
+            </remarks>
+        </member>
+        <member name="F:OpenBots.Server.Model.Options.TokensOptions.Tokens">
+            <summary>
+            Configuration Name in App Settings For Tokens
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.TokensOptions.Key">
+            <summary>
+            Specifies the key that will be used to validate the token issuer
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.TokensOptions.Issuer">
+            <summary>
+            Sets the URI of the token issuer
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.TokensOptions.Audience">
+            <summary>
+            Sets the URI of the token audience
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.Model.Options.WebAppUrlOptions">
+            <summary>
+            Options for WebAppUrlOptions Configuration
+            </summary>
+            <remarks>
+            Use these options to set application base paths
+            </remarks>
+        </member>
+        <member name="F:OpenBots.Server.Model.Options.WebAppUrlOptions.WebAppUrl">
+            <summary>
+            Configuration Name in App Settings For WebAppUrl
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.WebAppUrlOptions.Url">
+            <summary>
+            Sets the base URL of the application
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.WebAppUrlOptions.Login">
+            <summary>
+            Relative path to be used to login
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.WebAppUrlOptions.Forgotpassword">
+            <summary>
+            Relative path to be used when resetting password
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.WebAppUrlOptions.Tokenerror">
+            <summary>
+            Redirection path for when a token error occurs
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.WebAppUrlOptions.NoUserExists">
+            <summary>
+            Redirection path for when no user exists
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.WebAppUrlOptions.Emailaddressconfirmed">
+            <summary>
+            Redirection path for when email has been confirmed
+            </summary>
+        </member>
         <member name="T:OpenBots.Server.Model.Process">
             <summary>
             Process model (inherits NamedEntity model)

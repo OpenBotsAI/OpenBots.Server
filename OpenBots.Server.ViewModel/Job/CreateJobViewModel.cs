@@ -32,8 +32,8 @@ namespace OpenBots.Server.ViewModel
                 EndTime = viewModel.EndTime,
                 EnqueueTime = viewModel.EnqueueTime,
                 DequeueTime = viewModel.DequeueTime,
-                JobStatus = viewModel.JobStatus,
                 ProcessId = viewModel.ProcessId,
+                JobStatus = viewModel.JobStatus,
                 Message = viewModel.Message,
                 IsSuccessful = viewModel.IsSuccessful
             };

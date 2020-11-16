@@ -2455,7 +2455,7 @@
             Controller for QueueItems
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.#ctor(OpenBots.Server.DataAccess.Repositories.IQueueItemRepository,OpenBots.Server.DataAccess.Repositories.IQueueRepository,OpenBots.Server.Business.IQueueItemManager,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration)">
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.#ctor(OpenBots.Server.DataAccess.Repositories.IQueueItemRepository,OpenBots.Server.DataAccess.Repositories.IQueueRepository,OpenBots.Server.Business.IQueueItemManager,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Web.Hubs.IHubManager,OpenBots.Server.DataAccess.Repositories.IScheduleRepository,Microsoft.Extensions.Configuration.IConfiguration)">
             <summary>
             QueueItemsController constructor
             </summary>
@@ -3159,7 +3159,7 @@
             Controller for Jobs
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.JobsController.#ctor(OpenBots.Server.DataAccess.Repositories.IJobRepository,OpenBots.Server.DataAccess.Repositories.IJobParameterRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IJobManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+        <member name="M:OpenBots.Server.Web.JobsController.#ctor(OpenBots.Server.DataAccess.Repositories.IJobRepository,OpenBots.Server.DataAccess.Repositories.IProcessRepository,OpenBots.Server.DataAccess.Repositories.IJobParameterRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IJobManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
             <summary>
             JobsController constructor
             </summary>

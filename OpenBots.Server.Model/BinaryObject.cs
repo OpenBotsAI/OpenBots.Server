@@ -1,5 +1,6 @@
 ﻿using OpenBots.Server.Model.Core;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace OpenBots.Server.Model
 {
@@ -8,6 +9,9 @@ namespace OpenBots.Server.Model
     /// </summary>
     public class BinaryObject : NamedEntity
     {
+        [Required]
+        [Display(Name = "Name")]
+        public string? Name { get; set; }
         /// <summary>
         /// Organization Id
         /// </summary>
