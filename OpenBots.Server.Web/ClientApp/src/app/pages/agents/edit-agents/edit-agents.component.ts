@@ -68,7 +68,7 @@ export class EditAgentsComponent implements OnInit {
         CredentialId: this.show_allagents.credentialId,
       }
       ), (error) => {
-
+        console.log(error.status)
         if (error.status == 409) {
           this.toastrService.danger("Data change by another person ", 'error')
           this.get_allagent(this.agent_id)

@@ -116,6 +116,7 @@ export class EditAssetComponent implements OnInit {
     this.submitted = true;
 
     if (this.show_allagents.type == 'File') {
+
       if (this.native_file) {
         let FileUploadformData = new FormData();
         FileUploadformData.append('file', this.native_file, this.native_file_name);
@@ -123,15 +124,16 @@ export class EditAssetComponent implements OnInit {
         FileUploadformData.append('type', this.assetagent.value.type);
         this.assetService
           .editAssetbyUpload(this.agent_id, FileUploadformData, this.etag)
-          .subscribe(() => {
+          .subscribe((data: HttpResponse<any>) => {
             this.toastrService.success('Asset Details Upate Successfully!', 'Success');
             this.router.navigate(['pages/asset/list']);
             this.native_file = undefined;
             this.native_file_name = undefined;
           }), (error) => {
-
+            alert(error)
+            console.log(error, error.status)
             if (error.status == 409) {
-              this.toastrService.danger("Data change by another person ", 'error')
+              this.toastrService.danger("Data change by another person ", 'Error')
               this.get_allagent(this.agent_id)
             }
           }
@@ -143,13 +145,13 @@ export class EditAssetComponent implements OnInit {
         }
         this.assetService
           .editAsset(this.agent_id, fileObj, this.etag)
-          .subscribe(() => {
+          .subscribe((data: HttpResponse<any>) => {
             this.toastrService.success('Updated successfully', 'Success');
             this.router.navigate(['pages/asset/list']);
             this.native_file = undefined;
             this.native_file_name = undefined;
           }), (error) => {
-
+            alert(error)
             if (error.status == 409) {
               this.toastrService.danger("Data change by another person ", 'error')
               this.get_allagent(this.agent_id)
@@ -182,7 +184,7 @@ export class EditAssetComponent implements OnInit {
           this.router.navigate(['pages/asset/list']);
         }), (error) => {
 
-          if (error.status == 409) {
+          if (error.error.status == 409) {
             this.toastrService.danger("Data change by another person ", 'error')
             this.get_allagent(this.agent_id)
           }

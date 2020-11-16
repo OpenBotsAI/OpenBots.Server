@@ -118,7 +118,7 @@ value = ['Published', 'Commited'];
          this.native_file = undefined;
          this.native_file_name = undefined;
        }, (error) => {
-
+         console.log(error.status, error)
          if (error.status == 409) {
            this.toastrService.danger("Data change by another person ", 'error')
            this.get_process(this.process_id)
