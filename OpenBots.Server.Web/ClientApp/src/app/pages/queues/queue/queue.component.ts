@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { HttpService } from '../../../@core/services/http.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Name_Regex } from '../../../@auth/components';
+import { HelperService } from '../../../@core/services/helper.service';
 
 @Component({
   selector: 'ngx-queue',
@@ -14,11 +15,13 @@ export class AddQueueComponent implements OnInit {
   isSubmitted = false;
   urlId: string;
   title = 'Add';
+  eTag: string;
   constructor(
     private fb: FormBuilder,
     private httpService: HttpService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private helperService: HelperService
   ) {}
 
   ngOnInit(): void {
@@ -72,9 +75,11 @@ export class AddQueueComponent implements OnInit {
   }
 
   updateQueue() {
+    const headers = this.helperService.getETagHeaders(this.eTag);
     this.httpService
       .put(`Queues/${this.urlId}`, this.queueForm.value, {
         observe: 'response',
+        headers,
       })
       .subscribe(
         (response) => {
@@ -85,13 +90,24 @@ export class AddQueueComponent implements OnInit {
             this.queueForm.reset();
           }
         },
-        () => (this.isSubmitted = false)
+        (error) => {
+          if (error && error.error && error.error.status === 409) {
+            this.isSubmitted = false;
+            this.httpService.error(error.error.serviceErrors);
+            this.getQueueById();
+          }
+        }
       );
   }
 
   getQueueById(): void {
-    this.httpService.get(`Queues/${this.urlId}`).subscribe((response) => {
-      if (response) this.queueForm.patchValue({ ...response });
-    });
+    this.httpService
+      .get(`Queues/${this.urlId}`, { observe: 'response' })
+      .subscribe((response) => {
+        if (response && response.body) {
+          this.eTag = response.headers.get('etag');
+          this.queueForm.patchValue({ ...response.body });
+        }
+      });
   }
 }

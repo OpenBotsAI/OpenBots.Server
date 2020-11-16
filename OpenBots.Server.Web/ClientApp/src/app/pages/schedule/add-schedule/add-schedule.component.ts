@@ -16,6 +16,7 @@ import { HelperService } from '../../../@core/services/helper.service';
 })
 export class AddScheduleComponent implements OnInit {
   scheduleForm: FormGroup;
+  eTag: string;
   allAgents: Agents[] = [];
   allProcesses: Processes[] = [];
   isSubmitted = false;
@@ -133,15 +134,24 @@ export class AddScheduleComponent implements OnInit {
   }
 
   updateSchedule(): void {
+    const headers = this.helperService.getETagHeaders(this.eTag);
     this.httpService
-      .put(`Schedules/${this.currentScheduleId}`, this.scheduleForm.value)
+      .put(`Schedules/${this.currentScheduleId}`, this.scheduleForm.value, {
+        headers,
+      })
       .subscribe(
         () => {
           this.isSubmitted = false;
           this.httpService.success('Schedule updated successfully');
           this.router.navigate(['/pages/schedules']);
         },
-        () => (this.isSubmitted = false)
+        (error) => {
+          if (error && error.error && error.error.status === 409) {
+            this.isSubmitted = false;
+            this.httpService.error(error.error.serviceErrors);
+            this.getScheduleById();
+          }
+        }
       );
   }
 
@@ -163,12 +173,13 @@ export class AddScheduleComponent implements OnInit {
 
   getScheduleById(): void {
     this.httpService
-      .get(`Schedules/${this.currentScheduleId}`)
+      .get(`Schedules/${this.currentScheduleId}`, { observe: 'response' })
       .subscribe((response) => {
-        if (response) {
-          if (response.cronExpression)
-            this.cronExpression = response.cronExpression;
-          this.scheduleForm.patchValue(response);
+        if (response && response.body) {
+          this.eTag = response.headers.get('etag');
+          if (response.body.cronExpression)
+            this.cronExpression = response.body.cronExpression;
+          this.scheduleForm.patchValue(response.body);
         }
       });
   }

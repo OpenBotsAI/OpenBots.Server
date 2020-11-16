@@ -6,6 +6,7 @@ import { QueueItem } from '../../../interfaces/queueItem';
 import { Queues } from '../../../interfaces/queues';
 import { JsonEditorComponent, JsonEditorOptions } from 'ang-jsoneditor';
 import { NbDateService } from '@nebular/theme';
+import { HelperService } from '../../../@core/services/helper.service';
 @Component({
   selector: 'ngx-add-queue-items',
   templateUrl: './add-queue-items.component.html',
@@ -27,6 +28,7 @@ export class AddQueueItemsComponent implements OnInit {
   max: Date;
   public editorOptions: JsonEditorOptions;
   public data: any;
+  eTag: string;
   @ViewChild(JsonEditorComponent) editor: JsonEditorComponent;
 
   constructor(
@@ -34,7 +36,8 @@ export class AddQueueItemsComponent implements OnInit {
     private httpService: HttpService,
     private route: ActivatedRoute,
     private router: Router,
-    private dateService: NbDateService<Date>
+    private dateService: NbDateService<Date>,
+    private helperService: HelperService
   ) {}
 
   ngOnInit(): void {
@@ -42,7 +45,7 @@ export class AddQueueItemsComponent implements OnInit {
     this.getQueues();
     this.editorOptions = new JsonEditorOptions();
     this.editorOptions.modes = ['code', 'text', 'tree', 'view'];
-    this.queryParamId = this.route.snapshot.queryParams['id']; 
+    this.queryParamId = this.route.snapshot.queryParams['id'];
     this.queueItemId = this.route.snapshot.params['id'];
     if (this.queueItemId) {
       this.getQueueDataById();
@@ -68,11 +71,11 @@ export class AddQueueItemsComponent implements OnInit {
           Validators.maxLength(100),
         ],
       ],
-      dataJson: [''], 
+      dataJson: [''],
       queueId: ['', [Validators.required]],
       state: ['New'],
       type: ['', [Validators.required]],
-      jsonType: [''], 
+      jsonType: [''],
       expireOnUTC: [''],
       postponeUntilUTC: [''],
       source: ['', [Validators.minLength(3), Validators.maxLength(100)]],
@@ -96,7 +99,6 @@ export class AddQueueItemsComponent implements OnInit {
     else this.addItem();
   }
 
-
   onQueueItemchange(): void {
     this.queueItemForm.get('dataJson').reset();
     this.queueItemForm.get('jsonType').reset();
@@ -115,12 +117,15 @@ export class AddQueueItemsComponent implements OnInit {
 
   getQueueDataById(): void {
     this.httpService
-      .get(`QueueItems/${this.queueItemId}`)
-      .subscribe((response: QueueItem) => {
-        if (response && response.type === 'Json')
-          response.dataJson = JSON.parse(response.dataJson);
-        this.queueItemForm.patchValue(response);
-        this.oldQueueFormValue = this.queueItemForm.value;
+      .get(`QueueItems/${this.queueItemId}`, { observe: 'response' })
+      .subscribe((response) => {
+        if (response && response.status === 200) {
+          this.eTag = response.headers.get('etag');
+          if (response.body.type === 'Json')
+            response.body.dataJson = JSON.parse(response.body.dataJson);
+          this.queueItemForm.patchValue(response.body);
+          this.oldQueueFormValue = this.queueItemForm.value;
+        }
       });
   }
 
@@ -139,6 +144,7 @@ export class AddQueueItemsComponent implements OnInit {
   }
 
   updateItem(): void {
+    const headers = this.helperService.getETagHeaders(this.eTag);
     let data = [];
     for (let [oldKey, oldValue] of Object.entries(this.oldQueueFormValue)) {
       for (let [newkey, newValue] of Object.entries(this.queueItemForm.value)) {
@@ -152,15 +158,23 @@ export class AddQueueItemsComponent implements OnInit {
         }
       }
     }
-    this.httpService.patch(`QueueItems/${this.queueItemId}`, data).subscribe(
-      () => {
-        this.httpService.success('Queue item updated successfully');
-        this.navigateToQueueItemsList();
-        this.isSubmitted = false;
-        this.queueItemForm.reset();
-      },
-      () => (this.isSubmitted = false)
-    );
+    this.httpService
+      .patch(`QueueItems/${this.queueItemId}`, data, { headers })
+      .subscribe(
+        () => {
+          this.httpService.success('Queue item updated successfully');
+          this.navigateToQueueItemsList();
+          this.isSubmitted = false;
+          this.queueItemForm.reset();
+        },
+        (error) => {
+          if (error && error.error && error.error.status === 409) {
+            this.isSubmitted = false;
+            this.httpService.error(error.error.serviceErrors);
+            this.getQueueDataById();
+          }
+        }
+      );
   }
 
   navigateToQueueItemsList(): void {

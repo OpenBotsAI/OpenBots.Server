@@ -4,6 +4,7 @@ import { HttpService } from '../../../@core/services/http.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NbDateService } from '@nebular/theme';
 import { HelperService } from '../../../@core/services/helper.service';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'ngx-add-credentials',
@@ -18,6 +19,7 @@ export class AddCredentialsComponent implements OnInit {
   title = 'Add';
   isSubmitted = false;
   trimError: boolean;
+  eTag: string;
   providerArr = [
     { id: 'AD', name: 'Active Directory' },
     { id: 'A', name: 'Application' },
@@ -113,6 +115,7 @@ export class AddCredentialsComponent implements OnInit {
   }
 
   updateCredentials(): void {
+    const headers = this.helperService.getETagHeaders(this.eTag);
     if (this.credentialForm.value.startDate) {
       this.credentialForm.value.startDate = this.helperService.transformDate(
         this.credentialForm.value.startDate,
@@ -128,9 +131,11 @@ export class AddCredentialsComponent implements OnInit {
     this.httpService
       .put(`Credentials/${this.currentUrlId}`, this.credentialForm.value, {
         observe: 'response',
+        headers,
       })
       .subscribe(
         (response) => {
+          console.log('response', response);
           if (response) {
             this.httpService.success('Credential updated successfully');
             this.isSubmitted = false;
@@ -138,17 +143,24 @@ export class AddCredentialsComponent implements OnInit {
             this.router.navigate(['/pages/credentials']);
           }
         },
-        () => (this.isSubmitted = false)
+        (error) => {
+          if (error && error.error && error.error.status === 409) {
+            this.isSubmitted = false;
+            this.httpService.error(error.error.serviceErrors);
+            this.getCredentialsById();
+          }
+        }
       );
   }
 
   getCredentialsById(): void {
     this.httpService
-      .get(`Credentials/View/${this.currentUrlId}`)
-      .subscribe((response: any) => {
-        if (response) {
-          this.min = response.startDate;
-          this.credentialForm.patchValue({ ...response });
+      .get(`Credentials/View/${this.currentUrlId}`, { observe: 'response' })
+      .subscribe((response) => {
+        if (response && response.body) {
+          this.eTag = response.headers.get('etag');
+          this.min = response.body.startDate;
+          this.credentialForm.patchValue({ ...response.body });
         }
       });
   }
