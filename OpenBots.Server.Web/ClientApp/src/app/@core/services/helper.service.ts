@@ -1,3 +1,4 @@
+import { HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ItemsPerPage } from '../../interfaces/itemsPerPage';
@@ -35,5 +36,10 @@ export class HelperService {
   changeBoolean(value: boolean | string): string {
     if (value) return 'Yes';
     else return 'No';
+  }
+
+  getETagHeaders(etag: string) {
+    const headers = new HttpHeaders({ 'If-Match': etag });
+    return headers;
   }
 }
