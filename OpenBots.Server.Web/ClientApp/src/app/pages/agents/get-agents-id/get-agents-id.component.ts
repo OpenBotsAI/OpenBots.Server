@@ -52,16 +52,16 @@ export class GetAgentsIdComponent implements OnInit {
   get_allagent(id) {
     this.agentService.getAgentbyID(id).subscribe(
       (data: any) => {
-        this.show_allagents = data;        
+        this.show_allagents = data.body;        
         const filterPipe = new TimeDatePipe();
-        data.lastReportedOn = filterPipe.transform(data.lastReportedOn, 'lll');
-        if (data.isHealthy == true) {
-          data.isHealthy = "yes";
+        this.show_allagents.lastReportedOn = filterPipe.transform(this.show_allagents.lastReportedOn, 'lll');
+        if (this.show_allagents.isHealthy == true) {
+          this.show_allagents.isHealthy = "yes";
         }
-        else if (data.isHealthy == false) {
-          data.isHealthy = "No";
+        else if (this.show_allagents.isHealthy == false) {
+          this.show_allagents.isHealthy = "No";
         }
-        this.addagent.patchValue(data);
+        this.addagent.patchValue(this.show_allagents);
         this.addagent.disable();
     
       });
