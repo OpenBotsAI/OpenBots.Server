@@ -6,7 +6,7 @@ namespace OpenBots.Server.DataAccess.Exceptions
     [Serializable]
     public class EntityConcurrencyException : EntityOperationException
     {
-        public EntityConcurrencyException(Exception exception) : base(exception)
+        public EntityConcurrencyException()
         {
         }
     }

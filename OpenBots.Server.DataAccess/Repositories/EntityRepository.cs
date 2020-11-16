@@ -289,11 +289,6 @@ namespace OpenBots.Server.DataAccess.Repositories
 
                     TrackChange(entity, EntityOperationType.Update, newValues, oldValues);
                 }
-
-                catch (DbUpdateConcurrencyException ex)
-                {
-                    throw new EntityConcurrencyException(ex);
-                }
                 catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
                 {
                     if (ex.InnerException != null && ex.InnerException.GetType() == typeof(Microsoft.Data.SqlClient.SqlException))
