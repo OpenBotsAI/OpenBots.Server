@@ -59,7 +59,6 @@ export class GetProcessIdComponent implements OnInit {
       this.show_allprocess = data.body;
       const filterPipe = new TimeDatePipe();
       console.log(data.headers.get('ETag').replace(/\"/g, ''))
-      localStorage.setItem('Etag',data.headers.get('ETag').replace(/\"/g, ''))
       data.body.createdOn = filterPipe.transform(data.body.createdOn, 'lll');
       this.showprocess.patchValue(data.body);
       this.showprocess.disable();

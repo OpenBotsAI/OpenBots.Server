@@ -63,7 +63,6 @@ export class EditAgentsComponent implements OnInit {
       this.show_allagents = data.body;
       console.log(data.headers.get('ETag').replace(/\"/g, ''))
       this.etag = data.headers.get('ETag').replace(/\"/g, '')
-      localStorage.setItem('Etag', data.headers.get('ETag').replace(/\"/g, ''))
       this.addagent.patchValue(this.show_allagents);
       this.addagent.patchValue({
         CredentialId: this.show_allagents.credentialId,

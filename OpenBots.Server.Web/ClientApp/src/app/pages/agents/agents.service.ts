@@ -21,13 +21,13 @@ export class AgentsService {
   }
 
   getAgentbyID(id) {
-    let options = {};
-    options = {
+    let resoptions = {};
+    resoptions = {
       observe: 'response' as 'body',
       responseType: 'json',
-    };
+    };   
     let getagentUrlbyId = `/Agents/${id}`;
-    return this.http.get(`${this.apiUrl}` + getagentUrlbyId, options);
+    return this.http.get(`${this.apiUrl}` + getagentUrlbyId, resoptions);
   }
   getCred() {
     let getagentUrlbyId = `/Credentials/GetLookup`;
@@ -40,8 +40,7 @@ export class AgentsService {
 
   addAgent(obj) {
     let addagentUrl = `/Agents`;
-    // return this.http.post(`${this.apiUrl}` + addagentUrl, obj);
-    return this.http.post(`${this.apiUrl}` + addagentUrl, {});
+    return this.http.post(`${this.apiUrl}` + addagentUrl, obj);
   }
 
   editAgent(id, obj, etag) {

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -10,7 +10,7 @@ export class AssetService {
     return environment.apiUrl;
   }
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAllAsset(tpage: any, spage: any) {
     let getagentUrl = `/Assets?$orderby=createdOn desc&$top=${tpage}&$skip=${spage}`;
@@ -23,8 +23,13 @@ export class AssetService {
   }
 
   getAssetbyId(id) {
+    let resoptions = {};
+    resoptions = {
+      observe: 'response' as 'body',
+      responseType: 'json',
+    };
     let getagentUrlbyId = `/Assets/${id}`;
-    return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
+    return this.http.get(`${this.apiUrl}` + getagentUrlbyId, resoptions);
   }
 
   delAssetbyID(id) {
@@ -41,13 +46,19 @@ export class AssetService {
     let editassetUrl = `/Assets/${id}/upload`;
     return this.http.post(`${this.apiUrl}` + editassetUrl, file);
   }
-  editAssetbyUpload(id, obj) {
+  editAssetbyUpload(id, obj, etag) {
+    const headers = new HttpHeaders({ 'If-Match': etag });
     let editassetUrl = `/Assets/${id}/update`;
-    return this.http.put(`${this.apiUrl}` + editassetUrl, obj);
+    return this.http.put(`${this.apiUrl}` + editassetUrl, obj, {
+      headers: headers,
+    });
   }
-  editAsset(id, obj) {
+  editAsset(id, obj, etag) {
+    const headers = new HttpHeaders({ 'If-Match': etag });
     let editassetUrl = `/Assets/${id}`;
-    return this.http.put(`${this.apiUrl}` + editassetUrl, obj);
+    return this.http.put(`${this.apiUrl}` + editassetUrl, obj, {
+      headers: headers,
+    });
   }
 
   assetFileExport(id) {

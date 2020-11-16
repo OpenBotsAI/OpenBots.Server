@@ -5,6 +5,7 @@ import { NbToastrService } from '@nebular/theme';
 import { AssetService } from '../asset.service';
 import { JsonEditorComponent, JsonEditorOptions } from 'ang-jsoneditor';
 import { UploadOutput, UploadInput, UploadFile, humanizeBytes, UploaderOptions } from 'ngx-uploader';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'ngx-edit-asset',
@@ -21,6 +22,7 @@ export class EditAssetComponent implements OnInit {
   native_file: any;
   native_file_name: any;
   ///// end declartion////
+  etag;
   jsonValue: any = [];
   assetagent: FormGroup;
   submitted = false;
@@ -75,12 +77,13 @@ export class EditAssetComponent implements OnInit {
   }
 
   get_allagent(id) {
-    this.assetService.getAssetbyId(id).subscribe((data: any) => {
-      this.show_allagents = data;
-      if (data.jsonValue) {
-        data.jsonValue = JSON.parse(data.jsonValue);
+    this.assetService.getAssetbyId(id).subscribe((data: HttpResponse<any>) => {
+      this.show_allagents = data.body;
+      this.etag = data.headers.get('ETag').replace(/\"/g, '')
+      if (this.show_allagents.jsonValue) {
+        this.show_allagents.jsonValue = JSON.parse(this.show_allagents.jsonValue);
       }
-      this.assetagent.patchValue(data);
+      this.assetagent.patchValue(this.show_allagents);
     });
   }
 
@@ -121,7 +124,7 @@ export class EditAssetComponent implements OnInit {
 
 
         this.assetService
-          .editAssetbyUpload(this.agent_id, FileUploadformData)
+          .editAssetbyUpload(this.agent_id, FileUploadformData, this.etag)
           .subscribe(() => {
             this.toastrService.success('Asset Details Upate Successfully!', 'Success');
             this.router.navigate(['pages/asset/list']);
@@ -135,7 +138,7 @@ export class EditAssetComponent implements OnInit {
           'type': this.assetagent.value.type
         }
         this.assetService
-          .editAsset(this.agent_id, fileObj)
+          .editAsset(this.agent_id, fileObj, this.etag)
           .subscribe(() => {
             this.toastrService.success('Updated successfully', 'Success');
             this.router.navigate(['pages/asset/list']);
@@ -163,7 +166,7 @@ export class EditAssetComponent implements OnInit {
         jsonValue: this.assetagent.value.numberValue,
       };
       this.assetService
-        .editAsset(this.agent_id, jsondata)
+        .editAsset(this.agent_id, jsondata, this.etag)
         .subscribe(() => {
           this.toastrService.success('Asset Details Upate Successfully!', 'Success');
           this.router.navigate(['pages/asset/list']);
@@ -177,7 +180,7 @@ export class EditAssetComponent implements OnInit {
         textValue: this.assetagent.value.textValue,
       };
       this.assetService
-        .editAsset(this.agent_id, textdata)
+        .editAsset(this.agent_id, textdata, this.etag)
         .subscribe(() => {
           this.toastrService.success('Asset Details Upate Successfully!', 'Success');
           this.router.navigate(['pages/asset/list']);
@@ -192,7 +195,7 @@ export class EditAssetComponent implements OnInit {
         numberValue: this.assetagent.value.numberValue,
       };
       this.assetService
-        .editAsset(this.agent_id, numberdata)
+        .editAsset(this.agent_id, numberdata, this.etag)
         .subscribe(() => {
           this.toastrService.success('Asset Details Upate Successfully!', 'Success');
           this.router.navigate(['pages/asset/list']);

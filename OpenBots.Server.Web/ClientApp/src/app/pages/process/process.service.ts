@@ -32,15 +32,17 @@ export class ProcessService {
     return this.http.post(`${this.apiUrl}` + processUrl, obj);
   }
 
-  uploadUpdateProcessFile(obj, process_id) {
+  uploadUpdateProcessFile(obj, process_id, etag) {
+    const headers = new HttpHeaders({ 'If-Match': etag });
     let processUrl = `/processes/${process_id}/update`;
-    return this.http.post(`${this.apiUrl}` + processUrl, obj);
+    return this.http.post(`${this.apiUrl}` + processUrl, obj, { headers: headers });
   }
 
-  updateProcess(obj, process_id) {
+  updateProcess(obj, process_id, etag) {
+    const headers = new HttpHeaders({ 'If-Match': etag });
     let updateassetUrl = `/processes/${process_id}`;
 
-    return this.http.put(`${this.apiUrl}` + updateassetUrl, obj);
+    return this.http.put(`${this.apiUrl}` + updateassetUrl, obj, { headers: headers });
   }
 
   downloadProcess(process_id) {

@@ -91,16 +91,16 @@ export class GetAssetIdComponent implements OnInit {
 
 
   get_allagent(id) {
-    this.assetService.getAssetbyId(id).subscribe((data: any) => {
-      this.show_allagents = data;
+    this.assetService.getAssetbyId(id).subscribe((data: HttpResponse<any>) => {
+      this.show_allagents = data.body;
       const filterPipe = new TimeDatePipe();
-      const fiteredArr = filterPipe.transform(data.createdOn,'lll');
-      data.createdOn = filterPipe.transform(data.createdOn,'lll');
-      if (data.jsonValue) {
-        this.jsonValue = data.jsonValue;
+      const fiteredArr = filterPipe.transform(this.show_allagents.createdOn, 'lll');
+      this.show_allagents.createdOn = filterPipe.transform(this.show_allagents.createdOn, 'lll');
+      if (this.show_allagents.jsonValue) {
+        this.jsonValue = this.show_allagents.jsonValue;
         this.jsonValue = JSON.parse(this.jsonValue);
       }
-      this.addagent.patchValue(data);
+      this.addagent.patchValue(this.show_allagents);
       this.addagent.disable();
     });
   }
