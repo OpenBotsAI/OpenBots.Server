@@ -70,6 +70,12 @@ namespace OpenBots.Server.DataAccess.Repositories
                 if (!validation.IsValid)
                     throw new EntityValidationException(validation);
 
+                if (!typeof(T).Equals(typeof(AuditLog)))
+                {
+                    if (Exists(entity.Id.Value))
+                        throw new EntityAlreadyExistsException();
+                }
+
                 //Get null value from database because it hasn't been added yet
                 PropertyValues originalValues = null;
                 var currentValues = DbContext.Entry(entity).CurrentValues;

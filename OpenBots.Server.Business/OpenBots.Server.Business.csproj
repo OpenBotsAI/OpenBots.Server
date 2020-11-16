@@ -20,11 +20,11 @@
 
   <ItemGroup>
     <PackageReference Include="Breeze.Sharp" Version="0.8.0" />
-    <PackageReference Include="DotNetZip" Version="1.13.8" />
-    <PackageReference Include="Hangfire" Version="1.7.13" />
-    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.13" />
-    <PackageReference Include="Hangfire.Core" Version="1.7.13" />
-    <PackageReference Include="System.CodeDom" Version="4.7.0" />
+    <PackageReference Include="DotNetZip" Version="1.14.0" />
+    <PackageReference Include="Hangfire" Version="1.7.17" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.17" />
+    <PackageReference Include="Hangfire.Core" Version="1.7.17" />
+    <PackageReference Include="System.CodeDom" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

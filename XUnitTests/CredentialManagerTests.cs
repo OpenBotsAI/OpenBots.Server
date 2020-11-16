@@ -14,23 +14,26 @@ namespace XUnitTests
 {
     public class CredentialManagerTests
     {
-        [Fact]
-        public async Task ValidateRetreivalDate()
+        private readonly CredentialManager manager;
+        private readonly Credential validCredential;
+        private readonly Credential invalidCredential;
+
+        public CredentialManagerTests()
         {
             // arrange
             var options = new DbContextOptionsBuilder<StorageContext>()
-                .UseInMemoryDatabase(databaseName: "ValidateDate")
+                .UseInMemoryDatabase(databaseName: "CredentialManager")
                 .Options;
 
             var context = new StorageContext(options);
-            var validCredential = new Credential
+            validCredential = new Credential
             {
                 Id = new Guid("10ea9a48-7365-4b86-8897-e1d5969137e6"),
                 StartDate = new DateTime(2000, 12, 31, 12, 00, 0),
                 EndDate = new DateTime(3000, 12, 31, 12, 00, 0),
             };
 
-            var invalidCredential = new Credential
+            invalidCredential = new Credential
             {
                 Id = new Guid("10ea9a48-7365-4b86-8897-e1d5969137e6"),
                 StartDate = new DateTime(2000, 12, 31, 12, 00, 0),
@@ -42,7 +45,14 @@ namespace XUnitTests
             httpContextAccessor.Setup(req => req.HttpContext.User.Identity.Name).Returns(It.IsAny<string>());
 
             var repo = new CredentialRepository(context, logger, httpContextAccessor.Object);
-            var manager = new CredentialManager(repo);
+            manager = new CredentialManager(repo);
+        }
+
+        //Validates if the current date falls within date range
+        [Fact]
+        public async Task ValidateRetreivalDate()
+        {
+            
 
             // act
             var validDateRange = manager.ValidateRetrievalDate(validCredential);
@@ -51,6 +61,28 @@ namespace XUnitTests
             // assert
             Assert.True(validDateRange);
             Assert.False(invalidDateRange);
+        }
+
+        //Validates if the End Date is greater than Start Date
+        [Fact]
+        public async Task ValidateStartAndEndDates()
+        {
+            // act
+
+            // End Date is greater than Start Date
+            validCredential.StartDate = new DateTime(2020, 12, 31, 12, 00, 0);
+            validCredential.EndDate = new DateTime(2022, 12, 31, 12, 00, 0);
+
+            // Start Date is greater than End Date
+            invalidCredential.StartDate = new DateTime(2020, 12, 31, 12, 00, 0);
+            invalidCredential.EndDate = new DateTime(2010, 12, 31, 12, 00, 0);
+
+            var validDateValues = manager.ValidateStartAndEndDates(validCredential);
+            var invalidDateValues = manager.ValidateStartAndEndDates(invalidCredential);
+
+            // assert
+            Assert.True(validDateValues);
+            Assert.False(invalidDateValues);
         }
     }
 }
