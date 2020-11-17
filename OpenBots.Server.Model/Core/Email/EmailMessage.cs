@@ -64,28 +64,28 @@ namespace OpenBots.Server.Model.Core
             return outMsg;
         }
 
-        public string MessageID { get; set; }
-        public string InReplyToMessageID { get; set; }
-        public string MessageTopic { get; set; }
-        public DateTime RecievedOnUTC { get; set; }
-        public List<EmailAddress> From { get; set; }
+        public string? MessageID { get; set; }
+        public string? InReplyToMessageID { get; set; }
+        public string? MessageTopic { get; set; }
+        public DateTime? ReceivedOnUTC { get; set; }
+        public List<EmailAddress?>? From { get; set; }
         public EmailAddress Sender { get; set; }
         public List<EmailAddress> To { get; set; }
-        public List<EmailAddress> CC { get; set; }
-        public List<EmailAddress> Bcc { get; set; }
-        public List<EmailAddress> ReplyToList { get; set; }
-        public string Source { get; set; }
-        public bool IsPossibleSpam { get; set; }
-        public bool IsPossibleVirus { get; set; }
-        public int Priority { get; set; }
+        public List<EmailAddress?>? CC { get; set; }
+        public List<EmailAddress?>? Bcc { get; set; }
+        public List<EmailAddress?>? ReplyToList { get; set; }
+        public string? Source { get; set; }
+        public bool? IsPossibleSpam { get; set; }
+        public bool? IsPossibleVirus { get; set; }
+        public int? Priority { get; set; }
         public string Subject { get; set; }
-        public string PlainTextBody { get; set; }
+        public string? PlainTextBody { get; set; }
         public string Body { get; set; }
         public bool IsBodyHtml { get; set; }
-        public string IsBodyContentStored { get; set; }
-        public string BodyContentStorageAddress { get; set; }
-        public List<EmailHeader> Headers { get; set; }
+        public string? IsBodyContentStored { get; set; }
+        public string? BodyContentStorageAddress { get; set; }
+        public List<EmailHeader?>? Headers { get; set; }
         public int DeliveryNotificationOptions { get; set; }
-        public List<EmailAttachment> Attachments { get; set; }
+        public List<EmailAttachment?>? Attachments { get; set; }
     }
 }
