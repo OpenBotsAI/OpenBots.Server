@@ -294,14 +294,17 @@ namespace OpenBots.Server.Web.Controllers
                     ModelState.AddModelError("Agent", "Agent Name Already Exists");
                     return BadRequest(ModelState);
                 }
-               
+
                 if (existingAgent.Name != request.Name)
                 {
-                    Person person = personRepo.Find(0, 1).Items?.Where(p => p.Name == existingAgent.Name && p.IsAgent && !(p.IsDeleted ?? false))?.FirstOrDefault();
-                    person.UpdatedBy = string.IsNullOrWhiteSpace(applicationUser?.Name) ? person.UpdatedBy : applicationUser?.Name;
-                    person.Name = request.Name;
-                    personRepo.Update(person);
-                }              
+                    Person person = personRepo.Find(0, 1).Items?.Where(p => p.Name == existingAgent.Name && p.IsAgent && (p.IsDeleted ?? false))?.FirstOrDefault();
+                    if (person != null)
+                    {
+                        person.UpdatedBy = string.IsNullOrWhiteSpace(applicationUser?.Name) ? person.UpdatedBy : applicationUser?.Name;
+                        person.Name = request.Name;
+                        personRepo.Update(person);
+                    }
+                }
 
                 existingAgent.Name = request.Name;
                 existingAgent.MachineName = request.MachineName;
