@@ -26,7 +26,7 @@ export class EditAssetComponent implements OnInit {
   jsonValue: any = [];
   assetagent: FormGroup;
   submitted = false;
-  agent_id: any = [];
+  assetId: any = [];
   show_allagents: any = [];
   show_upload: boolean = false;
   fileSize = false;
@@ -41,8 +41,8 @@ export class EditAssetComponent implements OnInit {
     private toastrService: NbToastrService
   ) {
     this.acroute.queryParams.subscribe((params) => {
-      this.agent_id = params.id;
-      this.get_allagent(params.id);
+      this.assetId = params.id;
+      this.getAssetById(params.id);
     });
     this.editorOptions = new JsonEditorOptions();
     this.editorOptions.modes = ['code', 'text', 'tree', 'view']; 
@@ -76,7 +76,7 @@ export class EditAssetComponent implements OnInit {
     });
   }
 
-  get_allagent(id) {
+  getAssetById(id) {
     this.assetService.getAssetbyId(id).subscribe((data: HttpResponse<any>) => {
       this.show_allagents = data.body;
       this.etag = data.headers.get('ETag').replace(/\"/g, '')
@@ -123,20 +123,22 @@ export class EditAssetComponent implements OnInit {
         FileUploadformData.append('name', this.assetagent.value.name);
         FileUploadformData.append('type', this.assetagent.value.type);
         this.assetService
-          .editAssetbyUpload(this.agent_id, FileUploadformData, this.etag)
+          .editAssetbyUpload(this.assetId, FileUploadformData, this.etag)
           .subscribe((data: HttpResponse<any>) => {
             this.toastrService.success('Asset Details Upate Successfully!', 'Success');
             this.router.navigate(['pages/asset/list']);
             this.native_file = undefined;
             this.native_file_name = undefined;
-          }), (error) => {
-            alert(error)
-            console.log(error, error.status)
-            if (error.status == 409) {
-              this.toastrService.danger("Data change by another person ", 'Error')
-              this.get_allagent(this.agent_id)
+          },
+            (error) => {
+
+              console.log(error, error.status)
+              if (error.error.status === 409) {
+                this.toastrService.danger(error.error.serviceErrors, 'error')
+                this.getAssetById(this.assetId)
+              }
             }
-          }
+        )
       }
       else if (this.native_file == undefined) {
         let fileObj = {
@@ -144,19 +146,19 @@ export class EditAssetComponent implements OnInit {
           'type': this.assetagent.value.type
         }
         this.assetService
-          .editAsset(this.agent_id, fileObj, this.etag)
+          .editAsset(this.assetId, fileObj, this.etag)
           .subscribe((data: HttpResponse<any>) => {
             this.toastrService.success('Updated successfully', 'Success');
             this.router.navigate(['pages/asset/list']);
             this.native_file = undefined;
             this.native_file_name = undefined;
-          }), (error) => {
-            alert(error)
-            if (error.status == 409) {
-              this.toastrService.danger("Data change by another person ", 'error')
-              this.get_allagent(this.agent_id)
+          }, (error) => {
+
+            if (error.error.status === 409) {
+              this.toastrService.danger(error.error.serviceErrors, 'error')
+              this.getAssetById(this.assetId)
             }
-          }
+          })
       }
       else {
         this.show_upload = true;
@@ -178,17 +180,17 @@ export class EditAssetComponent implements OnInit {
         jsonValue: this.assetagent.value.numberValue,
       };
       this.assetService
-        .editAsset(this.agent_id, jsondata, this.etag)
+        .editAsset(this.assetId, jsondata, this.etag)
         .subscribe(() => {
           this.toastrService.success('Asset Details Upate Successfully!', 'Success');
           this.router.navigate(['pages/asset/list']);
-        }), (error) => {
+        }, (error) => {
 
-          if (error.error.status == 409) {
-            this.toastrService.danger("Data change by another person ", 'error')
-            this.get_allagent(this.agent_id)
+            if (error.error.error.status === 409) {
+              this.toastrService.danger(error.error.serviceErrors, 'error')
+              this.getAssetById(this.assetId)
           }
-        }
+        })
     }
     else if (this.show_allagents.type == 'Text') {
       let textdata = {
@@ -198,17 +200,17 @@ export class EditAssetComponent implements OnInit {
         textValue: this.assetagent.value.textValue,
       };
       this.assetService
-        .editAsset(this.agent_id, textdata, this.etag)
+        .editAsset(this.assetId, textdata, this.etag)
         .subscribe(() => {
           this.toastrService.success('Asset Details Upate Successfully!', 'Success');
           this.router.navigate(['pages/asset/list']);
-        }), (error) => {
+        }, (error) => {
 
-          if (error.status == 409) {
-            this.toastrService.danger("Data change by another person ", 'error')
-            this.get_allagent(this.agent_id)
+            if (error.error.status === 409) {
+              this.toastrService.danger(error.error.serviceErrors, 'error')
+              this.getAssetById(this.assetId)
           }
-        }
+        })
     }
     else if (this.show_allagents.type == 'Number') {
 
@@ -219,17 +221,18 @@ export class EditAssetComponent implements OnInit {
         numberValue: this.assetagent.value.numberValue,
       };
       this.assetService
-        .editAsset(this.agent_id, numberdata, this.etag)
+        .editAsset(this.assetId, numberdata, this.etag)
         .subscribe(() => {
           this.toastrService.success('Asset Details Upate Successfully!', 'Success');
           this.router.navigate(['pages/asset/list']);
-        }), (error) => {
+        }, (error) => {
 
-          if (error.status == 409) {
-            this.toastrService.danger("Data change by another person ", 'error')
-            this.get_allagent(this.agent_id)
-          }
-        }
+        
+            if (error.error.status === 409) {
+              this.toastrService.danger(error.error.serviceErrors, 'error')
+              this.getAssetById(this.assetId)
+            }
+        })
     }
     this.submitted = false;
     

@@ -99,8 +99,8 @@ value = ['Published', 'Commited'];
        this.native_file = undefined;
        this.native_file_name = undefined;
      }, (error) => {
-       if (error.status == 409) {
-         this.toastrService.danger("Data change by another person ", 'error')
+         if (error.error.status === 409) {
+           this.toastrService.danger(error.error.serviceErrors, 'error')
          this.get_process(this.process_id)
        }
 
@@ -119,8 +119,8 @@ value = ['Published', 'Commited'];
          this.native_file_name = undefined;
        }, (error) => {
          console.log(error.status, error)
-         if (error.status == 409) {
-           this.toastrService.danger("Data change by another person ", 'error')
+         if (error.error.status === 409) {
+           this.toastrService.danger(error.error.serviceErrors, 'error')
            this.get_process(this.process_id)
          }
        });

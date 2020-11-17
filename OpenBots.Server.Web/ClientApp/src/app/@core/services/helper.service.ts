@@ -24,7 +24,7 @@ export class HelperService {
       { id: 10, name: '10 per page' },
       { id: 25, name: '25 per page' },
       { id: 50, name: '50 per page' },
-      { id: 100, name: '100 per page' },
+      { id: 100, name: '100 per page' }, 
     ]);
   }
 

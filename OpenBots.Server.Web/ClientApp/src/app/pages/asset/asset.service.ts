@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { HelperService } from '../../@core/services/helper.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +11,7 @@ export class AssetService {
     return environment.apiUrl;
   }
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private helperService: HelperService) { }
 
   getAllAsset(tpage: any, spage: any) {
     let getagentUrl = `/Assets?$orderby=createdOn desc&$top=${tpage}&$skip=${spage}`;
@@ -54,10 +55,11 @@ export class AssetService {
     });
   }
   editAsset(id, obj, etag) {
-    const headers = new HttpHeaders({ 'If-Match': etag });
+    const headers = this.helperService.getETagHeaders(etag)
+    // const headers = new HttpHeaders({ 'If-Match': etag });
     let editassetUrl = `/Assets/${id}`;
     return this.http.put(`${this.apiUrl}` + editassetUrl, obj, {
-      headers: headers,
+      headers,
     });
   }
 
