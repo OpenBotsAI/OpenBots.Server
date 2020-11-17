@@ -36,7 +36,6 @@ export class TokenInterceptor implements HttpInterceptor {
     }
     return next.handle(request).pipe(
       catchError((error) => {
-        // error.status = 429;
         if (error.status == 401) {
           if (error.error != null) {
             this.toastrService.danger('Your Credentials are wrong', 'Failed');

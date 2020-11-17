@@ -51,7 +51,7 @@
                                     <div *ngIf="f.fromEmailAddress.errors.pattern">
                                         Please enter valid email .
                                     </div>
-                                     
+
                                 </div>
 
                             </div>
@@ -95,7 +95,7 @@
                                 <input type="input" nbInput fullWidth formControlName="fromName" style="color: #000000"
                                     placeholder="Please enter from name" />
 
-                                 
+
 
                             </div>
                         </div>
@@ -109,8 +109,8 @@
                                 <label class="label col-form-label">User Name </label>
 
                                 <input type="input" nbInput fullWidth formControlName="username" style="color: #000000"
-                                    placeholder="Please enter user name" />
-                                 
+                                    placeholder="Please enter user name" autocomplete="new-userName" />
+
 
                             </div>
                         </div>
@@ -119,8 +119,9 @@
                                 <label class="label col-form-label">Password </label>
 
                                 <input type="password" nbInput fullWidth formControlName="passwordHash"
-                                    style="color: #000000" placeholder="Please enter password" />
-                                
+                                    style="color: #000000" placeholder="Please enter password"
+                                    autocomplete="new-password" />
+
 
 
                             </div>
@@ -137,7 +138,7 @@
                                 <input type="input" nbInput fullWidth formControlName="host" style="color: #000000"
                                     placeholder="Please enter host" />
 
-                                
+
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -148,7 +149,7 @@
                                     placeholder="Please enter port" />
 
 
-                               
+
                             </div>
                         </div>
                     </div>

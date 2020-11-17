@@ -106,7 +106,7 @@
               <div class="form-group">
                 <label for="userName" class="label">User Name </label>
                 <input type="input" nbInput fullWidth id="userName" formControlName="userName" class="form-control"
-                  placeholder="Please enter userName">
+                  placeholder="Please enter user name" autocomplete="new-userName">
                 <div *ngIf="f.userName.touched && f.userName.invalid" class="invalid-feedback-frm">
                   <div *ngIf="f.userName.errors && f.userName.errors.required"> User name is required.</div>
                 </div>
@@ -116,7 +116,7 @@
               <div class="form-group">
                 <label for="ipadd" class="label">Password</label>
                 <input type="password" nbInput fullWidth id="password" formControlName="password" class="form-control"
-                  placeholder="Please enter password">
+                  placeholder="Please enter password" autocomplete="new-password">
                 <div *ngIf="(f.password.touched || f.password.dirty) && f.password.invalid"
                   class="invalid-feedback-frm">
                   <div *ngIf="f.password.errors && f.password.errors.required"> Password is required.</div>

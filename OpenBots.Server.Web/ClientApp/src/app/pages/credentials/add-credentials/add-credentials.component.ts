@@ -4,7 +4,6 @@ import { HttpService } from '../../../@core/services/http.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NbDateService } from '@nebular/theme';
 import { HelperService } from '../../../@core/services/helper.service';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'ngx-add-credentials',
@@ -135,7 +134,6 @@ export class AddCredentialsComponent implements OnInit {
       })
       .subscribe(
         (response) => {
-          console.log('response', response);
           if (response) {
             this.httpService.success('Credential updated successfully');
             this.isSubmitted = false;

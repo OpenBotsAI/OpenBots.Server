@@ -64,6 +64,7 @@ export class ViewQueueItemComponent implements OnInit {
       source: [''],
       expireOnUTC: [''],
       postponeUntilUTC: [''],
+      resultJSON: [''],
     });
   }
 
