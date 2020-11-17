@@ -300,7 +300,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
-        public async Task<IActionResult> Commit(string transactionKey)
+        public async Task<IActionResult> Commit(string transactionKey, string resultJSON = null)
         {
             try
             {
@@ -315,9 +315,13 @@ namespace OpenBots.Server.Web.Controllers
 
                 Guid queueItemId = (Guid)queueItem.Id;
 
-                await manager.Commit(queueItemId, transactionKeyId);
-
-                return Ok();
+                var item = await manager.Commit(queueItemId, transactionKeyId, resultJSON);
+                if (item.State == "New")
+                {
+                    ModelState.AddModelError("Commit", "Queue item lock time has expired.  Adding back to queue and trying again.");
+                    return BadRequest(ModelState);
+                }
+                return Ok(item);
             }
             catch (Exception ex)
             {
@@ -364,10 +368,13 @@ namespace OpenBots.Server.Web.Controllers
                 {
                     retryLimit = int.Parse(Configuration["Queue.Global:DefaultMaxRetryCount"]);
                 }
-
-                await manager.Rollback(queueItemId, transactionKeyId, retryLimit, errorCode, errorMessage, isFatal);
-
-                return Ok();
+                var item = await manager.Rollback(queueItemId, transactionKeyId, retryLimit, errorCode, errorMessage, isFatal);
+                if (item.State == "Failed")
+                {
+                    ModelState.AddModelError("Rollback", item.StateMessage);
+                    return BadRequest(ModelState);
+                }
+                return Ok(item);
             }
             catch (Exception ex)
             {
@@ -403,10 +410,15 @@ namespace OpenBots.Server.Web.Controllers
                 }
 
                 Guid queueItemId = (Guid)queueItem.Id;
+                var item = await manager.Extend(queueItemId, transactionKeyId);
 
-                var response = manager.Extend(queueItemId, transactionKeyId);
+                if (item.State == "New")
+                {
+                    ModelState.AddModelError("Extend", "Queue item was not able to be extended.  Locked until time has passed.  Adding back to queue and trying again.");
+                    return BadRequest(ModelState);
+                }
 
-                return Ok();
+                return Ok(item);
             }
             catch (Exception ex)
             {
@@ -442,13 +454,19 @@ namespace OpenBots.Server.Web.Controllers
                 if (queueItem == null)
                 {
                     ModelState.AddModelError("Update State", "Transaction key cannot be found.");
+                    return BadRequest(ModelState);
                 }
 
                 Guid queueItemId = (Guid)queueItem.Id;
 
-                var response = manager.UpdateState(queueItemId, transactionKeyId, state, stateMessage, errorCode, errorMessage);
+                var item = await manager.UpdateState(queueItemId, transactionKeyId, state, stateMessage, errorCode, errorMessage);
+                if (item.State == "New")
+                {
+                    ModelState.AddModelError("Extend", "Queue item state was not able to be updated.  Locked until time has passed.  Adding back to queue and trying again.");
+                    return BadRequest(ModelState);
+                }
 
-                return Ok();
+                return Ok(item);
             }
             catch (Exception ex)
             {

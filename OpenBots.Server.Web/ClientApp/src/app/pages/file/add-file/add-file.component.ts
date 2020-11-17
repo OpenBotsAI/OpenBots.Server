@@ -7,6 +7,7 @@ import {
   UploadFile,
   UploaderOptions,
 } from 'ngx-uploader';
+import { HelperService } from '../../../@core/services/helper.service';
 import { HttpService } from '../../../@core/services/http.service';
 import { BinaryFile } from '../../../interfaces/file';
 
@@ -39,12 +40,14 @@ export class AddFileComponent implements OnInit {
   urlId: string;
   fileByIdData: BinaryFile;
   title = 'Add';
-  fileSize = false; 
+  fileSize = false;
+  eTag: string;
   constructor(
     private formBuilder: FormBuilder,
     protected router: Router,
     private httpService: HttpService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private helperService: HelperService
   ) {}
 
   ngOnInit(): void {
@@ -118,11 +121,12 @@ export class AddFileComponent implements OnInit {
 
   getFileDataById(): void {
     this.httpService
-      .get(`BinaryObjects/${this.urlId}`)
-      .subscribe((response: BinaryFile) => {
-        if (response) {
-          this.fileByIdData = { ...response };
-          this.addfile.patchValue({ ...response });
+      .get(`BinaryObjects/${this.urlId}`, { observe: 'response' })
+      .subscribe((response) => {
+        if (response && response.body) {
+          this.eTag = response.headers.get('etag');
+          this.fileByIdData = { ...response.body };
+          this.addfile.patchValue({ ...response.body });
         }
       });
   }
@@ -154,11 +158,13 @@ export class AddFileComponent implements OnInit {
   }
 
   updateFile(): void {
+    const headers = this.helperService.getETagHeaders(this.eTag);
     if (this.confrimUpoad) {
       this.saveForm.append('folder', this.addfile.value.folder);
       this.httpService
         .put(`binaryobjects/${this.urlId}/update`, this.saveForm, {
           observe: 'response',
+          headers,
         })
         .subscribe(
           (response) => {
@@ -167,12 +173,19 @@ export class AddFileComponent implements OnInit {
               this.router.navigate(['pages/file/list']);
             }
           },
-          () => (this.submitted = false)
+          (error) => {
+            if (error && error.error && error.error.status === 409) {
+              this.submitted = false;
+              this.httpService.error(error.error.serviceErrors);
+              this.getFileDataById();
+            }
+          }
         );
     } else {
       this.httpService
         .put(`binaryobjects/${this.urlId}`, this.addfile.value, {
           observe: 'response',
+          headers,
         })
         .subscribe(
           (response) => {
@@ -181,7 +194,13 @@ export class AddFileComponent implements OnInit {
               this.router.navigate(['pages/file/list']);
             }
           },
-          () => (this.submitted = false)
+          (error) => {
+            if (error && error.error && error.error.status === 409) {
+              this.submitted = false;
+              this.httpService.error(error.error.serviceErrors);
+              this.getFileDataById();
+            }
+          }
         );
     }
   }

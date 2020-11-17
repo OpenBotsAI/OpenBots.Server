@@ -13,6 +13,7 @@ import { AuthService } from '../services/auth.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { throwError } from 'rxjs/internal/observable/throwError';
 import { Observable } from 'rxjs/internal/Observable';
+import { HttpService } from '../services/http.service';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
@@ -21,7 +22,8 @@ export class TokenInterceptor implements HttpInterceptor {
   constructor(
     private toastrService: NbToastrService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private httpService: HttpService
   ) {}
 
   intercept(
@@ -41,8 +43,9 @@ export class TokenInterceptor implements HttpInterceptor {
           if (error.error == null) {
             return this.handleError(request, next);
           }
-        }
-        if (error.status != 401) {
+        } else if (error.status == 409) {
+          return throwError(error);
+        } else if (error.status != 401) {
           return this.handleErrorGlobal(error);
         }
       })

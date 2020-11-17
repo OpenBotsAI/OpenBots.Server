@@ -75,7 +75,10 @@ export class AddAgentsComponent implements OnInit {
         this.toastrService.success('Agent added successfully', 'Success');
         this.router.navigate(['pages/agents/list']);
       },
-      () => (this.submitted = false)
+      (error) => {
+        this.submitted = false;
+        console.log('error', error.error);
+      }
     );
   }
 

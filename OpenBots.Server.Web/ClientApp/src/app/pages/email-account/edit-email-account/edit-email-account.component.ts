@@ -1,4 +1,5 @@
 import { DatePipe } from '@angular/common';
+import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -19,7 +20,7 @@ export class EditEmailAccountComponent implements OnInit {
   pipe = new DatePipe('en-US');
   now = Date();
   show_createdon: any = [];
-
+  etag;
   constructor(
     private acroute: ActivatedRoute, private toastrService: NbToastrService,
     protected emailService: EmailAccountsService,
@@ -69,13 +70,14 @@ export class EditEmailAccountComponent implements OnInit {
   }
 
   getallemail(id) {
-    this.emailService.getEmailbyId(id).subscribe((data: any) => {
-      this.showEmail = data;
+    this.emailService.getEmailbyId(id).subscribe((data: HttpResponse<any>) => {
+      this.showEmail = data.body;
+      this.etag = data.headers.get('ETag').replace(/\"/g, '')
       const filterPipe = new TimeDatePipe();
-      const fiteredArr = filterPipe.transform(data.createdOn, 'lll');
-      data.createdOn = filterPipe.transform(data.createdOn, 'lll');
+      const fiteredArr = filterPipe.transform(this.showEmail.createdOn, 'lll');
+      this.showEmail.createdOn = filterPipe.transform(this.showEmail.createdOn, 'lll');
 
-      this.emailform.patchValue(data);
+      this.emailform.patchValue(this.showEmail);
 
     });
   }
@@ -91,10 +93,16 @@ export class EditEmailAccountComponent implements OnInit {
   onSubmit() {
     this.submitted = true;
     this.emailService
-      .editEmail(this.emailId, this.emailform.value)
+      .editEmail(this.emailId, this.emailform.value, this.etag)
       .subscribe(() => {
         this.toastrService.success('Email Details Update Successfully', 'Success');
         this.router.navigate(['pages/emailaccount/list']);
+      }, (error) => {
+        console.log(error.status, error)
+        if (error.error.status === 409) {
+          this.toastrService.danger(error.error.serviceErrors, 'error')
+          this.getallemail(this.emailId)
+        }
       });
 
     this.submitted = false;

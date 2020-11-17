@@ -4,6 +4,8 @@ import { TimeDatePipe } from '../../../@core/pipe';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmailAccountsService } from '../email-accounts.service';
+import { HttpResponse } from '@angular/common/http';
+import { NbToastrService } from '@nebular/theme';
 
 @Component({
   selector: 'ngx-get-email-id',
@@ -18,14 +20,17 @@ export class GetEmailIdComponent implements OnInit {
   pipe = new DatePipe('en-US');
   now = Date();
   show_createdon: any = [];
-
+  etag;
+  emailId;
   constructor(
     private acroute: ActivatedRoute,
-    protected assetService: EmailAccountsService,
+    protected emailService: EmailAccountsService,
+    private toastrService: NbToastrService,
     private formBuilder: FormBuilder, protected router: Router,
   ) {
     this.acroute.queryParams.subscribe((params) => {
-      this.get_allagent(params.id);
+      this.emailId = params.id
+      this.getEmailById(params.id);
     });
   }
 
@@ -62,17 +67,36 @@ export class GetEmailIdComponent implements OnInit {
 
 
 
-  get_allagent(id) {
-    this.assetService.getEmailbyId(id).subscribe((data: any) => {
-      this.showEmail = data;
+  getEmailById(id) {
+    this.emailService.getEmailbyId(id).subscribe((data: HttpResponse<any>) => {
+      this.showEmail = data.body;
+      this.etag = data.headers.get('ETag').replace(/\"/g, '')
       const filterPipe = new TimeDatePipe();
-      const fiteredArr = filterPipe.transform(data.createdOn, 'lll');
-      data.createdOn = filterPipe.transform(data.createdOn, 'lll');
-
-      this.emailform.patchValue(data);
+      // const fiteredArr = filterPipe.transform(this.showEmail.createdOn, 'lll');
+      this.showEmail.createdOn = filterPipe.transform(this.showEmail.createdOn, 'lll');
+      this.emailform.patchValue(this.showEmail);
       this.emailform.disable();
+      console.log(this.showEmail.name)
+
+    }, (error) => {
+      console.log(error.status, error)
+      if (error.error.status === 409) {
+        this.toastrService.danger(error.error.serviceErrors, 'error')
+        this.getEmailById(this.emailId)
+      }
     });
   }
+
+
+  testEmail() {
+    let obj = { "accountName": this.showEmail.name }
+    this.emailService.testEmail(this.showEmail.name).subscribe((data: any) => {
+
+    }, (error) => {
+
+    });
+  }
+
   gotoaudit() {
     this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'OpenBots.Server.Model.SystemConfiguration.EmailAccount', id: this.showEmail.id } })
   }

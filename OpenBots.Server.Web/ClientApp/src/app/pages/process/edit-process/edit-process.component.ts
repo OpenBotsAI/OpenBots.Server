@@ -30,7 +30,7 @@ value = ['Published', 'Commited'];
  process_id :any =[];
  show_allprocess: any = [];
  fileUploadId;
-
+  etag;
  constructor(private formBuilder: FormBuilder, private toastrService: NbToastrService, protected router: Router,
    protected processService: ProcessService,    private acroute: ActivatedRoute,) {
     this.acroute.queryParams.subscribe((params) => {
@@ -43,7 +43,7 @@ value = ['Published', 'Commited'];
  get_process(id) {
   this.processService.getProcessId(id).subscribe((data:HttpResponse<any>) => {
     this.show_allprocess = data.body;
-    localStorage.setItem('Etag',data.headers.get('ETag').replace(/\"/g, ''))
+    this.etag = data.headers.get('ETag').replace(/\"/g, '')
     this.showprocess.patchValue(data.body);
 
   });
@@ -92,12 +92,18 @@ value = ['Published', 'Commited'];
      formData.append('file', this.native_file, this.native_file_name);
      formData.append('name', this.showprocess.value.name);
      formData.append('status', this.showprocess.value.status);
-     this.processService.uploadUpdateProcessFile(formData, this.process_id).subscribe((data: any) => {
+     this.processService.uploadUpdateProcessFile(formData, this.process_id, this.etag).subscribe((data: any) => {
        this.showprocess.value.binaryObjectId = data.binaryObjectId
        this.toastrService.success('Updated successfully', 'Success')
        this.router.navigate(['pages/process/list']);
        this.native_file = undefined;
        this.native_file_name = undefined;
+     }, (error) => {
+         if (error.error.status === 409) {
+           this.toastrService.danger(error.error.serviceErrors, 'error')
+         this.get_process(this.process_id)
+       }
+
      })
    }
    else if (this.native_file == undefined) {
@@ -105,12 +111,18 @@ value = ['Published', 'Commited'];
        'name': this.showprocess.value.name,
        'status': this.showprocess.value.status
      }
-     this.processService.updateProcess(processobj, this.process_id).subscribe(
+     this.processService.updateProcess(processobj, this.process_id, this.etag).subscribe(
        (data) => {
          this.toastrService.success('Updated successfully', 'Success');
          this.router.navigate(['pages/process/list']);
          this.native_file = undefined;
          this.native_file_name = undefined;
+       }, (error) => {
+         console.log(error.status, error)
+         if (error.error.status === 409) {
+           this.toastrService.danger(error.error.serviceErrors, 'error')
+           this.get_process(this.process_id)
+         }
        });
    }
        

@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NbToastrService } from '@nebular/theme';
 import { AgentsService } from '../agents.service';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'ngx-edit-agents',
@@ -15,6 +16,7 @@ export class EditAgentsComponent implements OnInit {
   agent_id: any = [];
   cred_value: any = [];
   show_allagents: any = [];
+  etag;
   constructor(
     private acroute: ActivatedRoute,
     private router: Router,
@@ -56,13 +58,16 @@ export class EditAgentsComponent implements OnInit {
   }
 
   get_allagent(id) {
-    this.agentService.getAgentbyID(id).subscribe((data: any) => {
-      this.show_allagents = data;
-
-      this.addagent.patchValue(data);
+    this.agentService.getAgentbyID(id).subscribe((data: HttpResponse<any>) => {
+      console.log(data)
+      this.show_allagents = data.body;
+      console.log(data.headers.get('ETag').replace(/\"/g, ''))
+      this.etag = data.headers.get('ETag').replace(/\"/g, '')
+      this.addagent.patchValue(this.show_allagents);
       this.addagent.patchValue({
         CredentialId: this.show_allagents.credentialId,
-      });
+      }
+      )
     });
   }
   get_cred() {
@@ -77,12 +82,19 @@ export class EditAgentsComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
-    this.agentService.editAgent(this.agent_id, this.addagent.value).subscribe(
+    this.agentService.editAgent(this.agent_id, this.addagent.value, this.etag).subscribe(
       (data) => {
         this.toastrService.success('Updated successfully', 'Success');
         this.router.navigate(['pages/agents/list']);
       },
-      () => (this.submitted = false)
+      (error) => {
+        console.log(error.error.status)
+        if (error.error.status === 409) {
+          this.toastrService.danger(error.error.serviceErrors, 'error')
+          this.get_allagent(this.agent_id)
+          this.submitted = false
+        }
+      }
     );
   }
 

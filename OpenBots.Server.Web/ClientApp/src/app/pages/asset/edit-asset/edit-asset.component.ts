@@ -5,6 +5,7 @@ import { NbToastrService } from '@nebular/theme';
 import { AssetService } from '../asset.service';
 import { JsonEditorComponent, JsonEditorOptions } from 'ang-jsoneditor';
 import { UploadOutput, UploadInput, UploadFile, humanizeBytes, UploaderOptions } from 'ngx-uploader';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'ngx-edit-asset',
@@ -21,10 +22,11 @@ export class EditAssetComponent implements OnInit {
   native_file: any;
   native_file_name: any;
   ///// end declartion////
+  etag;
   jsonValue: any = [];
   assetagent: FormGroup;
   submitted = false;
-  agent_id: any = [];
+  assetId: any = [];
   show_allagents: any = [];
   show_upload: boolean = false;
   fileSize = false;
@@ -39,8 +41,8 @@ export class EditAssetComponent implements OnInit {
     private toastrService: NbToastrService
   ) {
     this.acroute.queryParams.subscribe((params) => {
-      this.agent_id = params.id;
-      this.get_allagent(params.id);
+      this.assetId = params.id;
+      this.getAssetById(params.id);
     });
     this.editorOptions = new JsonEditorOptions();
     this.editorOptions.modes = ['code', 'text', 'tree', 'view']; 
@@ -74,13 +76,14 @@ export class EditAssetComponent implements OnInit {
     });
   }
 
-  get_allagent(id) {
-    this.assetService.getAssetbyId(id).subscribe((data: any) => {
-      this.show_allagents = data;
-      if (data.jsonValue) {
-        data.jsonValue = JSON.parse(data.jsonValue);
+  getAssetById(id) {
+    this.assetService.getAssetbyId(id).subscribe((data: HttpResponse<any>) => {
+      this.show_allagents = data.body;
+      this.etag = data.headers.get('ETag').replace(/\"/g, '')
+      if (this.show_allagents.jsonValue) {
+        this.show_allagents.jsonValue = JSON.parse(this.show_allagents.jsonValue);
       }
-      this.assetagent.patchValue(data);
+      this.assetagent.patchValue(this.show_allagents);
     });
   }
 
@@ -113,21 +116,29 @@ export class EditAssetComponent implements OnInit {
     this.submitted = true;
 
     if (this.show_allagents.type == 'File') {
+
       if (this.native_file) {
         let FileUploadformData = new FormData();
         FileUploadformData.append('file', this.native_file, this.native_file_name);
         FileUploadformData.append('name', this.assetagent.value.name);
         FileUploadformData.append('type', this.assetagent.value.type);
-
-
         this.assetService
-          .editAssetbyUpload(this.agent_id, FileUploadformData)
-          .subscribe(() => {
+          .editAssetbyUpload(this.assetId, FileUploadformData, this.etag)
+          .subscribe((data: HttpResponse<any>) => {
             this.toastrService.success('Asset Details Upate Successfully!', 'Success');
             this.router.navigate(['pages/asset/list']);
             this.native_file = undefined;
             this.native_file_name = undefined;
-          });
+          },
+            (error) => {
+
+              console.log(error, error.status)
+              if (error.error.status === 409) {
+                this.toastrService.danger(error.error.serviceErrors, 'error')
+                this.getAssetById(this.assetId)
+              }
+            }
+        )
       }
       else if (this.native_file == undefined) {
         let fileObj = {
@@ -135,13 +146,19 @@ export class EditAssetComponent implements OnInit {
           'type': this.assetagent.value.type
         }
         this.assetService
-          .editAsset(this.agent_id, fileObj)
-          .subscribe(() => {
+          .editAsset(this.assetId, fileObj, this.etag)
+          .subscribe((data: HttpResponse<any>) => {
             this.toastrService.success('Updated successfully', 'Success');
             this.router.navigate(['pages/asset/list']);
             this.native_file = undefined;
             this.native_file_name = undefined;
-          });
+          }, (error) => {
+
+            if (error.error.status === 409) {
+              this.toastrService.danger(error.error.serviceErrors, 'error')
+              this.getAssetById(this.assetId)
+            }
+          })
       }
       else {
         this.show_upload = true;
@@ -163,11 +180,17 @@ export class EditAssetComponent implements OnInit {
         jsonValue: this.assetagent.value.numberValue,
       };
       this.assetService
-        .editAsset(this.agent_id, jsondata)
+        .editAsset(this.assetId, jsondata, this.etag)
         .subscribe(() => {
           this.toastrService.success('Asset Details Upate Successfully!', 'Success');
           this.router.navigate(['pages/asset/list']);
-        });
+        }, (error) => {
+
+            if (error.error.error.status === 409) {
+              this.toastrService.danger(error.error.serviceErrors, 'error')
+              this.getAssetById(this.assetId)
+          }
+        })
     }
     else if (this.show_allagents.type == 'Text') {
       let textdata = {
@@ -177,11 +200,17 @@ export class EditAssetComponent implements OnInit {
         textValue: this.assetagent.value.textValue,
       };
       this.assetService
-        .editAsset(this.agent_id, textdata)
+        .editAsset(this.assetId, textdata, this.etag)
         .subscribe(() => {
           this.toastrService.success('Asset Details Upate Successfully!', 'Success');
           this.router.navigate(['pages/asset/list']);
-        });
+        }, (error) => {
+
+            if (error.error.status === 409) {
+              this.toastrService.danger(error.error.serviceErrors, 'error')
+              this.getAssetById(this.assetId)
+          }
+        })
     }
     else if (this.show_allagents.type == 'Number') {
 
@@ -192,11 +221,18 @@ export class EditAssetComponent implements OnInit {
         numberValue: this.assetagent.value.numberValue,
       };
       this.assetService
-        .editAsset(this.agent_id, numberdata)
+        .editAsset(this.assetId, numberdata, this.etag)
         .subscribe(() => {
           this.toastrService.success('Asset Details Upate Successfully!', 'Success');
           this.router.navigate(['pages/asset/list']);
-        });
+        }, (error) => {
+
+        
+            if (error.error.status === 409) {
+              this.toastrService.danger(error.error.serviceErrors, 'error')
+              this.getAssetById(this.assetId)
+            }
+        })
     }
     this.submitted = false;
     

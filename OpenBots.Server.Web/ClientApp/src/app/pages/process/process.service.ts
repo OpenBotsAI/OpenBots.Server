@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { HelperService } from '../../@core/services/helper.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,9 +14,9 @@ export class ProcessService {
     return environment.apiUrl;
   }
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private helperService: HelperService) { }
 
-  
+
 
   getAllProcess(tpage: any, spage: any) {
     let getprocessUrlbyId = `/processes?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
@@ -32,15 +33,16 @@ export class ProcessService {
     return this.http.post(`${this.apiUrl}` + processUrl, obj);
   }
 
-  uploadUpdateProcessFile(obj, process_id) {
+  uploadUpdateProcessFile(obj, process_id, etag) {
+    const headers = this.helperService.getETagHeaders(etag)
     let processUrl = `/processes/${process_id}/update`;
-    return this.http.post(`${this.apiUrl}` + processUrl, obj);
+    return this.http.post(`${this.apiUrl}` + processUrl, obj, { headers });
   }
 
-  updateProcess(obj, process_id) {
+  updateProcess(obj, process_id, etag) {
+    const headers = this.helperService.getETagHeaders(etag)
     let updateassetUrl = `/processes/${process_id}`;
-
-    return this.http.put(`${this.apiUrl}` + updateassetUrl, obj);
+    return this.http.put(`${this.apiUrl}` + updateassetUrl, obj, { headers });
   }
 
   downloadProcess(process_id) {
@@ -79,13 +81,13 @@ export class ProcessService {
   }
 
   getProcessId(id) {
-    let options = {};
-    options = {
-      observe: 'response' as 'body', 
+    let resoptions = {};
+    resoptions = {
+      observe: 'response' as 'body',
       responseType: 'json',
     };
     let getprocessUrlbyId = `/processes/${id}`;
-    return this.http.get(`${this.apiUrl}` + getprocessUrlbyId, options);
+    return this.http.get(`${this.apiUrl}` + getprocessUrlbyId, resoptions);
   }
 
   deleteProcess(id) {

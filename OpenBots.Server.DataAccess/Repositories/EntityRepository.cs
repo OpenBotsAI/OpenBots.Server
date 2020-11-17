@@ -12,7 +12,6 @@ using Newtonsoft.Json;
 using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace OpenBots.Server.DataAccess.Repositories
 {
@@ -264,9 +263,6 @@ namespace OpenBots.Server.DataAccess.Repositories
                     var originalValues = DbContext.Entry(entity).GetDatabaseValues();
                     var oldValues = originalValues.Clone();
 
-                    //T oldEntity = new T();
-                    //ChangeNonAuditableProperties(oldValues, entity, oldEntity);
-                    //oldValues = DbContext.Entry(oldEntity).CurrentValues;
                     T originalEntity = (T)oldValues.ToObject();
                     ChangeNonAuditableProperties(oldValues, originalEntity, originalEntity);
                     oldValues = DbContext.Entry(originalEntity).CurrentValues;

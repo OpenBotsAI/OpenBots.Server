@@ -203,7 +203,6 @@
             <summary>
             Address where Content of the Attachment is Stored
             </summary>
-            <seealso cref="P:OpenBots.Server.Model.Core.EmailAttachment.ContentStorageAddress"/>
         </member>
         <member name="T:OpenBots.Server.Model.Core.EmailMessage">
             <summary>
@@ -599,6 +598,11 @@
             Id to match other versions of the same process
             </summary>
         </member>
+        <member name="P:OpenBots.Server.Model.Process.OriginalPackageName">
+            <summary>
+            Original name of file
+            </summary>
+        </member>
         <member name="T:OpenBots.Server.Model.Queue">
             <summary>
             Queue Model
@@ -722,6 +726,11 @@
         <member name="P:OpenBots.Server.Model.QueueItem.Event">
             <summary>
             Event raised from an application (ex: "New employee joins the company.")
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.QueueItem.ResultJSON">
+            <summary>
+            Result of the processed queue item
             </summary>
         </member>
     </members>

@@ -40,6 +40,9 @@ namespace OpenBots.Server.Web.Controllers
         /// <param name="manager"></param>
         /// <param name="userManager"></param>
         /// <param name="httpContextAccessor"></param>
+        /// <param name="binaryObjectManager"></param>
+        /// <param name="binaryObjectRepo"></param>
+        /// <param name="configuration"></param>
         public ProcessesController(
             IProcessRepository repository,
             IProcessManager manager,
@@ -159,14 +162,17 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                Guid versionId = Guid.Empty;
-                if (request.VersionId == null || request.VersionId == Guid.Empty)
-                    versionId = Guid.NewGuid();
-                else
-                    versionId = request.VersionId;
-                    manager.AssignProcessProperties(request, versionId);
+                //Guid versionId = Guid.Empty;
+                //if (request.VersionId == null || request.VersionId == Guid.Empty)
+                //    versionId = Guid.NewGuid();
+                //else
+                //    versionId = request.VersionId;
+                //    manager.AssignProcessProperties(request, versionId);
+                Guid versionId = Guid.NewGuid();
+                manager.AssignProcessProperties(request, versionId);
 
                 var response = await base.PostEntity(request);
+                manager.AddProcessVersion(request);
 
                 return response;
             }
@@ -230,6 +236,7 @@ namespace OpenBots.Server.Web.Controllers
                 binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
 
                 process.BinaryObjectId = (Guid)binaryObject.Id;
+                process.OriginalPackageName = file.FileName;
                 repository.Update(process);
 
                 return Ok(process);
@@ -303,9 +310,13 @@ namespace OpenBots.Server.Web.Controllers
                 Process response = existingProcess;
                 if (existingProcess.Name.Trim().ToLower() != request.Name.Trim().ToLower() || existingProcess.Status.Trim().ToLower() != request.Status?.Trim().ToLower()) 
                 {
-                    Guid versionId = existingProcess.VersionId;
+                    //Guid versionId = existingProcess.VersionId;
+                    Guid versionId = Guid.NewGuid();
                     existingProcess.BinaryObjectId = (Guid)newBinaryObject.Id;
+                    existingProcess.OriginalPackageName = request.File.FileName;
                     response = manager.UpdateProcess(existingProcess, request, versionId);
+                    //Create process version entity
+                    manager.AddProcessVersion(response);
                 }
                 return Ok(response);
             }
@@ -443,8 +454,11 @@ namespace OpenBots.Server.Web.Controllers
             {
                 Guid processId;
                 Guid.TryParse(id, out processId);
+                var process = repository.GetOne(processId);
 
                 bool response = manager.DeleteProcess(processId);
+
+                binaryObjectRepo.SoftDelete(process.BinaryObjectId);
 
                 if (response)
                     return Ok();

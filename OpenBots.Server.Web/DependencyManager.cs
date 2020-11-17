@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using OpenBots.Server.Web.Hubs;
 using OpenBots.Server.Model.Configuration;
+using OpenBots.Server.DataAccess.Repositories.Interfaces;
 
 namespace OpenBots.Server.Web
 {
@@ -66,6 +67,9 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IProcessLogManager), typeof(ProcessLogManager));
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient(typeof(IBinaryObjectManager), typeof(BinaryObjectManager));
+            services.AddTransient(typeof(IEmailAttachmentRepository), typeof(EmailAttachmentRepository));
+            services.AddTransient(typeof(IProcessVersionRepository), typeof(ProcessVersionRepository));
+            services.AddTransient(typeof(IConfigurationValueRepository), typeof(ConfigurationValueRepository));
 
             //Blob Storage
             services.AddTransient(typeof(IBlobStorageAdapter), typeof(BlobStorageAdapter));
