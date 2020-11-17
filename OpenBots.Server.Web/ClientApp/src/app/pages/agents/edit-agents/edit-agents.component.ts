@@ -67,13 +67,7 @@ export class EditAgentsComponent implements OnInit {
       this.addagent.patchValue({
         CredentialId: this.show_allagents.credentialId,
       }
-      ), (error) => {
-        console.log(error.status)
-        if (error.status == 409) {
-          this.toastrService.danger("Data change by another person ", 'error')
-          this.get_allagent(this.agent_id)
-        }
-      }
+      )
     });
   }
   get_cred() {
@@ -93,7 +87,14 @@ export class EditAgentsComponent implements OnInit {
         this.toastrService.success('Updated successfully', 'Success');
         this.router.navigate(['pages/agents/list']);
       },
-      () => (this.submitted = false)
+      (error) => {
+        console.log(error.error.status)
+        if (error.error.status === 409) {
+          this.toastrService.danger(error.error.serviceErrors, 'error')
+          this.get_allagent(this.agent_id)
+          this.submitted = false
+        }
+      }
     );
   }
 
