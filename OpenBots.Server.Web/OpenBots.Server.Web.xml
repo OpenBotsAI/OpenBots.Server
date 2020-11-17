@@ -3159,7 +3159,7 @@
             Controller for Jobs
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.JobsController.#ctor(OpenBots.Server.DataAccess.Repositories.IJobRepository,OpenBots.Server.DataAccess.Repositories.IProcessRepository,OpenBots.Server.DataAccess.Repositories.IJobParameterRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IJobManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+        <member name="M:OpenBots.Server.Web.JobsController.#ctor(OpenBots.Server.DataAccess.Repositories.IJobRepository,OpenBots.Server.DataAccess.Repositories.IProcessRepository,OpenBots.Server.DataAccess.Repositories.IJobParameterRepository,OpenBots.Server.DataAccess.Repositories.IJobCheckpointRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IJobManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
             <summary>
             JobsController constructor
             </summary>
@@ -3358,6 +3358,33 @@
             <response code="403">Forbidden, unauthorized access</response>
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response, if the partial job values have been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.JobsController.AddCheckpoint(OpenBots.Server.Model.JobCheckpoint,System.String)">
+            <summary>
+            Adds checkpoint to the existing JobCheckPoints
+            </summary>
+            <remarks>
+            Creates a new Job Checkpoint for the specified job id
+            </remarks>
+            <param name="request"></param>
+            <response code="200">Ok, new checkpoint created and returned</response>
+            <response code="400">Bad request, when the job value is not in proper format</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+            <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+            <returns> Newly created Checkpoint details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.JobsController.JobCheckpoints(System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a checkpoint's view model details for a particular job id
+            </summary>
+            <param name="id">Job id</param>
+            <response code="200">Ok, if a checkpoint for the given job id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if job id is not in the proper format or a proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no job exists for the given job id</response>
+            <returns>Job view model details for the given id</returns>
         </member>
         <member name="M:OpenBots.Server.Web.ProcessExecutionLogsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>

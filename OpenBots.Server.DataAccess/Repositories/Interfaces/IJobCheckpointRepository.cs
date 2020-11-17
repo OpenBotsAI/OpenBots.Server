@@ -2,7 +2,7 @@
 
 namespace OpenBots.Server.DataAccess.Repositories
 {
-    public interface IJobParameterRepository : IEntityRepository<JobParameter>
+    public interface IJobCheckpointRepository : IEntityRepository<JobCheckpoint>
     {
     }
 }

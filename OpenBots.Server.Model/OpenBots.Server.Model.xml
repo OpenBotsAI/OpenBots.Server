@@ -307,6 +307,11 @@
             Stores the current status of a job
             </summary>
         </member>
+        <member name="T:OpenBots.Server.Model.JobCheckpoint">
+            <summary>
+            Stores the values corresponding to a job's checkpoints
+            </summary>
+        </member>
         <member name="T:OpenBots.Server.Model.JobParameter">
             <summary>
             Stores the values corresponding to a job's parameters

@@ -33,6 +33,7 @@ namespace OpenBots.Server.Web
         readonly IJobManager jobManager;
         readonly IJobParameterRepository jobParameterRepo;
         readonly IProcessRepository processRepo;
+        readonly IJobCheckpointRepository jobCheckpointRepo;
         private IHubContext<NotificationHub> _hub;
         
         /// <summary>
@@ -49,6 +50,7 @@ namespace OpenBots.Server.Web
             IJobRepository repository,
             IProcessRepository processRepository,
             IJobParameterRepository jobParameterRepository,
+            IJobCheckpointRepository jobCheckpointRepository,
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
             IJobManager jobManager,
@@ -60,6 +62,7 @@ namespace OpenBots.Server.Web
             this.jobManager = jobManager;
             this.jobParameterRepo = jobParameterRepository;
             this.processRepo = processRepository;
+            this.jobCheckpointRepo = jobCheckpointRepository;
             this.jobManager.SetContext(base.SecurityContext);
             _hub = hub;
         }
@@ -701,6 +704,99 @@ namespace OpenBots.Server.Web
             await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", id));
 
             return response;
+        }
+
+        /// <summary>
+        /// Adds checkpoint to the existing JobCheckPoints
+        /// </summary>
+        /// <remarks>
+        /// Creates a new Job Checkpoint for the specified job id
+        /// </remarks>
+        /// <param name="request"></param>
+        /// <response code="200">Ok, new checkpoint created and returned</response>
+        /// <response code="400">Bad request, when the job value is not in proper format</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="409">Conflict, concurrency error</response> 
+        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+        /// <returns> Newly created Checkpoint details</returns>
+        [HttpPost("{JobId}/AddCheckpoint")]
+        [ProducesResponseType(typeof(JobCheckpoint), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> AddCheckpoint([FromBody] JobCheckpoint request, string jobId)
+        {
+            if (request == null)
+            {
+                ModelState.AddModelError("Save", "No data passed");
+                return BadRequest(ModelState);
+            }
+
+            Guid entityId = Guid.NewGuid();
+            if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
+                request.Id = entityId;
+
+            try
+            {
+                request.JobId = new Guid(jobId);
+                request.CreatedBy = applicationUser?.UserName;
+                request.CreatedOn = DateTime.UtcNow;
+                jobCheckpointRepo.Add(request);
+                var resultRoute = "GetJobCheckpoint";
+
+                return CreatedAtRoute(resultRoute, new { id = request.Id.Value.ToString("b") }, request);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Provides a checkpoint's view model details for a particular job id
+        /// </summary>
+        /// <param name="id">Job id</param>
+        /// <response code="200">Ok, if a checkpoint for the given job id</response>
+        /// <response code="304">Not modified</response>
+        /// <response code="400">Bad request, if job id is not in the proper format or a proper Guid</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not found, when no job exists for the given job id</response>
+        /// <returns>Job view model details for the given id</returns>
+        [HttpGet("{JobId}/JobCheckpoints", Name = "GetJobCheckpoint")]
+        [ProducesResponseType(typeof(JobCheckpoint), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> JobCheckpoints(
+            string JobId,
+            [FromQuery(Name = "$filter")] string filter = "",
+            [FromQuery(Name = "$orderby")] string orderBy = "",
+            [FromQuery(Name = "$top")] int top = 100,
+            [FromQuery(Name = "$skip")] int skip = 0
+            )
+        {
+            ODataHelper<JobCheckpoint> oData = new ODataHelper<JobCheckpoint>();
+
+            string queryString = "";
+
+            if (HttpContext != null
+                && HttpContext.Request != null
+                && HttpContext.Request.QueryString != null
+                && HttpContext.Request.QueryString.HasValue)
+                queryString = HttpContext.Request.QueryString.Value;
+
+            oData.Parse(queryString);
+            Guid parentguid = Guid.Empty;
+
+            return Ok(jobCheckpointRepo.Find(parentguid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip,
+                oData.Top).Items.Where(c=> c.JobId == new Guid(JobId)));
         }
     }
 }

@@ -20,6 +20,7 @@ namespace OpenBots.Server.DataAccess
         public DbSet<Process> Processes { get; set; }
         public DbSet<Job> Jobs { get; set; }
         public DbSet<JobParameter> JobParameters { get; set; }
+        public DbSet<JobCheckpoint> JobCheckpoints { get; set; }
         public DbSet<Credential> Credentials { get; set; }
         public DbSet<ProcessExecutionLog> ProcessExecutionLogs { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
