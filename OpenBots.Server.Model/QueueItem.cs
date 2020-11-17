@@ -103,5 +103,9 @@ namespace OpenBots.Server.Model
 		/// Event raised from an application (ex: "New employee joins the company.")
 		/// </summary>
 		public string? Event { get; set; }
-    }
+		/// <summary>
+		/// Result of the processed queue item
+		/// </summary>
+		public string? ResultJSON { get; set; }
+	}
 }

@@ -20,6 +20,9 @@ using System.Threading.Tasks;
 
 namespace OpenBots.Server.Web.Controllers
 {
+    /// <summary>
+    /// Controller for agents
+    /// </summary>
     [V1]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
@@ -30,12 +33,26 @@ namespace OpenBots.Server.Web.Controllers
         IAgentRepository agentRepo;
         IPersonRepository personRepo;
         IAspNetUsersRepository usersRepo;
+        IAgentHeartbeatRepository agentHeartbeatRepo;
         private IHttpContextAccessor _accessor;
 
+        /// <summary>
+        /// AgentsController constructor
+        /// </summary>
+        /// <param name="agentRepository"></param>
+        /// <param name="personRepository"></param>
+        /// <param name="usersRepository"></param>
+        /// <param name="membershipManager"></param>
+        /// <param name="userManager"></param>
+        /// <param name="agentManager"></param>
+        /// <param name="accessor"></param>
+        /// <param name="configuration"></param>
+        /// <param name="httpContextAccessor"></param>
         public AgentsController(
             IAgentRepository agentRepository,
             IPersonRepository personRepository,
             IAspNetUsersRepository usersRepository,
+            IAgentHeartbeatRepository agentHeartbeatRepository,
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
             IAgentManager agentManager,
@@ -46,19 +63,25 @@ namespace OpenBots.Server.Web.Controllers
             this.agentRepo = agentRepository;
             this.personRepo = personRepository;
             this.usersRepo = usersRepository;
+            this.agentHeartbeatRepo = agentHeartbeatRepository;
             this.agentManager = agentManager;
-            this.agentManager.SetContext(base.SecurityContext);
+            this.agentManager.SetContext(SecurityContext);
             _accessor = accessor;
         }
 
         /// <summary>
         /// Provides a list of all Agents
         /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="skip"></param>
+        /// <param name="top"></param>
         /// <response code="200">OK,a Paginated list of all Agents</response>
         /// <response code="400">BadRequest</response>
-        /// <response code="403">Forbidden,unauthorized access</response>        
-        /// <response code="422">UnprocessableEntity</response>
-        /// /// <returns>Paginated list of all Agents </returns>
+        /// <response code="403">Forbidden, unauthorized access</response>  
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Paginated list of all agents</returns>
         [HttpGet]
         [ProducesResponseType(typeof(PaginatedList<AgentModel>), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -78,13 +101,15 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Provides a Count of Agents 
+        /// Provides a count of agents 
         /// </summary>
-        /// <response code="200">OK, total count of Agents</response>
-        /// <response code="400">BadRequest</response>
-        /// <response code="403">Forbidden,unauthorized access</response>        
-        /// <response code="422">UnprocessableEntity</response>
-        /// <returns>Int contating the total number of Agents </returns>
+        /// <param name="filter"></param>
+        /// <response code="200">Ok, total count of agents</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Count of all agents</returns>
         [HttpGet("Count")]
         [ProducesResponseType(typeof(int?), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -100,15 +125,16 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Provides an Agent details for a particular Agent Id.
+        /// Provides agent details for a particular agent id
         /// </summary>
         /// <param name="id">Agent id</param>
-        /// <response code="200">OK, If an Agent exists with the given Id.</response>
+        /// <response code="200">Ok, if an agent exists with the given id</response>
         /// <response code="304">Not modified</response>
-        /// <response code="400">BadRequest,If Agent id is not in proper format or proper Guid.</response>
+        /// <response code="400">Bad request, if agent id is not in proper format or proper Guid<response>
         /// <response code="403">Forbidden</response>
-        /// <response code="404">NotFound, when no Agent exists for the given Agent id</response>
-        /// <returns>Agent details for the given Id</returns>
+        /// <response code="404">Not found, when no agent exists for the given agent id</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Agent details for the given id</returns>
         [HttpGet("{id}", Name = "GetAgentModel")]
         [ProducesResponseType(typeof(AgentViewModel), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -140,18 +166,18 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Adds a new Agent to the existing Agents and create a new Agent Application user
+        /// Adds a new agent to the existing agents and create a new agent application user
         /// </summary>
         /// <remarks>
-        /// Adds the Agent with unique Agent Id to the existing Agents
+        /// Adds the agent with unique agent id to the existing agents
         /// </remarks>
         /// <param name="request"></param>
-        /// <response code="200">OK,new Agent created and returned</response>
-        /// <response code="400">BadRequest,When the Agent value is not in proper format</response>
+        /// <response code="200">Ok, new agent created and returned</response>
+        /// <response code="400">Bad request, when the agent value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
-        ///<response code="409">Conflict,concurrency error</response> 
-        /// <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
-        /// <returns> newly created unique Agent Id with route name </returns>
+        /// <response code="409">Conflict, concurrency error</response> 
+        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+        /// <returns>Newly created unique agent id with route name</returns>
         [HttpPost]
         [ProducesResponseType(typeof(AgentModel), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -171,6 +197,10 @@ namespace OpenBots.Server.Web.Controllers
                     ModelState.AddModelError("Agent", "Agent Name Already Exists");
                     return BadRequest(ModelState);
                 }
+
+                Guid entityId = Guid.NewGuid();
+                if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
+                    request.Id = entityId;
 
                 //create Agent app user
                 var user = new ApplicationUser()
@@ -207,6 +237,15 @@ namespace OpenBots.Server.Web.Controllers
                     registeredUser.PersonId = (Guid)person.Id;
                     await userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
 
+                    // Create new Agent Heartbeat
+                    AgentHeartbeat agentHeartbeat = new AgentHeartbeat
+                    {
+                        AgentId = entityId,
+                        CreatedBy = applicationUser?.UserName,
+                        CreatedOn = DateTime.UtcNow
+                    };
+                    agentHeartbeatRepo.Add(agentHeartbeat);
+
                     //post Agent entity
                     AgentModel newAgent = request.Map(request);
                     return await base.PostEntity(newAgent);
@@ -218,20 +257,20 @@ namespace OpenBots.Server.Web.Controllers
             }
         }
 
-
         /// <summary>
         /// Updates an Agent 
         /// </summary>
         /// <remarks>
-        /// Provides an action to update an Agent, when Agent id and the new details of Agent are given
+        /// Provides an action to update an agent, when agent id and the new details of agent are given
         /// </remarks>
-        /// <param name="id">Agent Id,produces Bad request if Id is null or Id's don't match</param>
-        /// <param name="value">Agent details to be updated</param>
-        /// <response code="200">OK, If the Agent details for the given Agent Id has been updated.</response>
-        /// <response code="400">BadRequest,if the Agent Id is null or Id's don't match</response>
-        /// <response code="403">Forbidden,unauthorized access</response>
-        /// <response code="422">UnprocessableEntity</response>
-        /// <returns>OK response with the updated value</returns>
+        /// <param name="id">Agent id, produces bad request if id is null or ids don't match</param>
+        /// <param name="request">Agent details to be updated</param>
+        /// <response code="200">Ok, if the agent details for the given agent id have been updated</response>
+        /// <response code="400">Bad request, if the agent id is null or ids don't match</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="409">Conflict</response>
+        /// <response code="422">Unprocessabl entity</response>
+        /// <returns>Ok response with the updated value</returns>
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -269,11 +308,6 @@ namespace OpenBots.Server.Web.Controllers
                 existingAgent.MacAddresses = request.MacAddresses;
                 existingAgent.IPAddresses = request.IPAddresses;
                 existingAgent.IsEnabled = request.IsEnabled;
-                existingAgent.LastReportedOn = request.LastReportedOn;
-                existingAgent.LastReportedStatus = request.LastReportedStatus;
-                existingAgent.LastReportedWork = request.LastReportedWork;
-                existingAgent.LastReportedMessage = request.LastReportedMessage;
-                existingAgent.IsHealthy = request.IsHealthy;
                 existingAgent.CredentialId = request.CredentialId;
 
                 return await base.PutEntity(id, existingAgent);
@@ -286,13 +320,13 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Deletes an Agent with a specified id from the Agents.
+        /// Deletes an agent with a specified id from the agents
         /// </summary>
-        /// <param name="id">Agent ID to be deleted- throws BadRequest if null or empty Guid/</param>
-        /// <response code="200">OK,when Agent is softdeleted,( isDeleted flag is set to true in DB) </response>
-        /// <response code="400">BadRequest,If Agent Id is null or empty Guid</response>
-        /// <response code="403">Forbidden </response>
-        /// <returns>OK response with deleted value </returns>
+        /// <param name="id">Agent id to be deleted - throws bad request if null or empty Guid</param>
+        /// <response code="200">Ok, when agent is soft deleted, (isDeleted flag is set to true in database)</response>
+        /// <response code="400">Bad request, if agent id is null or empty Guid</response>
+        /// <response code="403">Forbidden</response>
+        /// <returns>Ok response</returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -316,6 +350,7 @@ namespace OpenBots.Server.Web.Controllers
             }
 
             Person person = personRepo.Find(0, 1).Items?.Where(p => p.IsAgent && p.Name == agent.Name && !(p.IsDeleted ?? false))?.FirstOrDefault();
+            AgentHeartbeat agentHeartbeat = agentHeartbeatRepo.Find(0, 1).Items?.Where(h => h.AgentId == new Guid(id))?.FirstOrDefault();
             var aspUser = usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
 
             if (aspUser == null)
@@ -334,23 +369,26 @@ namespace OpenBots.Server.Web.Controllers
             }
 
             personRepo.SoftDelete(person.Id ?? Guid.Empty);
+            agentHeartbeatRepo.SoftDelete(agentHeartbeat.Id ?? Guid.Empty);
 
             return await base.DeleteEntity(id);
         }
 
         /// <summary>
-        /// Updates partial details of Agent.
+        /// Updates partial details of agent
         /// </summary>
         /// <param name="id">Agent identifier</param>
-        /// <param name="value">Value of the Agent to be updated.</param>
-        /// <response code="200">OK,If update of Agent is successful. </response>
-        /// <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
-        /// <response code="403">Forbidden,unauthorized access</response>
-        /// <response code="422">Unprocessable entity,validation error</response>
-        /// <returns>Ok response, if the partial Agent values has been updated</returns>
-
+        /// <param name="request">Value of the agent to be updated</param>
+        /// <response code="200">Ok, if update of agent is successful</response>
+        /// <response code="400">Bad request, if the id is null or ids don't match</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="422">Unprocessable entity, validation error</response>
+        /// <returns>Ok response, if the partial agent values have been updated</returns>
         [HttpPatch("{id}")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<AgentModel> request)
@@ -382,13 +420,14 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Provides an Agent id and Name if the provided machine matches an Agent and updates the isConnected field
+        /// Provides an agent id and name if the provided machine matches an agent and updates the isConnected field
         /// </summary>
-        /// <response code="200">OK,AgentId</response>
-        /// <response code="400">BadRequest</response>
-        /// <response code="403">Forbidden,unauthorized access</response>        
-        /// <response code="422">UnprocessableEntity</response>
-        /// <returns>connectedViewModel that matches the provided machine details </returns>
+        /// <response code="200">Ok, agent id</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="404">Not found</response>
+        /// <response code="422">UnprocessableE entity</response>
+        /// <returns>Connected view model that matches the provided machine details</returns>
         [HttpPatch("Connect")]
         [ProducesResponseType(typeof(ConnectedViewModel), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -419,7 +458,6 @@ namespace OpenBots.Server.Web.Controllers
                 }
 
                 return new OkObjectResult(connectedViewModel.Map(agent));
-
             }
             catch (Exception ex)
             {
@@ -431,11 +469,12 @@ namespace OpenBots.Server.Web.Controllers
         /// <summary>
         /// Updates the isConnected field if the disconnect details are correct
         /// </summary>
-        /// <response code="200">OK,If update of Agent is successful</response>
-        /// <response code="400">BadRequest</response>
-        /// <response code="403">Forbidden,unauthorized access</response>        
-        /// <response code="422">UnprocessableEntity</response>
-        /// <returns>Ok response, if the isConnected field was updated </returns>
+        /// <response code="200">Ok, if update of agent is successful</response>
+        /// <response code="400">Badrequest</response>
+        /// <response code="403">Forbidden, unauthorized access</response>  
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Ok response, if the isConnected field was updated</returns>
         [HttpPatch("Disconnect")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -480,17 +519,20 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Performs a Heatbeat on Agent id.
+        /// Performs a heartbeat on agent id
         /// </summary>
         /// <param name="id">Agent identifier</param>
-        /// <param name="request">Heartbeat values to be updated.</param>
-        /// <response code="200">OK,If update of Agent is successful. </response>
-        /// <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
-        /// <response code="403">Forbidden,unauthorized access</response>
-        /// <response code="422">Unprocessable entity,validation error</response>
-        /// <returns>Ok response, if the heartbeat Agent values have been updated</returns>
+        /// <param name="request">Heartbeat values to be updated</param>
+        /// <response code="200">Ok, if update of agent is successful</response>
+        /// <response code="400">Bad request, if the id is null or ids don't match</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="422">Unprocessable entity, validation error</response>
+        /// <returns>Ok response, if the heartbeat agent values have been updated</returns>
         [HttpPatch("{id}/Heartbeat")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
         public async Task<IActionResult> Heartbeat(string id,
             [FromBody] HeartbeatViewModel request)
@@ -504,7 +546,7 @@ namespace OpenBots.Server.Web.Controllers
                 }
 
                 Guid entityId = new Guid(id);
-                var agent = agentRepo.GetOne(entityId);
+                AgentModel agent = agentRepo.GetOne(entityId);
 
                 if (agent == null)
                 {
@@ -516,18 +558,24 @@ namespace OpenBots.Server.Web.Controllers
                     ModelState.AddModelError("HeartBeat", "Agent is not connected");
                     return BadRequest(ModelState);
                 }
+                
+                //Update HeartBeat Values
+                AgentHeartbeat agentHeartbeat = agentHeartbeatRepo.Find(0, 1)?.Items?.Where(h => h.AgentId == entityId)?.FirstOrDefault();
+                if (agentHeartbeat == null)
+                {
+                    return NotFound("The Agent ID provided does not have any existing agent heartbeat");
+                }
 
-                JsonPatchDocument<AgentModel> heartbeatPatch = new JsonPatchDocument<AgentModel>();
+                // Set Heartbeat Values
+                agentHeartbeat.LastReportedOn = request.LastReportedOn ?? agentHeartbeat.LastReportedOn;
+                agentHeartbeat.LastReportedStatus = request.LastReportedStatus ?? agentHeartbeat.LastReportedStatus;
+                agentHeartbeat.LastReportedWork = request.LastReportedWork ?? agentHeartbeat.LastReportedWork;
+                agentHeartbeat.LastReportedMessage = request.LastReportedMessage ?? agentHeartbeat.LastReportedMessage;
+                agentHeartbeat.IsHealthy = request.IsHealthy ?? agentHeartbeat.IsHealthy;
 
-                heartbeatPatch.Replace(e => e.LastReportedOn, request.LastReportedOn);
-                heartbeatPatch.Replace(e => e.LastReportedStatus, request.LastReportedStatus);
-                heartbeatPatch.Replace(e => e.LastReportedWork, request.LastReportedWork);
-                heartbeatPatch.Replace(e => e.LastReportedMessage, request.LastReportedMessage);
-                heartbeatPatch.Replace(e => e.IsHealthy, request.IsHealthy);
-
-                return await base.PatchEntity(id, heartbeatPatch);
+                agentHeartbeatRepo.Update(agentHeartbeat);
+                return Ok();
             }
-
             catch (Exception ex)
             {
                 ModelState.AddModelError("Heartbeat", ex.Message);
@@ -539,10 +587,11 @@ namespace OpenBots.Server.Web.Controllers
         /// Lookup list of all agents
         /// </summary>
         /// <response code="200">Ok, a lookup list of all agents</response>
-        /// <response code="400">BadRequest</response>
+        /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
         /// <returns>Lookup list of all agents</returns>
-        // GET: api/v1/agents/getlookup
         [HttpGet("GetLookup")]
         [ProducesResponseType(typeof(List<JobAgentsLookup>), StatusCodes.Status200OK)]
         [Produces("application/json")]

@@ -13,6 +13,12 @@ using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.WebAPI.Controllers;
+using OpenBots.Server.Model;
+using System.IO;
+using OpenBots.Server.DataAccess.Repositories.Interfaces;
+using System.Linq;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace OpenBots.Server.Web.Controllers.EmailConfiguration
 {
@@ -25,6 +31,12 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
     [Authorize]
     public class EmailLogsController : EntityController<EmailLog>
     {
+        private readonly IBinaryObjectManager binaryObjectManager;
+        private readonly IBinaryObjectRepository binaryObjectRepository;
+        private readonly IEmailManager emailSender;
+        private readonly IEmailAttachmentRepository emailAttachmentRepository;
+        private readonly IEmailAccountRepository emailAccountRepository;
+
         /// <summary>
         /// EmailLogsController constructor
         /// </summary>
@@ -32,13 +44,28 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// <param name="membershipManager"></param>
         /// <param name="userManager"></param>
         /// <param name="httpContextAccessor"></param>
+        /// <param name="configuration"></param>
+        /// <param name="binaryObjectManager"></param>
+        /// <param name="binaryObjectRepository"></param>
+        /// <param name="emailSender"></param>
+        /// <param name="emailAttachmentRepository"></param>
         public EmailLogsController(
             IEmailLogRepository repository,
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
             IConfiguration configuration,
-            IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
+            IHttpContextAccessor httpContextAccessor,
+            IBinaryObjectRepository binaryObjectRepository,
+            IBinaryObjectManager binaryObjectManager,
+            IEmailManager emailSender,
+            IEmailAttachmentRepository emailAttachmentRepository,
+            IEmailAccountRepository emailAccountRepository) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
+            this.binaryObjectManager = binaryObjectManager;
+            this.binaryObjectRepository = binaryObjectRepository;
+            this.emailSender = emailSender;
+            this.emailAttachmentRepository = emailAttachmentRepository;
+            this.emailAccountRepository = emailAccountRepository;
         }
 
         /// <summary>
@@ -139,7 +166,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
         /// <response code="422">Unprocessabile entity</response>
-        /// <returns> Newly created unique email log </returns>
+        /// <returns> Newly created unique email log</returns>
         [HttpPost]
         [ProducesResponseType(typeof(EmailLog), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -162,6 +189,176 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         }
 
         /// <summary>
+        /// Adds the email log with unique email log id to existing email logs with status of "Draft"
+        /// </summary>
+        /// <param name="request"></param>
+        /// <response code="200">Ok, new email log created and returned</response>
+        /// <response code="400">Bad request, when the email log value is not in proper format</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        ///<response code="409">Conflict, concurrency error</response> 
+        /// <response code="422">Unprocessabile entity</response>
+        /// <returns> Newly created unique email log id</returns>
+        [HttpPost("compose")]
+        [ProducesResponseType(typeof(EmailLog), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> Compose([FromBody] EmailLog request)
+        {
+            try
+            {
+                request.Status = "Draft";
+                await base.PostEntity(request);
+
+                return Ok(request.Id);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Attach a binary object file to an email log
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="file"></param>
+        /// <response code="200">Ok, new binary object created and returned</response>
+        /// <response code="400">Bad request, when the binary object value is not in proper format</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        ///<response code="409">Conflict, concurrency error</response> 
+        /// <response code="422">Unprocessabile entity</response>
+        /// <returns> Newly created unique binary object</returns>
+        [HttpPost("{id}/attach")]
+        [ProducesResponseType(typeof(BinaryObject), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> Attach(string id, [FromForm] IFormFile file)
+        {
+            try
+            {
+                string organizationId = binaryObjectManager.GetOrganizationId();
+                string apiComponent = "EmailLogAPI";
+
+                //Add file to Binary Objects (create entity and put file in EmailLogAPI folder in Server)
+                BinaryObject binaryObject = new BinaryObject();
+                binaryObject.Name = file.FileName;
+                binaryObject.Folder = apiComponent;
+                binaryObject.CreatedOn = DateTime.UtcNow;
+                binaryObject.CreatedBy = applicationUser?.UserName;
+                binaryObject.CorrelationEntityId = Guid.Parse(id);
+                binaryObjectRepository.Add(binaryObject);
+
+                string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
+
+                binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
+                binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
+
+                // Create/ save email attachment entity
+                EmailAttachment emailAttachment = new EmailAttachment();
+                emailAttachment.Name = binaryObject.Name;
+                emailAttachment.BinaryObjectId = binaryObject.Id;
+                emailAttachment.ContentType = binaryObject.ContentType;
+                emailAttachment.ContentStorageAddress = binaryObject.StoragePath;
+                emailAttachment.SizeInBytes = binaryObject.SizeInBytes;
+                emailAttachment.EmailLogId = Guid.Parse(id);
+                emailAttachmentRepository.Add(emailAttachment);
+
+                //// Attach / add file to email log
+                //var emailLog = repository.GetOne(Guid.Parse(id));
+
+                //if (string.IsNullOrEmpty(emailLog.EmailAttachments))
+                //{
+                //    List<EmailAttachment> attachments = new List<EmailAttachment>();
+                //    attachments.Add(emailAttachment);
+                //    emailLog.EmailAttachments = JsonConvert.SerializeObject(attachments);
+                //}
+                //else
+                //{
+                //    var list = JsonConvert.DeserializeObject<List<EmailAttachment>>(emailLog.EmailAttachments);
+                //    list.Add(emailAttachment);
+                //    var convertedJson = JsonConvert.SerializeObject(list, Formatting.Indented);
+                //    emailLog.EmailAttachments = convertedJson;
+                //}
+                //repository.Update(emailLog);
+                return Ok(emailAttachment);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Send email draft
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="emailAccountName"></param>
+        /// <param name="emailMessage"></param>
+        /// <response code="200">Ok, if the email log details for the given email log id have been updated</response>
+        /// <response code="400">Bad request, if the email log id is null or ids don't match</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="409">Conflict</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>200 Ok response</returns>
+        [HttpPut("{id}/send/{emailAccountName?}")]
+        [ProducesResponseType(typeof(EmailLog), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> Send(string id, string emailAccountName, [FromBody] EmailMessage emailMessage)
+        {
+            try
+            {
+                var isEmailAllowed = emailSender.IsEmailAllowed();
+                if (!isEmailAllowed)
+                {
+                    ModelState.AddModelError("Send email", "Email has been disabled.");
+                    return BadRequest(ModelState);
+                }
+
+                //Use default email account when emailAccountName is not provided
+                if (string.IsNullOrEmpty(emailAccountName))
+                {
+                    var emailAccount = emailAccountRepository.Find(null, q => q.IsDefault).Items?.FirstOrDefault();
+                    emailAccountName = emailAccount.Name;
+                }
+
+                Guid emailLogId = Guid.Parse(id);
+                var emailLog = repository.GetOne(emailLogId);
+
+                if (emailLog.Status.Equals("Draft"))
+                {
+                    //var attachments = JsonConvert.DeserializeObject<List<EmailAttachment>>(emailLog.EmailAttachments);
+                    var attachments = emailAttachmentRepository.Find(null, q => q.EmailLogId == emailLogId)?.Items;
+                    emailMessage.Attachments = attachments;
+
+                    emailSender.SendEmailAsync(emailMessage, emailAccountName);
+                    return Ok();
+                }
+                else
+                {
+                    ModelState.AddModelError("Send email", "Email was not able to be sent.");
+                    return BadRequest(ModelState);
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
         /// Updates email logs
         /// </summary>
         /// <remarks>
@@ -169,7 +366,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// </remarks>
         /// <param name="id">Email log id, produces bad request if id is null or ids don't match</param>
         /// <param name="request">Email log details to be updated</param>
-        /// <response code="200">Ok, if the email log details for the given email log id have been updated.</response>
+        /// <response code="200">Ok, if the email log details for the given email log id have been updated</response>
         /// <response code="400">Bad request, if the email log id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict</response>

@@ -38,6 +38,12 @@ namespace XUnitTests
                 CredentialId = credentialId                
             };
 
+            var dummyAgentHeartbeat = new AgentHeartbeat
+            {
+                Id = Guid.NewGuid(),
+                AgentId = agentId
+            };
+
             var dummyCredential = new Credential
             {
                 Id = credentialId,
@@ -57,13 +63,14 @@ namespace XUnitTests
                 JobStatus = JobStatusType.New
             };
 
-            Seed(context, dummyAgent, dummyCredential, dummyUserAgent, dummyJob);
+            Seed(context, dummyAgent, dummyCredential, dummyUserAgent, dummyJob, dummyAgentHeartbeat);
 
             var agentLogger = Mock.Of<ILogger<AgentModel>>();
             var usersLogger = Mock.Of<ILogger<AspNetUsers>>();
             var scheduleLogger = Mock.Of<ILogger<Schedule>>();
             var jobLogger = Mock.Of<ILogger<Job>>();
             var credentialLogger = Mock.Of<ILogger<Credential>>();
+            var agentHeartbeatLogger = Mock.Of<ILogger<AgentHeartbeat>>();
 
             var httpContextAccessor = new Mock<IHttpContextAccessor>();
             httpContextAccessor.Setup(req => req.HttpContext.User.Identity.Name).Returns(It.IsAny<string>());
@@ -73,7 +80,8 @@ namespace XUnitTests
             var scheduleRepo = new ScheduleRepository(context, scheduleLogger, httpContextAccessor.Object);
             var jobRepo = new JobRepository(context, jobLogger, httpContextAccessor.Object);
             var credentialRepo = new CredentialRepository(context, credentialLogger, httpContextAccessor.Object);
-            var manager = new AgentManager(agentRepo, scheduleRepo, jobRepo,userRepo, credentialRepo);
+            var agentHeartbeatRepo = new AgentHeartbeatRepository(context, agentHeartbeatLogger, httpContextAccessor.Object);
+            var manager = new AgentManager(agentRepo, scheduleRepo, jobRepo,userRepo, credentialRepo, agentHeartbeatRepo);
 
             //act
             AgentViewModel view = new AgentViewModel();
@@ -93,9 +101,10 @@ namespace XUnitTests
             Assert.False(agentWithoutDependant);
         }
 
-        private void Seed(StorageContext context, AgentModel agent, Credential credential, AspNetUsers aspNetUser, Job job)
+        private void Seed(StorageContext context, AgentModel agent, Credential credential, AspNetUsers aspNetUser, Job job, AgentHeartbeat agentHeartbeat)
         {
             context.Agents.AddRange(agent);
+            context.AgentHeartbeats.AddRange(agentHeartbeat);
             context.Credentials.AddRange(credential);
             context.AspNetUsers.AddRange(aspNetUser);
             context.Jobs.Add(job);
