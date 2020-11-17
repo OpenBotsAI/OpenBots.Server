@@ -7,6 +7,9 @@ using System.Text;
 
 namespace OpenBots.Server.Model
 {
+    /// <summary>
+    /// Stores the values corresponding to a job's parameters
+    /// </summary>
     public class JobParameter : NamedEntity
     {
         [Required]

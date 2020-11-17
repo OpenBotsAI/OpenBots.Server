@@ -10,14 +10,15 @@ namespace OpenBots.Server.Business
 
         public Task<QueueItem> Dequeue(string agentId, string queueId);
 
-        public Task Commit(Guid queueItemId, Guid transactionKey);
+        public Task<QueueItem> Commit(Guid queueItemId, Guid transactionKey, string resultJSON);
 
-        public Task Rollback(Guid queueItemId, Guid transactionKey, int retryLimit, string errorCode = null, string errorMessage = null, bool isFatal = false);
+        public Task<QueueItem> Rollback(Guid queueItemId, Guid transactionKey, int retryLimit, string errorCode = null, string errorMessage = null, bool isFatal = false);
 
-        public Task Extend(Guid queueItemId, Guid transactionKey, int extendByMinutes = 60);
+        public Task<QueueItem> Extend(Guid queueItemId, Guid transactionKey, int extendByMinutes = 60);
 
-        public Task UpdateState(Guid queueItemId, Guid transactionKey, string state = null, string stateMessage = null, string errorCode = null, string errorMessage = null);
+        public Task<QueueItem> UpdateState(Guid queueItemId, Guid transactionKey, string state = null, string stateMessage = null, string errorCode = null, string errorMessage = null);
 
         public Task<QueueItem> GetQueueItem(Guid transactionKeyId);
+        enum QueueItemStateType : int { };
     }
 }

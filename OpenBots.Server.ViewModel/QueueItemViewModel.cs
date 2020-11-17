@@ -23,6 +23,7 @@ namespace OpenBots.Server.ViewModel
 		public string? ErrorSerialized { get; set; }
 		public string? Source { get; set; }
 		public string? Event { get; set; }
+		public string? ResultJSON { get; set; }
 
 		public QueueItemViewModel Map(QueueItem entity)
 		{
@@ -44,6 +45,7 @@ namespace OpenBots.Server.ViewModel
 			queueItemViewModel.ErrorSerialized = entity.ErrorSerialized;
 			queueItemViewModel.Source = entity.Source;
 			queueItemViewModel.Event = entity.Event;
+			queueItemViewModel.ResultJSON = entity.ResultJSON;
 
 			return queueItemViewModel;
 		}

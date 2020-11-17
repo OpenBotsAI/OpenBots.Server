@@ -11,10 +11,12 @@ namespace OpenBots.Server.Business
     public class QueueItemManager : BaseManager, IQueueItemManager
     {
         private readonly IQueueItemRepository repo;
+        private readonly IQueueRepository queueRepository;
 
-        public QueueItemManager(IQueueItemRepository repo)
+        public QueueItemManager(IQueueItemRepository repo, IQueueRepository queueRepository)
         {
             this.repo = repo;
+            this.queueRepository = queueRepository;
         }
 
         public async Task<QueueItem> Enqueue(QueueItem item)
@@ -30,38 +32,31 @@ namespace OpenBots.Server.Business
 
         public async Task<QueueItem> Dequeue(string agentId, string queueId)
         {
-            string state = QueueItemStateType.New.ToString();
+            string newState = QueueItemStateType.New.ToString();
+            string inProgressState = QueueItemStateType.InProgress.ToString();
 
-            var item = FindQueueItem(state, queueId);
+            var expiredItem = FindExpiredQueueItem(newState, inProgressState, queueId);
+            while (expiredItem != null)
+            {
+                SetExpiredState(expiredItem);
+                repo.Update(expiredItem);
 
+                expiredItem = FindExpiredQueueItem(newState, inProgressState, queueId);
+                if (expiredItem == null)
+                    break;
+            }
+
+            var item = FindQueueItem(newState, queueId);
             if (item != null)
-            { 
-                if (item.ExpireOnUTC != null)
-                {
-                    while (item.ExpireOnUTC <= DateTime.UtcNow)
-                    {
-                        item.State = QueueItemStateType.Failed.ToString();
-                        item.StateMessage = $"Queue item {item.Name} is expired.  Moving to next available queue item.";
-                        repo.Update(item);
-
-                        item = FindQueueItem(state, queueId);
-                        if (item == null)
-                            break;
-                    }
-                }
-
-                if (item != null)
-                {
-                    item.IsLocked = true;
-                    item.LockedOnUTC = DateTime.UtcNow;
-                    item.LockedUntilUTC = DateTime.UtcNow.AddHours(1);
-                    item.State = QueueItemStateType.InProgress.ToString();
-                    item.StateMessage = null;
-                    item.LockedBy = Guid.Parse(agentId);
-                    item.LockTransactionKey = Guid.NewGuid();
-
-                    repo.Update(item);
-                }
+            {
+                item.IsLocked = true;
+                item.LockedOnUTC = DateTime.UtcNow;
+                item.LockedUntilUTC = DateTime.UtcNow.AddHours(1);
+                item.State = QueueItemStateType.InProgress.ToString();
+                item.StateMessage = null;
+                item.LockedBy = Guid.Parse(agentId);
+                item.LockTransactionKey = Guid.NewGuid();
+                repo.Update(item);
             }
             return item;
         }
@@ -81,12 +76,31 @@ namespace OpenBots.Server.Business
             return item;
         }
 
-        public async Task Commit(Guid queueItemId, Guid transactionKey)
+        public QueueItem FindExpiredQueueItem(string newState, string inProgressState, string queueId)
         {
+            var item = repo.Find(0, 1).Items
+                .Where(q => q.QueueId.ToString() == queueId)
+                .Where(q => q.State == newState || q.State == inProgressState)
+                .Where(q => !q.IsLocked)
+                .Where(q => q.IsDeleted == false)
+                .Where(q => q.ExpireOnUTC <= DateTime.UtcNow)
+                .FirstOrDefault();
 
+            return item;
+        }
+
+        public async Task<QueueItem> Commit(Guid queueItemId, Guid transactionKey, string resultJSON)
+        {
             var item = repo.GetOne(queueItemId);
-            if (item?.IsLocked == true && item?.LockTransactionKey == transactionKey && item?.LockedUntilUTC >= DateTime.UtcNow)
+            if (item.LockedUntilUTC <= DateTime.UtcNow)
             {
+                SetNewState(item);
+                repo.Update(item);
+                return item;
+            }
+            else if (item?.IsLocked == true && item?.LockTransactionKey == transactionKey && item?.LockedUntilUTC >= DateTime.UtcNow)
+            {
+                item.ResultJSON = resultJSON;
                 item.IsLocked = false;
                 item.LockedUntilUTC = null;
                 item.LockedEndTimeUTC = DateTime.UtcNow;
@@ -96,15 +110,29 @@ namespace OpenBots.Server.Business
                 item.StateMessage = "Queue item transaction has been completed successfully";
 
                 repo.Update(item);
+                return item;
             }
             else
                 throw new Exception("Transaction Key Mismatched or Expired. Cannot Commit.");
         }
 
-        public async Task Rollback(Guid queueItemId, Guid transactionKey, int retryLimit, string errorCode = null, string errorMessage = null, bool isFatal = false)
+        public async Task<QueueItem> Rollback(Guid queueItemId, Guid transactionKey, int retryLimit, string errorCode = null, string errorMessage = null, bool isFatal = false)
         {
             var item = repo.GetOne(queueItemId);
-            if (item?.IsLocked == true && item?.LockedUntilUTC >= DateTime.UtcNow && item?.LockTransactionKey == transactionKey)
+            if (item?.LockedUntilUTC < DateTime.UtcNow)
+            {
+                SetNewState(item);
+                item.ErrorCode = errorCode;
+                item.ErrorMessage = errorMessage;
+                Dictionary<string, string> error = new Dictionary<string, string>();
+                if (!string.IsNullOrEmpty(errorCode))
+                    error.Add(errorCode, errorMessage);
+                item.ErrorSerialized = JsonConvert.SerializeObject(error);
+
+                repo.Update(item);
+                return item;
+            }
+            else if (item?.IsLocked == true && item?.LockedUntilUTC >= DateTime.UtcNow && item?.LockTransactionKey == transactionKey)
             {
                 item.IsLocked = false;
                 item.LockTransactionKey = null;
@@ -132,15 +160,14 @@ namespace OpenBots.Server.Business
                         item.State = QueueItemStateType.New.ToString();
                         item.StateMessage = $"Queue item transaction {item.Name} failed {item.RetryCount} time(s).  Adding back to queue and trying again.";
                     }
-
-                    if (item.RetryCount >= retryLimit)
+                    else
                     {
                         item.State = QueueItemStateType.Failed.ToString();
                         item.StateMessage = $"Queue item transaction {item.Name} failed fatally and was unable to be processed {retryLimit} times.";
                     }
                 }
-
                 repo.Update(item);
+                return item;
             }
             else
             {
@@ -148,22 +175,37 @@ namespace OpenBots.Server.Business
             }
         }
 
-        public async Task Extend(Guid queueItemId, Guid transactionKey, int extendByMinutes = 60)
+        public async Task<QueueItem> Extend(Guid queueItemId, Guid transactionKey, int extendByMinutes = 60)
         {
             var item = repo.GetOne(queueItemId);
-            if (item?.IsLocked == true && item?.LockTransactionKey == transactionKey && item?.LockedUntilUTC >= DateTime.UtcNow)
+
+            if (item?.LockedUntilUTC <= DateTime.UtcNow)
+            {
+                SetNewState(item);
+                repo.Update(item);
+                return item;
+            }
+            else if (item?.IsLocked == true && item?.LockTransactionKey == transactionKey && item?.LockedUntilUTC >= DateTime.UtcNow)
             {
                 item.LockedUntilUTC = ((DateTime)item.LockedUntilUTC).AddMinutes(extendByMinutes);
                 repo.Update(item);
+                return item;
             }
             else
                 throw new Exception("Transaction key mismatched or expired. Cannot extend.");
         }
 
-        public async Task UpdateState(Guid queueItemId, Guid transactionKey, string state = null, string stateMessage = null, string errorCode = null, string errorMessage = null)
+        public async Task<QueueItem> UpdateState(Guid queueItemId, Guid transactionKey, string state = null, string stateMessage = null, string errorCode = null, string errorMessage = null)
         {
             var item = repo.GetOne(queueItemId);
-            if (item?.IsLocked == true && item?.LockTransactionKey == transactionKey && item?.LockedUntilUTC >= DateTime.UtcNow)
+
+            if (item?.LockedUntilUTC <= DateTime.UtcNow)
+            {
+                SetNewState(item);
+                repo.Update(item);
+                return item;
+            }
+            else if (item?.IsLocked == true && item?.LockTransactionKey == transactionKey && item?.LockedUntilUTC >= DateTime.UtcNow)
             {
                 if (!string.IsNullOrEmpty(state))
                     item.State = state;
@@ -176,6 +218,7 @@ namespace OpenBots.Server.Business
                     error.Add(errorCode, errorMessage);
                 item.ErrorSerialized = JsonConvert.SerializeObject(error);
                 repo.Update(item);
+                return item;
             }
             else
                 throw new Exception("Transaction key mismatched or expired.  Cannot update state.");
@@ -197,6 +240,40 @@ namespace OpenBots.Server.Business
             Failed = 2,
             Success = 3,
             Expired = 4
+        }
+
+        public void SetNewState(QueueItem item)
+        {
+            item.RetryCount += 1;
+            Guid queueId = item.QueueId;
+            Queue queue = queueRepository.GetOne(queueId);
+            int retryLimit = queue.MaxRetryCount;
+
+            if (item.RetryCount < retryLimit)
+            {
+                item.State = QueueItemStateType.New.ToString();
+                item.StateMessage = $"Queue item {item.Name}'s lock time has expired and failed {item.RetryCount} time(s).  Adding back to queue and trying again.";
+            }
+            else
+            {
+                item.State = QueueItemStateType.Failed.ToString();
+                item.StateMessage = $"Queue item transaction {item.Name} failed fatally and was unable to be processed {retryLimit} times.";
+            }
+            item.IsLocked = false;
+            item.LockedBy = null;
+            item.LockedEndTimeUTC = null;
+            item.LockedUntilUTC = null;
+            item.LockTransactionKey = null;
+        }
+        public void SetExpiredState(QueueItem item)
+        {
+            item.State = QueueItemStateType.Expired.ToString();
+            item.StateMessage = "Queue item has expired.";
+            item.IsLocked = false;
+            item.LockedBy = null;
+            item.LockedEndTimeUTC = null;
+            item.LockedUntilUTC = null;
+            item.LockTransactionKey = null;
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using OpenBots.Server.DataAccess;
+using OpenBots.Server.Model;
 using OpenBots.Server.Model.Configuration;
 using System;
 using System.Collections.Generic;
@@ -45,13 +47,36 @@ namespace OpenBots.Server.Business
                 { "App:MaxReturnRecords", "100"},
             };
 
-            dbContext.ConfigurationValues.AddRange(configValues
-                .Select(kvp => new ConfigurationValue
+            foreach (var value in configValues)
+            {
+                var configValue = new ConfigurationValue()
                 {
-                    Name = kvp.Key,
-                    Value = kvp.Value
-                })
-                .ToArray());
+                    Id = Guid.NewGuid(),
+                    Name = value.Key,
+                    Value = value.Value,
+                    CreatedOn = DateTime.UtcNow,
+                    CreatedBy = "OpenBots Server",
+                    IsDeleted = false
+                };
+                dbContext.ConfigurationValues.Add(configValue);
+
+                var auditLog = new AuditLog()
+                {
+                    ChangedFromJson = null,
+                    ChangedToJson = JsonConvert.SerializeObject(configValue),
+                    CreatedBy = "OpenBots Server",
+                    CreatedOn = DateTime.UtcNow,
+                    Id = Guid.NewGuid(),
+                    IsDeleted = false,
+                    MethodName = "Add",
+                    ServiceName = "OpenBots.Server.Model.Configuration.ConfigurationValue",
+                    Timestamp = new byte[1],
+                    ParametersJson = "",
+                    ExceptionJson = "",
+                    ObjectId = configValue.Id
+                };
+                dbContext.AuditLogs.Add(auditLog);
+            }
 
             dbContext.SaveChanges();
 

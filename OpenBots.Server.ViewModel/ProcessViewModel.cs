@@ -19,6 +19,7 @@ namespace OpenBots.Server.ViewModel
         public IFormFile? File { get; set; }
         public Guid? BinaryObjectId { get; set; }
         public Guid? OrganizationId { get; set; }
+        public string OriginalPackageName { get; set; }
 
         public ProcessViewModel Map(Process entity)
         {
@@ -31,6 +32,7 @@ namespace OpenBots.Server.ViewModel
             processViewModel.CreatedBy = entity.CreatedBy;
             processViewModel.CreatedOn = entity.CreatedOn;
             processViewModel.Status = entity.Status;
+            processViewModel.OriginalPackageName = entity.OriginalPackageName;
 
             return processViewModel;
         }
