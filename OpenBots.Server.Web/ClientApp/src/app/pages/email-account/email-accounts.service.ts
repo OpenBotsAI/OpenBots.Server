@@ -48,7 +48,8 @@ export class EmailAccountsService {
   testEmail(accountName) {
     // const headers = this.helperService.getETagHeaders(etag)
     let testEmail = `/Email/${accountName}`;
-    return this.http.post(`${this.apiUrl}` + testEmail, {});
+    return this.http.post(`${this.apiUrl}` + testEmail, {
+    });
   }
 
   addEmail(obj) {

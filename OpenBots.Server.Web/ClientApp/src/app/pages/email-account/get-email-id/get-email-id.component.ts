@@ -72,7 +72,6 @@ export class GetEmailIdComponent implements OnInit {
       this.showEmail = data.body;
       this.etag = data.headers.get('ETag').replace(/\"/g, '')
       const filterPipe = new TimeDatePipe();
-      // const fiteredArr = filterPipe.transform(this.showEmail.createdOn, 'lll');
       this.showEmail.createdOn = filterPipe.transform(this.showEmail.createdOn, 'lll');
       this.emailform.patchValue(this.showEmail);
       this.emailform.disable();
@@ -88,16 +87,11 @@ export class GetEmailIdComponent implements OnInit {
   }
 
 
-  testEmail() {
-    let obj = { "accountName": this.showEmail.name }
-    this.emailService.testEmail(this.showEmail.name).subscribe((data: any) => {
-
-    }, (error) => {
-
-    });
-  }
-
+ 
   gotoaudit() {
     this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'OpenBots.Server.Model.SystemConfiguration.EmailAccount', id: this.showEmail.id } })
+  }
+  gotoEmailTest() {
+    this.router.navigate(['/pages/emailaccount/test-email'], { queryParams: { name: this.showEmail.name, email: this.showEmail.fromEmailAddress } })
   }
 }

@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { AddEmailAccountComponent } from './add-email-account/add-email-account.component';
 import { AllEmailAccountComponent } from './all-email-account/all-email-account.component';
 import { EditEmailAccountComponent } from './edit-email-account/edit-email-account.component';
+import { EmailTestingAccountComponent } from './email-testing-account/email-testing-account.component';
 import { GetEmailIdComponent } from './get-email-id/get-email-id.component';
 
 
@@ -22,6 +23,10 @@ const routes: Routes = [
   {
     path: 'add',
     component: AddEmailAccountComponent
+  },
+  {
+    path: 'test-email',
+    component: EmailTestingAccountComponent
   }
 ];
 
