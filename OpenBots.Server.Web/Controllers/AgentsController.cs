@@ -336,15 +336,14 @@ namespace OpenBots.Server.Web.Controllers
                 return NotFound(ModelState);
             }
 
-            bool isChildExists = agentManager.CheckReferentialIntegrity(id);
-            if (isChildExists)
+            bool childExists = agentManager.CheckReferentialIntegrity(id);
+            if (childExists)
             {
                 ModelState.AddModelError("Delete Agent", "Referential Integrity in Schedule or Job table, please remove those before deleting this agent.");
                 return BadRequest(ModelState);
             }
 
             Person person = personRepo.Find(0, 1).Items?.Where(p => p.IsAgent && p.Name == agent.Name && !(p.IsDeleted ?? false))?.FirstOrDefault();
-            AgentHeartbeat agentHeartbeat = agentHeartbeatRepo.Find(0, 1).Items?.Where(h => h.AgentId == new Guid(id))?.FirstOrDefault();
             var aspUser = usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
 
             if (aspUser == null)
@@ -362,8 +361,7 @@ namespace OpenBots.Server.Web.Controllers
                 return BadRequest(ModelState);
             }
 
-            personRepo.SoftDelete(person.Id ?? Guid.Empty);
-            agentHeartbeatRepo.SoftDelete(agentHeartbeat.Id ?? Guid.Empty);
+            agentManager.DeleteExistingHeartbeats(agent.Id ?? Guid.Empty);
 
             return await base.DeleteEntity(id);
         }
@@ -543,7 +541,6 @@ namespace OpenBots.Server.Web.Controllers
                     request.Id = entityId;
 
                 AgentModel agent = agentRepo.GetOne(new Guid(agentId));
-
                 if (agent == null)
                 {
                     return NotFound("The Agent ID provided does not match any existing Agents");
@@ -572,7 +569,7 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Provides a heartbeat's view model details for a particular agent id
+        /// Provides a list of heartbeat details for a particular agent id
         /// </summary>
         /// <param name="agentId">Agent id</param>
         /// <response code="200">Ok, if a checkpoint for the given job id</response>
@@ -598,6 +595,12 @@ namespace OpenBots.Server.Web.Controllers
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
+            AgentModel agent = agentRepo.GetOne(new Guid(agentId));
+            if (agent == null)
+            {
+                return NotFound("The Agent ID provided does not match any existing Agents");
+            }
+
             ODataHelper<AgentHeartbeat> oData = new ODataHelper<AgentHeartbeat>();
 
             string queryString = "";

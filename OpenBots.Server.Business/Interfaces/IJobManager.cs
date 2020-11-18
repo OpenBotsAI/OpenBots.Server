@@ -14,8 +14,10 @@ namespace OpenBots.Server.Business
         JobsLookupViewModel GetJobAgentsLookup();
         PaginatedList<AllJobsViewModel> GetJobAgentsandProcesses(Predicate<AllJobsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
         NextJobViewModel GetNextJob(Guid agentId);
-        public IEnumerable<JobParameter> GetJobParameters(Guid id);
-        public void DeleteExistingParameters(Guid jobId);
+        IEnumerable<JobParameter> GetJobParameters(Guid id);
+        IEnumerable<JobCheckpoint> GetJobCheckpoints(Guid jobId)
+        void DeleteExistingParameters(Guid jobId);
+        void DeleteExistingCheckpoints(Guid jobId);
         string GetCsv(Job[] jobs);
         MemoryStream ZipCsv(FileContentResult csvFile);
     }

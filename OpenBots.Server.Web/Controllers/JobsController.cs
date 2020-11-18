@@ -670,8 +670,11 @@ namespace OpenBots.Server.Web
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string id)
         {
+            Guid jobId = new Guid(id);
+
             var response = await base.DeleteEntity(id);
-            jobManager.DeleteExistingParameters(new Guid(id));
+            jobManager.DeleteExistingParameters(jobId);
+            jobManager.DeleteExistingCheckpoints(jobId);
 
             //Send SignalR notification to all connected clients 
             await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} deleted.", id));
@@ -741,7 +744,6 @@ namespace OpenBots.Server.Web
                 request.Id = entityId;
 
             Job job = repository.GetOne(new Guid(jobId));
-
             if (job == null)
             {
                 return NotFound("The Job ID provided does not match any existing Jobs");
@@ -790,6 +792,12 @@ namespace OpenBots.Server.Web
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
+            Job job = repository.GetOne(new Guid(jobId));
+            if (job == null)
+            {
+                return NotFound("The Job ID provided does not match any existing Jobs");
+            }
+
             ODataHelper<JobCheckpoint> oData = new ODataHelper<JobCheckpoint>();
 
             string queryString = "";

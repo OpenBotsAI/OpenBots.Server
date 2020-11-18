@@ -2,6 +2,7 @@
 using OpenBots.Server.Model;
 using OpenBots.Server.ViewModel;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace OpenBots.Server.Business
@@ -55,6 +56,22 @@ namespace OpenBots.Server.Business
               | j.JobStatus == JobStatusType.InProgress);
 
             return scheduleWithAgent.Count() > 0 || jobWithAgent.Count() > 0 ? true : false;
+        }
+
+        public IEnumerable<AgentHeartbeat> GetAgentHeartbeats(Guid agentId)
+        {
+            var agentHeartbeats = agentHeartbeatRepo.Find(0, 1)?.Items?.Where(p => p.AgentId == agentId);
+            return agentHeartbeats;
+        }
+
+        public void DeleteExistingHeartbeats(Guid agentId)
+        {
+            var agentHeartbeats = GetAgentHeartbeats(agentId);
+            foreach (var heartbeat in agentHeartbeats)
+            {
+                agentHeartbeatRepo.SoftDelete(heartbeat.AgentId);
+            }
+
         }
     }
 }

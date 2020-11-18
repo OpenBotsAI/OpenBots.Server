@@ -17,14 +17,16 @@ namespace OpenBots.Server.Business
         private readonly IAgentRepository agentRepo;
         private readonly IProcessRepository processRepo;
         private readonly IJobParameterRepository jobParameterRepo;
+        private readonly IJobCheckpointRepository jobCheckpointRepo;
 
         public JobManager(IJobRepository repo, IAgentRepository agentRepo, IProcessRepository processRepo,
-            IJobParameterRepository jobParameterRepository)
+            IJobParameterRepository jobParameterRepository, IJobCheckpointRepository jobCheckpointRepository)
         {
             this.repo = repo;
             this.agentRepo = agentRepo;
             this.processRepo = processRepo;
             this.jobParameterRepo = jobParameterRepository;
+            this.jobCheckpointRepo = jobCheckpointRepository;
         }
 
         public JobViewModel GetJobView(JobViewModel jobView)
@@ -72,6 +74,12 @@ namespace OpenBots.Server.Business
             return jobParameters;
         }
 
+        public IEnumerable<JobCheckpoint> GetJobCheckpoints(Guid jobId)
+        {
+            var jobCheckPoints = jobCheckpointRepo.Find(0, 1)?.Items?.Where(p => p.JobId == jobId);
+            return jobCheckPoints;
+        }
+
         public void DeleteExistingParameters(Guid jobId)
         {
             var jobParameters = GetJobParameters(jobId);
@@ -80,6 +88,16 @@ namespace OpenBots.Server.Business
                 jobParameterRepo.SoftDelete(parmeter.Id ?? Guid.Empty);
             }
             
+        }
+
+        public void DeleteExistingCheckpoints(Guid jobId)
+        {
+            var jobCheckpoints = GetJobCheckpoints(jobId);
+            foreach (var checkpoint in jobCheckpoints)
+            {
+                jobCheckpointRepo.SoftDelete(checkpoint.Id ?? Guid.Empty);
+            }
+
         }
 
         public string GetCsv(Job[] jobs)

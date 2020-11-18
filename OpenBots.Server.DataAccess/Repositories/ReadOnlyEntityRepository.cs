@@ -244,7 +244,7 @@ namespace OpenBots.Server.DataAccess.Repositories
         /// <returns></returns>
         public int Count(Func<T, bool> predicate)
         {
-            return DbTable().Where(AuthorizeRead()).AsQueryable().Where(predicate).Count();
+            return DbTable().Where(AuthorizeRead()).AsQueryable().Where(predicate).Where(RemoveSoftDeleted()).Count();
         }
 
         /// <summary>
@@ -262,7 +262,7 @@ namespace OpenBots.Server.DataAccess.Repositories
         /// <returns></returns>
         public T GetOne(Guid Id)
         {
-            var result = DbTable().Where(AuthorizeRead()).AsQueryable().Where(e => e.Id.Equals(Id)).FirstOrDefault();
+            var result = DbTable().Where(AuthorizeRead()).AsQueryable().Where(RemoveSoftDeleted()).Where(e => e.Id == Id).FirstOrDefault();
             return result;
         }
 
@@ -273,7 +273,7 @@ namespace OpenBots.Server.DataAccess.Repositories
         /// <returns></returns>
         public bool Exists(Guid Id)
         {
-            return DbTable().Where(AuthorizeRead()).AsQueryable().Where(e => e.Id == Id).Any();
+            return DbTable().Where(AuthorizeRead()).AsQueryable().Where(RemoveSoftDeleted()).Where(e => e.Id == Id).Any();
         }
 
         protected virtual Func<T, bool> RemoveSoftDeleted()
