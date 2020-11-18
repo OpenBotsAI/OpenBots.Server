@@ -712,6 +712,7 @@ namespace OpenBots.Server.Web
         /// <remarks>
         /// Creates a new Job Checkpoint for the specified job id
         /// </remarks>
+        /// <param name="jobId"></param>
         /// <param name="request"></param>
         /// <response code="200">Ok, new checkpoint created and returned</response>
         /// <response code="400">Bad request, when the job value is not in proper format</response>
@@ -739,6 +740,13 @@ namespace OpenBots.Server.Web
             if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
                 request.Id = entityId;
 
+            Job job = repository.GetOne(new Guid(jobId));
+
+            if (job == null)
+            {
+                return NotFound("The Job ID provided does not match any existing Jobs");
+            }
+
             try
             {
                 request.JobId = new Guid(jobId);
@@ -758,15 +766,15 @@ namespace OpenBots.Server.Web
         /// <summary>
         /// Provides a checkpoint's view model details for a particular job id
         /// </summary>
-        /// <param name="id">Job id</param>
+        /// <param name="jobId">Job id</param>
         /// <response code="200">Ok, if a checkpoint for the given job id</response>
         /// <response code="304">Not modified</response>
         /// <response code="400">Bad request, if job id is not in the proper format or a proper Guid</response>
         /// <response code="403">Forbidden</response>
         /// <response code="404">Not found, when no job exists for the given job id</response>
-        /// <returns>Job view model details for the given id</returns>
+        /// <returns>JobCheckpoint details for the given id</returns>
         [HttpGet("{JobId}/JobCheckpoints", Name = "GetJobCheckpoint")]
-        [ProducesResponseType(typeof(JobCheckpoint), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<JobCheckpoint>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -775,7 +783,7 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
         public async Task<IActionResult> JobCheckpoints(
-            string JobId,
+            string jobId,
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
@@ -796,7 +804,7 @@ namespace OpenBots.Server.Web
             Guid parentguid = Guid.Empty;
 
             return Ok(jobCheckpointRepo.Find(parentguid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip,
-                oData.Top).Items.Where(c=> c.JobId == new Guid(JobId)));
+                oData.Top).Items.Where(c=> c.JobId == new Guid(jobId)));
         }
     }
 }
