@@ -9,6 +9,8 @@ import { GetEmailIdComponent } from './get-email-id/get-email-id.component';
 import { EditEmailAccountComponent } from './edit-email-account/edit-email-account.component';
 import { AddEmailAccountComponent } from './add-email-account/add-email-account.component';
 import { EmailTestingAccountComponent } from './email-testing-account/email-testing-account.component';
+import { CKEditorModule } from 'ng2-ckeditor';
+ 
 
 @NgModule({
   declarations: [AllEmailAccountComponent, GetEmailIdComponent, EditEmailAccountComponent, AddEmailAccountComponent, EmailTestingAccountComponent
@@ -19,6 +21,8 @@ import { EmailTestingAccountComponent } from './email-testing-account/email-test
     EmailAccountRoutingModule,
     SharedModule,
     NgxPaginationModule,
+    CKEditorModule,
+
   
 
   ],

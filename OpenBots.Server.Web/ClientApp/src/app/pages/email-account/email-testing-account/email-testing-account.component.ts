@@ -1,8 +1,7 @@
-import { DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NbDateService, NbToastrService } from '@nebular/theme';
+import { NbToastrService } from '@nebular/theme';
 import { EmailAccountsService } from '../email-accounts.service';
 
 @Component({
@@ -11,23 +10,30 @@ import { EmailAccountsService } from '../email-accounts.service';
   styleUrls: ['./email-testing-account.component.scss']
 })
 export class EmailTestingAccountComponent implements OnInit {
-
-  min: Date;
-  max: Date;
-  emailId: any = [];
+  @ViewChild("myckeditor") ckeditor: any;
   submitted = false;
   showEmail: any = [];
   emailform: FormGroup;
-  pipe = new DatePipe('en-US');
-  now = Date();
-  show_createdon: any = [];
+  ckeConfig: any;
+  queryParamName: string;
+  queryParamEmail: string;
 
   constructor(
-    private toastrService: NbToastrService, private dateService: NbDateService<Date>,
+    private toastrService: NbToastrService, private route: ActivatedRoute,
     protected emailService: EmailAccountsService,
     private formBuilder: FormBuilder, protected router: Router,
   ) {
+    this.ckeConfig = {
+      allowedContent: false,
+      extraPlugins: "divarea",
+      forcePasteAsPlainText: true
+    };
+    this.route.queryParams.subscribe((params) => {
 
+      this.queryParamName = params.name
+      this.queryParamEmail = params.email
+
+    });
   }
 
   ngOnInit(): void {
@@ -35,13 +41,27 @@ export class EmailTestingAccountComponent implements OnInit {
     this.emailform = this.formBuilder.group({
       address: ['', [Validators.required, Validators.pattern('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,4}$')]],
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100), Validators.pattern('^[A-Za-z0-9_.-]{3,100}$')]],
-      subject: [''],
+      subject: ['', [Validators.required]],
       body: [''],
 
     });
 
+    this.emailform.patchValue({
+      name: this.queryParamName,
+      address: this.queryParamEmail
+    }
+    )
+
+
+  }
+  onChange($event: any): void {
+    console.log("onChange");
+
   }
 
+  onPaste($event: any): void {
+    console.log("onPaste");
+  }
 
   get f() {
     return this.emailform.controls;
@@ -58,14 +78,26 @@ export class EmailTestingAccountComponent implements OnInit {
 
 
   onSubmit() {
-    console.log(this.emailform.value)
-    // this.submitted = true;
-    // this.emailService
-    //   .addEmail(this.emailform.value)
-    //   .subscribe(() => {
-    //     this.toastrService.success('Email account created successfully', 'Success');
-    //     this.router.navigate(['pages/emailaccount/list']);
-    //     this.submitted = false
-    //   }, () => this.submitted = false);
+    this.submitted = true;
+    let obj =
+    {
+      to: [
+        {
+          name: this.emailform.value.name,
+          address: this.emailform.value.address,
+        }
+      ],
+      subject: this.emailform.value.subject,
+      body: this.emailform.value.body,
+      isBodyHtml: true
+    }
+
+    this.emailService
+      .testEmail(this.emailform.value.name, obj)
+      .subscribe(() => {
+        this.toastrService.success('Email test successfully.', 'Success');
+        this.router.navigate(['pages/emailaccount/list']);
+        this.submitted = false
+      }, () => this.submitted = false);
   }
 }

@@ -45,11 +45,9 @@ export class EmailAccountsService {
     return this.http.put(`${this.apiUrl}` + editassetUrl, obj, { headers });
   }
 
-  testEmail(accountName) {
-    // const headers = this.helperService.getETagHeaders(etag)
+  testEmail(accountName, obj) {
     let testEmail = `/Email/${accountName}`;
-    return this.http.post(`${this.apiUrl}` + testEmail, {
-    });
+    return this.http.post(`${this.apiUrl}` + testEmail, obj);
   }
 
   addEmail(obj) {

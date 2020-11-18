@@ -1,122 +1,148 @@
 <div class="row">
-    <div class="col-md-12">
-        <nb-card>
-            <nb-card-header>
-                <div class="row">
-                    <div class="col-md-8 col-lg-8 col-xxxl-6">
-                        <h2>Test Email Account</h2>
-                    </div>
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+        <div class="row">
+          <div class="col-md-8 col-lg-8 col-xxxl-6">
+            <h2>Test Email Account</h2>
+          </div>
+        </div>
+      </nb-card-header>
+      <nb-card-body>
+        <form [formGroup]="emailform">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="label col-form-label">Name *</label>
 
-
+                <input
+                  type="input"
+                  nbInput
+                  fullWidth
+                  formControlName="name"
+                  style="color: #000000"
+                  placeholder="Please enter name"
+                />
+                <div
+                  *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid"
+                  class="invalid-feedback-frm"
+                >
+                  <div *ngIf="f.name.errors && f.name.errors.required">
+                    Name is required.
+                  </div>
+                  <div *ngIf="f.name.errors.minlength">
+                    Name at least 3 characters long.
+                  </div>
+                  <div *ngIf="f.name.errors.maxlength">
+                    Name at least 100 characters long.
+                  </div>
+                  <div *ngIf="f.name.errors.pattern">
+                    Please enter valid name.
+                  </div>
                 </div>
-            </nb-card-header>
-            <nb-card-body>
-                <form [formGroup]="emailform">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="label col-form-label">To Name *</label>
+              </div>
+            </div>
 
-                                <input type="input" nbInput fullWidth formControlName="name" style="color: #000000"
-                                    placeholder="Please enter name" />
-                                <div *ngIf=" (f.name.touched || f.name.dirty) && f.name.invalid "
-                                    class="invalid-feedback-frm">
-                                    <div *ngIf="f.name.errors && f.name.errors.required">
-                                        TO Name is required.
-                                    </div>
-                                    <div *ngIf="f.name.errors.minlength">
-                                        TO Name at least 3 characters long.
-                                    </div>
-                                    <div *ngIf="f.name.errors.maxlength">
-                                        TO Name at least 100 characters long.
-                                    </div>
-                                    <div *ngIf="f.name.errors.pattern">
-                                        Please enter valid TO Name .
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="label col-form-label"> Email * </label>
 
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="label col-form-label">TO Email * </label>
+                <input
+                  type="input"
+                  nbInput
+                  fullWidth
+                  formControlName="address"
+                  style="color: #000000"
+                  placeholder="Please enter email"
+                />
+                <div
+                  *ngIf="
+                    (f.address.touched || f.address.dirty) && f.address.invalid
+                  "
+                  class="invalid-feedback-frm"
+                >
+                  <div *ngIf="f.address.errors && f.address.errors.required">
+                    Email is required.
+                  </div>
+                  <div *ngIf="f.address.errors.pattern">
+                    Please enter valid email .
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                                <input type="input" nbInput fullWidth formControlName="address"
-                                    style="color: #000000" placeholder="Please enter email" />
-                                <div *ngIf=" (f.address.touched || f.address.dirty) && f.address.invalid "
-                                    class="invalid-feedback-frm">
-                                    <div *ngIf="f.address.errors && f.address.errors.required">
-                                        Email is required.
-                                    </div>
-                                    <div *ngIf="f.address.errors.pattern">
-                                        Please enter valid email .
-                                    </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="label col-form-label">Subject </label>
 
-                                </div>
+                <input
+                  type="input"
+                  nbInput
+                  fullWidth
+                  formControlName="subject"
+                  style="color: #000000"
+                  placeholder="Please enter subject"
+                />
+                 <div
+                  *ngIf="(f.subject.touched || f.subject.dirty) && f.subject.invalid"
+                  class="invalid-feedback-frm"
+                >
+                  <div *ngIf="f.subject.errors && f.subject.errors.required">
+                    subject is required.
+                  </div>
+                  <div *ngIf="f.subject.errors.minlength">
+                    subject at least 3 characters long.
+                  </div>
+                  <div *ngIf="f.subject.errors.maxlength">
+                    subject at least 100 characters long.
+                  </div>
+                  <div *ngIf="f.subject.errors.pattern">
+                    Please enter valid subject.
+                  </div>
+                </div>
 
-                            </div>
-                        </div>
-                    </div>
+              </div>
+            </div>
+          </div>
 
-                     
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="label col-form-label">Please write something </label>
 
-                    <div class="row">
+                <ckeditor
+                  formControlName="body"
+                  name="myckeditor"
+                  required
+                      placeholder="Please enter email"
+                  [config]="ckeConfig"
+                  debounce="500"
+                  (paste)="onPaste($event)"
+                  (change)="onChange($event)"
+                >
+                </ckeditor>
+              </div>
+            </div>
+          </div>
 
+          <div class="row rowPadTOp">
+            <div class="col-md-12 col-lg-12 col-xxxl-6">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="submitted || !emailform.valid"
+                status="primary"
+                (click)="onSubmit()"
+              >
+                Save
+              </button>
+            </div>
+          </div>
 
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label class="label col-form-label">Subject  </label>
-
-                                
-                                <input type="input" nbInput fullWidth formControlName="subject" style="color: #000000"
-                                    placeholder="Please enter subject" />
-
-                            </div>
-                        </div>
-                        <!-- <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="label col-form-label">Password </label>
-
-                                <input type="password" nbInput fullWidth formControlName="passwordHash"
-                                    style="color: #000000" placeholder="Please enter password"
-                                    autocomplete="new-password" />
-
-
-
-                            </div>
-                        </div> -->
-                    </div>
-
-                    <div class="row">
-
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="label col-form-label">body </label>
-
-                                <input type="input" nbInput fullWidth formControlName="body" style="color: #000000"
-                                    placeholder="Please enter body" />
-
-
-                            </div>
-                        </div>
-                      
-                    </div>
-
-
-
-
-
-                    <div class="row rowPadTOp">
-                        <div class="col-md-12 col-lg-12 col-xxxl-6">
-                            <button type="submit" class="btn btn-primary" [disabled]="submitted || !emailform.valid"
-                                status="primary" (click)="onSubmit()">
-                                Save
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </nb-card-body>
-        </nb-card>
-    </div>
+        </form>
+      </nb-card-body>
+    </nb-card>
+  </div>
 </div>
