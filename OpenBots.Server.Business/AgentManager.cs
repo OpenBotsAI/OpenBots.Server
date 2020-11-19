@@ -32,7 +32,7 @@ namespace OpenBots.Server.Business
             agentView.UserName = usersRepo.Find(null, u => u.Name == agentView.Name).Items?.FirstOrDefault()?.UserName;
             agentView.CredentialName = credentialRepo.GetOne(agentView.CredentialId??Guid.Empty)?.Name;
 
-            AgentHeartbeat agentHeartBeat = agentHeartbeatRepo.Find(0,1).Items?.Where(a=>a.AgentId == agentView.Id).FirstOrDefault();
+            AgentHeartbeat agentHeartBeat = agentHeartbeatRepo.Find(0,1).Items?.Where(a=>a.AgentId == agentView.Id).OrderByDescending(a=>a.CreatedOn).FirstOrDefault();
 
             agentView.LastReportedOn = agentHeartBeat.LastReportedOn;
             agentView.LastReportedStatus = agentHeartBeat.LastReportedStatus;
