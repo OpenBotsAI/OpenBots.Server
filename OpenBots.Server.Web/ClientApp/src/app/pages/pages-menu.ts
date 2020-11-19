@@ -24,6 +24,7 @@ export class PagesMenu {
       queue: '<img src="../../assets/icons/Queue.svg">',
       schedule: '<img src="../../assets/icons/Schedule.svg">',
       team: '<img src="../../assets/icons/Team.svg">',
+      config: '<img src="../../assets/icons/config.svg">',
     });
   }
   getMenu(): Observable<NbMenuItem[]> {
@@ -195,6 +196,16 @@ export class PagesMenu {
             title: 'Add Schedule',
             link: '/pages/schedules/add',
           },
+        ],
+      },
+      {
+        title: 'Setting Configuration',
+        icon: { icon: 'config', pack: 'custom-icons' },
+        children: [
+          {
+            title: 'All Configurations',
+            link: '/pages/config/list',
+          }
         ],
       },
 

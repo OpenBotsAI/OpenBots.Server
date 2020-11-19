@@ -89,8 +89,9 @@ export class GetEmailIdComponent implements OnInit {
 
  
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'OpenBots.Server.Model.SystemConfiguration.EmailAccount', id: this.showEmail.id } })
+    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'OpenBots.Server.Model.Configuration.EmailAccount', id: this.showEmail.id } })
   }
+
   gotoEmailTest() {
     this.router.navigate(['/pages/emailaccount/test-email'], { queryParams: { name: this.showEmail.name, email: this.showEmail.fromEmailAddress } })
   }

@@ -55,4 +55,10 @@ export class EmailAccountsService {
     return this.http.post(`${this.apiUrl}` + editassetUrl, obj);
   }
 
+
+  getConfigValue() {
+    let getagentUrlbyId = `/ConfigurationValues`;
+    return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
+  }
+
 }

@@ -64,6 +64,6 @@ export class GetEmailLogIdComponent implements OnInit {
     });
   }
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'OpenBots.Server.Model.SystemConfiguration.EmailAccount', id: this.showEmail.id } })
+    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'OpenBots.Server.Model.Configuration.EmailLog', id: this.showEmail.id } })
   }
 }
