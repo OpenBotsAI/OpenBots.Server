@@ -63,7 +63,7 @@ export class GetConfigValueComponent implements OnInit {
       this.etag = data.headers.get('ETag').replace(/\"/g, '')
       console.log(this.etag)
       const filterPipe = new TimeDatePipe();
-      this.showconfigValue.createdOn = filterPipe.transform(this.showconfigValue.createdOn, 'lll');
+      this.showconfigValue.updatedOn = filterPipe.transform(this.showconfigValue.updatedOn, 'lll');
       this.configform.patchValue(this.showconfigValue);
       this.configform.disable();
 
