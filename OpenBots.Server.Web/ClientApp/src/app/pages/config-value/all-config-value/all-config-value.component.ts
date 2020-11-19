@@ -72,25 +72,7 @@ export class AllConfigValueComponent implements OnInit {
       });
   }
 
-  // open2(dialog: TemplateRef<any>, id: any) {
-  //   this.del_id = [];
-  //   this.view_dialog = dialog;
-  //   this.dialogService.openDialog(dialog);
-  //   this.del_id = id;
-  // }
 
-  // del_agent(ref) {
-  //   this.isDeleted = true;
-  //   const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-  //   this.configService.delAssetbyID(this.del_id).subscribe(
-  //     () => {
-  //       this.toastrService.success('Deleted Successfully');
-  //       ref.close();
-  //       this.getAllEmail(this.page.pageSize, skip);
-  //     },
-  //     () => (this.isDeleted = false)
-  //   );
-  // }
 
   getAllConfigValue(top, skip) {
     this.get_perPage = false;
