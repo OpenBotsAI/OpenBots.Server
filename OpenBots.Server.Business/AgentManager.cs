@@ -34,11 +34,14 @@ namespace OpenBots.Server.Business
 
             AgentHeartbeat agentHeartBeat = agentHeartbeatRepo.Find(0,1).Items?.Where(a=>a.AgentId == agentView.Id).OrderByDescending(a=>a.CreatedOn).FirstOrDefault();
 
-            agentView.LastReportedOn = agentHeartBeat.LastReportedOn;
-            agentView.LastReportedStatus = agentHeartBeat.LastReportedStatus;
-            agentView.LastReportedWork = agentHeartBeat.LastReportedWork;
-            agentView.LastReportedMessage = agentHeartBeat.LastReportedMessage;
-            agentView.IsHealthy = agentHeartBeat.IsHealthy;
+            if (agentHeartBeat != null)
+            {
+                agentView.LastReportedOn = agentHeartBeat.LastReportedOn;
+                agentView.LastReportedStatus = agentHeartBeat.LastReportedStatus;
+                agentView.LastReportedWork = agentHeartBeat.LastReportedWork;
+                agentView.LastReportedMessage = agentHeartBeat.LastReportedMessage;
+                agentView.IsHealthy = agentHeartBeat.IsHealthy;
+            }
 
             return agentView;
         }
