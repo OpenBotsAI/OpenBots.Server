@@ -6,17 +6,19 @@ import { DialogService } from '../../../@core/dialogservices';
 import { HelperService } from '../../../@core/services/helper.service';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
 import { Page } from '../../../interfaces/paginateInstance';
-import { EmailAccountsService } from '../email-accounts.service';
+import { ConfigValueService } from '../config-value.service';
+
 
 @Component({
-  selector: 'ngx-all-email-account',
-  templateUrl: './all-email-account.component.html',
-  styleUrls: ['./all-email-account.component.scss'],
+  selector: 'ngx-all-config-value',
+  templateUrl: './all-config-value.component.html',
+  styleUrls: ['./all-config-value.component.scss']
 })
-export class AllEmailAccountComponent implements OnInit {
+export class AllConfigValueComponent implements OnInit {
+
   isDeleted = false;
   showpage: any = [];
-  showallEmail: any = [];
+  showallconfigValue: any = [];
   sortDir = 1;
   view_dialog: any;
   showData;
@@ -32,14 +34,10 @@ export class AllEmailAccountComponent implements OnInit {
   constructor(
     protected router: Router,
     private dialogService: DialogService,
-    protected emailService: EmailAccountsService,
+    protected configService: ConfigValueService,
     private helperService: HelperService,
     private toastrService: NbToastrService
   ) {
-
-    this.emailService.getConfigValue().subscribe((data: any) => {
-      console.log(data)
-    })
 
   }
 
@@ -50,16 +48,15 @@ export class AllEmailAccountComponent implements OnInit {
     this.itemsPerPage = this.helperService.getItemsPerPage();
   }
 
-  gotoadd() {
-    this.router.navigate(['/pages/emailaccount/add']);
-  }
+
   gotoedit(id) {
-    this.router.navigate(['/pages/emailaccount/edit'], {
+    this.router.navigate(['/pages/config/edit'], {
       queryParams: { id: id },
     });
   }
+
   gotodetail(id) {
-    this.router.navigate(['/pages/emailaccount/get-email-id'], {
+    this.router.navigate(['/pages/config/get-config-id'], {
       queryParams: { id: id },
     });
   }
@@ -67,37 +64,19 @@ export class AllEmailAccountComponent implements OnInit {
   sort(filter_val, vale) {
     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
     this.feild_name = filter_val + '+' + vale;
-    this.emailService
-      .getAllEmailOrder(this.page.pageSize, skip, this.feild_name)
+    this.configService
+      .getAllConfigvalueOrder(this.page.pageSize, skip, this.feild_name)
       .subscribe((data: any) => {
         this.showpage = data;
-        this.showallEmail = data.items;
+        this.showallconfigValue = data.items;
       });
   }
 
-  open2(dialog: TemplateRef<any>, id: any) {
-    this.del_id = [];
-    this.view_dialog = dialog;
-    this.dialogService.openDialog(dialog);
-    this.del_id = id;
-  }
 
-  del_agent(ref) {
-    this.isDeleted = true;
-    const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-    this.emailService.delAssetbyID(this.del_id).subscribe(
-      () => {
-        this.toastrService.success('Deleted Successfully');
-        ref.close();
-        this.getAllEmail(this.page.pageSize, skip);
-      },
-      () => (this.isDeleted = false)
-    );
-  }
 
-  getAllEmail(top, skip) {
+  getAllConfigValue(top, skip) {
     this.get_perPage = false;
-    this.emailService.getAllEmail(top, skip).subscribe((data: any) => {
+    this.configService.getAllConfigvalue(top, skip).subscribe((data: any) => {
       for (const item of data.items) {
         if (item.valueJson) {
           item.valueJson = JSON.stringify(item.valueJson);
@@ -105,7 +84,7 @@ export class AllEmailAccountComponent implements OnInit {
         }
       }
       this.showpage = data;
-      this.showallEmail = data.items;
+      this.showallconfigValue = data.items;
       this.page.totalCount = data.totalCount;
       if (data.totalCount == 0) {
         this.get_perPage = false;
@@ -138,20 +117,20 @@ export class AllEmailAccountComponent implements OnInit {
     this.page.pageSize = val;
     const skip = (this.page.pageNumber - 1) * this.per_page_num;
     if (this.feild_name.length == 0) {
-      this.emailService
-        .getAllEmail(this.page.pageSize, skip)
+      this.configService
+        .getAllConfigvalue(this.page.pageSize, skip)
         .subscribe((data: any) => {
           this.showpage = data;
-          this.showallEmail = data.items;
+          this.showallconfigValue = data.items;
           this.page.totalCount = data.totalCount;
         });
     } else if (this.feild_name.length != 0) {
       this.show_perpage_size = true;
-      this.emailService
-        .getAllEmailOrder(this.page.pageSize, skip, this.feild_name)
+      this.configService
+        .getAllConfigvalueOrder(this.page.pageSize, skip, this.feild_name)
         .subscribe((data: any) => {
           this.showpage = data;
-          this.showallEmail = data.items;
+          this.showallconfigValue = data.items;
           this.page.totalCount = data.totalCount;
         });
     }
@@ -167,24 +146,24 @@ export class AllEmailAccountComponent implements OnInit {
       const top: number = pageSize;
       const skip = (pageNumber - 1) * pageSize;
       if (this.feild_name.length == 0) {
-        this.getAllEmail(top, skip);
+        this.getAllConfigValue(top, skip);
       } else if (this.feild_name.lenght != 0) {
-        this.emailService
-          .getAllEmailOrder(top, skip, this.feild_name)
+        this.configService
+          .getAllConfigvalueOrder(top, skip, this.feild_name)
           .subscribe((data: any) => {
             this.showpage = data;
-            this.showallEmail = data.items;
+            this.showallconfigValue = data.items;
             this.page.totalCount = data.totalCount;
           });
       }
     } else if (this.show_perpage_size == true) {
       const top: number = this.per_page_num;
       const skip = (pageNumber - 1) * this.per_page_num;
-      this.emailService
-        .getAllEmailOrder(top, skip, this.feild_name)
+      this.configService
+        .getAllConfigvalueOrder(top, skip, this.feild_name)
         .subscribe((data: any) => {
           this.showpage = data;
-          this.showallEmail = data.items;
+          this.showallconfigValue = data.items;
           this.page.totalCount = data.totalCount;
         });
     }

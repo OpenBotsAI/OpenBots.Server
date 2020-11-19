@@ -1,0 +1,118 @@
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+        <div class="row">
+          <div class="col-md-8 col-lg-8 col-xxxl-6">
+            <h2>Configuration Detail</h2>
+          </div>
+
+          <div class="col-md-4 col-lg-4 col-xxxl-6 text-right">
+            <button
+              type="button"
+              nbTooltip="View Change Logs"
+              nbTooltipPlacement="top"
+              class="btn"
+              (click)="gotoaudit()"
+            >
+              <img class="img" src="../../../../assets/images/auditLog.svg" />
+            </button>
+          </div>
+        </div>
+      </nb-card-header>
+      <nb-card-body>
+        <form [formGroup]="configform">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="label col-form-label">Name</label>
+
+                <input
+                  type="input"
+                  nbInput
+                  fullWidth
+                  formControlName="name"
+                  style="color: #000000"
+                />
+              </div>
+            </div>
+
+           
+
+
+              <div class="col-md-6">
+              <div class="form-group">
+                <label class="label col-form-label">Description </label>
+
+                <input
+                  type="input"
+                  nbInput
+                  fullWidth
+                  formControlName="description"
+                  style="color: #000000"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+       
+             <div class="col-md-6">
+              <div class="form-group">
+                <label class="label col-form-label">
+                  Configuration value
+                </label>
+
+                <input
+                  type="input"
+                  nbInput
+                  fullWidth
+                  formControlName="value"
+                  style="color: #000000"
+                />
+              </div>
+            </div>
+          </div>
+
+          
+          <div class="row">
+                 <div class="col-md-6">
+              <div class="form-group">
+                <label for="createdOn" class="label col-form-label"
+                  >Updated On
+                </label>
+
+                <input
+                  type="input"
+                  nbInput
+                  fullWidth
+                  id="createdOn"
+                  formControlName="updatedOn"
+                  style="color: #000000"
+                />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="createdBy" class="label col-form-label"
+                  >Updated By
+                </label>
+
+                <input
+                  type="input"
+                  nbInput
+                  fullWidth
+                  id="createdBy"
+                  formControlName="updatedBy"
+                  style="color: #000000"
+                />
+              </div>
+            </div>
+
+         
+          </div>
+        </form>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

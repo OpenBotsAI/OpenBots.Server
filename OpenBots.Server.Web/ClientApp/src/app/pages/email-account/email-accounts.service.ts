@@ -45,15 +45,20 @@ export class EmailAccountsService {
     return this.http.put(`${this.apiUrl}` + editassetUrl, obj, { headers });
   }
 
-  testEmail(accountName) {
-    // const headers = this.helperService.getETagHeaders(etag)
+  testEmail(accountName, obj) {
     let testEmail = `/Email/${accountName}`;
-    return this.http.post(`${this.apiUrl}` + testEmail, {});
+    return this.http.post(`${this.apiUrl}` + testEmail, obj);
   }
 
   addEmail(obj) {
     let editassetUrl = `/EmailAccounts`;
     return this.http.post(`${this.apiUrl}` + editassetUrl, obj);
+  }
+
+
+  getConfigValue() {
+    let getagentUrlbyId = `/ConfigurationValues`;
+    return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
   }
 
 }

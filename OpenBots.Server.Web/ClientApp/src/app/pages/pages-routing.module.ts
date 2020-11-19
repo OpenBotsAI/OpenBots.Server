@@ -131,6 +131,14 @@ const routes: Routes = [
         canActivate: [LoginGuard],
       },
       {
+        path: 'config',
+        loadChildren: () =>
+          import('./config-value/config-value.module').then(
+            (mod) => mod.ConfigValueModule
+          ),
+        canActivate: [LoginGuard],
+      },
+      {
         path: 'queueslist',
         loadChildren: () =>
           import('./queues/queues.module').then((mod) => mod.QueuesModule),

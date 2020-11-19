@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenBots.Server.Web;
+using Microsoft.Azure.ServiceBus;
 
 namespace OpenBots.Server.WebAPI.Controllers
 {
@@ -11,20 +12,22 @@ namespace OpenBots.Server.WebAPI.Controllers
     {
         public static IActionResult GetActionResult(this Exception ex)
         {
-                ProblemDetails problem = ex.GetProblemDetails();
-                switch(problem.Status)
-                {
-                    case 400:
-                        return new BadRequestObjectResult(problem);
-                    case 403:
-                        return new ForbidResult();
-                    case 404:
-                        return new NotFoundObjectResult(problem);
-                    case 409:
-                        return new ConflictObjectResult(problem);
-                    case 422:
-                        return new UnprocessableEntityObjectResult(problem);
-                }
+            ProblemDetails problem = ex.GetProblemDetails();
+            switch (problem.Status)
+            {
+                case 400:
+                    return new BadRequestObjectResult(problem);
+                case 403:
+                    return new ForbidResult();
+                case 404:
+                    return new NotFoundObjectResult(problem);
+                case 409:
+                    return new ConflictObjectResult(problem);
+                case 422:
+                    return new UnprocessableEntityObjectResult(problem);
+                case 429:
+                    return new BadRequestObjectResult(problem);
+            }
             return new BadRequestResult();
         }
 
@@ -45,13 +48,13 @@ namespace OpenBots.Server.WebAPI.Controllers
                 problem.Title = string.Concat("Entity Operation Exception.", ex.Message);
                 problem.Status = 400;
             }
-            if(ex is EntityValidationException)
+            if (ex is EntityValidationException)
             {
                 problem = GetValidationProblemDetails(ex as EntityValidationException);
                 problem.Title = string.Concat("Validation Error.", ex.Message);
                 problem.Status = 422;
             }
-            if(ex is EntityAlreadyExistsException)
+            if (ex is EntityAlreadyExistsException)
             {
                 problem.Title = string.Concat("Entity Already Exist.", ex.Message);
                 problem.Status = 409;
@@ -68,6 +71,12 @@ namespace OpenBots.Server.WebAPI.Controllers
                 problem.Status = 400;
                 problem.serviceErrors = new string[1] { "Record(s) no longer exists or you do not have authorized access." };
             }
+            if (ex is ServerBusyException || ex.Message.ToLower().Contains("too many requests"))
+            {
+                problem.Title = string.Concat("Server Busy, Too Many Requests.", ex.Message);
+                problem.Status = 429;
+                problem.serviceErrors = new string[1] { "Server is busy, please try again latter." };
+            }
             if (ex is CannotInsertDuplicateConstraintException)
             {
                 Dictionary<string, string[]> errors = new Dictionary<string, string[]>();
@@ -75,7 +84,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                 List<string> messages = new List<string>();
                 messages.Add($"{cidce.EntityName} {cidce.PropertyName} already exists. Cannot add duplicate.");
                 errors.Add(cidce.PropertyName, messages.ToArray());
-                problem  = new ServiceBadRequest(errors);
+                problem = new ServiceBadRequest(errors);
                 problem.Title = string.Concat("Cannot Insert Duplicate Constraint.", ex.Message);
                 problem.Status = 400;
             }
