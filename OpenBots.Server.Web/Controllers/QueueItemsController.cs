@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business;
 using OpenBots.Server.DataAccess.Repositories;
+using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
@@ -15,6 +16,7 @@ using OpenBots.Server.ViewModel;
 using OpenBots.Server.Web.Hubs;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,6 +37,9 @@ namespace OpenBots.Server.Web.Controllers
         private IHubManager hubManager;
         readonly IScheduleRepository scheduleRepo;
         public IConfiguration Configuration { get; }
+        private readonly IBinaryObjectManager binaryObjectManager;
+        private readonly IBinaryObjectRepository binaryObjectRepository;
+        private readonly IQueueItemAttachmentRepository queueItemAttachmentRepository;
         
         /// <summary>
         /// QueueItemsController constructor
@@ -55,14 +60,20 @@ namespace OpenBots.Server.Web.Controllers
             IHttpContextAccessor httpContextAccessor,
             IHubManager hubManager,
             IScheduleRepository scheduleRepository,
-            IConfiguration configuration) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
+            IConfiguration configuration,
+            IBinaryObjectRepository binaryObjectRepository,
+            IBinaryObjectManager binaryObjectManager,
+            IQueueItemAttachmentRepository queueItemAttachmentRepository) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.manager = manager;
             _hub = hub;
             this.queueRepository = queueRepository;
             this.hubManager = hubManager;
-            this.scheduleRepo = scheduleRepository;
+            scheduleRepo = scheduleRepository;
             Configuration = configuration;
+            this.binaryObjectManager = binaryObjectManager;
+            this.binaryObjectRepository = binaryObjectRepository;
+            this.queueItemAttachmentRepository = queueItemAttachmentRepository;
         }
 
         /// <summary>
@@ -75,20 +86,72 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Paginated list of all queue items</returns>
         [HttpGet]
-        [ProducesResponseType(typeof(PaginatedList<QueueItemViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<QueueItem>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<QueueItemViewModel> Get(
+        public PaginatedList<QueueItem> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0)
         {
-            return base.GetMany<QueueItemViewModel>();
+            return base.GetMany();
+        }
+
+        /// <summary>
+        /// Provides a view model list of all queue items and corresponding binary object ids
+        /// </summary>
+        /// <param name="top"></param>
+        /// <param name="skip"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="filter"></param>
+        /// <response code="200">Ok, a paginated list of all queue items</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response>  
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Paginated list of all queue items</returns>
+        [HttpGet("view")]
+        [ProducesResponseType(typeof(PaginatedList<AllQueueItemsViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public PaginatedList<AllQueueItemsViewModel> View(
+            [FromQuery(Name = "$filter")] string filter = "",
+            [FromQuery(Name = "$orderby")] string orderBy = "",
+            [FromQuery(Name = "$top")] int top = 100,
+            [FromQuery(Name = "$skip")] int skip = 0
+            )
+        {
+            ODataHelper<AllQueueItemsViewModel> oData = new ODataHelper<AllQueueItemsViewModel>();
+
+            string queryString = "";
+
+            if (HttpContext != null
+                && HttpContext.Request != null
+                && HttpContext.Request.QueryString != null
+                && HttpContext.Request.QueryString.HasValue)
+                queryString = HttpContext.Request.QueryString.Value;
+
+            oData.Parse(queryString);
+            Guid parentguid = Guid.Empty;
+            var newNode = oData.ParseOrderByQuery(queryString);
+            if (newNode == null)
+                newNode = new OrderByNode<AllQueueItemsViewModel>();
+
+            Predicate<AllQueueItemsViewModel> predicate = null;
+            if (oData != null && oData.Filter != null)
+                predicate = new Predicate<AllQueueItemsViewModel>(oData.Filter);
+            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
+
+            return manager.GetQueueItemsAndBinaryObjectIds(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
         }
 
         /// <summary>
@@ -116,6 +179,47 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 return await base.GetEntity(id);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Provides a queue item's view model details for a particular queue item id
+        /// </summary>
+        /// <param name="id">Queue item id</param>
+        /// <response code="200">Ok, if a queue item exists with the given id</response>
+        /// <response code="304">Not modified</response>
+        /// <response code="400">Bad request, if queue item id is not in the proper format or a proper Guid</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not found, when no queue item exists for the given queue item id</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Queue item view model details for the given id</returns>
+        [HttpGet("view/{id}")]
+        [ProducesResponseType(typeof(QueueItemViewModel), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> View(string id)
+        {
+            try
+            {
+                IActionResult actionResult = await base.GetEntity<QueueItemViewModel>(id);
+                OkObjectResult okResult = actionResult as OkObjectResult;
+
+                if (okResult != null)
+                {
+                    QueueItemViewModel view = okResult.Value as QueueItemViewModel;
+                    view = manager.GetQueueItemView(view, id);
+                }
+
+                return actionResult;
             }
             catch (Exception ex)
             {
@@ -174,6 +278,14 @@ namespace OpenBots.Server.Web.Controllers
             var response = await base.DeleteEntity(id);
             _hub.Clients.All.SendAsync("sendnotification", "QueueItem deleted.");
 
+            //Soft delete each queue item attachment entity and binary object entity that correlates to the queue item
+            var attachmentsList = queueItemAttachmentRepository.Find(null, q => q.QueueItemId == queueItem.Id)?.Items;
+            foreach (var attachment in attachmentsList)
+            {
+                queueItemAttachmentRepository.SoftDelete((Guid)attachment.Id);
+                binaryObjectRepository.SoftDelete(attachment.BinaryObjectId);
+            }          
+
             return response;
         }
 
@@ -208,7 +320,9 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessable entity, validation error</response>
         /// <returns>Ok response with queue item details</returns>
         [HttpPost("Enqueue")]
-        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(QueueItemViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
         public async Task<IActionResult> Enqueue([FromBody] QueueItem request)
         {
@@ -233,21 +347,118 @@ namespace OpenBots.Server.Web.Controllers
                     schedule.StartDate = DateTime.Now;
                     schedule.ProcessId = existingSchedule.ProcessId;
 
-                    var jsonScheduleObj = System.Text.Json.JsonSerializer.Serialize<Schedule>(schedule);
+                    var jsonScheduleObj = System.Text.Json.JsonSerializer.Serialize(schedule);
                     var jobId = BackgroundJob.Enqueue(() => hubManager.StartNewRecurringJob(jsonScheduleObj));
                 }
 
-                await base.PostEntity(response);
+                IActionResult actionResult = await base.PostEntity(response);
+
                 //Send SignalR notification to all connected clients
                 await _hub.Clients.All.SendAsync("sendnotification", "New queue item added.");
 
-                return Ok(response);
+                QueueItemViewModel queueItemViewModel = new QueueItemViewModel();
+                queueItemViewModel = queueItemViewModel.Map(response);
+                string id = response.Id.ToString();
+                queueItemViewModel = manager.GetQueueItemView(queueItemViewModel, id);
+
+                return Ok(queueItemViewModel);
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("Enqueue", ex.Message);
                 return BadRequest(ModelState);
             }
+        }
+
+        /// <summary>
+        /// Attach file to queue item
+        /// </summary>
+        /// <response code="200">Ok response</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="422">Unprocessable entity, validation error</response>
+        /// <returns>Ok response</returns>
+        [HttpPost("{id}/attach")]
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [Produces("application/json")]
+        public async Task<IActionResult> Attach(string id, [FromForm] IFormFile file)
+        {
+            try
+            {
+                if (file == null)
+                {
+                    ModelState.AddModelError("Save", "No data passed");
+                    return BadRequest(ModelState);
+                }
+
+                long size = file.Length;
+                if (size <= 0)
+                {
+                    ModelState.AddModelError("File attachmentt", "No file attached");
+                    return BadRequest(ModelState);
+                }
+
+                var queueItem = repository.GetOne(Guid.Parse(id));
+                string organizationId = binaryObjectManager.GetOrganizationId();
+                string apiComponent = "QueueItemAPI";
+
+                //Create binary object
+                BinaryObject binaryObject = new BinaryObject()
+                {
+                    Name = file.FileName,
+                    Folder = apiComponent,
+                    CreatedOn = DateTime.UtcNow,
+                    CreatedBy = applicationUser?.UserName,
+                    CorrelationEntityId = queueItem.Id
+                };
+                binaryObjectRepository.Add(binaryObject);
+
+                string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
+
+                //Upload file to the Server
+                binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
+                binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
+
+                //Create queue item attachment
+                QueueItemAttachment attachment = new QueueItemAttachment()
+                {
+                    BinaryObjectId = (Guid)binaryObject.Id,
+                    QueueItemId = (Guid)queueItem.Id,
+                    CreatedBy = applicationUser?.UserName,
+                    CreatedOn = DateTime.UtcNow
+
+                };
+                queueItemAttachmentRepository.Add(attachment);
+
+                return Ok(attachment);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("Attach", ex.Message);
+                return BadRequest(ModelState);
+            }
+        }
+
+        /// <summary>
+        /// Deletes a queue item attachment with a specified id from the queue item attachments
+        /// </summary>
+        /// <param name="attachmentId">Queue item attachment id to be deleted - throws bad request if null or empty Guid</param>
+        /// <response code="200">Ok, when queue item id is soft deleted, (isDeleted flag is set to true in database)</response>
+        /// <response code="400">Bad request, if queue item attachment id is null or empty Guid</response>
+        /// <response code="403">Forbidden</response>
+        /// <returns>Ok response</returns>
+        [HttpDelete("{id}/attach/{attachmentId}")]
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> DeleteAttachment(string attachmentId)
+        {
+            queueItemAttachmentRepository.SoftDelete(Guid.Parse(attachmentId));
+
+            return Ok();
         }
 
         /// <summary>
@@ -260,7 +471,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessable entity, validation error</response>
         /// <returns>Dequeued queue item</returns>
         [HttpGet("Dequeue")]
-        [ProducesResponseType(typeof(QueueItem), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(QueueItemViewModel), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
@@ -278,7 +489,13 @@ namespace OpenBots.Server.Web.Controllers
 
                 //Send SignalR notification to all connected clients
                 await _hub.Clients.All.SendAsync("sendnotification", "Queue item dequeued.");
-                return Ok(response);
+
+                QueueItemViewModel queueItemViewModel = new QueueItemViewModel();
+                queueItemViewModel = queueItemViewModel.Map(response);
+                string id = response.Id.ToString();
+                queueItemViewModel = manager.GetQueueItemView(queueItemViewModel, id);
+
+                return Ok(queueItemViewModel);
             }
             catch (Exception ex)
             {

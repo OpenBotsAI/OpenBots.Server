@@ -1697,7 +1697,7 @@
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AgentsController.AddHeartbeat(OpenBots.Server.Model.AgentHeartbeat,System.String)">
             <summary>
-            Creates a new heartbeat on for the specified AgentId
+            Creates a new heartbeat for the specified AgentId
             </summary>
             <param name="agentId">Agent identifier</param>
             <param name="request">Heartbeat values to be updated</param>
@@ -1705,14 +1705,14 @@
             <response code="400">Bad request, if the id is null or ids don't match</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="422">Unprocessable entity, validation error</response>
-            <returns>Newly created Agent hearbeat</returns>
+            <returns>Newly created Agent heartbeat</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AgentsController.AgentHeartbeats(System.String,System.String,System.String,System.Int32,System.Int32)">
             <summary>
             Provides a list of heartbeat details for a particular agent id
             </summary>
             <param name="agentId">Agent id</param>
-            <response code="200">Ok, if a checkpoint for the given job id</response>
+            <response code="200">Ok, if a heartbeat exists for the given agent id</response>
             <response code="304">Not modified</response>
             <response code="400">Bad request, if agent id is not in the proper format or a proper Guid</response>
             <response code="403">Forbidden</response>
@@ -2647,7 +2647,7 @@
             Controller for QueueItems
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.#ctor(OpenBots.Server.DataAccess.Repositories.IQueueItemRepository,OpenBots.Server.DataAccess.Repositories.IQueueRepository,OpenBots.Server.Business.IQueueItemManager,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Web.Hubs.IHubManager,OpenBots.Server.DataAccess.Repositories.IScheduleRepository,Microsoft.Extensions.Configuration.IConfiguration)">
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.#ctor(OpenBots.Server.DataAccess.Repositories.IQueueItemRepository,OpenBots.Server.DataAccess.Repositories.IQueueRepository,OpenBots.Server.Business.IQueueItemManager,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Web.Hubs.IHubManager,OpenBots.Server.DataAccess.Repositories.IScheduleRepository,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IBinaryObjectManager,OpenBots.Server.DataAccess.Repositories.Interfaces.IQueueItemAttachmentRepository)">
             <summary>
             QueueItemsController constructor
             </summary>
@@ -2669,6 +2669,21 @@
             <response code="422">Unprocessable entity</response>
             <returns>Paginated list of all queue items</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.View(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a view model list of all queue items and corresponding binary object ids
+            </summary>
+            <param name="top"></param>
+            <param name="skip"></param>
+            <param name="orderBy"></param>
+            <param name="filter"></param>
+            <response code="200">Ok, a paginated list of all queue items</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>  
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all queue items</returns>
+        </member>
         <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Get(System.String)">
             <summary>
             Provides queue item details for a particular queue item id
@@ -2681,6 +2696,19 @@
             <response code="404">Not found, when no queue item exists for the given queue item id</response>
             <response code="422">Unprocessable entity</response>
             <returns>Queue item details for the given id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.View(System.String)">
+            <summary>
+            Provides a queue item's view model details for a particular queue item id
+            </summary>
+            <param name="id">Queue item id</param>
+            <response code="200">Ok, if a queue item exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if queue item id is not in the proper format or a proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no queue item exists for the given queue item id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Queue item view model details for the given id</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.GetCount(System.String)">
             <summary>
@@ -2725,6 +2753,25 @@
             <response code="403">Forbidden, unauthorized access</response>
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response with queue item details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Attach(System.String,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Attach file to queue item
+            </summary>
+            <response code="200">Ok response</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity, validation error</response>
+            <returns>Ok response</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.DeleteAttachment(System.String)">
+            <summary>
+            Deletes a queue item attachment with a specified id from the queue item attachments
+            </summary>
+            <param name="attachmentId">Queue item attachment id to be deleted - throws bad request if null or empty Guid</param>
+            <response code="200">Ok, when queue item id is soft deleted, (isDeleted flag is set to true in database)</response>
+            <response code="400">Bad request, if queue item attachment id is null or empty Guid</response>
+            <response code="403">Forbidden</response>
+            <returns>Ok response</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Dequeue(System.String,System.String)">
             <summary>
@@ -3390,7 +3437,7 @@
             <param name="skip"></param>
             <param name="orderBy"></param>
             <param name="filter"></param>
-            <response code="200">Ok,a paginated list of all jobs</response>
+            <response code="200">Ok, a paginated list of all jobs</response>
             <response code="400">Bad request</response>
             <response code="403">Forbidden, unauthorized access</response>  
             <response code="404">Not found</response>
@@ -3455,6 +3502,7 @@
             <response code="400">Bad request, if job id is not in the proper format or a proper Guid</response>
             <response code="403">Forbidden</response>
             <response code="404">Not found, when no job exists for the given job id</response>
+            <response code="422">Unprocessable entity</response>
             <returns>Job view model details for the given id</returns>
         </member>
         <member name="M:OpenBots.Server.Web.JobsController.Next(System.String)">
@@ -3576,7 +3624,7 @@
             Provides a checkpoint's view model details for a particular job id
             </summary>
             <param name="jobId">Job id</param>
-            <response code="200">Ok, if a checkpoint for the given job id</response>
+            <response code="200">Ok, if a checkpoint exists for the given job id</response>
             <response code="304">Not modified</response>
             <response code="400">Bad request, if job id is not in the proper format or a proper Guid</response>
             <response code="403">Forbidden</response>

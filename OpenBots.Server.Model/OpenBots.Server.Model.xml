@@ -312,8 +312,12 @@
         </member>
         <member name="T:OpenBots.Server.Model.RuleType">
             <summary>
-            Re 
+            Represents the type of rule that is being stored
             </summary>
+             /// <remarks>
+            IP rule values can be stored as individual addresses or as ranges. <br/>
+            Headers are checked after IP values and must be exist in the http request
+            </remarks>
         </member>
         <member name="T:OpenBots.Server.Model.JobStatusType">
             <summary>

@@ -1,4 +1,6 @@
 ﻿using OpenBots.Server.Model;
+using OpenBots.Server.Model.Core;
+using OpenBots.Server.ViewModel;
 using System;
 using System.Threading.Tasks;
 
@@ -20,5 +22,7 @@ namespace OpenBots.Server.Business
 
         public Task<QueueItem> GetQueueItem(Guid transactionKeyId);
         enum QueueItemStateType : int { };
+        PaginatedList<AllQueueItemsViewModel> GetQueueItemsAndBinaryObjectIds(Predicate<AllQueueItemsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
+        QueueItemViewModel GetQueueItemView(QueueItemViewModel queueItemView, string id);
     }
 }

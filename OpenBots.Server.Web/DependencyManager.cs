@@ -70,6 +70,7 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IEmailAttachmentRepository), typeof(EmailAttachmentRepository));
             services.AddTransient(typeof(IProcessVersionRepository), typeof(ProcessVersionRepository));
             services.AddTransient(typeof(IConfigurationValueRepository), typeof(ConfigurationValueRepository));
+            services.AddTransient(typeof(IQueueItemAttachmentRepository), typeof(QueueItemAttachmentRepository));
 
             //Blob Storage
             services.AddTransient(typeof(IBlobStorageAdapter), typeof(BlobStorageAdapter));

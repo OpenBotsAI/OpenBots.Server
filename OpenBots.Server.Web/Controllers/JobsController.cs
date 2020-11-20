@@ -113,7 +113,7 @@ namespace OpenBots.Server.Web
         /// <param name="skip"></param>
         /// <param name="orderBy"></param>
         /// <param name="filter"></param>
-        /// <response code="200">Ok,a paginated list of all jobs</response>
+        /// <response code="200">Ok, a paginated list of all jobs</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden, unauthorized access</response>  
         /// <response code="404">Not found</response>
@@ -279,6 +279,7 @@ namespace OpenBots.Server.Web
         /// <response code="400">Bad request, if job id is not in the proper format or a proper Guid</response>
         /// <response code="403">Forbidden</response>
         /// <response code="404">Not found, when no job exists for the given job id</response>
+        /// <response code="422">Unprocessable entity</response>
         /// <returns>Job view model details for the given id</returns>
         [HttpGet("view/{id}")]
         [ProducesResponseType(typeof(JobViewModel), StatusCodes.Status200OK)]
