@@ -2,6 +2,7 @@
 using OpenBots.Server.Model;
 using OpenBots.Server.ViewModel;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace OpenBots.Server.Business
@@ -31,13 +32,16 @@ namespace OpenBots.Server.Business
             agentView.UserName = usersRepo.Find(null, u => u.Name == agentView.Name).Items?.FirstOrDefault()?.UserName;
             agentView.CredentialName = credentialRepo.GetOne(agentView.CredentialId??Guid.Empty)?.Name;
 
-            AgentHeartbeat agentHeartBeat = agentHeartbeatRepo.Find(0,1).Items?.Where(a=>a.AgentId == agentView.Id).FirstOrDefault();
+            AgentHeartbeat agentHeartBeat = agentHeartbeatRepo.Find(0,1).Items?.Where(a=>a.AgentId == agentView.Id).OrderByDescending(a=>a.CreatedOn).FirstOrDefault();
 
-            agentView.LastReportedOn = agentHeartBeat.LastReportedOn;
-            agentView.LastReportedStatus = agentHeartBeat.LastReportedStatus;
-            agentView.LastReportedWork = agentHeartBeat.LastReportedWork;
-            agentView.LastReportedMessage = agentHeartBeat.LastReportedMessage;
-            agentView.IsHealthy = agentHeartBeat.IsHealthy;
+            if (agentHeartBeat != null)
+            {
+                agentView.LastReportedOn = agentHeartBeat.LastReportedOn;
+                agentView.LastReportedStatus = agentHeartBeat.LastReportedStatus;
+                agentView.LastReportedWork = agentHeartBeat.LastReportedWork;
+                agentView.LastReportedMessage = agentHeartBeat.LastReportedMessage;
+                agentView.IsHealthy = agentHeartBeat.IsHealthy;
+            }
 
             return agentView;
         }
@@ -55,6 +59,22 @@ namespace OpenBots.Server.Business
               | j.JobStatus == JobStatusType.InProgress);
 
             return scheduleWithAgent.Count() > 0 || jobWithAgent.Count() > 0 ? true : false;
+        }
+
+        public IEnumerable<AgentHeartbeat> GetAgentHeartbeats(Guid agentId)
+        {
+            var agentHeartbeats = agentHeartbeatRepo.Find(0, 1)?.Items?.Where(p => p.AgentId == agentId);
+            return agentHeartbeats;
+        }
+
+        public void DeleteExistingHeartbeats(Guid agentId)
+        {
+            var agentHeartbeats = GetAgentHeartbeats(agentId);
+            foreach (var heartbeat in agentHeartbeats)
+            {
+                agentHeartbeatRepo.SoftDelete(heartbeat.AgentId);
+            }
+
         }
     }
 }

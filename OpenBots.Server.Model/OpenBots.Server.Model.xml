@@ -301,6 +301,20 @@
             Interface to determine entities that are nonauditable
             </summary>
         </member>
+        <member name="T:OpenBots.Server.Model.UsageType">
+            <summary>
+            Stores the usage type for the IPFencing.
+            </summary>
+            <remarks>
+            If usage type is Deny, then all IPs except the ones specified are denied. <br/>
+            If usage type is Allowed, then all IPs except the ones specified are allowed.
+            </remarks>
+        </member>
+        <member name="T:OpenBots.Server.Model.RuleType">
+            <summary>
+            Re 
+            </summary>
+        </member>
         <member name="T:OpenBots.Server.Model.JobStatusType">
             <summary>
             Stores the current status of a job

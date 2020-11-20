@@ -237,15 +237,6 @@ namespace OpenBots.Server.Web.Controllers
                     registeredUser.PersonId = (Guid)person.Id;
                     await userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
 
-                    // Create new Agent Heartbeat
-                    AgentHeartbeat agentHeartbeat = new AgentHeartbeat
-                    {
-                        AgentId = entityId,
-                        CreatedBy = applicationUser?.UserName,
-                        CreatedOn = DateTime.UtcNow
-                    };
-                    agentHeartbeatRepo.Add(agentHeartbeat);
-
                     //post Agent entity
                     AgentModel newAgent = request.Map(request);
                     return await base.PostEntity(newAgent);
@@ -345,15 +336,14 @@ namespace OpenBots.Server.Web.Controllers
                 return NotFound(ModelState);
             }
 
-            bool isChildExists = agentManager.CheckReferentialIntegrity(id);
-            if (isChildExists)
+            bool childExists = agentManager.CheckReferentialIntegrity(id);
+            if (childExists)
             {
                 ModelState.AddModelError("Delete Agent", "Referential Integrity in Schedule or Job table, please remove those before deleting this agent.");
                 return BadRequest(ModelState);
             }
 
             Person person = personRepo.Find(0, 1).Items?.Where(p => p.IsAgent && p.Name == agent.Name && !(p.IsDeleted ?? false))?.FirstOrDefault();
-            AgentHeartbeat agentHeartbeat = agentHeartbeatRepo.Find(0, 1).Items?.Where(h => h.AgentId == new Guid(id))?.FirstOrDefault();
             var aspUser = usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
 
             if (aspUser == null)
@@ -371,8 +361,7 @@ namespace OpenBots.Server.Web.Controllers
                 return BadRequest(ModelState);
             }
 
-            personRepo.SoftDelete(person.Id ?? Guid.Empty);
-            agentHeartbeatRepo.SoftDelete(agentHeartbeat.Id ?? Guid.Empty);
+            agentManager.DeleteExistingHeartbeats(agent.Id ?? Guid.Empty);
 
             return await base.DeleteEntity(id);
         }
@@ -522,35 +511,36 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Performs a heartbeat on agent id
+        /// Creates a new heartbeat for the specified AgentId
         /// </summary>
-        /// <param name="id">Agent identifier</param>
+        /// <param name="agentId">Agent identifier</param>
         /// <param name="request">Heartbeat values to be updated</param>
         /// <response code="200">Ok, if update of agent is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
-        /// <returns>Ok response, if the heartbeat agent values have been updated</returns>
-        [HttpPatch("{id}/Heartbeat")]
-        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        /// <returns>Newly created Agent heartbeat</returns>
+        [HttpPost("{AgentId}/AddHeartbeat")]
+        [ProducesResponseType(typeof(AgentHeartbeat), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
-        public async Task<IActionResult> Heartbeat(string id,
-            [FromBody] HeartbeatViewModel request)
+        public async Task<IActionResult> AddHeartbeat([FromBody] AgentHeartbeat request, string agentId)
         {
             try
             {
                 if (request == null)
                 {
-                    ModelState.AddModelError("HeartBeat", "No data passed");
+                    ModelState.AddModelError("Save", "No data passed");
                     return BadRequest(ModelState);
                 }
 
-                Guid entityId = new Guid(id);
-                AgentModel agent = agentRepo.GetOne(entityId);
+                Guid entityId = Guid.NewGuid();
+                if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
+                    request.Id = entityId;
 
+                AgentModel agent = agentRepo.GetOne(new Guid(agentId));
                 if (agent == null)
                 {
                     return NotFound("The Agent ID provided does not match any existing Agents");
@@ -561,29 +551,71 @@ namespace OpenBots.Server.Web.Controllers
                     ModelState.AddModelError("HeartBeat", "Agent is not connected");
                     return BadRequest(ModelState);
                 }
-                
-                //Update HeartBeat Values
-                AgentHeartbeat agentHeartbeat = agentHeartbeatRepo.Find(0, 1)?.Items?.Where(h => h.AgentId == entityId)?.FirstOrDefault();
-                if (agentHeartbeat == null)
-                {
-                    return NotFound("The Agent ID provided does not have any existing agent heartbeat");
-                }
 
-                // Set Heartbeat Values
-                agentHeartbeat.LastReportedOn = request.LastReportedOn ?? agentHeartbeat.LastReportedOn;
-                agentHeartbeat.LastReportedStatus = request.LastReportedStatus ?? agentHeartbeat.LastReportedStatus;
-                agentHeartbeat.LastReportedWork = request.LastReportedWork ?? agentHeartbeat.LastReportedWork;
-                agentHeartbeat.LastReportedMessage = request.LastReportedMessage ?? agentHeartbeat.LastReportedMessage;
-                agentHeartbeat.IsHealthy = request.IsHealthy ?? agentHeartbeat.IsHealthy;
+                //Add HeartBeat Values
+                request.AgentId = new Guid(agentId);
+                request.CreatedBy = applicationUser?.UserName;
+                request.CreatedOn = DateTime.UtcNow;
+                agentHeartbeatRepo.Add(request);
+                var resultRoute = "GetAgentHeartbeat";
 
-                agentHeartbeatRepo.Update(agentHeartbeat);
-                return Ok();
+                return CreatedAtRoute(resultRoute, new { id = request.Id.Value.ToString("b") }, request);
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("Heartbeat", ex.Message);
                 return ex.GetActionResult();
             }
+        }
+
+        /// <summary>
+        /// Provides a list of heartbeat details for a particular agent id
+        /// </summary>
+        /// <param name="agentId">Agent id</param>
+        /// <response code="200">Ok, if a heartbeat exists for the given agent id</response>
+        /// <response code="304">Not modified</response>
+        /// <response code="400">Bad request, if agent id is not in the proper format or a proper Guid</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not found, when no agent exists for the given agent id</response>
+        /// <returns>Agent heaetbeat details for the given id</returns>
+        [HttpGet("{AgentId}/AgentHeartbeats", Name = "GetAgentHeartbeat")]
+        [ProducesResponseType(typeof(PaginatedList<AgentHeartbeat>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> AgentHeartbeats(
+            string agentId,
+            [FromQuery(Name = "$filter")] string filter = "",
+            [FromQuery(Name = "$orderby")] string orderBy = "",
+            [FromQuery(Name = "$top")] int top = 100,
+            [FromQuery(Name = "$skip")] int skip = 0
+            )
+        {
+            AgentModel agent = agentRepo.GetOne(new Guid(agentId));
+            if (agent == null)
+            {
+                return NotFound("The Agent ID provided does not match any existing Agents");
+            }
+
+            ODataHelper<AgentHeartbeat> oData = new ODataHelper<AgentHeartbeat>();
+
+            string queryString = "";
+
+            if (HttpContext != null
+                && HttpContext.Request != null
+                && HttpContext.Request.QueryString != null
+                && HttpContext.Request.QueryString.HasValue)
+                queryString = HttpContext.Request.QueryString.Value;
+
+            oData.Parse(queryString);
+            Guid parentguid = Guid.Empty;
+
+            return Ok(agentHeartbeatRepo.Find(parentguid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip,
+                oData.Top).Items.Where(a => a.AgentId == new Guid(agentId)));
         }
 
         /// <summary>
