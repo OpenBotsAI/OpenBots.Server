@@ -31,8 +31,12 @@ namespace OpenBots.Server.Model
     }
 
     /// <summary>
-    /// Re 
+    /// Represents the type of rule that is being stored
     /// </summary>
+    ///  /// <remarks>
+    /// IP rule values can be stored as individual addresses or as ranges. <br/>
+    /// Headers are checked after IP values and must be exist in the http request
+    /// </remarks>
     public enum RuleType : int
     {
         IPv4 = 1,

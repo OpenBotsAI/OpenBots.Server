@@ -769,7 +769,7 @@ namespace OpenBots.Server.Web
         /// Provides a checkpoint's view model details for a particular job id
         /// </summary>
         /// <param name="jobId">Job id</param>
-        /// <response code="200">Ok, if a checkpoint for the given job id</response>
+        /// <response code="200">Ok, if a checkpoint exists for the given job id</response>
         /// <response code="304">Not modified</response>
         /// <response code="400">Bad request, if job id is not in the proper format or a proper Guid</response>
         /// <response code="403">Forbidden</response>

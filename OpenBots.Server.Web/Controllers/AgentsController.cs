@@ -511,7 +511,7 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Creates a new heartbeat on for the specified AgentId
+        /// Creates a new heartbeat for the specified AgentId
         /// </summary>
         /// <param name="agentId">Agent identifier</param>
         /// <param name="request">Heartbeat values to be updated</param>
@@ -519,7 +519,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
-        /// <returns>Newly created Agent hearbeat</returns>
+        /// <returns>Newly created Agent heartbeat</returns>
         [HttpPost("{AgentId}/AddHeartbeat")]
         [ProducesResponseType(typeof(AgentHeartbeat), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -572,7 +572,7 @@ namespace OpenBots.Server.Web.Controllers
         /// Provides a list of heartbeat details for a particular agent id
         /// </summary>
         /// <param name="agentId">Agent id</param>
-        /// <response code="200">Ok, if a checkpoint for the given job id</response>
+        /// <response code="200">Ok, if a heartbeat exists for the given agent id</response>
         /// <response code="304">Not modified</response>
         /// <response code="400">Bad request, if agent id is not in the proper format or a proper Guid</response>
         /// <response code="403">Forbidden</response>
