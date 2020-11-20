@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenBots.Server.DataAccess;
 
 namespace OpenBots.Server.DataAccess.Migrations
 {
     [DbContext(typeof(StorageContext))]
-    partial class StorageContextModelSnapshot : ModelSnapshot
+    [Migration("20201118204900_UpdateProcessAndProcessVersion")]
+    partial class UpdateProcessAndProcessVersion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2219,6 +2221,8 @@ namespace OpenBots.Server.DataAccess.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProcessId");
+
                     b.ToTable("ProcessVersions");
                 });
 
@@ -2681,6 +2685,17 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Navigation("OrganizationUnit");
 
                     b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("OpenBots.Server.Model.ProcessVersion", b =>
+                {
+                    b.HasOne("OpenBots.Server.Model.Process", "Process")
+                        .WithMany()
+                        .HasForeignKey("ProcessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Process");
                 });
 
             modelBuilder.Entity("OpenBots.Server.Model.Identity.Person", b =>

@@ -85,8 +85,6 @@ namespace OpenBots.Server.DataAccess.Repositories
                 paginatedList.ParentId = schedulesList.ParentId;
                 paginatedList.Started = schedulesList.Started;
                 paginatedList.TotalCount = filterRecord?.Count;
-
-
             }
 
             return paginatedList;

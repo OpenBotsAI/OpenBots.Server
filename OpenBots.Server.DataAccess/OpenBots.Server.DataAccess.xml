@@ -33,7 +33,6 @@
             </summary>
             <param name="context"></param>
             <param name="logger"></param>
-            <param name="entityEventSink"></param>
             <param name="httpContextAccessor"></param>
         </member>
         <member name="M:OpenBots.Server.DataAccess.Repositories.BinaryObjectRepository.DbTable">
@@ -187,7 +186,7 @@
             </summary>
             <param name="storageContext"></param>
             <param name="logger"></param>
-            <param name="entityEventSink"></param>
+            <param name="httpContextAccessor"></param>
         </member>
         <member name="M:OpenBots.Server.DataAccess.Repositories.ProcessRepository.DbTable">
             <summary>

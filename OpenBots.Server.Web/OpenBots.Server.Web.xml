@@ -2463,7 +2463,7 @@
             Controller for Studio processes
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.#ctor(OpenBots.Server.DataAccess.Repositories.IProcessRepository,OpenBots.Server.Business.IProcessManager,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.Extensions.Configuration.IConfiguration)">
+        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.#ctor(OpenBots.Server.DataAccess.Repositories.IProcessRepository,OpenBots.Server.Business.IProcessManager,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.Interfaces.IProcessVersionRepository,OpenBots.Server.DataAccess.StorageContext)">
             <summary>
             Process Controller constructor
             </summary>
@@ -2483,6 +2483,21 @@
             <response code="200">Ok, a paginated list of all processes</response>
             <response code="400">Bad request</response>
             <response code="403">Forbidden, unauthorized access</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all processes</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.View(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a view model list of all processes and corresponding process version information
+            </summary>
+            <param name="top"></param>
+            <param name="skip"></param>
+            <param name="orderBy"></param>
+            <param name="filter"></param>
+            <response code="200">Ok, a paginated list of all processes</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>  
             <response code="404">Not found</response>
             <response code="422">Unprocessable entity</response>
             <returns>Paginated list of all processes</returns>
@@ -2512,7 +2527,20 @@
             <response code="422">Unprocessable entity</response>
             <returns>Process entity</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.Post(OpenBots.Server.Model.Process)">
+        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.View(System.String)">
+            <summary>
+            Provides a process's view model details for a particular process id
+            </summary>
+            <param name="id">Process id</param>
+            <response code="200">Ok, if a process exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if process id is not in the proper format or a proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no process exists for the given process id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Process view model details for the given id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.Post(OpenBots.Server.ViewModel.ProcessViewModel)">
             <summary>
             Create a new process entity
             </summary>
@@ -3323,7 +3351,7 @@
             Controller for Jobs
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.JobsController.#ctor(OpenBots.Server.DataAccess.Repositories.IJobRepository,OpenBots.Server.DataAccess.Repositories.IProcessRepository,OpenBots.Server.DataAccess.Repositories.IJobParameterRepository,OpenBots.Server.DataAccess.Repositories.IJobCheckpointRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IJobManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+        <member name="M:OpenBots.Server.Web.JobsController.#ctor(OpenBots.Server.DataAccess.Repositories.IJobRepository,OpenBots.Server.DataAccess.Repositories.IProcessRepository,OpenBots.Server.DataAccess.Repositories.IJobParameterRepository,OpenBots.Server.DataAccess.Repositories.IJobCheckpointRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IJobManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.Interfaces.IProcessVersionRepository)">
             <summary>
             JobsController constructor
             </summary>
@@ -3334,6 +3362,10 @@
             <param name="hub"></param>
             <param name="configuration"></param>
             <param name="httpContextAccessor"></param>
+            <param name="jobCheckpointRepository"></param>
+            <param name="jobParameterRepository"></param>
+            <param name="processRepository"></param>
+            <param name="processVersionRepo"></param>
         </member>
         <member name="M:OpenBots.Server.Web.JobsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>

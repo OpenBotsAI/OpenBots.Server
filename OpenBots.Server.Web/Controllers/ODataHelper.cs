@@ -74,7 +74,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                 Top = val;
         }
 
-        public OrderByNode<T> ParseOrderByQuerry(string queryString)
+        public OrderByNode<T> ParseOrderByQuery(string queryString)
         {
             try
             {

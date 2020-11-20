@@ -103,7 +103,7 @@ namespace OpenBots.Server.Web
 
             oData.Parse(queryString);
             Guid parentguid = Guid.Empty;
-            var newNode = oData.ParseOrderByQuerry(queryString);
+            var newNode = oData.ParseOrderByQuery(queryString);
             if (newNode == null)
                 newNode = new OrderByNode<ProcessExecutionViewModel>();
 
