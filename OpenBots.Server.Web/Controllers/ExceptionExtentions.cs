@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenBots.Server.Web;
 using Microsoft.Azure.ServiceBus;
+using System.Net;
+using System.Net.Http;
+using Microsoft.AspNetCore.Http;
 
 namespace OpenBots.Server.WebAPI.Controllers
 {
@@ -26,7 +29,11 @@ namespace OpenBots.Server.WebAPI.Controllers
                 case 422:
                     return new UnprocessableEntityObjectResult(problem);
                 case 429:
-                    return new BadRequestObjectResult(problem);
+                    return new BadRequestObjectResult(problem)
+                    {
+                        StatusCode = (int)HttpStatusCode.TooManyRequests
+                    };
+
             }
             return new BadRequestResult();
         }

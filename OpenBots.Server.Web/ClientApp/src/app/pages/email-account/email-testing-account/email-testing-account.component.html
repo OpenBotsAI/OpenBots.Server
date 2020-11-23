@@ -71,6 +71,41 @@
               </div>
             </div>
           </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="label col-form-label">CC </label>
+
+                <input
+                  type="input"
+                  nbInput
+                  fullWidth
+                  formControlName="cc"
+                  style="color: #000000"
+                  placeholder="Please enter cc"
+                />
+               
+              </div>
+            </div>
+
+            </div>
+            <div class="row"> 
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="label col-form-label"> Bcc  </label>
+
+                <input
+                  type="input"
+                  nbInput
+                  fullWidth
+                  formControlName="bcc"
+                  style="color: #000000"
+                  placeholder="Please enter bcc"
+                />
+             
+              </div>
+            </div>
+          </div>
 
           <div class="row">
             <div class="col-md-12">
@@ -85,23 +120,7 @@
                   style="color: #000000"
                   placeholder="Please enter subject"
                 />
-                 <div
-                  *ngIf="(f.subject.touched || f.subject.dirty) && f.subject.invalid"
-                  class="invalid-feedback-frm"
-                >
-                  <div *ngIf="f.subject.errors && f.subject.errors.required">
-                    subject is required.
-                  </div>
-                  <div *ngIf="f.subject.errors.minlength">
-                    subject at least 3 characters long.
-                  </div>
-                  <div *ngIf="f.subject.errors.maxlength">
-                    subject at least 100 characters long.
-                  </div>
-                  <div *ngIf="f.subject.errors.pattern">
-                    Please enter valid subject.
-                  </div>
-                </div>
+                 
 
               </div>
             </div>
@@ -126,13 +145,13 @@
               </div>
             </div>
           </div>
-
+<!-- [disabled]="submitted || !emailform.valid" -->
           <div class="row rowPadTOp">
             <div class="col-md-12 col-lg-12 col-xxxl-6">
               <button
                 type="submit"
                 class="btn btn-primary"
-                [disabled]="submitted || !emailform.valid"
+                [disabled]="submitted || !emailform.valid" 
                 status="primary"
                 (click)="onSubmit()"
               >

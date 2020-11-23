@@ -30,6 +30,17 @@ export class AgentsService {
     let getagentUrlbyId = `/Agents/${id}`;
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId, resoptions);
   }
+  getAgentbyHeartBeatID(id, tpage: any, spage: any) {
+    let getagentUrlbyId = `/Agents/${id}/AgentHeartbeats?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
+    return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
+  }
+
+  getAgentbyHeartBeatIDorder(id, tpage: any, spage: any, name) {
+    let getagentUrlbyId = `/Agents/${id}/AgentHeartbeats?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
+  }
+
+
   getCred() {
     let getagentUrlbyId = `/Credentials/GetLookup`;
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
@@ -45,8 +56,6 @@ export class AgentsService {
   }
 
   editAgent(id, obj, etag) {
-
-    // const headers = new HttpHeaders({ 'If-Match': etag });
     const headers = this.helperService.getETagHeaders(etag)
     let editagentUrl = `/Agents/${id}`;
     return this.http.put(`${this.apiUrl}` + editagentUrl, obj, {
