@@ -116,7 +116,93 @@
             </div>
           </div>
         </form>
+   <hr  *ngIf="showGridHeatbeat == true">
+          <table class="table table-bordered" *ngIf="showGridHeatbeat == true">
+      <thead>
+        <tr>
+          <th scope="col">
+            last Reported Message
+            <i (click)="onSortClick($event, 'lastReportedMessage')" class="my-icon fa fa-chevron-up"></i>
+          </th>
+
+          <th scope="col">
+            last Reported On
+            <i (click)="onSortClick($event, 'lastReportedOn')" class="my-icon fa fa-chevron-up"></i>
+          </th>
+          <th scope="col">
+            last Reported Status
+            <i (click)="onSortClick($event, 'lastReportedStatus')" class="my-icon fa fa-chevron-up"></i>
+          </th>
+          <th scope="col">
+          last Reported Work
+            <i (click)="onSortClick($event, 'lastReportedWork')" class="my-icon fa fa-chevron-up"></i>
+          </th>
+   
+           <th scope="col">
+                 Healthy
+            <i (click)="onSortClick($event, 'isHealthy')" class="my-icon fa fa-chevron-up"></i>
+          </th>
+ 
+        
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="
+            let agent of showAgentHeartBeat
+              | paginate
+                : {
+                    id: '1',
+                    itemsPerPage: page.pageSize,
+                    currentPage: page.pageNumber,
+                    totalItems: page.totalCount
+                  } ">
+          <td scope="row"  >
+            <ngx-tooltip [data]="agent?.lastReportedMessage" [size]="40"> </ngx-tooltip>
+          </td>
+          
+          <td scope="row">
+            <ngx-tooltip [data]="agent?.lastReportedOn | timeDate: 'lll'" [size]="40">
+            </ngx-tooltip>
+          </td>
+            <td scope="row">
+            <ngx-tooltip [data]="agent?.lastReportedStatus" [size]="40">
+            </ngx-tooltip>
+          </td>
+            <td scope="row">
+            <ngx-tooltip [data]="agent?.lastReportedWork" [size]="40">
+            </ngx-tooltip>
+          </td>
+          
+          <td scope="row">
+            <ngx-tooltip [data]="agent?.isHealthy" [size]="40">
+            </ngx-tooltip>
+          </td>
+          
+           
+           
+        </tr>
+      </tbody>
+    </table>
       </nb-card-body>
+       <!-- <nb-card-body class="noTopPadding">
+    <div class="row pagerow">
+      <div class="col-md-8 col-lg-8 no-left-padding">
+        <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+          (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks="true"
+          autoHide="true" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
+          screenReaderCurrentLabel="You're on page"></pagination-controls>
+      </div>
+      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
+        <label class="label">Total {{ showpage.totalCount }} /</label>
+
+        <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
+          <option *ngFor="let item of itemsPerPage" [value]="item.id">
+            {{ item.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </nb-card-body> -->
     </nb-card>
   </div>
 </div>
