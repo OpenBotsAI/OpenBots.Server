@@ -32,29 +32,32 @@ export class EmailTestingAccountComponent implements OnInit {
       // removeButtons: 'Save,NewPage,Preview,Print,Templates,Replace,SelectAll,Form,Checkbox,Radio,TextField,Textarea,Find,Select,Button,ImageButton,HiddenField,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,CopyFormatting,CreateDiv,BidiLtr,BidiRtl,Language,Flash,Smiley,PageBreak,Iframe,Font,FontSize,TextColor,BGColor,ShowBlocks,Cut,Copy,Paste,Table,Image,Format,Source,Maximize,Styles,Anchor,SpecialChar,PasteFromWord,PasteText,Scayt,Undo,Redo,Strike,RemoveFormat,Indent,Outdent,Blockquote,Underline'
       removeButtons: 'Save,NewPage,Print,Preview'
     };
-    this.route.queryParams.subscribe((params) => {
+    // this.route.queryParams.subscribe((params) => {
 
-      this.queryParamName = params.name
-      this.queryParamEmail = params.email
+    //   this.queryParamName = params.name
+    //   this.queryParamEmail = params.email
 
-    });
+    // });
   }
 
   ngOnInit(): void {
 
     this.emailform = this.formBuilder.group({
       address: ['', [Validators.required, Validators.pattern('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,4}$')]],
-      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100), Validators.pattern('^[A-Za-z0-9_.-]{3,100}$')]],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100),]],
       subject: ['', [Validators.required]],
       body: [''],
+      cc: [''],
+      bcc: ['']
+
 
     });
 
-    this.emailform.patchValue({
-      name: this.queryParamName,
-      address: this.queryParamEmail
-    }
-    )
+    // this.emailform.patchValue({
+    //   name: this.queryParamName,
+    //   address: this.queryParamEmail
+    // }
+    // )
 
 
   }
@@ -82,6 +85,7 @@ export class EmailTestingAccountComponent implements OnInit {
 
 
   onSubmit() {
+
     this.submitted = true;
     let obj =
     {

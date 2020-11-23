@@ -113,6 +113,10 @@ export class PagesMenu {
             link: '/pages/emaillog/list',
           },
           {
+            title: 'Email Test',
+            link: '/pages/emailaccount/test-email',
+          },
+          {
             title: 'Settings',
             link: '/pages/emailsetting/list',
           },
