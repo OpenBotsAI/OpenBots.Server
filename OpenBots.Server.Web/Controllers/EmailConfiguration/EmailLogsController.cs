@@ -26,7 +26,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
     /// Controller for email logs
     /// </summary>
     [V1]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
     public class EmailLogsController : EntityController<EmailLog>

@@ -26,7 +26,7 @@ namespace OpenBots.Server.Web.Controllers
     /// Controller for QueueItems
     /// </summary>
     [V1]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
     public class QueueItemsController : EntityController<QueueItem>
@@ -395,7 +395,7 @@ namespace OpenBots.Server.Web.Controllers
                 long size = file.Length;
                 if (size <= 0)
                 {
-                    ModelState.AddModelError("File attachmentt", "No file attached");
+                    ModelState.AddModelError("File attachment", "No file attached");
                     return BadRequest(ModelState);
                 }
 

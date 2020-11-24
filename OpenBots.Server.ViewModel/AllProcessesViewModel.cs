@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using OpenBots.Server.Model;
+﻿using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
 using System;
 using System.ComponentModel.DataAnnotations;

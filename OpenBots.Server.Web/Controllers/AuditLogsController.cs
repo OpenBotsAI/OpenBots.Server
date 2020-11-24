@@ -26,7 +26,7 @@ namespace OpenBots.Server.Web.Controllers
     /// Controller for audit logs
     /// </summary>
     [V1]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
     public class AuditLogsController : EntityController<AuditLog>

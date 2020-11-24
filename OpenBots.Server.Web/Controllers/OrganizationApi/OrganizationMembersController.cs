@@ -27,7 +27,7 @@ namespace OpenBots.Server.WebAPI.Controllers
     /// Controller for organization members
     /// </summary>
     [V1]
-    [Route("api/v{version:apiVersion}/Organizations/{organizationId}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/Organizations/{organizationId}/[controller]")]
     [ApiController]
     [Authorize]
     public class OrganizationMembersController : EntityController<OrganizationMember>

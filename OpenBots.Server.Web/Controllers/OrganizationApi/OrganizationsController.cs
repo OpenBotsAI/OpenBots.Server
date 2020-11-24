@@ -19,7 +19,7 @@ namespace OpenBots.Server.WebAPI.Controllers
     /// Controller for organizations
     /// </summary>
     [V1]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
     public class OrganizationsController : EntityController<Organization>
