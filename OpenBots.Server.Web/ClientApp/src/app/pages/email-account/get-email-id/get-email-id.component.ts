@@ -93,6 +93,6 @@ export class GetEmailIdComponent implements OnInit {
   }
 
   gotoEmailTest() {
-    this.router.navigate(['/pages/emailaccount/test-email'], { queryParams: { name: this.showEmail.name, email: this.showEmail.fromEmailAddress } })
+    this.router.navigate(['/pages/emailaccount/send-email'], { queryParams: { name: this.showEmail.name, email: this.showEmail.fromEmailAddress } })
   }
 }

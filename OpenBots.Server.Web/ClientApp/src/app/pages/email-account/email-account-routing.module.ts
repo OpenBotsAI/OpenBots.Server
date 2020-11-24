@@ -25,7 +25,7 @@ const routes: Routes = [
     component: AddEmailAccountComponent
   },
   {
-    path: 'test-email',
+    path: 'send-email',
     component: EmailTestingAccountComponent
   }
 ];

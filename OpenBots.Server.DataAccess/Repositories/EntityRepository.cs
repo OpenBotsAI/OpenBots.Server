@@ -279,7 +279,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                     var currentValues = DbContext.Entry(entity).CurrentValues;
                     var newValues = currentValues.Clone();
 
-                    throw new Exception("too many requests");
+                    //throw new Exception("too many requests");
 
                     T newEntity = new T();
                     ChangeNonAuditableProperties(newValues, entity, newEntity);
