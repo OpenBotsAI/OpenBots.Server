@@ -24,7 +24,7 @@ namespace OpenBots.Server.Web.Controllers
     /// Controller for Schedules
     /// </summary>
     [V1]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
     public class SchedulesController : EntityController<Schedule>
@@ -101,7 +101,7 @@ namespace OpenBots.Server.Web.Controllers
 
             oData.Parse(queryString);
             Guid parentguid = Guid.Empty;
-            var newNode = oData.ParseOrderByQuerry(queryString);
+            var newNode = oData.ParseOrderByQuery(queryString);
             if (newNode == null)
                 newNode = new OrderByNode<ScheduleViewModel>();
 

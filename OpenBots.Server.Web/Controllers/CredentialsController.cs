@@ -22,7 +22,7 @@ namespace OpenBots.Server.Web
     /// Controller for credentials
     /// </summary>
     [V1]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
     public class CredentialsController : EntityController<Credential>

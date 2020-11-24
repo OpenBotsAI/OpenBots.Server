@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 using OpenBots.Server.DataAccess.Repositories;
+using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
+using OpenBots.Server.Model.Core;
+using OpenBots.Server.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +15,13 @@ namespace OpenBots.Server.Business
     {
         private readonly IQueueItemRepository repo;
         private readonly IQueueRepository queueRepository;
+        private readonly IQueueItemAttachmentRepository queueItemAttachmentRepository;
 
-        public QueueItemManager(IQueueItemRepository repo, IQueueRepository queueRepository)
+        public QueueItemManager(IQueueItemRepository repo, IQueueRepository queueRepository, IQueueItemAttachmentRepository queueItemAttachmentRepository)
         {
             this.repo = repo;
             this.queueRepository = queueRepository;
+            this.queueItemAttachmentRepository = queueItemAttachmentRepository;
         }
 
         public async Task<QueueItem> Enqueue(QueueItem item)
@@ -265,6 +270,7 @@ namespace OpenBots.Server.Business
             item.LockedUntilUTC = null;
             item.LockTransactionKey = null;
         }
+
         public void SetExpiredState(QueueItem item)
         {
             item.State = QueueItemStateType.Expired.ToString();
@@ -274,6 +280,28 @@ namespace OpenBots.Server.Business
             item.LockedEndTimeUTC = null;
             item.LockedUntilUTC = null;
             item.LockTransactionKey = null;
+        }
+
+        public PaginatedList<AllQueueItemsViewModel> GetQueueItemsAndBinaryObjectIds(Predicate<AllQueueItemsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        {
+            return repo.FindAllView(predicate, sortColumn, direction, skip, take);
+        }
+
+        public QueueItemViewModel GetQueueItemView(QueueItemViewModel queueItemView, string id)
+        {
+            var attachmentsList = queueItemAttachmentRepository.Find(null, q => q.QueueItemId == Guid.Parse(id))?.Items;
+            if (attachmentsList != null)
+            {
+                List<Guid> binaryObjectIds = new List<Guid>();
+                foreach (var item in attachmentsList)
+                {
+                    binaryObjectIds.Add(item.BinaryObjectId);
+                }
+                queueItemView.BinaryObjectIds = binaryObjectIds;
+            }
+            else queueItemView.BinaryObjectIds = null;
+
+            return queueItemView;
         }
     }
 }

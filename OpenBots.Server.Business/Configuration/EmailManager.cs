@@ -302,7 +302,7 @@ namespace OpenBots.Server.Business
                 emailLog.EmailAccountId = Guid.Parse(existingAccount.Id.ToString());
             emailLog.SentOnUTC = DateTime.UtcNow;
             string newEmailMessage = Regex.Replace(emailMessage.Body, @"(<sensitive(\s|\S)*?<\/sensitive>)", "NULL");
-            emailLog.EmailObjectJson = JsonConvert.SerializeObject(newEmailMessage);
+            emailLog.EmailObjectJson = newEmailMessage;
             List<string> nameList = new List<string>();
             List<string> emailList = new List<string>();
             foreach (EmailAddress address in emailMessage.From)

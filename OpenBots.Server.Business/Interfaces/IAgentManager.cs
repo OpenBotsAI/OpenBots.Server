@@ -1,4 +1,7 @@
-﻿using OpenBots.Server.ViewModel;
+﻿using OpenBots.Server.Model;
+using OpenBots.Server.ViewModel;
+using System;
+using System.Collections.Generic;
 
 namespace OpenBots.Server.Business
 {
@@ -7,5 +10,9 @@ namespace OpenBots.Server.Business
         AgentViewModel GetAgentDetails(AgentViewModel agentView);
         
         bool CheckReferentialIntegrity(string id);
+
+        IEnumerable<AgentHeartbeat> GetAgentHeartbeats(Guid agentId);
+
+        void DeleteExistingHeartbeats(Guid agentId);
     }
 }

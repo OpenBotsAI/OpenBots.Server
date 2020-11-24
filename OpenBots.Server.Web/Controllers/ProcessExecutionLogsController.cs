@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 namespace OpenBots.Server.Web
 {
     [V1]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
     public class ProcessExecutionLogsController : EntityController<ProcessExecutionLog>
@@ -103,7 +103,7 @@ namespace OpenBots.Server.Web
 
             oData.Parse(queryString);
             Guid parentguid = Guid.Empty;
-            var newNode = oData.ParseOrderByQuerry(queryString);
+            var newNode = oData.ParseOrderByQuery(queryString);
             if (newNode == null)
                 newNode = new OrderByNode<ProcessExecutionViewModel>();
 

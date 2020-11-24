@@ -11,9 +11,8 @@ namespace OpenBots.Server.Model
     /// </summary>
     public class AgentHeartbeat : Entity, INonAuditable
     {
-        [Required]
         [Display(Name = "AgentId")]
-        public Guid? AgentId { get; set; }
+        public Guid AgentId { get; set; }
 
         [Display(Name = "LastReportedOn")]
         public DateTime? LastReportedOn { get; set; }
