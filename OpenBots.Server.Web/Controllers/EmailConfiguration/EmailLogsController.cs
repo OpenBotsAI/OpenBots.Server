@@ -222,10 +222,10 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         }
 
         /// <summary>
-        /// Attach a binary object file to an email log
+        /// Attach files to an email
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="file"></param>
+        /// <param name="files"></param>
         /// <response code="200">Ok, new binary object created and returned</response>
         /// <response code="400">Bad request, when the binary object value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
@@ -240,59 +240,71 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Attach(string id, [FromForm] IFormFile file)
+        public async Task<IActionResult> Attach(string id, [FromForm] IFormFile[] files)
         {
             try
             {
-                string organizationId = binaryObjectManager.GetOrganizationId();
-                string apiComponent = "EmailLogAPI";
+                if (files.Length == 0 || files == null)
+                {
+                    ModelState.AddModelError("Attach", "No files uploaded to attach");
+                    return BadRequest(ModelState);
+                }
 
-                //Add file to Binary Objects (create entity and put file in EmailLogAPI folder in Server)
-                BinaryObject binaryObject = new BinaryObject();
-                binaryObject.Name = file.FileName;
-                binaryObject.Folder = apiComponent;
-                binaryObject.CreatedOn = DateTime.UtcNow;
-                binaryObject.CreatedBy = applicationUser?.UserName;
-                binaryObject.CorrelationEntityId = Guid.Parse(id);
-                binaryObjectRepository.Add(binaryObject);
+                var emailAttachments = new List<EmailAttachment>();
 
-                string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
+                foreach (var file in files)
+                {
+                    if (file == null)
+                    {
+                        ModelState.AddModelError("Save", "No file attached");
+                        return BadRequest(ModelState);
+                    }
 
-                binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
+                    long size = file.Length;
+                    if (size <= 0)
+                    {
+                        ModelState.AddModelError("File attachment", $"File size of file {file.FileName} cannot be 0");
+                        return BadRequest(ModelState);
+                    }
 
-                // Create/ save email attachment entity
-                EmailAttachment emailAttachment = new EmailAttachment();
-                emailAttachment.Name = binaryObject.Name;
-                emailAttachment.BinaryObjectId = binaryObject.Id;
-                emailAttachment.ContentType = binaryObject.ContentType;
-                emailAttachment.ContentStorageAddress = binaryObject.StoragePath;
-                emailAttachment.SizeInBytes = binaryObject.SizeInBytes;
-                emailAttachment.EmailLogId = Guid.Parse(id);
-                emailAttachmentRepository.Add(emailAttachment);
+                    string organizationId = binaryObjectManager.GetOrganizationId();
+                    string apiComponent = "EmailLogAPI";
 
-                //// Attach / add file to email log
-                //var emailLog = repository.GetOne(Guid.Parse(id));
+                    //Add file to Binary Objects (create entity and put file in EmailLogAPI folder in Server)
+                    BinaryObject binaryObject = new BinaryObject()
+                    {
+                        Name = file.FileName,
+                        Folder = apiComponent,
+                        CreatedBy = applicationUser?.UserName,
+                        CreatedOn = DateTime.UtcNow,
+                        CorrelationEntityId = Guid.Parse(id)
+                    };
 
-                //if (string.IsNullOrEmpty(emailLog.EmailAttachments))
-                //{
-                //    List<EmailAttachment> attachments = new List<EmailAttachment>();
-                //    attachments.Add(emailAttachment);
-                //    emailLog.EmailAttachments = JsonConvert.SerializeObject(attachments);
-                //}
-                //else
-                //{
-                //    var list = JsonConvert.DeserializeObject<List<EmailAttachment>>(emailLog.EmailAttachments);
-                //    list.Add(emailAttachment);
-                //    var convertedJson = JsonConvert.SerializeObject(list, Formatting.Indented);
-                //    emailLog.EmailAttachments = convertedJson;
-                //}
-                //repository.Update(emailLog);
-                return Ok(emailAttachment);
+                    string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
+                    //Upload file to Server
+                    binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
+                    binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
+                    binaryObjectRepository.Add(binaryObject);
+
+                    // Create email attachment
+                    EmailAttachment emailAttachment = new EmailAttachment()
+                    {
+                        Name = binaryObject.Name,
+                        BinaryObjectId = binaryObject.Id,
+                        ContentType = binaryObject.ContentType,
+                        ContentStorageAddress = binaryObject.StoragePath,
+                        SizeInBytes = binaryObject.SizeInBytes,
+                        EmailLogId = Guid.Parse(id)
+                    };
+                    emailAttachmentRepository.Add(emailAttachment);
+                    emailAttachments.Add(emailAttachment);
+                }
+                return Ok(emailAttachments);
             }
             catch (Exception ex)
             {
-                return ex.GetActionResult();
+                ModelState.AddModelError("Attach", ex.Message);
+                return BadRequest(ModelState);
             }
         }
 
@@ -300,7 +312,6 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// Send email draft
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="emailAccountName"></param>
         /// <param name="emailMessage"></param>
         /// <response code="200">Ok, if the email log details for the given email log id have been updated</response>
         /// <response code="400">Bad request, if the email log id is null or ids don't match</response>
@@ -308,7 +319,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// <response code="409">Conflict</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>200 Ok response</returns>
-        [HttpPut("{id}/send/{emailAccountName?}")]
+        [HttpPut("{id}/send")]
         [ProducesResponseType(typeof(EmailLog), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -316,7 +327,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Send(string id, string emailAccountName, [FromBody] EmailMessage emailMessage)
+        public async Task<IActionResult> Send(string id, [FromBody] EmailMessage emailMessage, string emailAccountName = null)
         {
             try
             {
@@ -327,22 +338,16 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
                     return BadRequest(ModelState);
                 }
 
-                //Use default email account when emailAccountName is not provided
-                if (string.IsNullOrEmpty(emailAccountName))
-                {
-                    var emailAccount = emailAccountRepository.Find(null, q => q.IsDefault).Items?.FirstOrDefault();
-                    emailAccountName = emailAccount.Name;
-                }
-
                 Guid emailLogId = Guid.Parse(id);
                 var emailLog = repository.GetOne(emailLogId);
 
                 if (emailLog.Status.Equals("Draft"))
                 {
-                    //var attachments = JsonConvert.DeserializeObject<List<EmailAttachment>>(emailLog.EmailAttachments);
                     var attachments = emailAttachmentRepository.Find(null, q => q.EmailLogId == emailLogId)?.Items;
                     emailMessage.Attachments = attachments;
 
+                    // Email account name is nullable, so it needs ot be used as a query parameter instead of in the put url
+                    // If no email account is chosen, the default organization account will be used
                     emailSender.SendEmailAsync(emailMessage, emailAccountName);
                     return Ok();
                 }
@@ -442,6 +447,16 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string id)
         {
+            var attachments = emailAttachmentRepository.Find(null, q => q.EmailLogId == Guid.Parse(id))?.Items;
+            if (attachments.Count != 0)
+            {
+                foreach (var attachment in attachments)
+                {
+                    emailAttachmentRepository.SoftDelete((Guid)attachment.Id);
+                    binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
+                }
+            }
+
             return await base.DeleteEntity(id);
         }
     }

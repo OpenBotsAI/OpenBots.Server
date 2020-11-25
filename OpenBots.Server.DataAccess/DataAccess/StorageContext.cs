@@ -10,7 +10,7 @@ namespace OpenBots.Server.DataAccess
     {
         public DbSet<LookupValue> LookupValues { get; set; }
         public DbSet<ApplicationVersion> AppVersion { get; set; }
-        public DbSet<QueueItem> QueueItems { get; set; }
+        public DbSet<QueueItemModel> QueueItems { get; set; }
         public DbSet<QueueItemAttachment> QueueItemAttachments { get; set; }
         public DbSet<BinaryObject> BinaryObjects { get; set; }
         public DbSet<AgentModel> Agents { get; set; }

@@ -13,11 +13,14 @@ using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
+using OpenBots.Server.ViewModel.QueueItem;
 using OpenBots.Server.Web.Hubs;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Web.Controllers
@@ -29,7 +32,7 @@ namespace OpenBots.Server.Web.Controllers
     [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
-    public class QueueItemsController : EntityController<QueueItem>
+    public class QueueItemsController : EntityController<QueueItemModel>
     {
         readonly IQueueItemManager manager;
         readonly IQueueRepository queueRepository;
@@ -40,7 +43,7 @@ namespace OpenBots.Server.Web.Controllers
         private readonly IBinaryObjectManager binaryObjectManager;
         private readonly IBinaryObjectRepository binaryObjectRepository;
         private readonly IQueueItemAttachmentRepository queueItemAttachmentRepository;
-        
+
         /// <summary>
         /// QueueItemsController constructor
         /// </summary>
@@ -86,14 +89,14 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Paginated list of all queue items</returns>
         [HttpGet]
-        [ProducesResponseType(typeof(PaginatedList<QueueItem>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<QueueItemModel>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<QueueItem> Get(
+        public PaginatedList<QueueItemModel> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
@@ -166,7 +169,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Queue item details for the given id</returns>
         [HttpGet("{id}", Name = "GetQueueItem")]
-        [ProducesResponseType(typeof(PaginatedList<QueueItem>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<QueueItemModel>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -267,7 +270,7 @@ namespace OpenBots.Server.Web.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             Guid queueItemId = new Guid(id);
-            QueueItem queueItem = repository.GetOne(queueItemId);
+            QueueItemModel queueItem = repository.GetOne(queueItemId);
 
             if (queueItem.IsLocked)
             {
@@ -284,7 +287,7 @@ namespace OpenBots.Server.Web.Controllers
             {
                 queueItemAttachmentRepository.SoftDelete((Guid)attachment.Id);
                 binaryObjectRepository.SoftDelete(attachment.BinaryObjectId);
-            }          
+            }
 
             return response;
         }
@@ -306,7 +309,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> Patch(string id,
-            [FromBody] JsonPatchDocument<QueueItem> request)
+            [FromBody] JsonPatchDocument<QueueItemModel> request)
         {
             return await base.PatchEntity(id, request);
         }
@@ -324,7 +327,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
-        public async Task<IActionResult> Enqueue([FromBody] QueueItem request)
+        public async Task<IActionResult> Enqueue([FromBody] QueueItemModel request)
         {
             try
             {
@@ -371,8 +374,10 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Attach file to queue item
+        /// Attach files to queue item
         /// </summary>
+        /// <param name="files"></param>
+        /// <param name="id"></param>
         /// <response code="200">Ok response</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
@@ -382,83 +387,71 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
-        public async Task<IActionResult> Attach(string id, [FromForm] IFormFile file)
+        public async Task<IActionResult> Attach(string id, [FromForm] IFormFile[] files)
         {
             try
             {
-                if (file == null)
+                if (files.Length == 0 || files == null)
                 {
-                    ModelState.AddModelError("Save", "No data passed");
+                    ModelState.AddModelError("Attach", "No files to attach");
                     return BadRequest(ModelState);
                 }
 
-                long size = file.Length;
-                if (size <= 0)
+                var attachments = new List<QueueItemAttachment>();
+
+                foreach (var file in files)
                 {
-                    ModelState.AddModelError("File attachment", "No file attached");
-                    return BadRequest(ModelState);
+                    if (file == null)
+                    {
+                        ModelState.AddModelError("Save", "No file attached");
+                        return BadRequest(ModelState);
+                    }
+
+                    long size = file.Length;
+                    if (size <= 0)
+                    {
+                        ModelState.AddModelError("File attachment", $"File size of file {file.FileName} cannot be 0");
+                        return BadRequest(ModelState);
+                    }
+
+                    string organizationId = binaryObjectManager.GetOrganizationId();
+                    string apiComponent = "QueueItemAPI";
+
+                    //Create binary object
+                    BinaryObject binaryObject = new BinaryObject()
+                    {
+                        Name = file.FileName,
+                        Folder = apiComponent,
+                        CreatedOn = DateTime.UtcNow,
+                        CreatedBy = applicationUser?.UserName,
+                        CorrelationEntityId = Guid.Parse(id)
+                    };
+
+                    string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
+
+                    //Upload file to the Server
+                    binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
+                    binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
+                    binaryObjectRepository.Add(binaryObject);
+
+                    //Create queue item attachment
+                    QueueItemAttachment attachment = new QueueItemAttachment()
+                    {
+                        BinaryObjectId = (Guid)binaryObject.Id,
+                        QueueItemId = Guid.Parse(id),
+                        CreatedBy = applicationUser?.UserName,
+                        CreatedOn = DateTime.UtcNow
+                    };
+                    queueItemAttachmentRepository.Add(attachment);
+                    attachments.Add(attachment);
                 }
-
-                var queueItem = repository.GetOne(Guid.Parse(id));
-                string organizationId = binaryObjectManager.GetOrganizationId();
-                string apiComponent = "QueueItemAPI";
-
-                //Create binary object
-                BinaryObject binaryObject = new BinaryObject()
-                {
-                    Name = file.FileName,
-                    Folder = apiComponent,
-                    CreatedOn = DateTime.UtcNow,
-                    CreatedBy = applicationUser?.UserName,
-                    CorrelationEntityId = queueItem.Id
-                };
-                binaryObjectRepository.Add(binaryObject);
-
-                string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
-
-                //Upload file to the Server
-                binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-
-                //Create queue item attachment
-                QueueItemAttachment attachment = new QueueItemAttachment()
-                {
-                    BinaryObjectId = (Guid)binaryObject.Id,
-                    QueueItemId = (Guid)queueItem.Id,
-                    CreatedBy = applicationUser?.UserName,
-                    CreatedOn = DateTime.UtcNow
-
-                };
-                queueItemAttachmentRepository.Add(attachment);
-
-                return Ok(attachment);
+                return Ok(attachments);
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("Attach", ex.Message);
                 return BadRequest(ModelState);
             }
-        }
-
-        /// <summary>
-        /// Deletes a queue item attachment with a specified id from the queue item attachments
-        /// </summary>
-        /// <param name="attachmentId">Queue item attachment id to be deleted - throws bad request if null or empty Guid</param>
-        /// <response code="200">Ok, when queue item id is soft deleted, (isDeleted flag is set to true in database)</response>
-        /// <response code="400">Bad request, if queue item attachment id is null or empty Guid</response>
-        /// <response code="403">Forbidden</response>
-        /// <returns>Ok response</returns>
-        [HttpDelete("{id}/attach/{attachmentId}")]
-        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
-        [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesDefaultResponseType]
-        public async Task<IActionResult> DeleteAttachment(string attachmentId)
-        {
-            queueItemAttachmentRepository.SoftDelete(Guid.Parse(attachmentId));
-
-            return Ok();
         }
 
         /// <summary>
@@ -522,7 +515,7 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 Guid transactionKeyId = Guid.Parse(transactionKey);
-                QueueItem queueItem = await manager.GetQueueItem(transactionKeyId);
+                QueueItemModel queueItem = await manager.GetQueueItem(transactionKeyId);
 
                 if (queueItem == null)
                 {
@@ -568,7 +561,7 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 Guid transactionKeyId = Guid.Parse(transactionKey);
-                QueueItem queueItem = await manager.GetQueueItem(transactionKeyId);
+                QueueItemModel queueItem = await manager.GetQueueItem(transactionKeyId);
 
                 if (queueItem == null)
                 {
@@ -618,7 +611,7 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 Guid transactionKeyId = Guid.Parse(transactionKey);
-                QueueItem queueItem = await manager.GetQueueItem(transactionKeyId);
+                QueueItemModel queueItem = await manager.GetQueueItem(transactionKeyId);
 
                 if (queueItem == null)
                 {
@@ -666,7 +659,7 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 Guid transactionKeyId = Guid.Parse(transactionKey);
-                QueueItem queueItem = await manager.GetQueueItem(transactionKeyId);
+                QueueItemModel queueItem = await manager.GetQueueItem(transactionKeyId);
 
                 if (queueItem == null)
                 {
@@ -690,6 +683,140 @@ namespace OpenBots.Server.Web.Controllers
                 ModelState.AddModelError("Update State", ex.Message);
                 return BadRequest(ModelState);
             }
+        }
+
+        /// <summary>
+        /// Update the queue item with file attachments
+        /// </summary>
+        /// <response code="200">Ok response</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="422">Unprocessable entity, validation error</response>
+        /// <returns>Ok response</returns>
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(QueueItemViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [Produces("application/json")]
+        public async Task<IActionResult> UpdateFiles(string id, [FromForm] UpdateQueueItemViewModel request)
+        {
+            var queueItem = repository.GetOne(Guid.Parse(id));
+            if (queueItem == null) return NotFound();
+
+            queueItem.DataJson = request.DataJson;
+            queueItem.Event = request.Event;
+            queueItem.ExpireOnUTC = request.ExpireOnUTC;
+            queueItem.PostponeUntilUTC = request.PostponeUntilUTC;
+            queueItem.Name = request.Name;
+            queueItem.QueueId = (Guid)request.QueueId;
+            queueItem.Source = request.Source;
+            queueItem.Type = request.Type;
+            queueItem.State = request.State;
+            if (queueItem.State == "New")
+            {
+                queueItem.StateMessage = null;
+                queueItem.RetryCount = 0;
+            }
+
+            var attachments = queueItemAttachmentRepository.Find(null, q => q.QueueItemId == Guid.Parse(id))?.Items;
+            var binaryObjectIds = new List<Guid>();
+            var files = request.Files.ToList();
+
+            foreach (var attachment in attachments)
+            {
+                var binaryObject = binaryObjectRepository.GetOne(attachment.BinaryObjectId);
+                bool exists = false;
+                // Check if file with same hash and queue item id already exists
+                foreach (var file in request.Files)
+                {
+                    byte[] bytes = Array.Empty<byte>();
+                    using (var ms = new MemoryStream())
+                    {
+                        await file.CopyToAsync(ms);
+                        bytes = ms.ToArray();
+                    }
+
+                    string hash = string.Empty;
+                    using (SHA256 sha256Hash = SHA256.Create())
+                    {
+                        hash = binaryObjectManager.GetHash(sha256Hash, bytes);
+                    }
+                    
+                    if (binaryObject.HashCode == hash && binaryObject.CorrelationEntityId == queueItem.Id)
+                    {
+                        exists = true;
+                        files.Remove(file);
+                        binaryObjectIds.Add((Guid)binaryObject.Id);
+                    }
+                }
+                // If queue item attachment already exists: continue
+                if (exists)
+                    continue;
+                // If queue item attachment doesn't exist: remove attachment and binary object
+                else
+                {
+                    binaryObjectRepository.SoftDelete(attachment.BinaryObjectId);
+                    queueItemAttachmentRepository.SoftDelete((Guid)attachment.Id);
+                }
+            }
+            // If file doesn't exist in binary objects: add binary object entity, upload file, and add queue item attachment entity
+            foreach (var file in files)
+            {
+                var binaryObj = binaryObjectRepository.Find(null, q => q.Name == file.Name && q.ContentType == file.ContentType && q.SizeInBytes == file.Length)?.Items?.FirstOrDefault();
+                if (binaryObj == null)
+                {
+                    if (file == null)
+                    {
+                        ModelState.AddModelError("Save", "No file attached");
+                        return BadRequest(ModelState);
+                    }
+
+                    long size = file.Length;
+                    if (size <= 0)
+                    {
+                        ModelState.AddModelError("File attachment", $"File size of file {file.FileName} cannot be 0");
+                        return BadRequest(ModelState);
+                    }
+
+                    string organizationId = binaryObjectManager.GetOrganizationId();
+                    string apiComponent = "QueueItemAPI";
+
+                    //Create binary object
+                    BinaryObject binaryObject = new BinaryObject()
+                    {
+                        Name = file.FileName,
+                        Folder = apiComponent,
+                        CreatedOn = DateTime.UtcNow,
+                        CreatedBy = applicationUser?.UserName,
+                        CorrelationEntityId = Guid.Parse(id)
+                    };
+
+                    string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
+
+                    //Upload file to the Server
+                    binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
+                    binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
+                    binaryObjectRepository.Add(binaryObject);
+
+                    //Create queue item attachment
+                    QueueItemAttachment queueItemAttachment = new QueueItemAttachment()
+                    {
+                        BinaryObjectId = (Guid)binaryObject.Id,
+                        QueueItemId = Guid.Parse(id),
+                        CreatedBy = applicationUser?.UserName,
+                        CreatedOn = DateTime.UtcNow
+                    };
+                    queueItemAttachmentRepository.Add(queueItemAttachment);
+                    binaryObjectIds.Add(queueItemAttachment.BinaryObjectId);
+                }
+            }
+
+            // Update queue item
+            repository.Update(queueItem);
+
+            QueueItemViewModel response = new QueueItemViewModel();
+            response = response.Map(queueItem);
+            response.BinaryObjectIds = binaryObjectIds;
+            return Ok(response);
         }
     }
 }

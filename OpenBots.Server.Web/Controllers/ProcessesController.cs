@@ -306,14 +306,14 @@ namespace OpenBots.Server.Web.Controllers
             {
                 if (file == null)
                 {
-                    ModelState.AddModelError("Save", "No data passed");
+                    ModelState.AddModelError("Save", "No process uploaded");
                     return BadRequest(ModelState);
                 }
 
                 long size = file.Length;
                 if (size <= 0)
                 {
-                    ModelState.AddModelError("Process Upload", "No process uploaded");
+                    ModelState.AddModelError("Process Upload", $"File size of process {file.FileName} cannot be 0");
                     return BadRequest(ModelState);
                 }
 
@@ -327,12 +327,12 @@ namespace OpenBots.Server.Web.Controllers
                 binaryObject.CreatedOn = DateTime.UtcNow;
                 binaryObject.CreatedBy = applicationUser?.UserName;
                 binaryObject.CorrelationEntityId = process.Id;
-                binaryObjectRepo.Add(binaryObject);
 
                 string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
 
                 binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
                 binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
+                binaryObjectRepo.Add(binaryObject);
 
                 process.BinaryObjectId = (Guid)binaryObject.Id;
                 process.OriginalPackageName = file.FileName;
@@ -375,13 +375,19 @@ namespace OpenBots.Server.Web.Controllers
             var existingProcess = repository.GetOne(entityId);
             if (existingProcess == null) return NotFound();
 
-            if (request == null)
+            if (request.File == null)
             {
                 ModelState.AddModelError("Save", "No data passed");
                 return BadRequest(ModelState);
             }
 
             long size = request.File.Length;
+            if (size <= 0)
+            {
+                ModelState.AddModelError("Process Upload", $"File size of process {request.File.FileName} cannot be 0");
+                return BadRequest(ModelState);
+            }
+
             string binaryObjectId = existingProcess.BinaryObjectId.ToString();
             var binaryObject = binaryObjectRepo.GetOne(Guid.Parse(binaryObjectId));
             string organizationId = binaryObject.OrganizationId.ToString();
@@ -406,6 +412,7 @@ namespace OpenBots.Server.Web.Controllers
                     binaryObjectRepo.Add(newBinaryObject);
                     binaryObjectManager.Upload(request.File, organizationId, apiComponent, newBinaryObject.Id.ToString());
                     binaryObjectManager.SaveEntity(request.File, newBinaryObject.StoragePath, newBinaryObject, apiComponent, organizationId);
+                    binaryObjectRepo.Update(binaryObject);
                 }
 
                 //Update process (Create new process and process version entities)

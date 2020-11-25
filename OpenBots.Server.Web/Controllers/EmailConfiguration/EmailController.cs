@@ -35,13 +35,13 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// Creates an EmailMessage to send to an email address
         /// </remarks>
         /// <param name="emailMessage"></param>
+        /// <param name="accountName"></param>
         /// <response code="200">Ok, new email message created and sent</response>
         /// <response code="400">Bad request, when the email message value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
         /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
         /// <returns>Ok response</returns>
-        [HttpPost]
         [ProducesResponseType(typeof(EmailAccount), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -49,8 +49,8 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        [HttpPost("{accountName}")]
-        public void Post(string accountName, [FromBody] EmailMessage emailMessage)
+        [HttpPost("{accountName?}")]
+        public void Post([FromBody] EmailMessage emailMessage, string accountName = null)
         {
             manager.SendEmailAsync(emailMessage, accountName);
         }

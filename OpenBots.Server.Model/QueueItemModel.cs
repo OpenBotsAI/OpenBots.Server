@@ -6,7 +6,7 @@ namespace OpenBots.Server.Model
 	/// <summary>
 	/// QueueItem Model
 	/// </summary>
-	public class QueueItem : NamedEntity
+	public class QueueItemModel : NamedEntity
 	{
 		/// <summary>
 		/// Whether a QueueItem is locked by a job or not
@@ -56,7 +56,7 @@ namespace OpenBots.Server.Model
 		/// <summary>
 		/// Message given to user after state of QueueItem was changed
 		/// </summary>
-		public  string StateMessage { get; set; }
+		public string StateMessage { get; set; }
 
 		/// <summary>
 		/// Guid generated when item is dequeued
