@@ -11,9 +11,6 @@ export class EmailLogService {
   }
 
   constructor(private http: HttpClient) { }
-
-
-
   getAllEmailforfilter() {
     let getagentUrl = `/emailaccounts/getlookup`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
@@ -39,16 +36,9 @@ export class EmailLogService {
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
   }
 
-
   getUserId(id) {
     let getagentUrlbyId = `/people/${id}`;
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
   }
-
-
-
-
-
-
 
 }

@@ -12,7 +12,7 @@
         <form [formGroup]="emailform">
           <div class="row">
             <div class="col-md-6">
-              <div class="form-group">
+              <!-- <div class="form-group">
                 <label class="label col-form-label">Name *</label>
 
                 <input
@@ -40,7 +40,35 @@
                     Please enter valid name.
                   </div>
                 </div>
-              </div>
+              </div> -->
+
+
+          
+                     <label class="label col-form-label">Name *</label>
+                    <select class="custom-select  "   style="color: #000000"
+                        formControlName="name" >
+                        
+                        <option *ngFor="let item of getEmail" [value]="item.emailAccountName">
+                            {{ item.emailAccountName }}
+                        </option>
+                    </select>
+                    <div
+                  *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid"
+                  class="invalid-feedback-frm"
+                >
+                  <div *ngIf="f.name.errors && f.name.errors.required">
+                    Name is required.
+                  </div>
+                   
+                  <div *ngIf="f.name.errors.pattern">
+                    Please enter valid name.
+                  </div>
+                </div>
+             
+     
+
+
+
             </div>
 
             <div class="col-md-6">
@@ -84,12 +112,11 @@
                   style="color: #000000"
                   placeholder="Please enter cc"
                 />
-               
               </div>
             </div>
-              <div class="col-md-6">
+            <div class="col-md-6">
               <div class="form-group">
-                <label class="label col-form-label"> Bcc  </label>
+                <label class="label col-form-label"> Bcc </label>
 
                 <input
                   type="input"
@@ -99,12 +126,9 @@
                   style="color: #000000"
                   placeholder="Please enter bcc"
                 />
-             
               </div>
             </div>
-
-            </div>
-             
+          </div>
 
           <div class="row">
             <div class="col-md-12">
@@ -119,8 +143,6 @@
                   style="color: #000000"
                   placeholder="Please enter subject"
                 />
-                 
-
               </div>
             </div>
           </div>
@@ -128,13 +150,15 @@
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
-                <label class="label col-form-label">Please write something </label>
+                <label class="label col-form-label"
+                  >Please write something
+                </label>
 
                 <ckeditor
                   formControlName="body"
                   name="myckeditor"
                   required
-                      placeholder="Please enter email"
+                  placeholder="Please enter email"
                   [config]="ckeConfig"
                   debounce="500"
                   (paste)="onPaste($event)"
@@ -144,13 +168,13 @@
               </div>
             </div>
           </div>
-<!-- [disabled]="submitted || !emailform.valid" -->
+          <!-- [disabled]="submitted || !emailform.valid" -->
           <div class="row rowPadTOp">
             <div class="col-md-12 col-lg-12 col-xxxl-6">
               <button
                 type="submit"
                 class="btn btn-primary"
-                [disabled]="submitted || !emailform.valid" 
+                [disabled]="submitted || !emailform.valid"
                 status="primary"
                 (click)="onSubmit()"
               >
@@ -158,7 +182,6 @@
               </button>
             </div>
           </div>
-
         </form>
       </nb-card-body>
     </nb-card>
