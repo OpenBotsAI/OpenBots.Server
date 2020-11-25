@@ -40,6 +40,7 @@ namespace OpenBots.Server.Business
             var configValues = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 { "BinaryObjects:Adapter", "FileSystemAdapter" },
+                { "BinaryObjects:StorageProvider", "FileSystem.Default" },
                 { "BinaryObjects:Path", "BinaryObjects"},
                 { "Queue.Global:DefaultMaxRetryCount", "3" },
                 { "App:EnableSwagger", "true"},

@@ -87,7 +87,16 @@ namespace OpenBots.Server.Business
             {
                 jobParameterRepo.SoftDelete(parmeter.Id ?? Guid.Empty);
             }
-            
+        }
+
+        public void DeleteExistingCheckpoints(Guid jobId)
+        {
+            var jobCheckpoints = GetJobCheckpoints(jobId);
+            foreach (var checkpoint in jobCheckpoints)
+            {
+                jobCheckpointRepo.SoftDelete(checkpoint.Id ?? Guid.Empty);
+            }
+
         }
 
         public void DeleteExistingCheckpoints(Guid jobId)

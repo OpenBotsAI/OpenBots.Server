@@ -312,8 +312,12 @@
         </member>
         <member name="T:OpenBots.Server.Model.RuleType">
             <summary>
-            Re 
+            Represents the type of rule that is being stored
             </summary>
+             /// <remarks>
+            IP rule values can be stored as individual addresses or as ranges. <br/>
+            Headers are checked after IP values and must be exist in the http request
+            </remarks>
         </member>
         <member name="T:OpenBots.Server.Model.JobStatusType">
             <summary>
@@ -592,24 +596,9 @@
             Process model (inherits NamedEntity model)
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.Process.Version">
-            <summary>
-            Version of Process
-            </summary>
-        </member>
-        <member name="P:OpenBots.Server.Model.Process.Status">
-            <summary>
-            Status of Process
-            </summary>
-        </member>
         <member name="P:OpenBots.Server.Model.Process.BinaryObjectId">
             <summary>
             Id linked to Binary Object data table
-            </summary>
-        </member>
-        <member name="P:OpenBots.Server.Model.Process.VersionId">
-            <summary>
-            Id to match other versions of the same process
             </summary>
         </member>
         <member name="P:OpenBots.Server.Model.Process.OriginalPackageName">

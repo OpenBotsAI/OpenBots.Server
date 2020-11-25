@@ -24,7 +24,7 @@ namespace OpenBots.Server.Web.Controllers
     /// Controller for agents
     /// </summary>
     [V1]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
     public class AgentsController : EntityController<AgentModel>

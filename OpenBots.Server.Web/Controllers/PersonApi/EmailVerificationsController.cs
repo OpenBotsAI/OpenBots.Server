@@ -22,7 +22,7 @@ namespace OpenBots.Server.WebAPI.Controllers
     /// Controller for email verifications
     /// </summary>
     [V1]
-    [Route("api/v{version:apiVersion}/People/{personId}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/People/{personId}/[controller]")]
     [ApiController]
     [Authorize]
     public class EmailVerificationsController : EntityController<EmailVerification>

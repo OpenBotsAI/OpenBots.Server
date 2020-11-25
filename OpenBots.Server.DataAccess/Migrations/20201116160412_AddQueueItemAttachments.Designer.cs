@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenBots.Server.DataAccess;
 
 namespace OpenBots.Server.DataAccess.Migrations
 {
     [DbContext(typeof(StorageContext))]
-    partial class StorageContextModelSnapshot : ModelSnapshot
+    [Migration("20201116160412_AddQueueItemAttachments")]
+    partial class AddQueueItemAttachments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1392,70 +1394,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.ToTable("Jobs");
                 });
 
-            modelBuilder.Entity("OpenBots.Server.Model.JobCheckpoint", b =>
-                {
-                    b.Property<Guid?>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeleteOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool?>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Iterator")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("IteratorCount")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("IteratorPosition")
-                        .HasColumnType("int");
-
-                    b.Property<string>("IteratorValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("JobId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Message")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<byte[]>("Timestamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("JobCheckpoints");
-                });
-
             modelBuilder.Entity("OpenBots.Server.Model.JobParameter", b =>
                 {
                     b.Property<Guid?>("Id")
@@ -1949,6 +1887,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<string>("OriginalPackageName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<byte[]>("Timestamp")
                         .IsConcurrencyToken()
                         .IsRequired()
@@ -1961,6 +1902,12 @@ namespace OpenBots.Server.DataAccess.Migrations
 
                     b.Property<DateTime?>("UpdatedOn")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("VersionId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -2173,6 +2120,8 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProcessId");
 
                     b.ToTable("ProcessVersions");
                 });
@@ -2683,6 +2632,17 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Navigation("OrganizationUnit");
 
                     b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("OpenBots.Server.Model.ProcessVersion", b =>
+                {
+                    b.HasOne("OpenBots.Server.Model.Process", "Process")
+                        .WithMany()
+                        .HasForeignKey("ProcessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Process");
                 });
 
             modelBuilder.Entity("OpenBots.Server.Model.Identity.Person", b =>

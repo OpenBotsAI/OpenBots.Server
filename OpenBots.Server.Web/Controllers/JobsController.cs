@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business;
 using OpenBots.Server.DataAccess.Repositories;
+using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
@@ -25,7 +26,7 @@ namespace OpenBots.Server.Web
     /// Controller for Jobs
     /// </summary>
     [V1]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
     public class JobsController : EntityController<Job>
@@ -35,6 +36,7 @@ namespace OpenBots.Server.Web
         readonly IProcessRepository processRepo;
         readonly IJobCheckpointRepository jobCheckpointRepo;
         private IHubContext<NotificationHub> _hub;
+        private IProcessVersionRepository processVersionRepo;
         
         /// <summary>
         /// JobsController constructor
@@ -46,6 +48,10 @@ namespace OpenBots.Server.Web
         /// <param name="hub"></param>
         /// <param name="configuration"></param>
         /// <param name="httpContextAccessor"></param>
+        /// <param name="jobCheckpointRepository"></param>
+        /// <param name="jobParameterRepository"></param>
+        /// <param name="processRepository"></param>
+        /// <param name="processVersionRepo"></param>
         public JobsController(
             IJobRepository repository,
             IProcessRepository processRepository,
@@ -56,7 +62,8 @@ namespace OpenBots.Server.Web
             IJobManager jobManager,
             IHubContext<NotificationHub> hub,
             IConfiguration configuration,
-            IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor,
+            IHttpContextAccessor httpContextAccessor,
+            IProcessVersionRepository processVersionRepo) : base(repository, userManager, httpContextAccessor,
                 membershipManager, configuration)
         {
             this.jobManager = jobManager;
@@ -65,6 +72,7 @@ namespace OpenBots.Server.Web
             this.jobCheckpointRepo = jobCheckpointRepository;
             this.jobManager.SetContext(base.SecurityContext);
             _hub = hub;
+            this.processVersionRepo = processVersionRepo;
         }
 
         /// <summary>
@@ -105,7 +113,7 @@ namespace OpenBots.Server.Web
         /// <param name="skip"></param>
         /// <param name="orderBy"></param>
         /// <param name="filter"></param>
-        /// <response code="200">Ok,a paginated list of all jobs</response>
+        /// <response code="200">Ok, a paginated list of all jobs</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden, unauthorized access</response>  
         /// <response code="404">Not found</response>
@@ -138,7 +146,7 @@ namespace OpenBots.Server.Web
 
             oData.Parse(queryString);
             Guid parentguid = Guid.Empty;
-            var newNode = oData.ParseOrderByQuerry(queryString);
+            var newNode = oData.ParseOrderByQuery(queryString);
             if (newNode == null)
                 newNode = new OrderByNode<AllJobsViewModel>();
 
@@ -271,6 +279,7 @@ namespace OpenBots.Server.Web
         /// <response code="400">Bad request, if job id is not in the proper format or a proper Guid</response>
         /// <response code="403">Forbidden</response>
         /// <response code="404">Not found, when no job exists for the given job id</response>
+        /// <response code="422">Unprocessable entity</response>
         /// <returns>Job view model details for the given id</returns>
         [HttpGet("view/{id}")]
         [ProducesResponseType(typeof(JobViewModel), StatusCodes.Status200OK)]
@@ -465,8 +474,10 @@ namespace OpenBots.Server.Web
                     ModelState.AddModelError("Save", "No process was found for the specified process ID");
                     return NotFound(ModelState);
                 }
-                job.ProcessVersion = process.Version;
-                job.ProcessVersionId = process.VersionId;
+                ProcessVersion processVersion = processVersionRepo.Find(null, q => q.ProcessId == process.Id).Items?.FirstOrDefault();
+
+                job.ProcessVersion = processVersion.VersionNumber;
+                job.ProcessVersionId = processVersion.Id;
 
                 foreach (var parameter in request.JobParameters ?? Enumerable.Empty<JobParameter>())
                 {
@@ -526,8 +537,10 @@ namespace OpenBots.Server.Web
                     ModelState.AddModelError("Save", "No process was found for the specified process ID");
                     return NotFound(ModelState);
                 }
-                existingJob.ProcessVersion = process.Version;
-                existingJob.ProcessVersionId = process.VersionId;
+
+                ProcessVersion processVersion = processVersionRepo.Find(null, q => q.ProcessId == process.Id).Items?.FirstOrDefault();
+                existingJob.ProcessVersion = processVersion.VersionNumber;
+                existingJob.ProcessVersionId = processVersion.Id;
 
                 existingJob.AgentId = request.AgentId;
                 existingJob.StartTime = request.StartTime;

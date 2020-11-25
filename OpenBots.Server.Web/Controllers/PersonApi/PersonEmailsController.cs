@@ -20,7 +20,7 @@ namespace OpenBots.Server.WebAPI.Controllers
     /// Controller for people's emails
     /// </summary>
     [V1]
-    [Route("api/v{version:apiVersion}/People/{personId}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/People/{personId}/[controller]")]
     [ApiController]
     [Authorize]
     public class PersonEmailsController : EntityController<PersonEmail>

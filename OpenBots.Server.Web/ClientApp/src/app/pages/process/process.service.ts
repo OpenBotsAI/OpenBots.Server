@@ -19,7 +19,7 @@ export class ProcessService {
 
 
   getAllProcess(tpage: any, spage: any) {
-    let getprocessUrlbyId = `/processes?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
+    let getprocessUrlbyId = `/processes/view?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getprocessUrlbyId);
   }
 
@@ -76,7 +76,7 @@ export class ProcessService {
   }
 
   getAllJobsOrder(tpage: any, spage: any, name) {
-    let getprocessUrlbyId = `/processes?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    let getprocessUrlbyId = `/processes/view?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getprocessUrlbyId);
   }
 
@@ -86,12 +86,12 @@ export class ProcessService {
       observe: 'response' as 'body',
       responseType: 'json',
     };
-    let getprocessUrlbyId = `/processes/${id}`;
+    let getprocessUrlbyId = `/processes/view/${id}`;
     return this.http.get(`${this.apiUrl}` + getprocessUrlbyId, resoptions);
   }
 
   deleteProcess(id) {
-    let getprocessUrlbyId = `/processes/${id}`;
+    let getprocessUrlbyId = `/processes/view/${id}`;
     return this.http.delete(`${this.apiUrl}` + getprocessUrlbyId);
   }
 }

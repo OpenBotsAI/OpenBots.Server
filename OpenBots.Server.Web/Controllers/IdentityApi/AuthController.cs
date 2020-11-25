@@ -37,7 +37,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
     /// Controller used for token generation
     /// </summary>
     [V1]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [AllowAnonymous]
     public class AuthController : ApplicationBaseController

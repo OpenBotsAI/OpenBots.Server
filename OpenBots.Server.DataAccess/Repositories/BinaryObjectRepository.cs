@@ -20,7 +20,6 @@ namespace OpenBots.Server.DataAccess.Repositories
         /// </summary>
         /// <param name="context"></param>
         /// <param name="logger"></param>
-        /// <param name="entityEventSink"></param>
         /// <param name="httpContextAccessor"></param>
         public BinaryObjectRepository(StorageContext context, ILogger<BinaryObject> logger, IHttpContextAccessor httpContextAccessor) : base(context, logger, httpContextAccessor)
         {

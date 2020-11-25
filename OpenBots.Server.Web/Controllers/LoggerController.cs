@@ -19,7 +19,7 @@ namespace OpenBots.Server.Web.Controllers
     /// Controller for logging Serilogs
     /// </summary>
     [V1]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     public class LoggerController : ControllerBase
     {

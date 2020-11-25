@@ -12,7 +12,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
     /// Controller to send an email
     /// </summary>
     [V1]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
     public class EmailController : ControllerBase

@@ -27,7 +27,7 @@ namespace OpenBots.Server.WebAPI.Controllers
     /// Controller for organization members
     /// </summary>
     [V1]
-    [Route("api/v{version:apiVersion}/Organizations/{organizationId}/[controller]")]
+    [Route("api/v{apiVersion:apiVersion}/Organizations/{organizationId}/[controller]")]
     [ApiController]
     [Authorize]
     public class OrganizationMembersController : EntityController<OrganizationMember>
@@ -106,7 +106,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                     && HttpContext.Request.QueryString.HasValue)
                     queryString = HttpContext.Request.QueryString.Value;
 
-                var newNode = oData.ParseOrderByQuerry(queryString);
+                var newNode = oData.ParseOrderByQuery(queryString);
                 if (newNode == null)
                     newNode = new OrderByNode<TeamMemberViewModel>();
 

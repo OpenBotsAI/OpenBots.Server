@@ -7,101 +7,120 @@ import { EmailAccountsService } from '../email-accounts.service';
 @Component({
   selector: 'ngx-email-testing-account',
   templateUrl: './email-testing-account.component.html',
-  styleUrls: ['./email-testing-account.component.scss']
+  styleUrls: ['./email-testing-account.component.scss'],
 })
 export class EmailTestingAccountComponent implements OnInit {
-  @ViewChild("myckeditor") ckeditor: any;
+  @ViewChild('myckeditor') ckeditor: any;
   submitted = false;
   showEmail: any = [];
+  getEmail:any =[];
   emailform: FormGroup;
   ckeConfig: any;
   queryParamName: string;
   queryParamEmail: string;
 
   constructor(
-    private toastrService: NbToastrService, private route: ActivatedRoute,
+    private toastrService: NbToastrService,
+    private route: ActivatedRoute,
     protected emailService: EmailAccountsService,
-    private formBuilder: FormBuilder, protected router: Router,
+    private formBuilder: FormBuilder,
+    protected router: Router
   ) {
+      this.route.queryParams.subscribe((params) => {
+        this.queryParamName = params.name;
+        this.queryParamEmail = localStorage.getItem('UserEmail')
+      });
     this.ckeConfig = {
       allowedContent: false,
-      extraPlugins: "divarea",
+      extraPlugins: 'divarea',
       forcePasteAsPlainText: true,
       removePlugins: 'about',
-      // removePlugins: 'horizontalrule,tabletools,specialchar,about,list,others',
-      // removeButtons: 'Save,NewPage,Preview,Print,Templates,Replace,SelectAll,Form,Checkbox,Radio,TextField,Textarea,Find,Select,Button,ImageButton,HiddenField,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,CopyFormatting,CreateDiv,BidiLtr,BidiRtl,Language,Flash,Smiley,PageBreak,Iframe,Font,FontSize,TextColor,BGColor,ShowBlocks,Cut,Copy,Paste,Table,Image,Format,Source,Maximize,Styles,Anchor,SpecialChar,PasteFromWord,PasteText,Scayt,Undo,Redo,Strike,RemoveFormat,Indent,Outdent,Blockquote,Underline'
-      removeButtons: 'Save,NewPage,Print,Preview'
+      removeButtons: 'Save,NewPage,Print,Preview',
     };
-    this.route.queryParams.subscribe((params) => {
+  
+    this.getEmailAccount();
 
-      this.queryParamName = params.name
-      this.queryParamEmail = params.email
-
-    });
   }
 
   ngOnInit(): void {
-
     this.emailform = this.formBuilder.group({
-      address: ['', [Validators.required, Validators.pattern('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,4}$')]],
-      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100), Validators.pattern('^[A-Za-z0-9_.-]{3,100}$')]],
+      address: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[a-z]{2,4}$'),
+        ],
+      ],
+      name: [
+        '',
+        [
+          Validators.required,
+          
+        ],
+      ],
       subject: ['', [Validators.required]],
       body: [''],
-
+      cc: [''],
+      bcc: [''],
     });
 
     this.emailform.patchValue({
       name: this.queryParamName,
-      address: this.queryParamEmail
-    }
-    )
+      address: this.queryParamEmail,
+    });
+  }
 
 
+
+
+
+  getEmailAccount(){
+    this.emailService.getAllEmailforfilter().subscribe((data:any) =>{
+      this.getEmail = data;
+    })
   }
   onChange($event: any): void {
-    console.log("onChange");
-
+    console.log('onChange');
   }
 
   onPaste($event: any): void {
-    console.log("onPaste");
+    console.log('onPaste');
   }
 
   get f() {
     return this.emailform.controls;
   }
 
-
-
-
-
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'OpenBots.Server.Model.email', id: this.showEmail.id } })
+    this.router.navigate(['/pages/change-log/list'], {
+      queryParams: {
+        PageName: 'OpenBots.Server.Model.email',
+        id: this.showEmail.id,
+      },
+    });
   }
-
-
 
   onSubmit() {
     this.submitted = true;
-    let obj =
-    {
+    let obj = {
       to: [
         {
           name: this.emailform.value.name,
           address: this.emailform.value.address,
-        }
+        },
       ],
       subject: this.emailform.value.subject,
       body: this.emailform.value.body,
-      isBodyHtml: true
-    }
+      isBodyHtml: true,
+    };
 
-    this.emailService
-      .testEmail(this.emailform.value.name, obj)
-      .subscribe(() => {
+    this.emailService.SendEmail(this.emailform.value.name, obj).subscribe(
+      () => {
         this.toastrService.success('Email test successfully.', 'Success');
         this.router.navigate(['pages/emailaccount/list']);
-        this.submitted = false
-      }, () => this.submitted = false);
+        this.submitted = false;
+      },
+      () => (this.submitted = false)
+    );
   }
 }

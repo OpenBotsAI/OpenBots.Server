@@ -27,6 +27,7 @@ export class EditAgentsComponent implements OnInit {
     this.acroute.queryParams.subscribe((params) => {
       this.agent_id = params.id;
       this.get_allagent(params.id);
+
     });
     this.get_cred();
   }
@@ -88,10 +89,15 @@ export class EditAgentsComponent implements OnInit {
         this.router.navigate(['pages/agents/list']);
       },
       (error) => {
-        console.log(error.error.status)
+        // console.log(error.error.status)
         if (error.error.status === 409) {
           this.toastrService.danger(error.error.serviceErrors, 'error')
           this.get_allagent(this.agent_id)
+          this.submitted = false
+        }
+        if (error.error.status === 429) {
+          this.toastrService.danger(error.error.serviceErrors, 'error')
+          // this.get_allagent(this.agent_id)
           this.submitted = false
         }
       }

@@ -2,10 +2,12 @@
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
+using OpenBots.Server.Model.Core;
 using OpenBots.Server.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Business
@@ -17,18 +19,21 @@ namespace OpenBots.Server.Business
         private readonly IBinaryObjectManager binaryObjectManager;
         private readonly IBlobStorageAdapter blobStorageAdapter;
         private readonly IProcessVersionRepository processVersionRepository;
+        private readonly IHttpContextAccessor httpContextAccessor;
 
         public ProcessManager(IProcessRepository repo,
             IBinaryObjectManager binaryObjectManager,
             IBinaryObjectRepository binaryObjectRepository,
             IBlobStorageAdapter blobStorageAdapter,
-            IProcessVersionRepository processVersionRepository)
+            IProcessVersionRepository processVersionRepository,
+            IHttpContextAccessor httpContextAccessor)
         {
             this.repo = repo;
             this.binaryObjectManager = binaryObjectManager;
             this.binaryObjectRepository = binaryObjectRepository;
             this.blobStorageAdapter = blobStorageAdapter;
             this.processVersionRepository = processVersionRepository;
+            this.httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<FileObjectViewModel> Export(string binaryObjectId)
@@ -39,13 +44,17 @@ namespace OpenBots.Server.Business
         public bool DeleteProcess(Guid processId)
         {
             var process = repo.GetOne(processId);
-            Guid processVersionId = process.VersionId;
+
+            // Remove process version entity associated with process
+            var processVersion = processVersionRepository.Find(null, q => q.ProcessId == processId).Items?.FirstOrDefault();
+            Guid processVersionId = (Guid)processVersion.Id;
             processVersionRepository.SoftDelete(processVersionId);
             
             bool isDeleted = false;
 
             if (process != null)
             {
+                // Remove binary object entity associated with process
                 binaryObjectRepository.SoftDelete(process.BinaryObjectId);
                 repo.SoftDelete(process.Id.Value);
 
@@ -55,53 +64,22 @@ namespace OpenBots.Server.Business
             return isDeleted;
         }
 
-        public Process AssignProcessProperties(Process request, Guid versionId)
+        public Process UpdateProcess(Process existingProcess, ProcessViewModel request)
         {
-            int processVersion = 0;
+            Process process = new Process()
+            {
+                Id = request.Id,
+                Name = request.Name,
+                CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name,
+                CreatedOn = DateTime.UtcNow,
+                BinaryObjectId = existingProcess.BinaryObjectId,
+                OriginalPackageName = existingProcess.OriginalPackageName
+            };
 
-            List<Process> processes = repo.Find(null, x => x.Name.Trim().ToLower() == request.Name.Trim().ToLower())?.Items;
+            request.Id = process.Id;
+            AddProcessVersion(request);  
 
-            if (processes != null)
-                foreach (Process process in processes)
-                {
-                    if (processVersion < process.Version)
-                    {
-                        processVersion = process.Version;
-                        //versionId = process.VersionId;
-                    }
-                }
-
-            request.Version = processVersion + 1;
-            if (string.IsNullOrEmpty(request.Status))
-                request.Status = "Published";
-            request.VersionId = versionId;
-
-            return request;
-        }
-
-        public Process UpdateProcess(Process requestObj, ProcessViewModel request, Guid versionId)
-        {
-            int processVersion = requestObj.Version;
-
-            List<Process> processes = repo.Find(null, x => x.VersionId == requestObj.VersionId)?.Items;
-
-            if (processes != null)
-                foreach (Process process in processes)
-                {
-                    if (processVersion < process.Version)
-                    {
-                        processVersion = process.Version;
-                        versionId = process.VersionId;
-                    }
-                }
-
-                requestObj.Version = processVersion + 1;
-                requestObj.VersionId = versionId;
-                requestObj.Name = request.Name;
-                requestObj.Id = Guid.NewGuid();
-                requestObj.Status = "Published";
-
-                return repo.Add(requestObj);
+            return repo.Add(process);
         }
 
         public async Task<string> Update(Guid binaryObjectId, IFormFile file, string organizationId = "", string apiComponent = "", string name = "")
@@ -119,28 +97,67 @@ namespace OpenBots.Server.Business
 
         public string GetOrganizationId()
         {
-            string organizationId = binaryObjectManager.GetOrganizationId();
-
-            return organizationId;
+            return binaryObjectManager.GetOrganizationId();
         }
 
-        public void AddProcessVersion(Process process)
+        public void AddProcessVersion(ProcessViewModel processViewModel)
         {
             ProcessVersion processVersion = new ProcessVersion();
-            processVersion.ProcessId = (Guid)process.Id;
-            processVersion.Status = process.Status;
-            processVersion.VersionNumber = process.Version;
+            processVersion.CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name;
+            processVersion.CreatedOn = DateTime.UtcNow;
+            processVersion.ProcessId = (Guid)processViewModel.Id;
+            if (string.IsNullOrEmpty(processViewModel.Status))
+                processVersion.Status = "Published";
+            else processVersion.Status = processViewModel.Status;
+            processVersion.VersionNumber = processViewModel.VersionNumber;
             if (processVersion.Status.Equals("Published"))
             {
-                processVersion.PublishedBy = process.CreatedBy;
-                processVersion.PublishedOnUTC = (DateTime)process.CreatedOn;
+                processVersion.PublishedBy = httpContextAccessor.HttpContext.User.Identity.Name;
+                processVersion.PublishedOnUTC = DateTime.UtcNow;
             }
             else
             {
                 processVersion.PublishedBy = null;
                 processVersion.PublishedOnUTC = null;
             }
+
+            int processVersionNumber = 0;
+            processVersion.VersionNumber = processVersionNumber;
+            List<Process> processes = repo.Find(null, x => x.Name?.Trim().ToLower() == processViewModel.Name?.Trim().ToLower())?.Items;
+
+            if (processes != null)
+                foreach (Process process in processes)
+                {
+                    var processVersionEntity = processVersionRepository.Find(null, q => q?.ProcessId == process?.Id).Items?.FirstOrDefault();
+                    if (processVersionEntity != null && processVersionNumber < processVersionEntity.VersionNumber)
+                    {
+                        processVersionNumber = processVersionEntity.VersionNumber;
+                    }
+                }
+
+            processVersion.VersionNumber = processVersionNumber + 1;
+
             processVersionRepository.Add(processVersion);
+        }
+
+        public PaginatedList<AllProcessesViewModel> GetProcessesAndProcessVersions(Predicate<AllProcessesViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        {
+            return repo.FindAllView(predicate, sortColumn, direction, skip, take);
+        }
+
+        public ProcessViewModel GetProcessView(ProcessViewModel processView, string id)
+        {
+            var processVersion = processVersionRepository.Find(null, q => q.ProcessId == Guid.Parse(id))?.Items?.FirstOrDefault();
+            if (processVersion != null)
+            {
+                processView.VersionId = (Guid)processVersion.Id;
+                processView.VersionNumber = processVersion.VersionNumber;
+                processView.Status = processVersion.Status;
+                processView.PublishedBy = processVersion.PublishedBy;
+                processView.PublishedOnUTC = processVersion.PublishedOnUTC;
+            }
+
+            return processView;
         }
     }
 }
