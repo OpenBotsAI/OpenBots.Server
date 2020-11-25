@@ -22,6 +22,7 @@ import {
   NbWindowModule,
 } from '@nebular/theme';
 import { TokenInterceptor } from './@core/interceptor/token.interceptor';
+import { BlockUIModule } from 'ng-block-ui';
 
 @NgModule({
   declarations: [AppComponent],
@@ -39,10 +40,11 @@ import { TokenInterceptor } from './@core/interceptor/token.interceptor';
     NbToastrModule.forRoot(),
     CoreModule.forRoot(),
     ThemeModule.forRoot(),
+    BlockUIModule.forRoot()
   ],
   bootstrap: [AppComponent],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }
   ],
   exports: [],
 })

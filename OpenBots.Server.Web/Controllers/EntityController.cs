@@ -125,7 +125,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                if (ex is ServerBusyException || ex.Message.ToLower().Contains("too many requests")) { HttpContext.Response.Headers.Add("Retry-After", "30"); }
+                //if (ex is ServerBusyException || ex.Message.ToLower().Contains("too many requests")) { HttpContext.Response.Headers.Add("Retry-After", "30"); }
                 return ex.GetActionResult();
             }
         }
