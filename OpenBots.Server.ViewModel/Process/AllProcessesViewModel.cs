@@ -13,6 +13,7 @@ namespace OpenBots.Server.ViewModel
         public DateTime? CreatedOn { get; set; }
         public string CreatedBy { get; set; }
         public string Status { get; set; }
+        public int VersionNumber { get; set; }
 
         public AllProcessesViewModel Map(Process entity)
         {

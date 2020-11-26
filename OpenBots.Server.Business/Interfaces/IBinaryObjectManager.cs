@@ -2,6 +2,7 @@
 using OpenBots.Server.Model;
 using OpenBots.Server.ViewModel;
 using System;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Business
@@ -19,5 +20,6 @@ namespace OpenBots.Server.Business
         Task<string> UpdateEntity(IFormFile file, string filePath, string binaryObjectId, string apiComponent, string folder, string name);
 
         string GetOrganizationId();
+        string GetHash(HashAlgorithm hashAlgorithm, byte[] input);
     }
 }

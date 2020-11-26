@@ -2165,7 +2165,7 @@
             </summary>
             <param name="manager"></param>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailController.Post(System.String,OpenBots.Server.Model.Core.EmailMessage)">
+        <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailController.Post(OpenBots.Server.Model.Core.EmailMessage,System.String)">
              <summary>
              Sends a new email
              </summary>
@@ -2173,6 +2173,7 @@
              Creates an EmailMessage to send to an email address
              </remarks>
              <param name="emailMessage"></param>
+             <param name="accountName"></param>
              <response code="200">Ok, new email message created and sent</response>
              <response code="400">Bad request, when the email message value is not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
@@ -2266,12 +2267,12 @@
              <response code="422">Unprocessabile entity</response>
              <returns> Newly created unique email log id</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailLogsController.Attach(System.String,Microsoft.AspNetCore.Http.IFormFile)">
+        <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailLogsController.Attach(System.String,Microsoft.AspNetCore.Http.IFormFile[])">
              <summary>
-             Attach a binary object file to an email log
+             Attach files to an email
              </summary>
              <param name="id"></param>
-             <param name="file"></param>
+             <param name="files"></param>
              <response code="200">Ok, new binary object created and returned</response>
              <response code="400">Bad request, when the binary object value is not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
@@ -2279,12 +2280,11 @@
              <response code="422">Unprocessabile entity</response>
              <returns> Newly created unique binary object</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailLogsController.Send(System.String,System.String,OpenBots.Server.Model.Core.EmailMessage)">
+        <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailLogsController.Send(System.String,OpenBots.Server.Model.Core.EmailMessage,System.String)">
             <summary>
             Send email draft
             </summary>
             <param name="id"></param>
-            <param name="emailAccountName"></param>
             <param name="emailMessage"></param>
             <response code="200">Ok, if the email log details for the given email log id have been updated</response>
             <response code="400">Bad request, if the email log id is null or ids don't match</response>
@@ -2732,7 +2732,7 @@
             <response code="403">Forbidden</response>
             <returns>Ok response</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.QueueItem})">
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.QueueItemModel})">
             <summary>
             Updates partial details of queue item
             </summary>
@@ -2744,7 +2744,7 @@
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response, if the partial queue item values have been updated</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Enqueue(OpenBots.Server.Model.QueueItem)">
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Enqueue(OpenBots.Server.Model.QueueItemModel)">
             <summary>
             Enqueue queue item
             </summary>
@@ -2754,23 +2754,15 @@
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response with queue item details</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Attach(System.String,Microsoft.AspNetCore.Http.IFormFile)">
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Attach(System.String,Microsoft.AspNetCore.Http.IFormFile[])">
             <summary>
-            Attach file to queue item
+            Attach files to queue item
             </summary>
+            <param name="files"></param>
+            <param name="id"></param>
             <response code="200">Ok response</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="422">Unprocessable entity, validation error</response>
-            <returns>Ok response</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.DeleteAttachment(System.String)">
-            <summary>
-            Deletes a queue item attachment with a specified id from the queue item attachments
-            </summary>
-            <param name="attachmentId">Queue item attachment id to be deleted - throws bad request if null or empty Guid</param>
-            <response code="200">Ok, when queue item id is soft deleted, (isDeleted flag is set to true in database)</response>
-            <response code="400">Bad request, if queue item attachment id is null or empty Guid</response>
-            <response code="403">Forbidden</response>
             <returns>Ok response</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Dequeue(System.String,System.String)">
@@ -2826,6 +2818,15 @@
             <param name="stateMessage"></param>
             <param name="errorCode"></param>
             <param name="errorMessage"></param>
+            <response code="200">Ok response</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity, validation error</response>
+            <returns>Ok response</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.UpdateFiles(System.String,OpenBots.Server.ViewModel.QueueItem.UpdateQueueItemViewModel)">
+            <summary>
+            Update the queue item with file attachments
+            </summary>
             <response code="200">Ok response</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="422">Unprocessable entity, validation error</response>

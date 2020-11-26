@@ -26,8 +26,6 @@ namespace OpenBots.Server.Business
             binaryObject.SizeInBytes = file.Length;
             binaryObject.StoragePath = filePath;
             binaryObject.StorageProvider = storageProvider;
-
-            repo.Update(binaryObject);
         }
 
         public async Task<FileObjectViewModel> FetchFile(string binaryObjectId)

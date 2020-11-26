@@ -51,7 +51,7 @@ namespace OpenBots.Server.Business
             base.SetContext(userSecurityContext);
         }
 
-        public Task SendEmailAsync(EmailMessage emailMessage, string accountName = "")
+        public Task SendEmailAsync(EmailMessage emailMessage, string accountName = null)
         {
             EmailLog emailLog = new EmailLog();
 
@@ -59,7 +59,9 @@ namespace OpenBots.Server.Business
             var organizationId = Guid.Parse(_organizationManager.GetDefaultOrganization().Id.ToString());
             var emailSettings = _emailSettingsRepository.Find(null, s => s.OrganizationId == organizationId).Items.FirstOrDefault();
             //Check if accountName exists
-            var existingAccount = _emailAccountRepository.Find(null, d => d.Name.ToLower(null) == accountName.ToLower(null))?.Items?.FirstOrDefault();
+            var existingAccount = _emailAccountRepository.Find(null, d => d.Name.ToLower(null) == accountName?.ToLower(null))?.Items?.FirstOrDefault();
+            if (existingAccount == null)
+                existingAccount = _emailAccountRepository.Find(null, d => d.IsDefault && !d.IsDisabled).Items.FirstOrDefault();
 
             //If there are NO records in the Email Settings table for that Organization, email should be disabled
             if (emailSettings == null)

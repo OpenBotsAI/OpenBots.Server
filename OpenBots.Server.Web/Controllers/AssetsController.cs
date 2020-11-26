@@ -207,14 +207,14 @@ namespace OpenBots.Server.Web
             {
                 if (file == null)
                 {
-                    ModelState.AddModelError("Save", "No data passed");
+                    ModelState.AddModelError("Save", "No asset uploaded");
                     return BadRequest(ModelState);
                 }
 
                 long size = file.Length;
                 if (size <= 0)
                 {
-                    ModelState.AddModelError("Asset Upload", "No asset uploaded");
+                    ModelState.AddModelError("Asset Upload", $"File size of file {file.FileName} cannot be 0");
                     return BadRequest(ModelState);
                 }
 
@@ -228,7 +228,6 @@ namespace OpenBots.Server.Web
                 binaryObject.CreatedOn = DateTime.UtcNow;
                 binaryObject.CreatedBy = applicationUser?.UserName;
                 binaryObject.CorrelationEntityId = asset.Id;
-                binaryObjectRepo.Add(binaryObject);
 
                 string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
 
@@ -238,9 +237,9 @@ namespace OpenBots.Server.Web
                     ModelState.AddModelError("BinaryObject", "Same file name already exists in the given folder");
                     return BadRequest(ModelState);
                 }
-                
                 binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
                 binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
+                binaryObjectRepo.Add(binaryObject);
 
                 asset.BinaryObjectID = binaryObject.Id;
                 repository.Update(asset);
@@ -333,7 +332,7 @@ namespace OpenBots.Server.Web
                 var asset = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
                 if (asset != null && asset.Id != entityId)
                 {
-                    ModelState.AddModelError("Asset", "Asset Name Already Exists");
+                    ModelState.AddModelError("Asset", "Asset name already exists");
                     return BadRequest(ModelState);
                 }
 
@@ -393,17 +392,22 @@ namespace OpenBots.Server.Web
                     var asset = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
                     if (asset != null && asset.Id != entityId)
                     {
-                        ModelState.AddModelError("Asset", "Asset Name Already Exists");
+                        ModelState.AddModelError("Asset", "Asset name already exists");
                         return BadRequest(ModelState);
                     }
                 }
-
-                if (request == null)
+                if (request.file == null)
                 {
-                    ModelState.AddModelError("Save", "No data passed");
+                    ModelState.AddModelError("Save", "No asset uploaded");
+                    return BadRequest(ModelState);
                 }
 
                 long size = request.file == null ? 0 : request.file.Length;
+                if (size <= 0)
+                {
+                    ModelState.AddModelError("Process Upload", $"File size of asset {request.file.FileName} cannot be 0");
+                    return BadRequest(ModelState);
+                }
 
                 try
                 {
