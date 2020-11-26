@@ -45,7 +45,7 @@ export class EmailAccountsService {
     return this.http.put(`${this.apiUrl}` + editassetUrl, obj, { headers });
   }
 
-  testEmail(accountName, obj) {
+  SendEmail(accountName, obj) {
     let testEmail = `/Email/${accountName}`;
     return this.http.post(`${this.apiUrl}` + testEmail, obj);
   }
@@ -60,5 +60,12 @@ export class EmailAccountsService {
     let getagentUrlbyId = `/ConfigurationValues`;
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
   }
+  
+  getAllEmailforfilter() {
+    let getagentUrl = `/emailaccounts/getlookup`;
+    return this.http.get(`${this.apiUrl}` + getagentUrl);
+  }
+
+
 
 }
