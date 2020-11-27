@@ -22,6 +22,7 @@ import { PreventSpecialCharDirective } from '../../@directive/prevent-special-ch
 import { InputTrimModule } from 'ng2-trim-directive';
 import { TimeagoPipe } from '../services/timeago.pipe';
 import { TooltipComponent } from './tooltip/tooltip.component';
+import { BlockUIModule } from 'ng-block-ui';
 
 @NgModule({
   declarations: [
@@ -57,6 +58,7 @@ import { TooltipComponent } from './tooltip/tooltip.component';
     PreventSpecialCharDirective,
     InputTrimModule,
     TimeagoPipe,
+    BlockUIModule,
   ],
 })
 export class SharedModule {}
