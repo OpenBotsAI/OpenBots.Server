@@ -20,6 +20,7 @@ import { ThemeModule } from '../../@theme/theme.module';
 
 import { ChartsModule } from 'ng2-charts';
 import { DashboardComponent } from './Dashboard.component';
+import { BlockUIModule } from 'ng-block-ui';
 
 
 @NgModule({
@@ -33,14 +34,10 @@ import { DashboardComponent } from './Dashboard.component';
     NbSelectModule,
     NbListModule,
     NbProgressBarModule,
-    ChartsModule
+    ChartsModule,
+    BlockUIModule,
   ],
-  declarations: [
-    DashboardComponent,
-
-  ],
-  providers: [
-
-  ],
+  declarations: [DashboardComponent],
+  providers: [],
 })
-export class dashboardModule { }
+export class dashboardModule {}

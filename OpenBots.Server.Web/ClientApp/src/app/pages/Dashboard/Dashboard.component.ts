@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpService } from '../../@core/services/http.service';
 import { Chart } from 'chart.js';
+import { BlockUI, NgBlockUI } from 'ng-block-ui';
 
 @Component({
   selector: 'ngx-Dashboard',
@@ -8,6 +9,7 @@ import { Chart } from 'chart.js';
   templateUrl: './Dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
+  @BlockUI() blockUI: NgBlockUI;
   topPage: any;
   pageMore = false;
   allProcess = [];
@@ -39,7 +41,7 @@ export class DashboardComponent implements OnInit {
   }: {
     event: MouseEvent;
     active: {}[];
-  }): void { }
+  }): void {}
 
   public chartHovered({
     event,
@@ -47,9 +49,9 @@ export class DashboardComponent implements OnInit {
   }: {
     event: MouseEvent;
     active: {}[];
-  }): void { }
+  }): void {}
 
-  constructor(private httpService: HttpService) { }
+  constructor(private httpService: HttpService) {}
 
   ngOnInit() {
     if (localStorage.getItem('ActiveOrgname')) {
@@ -98,6 +100,9 @@ export class DashboardComponent implements OnInit {
   }
 
   showAllProcess(top: number, skip: number) {
+       this.blockUI.start(
+         'Loading'
+       );
     let getprocessUrlbyId = `processes?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
     this.httpService.get(getprocessUrlbyId).subscribe((allprocess: any) => {
       this.allProcess = allprocess.items;
@@ -113,6 +118,7 @@ export class DashboardComponent implements OnInit {
               process.name
             );
           });
+          this.blockUI.stop();
       }
     });
   }
