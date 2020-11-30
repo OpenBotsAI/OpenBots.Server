@@ -48,8 +48,8 @@ namespace OpenBots.Server.Business
         public bool CanBeAdded(IPFencing iPFencing)
         {
             organizationSettingRepo.ForceIgnoreSecurity();
-            var orgSettings = organizationSettingRepo.Find(0,1).Items?.
-                Where(s=>s.OrganizationId == iPFencing.OrganizationId)?.FirstOrDefault();
+            var orgSettings = organizationSettingRepo.Find(0, 1).Items?.
+                Where(s => s.OrganizationId == iPFencing.OrganizationId)?.FirstOrDefault();
             organizationSettingRepo.ForceSecurity();
 
             if (orgSettings == null)
@@ -119,7 +119,7 @@ namespace OpenBots.Server.Business
             bool ipMatched = false;
             bool headersMatched = true;
 
-            if (ipFencingRules == null)
+            if (ipFencingRules.Count == 0)
             {
                 return false;
             }
@@ -129,7 +129,7 @@ namespace OpenBots.Server.Business
                 {
                     if (rule.Rule == RuleType.IPv4 || rule.Rule == RuleType.IPv6)
                     {
-                         if (iPAddress.Equals(IPAddress.Parse(rule.IPAddress)))
+                        if (iPAddress.Equals(IPAddress.Parse(rule.IPAddress)))
                         {
                             ipMatched = true;
                         }
@@ -139,7 +139,7 @@ namespace OpenBots.Server.Business
                         var rangeStrings = rule.IPRange.Split('/');
                         String lowerBound = rangeStrings[0];
                         String upperBound = lowerBound.Substring(0, lowerBound.LastIndexOf(".")) + "." + rangeStrings[1];
-                        IPAddressRange range = new IPAddressRange(IPAddress.Parse(lowerBound),IPAddress.Parse(upperBound));
+                        IPAddressRange range = new IPAddressRange(IPAddress.Parse(lowerBound), IPAddress.Parse(upperBound));
 
                         if (range.IsInRange(iPAddress))
                         {
@@ -171,7 +171,7 @@ namespace OpenBots.Server.Business
                 {
                     return false;
                 }
-            }        
+            }
         }
 
         /// <summary>
@@ -183,6 +183,7 @@ namespace OpenBots.Server.Business
         {
             List<IPFencing> ipFencingRules = new List<IPFencing>();
             Guid? organizationId = Guid.Empty;
+            IPFencingMode? fencingMode = IPFencingMode.AllowMode;
             var user = _accessor.HttpContext.User;
             var requestHeaders = _accessor.HttpContext.Request.Headers;
 
@@ -191,7 +192,7 @@ namespace OpenBots.Server.Business
             {
                 organizationId = defaultOrg.Id;
             }
-            //if there is no default organization
+            //If there is no default organization find the current user's organization
             else if (user != null)
             {
                 Guid userId = Guid.Parse(_userManager.GetUserId(user));
@@ -199,16 +200,35 @@ namespace OpenBots.Server.Business
                 organizationId = organizationMemberRepository.Find(0, 1).Items?.
                     Where(o => o.PersonId == aspUser.PersonId)?.FirstOrDefault()?.Id;
             }
-            else if (organizationId == null || organizationId == Guid.Empty)
+
+            //If there is no user, then use default IPFencing rules
+            if (organizationId == null || organizationId == Guid.Empty)
             {
                 ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == null)?.ToList();
             }
             else
             {
                 ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == organizationId)?.ToList();
+
+                //Get Organization Settings
+                organizationSettingRepo.ForceIgnoreSecurity();
+                var orgSettings = organizationSettingRepo.Find(0, 1).Items?.
+                    Where(s => s.OrganizationId == organizationId)?.FirstOrDefault();
+                organizationSettingRepo.ForceSecurity();
+
+                fencingMode = orgSettings.IPFencingMode;
             }
 
-            return MatchedOnRule(iPAddress, ipFencingRules, requestHeaders); 
+            if (fencingMode == IPFencingMode.AllowMode)
+            {
+                //If mode is allow, then any matched rules will be forbidden
+                return !MatchedOnRule(iPAddress, ipFencingRules, requestHeaders);
+            }
+            else
+            {
+                //If mode is deny, then any matched rules will be allowed
+                return MatchedOnRule(iPAddress, ipFencingRules, requestHeaders);
+            }
         }
     }
 }
