@@ -1705,7 +1705,7 @@
             <response code="400">Bad request, if the id is null or ids don't match</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="422">Unprocessable entity, validation error</response>
-            <returns>Newly created Agent hearbeat</returns>
+            <returns>Newly created Agent heartbeat</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AgentsController.AgentHeartbeats(System.String,System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -3049,6 +3049,192 @@
             <response code="409">Conflict</response>
             <response code="422">Unprocessable entity</response>
             <returns>Ok response</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventLogsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all IntegrationEventLogs
+            </summary>
+            <param name="filter"></param>
+            <param name="orderBy"></param>
+            <param name="skip"></param>
+            <param name="top"></param>
+            <response code="200">Ok, a paginated list of all IntegrationEventLogs</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>        
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all IntegrationEventLogs</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventLogsController.Get(System.String)">
+            <summary>
+            Provides an IntegrationEventLog's details for a particular IntegrationEventLog id
+            </summary>
+            <param name="id">IntegrationEventLog id</param>
+            <response code="200">Ok, if an IntegrationEventLog exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if IntegrationEventLog id is not in proper format or a proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no IntegrationEventLog exists for the given IntegrationEventLog id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>IntegrationEventLog details for the given id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventLogsController.Export(System.String)">
+            <summary>
+            Exports the JSONPayload for the specified IntegrationEventLog
+            </summary>
+            <param name="id"></param>
+            <response code="200">Ok, if a IntegrationEventLog exists with the given filters</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity</response>
+            <returns> Downloadable JSON file containing the event's payload</returns>
+        </member>
+        <member name="T:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController">
+            <summary>
+            Controller for Integration events
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all IntegrationEvents
+            </summary>
+            <param name="filter"></param>
+            <param name="orderBy"></param>
+            <param name="skip"></param>
+            <param name="top"></param>
+            <response code="200">Ok, a paginated list of all IntegrationEvents</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>        
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all IntegrationEvents</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.Get(System.String)">
+            <summary>
+            Provides an IntegrationEvent's details for a particular IntegrationEvent id
+            </summary>
+            <param name="id">IntegrationEvent id</param>
+            <response code="200">Ok, if an IntegrationEvent exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if IntegrationEvent id is not in proper format or a proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no IntegrationEvent exists for the given IntegrationEvent id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>IntegrationEvent details for the given id</returns>
+        </member>
+        <member name="T:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionAttemptsController">
+            <summary>
+            Controller for IntegrationEventSubscriptionAttempts events
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionAttemptsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all IntegrationEventSubscriptionAttempts
+            </summary>
+            <param name="filter"></param>
+            <param name="orderBy"></param>
+            <param name="skip"></param>
+            <param name="top"></param>
+            <response code="200">Ok, a paginated list of all IntegrationEventSubscriptionAttempts</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>        
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all  IntegrationEventSubscriptionAttempt</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionAttemptsController.Get(System.String)">
+            <summary>
+            Provides an IntegrationEventSubscriptionAttempt's details for a particular id
+            </summary>
+            <param name="id">IntegrationEventSubscriptionAttempt id</param>
+            <response code="200">Ok, if an IntegrationEventSubscriptionAttempt exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if IntegrationEventSubscriptionAttempt id is not in proper format or a proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no IntegrationEventSubscriptionAttempt exists for the given id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>IntegrationEventSubscriptionAttempt details for the given id</returns>
+        </member>
+        <member name="T:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController">
+            <summary>
+            Controller for Integration Event Subscriptions
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all Integration Event Subscriptions
+            </summary>
+            <param name="filter"></param>
+            <param name="orderBy"></param>
+            <param name="skip"></param>
+            <param name="top"></param>
+            <response code="200">Ok, a paginated list of all Integration Event Subscriptions</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>        
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all IntegrationEventSubscription</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.Get(System.String)">
+            <summary>
+            Provides an IntegrationEventSubscription's details for a particular IntegrationEventSubscription id
+            </summary>
+            <param name="id">IntegrationEventSubscription id</param>
+            <response code="200">Ok, if an IntegrationEventSubscription exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if IntegrationEventSubscription id is not in proper format or a proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no IntegrationEventSubscription exists for the given IntegrationEventSubscription id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>IntegrationEventSubscription details for the given id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.Post(OpenBots.Server.Model.WebHooks.IntegrationEventSubscription)">
+            <summary>
+            Adds a new IntegrationEventSubscription to the existing IntegrationEventSubscriptions
+            </summary>
+            <param name="request"></param>
+            <response code="200">Ok, new IntegrationEventSubscription created and returned</response>
+            <response code="400">Bad request, when the IntegrationEventSubscription value is not in proper format</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+            <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+            <returns>Newly created unique IntegrationEventSubscription</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.Put(System.String,OpenBots.Server.Model.WebHooks.IntegrationEventSubscription)">
+            <summary>
+            Updates an IntegrationEventSubscription 
+            </summary>
+            <remarks>
+            Provides an action to update an IntegrationEventSubscription, when id and the new details of 
+            IntegrationEventSubscription are given
+            </remarks>
+            <param name="id">IntegrationEventSubscription Id,produces Bad request if Id is null or Id's don't match</param>
+            <param name="request">IntegrationEventSubscription details to be updated</param>
+            <response code="200">Ok, if the IntegrationEventSubscription details for the given 
+            IntegrationEventSubscription id have been updated</response>
+            <response code="400">Bad request, if the IntegrationEventSubscription id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Ok response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.Delete(System.String)">
+            <summary>
+            Deletes an IntegrationEventSubscription with a specified id
+            </summary>
+            <param name="id">IntegrationEventSubscription id to be deleted - throws bad request if null or empty Guid</param>
+            <response code="200">Ok, when IntegrationEventSubscription is soft deleted, 
+            (isDeleted flag is set to true in database)</response>
+            <response code="400">Bad request, if IntegrationEventSubscription id is null or empty Guid</response>
+            <response code="403">Forbidden</response>
+            <returns>Ok response</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.WebHooks.IntegrationEventSubscription})">
+            <summary>
+            Updates partial details of IntegrationEventSubscription
+            </summary>
+            <param name="id">IntegrationEventSubscription identifier</param>
+            <param name="request">Value of the IntegrationEventSubscription to be updated</param>
+            <response code="200">Ok, if update of IntegrationEventSubscription is successful</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity, validation error</response>
+            <returns>Ok response, if the partial IntegrationEventSubscription values have been updated</returns>
         </member>
         <member name="T:OpenBots.Server.Web.AssetsController">
             <summary>

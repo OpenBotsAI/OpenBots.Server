@@ -33,6 +33,7 @@ namespace OpenBots.Server.DataAccess
         public DbSet<EmailSettings> EmailSettings { get; set; }
         public DbSet<EmailLog> EmailLogs { get; set; }
         public DbSet<EmailAttachment> EmailAttachments { get; set; }
+        public DbSet<IPFencing> IPFencings { get; set; }
         public DbSet<IntegrationEvent> IntegrationEvents { get; set; }
         public DbSet<IntegrationEventLog> IntegrationEventLogs { get; set; }
         public DbSet<IntegrationEventSubscription> IntegrationEventSubscriptions { get; set; }

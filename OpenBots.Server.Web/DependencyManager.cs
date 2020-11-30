@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenBots.Server.Web.Hubs;
 using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
+using OpenBots.Server.Model.WebHooks;
 
 namespace OpenBots.Server.Web
 {
@@ -71,6 +72,12 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IProcessVersionRepository), typeof(ProcessVersionRepository));
             services.AddTransient(typeof(IConfigurationValueRepository), typeof(ConfigurationValueRepository));
             services.AddTransient(typeof(IQueueItemAttachmentRepository), typeof(QueueItemAttachmentRepository));
+
+            //WebHooks
+            services.AddTransient(typeof(IIntegrationEventRepository), typeof(IntegrationEventRepository));
+            services.AddTransient(typeof(IIntegrationEventLogRepository), typeof(IntegrationEventLogRepository));
+            services.AddTransient(typeof(IIntegrationEventSubscriptionRepository), typeof(IntegrationEventSubscriptionRepository));
+            services.AddTransient(typeof(IIntegrationEventSubscriptionAttemptRepository), typeof(IntegrationEventSubscriptionAttemptRepository));
 
             //Blob Storage
             services.AddTransient(typeof(IBlobStorageAdapter), typeof(BlobStorageAdapter));
