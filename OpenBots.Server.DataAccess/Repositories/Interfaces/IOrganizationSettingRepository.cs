@@ -2,6 +2,6 @@
 
 namespace OpenBots.Server.DataAccess.Repositories
 {
-    public interface IOrganizationSettingRepository : IEntityRepository<OrganizationSetting>
+    public interface IOrganizationSettingRepository : ITenantEntityRepository<OrganizationSetting>
     { }
 }

@@ -1578,7 +1578,7 @@
             Controller for agents
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAgentRepository,OpenBots.Server.DataAccess.Repositories.IPersonRepository,OpenBots.Server.DataAccess.Repositories.IAspNetUsersRepository,OpenBots.Server.DataAccess.Repositories.IAgentHeartbeatRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IAgentManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAgentRepository,OpenBots.Server.DataAccess.Repositories.IPersonRepository,OpenBots.Server.DataAccess.Repositories.IAspNetUsersRepository,OpenBots.Server.DataAccess.Repositories.IAgentHeartbeatRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IAgentManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration)">
             <summary>
             AgentsController constructor
             </summary>
@@ -1590,7 +1590,6 @@
             <param name="agentManager"></param>
             <param name="accessor"></param>
             <param name="configuration"></param>
-            <param name="httpContextAccessor"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -3393,6 +3392,102 @@
             <response code="404">Not found</response>
             <response code="422">Unprocessable entity</response>
             <returns>Lookup list of all active directory credentials</returns>
+        </member>
+        <member name="T:OpenBots.Server.Web.IPFencingController">
+            <summary>
+            Controller for IPFencing
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.IPFencingController.#ctor(OpenBots.Server.DataAccess.Repositories.IIPFencingRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IOrganizationRepository,OpenBots.Server.Business.IIPFencingManager)">
+            <summary>
+            IPFencing controller's constructor
+            </summary>
+            <param name="repository"></param>
+            <param name="membershipManager"></param>
+            <param name="userManager"></param>
+            <param name="configuration"></param>
+            <param name="httpContextAccessor"></param>
+        </member>
+        <member name="M:OpenBots.Server.Web.IPFencingController.Get(System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all IPFencings
+            </summary>
+            <param name="organizationId"></param>
+            <param name="top"></param>
+            <param name="skip"></param>
+            <param name="filter"></param>
+            <param name="orderBy"></param>
+            <response code="200">Ok, a paginated list of all IPFencings</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response> 
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all IPFencings</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.IPFencingController.Get(System.String,System.String)">
+            <summary>
+            Provides an IPFencing's details for a particular IPFencing ID
+            </summary>
+            <param name="id">IPFencing id</param>
+            <param name="organizationId"></param>
+            <response code="200">Ok, if an IPFencing exists with the given id and organization id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if IPFencing request was unable to be processed </response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no IPFencing exists for the given IPFencing id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>IPFencing details for the given id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.IPFencingController.Post(System.String,OpenBots.Server.ViewModel.CreateIPFencingViewModel)">
+            <summary>
+            Adds a new IPFencing rule with the specified organization ID
+            </summary>
+            <param name="organizationId">Organization identifier</param>
+            <param name="request">Json containing IPFencing model </param>
+            <response code="200">Ok, if IPFencing rule has been created</response>
+            <response code="400">Bad request, if IPFencing request was unable to be processed</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, when IPFencing with the particular id already exists</response>
+            <response code="422">Unprocessable entity, validation error or cannot insert duplicate constraint</response>
+            <returns>Ok response with newly created IPFencing record</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.IPFencingController.Put(System.String,System.String,OpenBots.Server.Model.IPFencing)">
+            <summary>
+            Update the IPFencing rule
+            </summary>
+            <remarks>Updates the IPFencing with the particular id for the given organization</remarks>
+            <param name="organizationId">Organization identifier</param>
+            <param name="id">IPFencing id</param>
+            <param name="request">New value of the IPFencing to be updated</param>
+            <response code="200">Ok, if the update of the IPFencing for the particular id has been successful</response>
+            <response code="400">Bad request, if IPFencing request was unable to be processed</response>
+            <response code="403">Forbidden, unauthorized access by the user</response>
+            <response code="404">Not found, if no IPFencing exists for the given id</response>
+            <response code="409">Conflict</response>
+            <response code="422">Unprocessable Entity, validation error</response>
+            <returns>Ok response with the updated IPFencing details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.IPFencingController.Delete(System.String,System.String)">
+            <summary>
+            Deletes an IPFencing rule with a specified id from the organization.
+            </summary>
+            <param name="id">IPFencing id to be deleted - throws bad request if null or empty Guid</param>
+            <response code="200">Ok, when IPFencing is soft deleted </response>
+            <response code="400">Bad request, if IPFencing id is null or empty Guid</response>
+            <response code="403">Forbidden</response>
+            <returns>Ok response</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.IPFencingController.Patch(System.String,System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.IPFencing})">
+            <summary>
+            Updates partial details of an IPFencing entity.
+            </summary>
+            <param name="id">IPFencing identifier</param>
+            <param name="value">Details of IPFencing patch</param>
+            <response code="200">Ok, if update of IPFencing is successful</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity, validation error</response>
+            <returns>Ok response, if the partial IPFencing details have been updated</returns>
         </member>
         <member name="T:OpenBots.Server.Web.JobsController">
             <summary>

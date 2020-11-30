@@ -362,6 +362,7 @@ namespace OpenBots.Server.Web
                 app.UseSpaStaticFiles();
             }
             app.UseAuthentication();
+            app.UseIPFilter();
             app.UseMvc();
             app.UseRouting();
             app.UseAuthorization();

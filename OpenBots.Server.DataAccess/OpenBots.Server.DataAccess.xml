@@ -289,11 +289,13 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.GetOne(System.Guid)">
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.GetOne(System.Guid,System.Nullable{System.Guid})">
             <summary>
+            Gets the Entity for the specified Entity ID
             </summary>
             <param name="Id"></param>
-            <returns></returns>
+            <param name="parentId"></param>
+            <returns>Entity for Entity ID</returns>
         </member>
         <member name="M:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.Exists(System.Guid)">
             <summary>

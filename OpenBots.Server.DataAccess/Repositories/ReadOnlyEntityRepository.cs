@@ -257,12 +257,22 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
+        /// Gets the Entity for the specified Entity ID
         /// </summary>
         /// <param name="Id"></param>
-        /// <returns></returns>
-        public T GetOne(Guid Id)
+        /// <param name="parentId"></param>
+        /// <returns>Entity for Entity ID</returns>
+        public T GetOne(Guid Id, Guid? parentId = null)
         {
-            var result = DbTable().Where(AuthorizeRead()).AsQueryable().Where(RemoveSoftDeleted()).Where(e => e.Id == Id).FirstOrDefault();
+            IQueryable<T> resultSet = DbTable().AsQueryable();
+
+            if (parentId.HasValue && parentId.Value != Guid.Empty)
+                resultSet = resultSet.Where(ParentFilter(parentId.Value)).AsQueryable();
+
+            resultSet = resultSet.Where(RemoveSoftDeleted()).AsQueryable();
+            resultSet = AuthorizeRows(resultSet.Where(AuthorizeRead()).AsQueryable());
+            var result = resultSet.Where(e => e.Id == Id).FirstOrDefault();
+
             return result;
         }
 
