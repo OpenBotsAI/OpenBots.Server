@@ -66,7 +66,7 @@ namespace XUnitTests
                 .AddInMemoryCollection(myConfiguration)
                 .Build();
 
-            var manager = new BinaryObjectManager(blobStorageAdapter, fileSystemAdapter, httpContextAccessor.Object, personEmailRepository, organizationMemberRepository, organizationManager, configuration, usersRepository);
+            var manager = new BinaryObjectManager(blobStorageAdapter, fileSystemAdapter, httpContextAccessor.Object, organizationMemberRepository, organizationManager, configuration, usersRepository);
 
             var testFile = new Mock<IFormFile>();
                 testFile.Setup(f => f.Length).Returns(1111);
@@ -129,7 +129,7 @@ namespace XUnitTests
             var mockOptions = Mock.Of<IOptions<ConfigurationValue>>();
             var configuration = new Mock<IConfiguration>();
             configuration.Setup(req => req.GetSection(ConfigurationValue.Values)).Returns(It.IsAny<IConfigurationSection>());
-            var manager = new BinaryObjectManager(blobStorageAdapter, fileSystemAdapter, httpContextAccessor.Object, personEmailRepository, organizationMemberRepository, organizationManager, configuration.Object, usersRepository);
+            var manager = new BinaryObjectManager(blobStorageAdapter, fileSystemAdapter, httpContextAccessor.Object, organizationMemberRepository, organizationManager, configuration.Object, usersRepository);
 
             string validBinaryObjectId = dummyBinaryObject.Id.ToString();
             string invalidBinaryObjectId = "9999bbf9-9327-48f7-a5e3-36cdfe4eb6a6";
