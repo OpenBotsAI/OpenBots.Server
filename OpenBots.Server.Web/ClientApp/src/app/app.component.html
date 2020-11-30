@@ -1,4 +1,39 @@
-<block-ui> 
+
+
+
+<!-- <div *ngIf="showTemp"> -->
+  <block-ui > 
     <router-outlet></router-outlet>
+       <div>
+
+    <p style.color = "{{ isConnectionAvailable  ? 'green' : 'red'}}"> {{ isConnectionAvailable  ? 'Online' : 'Offline'}} </p>  
+
+    <div id="blackout" class="noselect" style.display = "{{isConnectionAvailable ? 'none' : 'block'}}">
+        <br><br><br><br><br>
+        <p>No Internet connection!</p>
+        <br>
+    </div>
+
+</div>
 </block-ui>
+
+<!-- </div> -->
+
+<!-- <div *ngIf="!showTemp">
+ 
+   <ngx-pwa></ngx-pwa>
+</div> -->
+ 
+
+<!-- 
+<ng-template #blockTemplate>
+      <div class="block-ui-template">
+        
+        <img src="../assets/images/OBServer_logo.png"/>
+      </div>
+    </ng-template>
+ 
+    <block-ui [template]="blockTemplate">
+    <router-outlet></router-outlet>
+    </block-ui> -->
 
