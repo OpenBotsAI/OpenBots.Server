@@ -2,6 +2,6 @@ export const environment = {
   production: true,
   apiUrl: '/api/v1',
   hubUrl: '/notification',
-  healthUrl: '',
+  healthUrl: '/healthcheck-ui',
   appConfig: 'appConfig.prod.json',
 };
