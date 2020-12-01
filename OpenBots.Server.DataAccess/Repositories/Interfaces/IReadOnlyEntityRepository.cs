@@ -16,6 +16,6 @@ namespace OpenBots.Server.DataAccess.Repositories
 
         PaginatedList<T> Find(int skip = 0, int take = 0);
         PaginatedList<T> Find(Guid? parentId = null, Func<T, bool> predicate = null, Func<T, object> sort = null, OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 0);
-        T GetOne(Guid Id);
+        T GetOne(Guid Id, Guid? parentId = null);
     }
 }

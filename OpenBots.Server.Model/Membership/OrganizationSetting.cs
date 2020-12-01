@@ -14,11 +14,22 @@ namespace OpenBots.Server.Model.Membership
 
         [Display(Name= "OrganizationId")]
         public Guid? OrganizationId { get; set; }
+
         [ForeignKey("OrganizationId")]
         public Organization? Organization { get; set; }
+
         [Display(Name = "TimeZone")]
         public string? TimeZone { get; set; }
+
         [Display(Name = "StorageLocation")]
         public string? StorageLocation { get; set; }
+
+        [Display(Name = "IPFencingMode")]
+        public IPFencingMode? IPFencingMode { get; set; }
+    }
+    public enum IPFencingMode : int
+    {
+        AllowMode = 1,
+        DenyMode = -1
     }
 }

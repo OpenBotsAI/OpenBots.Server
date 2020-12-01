@@ -23,9 +23,12 @@ import {
 } from '@nebular/theme';
 import { TokenInterceptor } from './@core/interceptor/token.interceptor';
 import { BlockUIModule } from 'ng-block-ui';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
+import { PwaComponent } from './pwa/pwa.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, PwaComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -40,7 +43,8 @@ import { BlockUIModule } from 'ng-block-ui';
     NbToastrModule.forRoot(),
     CoreModule.forRoot(),
     ThemeModule.forRoot(),
-    BlockUIModule.forRoot()
+    BlockUIModule.forRoot(),
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   bootstrap: [AppComponent],
   providers: [

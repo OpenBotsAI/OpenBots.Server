@@ -7,6 +7,7 @@ import { SignalRService } from '../../../@core/services/signal-r.service';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
 import { HelperService } from '../../../@core/services/helper.service';
 import { DialogService } from '../../../@core/dialogservices';
+import { BlockUI, NgBlockUI } from 'ng-block-ui';
 
 @Component({
   selector: 'ngx-all-agents',
@@ -14,6 +15,7 @@ import { DialogService } from '../../../@core/dialogservices';
   styleUrls: ['./all-agents.component.scss'],
 })
 export class AllAgentsComponent implements OnInit {
+  @BlockUI() blockUI: NgBlockUI;
   isDeleted = false;
   showpage: any = [];
   show_allagents: any = [];
@@ -101,6 +103,7 @@ export class AllAgentsComponent implements OnInit {
   }
 
   per_page(val) {
+    this.blockUI.start('Loading');
     console.log(val);
     this.per_page_num = val;
     this.show_perpage_size = true;
@@ -112,6 +115,7 @@ export class AllAgentsComponent implements OnInit {
         this.showpage = data;
         this.show_allagents = data.items;
         this.page.totalCount = data.totalCount;
+        this.blockUI.stop();
       });
   }
 
@@ -137,6 +141,7 @@ export class AllAgentsComponent implements OnInit {
   }
 
   get_allagent(top, skip) {
+    this.blockUI.start('Loading');
     this.get_perPage = false;
     this.agentService.getAllAgent(top, skip).subscribe(
       (data: any) => {
@@ -144,6 +149,7 @@ export class AllAgentsComponent implements OnInit {
         this.show_allagents = data.items;
         this.page.totalCount = data.totalCount;
         this.get_perPage = true;
+        this.blockUI.stop();
       },
       (error) => {}
     );

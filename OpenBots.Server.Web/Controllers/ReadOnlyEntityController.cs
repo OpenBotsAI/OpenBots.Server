@@ -67,11 +67,11 @@ namespace OpenBots.Server.WebAPI.Controllers
                 oData.Top = oData.Top == 0 ? maxRecords : oData.Top;
             }
 
-            Guid parentguid = Guid.Empty;
+            Guid parentGuid = Guid.Empty;
             if (!string.IsNullOrEmpty(parentid))
-                parentguid = new Guid(parentid);
+                parentGuid = new Guid(parentid);
 
-            return readRepository.Find<TViewModel>(parentguid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip, oData.Top);
+            return readRepository.Find<TViewModel>(parentGuid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip, oData.Top);
         }
 
         /// <summary>
@@ -90,7 +90,11 @@ namespace OpenBots.Server.WebAPI.Controllers
             T entity = null;
             TViewModel entityView = new TViewModel();
 
-            entity = readRepository.GetOne(new Guid(id));
+            Guid parentGuid = Guid.Empty;
+            if (!string.IsNullOrEmpty(parentid))
+                parentGuid = new Guid(parentid);
+
+            entity = readRepository.GetOne(new Guid(id),parentGuid);
 
             if (entity == null)
             {
@@ -145,11 +149,11 @@ namespace OpenBots.Server.WebAPI.Controllers
                 queryString = HttpContext.Request.QueryString.Value;
 
             oData.Parse(queryString);
-            Guid parentguid = Guid.Empty;
+            Guid parentGuid = Guid.Empty;
             if (!string.IsNullOrEmpty(parentid))
-                parentguid = new Guid(parentid);
+                parentGuid = new Guid(parentid);
 
-            var result = readRepository.Find(parentguid, oData.Filter, oData.Sort, oData.SortDirection, 0, 0);
+            var result = readRepository.Find(parentGuid, oData.Filter, oData.Sort, oData.SortDirection, 0, 0);
 
             return result.TotalCount;
         }
@@ -181,11 +185,11 @@ namespace OpenBots.Server.WebAPI.Controllers
                 oData.Top = oData.Top == 0 ? maxRecords : oData.Top;
             }           
 
-            Guid parentguid = Guid.Empty;
+            Guid parentGuid = Guid.Empty;
             if (!string.IsNullOrEmpty(parentid))
-                parentguid = new Guid(parentid);
+                parentGuid = new Guid(parentid);
 
-            return readRepository.Find(parentguid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip, oData.Top);
+            return readRepository.Find(parentGuid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip, oData.Top);
         }
 
         /// <summary>
@@ -201,7 +205,11 @@ namespace OpenBots.Server.WebAPI.Controllers
         protected virtual async Task<IActionResult> GetEntity(string id, string parentid = "")
         {
             T entity = null;
-            entity = readRepository.GetOne(new Guid(id));
+            Guid parentGuid = Guid.Empty;
+            if (!string.IsNullOrEmpty(parentid))
+                parentGuid = new Guid(parentid);
+
+            entity = readRepository.GetOne(new Guid(id),parentGuid);
             if (entity == null)
             {
                 ModelState.AddModelError("GetData", "Record does not exist or you do not have authorized access.");

@@ -26,6 +26,7 @@ namespace OpenBots.Server.ViewModel
 		public string? ResultJSON { get; set; }
 		public List<Guid>? BinaryObjectIds { get; set; }
 		public Guid? QueueId { get; set; }
+		public DateTime? CreatedOn { get; set; }
 
 		public AllQueueItemsViewModel Map(QueueItemModel entity)
 		{
@@ -49,6 +50,7 @@ namespace OpenBots.Server.ViewModel
 			queueItemViewModel.Event = entity.Event;
 			queueItemViewModel.ResultJSON = entity.ResultJSON;
 			queueItemViewModel.QueueId = entity.QueueId;
+			queueItemViewModel.CreatedOn = entity.CreatedOn;
 
 			return queueItemViewModel;
 		}

@@ -47,7 +47,6 @@ namespace OpenBots.Server.Web.Controllers
         /// <param name="agentManager"></param>
         /// <param name="accessor"></param>
         /// <param name="configuration"></param>
-        /// <param name="httpContextAccessor"></param>
         public AgentsController(
             IAgentRepository agentRepository,
             IPersonRepository personRepository,
@@ -57,8 +56,7 @@ namespace OpenBots.Server.Web.Controllers
             ApplicationIdentityUserManager userManager,
             IAgentManager agentManager,
             IHttpContextAccessor accessor,
-            IConfiguration configuration,
-            IHttpContextAccessor httpContextAccessor) : base(agentRepository, userManager, httpContextAccessor, membershipManager, configuration)
+            IConfiguration configuration) : base(agentRepository, userManager, accessor, membershipManager, configuration)
         {
             this.agentRepo = agentRepository;
             this.personRepo = personRepository;
