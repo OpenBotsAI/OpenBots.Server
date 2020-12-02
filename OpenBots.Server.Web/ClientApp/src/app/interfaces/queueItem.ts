@@ -37,4 +37,5 @@ export interface QueueItem {
   lockedUntilUTC: Date;
   lockedEndTimeUTC: Date;
   stateMessage: string;
+  binaryObjectIds: string[];
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpService } from '../../../@core/services/http.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,6 +7,12 @@ import { Queues } from '../../../interfaces/queues';
 import { JsonEditorComponent, JsonEditorOptions } from 'ang-jsoneditor';
 import { NbDateService } from '@nebular/theme';
 import { HelperService } from '../../../@core/services/helper.service';
+import {
+  UploadOutput,
+  UploadInput,
+  UploadFile,
+  UploaderOptions,
+} from 'ngx-uploader';
 @Component({
   selector: 'ngx-add-queue-items',
   templateUrl: './add-queue-items.component.html',
@@ -29,6 +35,15 @@ export class AddQueueItemsComponent implements OnInit {
   public editorOptions: JsonEditorOptions;
   public data: any;
   eTag: string;
+  options: UploaderOptions;
+  files: UploadFile[];
+  uploadInput: EventEmitter<UploadInput>;
+  fileSize = false;
+  showUpload = false;
+  fileArray: any[] = [];
+  singleFile: any;
+  myFiles: UploadFile[] = [];
+
   @ViewChild(JsonEditorComponent) editor: JsonEditorComponent;
 
   constructor(
@@ -95,6 +110,18 @@ export class AddQueueItemsComponent implements OnInit {
       }
       this.queueItemForm.value.dataJson = JSON.stringify(this.editor.get());
     }
+    if (this.queueItemForm.value.expireOnUTC) {
+      this.queueItemForm.value.expireOnUTC = this.helperService.transformDate(
+        this.queueItemForm.value.expireOnUTC,
+        'lll'
+      );
+    }
+    if (this.queueItemForm.value.postponeUntilUTC) {
+      this.queueItemForm.value.postponeUntilUTC = this.helperService.transformDate(
+        this.queueItemForm.value.postponeUntilUTC,
+        'lll'
+      );
+    }
     if (this.queueItemId) this.updateItem();
     else this.addItem();
   }
@@ -117,7 +144,7 @@ export class AddQueueItemsComponent implements OnInit {
 
   getQueueDataById(): void {
     this.httpService
-      .get(`QueueItems/${this.queueItemId}`, { observe: 'response' })
+      .get(`QueueItems/view/${this.queueItemId}`, { observe: 'response' })
       .subscribe((response) => {
         if (response && response.status === 200) {
           this.eTag = response.headers.get('etag');
@@ -133,11 +160,38 @@ export class AddQueueItemsComponent implements OnInit {
     this.httpService
       .post('QueueItems/Enqueue', this.queueItemForm.value)
       .subscribe(
-        () => {
-          this.httpService.success('Queue item created successfully');
-          this.navigateToQueueItemsList();
-          this.isSubmitted = false;
-          this.queueItemForm.reset();
+        (response) => {
+          if (response && response.id) {
+            let count = 0;
+            if (this.fileArray.length) {
+              const formData = new FormData();
+              for (let data of this.fileArray) {
+                formData.append('Files', data.file.nativeFile, data.file.name);
+                this.httpService
+                  .post(`QueueItems/${response.id}/attach`, formData)
+                  .subscribe(
+                    (response) => {
+                      if (response) {
+                        count++;
+                        if (count == this.fileArray.length) {
+                          this.httpService.success(
+                            'Queue item created successfully'
+                          );
+                          this.navigateToQueueItemsList();
+                          this.isSubmitted = false;
+                          this.queueItemForm.reset();
+                        }
+                      }
+                    },
+                    () => (this.isSubmitted = false)
+                  );
+              }
+            } else {
+              this.navigateToQueueItemsList();
+              this.isSubmitted = false;
+              this.queueItemForm.reset();
+            }
+          }
         },
         () => (this.isSubmitted = false)
       );
@@ -145,36 +199,83 @@ export class AddQueueItemsComponent implements OnInit {
 
   updateItem(): void {
     const headers = this.helperService.getETagHeaders(this.eTag);
-    let data = [];
-    for (let [oldKey, oldValue] of Object.entries(this.oldQueueFormValue)) {
-      for (let [newkey, newValue] of Object.entries(this.queueItemForm.value)) {
-        if (oldKey == newkey && oldValue != newValue) {
-          const obj = {
-            value: newValue,
-            path: newkey,
-            op: 'replace',
-          };
-          data.push(obj);
-        }
+    if (this.fileArray.length) {
+      const formData = new FormData();
+      formData.append('Name', this.queueItemForm.value.name);
+      formData.append('QueueId', this.queueItemId);
+      formData.append('Source', this.queueItemForm.value.spurce);
+
+      formData.append('Event', this.queueItemForm.value.event);
+      if (this.queueItemForm.value.expireOnUTC)
+        formData.append('ExpireOnUTC', this.queueItemForm.value.expireOnUTC);
+      if (this.queueItemForm.value.postponeUntilUTC)
+        formData.append(
+          'PostponeUntilUTC',
+          this.queueItemForm.value.postponeUntilUTC
+        );
+      formData.append('Type', this.queueItemForm.value.type);
+      formData.append('DataJson', this.queueItemForm.value.dataJson);
+      formData.append('State', this.queueItemForm.value.state);
+
+      for (let data of this.fileArray) {
+        formData.append('Files', data.file.nativeFile, data.file.name);
       }
-    }
-    this.httpService
-      .patch(`QueueItems/${this.queueItemId}`, data, { headers })
-      .subscribe(
-        () => {
-          this.httpService.success('Queue item updated successfully');
-          this.navigateToQueueItemsList();
-          this.isSubmitted = false;
-          this.queueItemForm.reset();
-        },
-        (error) => {
-          if (error && error.error && error.error.status === 409) {
-            this.isSubmitted = false;
-            this.httpService.error(error.error.serviceErrors);
-            this.getQueueDataById();
+      this.httpService
+        .put(`QueueItems/${this.queueItemId}`, formData, {
+          headers,
+          observe: 'response',
+        })
+        .subscribe(
+          (response) => {
+            console.log('reponse', response);
+            if (response && response.status === 200) {
+              this.httpService.success('Queue item updated successfully');
+              this.navigateToQueueItemsList();
+              this.isSubmitted = false;
+              this.queueItemForm.reset();
+            }
+          },
+          () => (this.isSubmitted = false)
+        );
+    } else {
+      let data = [];
+      for (let [oldKey, oldValue] of Object.entries(this.oldQueueFormValue)) {
+        for (let [newkey, newValue] of Object.entries(
+          this.queueItemForm.value
+        )) {
+          if (oldKey == newkey && oldValue != newValue) {
+            const obj = {
+              value: newValue,
+              path: newkey,
+              op: 'replace',
+            };
+            data.push(obj);
           }
         }
-      );
+      }
+      this.httpService
+        .patch(`QueueItems/${this.queueItemId}`, data, {
+          headers,
+          observe: 'response',
+        })
+        .subscribe(
+          (res) => {
+            if (res && res.status === 200) {
+              this.httpService.success('Queue item updated successfully');
+              this.navigateToQueueItemsList();
+              this.isSubmitted = false;
+              this.queueItemForm.reset();
+            }
+          },
+          (error) => {
+            this.isSubmitted = false;
+            if (error && error.error && error.error.status === 409) {
+              this.httpService.error(error.error.serviceErrors);
+              this.getQueueDataById();
+            }
+          }
+        );
+    }
   }
 
   navigateToQueueItemsList(): void {
@@ -197,5 +298,18 @@ export class AddQueueItemsComponent implements OnInit {
         });
       }
     });
+  }
+
+  onUploadOutput(output: UploadOutput): void {
+    switch (output.type) {
+      case 'addedToQueue':
+        if (typeof output.file !== 'undefined') {
+          if (!output.file.size) this.fileSize = true;
+          else this.fileSize = false;
+          if (!this.fileSize) {
+            this.fileArray.push(output);
+          }
+        }
+    }
   }
 }
