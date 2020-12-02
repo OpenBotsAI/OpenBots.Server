@@ -22,15 +22,15 @@ export class AppComponent implements OnInit, OnDestroy {
     if (window.addEventListener.length == 0) {
       this.showTemp = true;
     }
-        //  window.addEventListener('online', (internet) => {
-        //    this.isConnectionAvailable = true;
-        //    console.log(internet);
-        //  });
+    window.addEventListener('online', (internet) => {
+      this.isConnectionAvailable = true;
+      console.log(internet.type);
+    });
 
-        //  window.addEventListener('offline', (internet) => {
-        //    this.isConnectionAvailable = false;
-        //         console.log(internet);
-        //  });
+    window.addEventListener('offline', (internet) => {
+      this.isConnectionAvailable = false;
+      console.log(internet.type);
+    });
   }
 
   ngOnInit(): void {
