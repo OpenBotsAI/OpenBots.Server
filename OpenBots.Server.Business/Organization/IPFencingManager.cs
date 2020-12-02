@@ -108,7 +108,7 @@ namespace OpenBots.Server.Business
         }
 
         /// <summary>
-        /// Checks if the current IPAddress matches on any IPFencing rules
+        /// Checks if the current request matches on any IPFencing rules
         /// </summary>
         /// <param name="iPAddress"></param>
         /// <param name="ipFencingRules"></param>
@@ -117,7 +117,7 @@ namespace OpenBots.Server.Business
         public bool MatchedOnRule(IPAddress iPAddress, List<IPFencing> ipFencingRules, IHeaderDictionary headers)
         {
             bool ipMatched = false;
-            bool headersMatched = true;
+            bool headersMatched = true; //Headers will match unless specified by a rule
 
             if (ipFencingRules.Count == 0)
             {
@@ -127,40 +127,62 @@ namespace OpenBots.Server.Business
             {
                 foreach (var rule in ipFencingRules)
                 {
-                    if (rule.Rule == RuleType.IPv4 || rule.Rule == RuleType.IPv6)
+                    switch (rule.Rule)
                     {
-                        if (iPAddress.Equals(IPAddress.Parse(rule.IPAddress)))
-                        {
-                            ipMatched = true;
-                        }
-                    }
-                    if (rule.Rule == RuleType.IPv4Range || rule.Rule == RuleType.IPv6Range)
-                    {
-                        var rangeStrings = rule.IPRange.Split('/');
-                        String lowerBound = rangeStrings[0];
-                        String upperBound = lowerBound.Substring(0, lowerBound.LastIndexOf(".")) + "." + rangeStrings[1];
-                        IPAddressRange range = new IPAddressRange(IPAddress.Parse(lowerBound), IPAddress.Parse(upperBound));
-
-                        if (range.IsInRange(iPAddress))
-                        {
-                            ipMatched = true;
-                        }
-                    }
-
-                    if (rule.Rule == RuleType.Header)
-                    {
-                        if (rule.Usage == UsageType.Deny)
-                        {
-                            headersMatched = false;
-                        }
-                        //If Usage is allow, then check the headers
-                        else if (headers.ContainsKey(rule.HeaderName))
-                        {
-                            if (rule.HeaderValue == headers[rule.HeaderName].ToString())
+                        //Check if IP matches rule
+                        case RuleType.IPv4:
+                        case RuleType.IPv6:
+                            if (iPAddress.Equals(IPAddress.Parse(rule.IPAddress)))
                             {
-                                headersMatched = true;
+                                ipMatched = true;
+
+                                if (rule.Usage == UsageType.Deny)
+                                {
+                                    return true; //If rule type is deny, then return true on any match
+                                }
                             }
-                        }
+                            break;
+                        //Check if IP is in range
+                        case RuleType.IPv4Range:
+                        case RuleType.IPv6Range:
+                            var rangeStrings = rule.IPRange.Split('/');
+                            String lowerBound = rangeStrings[0];
+                            String upperBound = lowerBound.Substring(0, lowerBound.LastIndexOf(".")) + "." + rangeStrings[1];
+                            IPAddressRange range = new IPAddressRange(IPAddress.Parse(lowerBound), IPAddress.Parse(upperBound));
+
+                            if (range.IsInRange(iPAddress))
+                            {
+                                ipMatched = true;
+
+                                if (rule.Usage == UsageType.Deny)
+                                {
+                                    return true;
+                                }
+                            }
+                            break;
+                        //Check if headers match rule
+                        case RuleType.Header:
+                            if (headers.ContainsKey(rule.HeaderName))
+                            {
+                                if (rule.HeaderValue == headers[rule.HeaderName].ToString())
+                                {
+                                    headersMatched = true;
+
+                                    if (rule.Usage == UsageType.Deny)
+                                    {
+                                        return true; //If rule type is deny, then return true on any match
+                                    }
+                                }
+                                else
+                                {
+                                    headersMatched = false;
+                                }
+                            }
+                            else
+                            {
+                                headersMatched = false;
+                            }
+                            break;
                     }
                 }
                 if (ipMatched && headersMatched)

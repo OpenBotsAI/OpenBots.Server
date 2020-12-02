@@ -24,7 +24,7 @@
               "src/web.config",
               "src/favicon.ico",
               "src/favicon.png",
-              "src/manifest.webmanifest"
+              "src/manifest.json"
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.css",
@@ -157,7 +157,7 @@
               "src/assets",
               "src/favicon.ico",
               "src/favicon.png",
-              "src/manifest.webmanifest"
+              "src/manifest.json"
             ]
           }
         },
