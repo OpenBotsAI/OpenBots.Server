@@ -1,6 +1,6 @@
 {
-  "name": "ngx-admin-demo",
-  "short_name": "ngx-admin-demo",
+  "name": "OpenBots Server",
+  "short_name": "OpenBots Server",
   "theme_color": "#1976d2",
   "background_color": "#fafafa",
   "display": "standalone",

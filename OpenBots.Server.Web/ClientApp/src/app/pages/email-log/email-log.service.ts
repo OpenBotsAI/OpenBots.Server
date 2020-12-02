@@ -16,12 +16,12 @@ export class EmailLogService {
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
   getAllEmail(tpage: any, spage: any) {
-    let getagentUrl = `/EmailLogs?$orderby=createdOn desc&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/Email?$orderby=createdOn desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
   getAllEmaillogOrder(tpage: any, spage: any, name) {
-    let getagentUrl = `/EmailLogs?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/Email?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
