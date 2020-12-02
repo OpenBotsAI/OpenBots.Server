@@ -5,7 +5,7 @@ namespace OpenBots.Server.DataAccess.Repositories
     /// <summary>
     /// Interface for EmailLogRepository
     /// </summary>
-    public interface IEmailLogRepository : IEntityRepository<EmailLog>
+    public interface IEmailRepository : IEntityRepository<EmailModel>
     {
     }
 }

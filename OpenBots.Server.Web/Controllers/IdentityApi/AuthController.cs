@@ -446,7 +446,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     emailMessage.To.Add(address);
                     emailMessage.Body = SendConfirmationEmail(code, user.Id, passwordString, "en");
                     emailMessage.Subject = "Confirm your account at " + Constants.PRODUCT;
-                    await emailSender.SendEmailAsync(emailMessage).ConfigureAwait(false);
+                    await emailSender.SendEmailAsync(emailMessage, null, null, "Outgoing").ConfigureAwait(false);
                     return Ok(new { message = "You have successfully registered. A confirmation email has been sent" });
                 }
                 else
@@ -662,7 +662,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     emailMessage.To.Add(address);
                     emailMessage.Body = SendForgotPasswordEmail(code, user.Id, "en");
                     emailMessage.Subject = string.Format("Reset your password at {0}", Constants.PRODUCT);
-                    await emailSender.SendEmailAsync(emailMessage).ConfigureAwait(false);
+                    await emailSender.SendEmailAsync(emailMessage, null, null, "Outgoing").ConfigureAwait(false);
                 }
                 else
                 {
@@ -769,7 +769,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     emailMessage.To.Add(address);
                     emailMessage.Body = emailBody;
                     emailMessage.Subject = "Confirm your email address at " + Constants.PRODUCT;
-                    await emailSender.SendEmailAsync(emailMessage).ConfigureAwait(false);
+                    await emailSender.SendEmailAsync(emailMessage, null, null, "Outgoing").ConfigureAwait(false);
                 }
                 else
                 {
