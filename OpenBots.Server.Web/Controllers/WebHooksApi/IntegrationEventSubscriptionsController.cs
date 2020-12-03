@@ -175,7 +175,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
                 existingEventSubscription.HTTP_URL = request.HTTP_URL;
                 existingEventSubscription.HTTP_AddHeader_Key = request.HTTP_AddHeader_Key;
                 existingEventSubscription.HTTP_AddHeader_Value = request.HTTP_AddHeader_Value;
-                existingEventSubscription.HTTP_RetryCount = request.HTTP_RetryCount;
+                existingEventSubscription.HTTP_Max_RetryCount = request.HTTP_Max_RetryCount;
                 existingEventSubscription.QUEUE_QueueID = request.QUEUE_QueueID;
 
                 return await base.PutEntity(id, existingEventSubscription);

@@ -4026,5 +4026,19 @@
              <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
              <returns>Newly created unique process log id with route name</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.Webhooks.WebhookPublisher.PublishAsync(System.String,System.String,System.String)">
+            <summary>
+            Publishes webhooks to all subscriptions
+            </summary>
+            <param name="integrationEventName"> Unique Name for integration event</param>
+            <param name="entityId">Optional parameter that specifies the entity which was affected</param>
+            <param name="entityName">Optional parameter that specifies the name of the affected entity</param>
+            <returns></returns>
+        </member>
+        <member name="T:OpenBots.Server.Web.Webhooks.WebhookSender">
+            <summary>
+            Uses a new HttpClient to send integration events to subscrubed URLs
+            </summary>
+        </member>
     </members>
 </doc>
