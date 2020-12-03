@@ -48,7 +48,7 @@ export class CredentialsComponent implements OnInit {
       url = `Credentials?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
     else url = `Credentials?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
     this.httpService.get(url).subscribe((response) => {
-      if (response && response.items.length !== 0) {
+      if (response && response.items.length) {
         this.credentialsArr = [...response.items];
         for (const data of this.credentialsArr) {
           if (data.provider === 'AD') {

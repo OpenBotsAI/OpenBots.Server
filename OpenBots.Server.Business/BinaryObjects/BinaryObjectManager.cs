@@ -27,7 +27,6 @@ namespace OpenBots.Server.Business
             IBlobStorageAdapter blobStorageAdapter,
             IFileSystemAdapter fileSystemAdapter,
             IHttpContextAccessor httpContextAccessor,
-            IPersonEmailRepository personEmailRepository,
             IOrganizationMemberRepository organizationMemberRepository,
             IOrganizationManager organizationManager,
             IConfiguration configuration,
@@ -71,7 +70,7 @@ namespace OpenBots.Server.Business
             blobStorageAdapter.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId, storageProvider, hash);
         }
 
-        private static string GetHash(HashAlgorithm hashAlgorithm, byte[] input)
+        public string GetHash(HashAlgorithm hashAlgorithm, byte[] input)
         {
             //Convert the input string to a byte array and compute the hash
             byte[] data = hashAlgorithm.ComputeHash(input);

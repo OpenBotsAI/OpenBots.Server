@@ -178,7 +178,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                     emailMessage.To.Add(address);
                     emailMessage.Body = emailBody;
                     emailMessage.Subject = subject;
-                    await emailSender.SendEmailAsync(emailMessage).ConfigureAwait(false);
+                    await emailSender.SendEmailAsync(emailMessage, null, null, "Outgoing").ConfigureAwait(false);
 
                     value.IsVerificationEmailSent = true;
                 }

@@ -23,7 +23,8 @@
               "src/assets",
               "src/web.config",
               "src/favicon.ico",
-              "src/favicon.png"
+              "src/favicon.png",
+              "src/manifest.json"
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.css",
@@ -107,7 +108,9 @@
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.prod.ts"
                 }
-              ]
+              ],
+              "serviceWorker": true,
+              "ngswConfigPath": "ngsw-config.json"
             }
           }
         },
@@ -153,7 +156,8 @@
             "assets": [
               "src/assets",
               "src/favicon.ico",
-              "src/favicon.png"
+              "src/favicon.png",
+              "src/manifest.json"
             ]
           }
         },

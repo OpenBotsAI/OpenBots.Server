@@ -15,7 +15,6 @@ using OpenBots.Server.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Net;
-using System.IO;
 using OpenBots.Server.Model.Attributes;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Web.Extensions;
@@ -341,7 +340,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                                 EmailMessage emailMessage = new EmailMessage();
                                 emailMessage.Body = SendConfirmationEmail(code, user.Id, passwordString, "en");
                                 emailMessage.Subject = "Confirm your account at " + Constants.PRODUCT;
-                                await emailSender.SendEmailAsync(emailMessage).ConfigureAwait(false);
+                                await emailSender.SendEmailAsync(emailMessage, null, null, "Outgoing").ConfigureAwait(false);
                             }
                             else
                             {
@@ -498,7 +497,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                     EmailMessage emailMessage = new EmailMessage();
                     emailMessage.Body = SendConfirmationEmail(code, user.Id, passwordString, "en");
                     emailMessage.Subject = "Confirm your account at " + Constants.PRODUCT;
-                    await emailSender.SendEmailAsync(emailMessage).ConfigureAwait(false);
+                    await emailSender.SendEmailAsync(emailMessage, null, null, "Outgoing").ConfigureAwait(false);
                 }
                 else
                 {

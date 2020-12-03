@@ -291,7 +291,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                 {
                     throw new EntityConcurrencyException(ex);
                 }
-                catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+                catch (DbUpdateException ex)
                 {
                     if (ex.InnerException != null && ex.InnerException.GetType() == typeof(Microsoft.Data.SqlClient.SqlException))
                     {

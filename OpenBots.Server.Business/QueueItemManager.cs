@@ -24,7 +24,7 @@ namespace OpenBots.Server.Business
             this.queueItemAttachmentRepository = queueItemAttachmentRepository;
         }
 
-        public async Task<QueueItem> Enqueue(QueueItem item)
+        public async Task<QueueItemModel> Enqueue(QueueItemModel item)
         {
             item.State = QueueItemStateType.New.ToString();
             item.StateMessage = "Successfully created new queue item.";
@@ -35,7 +35,7 @@ namespace OpenBots.Server.Business
             return item;
         }
 
-        public async Task<QueueItem> Dequeue(string agentId, string queueId)
+        public async Task<QueueItemModel> Dequeue(string agentId, string queueId)
         {
             string newState = QueueItemStateType.New.ToString();
             string inProgressState = QueueItemStateType.InProgress.ToString();
@@ -66,7 +66,7 @@ namespace OpenBots.Server.Business
             return item;
         }
 
-        public QueueItem FindQueueItem(string state, string queueId)
+        public QueueItemModel FindQueueItem(string state, string queueId)
         {
             var item = repo.Find(0, 1).Items
                 .Where(q => q.QueueId.ToString() == queueId)
@@ -81,7 +81,7 @@ namespace OpenBots.Server.Business
             return item;
         }
 
-        public QueueItem FindExpiredQueueItem(string newState, string inProgressState, string queueId)
+        public QueueItemModel FindExpiredQueueItem(string newState, string inProgressState, string queueId)
         {
             var item = repo.Find(0, 1).Items
                 .Where(q => q.QueueId.ToString() == queueId)
@@ -94,7 +94,7 @@ namespace OpenBots.Server.Business
             return item;
         }
 
-        public async Task<QueueItem> Commit(Guid queueItemId, Guid transactionKey, string resultJSON)
+        public async Task<QueueItemModel> Commit(Guid queueItemId, Guid transactionKey, string resultJSON)
         {
             var item = repo.GetOne(queueItemId);
             if (item.LockedUntilUTC <= DateTime.UtcNow)
@@ -121,7 +121,7 @@ namespace OpenBots.Server.Business
                 throw new Exception("Transaction Key Mismatched or Expired. Cannot Commit.");
         }
 
-        public async Task<QueueItem> Rollback(Guid queueItemId, Guid transactionKey, int retryLimit, string errorCode = null, string errorMessage = null, bool isFatal = false)
+        public async Task<QueueItemModel> Rollback(Guid queueItemId, Guid transactionKey, int retryLimit, string errorCode = null, string errorMessage = null, bool isFatal = false)
         {
             var item = repo.GetOne(queueItemId);
             if (item?.LockedUntilUTC < DateTime.UtcNow)
@@ -180,7 +180,7 @@ namespace OpenBots.Server.Business
             }
         }
 
-        public async Task<QueueItem> Extend(Guid queueItemId, Guid transactionKey, int extendByMinutes = 60)
+        public async Task<QueueItemModel> Extend(Guid queueItemId, Guid transactionKey, int extendByMinutes = 60)
         {
             var item = repo.GetOne(queueItemId);
 
@@ -200,7 +200,7 @@ namespace OpenBots.Server.Business
                 throw new Exception("Transaction key mismatched or expired. Cannot extend.");
         }
 
-        public async Task<QueueItem> UpdateState(Guid queueItemId, Guid transactionKey, string state = null, string stateMessage = null, string errorCode = null, string errorMessage = null)
+        public async Task<QueueItemModel> UpdateState(Guid queueItemId, Guid transactionKey, string state = null, string stateMessage = null, string errorCode = null, string errorMessage = null)
         {
             var item = repo.GetOne(queueItemId);
 
@@ -229,9 +229,9 @@ namespace OpenBots.Server.Business
                 throw new Exception("Transaction key mismatched or expired.  Cannot update state.");
         }
 
-        public async Task<QueueItem> GetQueueItem(Guid transactionKeyId)
+        public async Task<QueueItemModel> GetQueueItem(Guid transactionKeyId)
         {
-            QueueItem queueItem = repo.Find(0, 1).Items
+            QueueItemModel queueItem = repo.Find(0, 1).Items
                 .Where(q => q.LockTransactionKey == transactionKeyId)
                 .FirstOrDefault();
 
@@ -247,7 +247,7 @@ namespace OpenBots.Server.Business
             Expired = 4
         }
 
-        public void SetNewState(QueueItem item)
+        public void SetNewState(QueueItemModel item)
         {
             item.RetryCount += 1;
             Guid queueId = item.QueueId;
@@ -271,7 +271,7 @@ namespace OpenBots.Server.Business
             item.LockTransactionKey = null;
         }
 
-        public void SetExpiredState(QueueItem item)
+        public void SetExpiredState(QueueItemModel item)
         {
             item.State = QueueItemStateType.Expired.ToString();
             item.StateMessage = "Queue item has expired.";

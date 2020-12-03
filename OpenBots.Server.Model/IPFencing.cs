@@ -9,12 +9,28 @@ namespace OpenBots.Server.Model
     public class IPFencing : Entity
     {
         [Required]
+        [Display(Name = "Usage")]
         public UsageType? Usage { get; set; }
+
+        [Required]
+        [Display(Name = "Rule")]
         public RuleType? Rule { get; set; }
+
+        [Display(Name = "IPAddress")]
         public string? IPAddress { get; set; }
+
+        [Display(Name = "IPRange")]
         public string? IPRange { get; set; }
+
+        [Display(Name = "HeaderName")]
         public string? HeaderName { get; set; }
+
+        [Display(Name = "HeaderValue")]
         public string? HeaderValue { get; set; }
+
+        [Required]
+        [Display(Name = "OrganizationId")]
+        public Guid OrganizationId { get; set; }
     }
 
     /// <summary>
@@ -33,7 +49,7 @@ namespace OpenBots.Server.Model
     /// <summary>
     /// Represents the type of rule that is being stored
     /// </summary>
-    ///  /// <remarks>
+    /// <remarks>
     /// IP rule values can be stored as individual addresses or as ranges. <br/>
     /// Headers are checked after IP values and must be exist in the http request
     /// </remarks>

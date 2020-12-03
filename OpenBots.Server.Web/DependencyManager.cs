@@ -71,6 +71,8 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IEmailAttachmentRepository), typeof(EmailAttachmentRepository));
             services.AddTransient(typeof(IProcessVersionRepository), typeof(ProcessVersionRepository));
             services.AddTransient(typeof(IConfigurationValueRepository), typeof(ConfigurationValueRepository));
+            services.AddTransient(typeof(IIPFencingRepository), typeof(IPFencingRepository));
+            services.AddTransient(typeof(IIPFencingManager), typeof(IPFencingManager));
             services.AddTransient(typeof(IQueueItemAttachmentRepository), typeof(QueueItemAttachmentRepository));
 
             //WebHooks
@@ -90,7 +92,7 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(ISendEmailChore), typeof(AzureSendEmailChore));
             services.AddTransient(typeof(IEmailManager), typeof(EmailManager));
             services.AddTransient(typeof(IEmailAccountRepository), typeof(EmailAccountRepository));
-            services.AddTransient(typeof(IEmailLogRepository), typeof(EmailLogRepository));
+            services.AddTransient(typeof(IEmailRepository), typeof(EmailRepository));
             services.AddTransient(typeof(IEmailSettingsRepository), typeof(EmailSettingsRepository));
             services.AddTransient(typeof(IHubManager), typeof(HubManager));
         }

@@ -199,11 +199,6 @@
             Hash Code
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.Core.EmailAttachment.ContentStorageAddress">
-            <summary>
-            Address where Content of the Attachment is Stored
-            </summary>
-        </member>
         <member name="T:OpenBots.Server.Model.Core.EmailMessage">
             <summary>
             MailMessageStub is a simple serializable Stub for a Email message
@@ -314,7 +309,7 @@
             <summary>
             Represents the type of rule that is being stored
             </summary>
-             /// <remarks>
+            <remarks>
             IP rule values can be stored as individual addresses or as ranges. <br/>
             Headers are checked after IP values and must be exist in the http request
             </remarks>
@@ -621,117 +616,117 @@
             Maximum number of QueueItem retries
             </summary>
         </member>
-        <member name="T:OpenBots.Server.Model.QueueItem">
+        <member name="T:OpenBots.Server.Model.QueueItemModel">
             <summary>
             QueueItem Model
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.IsLocked">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.IsLocked">
             <summary>
             Whether a QueueItem is locked by a job or not
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.LockedOnUTC">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.LockedOnUTC">
             <summary>
             When the QueueItem was locked
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.LockedUntilUTC">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.LockedUntilUTC">
             <summary>
             When to lock QueueItem if still being executed
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.LockedBy">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.LockedBy">
             <summary>
             Which Agent locked the QueueItem
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.QueueId">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.QueueId">
             <summary>
             Which Queue the QueueItem belongs to
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.Type">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.Type">
             <summary>
             Format of Data
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.JsonType">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.JsonType">
             <summary>
             Describes the type of item the queue is dealing with
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.DataJson">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.DataJson">
             <summary>
             Data in JSON or Text format
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.State">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.State">
             <summary>
             Failed, Expired, Successful, New
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.StateMessage">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.StateMessage">
             <summary>
             Message given to user after state of QueueItem was changed
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.LockTransactionKey">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.LockTransactionKey">
             <summary>
             Guid generated when item is dequeued
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.LockedEndTimeUTC">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.LockedEndTimeUTC">
             <summary>
             Tells when QueueItem has been executed and when IsLocked has been turned back to false
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.RetryCount">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.RetryCount">
             <summary>
             Number of time a QueueItem has been retried
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.Priority">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.Priority">
             <summary>
             Priority of when queue item should be dequeued
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.ExpireOnUTC">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.ExpireOnUTC">
             <summary>
             DateTime the queue item will expire on
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.PostponeUntilUTC">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.PostponeUntilUTC">
             <summary>
             DateTime to postpone the queue item from being processed until
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.ErrorCode">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.ErrorCode">
             <summary>
             Error Code received when processing a queue item
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.ErrorMessage">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.ErrorMessage">
             <summary>
             Error message received when processing a queue item
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.ErrorSerialized">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.ErrorSerialized">
             <summary>
             ErrorCode and ErrorMessage serialized into JSON string
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.Source">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.Source">
             <summary>
             System of event that was raised (ex: "Employee.Onboarded")
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.Event">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.Event">
             <summary>
             Event raised from an application (ex: "New employee joins the company.")
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.QueueItem.ResultJSON">
+        <member name="P:OpenBots.Server.Model.QueueItemModel.ResultJSON">
             <summary>
             Result of the processed queue item
             </summary>

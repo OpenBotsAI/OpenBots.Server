@@ -57,9 +57,9 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
   getQeueItemsList(top: number, skip: number, orderBy?: string): void {
     let url: string;
     if (orderBy)
-      url = `QueueItems?$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter= Queueid eq guid'${this.queueForm.value.id}'`;
+      url = `QueueItems/view?$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter= Queueid eq guid'${this.queueForm.value.id}'`;
     else
-      url = `QueueItems?$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter= Queueid eq guid'${this.queueForm.value.id}'`;
+      url = `QueueItems/view?$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter= Queueid eq guid'${this.queueForm.value.id}'`;
     this.httpService.get(url).subscribe((response) => {
       if (response) {
         this.page.totalCount = response.totalCount;

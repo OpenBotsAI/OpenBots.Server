@@ -185,6 +185,19 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
+                if (file == null)
+                {
+                    ModelState.AddModelError("Save", "No file uploaded");
+                    return BadRequest(ModelState);
+                }
+
+                long size = file.Length;
+                if (size <= 0)
+                {
+                    ModelState.AddModelError("Process Upload", $"File size of file {file.FileName} cannot be 0");
+                    return BadRequest(ModelState);
+                }
+
                 var binaryObject = repository.GetOne(Guid.Parse(id));
                 string organizationId = binaryObjectManager.GetOrganizationId();
                 string apiComponent = "BinaryObjectAPI";
@@ -206,6 +219,7 @@ namespace OpenBots.Server.Web.Controllers
                     {
                         binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
                         binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
+                        repository.Update(binaryObject);
                     }
                 }
                 return Ok(binaryObject);
@@ -359,13 +373,18 @@ namespace OpenBots.Server.Web.Controllers
 
                 string apiComponent = existingBinaryObject.CorrelationEntity;
 
-                if (request == null)
+                if (request.File == null)
                 {
-                    ModelState.AddModelError("Save", "No data passed");
+                    ModelState.AddModelError("Save", "No file uploaded");
                     return BadRequest(ModelState);
                 }
 
                 long size = request.File.Length;
+                if (size <= 0)
+                {
+                    ModelState.AddModelError("Process Upload", $"File size of file {request.File.FileName} cannot be 0");
+                    return BadRequest(ModelState);
+                }
 
                 if (existingBinaryObject.Id != Guid.Empty && size > 0)
                 {

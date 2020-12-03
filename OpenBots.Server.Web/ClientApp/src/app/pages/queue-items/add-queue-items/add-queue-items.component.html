@@ -53,7 +53,7 @@
                 controls.source.invalid &&
                 (controls.source.dirty || controls.source.touched)
               " class="invalid-feedback-frm">
-             
+
                 <div *ngIf="controls.source.errors.minlength">
                   Source must be at least 3 characters long.
                 </div>
@@ -70,7 +70,7 @@
                 controls.event.invalid &&
                 (controls.event.dirty || controls.event.touched)
               " class="invalid-feedback-frm">
-                
+
                 <div *ngIf="controls.event.errors.minlength">
                   Event must be at least 3 characters long.
                 </div>
@@ -115,6 +115,22 @@
                 </div>
               </div>
             </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6" *ngIf="queueItemForm && queueItemForm.value.type !== 'Json'">
+              <div class="form-group">
+                <label class="label">Please Upload File</label>
+                <br>
+                <label class="upload-button">
+                  <input type="file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
+                    [uploadInput]="uploadInput" multiple />
+                </label>
+                <!-- <div *ngIf="showUpload" class="invalid-feedback-frm">
+                  Please upload file.
+                </div> -->
+                <div *ngIf="fileSize" class="invalid-feedback-frm">
+                  You cannot upload empty file.
+                </div>
+              </div>
+            </div>
             <div class="col-md-6 col-lg-6 col-xxxl-6" *ngIf="queueItemForm && queueItemForm.value.type == 'Json'">
               <label for="jsonType" class="label">Json Type *</label>
               <input type="input" nbInput fullWidth id="jsonType" formControlName="jsonType"
@@ -126,11 +142,27 @@
                 <div *ngIf="controls.jsonType.errors.required">
                   Json type is required.
                 </div>
-                 
+
               </div>
             </div>
           </div>
           <div class="row rowPadding">
+            <div class="col-md-12 col-lg-12 col-xxxl-12" *ngIf="queueItemForm && queueItemForm.value.type == 'Json'">
+              <div class="form-group">
+                <label class="label">Please Upload File *</label>
+                <br>
+                <label class="upload-button">
+                  <input type="file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
+                    [uploadInput]="uploadInput" multiple />
+                </label>
+                <!-- <div *ngIf="showUpload" class="invalid-feedback-frm">
+                  Please upload file.
+                </div> -->
+                <div *ngIf="fileSize" class="invalid-feedback-frm">
+                  You cannot upload empty file.
+                </div>
+              </div>
+            </div>
             <div class="col-md-12 col-lg-12 col-xxxl-12" *ngIf="queueItemForm && queueItemForm.value.type == 'Json'">
               <label for="priority" class="label col-sm-2 col-form-label">Data JSON</label>
               <json-editor [options]="editorOptions" formControlName="dataJson">
@@ -141,6 +173,7 @@
               <textarea type="input" rows="5" nbInput fullWidth id="dataJson" formControlName="dataJson"
                 placeholder="Please enter data text" ngxSpecialChar trim="blur"></textarea>
             </div>
+
           </div>
           <div class="row">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
@@ -152,6 +185,49 @@
             <div class="col-md-6 col-lg-6 col-xxxl-6"></div>
           </div>
         </form>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>
+
+<div class="row" *ngIf="title == 'Update'">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+        <h2>Attached Files</h2>
+      </nb-card-header>
+      <nb-card-body>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col">
+                Name
+                <i></i>
+              </th>
+              <th scope="col">
+                File Size
+                <i></i>
+              </th>
+              <th scope="col">
+                Download File
+                <i></i>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let files of queueItemFiles">
+              <td>
+                <ngx-tooltip [data]="files?.name" [size]="20"> </ngx-tooltip>
+              </td>
+              <td>
+                <ngx-tooltip [data]="files?.sizeInBytes| filesize" [size]="20"> </ngx-tooltip>
+              </td>
+              <td>
+                <a (click)="downloadFile(files?.id)"><i class="fa fa-download"></i></a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </nb-card-body>
     </nb-card>
   </div>

@@ -50,7 +50,8 @@ namespace OpenBots.Server.DataAccess.Repositories
                                      Name = p?.Name,
                                      CreatedOn = p.CreatedOn,
                                      CreatedBy = p.CreatedBy,
-                                     Status = v.Status
+                                     Status = v.Status,
+                                     VersionNumber = v.VersionNumber
                                  };
 
                 if (!string.IsNullOrWhiteSpace(sortColumn))

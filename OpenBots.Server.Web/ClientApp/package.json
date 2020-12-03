@@ -1,14 +1,7 @@
 {
-  "name": "ngx-admin-bundle",
+  "name": "OpenBots-Server",
   "version": "03.20.2020",
   "license": "LICENCE",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/akveo/ngx-admin.git"
-  },
-  "bugs": {
-    "url": "https://github.com/akveo/ngx-admin-bundle-support/issues"
-  },
   "scripts": {
     "ng": "ng",
     "conventional-changelog": "conventional-changelog",
@@ -48,11 +41,9 @@
     "@nebular/auth": "5.0.0",
     "@nebular/eva-icons": "5.0.0",
     "@nebular/security": "5.0.0",
-    "ng-block-ui": "^2.1.1",
     "@nebular/theme": "5.0.0",
     "ang-jsoneditor": "^1.10.1",
     "angular2-toaster": "^8.0.0",
-    "ng2-ckeditor": "1.2.0",
     "bootstrap": "4.3.1",
     "chart.js": "^2.7.1",
     "classlist.js": "1.1.20150312",
@@ -66,8 +57,11 @@
     "jsoneditor": "^9.0.4",
     "moment": "^2.27.0",
     "nebular-icons": "1.1.0",
+    "ng-block-ui": "^2.1.1",
+    "ng-connection-service": "^1.0.4",
     "ng-pick-datetime": "^7.0.0",
     "ng2-charts": "^2.2.2",
+    "ng2-ckeditor": "1.2.0",
     "ng2-trim-directive": "^2.3.4",
     "ngx-filesaver": "^10.0.0",
     "ngx-filesize": "^2.0.16",
