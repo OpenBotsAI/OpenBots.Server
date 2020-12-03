@@ -125,7 +125,6 @@ export class ViewQueueItemComponent implements OnInit {
         .get(`BinaryObjects/${attachedFileId}`)
         .subscribe((response) => {
           if (response) this.queueItemFiles.push(response);
-          console.log('res', this.queueItemFiles);
         });
   }
 

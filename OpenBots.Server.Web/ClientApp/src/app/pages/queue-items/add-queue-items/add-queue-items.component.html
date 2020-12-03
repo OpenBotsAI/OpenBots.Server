@@ -189,3 +189,46 @@
     </nb-card>
   </div>
 </div>
+
+<div class="row" *ngIf="title == 'Update'">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+        <h2>Attached Files</h2>
+      </nb-card-header>
+      <nb-card-body>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col">
+                Name
+                <i></i>
+              </th>
+              <th scope="col">
+                File Size
+                <i></i>
+              </th>
+              <th scope="col">
+                Download File
+                <i></i>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let files of queueItemFiles">
+              <td>
+                <ngx-tooltip [data]="files?.name" [size]="20"> </ngx-tooltip>
+              </td>
+              <td>
+                <ngx-tooltip [data]="files?.sizeInBytes| filesize" [size]="20"> </ngx-tooltip>
+              </td>
+              <td>
+                <a (click)="downloadFile(files?.id)"><i class="fa fa-download"></i></a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

@@ -13,6 +13,8 @@ import {
   UploadFile,
   UploaderOptions,
 } from 'ngx-uploader';
+import { BinaryFile } from '../../../interfaces/file';
+import { FileSaverService } from 'ngx-filesaver';
 @Component({
   selector: 'ngx-add-queue-items',
   templateUrl: './add-queue-items.component.html',
@@ -43,7 +45,8 @@ export class AddQueueItemsComponent implements OnInit {
   fileArray: any[] = [];
   singleFile: any;
   myFiles: UploadFile[] = [];
-
+  queueItemFiles: BinaryFile[] = [];
+  queuefiles: string[] = [];
   @ViewChild(JsonEditorComponent) editor: JsonEditorComponent;
 
   constructor(
@@ -52,10 +55,13 @@ export class AddQueueItemsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private dateService: NbDateService<Date>,
-    private helperService: HelperService
+    private helperService: HelperService,
+    private fileSaverService: FileSaverService
   ) {}
 
   ngOnInit(): void {
+    this.min = new Date();
+    this.max = new Date();
     this.queueItemForm = this.initializigQueueItemForm();
     this.getQueues();
     this.editorOptions = new JsonEditorOptions();
@@ -67,8 +73,6 @@ export class AddQueueItemsComponent implements OnInit {
       this.title = 'Update';
       this.btnText = 'Update';
     }
-    this.min = new Date();
-    this.max = new Date();
     this.min = this.dateService.addMonth(this.dateService.today(), 0);
     this.max = this.dateService.addMonth(this.dateService.today(), 1);
   }
@@ -147,7 +151,10 @@ export class AddQueueItemsComponent implements OnInit {
       .get(`QueueItems/view/${this.queueItemId}`, { observe: 'response' })
       .subscribe((response) => {
         if (response && response.status === 200) {
+          this.min = response.body.expireOnUTC;
           this.eTag = response.headers.get('etag');
+          this.queuefiles = response.body.binaryObjectIds;
+          if (this.queuefiles) this.getQueueItemFiles();
           if (response.body.type === 'Json')
             response.body.dataJson = JSON.parse(response.body.dataJson);
           this.queueItemForm.patchValue(response.body);
@@ -202,9 +209,8 @@ export class AddQueueItemsComponent implements OnInit {
     if (this.fileArray.length) {
       const formData = new FormData();
       formData.append('Name', this.queueItemForm.value.name);
-      formData.append('QueueId', this.queueItemId);
-      formData.append('Source', this.queueItemForm.value.spurce);
-
+      formData.append('QueueId', this.queueItemForm.value.queueId);
+      formData.append('Source', this.queueItemForm.value.source);
       formData.append('Event', this.queueItemForm.value.event);
       if (this.queueItemForm.value.expireOnUTC)
         formData.append('ExpireOnUTC', this.queueItemForm.value.expireOnUTC);
@@ -311,5 +317,33 @@ export class AddQueueItemsComponent implements OnInit {
           }
         }
     }
+  }
+
+  getQueueItemFiles(): void {
+    for (let binaryObjectId of this.queuefiles) {
+      this.httpService
+        .get(`BinaryObjects/${binaryObjectId}`)
+        .subscribe((response) => {
+          if (response) this.queueItemFiles.push(response);
+        });
+    }
+  }
+
+  downloadFile(id: string): void {
+    this.httpService
+      .get(`BinaryObjects/${id}/download`, {
+        responseType: 'blob',
+        observe: 'response',
+      })
+      .subscribe((response) => {
+        this.fileSaverService.save(
+          response.body,
+          response.headers
+            .get('content-disposition')
+            .split(';')[1]
+            .split('=')[1]
+            .replace(/\"/g, '')
+        );
+      });
   }
 }
