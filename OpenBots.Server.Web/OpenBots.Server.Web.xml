@@ -3184,7 +3184,7 @@
             <response code="422">Unprocessable entity</response>
             <returns>IntegrationEventSubscription details for the given id</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.Post(OpenBots.Server.Model.WebHooks.IntegrationEventSubscription)">
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.Post(OpenBots.Server.Model.Webhooks.IntegrationEventSubscription)">
             <summary>
             Adds a new IntegrationEventSubscription to the existing IntegrationEventSubscriptions
             </summary>
@@ -3196,7 +3196,7 @@
             <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
             <returns>Newly created unique IntegrationEventSubscription</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.Put(System.String,OpenBots.Server.Model.WebHooks.IntegrationEventSubscription)">
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.Put(System.String,OpenBots.Server.Model.Webhooks.IntegrationEventSubscription)">
             <summary>
             Updates an IntegrationEventSubscription 
             </summary>
@@ -3224,7 +3224,7 @@
             <response code="403">Forbidden</response>
             <returns>Ok response</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.WebHooks.IntegrationEventSubscription})">
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Webhooks.IntegrationEventSubscription})">
             <summary>
             Updates partial details of IntegrationEventSubscription
             </summary>

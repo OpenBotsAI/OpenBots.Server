@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
-using OpenBots.Server.Model.WebHooks;
+using OpenBots.Server.Model.Webhooks;
 
 namespace OpenBots.Server.DataAccess.Repositories
 {

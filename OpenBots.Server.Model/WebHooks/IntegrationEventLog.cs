@@ -3,13 +3,15 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace OpenBots.Server.Model.WebHooks
+namespace OpenBots.Server.Model.Webhooks
 {
-    public class IntegrationEventLog : NamedEntity, INonAuditable
+    public class IntegrationEventLog : Entity, INonAuditable
     {
+        public string? IntegrationEventName { get; set; }
+
         public DateTime? OccuredOnUTC { get; set; }
 
-        public string? EntityName { get; set; }
+        public string? EntityType { get; set; }
 
         public Guid? EntityID { get; set; }
 

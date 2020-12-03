@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Configuration;
-using OpenBots.Server.Model.WebHooks;
+using OpenBots.Server.Model.Webhooks;
 
 namespace OpenBots.Server.DataAccess
 {

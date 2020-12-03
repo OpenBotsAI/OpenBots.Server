@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenBots.Server.Web.Hubs;
 using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
-using OpenBots.Server.Model.WebHooks;
+using OpenBots.Server.Model.Webhooks;
 
 namespace OpenBots.Server.Web
 {

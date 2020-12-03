@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace OpenBots.Server.Model.WebHooks
+namespace OpenBots.Server.Model.Webhooks
 {
     public class IntegrationEventSubscription : NamedEntity
     {
@@ -14,7 +14,7 @@ namespace OpenBots.Server.Model.WebHooks
         public string? HTTP_URL { get; set; }
         public string? HTTP_AddHeader_Key  { get; set; }
         public string? HTTP_AddHeader_Value  { get; set; }
-        public int? HTTP_RetryCount { get; set; }
+        public int? HTTP_Max_RetryCount { get; set; }
         public Guid? QUEUE_QueueID { get; set; }
     }
 }
