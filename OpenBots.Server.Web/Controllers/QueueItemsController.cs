@@ -688,6 +688,8 @@ namespace OpenBots.Server.Web.Controllers
         /// <summary>
         /// Update the queue item with file attachments
         /// </summary>
+        /// <param name="request"></param>
+        /// <param name="id"></param>
         /// <response code="200">Ok response</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>

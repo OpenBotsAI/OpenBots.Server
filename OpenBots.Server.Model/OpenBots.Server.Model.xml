@@ -199,11 +199,6 @@
             Hash Code
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.Core.EmailAttachment.ContentStorageAddress">
-            <summary>
-            Address where Content of the Attachment is Stored
-            </summary>
-        </member>
         <member name="T:OpenBots.Server.Model.Core.EmailMessage">
             <summary>
             MailMessageStub is a simple serializable Stub for a Email message

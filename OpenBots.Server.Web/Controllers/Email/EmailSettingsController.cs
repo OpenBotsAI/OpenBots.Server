@@ -13,7 +13,6 @@ using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.Security;
 using OpenBots.Server.WebAPI.Controllers;
-using HealthChecks.UI.Configuration;
 
 namespace OpenBots.Server.Web.Controllers.EmailConfiguration
 {

@@ -85,7 +85,7 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(ISendEmailChore), typeof(AzureSendEmailChore));
             services.AddTransient(typeof(IEmailManager), typeof(EmailManager));
             services.AddTransient(typeof(IEmailAccountRepository), typeof(EmailAccountRepository));
-            services.AddTransient(typeof(IEmailLogRepository), typeof(EmailLogRepository));
+            services.AddTransient(typeof(IEmailRepository), typeof(EmailRepository));
             services.AddTransient(typeof(IEmailSettingsRepository), typeof(EmailSettingsRepository));
             services.AddTransient(typeof(IHubManager), typeof(HubManager));
         }

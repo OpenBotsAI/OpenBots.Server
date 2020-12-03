@@ -8,14 +8,10 @@ namespace OpenBots.Server.Model.Core
         {
         }
 
-        public string ContentType { get; set; }
+        public string? ContentType { get; set; }
         public long? SizeInBytes { get; set; }
-
-        /// <summary>
-        /// Address where Content of the Attachment is Stored
-        /// </summary>
-        public string ContentStorageAddress { get; set; }
+        public string? ContentStorageAddress { get; set; }
         public Guid? BinaryObjectId { get; set; }
-        public Guid EmailLogId { get; set; }
+        public Guid EmailId { get; set; }
     }
 }

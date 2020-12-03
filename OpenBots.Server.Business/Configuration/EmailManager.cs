@@ -12,83 +12,103 @@ using System.Linq;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace OpenBots.Server.Business
 {
     public class EmailManager : BaseManager, IEmailManager
     {
-        protected IPersonRepository _personRepo;
-        protected IPersonEmailRepository _personEmailRepository;
-        protected IEmailAccountRepository _emailAccountRepository;
-        protected IEmailLogRepository _emailLogRepository;
-        protected IEmailSettingsRepository _emailSettingsRepository;
-        protected ApplicationUser applicationUser;
-        protected IOrganizationManager _organizationManager;
+        protected IPersonRepository personRepo;
+        protected IPersonEmailRepository personEmailRepository;
+        protected IEmailAccountRepository emailAccountRepository;
+        protected IEmailRepository emailRepository;
+        protected IEmailSettingsRepository emailSettingsRepository;
+        protected ApplicationUser applicationUser { get; set; }
+        protected IOrganizationManager organizationManager;
+        protected IHttpContextAccessor httpContextAccessor; 
 
         public EmailManager(
             IPersonRepository personRepo,
             IPersonEmailRepository personEmailRepository,
             IEmailAccountRepository emailAccountRepository,
-            IEmailLogRepository emailLogRepository,
+            IEmailRepository emailRepository,
             IEmailSettingsRepository emailSettingsRepository,
-            IOrganizationManager organizationManager)
+            IOrganizationManager organizationManager,
+            IHttpContextAccessor httpContextAccessor)
         {
-            _personRepo = personRepo;
-            _personEmailRepository = personEmailRepository;
-            _emailAccountRepository = emailAccountRepository;
-            _emailLogRepository = emailLogRepository;
-            _emailSettingsRepository = emailSettingsRepository;
-            _organizationManager = organizationManager;
+            this.personRepo = personRepo;
+            this.personEmailRepository = personEmailRepository;
+            this.emailAccountRepository = emailAccountRepository;
+            this.emailRepository = emailRepository;
+            this.emailSettingsRepository = emailSettingsRepository;
+            this.organizationManager = organizationManager;
+            this.httpContextAccessor = httpContextAccessor;
         }
 
         public override void SetContext(UserSecurityContext userSecurityContext)
         {
-            _personRepo.SetContext(userSecurityContext);
-            _personEmailRepository.SetContext(userSecurityContext);
-            _emailAccountRepository.SetContext(userSecurityContext);
-            _emailLogRepository.SetContext(userSecurityContext);
-            _emailSettingsRepository.SetContext(userSecurityContext);
+            personRepo.SetContext(userSecurityContext);
+            personEmailRepository.SetContext(userSecurityContext);
+            emailAccountRepository.SetContext(userSecurityContext);
+            emailRepository.SetContext(userSecurityContext);
+            emailSettingsRepository.SetContext(userSecurityContext);
             base.SetContext(userSecurityContext);
         }
 
-        public Task SendEmailAsync(EmailMessage emailMessage, string accountName = null)
+        public Task SendEmailAsync(EmailMessage emailMessage, string accountName = null, string id = null, string direction = null)
         {
-            EmailLog emailLog = new EmailLog();
+            EmailModel emailObject = new EmailModel();
+            if (!string.IsNullOrEmpty(id))
+            {
+                emailObject = emailRepository.Find(null, q => q.Id == Guid.Parse(id))?.Items?.FirstOrDefault();
+                if (emailObject == null)
+                {
+                    emailObject = new EmailModel()
+                    {
+                        Id = Guid.Parse(id),
+                        Status = StatusType.Unknown.ToString()
+                    };
+                }
+            }
+
+            EmailModel email = new EmailModel();
+            if (id != null || Guid.Parse(id) != Guid.Empty)
+                email.Id = Guid.Parse(id);
 
             //Find Email Settings and determine is email is enabled/disabled
-            var organizationId = Guid.Parse(_organizationManager.GetDefaultOrganization().Id.ToString());
-            var emailSettings = _emailSettingsRepository.Find(null, s => s.OrganizationId == organizationId).Items.FirstOrDefault();
+            var organizationId = Guid.Parse(organizationManager.GetDefaultOrganization().Id.ToString());
+            var emailSettings = emailSettingsRepository.Find(null, s => s.OrganizationId == organizationId).Items.FirstOrDefault();
             //Check if accountName exists
-            var existingAccount = _emailAccountRepository.Find(null, d => d.Name.ToLower(null) == accountName?.ToLower(null))?.Items?.FirstOrDefault();
+            var existingAccount = emailAccountRepository.Find(null, d => d.Name.ToLower(null) == accountName?.ToLower(null))?.Items?.FirstOrDefault();
             if (existingAccount == null)
-                existingAccount = _emailAccountRepository.Find(null, d => d.IsDefault && !d.IsDisabled).Items.FirstOrDefault();
+                existingAccount = emailAccountRepository.Find(null, d => d.IsDefault && !d.IsDisabled).Items.FirstOrDefault();
 
             //If there are NO records in the Email Settings table for that Organization, email should be disabled
             if (emailSettings == null)
             {
-                emailLog.Status = StatusType.Blocked.ToString();
-                emailLog.Reason = "Email disabled.  Please configure email settings.";
+                email.Status = StatusType.Blocked.ToString();
+                email.Reason = "Email disabled.  Please configure email settings.";
             }
             //If there are email settings but they are disabled, don't send email
             else if (emailSettings != null && emailSettings.IsEmailDisabled)
             {
-                emailLog.Status = StatusType.Blocked.ToString();
-                emailLog.Reason = "Email functionality has been disabled.";
+                email.Status = StatusType.Blocked.ToString();
+                email.Reason = "Email functionality has been disabled.";
             }
             else
             {
                 if (existingAccount == null && emailSettings != null)
                 {
-                    existingAccount = _emailAccountRepository.Find(null, a => a.IsDefault == true && a.IsDisabled == false)?.Items?.FirstOrDefault();
+                    existingAccount = emailAccountRepository.Find(null, a => a.IsDefault == true && a.IsDisabled == false)?.Items?.FirstOrDefault();
                     if (existingAccount == null)
                     {
-                        emailLog.Status = StatusType.Failed.ToString();
-                        emailLog.Reason = $"Account '{accountName}' could be found.";
+                        email.Status = StatusType.Failed.ToString();
+                        email.Reason = $"Account '{accountName}' could be found.";
                     }
                     if (existingAccount != null && existingAccount.IsDisabled == true)
                     {
-                        emailLog.Status = StatusType.Blocked.ToString();
-                        emailLog.Reason = $"Account '{accountName}' has been disabled.";
+                        email.Status = StatusType.Blocked.ToString();
+                        email.Reason = $"Account '{accountName}' has been disabled.";
                     }
                 }
                 //Set From Email Address
@@ -202,8 +222,8 @@ namespace OpenBots.Server.Business
 
                 if (emailMessage.To.Count == 0)
                 {
-                    emailLog.Status = StatusType.Blocked.ToString();
-                    emailLog.Reason = "No email addresses to send email to.";
+                    email.Status = StatusType.Blocked.ToString();
+                    email.Reason = "No email addresses to send email to.";
                 }
 
                 //Add any necessary additional email addresses (Administrators, etc.)
@@ -211,24 +231,24 @@ namespace OpenBots.Server.Business
                 {
                     foreach (string toAddress in emailSettings.AddToAddress.Split(','))
                     {
-                        EmailAddress email = new EmailAddress(toAddress, toAddress);
-                        emailMessage.To.Add(email);
+                        EmailAddress emailAddress = new EmailAddress(toAddress, toAddress);
+                        emailMessage.To.Add(emailAddress);
                     }
                 }
                 if (!string.IsNullOrEmpty(emailSettings.AddCCAddress))
                 {
                     foreach (string CCAddress in emailSettings.AddCCAddress.Split(','))
                     {
-                        EmailAddress email = new EmailAddress(CCAddress, CCAddress);
-                        emailMessage.CC.Add(email);
+                        EmailAddress emailAddress = new EmailAddress(CCAddress, CCAddress);
+                        emailMessage.CC.Add(emailAddress);
                     }
                 }
                 if (!string.IsNullOrEmpty(emailSettings.AddBCCAddress))
                 {
                     foreach (string BCCAddress in emailSettings.AddBCCAddress.Split(','))
                     {
-                        EmailAddress email = new EmailAddress(BCCAddress);
-                        emailMessage.Bcc.Add(email);
+                        EmailAddress emailAddress = new EmailAddress(BCCAddress);
+                        emailMessage.Bcc.Add(emailAddress);
                     }
                 }
 
@@ -278,33 +298,32 @@ namespace OpenBots.Server.Business
                 {
                     try
                     {
-                        if (emailLog.Status != StatusType.Blocked.ToString() || emailLog.Status != StatusType.Failed.ToString())
+                        if (email.Status != StatusType.Blocked.ToString() || email.Status != StatusType.Failed.ToString())
                         {
                             sendEmailChore.SendEmail(emailMessage);
-                            emailLog.Status = StatusType.Sent.ToString();
-                            emailLog.Reason = "Email was sent successfully.";
+                            email.Status = StatusType.Sent.ToString();
+                            email.Reason = "Email was sent successfully.";
                         }
                     }
                     catch (Exception ex)
                     {
-                        emailLog.Status = StatusType.Failed.ToString();
-                        emailLog.Reason = "Error: " + ex.Message;
+                        email.Status = StatusType.Failed.ToString();
+                        email.Reason = "Error: " + ex.Message;
                     }
                 }
                 else
                 {
-                    emailLog.Status = StatusType.Failed.ToString();
-                    emailLog.Reason = "Email failed to send.";
+                    email.Status = StatusType.Failed.ToString();
+                    email.Reason = "Email failed to send.";
                 }
             }
 
             //Log email and its status
-            emailLog.Id = Guid.NewGuid();
             if (existingAccount != null)
-                emailLog.EmailAccountId = Guid.Parse(existingAccount.Id.ToString());
-            emailLog.SentOnUTC = DateTime.UtcNow;
+                email.EmailAccountId = Guid.Parse(existingAccount.Id.ToString());
+            email.SentOnUTC = DateTime.UtcNow;
             string newEmailMessage = Regex.Replace(emailMessage.Body, @"(<sensitive(\s|\S)*?<\/sensitive>)", "NULL");
-            emailLog.EmailObjectJson = newEmailMessage;
+            email.EmailObjectJson = newEmailMessage;
             List<string> nameList = new List<string>();
             List<string> emailList = new List<string>();
             foreach (EmailAddress address in emailMessage.From)
@@ -312,21 +331,53 @@ namespace OpenBots.Server.Business
                 nameList.Add(address.Name);
                 emailList.Add(address.Address);
             }
-            emailLog.SenderName = JsonConvert.SerializeObject(nameList);
-            emailLog.SenderAddress = JsonConvert.SerializeObject(emailList);
-            emailLog.CreatedOn = DateTime.UtcNow;
-            emailLog.CreatedBy = applicationUser?.UserName;
-            emailLog.SenderUserId = applicationUser?.PersonId;
-            _emailLogRepository.Add(emailLog);
+            email.SenderName = JsonConvert.SerializeObject(nameList);
+            email.SenderAddress = JsonConvert.SerializeObject(emailList);
+            email.SenderUserId = applicationUser?.PersonId;
+            if (string.IsNullOrEmpty(direction))
+                email.Direction = Direction.Unknown.ToString();
+            else email.Direction = direction;
 
+            //TODO: add logic to next two lines of code to allow for assignment of these Guids
+            email.ConversationId = null;
+            email.ReplyToEmailId = null;
+
+            if (emailObject.Status == StatusType.Unknown.ToString())
+            {
+                email.Id = emailObject.Id;
+                email.CreatedOn = DateTime.UtcNow;
+                email.CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name;
+                emailRepository.Add(email);
+            }
+            else if (email.Id != null && email.Id != Guid.Parse(id))
+            {
+                email.CreatedOn = DateTime.UtcNow;
+                email.CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name;
+                emailRepository.Add(email);
+            }
+            else
+            {
+                emailObject.EmailAccountId = email.EmailAccountId;
+                emailObject.SentOnUTC = email.SentOnUTC;
+                emailObject.EmailObjectJson = email.EmailObjectJson;
+                emailObject.SenderName = email.SenderName;
+                emailObject.SenderAddress = email.SenderAddress;
+                emailObject.SenderUserId = email.SenderUserId;
+                emailObject.Direction = email.Direction;
+                emailObject.ConversationId = email.ConversationId;
+                emailObject.ReplyToEmailId = email.ReplyToEmailId;
+                emailObject.Status = email.Status;
+                emailObject.Reason = email.Reason;
+                emailRepository.Update(emailObject);
+            }
             return Task.CompletedTask;
         }
 
         public bool IsEmailAllowed()
         {
-            var organizationId = Guid.Parse(_organizationManager.GetDefaultOrganization()?.Id?.ToString());
-            var emailSettings = _emailSettingsRepository.Find(null, s => s.OrganizationId == organizationId).Items.FirstOrDefault();
-            var existingAccount = _emailAccountRepository.Find(null, s => s.IsDefault)?.Items?.FirstOrDefault();
+            var organizationId = Guid.Parse(organizationManager.GetDefaultOrganization()?.Id?.ToString());
+            var emailSettings = emailSettingsRepository.Find(null, s => s.OrganizationId == organizationId).Items.FirstOrDefault();
+            var existingAccount = emailAccountRepository.Find(null, s => s.IsDefault)?.Items?.FirstOrDefault();
 
             if (emailSettings == null || existingAccount == null)
                 return false;
@@ -341,7 +392,15 @@ namespace OpenBots.Server.Business
         {
             Failed = 0,
             Sent = 1,
-            Blocked = 3
+            Blocked = 3,
+            Unknown = 4
+        }
+
+        public enum Direction : int
+        {
+            Outgoing = 0,
+            Incoming = 1,
+            Unknown = 2
         }
     }
 }

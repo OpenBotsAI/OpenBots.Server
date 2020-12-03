@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace OpenBots.Server.ViewModel.Email
+﻿namespace OpenBots.Server.ViewModel.Email
 {
     public class EmailTemplateData
     {

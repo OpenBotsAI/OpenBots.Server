@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenBots.Server.DataAccess;
 
 namespace OpenBots.Server.DataAccess.Migrations
 {
     [DbContext(typeof(StorageContext))]
-    partial class StorageContextModelSnapshot : ModelSnapshot
+    [Migration("20201130154809_AllowNullValuesInEmailTable")]
+    partial class AllowNullValuesInEmailTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -923,10 +925,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Rule")
+                    b.Property<int?>("Rule")
                         .HasColumnType("int");
 
                     b.Property<byte[]>("Timestamp")
@@ -1858,9 +1857,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<string>("DeletedBy")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<int?>("IPFencingMode")
-                        .HasColumnType("int");
 
                     b.Property<bool?>("IsDeleted")
                         .ValueGeneratedOnAdd()

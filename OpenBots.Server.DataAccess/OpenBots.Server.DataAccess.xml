@@ -155,7 +155,7 @@
             Interface for EmailAccountRepository
             </summary>
         </member>
-        <member name="T:OpenBots.Server.DataAccess.Repositories.IEmailLogRepository">
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IEmailRepository">
             <summary>
             Interface for EmailLogRepository
             </summary>
