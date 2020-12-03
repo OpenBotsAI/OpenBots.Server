@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { ThemeModule } from './@theme/theme.module';
 import { AuthModule } from './@auth/auth.module';
-
+import { ConnectionServiceModule } from 'ng-connection-service';  
 import {
   NbDatepickerModule,
   NbDialogModule,
@@ -39,11 +39,14 @@ import { PwaComponent } from './pwa/pwa.component';
     CoreModule.forRoot(),
     ThemeModule.forRoot(),
     BlockUIModule.forRoot(),
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+    }),
   ],
   bootstrap: [AppComponent],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
+    ConnectionServiceModule,
   ],
   exports: [],
 })
