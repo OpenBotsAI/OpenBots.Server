@@ -8,15 +8,15 @@ import { Component, OnInit } from '@angular/core';
 export class PwaComponent implements OnInit {
   isConnectionAvailable: boolean = navigator.onLine;
   constructor() {
-    window.addEventListener('online', (internet) => {
-      this.isConnectionAvailable = true;
-      console.log(internet);
-    });
+    // window.addEventListener('online', (internet) => {
+    //   this.isConnectionAvailable = true;
+    //   console.log(internet);
+    // });
 
-    window.addEventListener('offline', (internet) => {
-      this.isConnectionAvailable = false;
-      console.log(internet);
-    });
+    // window.addEventListener('offline', (internet) => {
+    //   this.isConnectionAvailable = false;
+    //   console.log(internet);
+    // });
   }
 
   ngOnInit(): void {}
