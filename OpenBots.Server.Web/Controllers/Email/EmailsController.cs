@@ -499,6 +499,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
                     // If no email account is chosen, the default organization account will be used
                     await emailSender.SendEmailAsync(emailMessage, emailAccountName, id, "Outgoing");
 
+                    email = repository.Find(null, q => q.Id == emailId)?.Items?.FirstOrDefault();
                     EmailViewModel emailViewModel = new EmailViewModel();
                     emailViewModel = emailViewModel.Map(email);
                     if (attachments.Count != 0 && attachments != null)
@@ -604,9 +605,8 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
 
                         // Add attachment entities to email message
                         emailMessage.Attachments = attachments;
-
-                        await emailSender.SendEmailAsync(emailMessage, accountName, id.ToString(), "Outgoing");
                     }
+                    await emailSender.SendEmailAsync(emailMessage, accountName, id.ToString(), "Outgoing");
                 }
                 EmailModel email = repository.Find(null, q => q.Id == id)?.Items?.FirstOrDefault();
                 EmailViewModel emailViewModel = new EmailViewModel();

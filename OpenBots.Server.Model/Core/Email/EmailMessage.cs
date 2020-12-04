@@ -52,6 +52,7 @@ namespace OpenBots.Server.Model.Core
                     string contentType = attachment.ContentType;
                     // Create  the file attachment for this email message
                     Attachment data = new Attachment(file, contentType);
+                    data.Name = attachment.Name;
                     // Add time stamp information for the file
                     ContentDisposition disposition = data.ContentDisposition;
                     disposition.CreationDate = System.IO.File.GetCreationTime(file);
