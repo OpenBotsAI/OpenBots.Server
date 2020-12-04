@@ -96,6 +96,8 @@
                     Please enter valid email .
                   </div>
                 </div>
+
+
               </div>
             </div>
           </div>
@@ -112,6 +114,19 @@
                   style="color: #000000"
                   placeholder="Please enter cc"
                 />
+                <div
+                  *ngIf="
+                    (f.cc.touched || f.cc.dirty) && f.cc.invalid
+                  "
+                  class="invalid-feedback-frm"
+                >
+                  <div *ngIf="f.cc.errors && f.cc.errors.required">
+                    Email is required.
+                  </div>
+                  <div *ngIf="f.cc.errors.pattern">
+                    Please enter valid email .
+                  </div>
+                </div>
               </div>
             </div>
             <div class="col-md-6">
@@ -126,6 +141,21 @@
                   style="color: #000000"
                   placeholder="Please enter bcc"
                 />
+
+                <div
+                  *ngIf="
+                    (f.bcc.touched || f.bcc.dirty) && f.bcc.invalid
+                  "
+                  class="invalid-feedback-frm"
+                >
+                  <div *ngIf="f.bcc.errors && f.bcc.errors.required">
+                    Email is required.
+                  </div>
+                  <div *ngIf="f.bcc.errors.pattern">
+                    Please enter valid email .
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -161,18 +191,7 @@
                  <div *ngIf="fileSize" class="invalid-feedback-frm">
                   You cannot upload empty file.
                 </div>
-              <!-- <div class="form-group">
-                <label class="label col-form-label">Subject </label>
-
-                <input
-                  type="input"
-                  nbInput
-                  fullWidth
-                  formControlName="subject"
-                  style="color: #000000"
-                  placeholder="Please enter subject"
-                />
-              </div> -->
+            
             </div>
           </div>
 

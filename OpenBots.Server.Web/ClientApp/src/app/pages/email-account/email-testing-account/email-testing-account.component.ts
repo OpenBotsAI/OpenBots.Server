@@ -29,7 +29,6 @@ export class EmailTestingAccountComponent implements OnInit {
   queryParamEmail: string;
   fileSize = false;
   showUpload = false;
-  PostData: any;
   fileArray: any[] = [];
 
   constructor(
@@ -66,8 +65,15 @@ export class EmailTestingAccountComponent implements OnInit {
       name: ['', [Validators.required]],
       subject: ['', [Validators.required]],
       body: [''],
-      cc: [''],
-      bcc: [''],
+      cc: [
+        '',
+        [Validators.pattern('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[a-z]{2,4}$')],
+      ],
+      bcc: [
+        '',
+        [Validators.pattern('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[a-z]{2,4}$')],
+      ],
+      isBodyHtml: [true],
     });
 
     this.emailform.patchValue({
@@ -128,10 +134,8 @@ export class EmailTestingAccountComponent implements OnInit {
       ],
       subject: this.emailform.value.subject,
       body: this.emailform.value.body,
-      isBodyHtml: true,
+      isBodyHtml: this.emailform.value.isBodyHtml,
     };
-    console.log('obj', obj);
-    this.PostData = obj;
 
     if (this.fileArray.length) {
       for (let data of this.fileArray) {
@@ -140,9 +144,9 @@ export class EmailTestingAccountComponent implements OnInit {
       formData.append('EmailMessageJson', JSON.stringify(obj));
     }
 
-    // if (this.fileArray.length == 0) {
-    //   formData.append('EmailMessageJson', this.PostData);
-    // }
+    if (this.fileArray.length == 0) {
+      formData.append('EmailMessageJson', JSON.stringify(obj));
+    }
 
     this.emailService.SendEmail(this.emailform.value.name, formData).subscribe(
       () => {
