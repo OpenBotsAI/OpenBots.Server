@@ -29,7 +29,7 @@ export class EmailTestingAccountComponent implements OnInit {
   queryParamEmail: string;
   fileSize = false;
   showUpload = false;
-  PostData:any ;
+  PostData: any;
   fileArray: any[] = [];
 
   constructor(
@@ -116,8 +116,9 @@ export class EmailTestingAccountComponent implements OnInit {
   }
 
   onSubmit() {
+    console.log('email', this.emailform.value);
     this.submitted = true;
-     const formData = new FormData();  
+    const formData = new FormData();
     let obj = {
       to: [
         {
@@ -129,22 +130,19 @@ export class EmailTestingAccountComponent implements OnInit {
       body: this.emailform.value.body,
       isBodyHtml: true,
     };
-
+    console.log('obj', obj);
     this.PostData = obj;
 
-     if (this.fileArray.length) { 
-
+    if (this.fileArray.length) {
       for (let data of this.fileArray) {
         formData.append('Files', data.file.nativeFile, data.file.name);
       }
-      formData.append('EmailMessageJson', this.PostData);
+      formData.append('EmailMessageJson', JSON.stringify(obj));
     }
 
-    if (this.fileArray.length == 0) {
-      formData.append('EmailMessageJson', this.PostData);
-    }
-
-
+    // if (this.fileArray.length == 0) {
+    //   formData.append('EmailMessageJson', this.PostData);
+    // }
 
     this.emailService.SendEmail(this.emailform.value.name, formData).subscribe(
       () => {
