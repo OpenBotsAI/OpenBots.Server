@@ -147,6 +147,38 @@
             </div>
           </div>
 
+
+           <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                <label class="label">Please Upload File</label>
+                <br>
+                <label class="upload-button">
+                  <input type="file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
+                    [uploadInput]="uploadInput" multiple />
+                </label>
+                </div>
+                 <div *ngIf="fileSize" class="invalid-feedback-frm">
+                  You cannot upload empty file.
+                </div>
+              <!-- <div class="form-group">
+                <label class="label col-form-label">Subject </label>
+
+                <input
+                  type="input"
+                  nbInput
+                  fullWidth
+                  formControlName="subject"
+                  style="color: #000000"
+                  placeholder="Please enter subject"
+                />
+              </div> -->
+            </div>
+          </div>
+
+
+
+
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
