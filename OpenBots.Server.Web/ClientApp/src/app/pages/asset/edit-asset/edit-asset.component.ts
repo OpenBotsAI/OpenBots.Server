@@ -177,7 +177,7 @@ export class EditAssetComponent implements OnInit {
         name: this.assetagent.value.name,
         type: this.assetagent.value.type,
         Organizationid: localStorage.getItem('ActiveOrganizationID'),
-        jsonValue: this.assetagent.value.numberValue,
+        jsonValue: this.assetagent.value.jsonValue,
       };
       this.assetService
         .editAsset(this.assetId, jsondata, this.etag)

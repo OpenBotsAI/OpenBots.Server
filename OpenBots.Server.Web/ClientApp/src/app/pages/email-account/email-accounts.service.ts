@@ -46,7 +46,7 @@ export class EmailAccountsService {
   }
 
   SendEmail(accountName, obj) {
-    let testEmail = `/Email/${accountName}`;
+    let testEmail = `/Emails/send`;
     return this.http.post(`${this.apiUrl}` + testEmail, obj);
   }
 
