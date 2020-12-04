@@ -28,6 +28,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// <param name="userManager"></param>
         /// <param name="httpContextAccessor"></param>
         /// <param name="membershipManager"></param>
+        /// <param name="configuration"></param>
         protected ReadOnlyEntityController(IReadOnlyEntityRepository<T> repository,
             ApplicationIdentityUserManager userManager,
             IHttpContextAccessor httpContextAccessor,

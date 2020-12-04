@@ -33,6 +33,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// <param name="membershipManager"></param>
         /// <param name="userManager"></param>
         /// <param name="httpContextAccessor"></param>
+        /// <param name="configuration"></param>
         public OrganizationUnitsController(
             IOrganizationUnitRepository repository,
             IMembershipManager membershipManager,

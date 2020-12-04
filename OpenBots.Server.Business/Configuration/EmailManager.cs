@@ -13,6 +13,11 @@ using System.Net.Mail;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using OpenBots.Server.ViewModel.Email;
+using OpenBots.Server.Model;
+using System.IO;
+using OpenBots.Server.DataAccess.Repositories.Interfaces;
+using System.Security.Cryptography;
 
 namespace OpenBots.Server.Business
 {
@@ -25,7 +30,10 @@ namespace OpenBots.Server.Business
         protected IEmailSettingsRepository emailSettingsRepository;
         protected ApplicationUser applicationUser { get; set; }
         protected IOrganizationManager organizationManager;
-        protected IHttpContextAccessor httpContextAccessor; 
+        protected IHttpContextAccessor httpContextAccessor;
+        protected IBinaryObjectManager binaryObjectManager;
+        protected IBinaryObjectRepository binaryObjectRepository;
+        protected IEmailAttachmentRepository emailAttachmentRepository;
 
         public EmailManager(
             IPersonRepository personRepo,
@@ -34,7 +42,10 @@ namespace OpenBots.Server.Business
             IEmailRepository emailRepository,
             IEmailSettingsRepository emailSettingsRepository,
             IOrganizationManager organizationManager,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IBinaryObjectManager binaryObjectManager,
+            IBinaryObjectRepository binaryObjectRepository,
+            IEmailAttachmentRepository emailAttachmentRepository)
         {
             this.personRepo = personRepo;
             this.personEmailRepository = personEmailRepository;
@@ -43,6 +54,9 @@ namespace OpenBots.Server.Business
             this.emailSettingsRepository = emailSettingsRepository;
             this.organizationManager = organizationManager;
             this.httpContextAccessor = httpContextAccessor;
+            this.binaryObjectManager = binaryObjectManager;
+            this.binaryObjectRepository = binaryObjectRepository;
+            this.emailAttachmentRepository = emailAttachmentRepository;
         }
 
         public override void SetContext(UserSecurityContext userSecurityContext)
@@ -53,6 +67,154 @@ namespace OpenBots.Server.Business
             emailRepository.SetContext(userSecurityContext);
             emailSettingsRepository.SetContext(userSecurityContext);
             base.SetContext(userSecurityContext);
+        }
+
+        public EmailModel CreateEmail(AddEmailViewModel request)
+        {
+            EmailModel email = new EmailModel()
+            {
+                EmailAccountId = request.EmailAccountId,
+                SenderUserId = request.SenderUserId,
+                CreatedBy = applicationUser?.Name,
+                CreatedOn = DateTime.UtcNow,
+                Status = StatusType.Draft.ToString(),
+                EmailObjectJson = request.EmailObjectJson,
+                Direction = request.Direction
+            };
+            return email;
+        }
+
+        public EmailViewModel GetEmailViewModel(EmailModel email, List<EmailAttachment> attachments)
+        {
+            EmailViewModel emailViewModel = new EmailViewModel();
+            emailViewModel = emailViewModel.Map(email);
+            if (attachments.Count != 0)
+                emailViewModel.Attachments = attachments;
+            return emailViewModel;
+        }
+
+        public List<EmailAttachment> AddAttachments(IFormFile[] files, Guid id, string hash = null)
+        {
+            var attachments = new List<EmailAttachment>();
+            if (files?.Length != 0 && files != null)
+            {
+                foreach (var file in files)
+                {
+                    if (hash == null || hash == string.Empty)
+                        hash = GetHash(hash, file);
+                    var binaryObject = binaryObjectRepository.Find(null, q => q.HashCode == hash && q.CorrelationEntityId == id)?.Items?.FirstOrDefault();
+                    if (binaryObject == null)
+                    {
+                        if (file == null)
+                        {
+                            throw new Exception("No file attached");
+                        }
+
+                        long size = file.Length;
+                        if (size <= 0)
+                        {
+                            throw new Exception($"File size of file {file.FileName} cannot be 0");
+                        }
+
+                        string organizationId = binaryObjectManager.GetOrganizationId();
+                        string apiComponent = "EmailAPI";
+
+                        //Add file to Binary Objects (create entity and put file in EmailAPI folder in Server)
+                        binaryObject = new BinaryObject()
+                        {
+                            Name = file.FileName,
+                            Folder = apiComponent,
+                            CreatedBy = applicationUser?.UserName,
+                            CreatedOn = DateTime.UtcNow,
+                            CorrelationEntityId = id
+                        };
+
+                        string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
+                        //Upload file to Server
+                        binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
+                        binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
+                        binaryObjectRepository.Add(binaryObject);
+
+                        //Create email attachment
+                        EmailAttachment emailAttachment = new EmailAttachment()
+                        {
+                            Name = binaryObject.Name,
+                            BinaryObjectId = binaryObject.Id,
+                            ContentType = binaryObject.ContentType,
+                            ContentStorageAddress = binaryObject.StoragePath,
+                            SizeInBytes = binaryObject.SizeInBytes,
+                            EmailId = id,
+                            CreatedOn = DateTime.UtcNow,
+                            CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name
+                        };
+                        emailAttachmentRepository.Add(emailAttachment);
+                        attachments.Add(emailAttachment);
+                    }
+                    //else
+                    //TODO: Check if binary object & email attachment contents are the same
+                    //If not the same, update the binary object and email attachment
+                }
+            }
+            return attachments;
+        }
+
+        public IFormFile[] CheckFiles(IFormFile[] files, Guid id, string hash, List<EmailAttachment> attachments)
+        {
+            if (files != null)
+            {
+                var filesList = files.ToList();
+                //Replace attachments with new ones
+                foreach (var attachment in attachments)
+                {
+                    var binaryObject = binaryObjectRepository.GetOne((Guid)attachment.BinaryObjectId);
+                    bool exists = false;
+                    //Check if file with same hash and email id already exists
+                    foreach (var file in files)
+                    {
+                        hash = GetHash(hash, file);
+
+                        if (binaryObject.ContentType == file.ContentType && binaryObject.CorrelationEntityId == id && binaryObject.Name == file.FileName)
+                        {
+                            exists = true;
+                            filesList.Remove(file);
+                        }
+                    }
+                    //if (binaryObject.HashCode != hash)
+                    //{
+                    //    //TODO: update existing binary object and email attachment entities instead of deleting the ones that don't match
+                    //}
+
+                    // If email attachment already exists: continue
+                    if (exists)
+                        continue;
+                    // If email attachment doesn't exist: remove attachment and binary object
+                    else
+                    {
+                        binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
+                        emailAttachmentRepository.SoftDelete((Guid)attachment.Id);
+                    }
+                }
+                var filesArray = filesList.ToArray();
+                return filesArray;
+            }
+            else
+                return Array.Empty<IFormFile>();
+        }
+
+        public string GetHash(string hash, IFormFile file)
+        {
+            byte[] bytes = Array.Empty<byte>();
+            using (var ms = new MemoryStream())
+            {
+                file.CopyToAsync(ms);
+                bytes = ms.ToArray();
+            }
+
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                hash = binaryObjectManager.GetHash(sha256Hash, bytes);
+            }
+            return hash;
         }
 
         public Task SendEmailAsync(EmailMessage emailMessage, string accountName = null, string id = null, string direction = null)
@@ -393,7 +555,8 @@ namespace OpenBots.Server.Business
             Failed = 0,
             Sent = 1,
             Blocked = 3,
-            Unknown = 4
+            Draft = 4,
+            Unknown = 5
         }
 
         public enum Direction : int

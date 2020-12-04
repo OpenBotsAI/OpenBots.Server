@@ -36,6 +36,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// <param name="accessRequestManager"></param>
         /// <param name="userManager"></param>
         /// <param name="httpContextAccessor"></param>
+        /// <param name="configuration"></param>
         public AccessRequestsController(
             IAccessRequestRepository repository,
             IMembershipManager manager,

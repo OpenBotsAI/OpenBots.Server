@@ -35,13 +35,11 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
         /// <param name="userManager"></param>
         /// <param name="httpContextAccessor"></param>
         /// <param name="configuration"></param>
-        /// <param name="logger"></param>
         /// <param name="membershipManager"></param>
         /// <param name="personRepository"></param>
         /// <param name="personEmailRepository"></param>
         /// <param name="emailVerificationRepository"></param>
         /// <param name="termsConditionsManager"></param>
-        /// <param name="emailSender"></param>
         public UserAgreementController(
             IUserAgreementRepository repository,
             ApplicationIdentityUserManager userManager,
