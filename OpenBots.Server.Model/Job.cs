@@ -13,11 +13,11 @@ namespace OpenBots.Server.Model
         public DateTime? EnqueueTime { get; set; }
         public DateTime? DequeueTime { get; set; }
         [Required]
-        public Guid? ProcessId { get; set; }
+        public Guid? AutomationId { get; set; }
         [Required]
-        public int? ProcessVersion { get; set; }
+        public int? AutomationVersion { get; set; }
         [Required]
-        public Guid? ProcessVersionId { get; set; }
+        public Guid? AutomationVersionId { get; set; }
         public JobStatusType? JobStatus { get; set;}
         public string? Message { get; set; }
         public bool? IsSuccessful { get; set; }

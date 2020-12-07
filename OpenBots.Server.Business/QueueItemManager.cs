@@ -168,7 +168,7 @@ namespace OpenBots.Server.Business
                     else
                     {
                         item.State = QueueItemStateType.Failed.ToString();
-                        item.StateMessage = $"Queue item transaction {item.Name} failed fatally and was unable to be processed {retryLimit} times.";
+                        item.StateMessage = $"Queue item transaction {item.Name} failed fatally and was unable to be automated {retryLimit} times.";
                     }
                 }
                 repo.Update(item);
@@ -262,7 +262,7 @@ namespace OpenBots.Server.Business
             else
             {
                 item.State = QueueItemStateType.Failed.ToString();
-                item.StateMessage = $"Queue item transaction {item.Name} failed fatally and was unable to be processed {retryLimit} times.";
+                item.StateMessage = $"Queue item transaction {item.Name} failed fatally and was unable to be automated {retryLimit} times.";
             }
             item.IsLocked = false;
             item.LockedBy = null;

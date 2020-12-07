@@ -406,6 +406,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
         [Produces("application/json")]
         public async Task<IActionResult> Delete(string organizationId, string id)

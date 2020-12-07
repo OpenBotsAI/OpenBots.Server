@@ -2,7 +2,7 @@
 
 namespace OpenBots.Server.DataAccess.Repositories
 {
-    public interface IProcessLogRepository : IEntityRepository<ProcessLog>
+    public interface IAutomationLogRepository : IEntityRepository<AutomationLog>
     {
     }
 }

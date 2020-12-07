@@ -4,7 +4,7 @@ using System;
 
 namespace OpenBots.Server.ViewModel
 {
-    public class GetEmailsViewModel :IViewModel<EmailModel, GetEmailsViewModel>
+    public class GetEmailsViewModel : IViewModel<EmailModel, GetEmailsViewModel>
     {
         public Guid? Id { get; set; }
         public Guid? EmailAccountId { get; set; }

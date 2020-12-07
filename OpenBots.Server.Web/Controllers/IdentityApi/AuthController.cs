@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
@@ -26,7 +25,6 @@ using OpenBots.Server.Model;
 using Newtonsoft.Json;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Attributes;
-using System.Configuration;
 using OpenBots.Server.Model.Options;
 using OpenBots.Server.Web.Extensions;
 using OpenBots.Server.ViewModel.Email;

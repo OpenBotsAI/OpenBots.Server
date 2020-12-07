@@ -401,7 +401,7 @@ namespace OpenBots.Server.Web.Controllers.Email
                 long size = request.file == null ? 0 : request.file.Length;
                 if (size <= 0)
                 {
-                    ModelState.AddModelError("Process Upload", $"File size of attachment {request.file.FileName} cannot be 0");
+                    ModelState.AddModelError("File Upload", $"File size of attachment {request.file.FileName} cannot be 0");
                     return BadRequest(ModelState);
                 }
 

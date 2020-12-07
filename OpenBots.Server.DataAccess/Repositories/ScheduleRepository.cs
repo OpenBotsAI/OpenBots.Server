@@ -40,7 +40,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                 var scheduleRecord = from s in schedulesList.Items
                                 join a in dbContext.Agents on s.AgentId equals a.Id into table1
                                 from a in table1.DefaultIfEmpty()
-                                join p in dbContext.Processes on s.ProcessId equals p.Id into table2
+                                join p in dbContext.Automations on s.AutomationId equals p.Id into table2
                                 from p in table2.DefaultIfEmpty()
                                 select new ScheduleViewModel
                                 {
@@ -52,8 +52,8 @@ namespace OpenBots.Server.DataAccess.Repositories
                                     Status = s?.Status,
                                     AgentId = (a == null || a.Id == null) ? Guid.Empty : a.Id.Value,
                                     AgentName = a?.Name,
-                                    ProcessId = (p == null || p.Id == null) ? Guid.Empty : p.Id.Value,
-                                    ProcessName = p?.Name,
+                                    AutomationId = (p == null || p.Id == null) ? Guid.Empty : p.Id.Value,
+                                    AutomationName = p?.Name,
                                     CRONExpression = s?.CRONExpression,
                                     IsDisabled = s?.IsDisabled,
                                     NextExecution = s?.NextExecution,

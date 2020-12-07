@@ -73,7 +73,7 @@ namespace XUnitTests
             //Create loggers
             var jobLogger = Mock.Of<ILogger<Job>>();
             var agentLogger = Mock.Of<ILogger<AgentModel>>();
-            var processLogger = Mock.Of<ILogger<Process>>();
+            var processLogger = Mock.Of<ILogger<Automation>>();
             var jobParameterLogger = Mock.Of<ILogger<JobParameter>>();
             var jobCheckpointLogger = Mock.Of<ILogger<JobCheckpoint>>();
 
@@ -84,7 +84,7 @@ namespace XUnitTests
             // Instance of necessary repositories
             var jobRepository = new JobRepository(context, jobLogger, httpContextAccessor.Object);
             var agentRepo = new AgentRepository(context, agentLogger, httpContextAccessor.Object);
-            var processRepo = new ProcessRepository(context, processLogger, httpContextAccessor.Object);
+            var processRepo = new AutomationRepository(context, processLogger, httpContextAccessor.Object);
             var jobParameterRepo = new JobParameterRepository(context, jobParameterLogger, httpContextAccessor.Object);
             var jobCheckpointRepo = new JobCheckpointRepository(context, jobCheckpointLogger, httpContextAccessor.Object);
 

@@ -15,16 +15,16 @@ namespace OpenBots.Server.Business
     {
         private readonly IJobRepository repo;
         private readonly IAgentRepository agentRepo;
-        private readonly IProcessRepository processRepo;
+        private readonly IAutomationRepository automationRepo;
         private readonly IJobParameterRepository jobParameterRepo;
         private readonly IJobCheckpointRepository jobCheckpointRepo;
 
-        public JobManager(IJobRepository repo, IAgentRepository agentRepo, IProcessRepository processRepo,
+        public JobManager(IJobRepository repo, IAgentRepository agentRepo, IAutomationRepository automationRepo,
             IJobParameterRepository jobParameterRepository, IJobCheckpointRepository jobCheckpointRepository)
         {
             this.repo = repo;
             this.agentRepo = agentRepo;
-            this.processRepo = processRepo;
+            this.automationRepo = automationRepo;
             this.jobParameterRepo = jobParameterRepository;
             this.jobCheckpointRepo = jobCheckpointRepository;
         }
@@ -32,7 +32,7 @@ namespace OpenBots.Server.Business
         public JobViewModel GetJobView(JobViewModel jobView)
         {
             jobView.AgentName = agentRepo.GetOne(jobView.AgentId ?? Guid.Empty)?.Name;
-            jobView.ProcessName = processRepo.GetOne(jobView.ProcessId ?? Guid.Empty)?.Name;
+            jobView.AutomationName = automationRepo.GetOne(jobView.AutomationId ?? Guid.Empty)?.Name;
             jobView.JobParameters = GetJobParameters(jobView.Id ?? Guid.Empty);
 
             return jobView;
@@ -43,7 +43,7 @@ namespace OpenBots.Server.Business
             return repo.GetJobAgentsLookup();
         }
 
-        public PaginatedList<AllJobsViewModel> GetJobAgentsandProcesses(Predicate<AllJobsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        public PaginatedList<AllJobsViewModel> GetJobAgentsandAutomations(Predicate<AllJobsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
             return repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
@@ -101,12 +101,12 @@ namespace OpenBots.Server.Business
 
         public string GetCsv(Job[] jobs)
         {
-            string csvString = "JobID,Message,IsSuccessful,StartTime,EndTime,EnqueueTime,DequeueTime,JobStatus,AgentID,ProcessID";
+            string csvString = "JobID,Message,IsSuccessful,StartTime,EndTime,EnqueueTime,DequeueTime,JobStatus,AgentID,AutomationID";
             foreach (Job job in jobs)
             {
 
                 csvString += Environment.NewLine + string.Join(",", job.Id, job.Message, job.IsSuccessful, job.StartTime, job.EndTime,
-                    job.EnqueueTime, job.DequeueTime, job.JobStatus,job.AgentId, job.ProcessId);
+                    job.EnqueueTime, job.DequeueTime, job.JobStatus,job.AgentId, job.AutomationId);
             }
 
             return csvString;

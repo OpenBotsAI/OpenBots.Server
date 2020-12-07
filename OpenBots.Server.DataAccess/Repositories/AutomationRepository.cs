@@ -11,40 +11,40 @@ using System.Linq;
 namespace OpenBots.Server.DataAccess.Repositories
 {
     /// <summary>
-    /// Process Repository
+    /// Automation Repository
     /// </summary>
-    public class ProcessRepository : EntityRepository<Process>, IProcessRepository
+    public class AutomationRepository : EntityRepository<Automation>, IAutomationRepository
     {
         /// <summary>
-        /// Construtor for Process Repository
+        /// Construtor for Automation Repository
         /// </summary>
         /// <param name="storageContext"></param>
         /// <param name="logger"></param>
         /// <param name="httpContextAccessor"></param>
-        public ProcessRepository(StorageContext storageContext, ILogger<Process> logger, IHttpContextAccessor httpContextAccessor) :base(storageContext, logger, httpContextAccessor) 
+        public AutomationRepository(StorageContext storageContext, ILogger<Automation> logger, IHttpContextAccessor httpContextAccessor) :base(storageContext, logger, httpContextAccessor) 
         {
         }
 
         /// <summary>
-        /// Retrieves processes
+        /// Retrieves automationes
         /// </summary>
         /// <returns></returns>
-        protected override DbSet<Process> DbTable()
+        protected override DbSet<Automation> DbTable()
         {
-            return DbContext.Processes;
+            return DbContext.Automations;
         }
 
-        public PaginatedList<AllProcessesViewModel> FindAllView(Predicate<AllProcessesViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        public PaginatedList<AllAutomationsViewModel> FindAllView(Predicate<AllAutomationsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
-            PaginatedList<AllProcessesViewModel> paginatedList = new PaginatedList<AllProcessesViewModel>();
+            PaginatedList<AllAutomationsViewModel> paginatedList = new PaginatedList<AllAutomationsViewModel>();
 
             var itemsList = base.Find(null, j => j.IsDeleted == false);
             if (itemsList != null && itemsList.Items != null && itemsList.Items.Count > 0)
             {
                 var itemRecord = from p in itemsList.Items
-                                 join v in dbContext.ProcessVersions on p.Id equals v.ProcessId into table1
+                                 join v in dbContext.AutomationVersions on p.Id equals v.AutomationId into table1
                                  from v in table1.DefaultIfEmpty()
-                                 select new AllProcessesViewModel
+                                 select new AllAutomationsViewModel
                                  {
                                      Id = p?.Id,
                                      Name = p?.Name,
@@ -60,7 +60,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                     else if (direction == OrderByDirectionType.Descending)
                         itemRecord = itemRecord.OrderByDescending(j => j.GetType().GetProperty(sortColumn).GetValue(j)).ToList();
 
-                List<AllProcessesViewModel> filterRecord = null;
+                List<AllAutomationsViewModel> filterRecord = null;
                 if (predicate != null)
                     filterRecord = itemRecord.ToList().FindAll(predicate);
                 else

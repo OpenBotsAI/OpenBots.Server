@@ -2,7 +2,7 @@
 
 namespace OpenBots.Server.DataAccess.Repositories.Interfaces
 {
-    public interface IProcessVersionRepository : IEntityRepository<ProcessVersion>
+    public interface IAutomationVersionRepository : IEntityRepository<AutomationVersion>
     {
     }
 }

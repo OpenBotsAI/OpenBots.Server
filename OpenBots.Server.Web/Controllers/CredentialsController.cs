@@ -181,6 +181,7 @@ namespace OpenBots.Server.Web
         /// <response code="400">Bad request, if credential id is not in proper format or a proper Guid</response>
         /// <response code="403">Forbidden</response>
         /// <response code="404">Not found, when no credential exists for the given credential id</response>
+        /// <response code="422">Unprocessable entity</response>
         /// <returns>Credential view details for the given id</returns>
         [HttpGet("password/{id}")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]

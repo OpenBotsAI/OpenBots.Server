@@ -110,6 +110,7 @@
             <response code="400">Bad request, if a lookup value id is not in proper format or a proper Guid</response>
             <response code="403">Forbidden</response>
             <response code="404">Not found, when no lookup value exists for the given lookup value id</response>
+            <response code="422">Unprocessable entity</response>
             <returns>Lookup value details for the given id</returns>
         </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.Core.LookupValuesController.Post(OpenBots.Server.Model.Core.LookupValue)">
@@ -1720,6 +1721,7 @@
             <response code="304">Not modified</response>
             <response code="400">Bad request, if agent id is not in the proper format or a proper Guid</response>
             <response code="403">Forbidden</response>
+            <response code="422">Unprocessable entity</response>
             <response code="404">Not found, when no agent exists for the given agent id</response>
             <returns>Agent heaetbeat details for the given id</returns>
         </member>
@@ -1814,6 +1816,190 @@
             <response code="403">Forbidden, unauthorized access</response>
             <response code="422">Unprocessable entity</response>
             <returns>Downloadable file</returns>
+        </member>
+        <member name="T:OpenBots.Server.Web.Controllers.AutomationsController">
+            <summary>
+            Controller for Studio automations
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAutomationRepository,OpenBots.Server.Business.IAutomationManager,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.Interfaces.IAutomationVersionRepository,OpenBots.Server.DataAccess.StorageContext)">
+            <summary>
+            Automation Controller constructor
+            </summary>
+            <param name="repository"></param>
+            <param name="membershipManager"></param>
+            <param name="manager"></param>
+            <param name="userManager"></param>
+            <param name="httpContextAccessor"></param>
+            <param name="binaryObjectManager"></param>
+            <param name="binaryObjectRepo"></param>
+            <param name="configuration"></param>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all automations
+            </summary>
+            <response code="200">Ok, a paginated list of all automations</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all automations</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.View(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a view model list of all automations and corresponding automation version information
+            </summary>
+            <param name="top"></param>
+            <param name="skip"></param>
+            <param name="orderBy"></param>
+            <param name="filter"></param>
+            <response code="200">Ok, a paginated list of all automationes</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>  
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all automationes</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.GetCount(System.String)">
+            <summary>
+            Gets count of automations in database
+            </summary>
+            <param name="filter"></param>
+            <response code="200">Ok, a count of all automations</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Count of all automations</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Get(System.String)">
+            <summary>
+            Get automation by id
+            </summary>
+            <param name="id"></param>
+            <response code="200">Ok, if a automation exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if automation id is not in proper format or a proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no automation exists for the given automation id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Automation entity</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.View(System.String)">
+            <summary>
+            Provides an automation's view model details for a particular automation id
+            </summary>
+            <param name="id">Automation id</param>
+            <response code="200">Ok, if a automation exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if automation id is not in the proper format or a proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no automation exists for the given automation id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Automation view model details for the given id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Post(OpenBots.Server.ViewModel.AutomationViewModel)">
+            <summary>
+            Create a new automation entity
+            </summary>
+            <param name="request"></param>
+            <response code="200">Ok, new automation created and returned</response>
+            <response code="400">Bad request, when the automation value is not in proper format</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+            <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+            <returns>Newly created automation details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Post(System.String,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Create a new binary object and upload automation file
+            </summary>
+            <param name="id"></param>
+            <param name="file"></param>
+            <response code="200">Ok, automation updated and returned</response>
+            <response code="400">Bad request, when the automation value is not in proper format</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+            <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+            <returns>Newly updated automation details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Update(System.String,OpenBots.Server.ViewModel.AutomationViewModel)">
+            <summary>
+            Update automation with file 
+            </summary>
+            <remarks>
+            Provides an action to update a automation, when automation id and the new details of automation are given
+            </remarks>
+            <param name="id">Automation id, produces bad request if id is null or ids don't match</param>
+            <param name="request">Automation details to be updated</param>
+            <response code="200">Ok, if the automation details for the given automation id have been updated</response>
+            <response code="400">Bad request, if the automation id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Ok response with the updated value details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Put(System.String,OpenBots.Server.ViewModel.AutomationViewModel)">
+            <summary>
+            Update a Automation 
+            </summary>
+            <remarks>
+            Provides an action to update a automation, when automation id and the new details of automation are given
+            </remarks>
+            <param name="id">Automation id, produces bad request if id is null or ids don't match</param>
+            <param name="value">Automation details to be updated</param>
+            <response code="200">Ok, if the automation details for the given automation id have been updated</response>
+            <response code="400">Bad request, if the automation id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Ok response with the updated value details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Automation})">
+            <summary>
+            Updates partial details of an automation
+            </summary>
+            <param name="id">Automation identifier</param>
+            <param name="request">Value of the automation to be updated</param>
+            <response code="200">Ok, if update of automation is successful</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity ,validation error</response>
+            <returns>Ok response, if the partial automation values have been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Export(System.String)">
+            <summary>
+            Export/download a automation
+            </summary>
+            <param name="id"></param>
+            <response code="200">Ok, if a automation exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if automation id is not in proper format or a proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no automation exists for the given automation id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Downloaded automation file</returns>        
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Delete(System.String)">
+            <summary>
+            Delete automation with a specified id from list of automationes
+            </summary>
+            <param name="id">Automation id to be deleted - throws bad request if null or empty Guid</param>
+            <response code="200">Ok, when automation is soft deleted, (isDeleted flag is set to true in database)</response>
+            <response code="400">Bad request, if automation id is null or empty Guid</response>
+            <response code="403">Forbidden</response>
+            <returns>Ok response</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.GetLookup">
+            <summary>
+            Lookup list of all automationes
+            </summary>
+            <response code="200">Ok, a lookup list of all automationes</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Lookup list of all automationes</returns>
         </member>
         <member name="T:OpenBots.Server.Web.Controllers.BinaryObjectsController">
             <summary>
@@ -2163,7 +2349,7 @@
             Controller for emails
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailsController.#ctor(OpenBots.Server.DataAccess.Repositories.IEmailRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IEmailManager,OpenBots.Server.DataAccess.Repositories.Interfaces.IEmailAttachmentRepository,OpenBots.Server.Business.IBinaryObjectManager)">
+        <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailsController.#ctor(OpenBots.Server.DataAccess.Repositories.IEmailRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IEmailManager,OpenBots.Server.DataAccess.Repositories.Interfaces.IEmailAttachmentRepository)">
             <summary>
             EmailsController constructor
             </summary>
@@ -2175,7 +2361,6 @@
             <param name="binaryObjectRepository"></param>
             <param name="manager"></param>
             <param name="emailAttachmentRepository"></param>
-            <param name="binaryObjectManager"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -2580,7 +2765,7 @@
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.LoggerController.Post(System.Object,System.String)">
             <summary>
-            Adds serilog logs from the agent to the process logs table
+            Adds serilog logs from the agent to the automation logs table
             </summary>
             <param name="request"></param>
             <response code="200">Ok, all logs were stored correctly</response>
@@ -2589,190 +2774,6 @@
             <response code="409">Conflict, concurrency error</response> 
             <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
             <returns>Ok response if the logs were successfully stored</returns>
-        </member>
-        <member name="T:OpenBots.Server.Web.Controllers.ProcessesController">
-            <summary>
-            Controller for Studio processes
-            </summary>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.#ctor(OpenBots.Server.DataAccess.Repositories.IProcessRepository,OpenBots.Server.Business.IProcessManager,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.Interfaces.IProcessVersionRepository,OpenBots.Server.DataAccess.StorageContext)">
-            <summary>
-            Process Controller constructor
-            </summary>
-            <param name="repository"></param>
-            <param name="membershipManager"></param>
-            <param name="manager"></param>
-            <param name="userManager"></param>
-            <param name="httpContextAccessor"></param>
-            <param name="binaryObjectManager"></param>
-            <param name="binaryObjectRepo"></param>
-            <param name="configuration"></param>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.Get(System.String,System.String,System.Int32,System.Int32)">
-            <summary>
-            Provides a list of all processes
-            </summary>
-            <response code="200">Ok, a paginated list of all processes</response>
-            <response code="400">Bad request</response>
-            <response code="403">Forbidden, unauthorized access</response>
-            <response code="404">Not found</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Paginated list of all processes</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.View(System.String,System.String,System.Int32,System.Int32)">
-            <summary>
-            Provides a view model list of all processes and corresponding process version information
-            </summary>
-            <param name="top"></param>
-            <param name="skip"></param>
-            <param name="orderBy"></param>
-            <param name="filter"></param>
-            <response code="200">Ok, a paginated list of all processes</response>
-            <response code="400">Bad request</response>
-            <response code="403">Forbidden, unauthorized access</response>  
-            <response code="404">Not found</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Paginated list of all processes</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.GetCount(System.String)">
-            <summary>
-            Gets count of processes in database
-            </summary>
-            <param name="filter"></param>
-            <response code="200">Ok, a count of all processes</response>
-            <response code="400">Bad request</response>
-            <response code="403">Forbidden, unauthorized access</response>
-            <response code="404">Not found</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Count of all processes</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.Get(System.String)">
-            <summary>
-            Get process by id
-            </summary>
-            <param name="id"></param>
-            <response code="200">Ok, if a process exists with the given id</response>
-            <response code="304">Not modified</response>
-            <response code="400">Bad request, if process id is not in proper format or a proper Guid</response>
-            <response code="403">Forbidden</response>
-            <response code="404">Not found, when no process exists for the given process id</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Process entity</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.View(System.String)">
-            <summary>
-            Provides a process's view model details for a particular process id
-            </summary>
-            <param name="id">Process id</param>
-            <response code="200">Ok, if a process exists with the given id</response>
-            <response code="304">Not modified</response>
-            <response code="400">Bad request, if process id is not in the proper format or a proper Guid</response>
-            <response code="403">Forbidden</response>
-            <response code="404">Not found, when no process exists for the given process id</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Process view model details for the given id</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.Post(OpenBots.Server.ViewModel.ProcessViewModel)">
-            <summary>
-            Create a new process entity
-            </summary>
-            <param name="request"></param>
-            <response code="200">Ok, new process created and returned</response>
-            <response code="400">Bad request, when the process value is not in proper format</response>
-            <response code="403">Forbidden, unauthorized access</response>
-            <response code="409">Conflict, concurrency error</response> 
-            <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
-            <returns>Newly created process details</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.Post(System.String,Microsoft.AspNetCore.Http.IFormFile)">
-            <summary>
-            Create a new binary object and upload process file
-            </summary>
-            <param name="id"></param>
-            <param name="file"></param>
-            <response code="200">Ok, process updated and returned</response>
-            <response code="400">Bad request, when the process value is not in proper format</response>
-            <response code="403">Forbidden, unauthorized access</response>
-            <response code="409">Conflict, concurrency error</response> 
-            <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
-            <returns>Newly updated process detaills</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.Update(System.String,OpenBots.Server.ViewModel.ProcessViewModel)">
-            <summary>
-            Update process with file 
-            </summary>
-            <remarks>
-            Provides an action to update a process, when process id and the new details of process are given
-            </remarks>
-            <param name="id">Process id, produces bad request if id is null or ids don't match</param>
-            <param name="request">Process details to be updated</param>
-            <response code="200">Ok, if the process details for the given process id have been updated</response>
-            <response code="400">Bad request, if the process id is null or ids don't match</response>
-            <response code="403">Forbidden, unauthorized access</response>
-            <response code="409">Conflict</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Ok response with the updated value details</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.Put(System.String,OpenBots.Server.ViewModel.ProcessViewModel)">
-            <summary>
-            Update a Process 
-            </summary>
-            <remarks>
-            Provides an action to update a process, when process id and the new details of process are given
-            </remarks>
-            <param name="id">Process id, produces bad request if id is null or ids don't match</param>
-            <param name="value">Process details to be updated</param>
-            <response code="200">Ok, if the process details for the given process id have been updated</response>
-            <response code="400">Bad request, if the process id is null or ids don't match</response>
-            <response code="403">Forbidden, unauthorized access</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Ok response with the updated value details</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Process})">
-            <summary>
-            Updates partial details of a process
-            </summary>
-            <param name="id">Process identifier</param>
-            <param name="request">Value of the process to be updated</param>
-            <response code="200">Ok, if update of process is successful</response>
-            <response code="400">Bad request, if the id is null or ids don't match</response>
-            <response code="403">Forbidden, unauthorized access</response>
-            <response code="422">Unprocessable entity ,validation error</response>
-            <returns>Ok response, if the partial process values have been updated</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.Export(System.String)">
-            <summary>
-            Export/download a process
-            </summary>
-            <param name="id"></param>
-            <response code="200">Ok, if a process exists with the given id</response>
-            <response code="304">Not modified</response>
-            <response code="400">Bad request, if process id is not in proper format or a proper Guid</response>
-            <response code="403">Forbidden</response>
-            <response code="404">Not found, when no process exists for the given process id</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Downloaded process file</returns>        
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.Delete(System.String)">
-            <summary>
-            Delete process with a specified id from list of processes
-            </summary>
-            <param name="id">Process id to be deleted - throws bad request if null or empty Guid</param>
-            <response code="200">Ok, when process is soft deleted, (isDeleted flag is set to true in database)</response>
-            <response code="400">Bad request, if Process id is null or empty Guid</response>
-            <response code="403">Forbidden</response>
-            <returns>Ok response</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.GetLookup">
-            <summary>
-            Lookup list of all processes
-            </summary>
-            <response code="200">Ok, a lookup list of all processes</response>
-            <response code="400">Bad request</response>
-            <response code="403">Forbidden, unauthorized access</response>
-            <response code="404">Not found</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Lookup list of all processes</returns>
         </member>
         <member name="T:OpenBots.Server.Web.Controllers.QueueItemsController">
             <summary>
@@ -3183,10 +3184,10 @@
             <summary>
             API to run a job now
             </summary>
-            <param name="processId">Process id, against which job will be created</param>
+            <param name="automationId">Automation id, against which job will be created</param>
             <param name="agentId">Agent id, against which job will be created</param>
             <response code="200">Ok, if the job enqueues successfully</response>
-            <response code="400">Bad request, if the process id is null or ids don't match</response>
+            <response code="400">Bad request, if the automation id is null or ids don't match</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict</response>
             <response code="422">Unprocessable entity</response>
@@ -3197,14 +3198,14 @@
             Controller for Assets
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.AssetsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAssetRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IProcessManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository)">
+        <member name="M:OpenBots.Server.Web.AssetsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAssetRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IAutomationManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository)">
             <summary>
             AssetsController constructor
             </summary>
             <param name="repository"></param>
             <param name="membershipManager"></param>
             <param name="userManager"></param>
-            <param name="processManager"></param>
+            <param name="automationManager"></param>
             <param name="httpContextAccessor"></param>
             <param name="binaryObjectManager"></param>
             <param name="configuration"></param>
@@ -3399,6 +3400,223 @@
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response with updated asset value</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.AutomationExecutionLogsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all AutomationExecutionLogs
+            </summary>
+            <response code="200">OK,a Paginated list of all AutomationExecutionLogs</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            <returns>Paginated list of all AutomationExecutionLogs </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationExecutionLogsController.View(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a viewmodel list of all AutomationExecutionLogs
+            </summary>
+            <response code="200">OK,a Paginated list of all AutomationExecutionLogs</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            <returns>Paginated list of all AutomationExecutionLogs </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationExecutionLogsController.Count(System.String)">
+            <summary>
+            Provides a Count of AutomationExecutionLogs 
+            </summary>
+            <response code="200">OK, total count of AutomationExecutionLogs</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden,unauthorized access</response>        
+            <response code="422">UnprocessableEntity</response>
+            <returns>Int contating the total number of AutomationExecutionLogs </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationExecutionLogsController.Get(System.String)">
+            <summary>
+            Provides a AutomationExecutionLog's details for a particular AutomationExecutionLog Id.
+            </summary>
+            <param name="id">AutomationExecutionLog id</param>
+            <response code="200">OK, If a AutomationExecutionLog exists with the given Id.</response>
+            <response code="304">Not modified</response>
+            <response code="400">BadRequest,If AutomationExecutionLog ID is not in the proper format or proper Guid.</response>
+            <response code="403">Forbidden</response>
+            <response code="404">NotFound, when no AutomationExecutionLog exists for the given AutomationExecutionLog ID</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>AutomationExecutionLog details for the given ID</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationExecutionLogsController.View(System.String)">
+            <summary>
+            Provides a AutomationExecution's details for a particular AutomationExecution id
+            </summary>
+            <param name="id">AutomationExecution id</param>
+            <response code="200">OK, if a AutomationExecution exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">BadRequest, if AutomationExecution ID is not in the proper format or proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">NotFound, when no AutomationExecution exists for the given AutomationExecution ID</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>AutomationExecution details for the given ID</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationExecutionLogsController.Post(OpenBots.Server.Model.AutomationExecutionLog)">
+             <summary>
+             Adds a new AutomationExecutionLog to the existing AutomationExecutionLogs
+             </summary>
+             <remarks>
+             Adds the AutomationExecutionLog with unique AutomationExecutionLog Id to the existing AutomationExecutionLogs
+             </remarks>
+             <param name="request"></param>
+             <response code="200">OK,new AutomationExecutionLog created and returned</response>
+             <response code="400">BadRequest,When the AutomationExecutionLog value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict,concurrency error</response> 
+             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <returns> newly created unique AutomationExecutionLog Id with route name </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationExecutionLogsController.StartAutomation(OpenBots.Server.Model.AutomationExecutionLog)">
+             <summary>
+             Allows Agent to add a new AutomationExecutionLog to the existing AutomationExecutionLogs
+             </summary>
+             <remarks>
+             Agent is able to Add the AutomationExecutionLog if the Agent is Connected
+             </remarks>
+             <param name="request"></param>
+             <response code="200">OK,new AutomationExecutionLog created and returned</response>
+             <response code="400">BadRequest,When the AutomationExecutionLog value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict,concurrency error</response> 
+             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <returns> newly created unique AutomationExecutionLog Id with route name </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationExecutionLogsController.Put(System.String,OpenBots.Server.Model.AutomationExecutionLog)">
+            <summary>
+            Updates a AutomationExecutionLog 
+            </summary>
+            <remarks>
+            Provides an action to update a AutomationExecutionLog, when AutomationExecutionLog id and the new details of AutomationExecutionLog are given
+            </remarks>
+            <param name="id">AutomationExecutionLog Id,produces Bad request if Id is null or Id's don't match</param>
+            <param name="request">AutomationExecutionLog details to be updated</param>
+            <response code="200">OK, If the AutomationExecutionLog details for the given AutomationExecutionLog Id has been updated.</response>
+            <response code="400">BadRequest,if the AutomationExecutionLog Id is null or Id's don't match</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">UnprocessableEntity</response>
+            <returns>OK response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationExecutionLogsController.EndAutomation(System.String,OpenBots.Server.Model.AutomationExecutionLog)">
+            <summary>
+            Agent is able to update a AutomationExecutionLog End status
+            </summary>
+            <remarks>
+            Provides an action to update a AutomationExecutionLog, when AutomationExecutionLog id and the new details of AutomationExecutionLog are given
+            </remarks>
+            <param name="id">AutomationExecutionLog Id,produces Bad request if Id is null or Id's don't match</param>
+            <param name="request">AutomationExecutionLog details to be updated</param>
+            <response code="200">OK, If the AutomationExecutionLog details for the given AutomationExecutionLog Id has been updated.</response>
+            <response code="400">BadRequest,if the AutomationExecutionLog Id is null or Id's don't match</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">UnprocessableEntity</response>
+            <returns>OK response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationExecutionLogsController.Delete(System.String)">
+            <summary>
+            Deletes a AutomationExecutionLog with a specified id from the AutomationExecutionLog.
+            </summary>
+            <param name="id">AutomationExecutionLog ID to be deleted- throws BadRequest if null or empty Guid/</param>
+            <response code="200">OK,when AutomationExecutionLog is softdeleted,( isDeleted flag is set to true in DB) </response>
+            <response code="400">BadRequest,If AutomationExecutionLog Id is null or empty Guid</response>
+            <response code="403">Forbidden </response>
+            <returns>OK response with deleted value </returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationExecutionLogsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.AutomationExecutionLog})">
+            <summary>
+            Updates partial details of AutomationExecutionLog.
+            </summary>
+            <param name="id">AutomationExecutionLog identifier</param>
+            <param name="request">Value of the AutomationExecutionLog to be updated.</param>
+            <response code="200">OK,If update of AutomationExecutionLog is successful. </response>
+            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
+            <response code="403">Forbidden,unauthorized access</response>
+            <response code="422">Unprocessable entity,validation error</response>
+            <returns>Ok response, if the partial AutomationExecutionLog values has been updated</returns>
+        </member>
+        <member name="T:OpenBots.Server.Web.AutomationLogsController">
+            <summary>
+            Controller for Automation Logs
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationLogsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAutomationLogRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IAutomationLogManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            AutomationLogsController constructor
+            </summary>
+            <param name="configuration"></param>
+            <param name="userManager"></param>
+            <param name="repository"></param>
+            <param name="membershipManager"></param>
+            <param name="httpContextAccessor"></param>
+            <param name="automationLogManager"></param>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationLogsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all automation logs
+            </summary>
+            <response code="200">Ok, a paginated list of all automation logs</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>   
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all automation logs</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationLogsController.Count(System.String)">
+            <summary>
+            Provides a count of automation logs
+            </summary>
+            <param name="filter"></param>
+            <response code="200">Ok, total count of automation logs</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>        
+            <response code="422">Unprocessable entity</response>
+            <returns>Count of all automation logs</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationLogsController.Get(System.String)">
+            <summary>
+            Provides a automation log's details for a particular automation log id
+            </summary>
+            <param name="id">automation log id</param>
+            <response code="200">Ok, if a automation log exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if automation log id is not in the proper format or a proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no automation log exists for the given automation log id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Automation log details for the given id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationLogsController.Export(System.String,System.String,System.Int32,System.Int32,System.String)">
+            <summary>
+            Exports automation logs into a downloadable file
+            </summary>
+            <param name="fileType">Specifies the file type to be downloaded: csv, zip, or json</param>
+            <response code="200">Ok, if a log exists with the given filters</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Downloadable file</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationLogsController.Post(OpenBots.Server.Model.AutomationLog)">
+             <summary>
+             Adds a new automation log to the existing automation logs
+             </summary>
+             <remarks>
+             Adds the automation log with unique automation log id to the existing automation logs
+             </remarks>
+             <param name="request"></param>
+             <response code="200">Ok, new automation log created and returned</response>
+             <response code="400">Bad request, when the automation log value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+             <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+             <returns>Newly created unique automation log id with route name</returns>
+        </member>
         <member name="T:OpenBots.Server.Web.CredentialsController">
             <summary>
             Controller for credentials
@@ -3470,6 +3688,7 @@
             <response code="400">Bad request, if credential id is not in proper format or a proper Guid</response>
             <response code="403">Forbidden</response>
             <response code="404">Not found, when no credential exists for the given credential id</response>
+            <response code="422">Unprocessable entity</response>
             <returns>Credential view details for the given id</returns>
         </member>
         <member name="M:OpenBots.Server.Web.CredentialsController.Post(OpenBots.Server.Model.Credential)">
@@ -3636,7 +3855,7 @@
             Controller for Jobs
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.JobsController.#ctor(OpenBots.Server.DataAccess.Repositories.IJobRepository,OpenBots.Server.DataAccess.Repositories.IProcessRepository,OpenBots.Server.DataAccess.Repositories.IJobParameterRepository,OpenBots.Server.DataAccess.Repositories.IJobCheckpointRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IJobManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.Interfaces.IProcessVersionRepository)">
+        <member name="M:OpenBots.Server.Web.JobsController.#ctor(OpenBots.Server.DataAccess.Repositories.IJobRepository,OpenBots.Server.DataAccess.Repositories.IAutomationRepository,OpenBots.Server.DataAccess.Repositories.IJobParameterRepository,OpenBots.Server.DataAccess.Repositories.IJobCheckpointRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IJobManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.Interfaces.IAutomationVersionRepository)">
             <summary>
             JobsController constructor
             </summary>
@@ -3649,8 +3868,8 @@
             <param name="httpContextAccessor"></param>
             <param name="jobCheckpointRepository"></param>
             <param name="jobParameterRepository"></param>
-            <param name="processRepository"></param>
-            <param name="processVersionRepo"></param>
+            <param name="automationRepository"></param>
+            <param name="automationVersionRepo"></param>
         </member>
         <member name="M:OpenBots.Server.Web.JobsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -3708,7 +3927,7 @@
         </member>
         <member name="M:OpenBots.Server.Web.JobsController.GetJobAgentsLookup">
             <summary>
-            Provides a lookup list of all job agents and processes
+            Provides a lookup list of all job agents and automations
             </summary>
             <response code="200">Ok, a list of all jobs lookup</response>
             <response code="400">Bad request</response>
@@ -3867,222 +4086,8 @@
             <response code="400">Bad request, if job id is not in the proper format or a proper Guid</response>
             <response code="403">Forbidden</response>
             <response code="404">Not found, when no job exists for the given job id</response>
+            <response code="422">Unprocessable entity</response>
             <returns>JobCheckpoint details for the given id</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessExecutionLogsController.Get(System.String,System.String,System.Int32,System.Int32)">
-            <summary>
-            Provides a list of all ProcessExecutionLogs
-            </summary>
-            <response code="200">OK,a Paginated list of all ProcessExecutionLogs</response>
-            <response code="400">BadRequest</response>
-            <response code="403">Forbidden,unauthorized access</response>        
-            <response code="422">UnprocessableEntity</response>
-            <returns>Paginated list of all ProcessExecutionLogs </returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessExecutionLogsController.View(System.String,System.String,System.Int32,System.Int32)">
-            <summary>
-            Provides a viewmodel list of all ProcessExecutionLogs
-            </summary>
-            <response code="200">OK,a Paginated list of all ProcessExecutionLogs</response>
-            <response code="400">BadRequest</response>
-            <response code="403">Forbidden,unauthorized access</response>        
-            <response code="422">UnprocessableEntity</response>
-            <returns>Paginated list of all ProcessExecutionLogs </returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessExecutionLogsController.Count(System.String)">
-            <summary>
-            Provides a Count of ProcessExecutionLogs 
-            </summary>
-            <response code="200">OK, total count of ProcessExecutionLogs</response>
-            <response code="400">BadRequest</response>
-            <response code="403">Forbidden,unauthorized access</response>        
-            <response code="422">UnprocessableEntity</response>
-            <returns>Int contating the total number of ProcessExecutionLogs </returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessExecutionLogsController.Get(System.String)">
-            <summary>
-            Provides a ProcessExecutionLog's details for a particular ProcessExecutionLog Id.
-            </summary>
-            <param name="id">ProcessExecutionLog id</param>
-            <response code="200">OK, If a ProcessExecutionLog exists with the given Id.</response>
-            <response code="304">Not modified</response>
-            <response code="400">BadRequest,If ProcessExecutionLog ID is not in the proper format or proper Guid.</response>
-            <response code="403">Forbidden</response>
-            <response code="404">NotFound, when no ProcessExecutionLog exists for the given ProcessExecutionLog ID</response>
-            <returns>ProcessExecutionLog details for the given ID</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessExecutionLogsController.View(System.String)">
-            <summary>
-            Provides a processExecution's details for a particular processExecution Id.
-            </summary>
-            <param name="id">processExecution id</param>
-            <response code="200">OK, If a processExecution exists with the given Id.</response>
-            <response code="304">Not modified</response>
-            <response code="400">BadRequest,If processExecution ID is not in the proper format or proper Guid.</response>
-            <response code="403">Forbidden</response>
-            <response code="404">NotFound, when no processExecution exists for the given processExecution ID</response>
-            <returns>processExecution details for the given ID</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessExecutionLogsController.Post(OpenBots.Server.Model.ProcessExecutionLog)">
-             <summary>
-             Adds a new ProcessExecutionLog to the existing ProcessExecutionLogs
-             </summary>
-             <remarks>
-             Adds the ProcessExecutionLog with unique ProcessExecutionLog Id to the existing ProcessExecutionLogs
-             </remarks>
-             <param name="value"></param>
-             <response code="200">OK,new ProcessExecutionLog created and returned</response>
-             <response code="400">BadRequest,When the ProcessExecutionLog value is not in proper format</response>
-             <response code="403">Forbidden, unauthorized access</response>
-            <response code="409">Conflict,concurrency error</response> 
-             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
-             <returns> newly created unique ProcessExecutionLog Id with route name </returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessExecutionLogsController.StartProcess(OpenBots.Server.Model.ProcessExecutionLog)">
-             <summary>
-             Allows Agent to add a new ProcessExecutionLog to the existing ProcessExecutionLogs
-             </summary>
-             <remarks>
-             Agent is able to Add the ProcessExecutionLog if the Agent is Connected
-             </remarks>
-             <param name="request"></param>
-             <response code="200">OK,new ProcessExecutionLog created and returned</response>
-             <response code="400">BadRequest,When the ProcessExecutionLog value is not in proper format</response>
-             <response code="403">Forbidden, unauthorized access</response>
-            <response code="409">Conflict,concurrency error</response> 
-             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
-             <returns> newly created unique ProcessExecutionLog Id with route name </returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessExecutionLogsController.Put(System.String,OpenBots.Server.Model.ProcessExecutionLog)">
-            <summary>
-            Updates a ProcessExecutionLog 
-            </summary>
-            <remarks>
-            Provides an action to update a ProcessExecutionLog, when ProcessExecutionLog id and the new details of ProcessExecutionLog are given
-            </remarks>
-            <param name="id">ProcessExecutionLog Id,produces Bad request if Id is null or Id's don't match</param>
-            <param name="request">ProcessExecutionLog details to be updated</param>
-            <response code="200">OK, If the ProcessExecutionLog details for the given ProcessExecutionLog Id has been updated.</response>
-            <response code="400">BadRequest,if the ProcessExecutionLog Id is null or Id's don't match</response>
-            <response code="403">Forbidden,unauthorized access</response>
-            <response code="422">UnprocessableEntity</response>
-            <returns>OK response with the updated value</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessExecutionLogsController.EndProcess(System.String,OpenBots.Server.Model.ProcessExecutionLog)">
-            <summary>
-            Agent is able to update a ProcessExecutionLog End status
-            </summary>
-            <remarks>
-            Provides an action to update a ProcessExecutionLog, when ProcessExecutionLog id and the new details of ProcessExecutionLog are given
-            </remarks>
-            <param name="id">ProcessExecutionLog Id,produces Bad request if Id is null or Id's don't match</param>
-            <param name="request">ProcessExecutionLog details to be updated</param>
-            <response code="200">OK, If the ProcessExecutionLog details for the given ProcessExecutionLog Id has been updated.</response>
-            <response code="400">BadRequest,if the ProcessExecutionLog Id is null or Id's don't match</response>
-            <response code="403">Forbidden,unauthorized access</response>
-            <response code="422">UnprocessableEntity</response>
-            <returns>OK response with the updated value</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessExecutionLogsController.Delete(System.String)">
-            <summary>
-            Deletes a ProcessExecutionLog with a specified id from the ProcessExecutionLog.
-            </summary>
-            <param name="id">ProcessExecutionLog ID to be deleted- throws BadRequest if null or empty Guid/</param>
-            <response code="200">OK,when ProcessExecutionLog is softdeleted,( isDeleted flag is set to true in DB) </response>
-            <response code="400">BadRequest,If ProcessExecutionLog Id is null or empty Guid</response>
-            <response code="403">Forbidden </response>
-            <returns>OK response with deleted value </returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessExecutionLogsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.ProcessExecutionLog})">
-            <summary>
-            Updates partial details of ProcessExecutionLog.
-            </summary>
-            <param name="id">ProcessExecutionLog identifier</param>
-            <param name="value">Value of the ProcessExecutionLog to be updated.</param>
-            <response code="200">OK,If update of ProcessExecutionLog is successful. </response>
-            <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
-            <response code="403">Forbidden,unauthorized access</response>
-            <response code="422">Unprocessable entity,validation error</response>
-            <returns>Ok response, if the partial ProcessExecutionLog values has been updated</returns>
-        </member>
-        <member name="T:OpenBots.Server.Web.ProcessLogsController">
-            <summary>
-            Controller for ProcesLogs
-            </summary>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessLogsController.#ctor(OpenBots.Server.DataAccess.Repositories.IProcessLogRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IProcessLogManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
-            <summary>
-            ProcessLogsController constructor
-            </summary>
-            <param name="configuration"></param>
-            <param name="userManager"></param>
-            <param name="repository"></param>
-            <param name="membershipManager"></param>
-            <param name="httpContextAccessor"></param>
-            <param name="processLogManager"></param>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessLogsController.Get(System.String,System.String,System.Int32,System.Int32)">
-            <summary>
-            Provides a list of all process logs
-            </summary>
-            <response code="200">Ok, a paginated list of all process logs</response>
-            <response code="400">Bad request</response>
-            <response code="403">Forbidden, unauthorized access</response>   
-            <response code="404">Not found</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Paginated list of all process logs</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessLogsController.Count(System.String)">
-            <summary>
-            Provides a count of process logs
-            </summary>
-            <param name="filter"></param>
-            <response code="200">Ok, total count of process logs</response>
-            <response code="400">Bad request</response>
-            <response code="403">Forbidden, unauthorized access</response>        
-            <response code="422">Unprocessable entity</response>
-            <returns>Count of all process logs</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessLogsController.Get(System.String)">
-            <summary>
-            Provides a process log's details for a particular process log id
-            </summary>
-            <param name="id">Process log id</param>
-            <response code="200">Ok, if a process log exists with the given id</response>
-            <response code="304">Not modified</response>
-            <response code="400">Bad request, if process log id is not in the proper format or a proper Guid</response>
-            <response code="403">Forbidden</response>
-            <response code="404">Not found, when no process log exists for the given process log id</response>
-            <response code="422">?Unprocessable entity</response>
-            <returns>Process log details for the given id</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessLogsController.Export(System.String,System.String,System.Int32,System.Int32,System.String)">
-            <summary>
-            Exports process logs into a downloadable file
-            </summary>
-            <param name="fileType">Specifies the file type to be downloaded: csv, zip, or json</param>
-            <response code="200">Ok, if a log exists with the given filters</response>
-            <response code="304">Not modified</response>
-            <response code="400">Bad request</response>
-            <response code="403">Forbidden, unauthorized access</response>
-            <response code="404">Not found</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Downloadable file</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.ProcessLogsController.Post(OpenBots.Server.Model.ProcessLog)">
-             <summary>
-             Adds a new process log to the existing process logs
-             </summary>
-             <remarks>
-             Adds the process log with unique process log id to the existing process logs
-             </remarks>
-             <param name="request"></param>
-             <response code="200">Ok, new process log created and returned</response>
-             <response code="400">Bad request, when the process log value is not in proper format</response>
-             <response code="403">Forbidden, unauthorized access</response>
-            <response code="409">Conflict, concurrency error</response> 
-             <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
-             <returns>Newly created unique process log id with route name</returns>
         </member>
     </members>
 </doc>

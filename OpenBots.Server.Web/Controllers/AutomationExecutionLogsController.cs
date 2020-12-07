@@ -23,41 +23,41 @@ namespace OpenBots.Server.Web
     [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
-    public class ProcessExecutionLogsController : EntityController<ProcessExecutionLog>
+    public class AutomationExecutionLogsController : EntityController<AutomationExecutionLog>
     {
         readonly IAgentRepository agentRepository;
-        IProcessExecutionLogManager processExecutionLogManager;
-        public ProcessExecutionLogsController(
-            IProcessExecutionLogRepository repository,
+        IAutomationExecutionLogManager automationExecutionLogManager;
+        public AutomationExecutionLogsController(
+            IAutomationExecutionLogRepository repository,
             IAgentRepository agentRepository,
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
-            IProcessExecutionLogManager processExecutionLogManager,
+            IAutomationExecutionLogManager automationExecutionLogManager,
             IHttpContextAccessor httpContextAccessor,
             IConfiguration configuration) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.processExecutionLogManager = processExecutionLogManager;
-            this.processExecutionLogManager.SetContext(base.SecurityContext);
+            this.automationExecutionLogManager = automationExecutionLogManager;
+            this.automationExecutionLogManager.SetContext(base.SecurityContext);
             this.agentRepository = agentRepository;
         }
 
         /// <summary>
-        /// Provides a list of all ProcessExecutionLogs
+        /// Provides a list of all AutomationExecutionLogs
         /// </summary>
-        /// <response code="200">OK,a Paginated list of all ProcessExecutionLogs</response>
+        /// <response code="200">OK,a Paginated list of all AutomationExecutionLogs</response>
         /// <response code="400">BadRequest</response>
         /// <response code="403">Forbidden,unauthorized access</response>        
         /// <response code="422">UnprocessableEntity</response>
-        /// <returns>Paginated list of all ProcessExecutionLogs </returns>
+        /// <returns>Paginated list of all AutomationExecutionLogs </returns>
         [HttpGet]
-        [ProducesResponseType(typeof(PaginatedList<ProcessExecutionLog>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<AutomationExecutionLog>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<ProcessExecutionLog> Get(
+        public PaginatedList<AutomationExecutionLog> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
@@ -68,22 +68,22 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Provides a viewmodel list of all ProcessExecutionLogs
+        /// Provides a viewmodel list of all AutomationExecutionLogs
         /// </summary>
-        /// <response code="200">OK,a Paginated list of all ProcessExecutionLogs</response>
+        /// <response code="200">OK,a Paginated list of all AutomationExecutionLogs</response>
         /// <response code="400">BadRequest</response>
         /// <response code="403">Forbidden,unauthorized access</response>        
         /// <response code="422">UnprocessableEntity</response>
-        /// <returns>Paginated list of all ProcessExecutionLogs </returns>
+        /// <returns>Paginated list of all AutomationExecutionLogs </returns>
         [HttpGet("view")]
-        [ProducesResponseType(typeof(PaginatedList<ProcessExecutionViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<AutomationExecutionViewModel>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<ProcessExecutionViewModel> View(
+        public PaginatedList<AutomationExecutionViewModel> View(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
@@ -91,7 +91,7 @@ namespace OpenBots.Server.Web
             )
         {
 
-            ODataHelper<ProcessExecutionViewModel> oData = new ODataHelper<ProcessExecutionViewModel>();
+            ODataHelper<AutomationExecutionViewModel> oData = new ODataHelper<AutomationExecutionViewModel>();
 
             string queryString = "";
 
@@ -105,24 +105,24 @@ namespace OpenBots.Server.Web
             Guid parentguid = Guid.Empty;
             var newNode = oData.ParseOrderByQuery(queryString);
             if (newNode == null)
-                newNode = new OrderByNode<ProcessExecutionViewModel>();
+                newNode = new OrderByNode<AutomationExecutionViewModel>();
 
-            Predicate<ProcessExecutionViewModel> predicate = null;
+            Predicate<AutomationExecutionViewModel> predicate = null;
             if (oData != null && oData.Filter != null)
-                predicate = new Predicate<ProcessExecutionViewModel>(oData.Filter);
+                predicate = new Predicate<AutomationExecutionViewModel>(oData.Filter);
             int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
 
-            return processExecutionLogManager.GetProcessAndAgentNames(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+            return automationExecutionLogManager.GetAutomationAndAgentNames(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
         }
 
         /// <summary>
-        /// Provides a Count of ProcessExecutionLogs 
+        /// Provides a Count of AutomationExecutionLogs 
         /// </summary>
-        /// <response code="200">OK, total count of ProcessExecutionLogs</response>
+        /// <response code="200">OK, total count of AutomationExecutionLogs</response>
         /// <response code="400">BadRequest</response>
         /// <response code="403">Forbidden,unauthorized access</response>        
         /// <response code="422">UnprocessableEntity</response>
-        /// <returns>Int contating the total number of ProcessExecutionLogs </returns>
+        /// <returns>Int contating the total number of AutomationExecutionLogs </returns>
         [HttpGet("Count")]
         [ProducesResponseType(typeof(int?), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -138,17 +138,18 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Provides a ProcessExecutionLog's details for a particular ProcessExecutionLog Id.
+        /// Provides a AutomationExecutionLog's details for a particular AutomationExecutionLog Id.
         /// </summary>
-        /// <param name="id">ProcessExecutionLog id</param>
-        /// <response code="200">OK, If a ProcessExecutionLog exists with the given Id.</response>
+        /// <param name="id">AutomationExecutionLog id</param>
+        /// <response code="200">OK, If a AutomationExecutionLog exists with the given Id.</response>
         /// <response code="304">Not modified</response>
-        /// <response code="400">BadRequest,If ProcessExecutionLog ID is not in the proper format or proper Guid.</response>
+        /// <response code="400">BadRequest,If AutomationExecutionLog ID is not in the proper format or proper Guid.</response>
         /// <response code="403">Forbidden</response>
-        /// <response code="404">NotFound, when no ProcessExecutionLog exists for the given ProcessExecutionLog ID</response>
-        /// <returns>ProcessExecutionLog details for the given ID</returns>
-        [HttpGet("{id}", Name = "GetProcessExecutionLog")]
-        [ProducesResponseType(typeof(ProcessExecutionLog), StatusCodes.Status200OK)]
+        /// <response code="404">NotFound, when no AutomationExecutionLog exists for the given AutomationExecutionLog ID</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>AutomationExecutionLog details for the given ID</returns>
+        [HttpGet("{id}", Name = "GetAutomationExecutionLog")]
+        [ProducesResponseType(typeof(AutomationExecutionLog), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -169,17 +170,18 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Provides a processExecution's details for a particular processExecution Id.
+        /// Provides a AutomationExecution's details for a particular AutomationExecution id
         /// </summary>
-        /// <param name="id">processExecution id</param>
-        /// <response code="200">OK, If a processExecution exists with the given Id.</response>
+        /// <param name="id">AutomationExecution id</param>
+        /// <response code="200">OK, if a AutomationExecution exists with the given id</response>
         /// <response code="304">Not modified</response>
-        /// <response code="400">BadRequest,If processExecution ID is not in the proper format or proper Guid.</response>
+        /// <response code="400">BadRequest, if AutomationExecution ID is not in the proper format or proper Guid</response>
         /// <response code="403">Forbidden</response>
-        /// <response code="404">NotFound, when no processExecution exists for the given processExecution ID</response>
-        /// <returns>processExecution details for the given ID</returns>
+        /// <response code="404">NotFound, when no AutomationExecution exists for the given AutomationExecution ID</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>AutomationExecution details for the given ID</returns>
         [HttpGet("View/{id}")]
-        [ProducesResponseType(typeof(ProcessExecutionViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AutomationExecutionViewModel), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -191,13 +193,13 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                IActionResult actionResult = await base.GetEntity<ProcessExecutionViewModel>(id);
+                IActionResult actionResult = await base.GetEntity<AutomationExecutionViewModel>(id);
                 OkObjectResult okResult = actionResult as OkObjectResult;
 
                 if (okResult != null)
                 {
-                    ProcessExecutionViewModel view = okResult.Value as ProcessExecutionViewModel;
-                    view = processExecutionLogManager.GetExecutionView(view);
+                    AutomationExecutionViewModel view = okResult.Value as AutomationExecutionViewModel;
+                    view = automationExecutionLogManager.GetExecutionView(view);
                 }
 
                 return actionResult;
@@ -209,27 +211,27 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Adds a new ProcessExecutionLog to the existing ProcessExecutionLogs
+        /// Adds a new AutomationExecutionLog to the existing AutomationExecutionLogs
         /// </summary>
         /// <remarks>
-        /// Adds the ProcessExecutionLog with unique ProcessExecutionLog Id to the existing ProcessExecutionLogs
+        /// Adds the AutomationExecutionLog with unique AutomationExecutionLog Id to the existing AutomationExecutionLogs
         /// </remarks>
-        /// <param name="value"></param>
-        /// <response code="200">OK,new ProcessExecutionLog created and returned</response>
-        /// <response code="400">BadRequest,When the ProcessExecutionLog value is not in proper format</response>
+        /// <param name="request"></param>
+        /// <response code="200">OK,new AutomationExecutionLog created and returned</response>
+        /// <response code="400">BadRequest,When the AutomationExecutionLog value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict,concurrency error</response> 
         /// <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
-        /// <returns> newly created unique ProcessExecutionLog Id with route name </returns>
+        /// <returns> newly created unique AutomationExecutionLog Id with route name </returns>
         [HttpPost]
-        [ProducesResponseType(typeof(ProcessExecutionLog), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AutomationExecutionLog), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Post([FromBody] ProcessExecutionLog request)
+        public async Task<IActionResult> Post([FromBody] AutomationExecutionLog request)
         {
             try
             {
@@ -242,28 +244,28 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Allows Agent to add a new ProcessExecutionLog to the existing ProcessExecutionLogs
+        /// Allows Agent to add a new AutomationExecutionLog to the existing AutomationExecutionLogs
         /// </summary>
         /// <remarks>
-        /// Agent is able to Add the ProcessExecutionLog if the Agent is Connected
+        /// Agent is able to Add the AutomationExecutionLog if the Agent is Connected
         /// </remarks>
         /// <param name="request"></param>
-        /// <response code="200">OK,new ProcessExecutionLog created and returned</response>
-        /// <response code="400">BadRequest,When the ProcessExecutionLog value is not in proper format</response>
+        /// <response code="200">OK,new AutomationExecutionLog created and returned</response>
+        /// <response code="400">BadRequest,When the AutomationExecutionLog value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict,concurrency error</response> 
         /// <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
-        /// <returns> newly created unique ProcessExecutionLog Id with route name </returns>
+        /// <returns> newly created unique AutomationExecutionLog Id with route name </returns>
         [AllowAnonymous]
-        [HttpPost("StartProcess")]
-        [ProducesResponseType(typeof(ProcessExecutionLog), StatusCodes.Status200OK)]
+        [HttpPost("StartAutomation")]
+        [ProducesResponseType(typeof(AutomationExecutionLog), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> StartProcess([FromBody] ProcessExecutionLog request)
+        public async Task<IActionResult> StartAutomation([FromBody] AutomationExecutionLog request)
         {
             try
             {
@@ -271,12 +273,12 @@ namespace OpenBots.Server.Web
 
                 if (agent == null)
                 {
-                    ModelState.AddModelError("StartProcess", "Agent not found");
+                    ModelState.AddModelError("StartAutomation", "Agent not found");
                     return NotFound(ModelState);
                 }
                 if (agent.IsConnected == false)
                 {
-                    ModelState.AddModelError("StartProcess", "Agent is not connected");
+                    ModelState.AddModelError("StartAutomation", "Agent is not connected");
                     return BadRequest(ModelState);
                 }
                 return await base.PostEntity(request);
@@ -288,15 +290,15 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Updates a ProcessExecutionLog 
+        /// Updates a AutomationExecutionLog 
         /// </summary>
         /// <remarks>
-        /// Provides an action to update a ProcessExecutionLog, when ProcessExecutionLog id and the new details of ProcessExecutionLog are given
+        /// Provides an action to update a AutomationExecutionLog, when AutomationExecutionLog id and the new details of AutomationExecutionLog are given
         /// </remarks>
-        /// <param name="id">ProcessExecutionLog Id,produces Bad request if Id is null or Id's don't match</param>
-        /// <param name="request">ProcessExecutionLog details to be updated</param>
-        /// <response code="200">OK, If the ProcessExecutionLog details for the given ProcessExecutionLog Id has been updated.</response>
-        /// <response code="400">BadRequest,if the ProcessExecutionLog Id is null or Id's don't match</response>
+        /// <param name="id">AutomationExecutionLog Id,produces Bad request if Id is null or Id's don't match</param>
+        /// <param name="request">AutomationExecutionLog details to be updated</param>
+        /// <response code="200">OK, If the AutomationExecutionLog details for the given AutomationExecutionLog Id has been updated.</response>
+        /// <response code="400">BadRequest,if the AutomationExecutionLog Id is null or Id's don't match</response>
         /// <response code="403">Forbidden,unauthorized access</response>
         /// <response code="422">UnprocessableEntity</response>
         /// <returns>OK response with the updated value</returns>
@@ -308,51 +310,51 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Put(string id, [FromBody] ProcessExecutionLog request)
+        public async Task<IActionResult> Put(string id, [FromBody] AutomationExecutionLog request)
         {
             try
             {
                 Guid entityId = new Guid(id);
 
-                var existingProcessExecutionLog = repository.GetOne(entityId);
-                if (existingProcessExecutionLog == null) return NotFound();
+                var existingAutomationExecutionLog = repository.GetOne(entityId);
+                if (existingAutomationExecutionLog == null) return NotFound();
 
-                existingProcessExecutionLog.JobID = request.JobID;
-                existingProcessExecutionLog.ProcessID = request.ProcessID;
-                existingProcessExecutionLog.AgentID = request.AgentID;
-                existingProcessExecutionLog.StartedOn = request.StartedOn;
-                existingProcessExecutionLog.CompletedOn = request.CompletedOn;
-                existingProcessExecutionLog.Trigger = request.Trigger;
-                existingProcessExecutionLog.TriggerDetails = request.TriggerDetails;
-                existingProcessExecutionLog.Status = request.Status;
-                existingProcessExecutionLog.HasErrors = request.HasErrors;
-                existingProcessExecutionLog.ErrorMessage = request.ErrorMessage;
-                existingProcessExecutionLog.ErrorDetails = request.ErrorDetails;
+                existingAutomationExecutionLog.JobID = request.JobID;
+                existingAutomationExecutionLog.AutomationID = request.AutomationID;
+                existingAutomationExecutionLog.AgentID = request.AgentID;
+                existingAutomationExecutionLog.StartedOn = request.StartedOn;
+                existingAutomationExecutionLog.CompletedOn = request.CompletedOn;
+                existingAutomationExecutionLog.Trigger = request.Trigger;
+                existingAutomationExecutionLog.TriggerDetails = request.TriggerDetails;
+                existingAutomationExecutionLog.Status = request.Status;
+                existingAutomationExecutionLog.HasErrors = request.HasErrors;
+                existingAutomationExecutionLog.ErrorMessage = request.ErrorMessage;
+                existingAutomationExecutionLog.ErrorDetails = request.ErrorDetails;
 
-                return await base.PutEntity(id, existingProcessExecutionLog);
+                return await base.PutEntity(id, existingAutomationExecutionLog);
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("ProcessExecutionLog", ex.Message);
+                ModelState.AddModelError("AutomationExecutionLog", ex.Message);
                 return BadRequest(ModelState);
             }
         }
 
         /// <summary>
-        /// Agent is able to update a ProcessExecutionLog End status
+        /// Agent is able to update a AutomationExecutionLog End status
         /// </summary>
         /// <remarks>
-        /// Provides an action to update a ProcessExecutionLog, when ProcessExecutionLog id and the new details of ProcessExecutionLog are given
+        /// Provides an action to update a AutomationExecutionLog, when AutomationExecutionLog id and the new details of AutomationExecutionLog are given
         /// </remarks>
-        /// <param name="id">ProcessExecutionLog Id,produces Bad request if Id is null or Id's don't match</param>
-        /// <param name="request">ProcessExecutionLog details to be updated</param>
-        /// <response code="200">OK, If the ProcessExecutionLog details for the given ProcessExecutionLog Id has been updated.</response>
-        /// <response code="400">BadRequest,if the ProcessExecutionLog Id is null or Id's don't match</response>
+        /// <param name="id">AutomationExecutionLog Id,produces Bad request if Id is null or Id's don't match</param>
+        /// <param name="request">AutomationExecutionLog details to be updated</param>
+        /// <response code="200">OK, If the AutomationExecutionLog details for the given AutomationExecutionLog Id has been updated.</response>
+        /// <response code="400">BadRequest,if the AutomationExecutionLog Id is null or Id's don't match</response>
         /// <response code="403">Forbidden,unauthorized access</response>
         /// <response code="422">UnprocessableEntity</response>
         /// <returns>OK response with the updated value</returns>
         [AllowAnonymous]
-        [HttpPut("{id}/EndProcess")]
+        [HttpPut("{id}/EndAutomation")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -360,7 +362,7 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> EndProcess(string id, [FromBody] ProcessExecutionLog request)
+        public async Task<IActionResult> EndAutomation(string id, [FromBody] AutomationExecutionLog request)
         {
             try
             {
@@ -368,46 +370,46 @@ namespace OpenBots.Server.Web
 
                 if (agent == null)
                 {
-                    ModelState.AddModelError("StartProcess", "Agent not found");
+                    ModelState.AddModelError("StartAutomation", "Agent not found");
                     return NotFound(ModelState);
                 }
                 if (agent.IsConnected == false)
                 {
-                    ModelState.AddModelError("StartProcess", "Agent is not connected");
+                    ModelState.AddModelError("StartAutomation", "Agent is not connected");
                     return BadRequest(ModelState);
                 }
                 Guid entityId = new Guid(id);
 
-                var existingProcessExecutionLog = repository.GetOne(entityId);
-                if (existingProcessExecutionLog == null) return NotFound();
+                var existingAutomationExecutionLog = repository.GetOne(entityId);
+                if (existingAutomationExecutionLog == null) return NotFound();
 
-                existingProcessExecutionLog.JobID = request.JobID;
-                existingProcessExecutionLog.ProcessID = request.ProcessID;
-                existingProcessExecutionLog.AgentID = request.AgentID;
-                existingProcessExecutionLog.StartedOn = request.StartedOn;
-                existingProcessExecutionLog.CompletedOn = request.CompletedOn;
-                existingProcessExecutionLog.Trigger = request.Trigger;
-                existingProcessExecutionLog.TriggerDetails = request.TriggerDetails;
-                existingProcessExecutionLog.Status = request.Status;
-                existingProcessExecutionLog.HasErrors = request.HasErrors;
-                existingProcessExecutionLog.ErrorMessage = request.ErrorMessage;
-                existingProcessExecutionLog.ErrorDetails = request.ErrorDetails;
+                existingAutomationExecutionLog.JobID = request.JobID;
+                existingAutomationExecutionLog.AutomationID = request.AutomationID;
+                existingAutomationExecutionLog.AgentID = request.AgentID;
+                existingAutomationExecutionLog.StartedOn = request.StartedOn;
+                existingAutomationExecutionLog.CompletedOn = request.CompletedOn;
+                existingAutomationExecutionLog.Trigger = request.Trigger;
+                existingAutomationExecutionLog.TriggerDetails = request.TriggerDetails;
+                existingAutomationExecutionLog.Status = request.Status;
+                existingAutomationExecutionLog.HasErrors = request.HasErrors;
+                existingAutomationExecutionLog.ErrorMessage = request.ErrorMessage;
+                existingAutomationExecutionLog.ErrorDetails = request.ErrorDetails;
 
-                return await base.PutEntity(id, existingProcessExecutionLog);
+                return await base.PutEntity(id, existingAutomationExecutionLog);
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("ProcessExecutionLog", ex.Message);
+                ModelState.AddModelError("AutomationExecutionLog", ex.Message);
                 return BadRequest(ModelState);
             }
         }
 
         /// <summary>
-        /// Deletes a ProcessExecutionLog with a specified id from the ProcessExecutionLog.
+        /// Deletes a AutomationExecutionLog with a specified id from the AutomationExecutionLog.
         /// </summary>
-        /// <param name="id">ProcessExecutionLog ID to be deleted- throws BadRequest if null or empty Guid/</param>
-        /// <response code="200">OK,when ProcessExecutionLog is softdeleted,( isDeleted flag is set to true in DB) </response>
-        /// <response code="400">BadRequest,If ProcessExecutionLog Id is null or empty Guid</response>
+        /// <param name="id">AutomationExecutionLog ID to be deleted- throws BadRequest if null or empty Guid/</param>
+        /// <response code="200">OK,when AutomationExecutionLog is softdeleted,( isDeleted flag is set to true in DB) </response>
+        /// <response code="400">BadRequest,If AutomationExecutionLog Id is null or empty Guid</response>
         /// <response code="403">Forbidden </response>
         /// <returns>OK response with deleted value </returns>
         [HttpDelete("{id}")]
@@ -422,21 +424,21 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Updates partial details of ProcessExecutionLog.
+        /// Updates partial details of AutomationExecutionLog.
         /// </summary>
-        /// <param name="id">ProcessExecutionLog identifier</param>
-        /// <param name="value">Value of the ProcessExecutionLog to be updated.</param>
-        /// <response code="200">OK,If update of ProcessExecutionLog is successful. </response>
+        /// <param name="id">AutomationExecutionLog identifier</param>
+        /// <param name="request">Value of the AutomationExecutionLog to be updated.</param>
+        /// <response code="200">OK,If update of AutomationExecutionLog is successful. </response>
         /// <response code="400">BadRequest,if the Id is null or Id's dont match.</response>
         /// <response code="403">Forbidden,unauthorized access</response>
         /// <response code="422">Unprocessable entity,validation error</response>
-        /// <returns>Ok response, if the partial ProcessExecutionLog values has been updated</returns>
+        /// <returns>Ok response, if the partial AutomationExecutionLog values has been updated</returns>
 
         [HttpPatch("{id}")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id,
-            [FromBody] JsonPatchDocument<ProcessExecutionLog> request)
+            [FromBody] JsonPatchDocument<AutomationExecutionLog> request)
         {
             return await base.PatchEntity(id, request);
         }

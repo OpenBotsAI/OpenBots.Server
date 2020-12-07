@@ -16,7 +16,7 @@ namespace OpenBots.Server.ViewModel
         public DateTime? EnqueueTime { get; set; }
         public DateTime? DequeueTime { get; set; }
         [Required]
-        public Guid? ProcessId { get; set; }
+        public Guid? AutomationId { get; set; }
         public JobStatusType? JobStatus { get; set; }
         public string? Message { get; set; }
         public bool? IsSuccessful { get; set; }
@@ -32,7 +32,7 @@ namespace OpenBots.Server.ViewModel
                 EndTime = viewModel.EndTime,
                 EnqueueTime = viewModel.EnqueueTime,
                 DequeueTime = viewModel.DequeueTime,
-                ProcessId = viewModel.ProcessId,
+                AutomationId = viewModel.AutomationId,
                 JobStatus = viewModel.JobStatus,
                 Message = viewModel.Message,
                 IsSuccessful = viewModel.IsSuccessful
