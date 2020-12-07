@@ -8,6 +8,7 @@ using OpenBots.Server.Web.Hubs;
 using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model.Webhooks;
+using OpenBots.Server.Web.Webhooks;
 
 namespace OpenBots.Server.Web
 {
@@ -80,11 +81,15 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IIntegrationEventLogRepository), typeof(IntegrationEventLogRepository));
             services.AddTransient(typeof(IIntegrationEventSubscriptionRepository), typeof(IntegrationEventSubscriptionRepository));
             services.AddTransient(typeof(IIntegrationEventSubscriptionAttemptRepository), typeof(IntegrationEventSubscriptionAttemptRepository));
+            services.AddTransient(typeof(IIntegrationEventSubscriptionAttemptManager), typeof(IntegrationEventSubscriptionAttemptManager));
+
 
             //Blob Storage
             services.AddTransient(typeof(IBlobStorageAdapter), typeof(BlobStorageAdapter));
             services.AddTransient(typeof(IFileSystemAdapter), typeof(FileSystemAdapter));
             services.AddTransient(typeof(IDirectoryManager), typeof(DirectoryManager));
+            services.AddTransient(typeof(IWebhookPublisher), typeof(WebhookPublisher));
+            services.AddTransient(typeof(IWebhookSender), typeof(WebhookSender));
 
             //Email Services
             services.AddTransient(typeof(EmailSettings), typeof(EmailSettings));

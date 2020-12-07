@@ -5,16 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business;
 using OpenBots.Server.DataAccess.Repositories;
-using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Webhooks;
 using OpenBots.Server.Security;
-using OpenBots.Server.ViewModel;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Web.Controllers.WebHooksApi

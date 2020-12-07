@@ -9,7 +9,8 @@ namespace OpenBots.Server.Web.Webhooks
 {
     public interface IWebhookSender
     {
-        Task<(bool isSucceed, HttpStatusCode statusCode, string content)> SendWebhookAsync(WebhookPayload payload, string url);
+        Task SendWebhook(IntegrationEventSubscription eventSubscription, WebhookPayload payload,
+        IntegrationEventSubscriptionAttempt subscriptionAttempt);
 
     }
 }

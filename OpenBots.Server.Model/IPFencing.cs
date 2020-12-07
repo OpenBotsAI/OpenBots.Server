@@ -28,9 +28,8 @@ namespace OpenBots.Server.Model
         [Display(Name = "HeaderValue")]
         public string? HeaderValue { get; set; }
 
-        [Required]
         [Display(Name = "OrganizationId")]
-        public Guid OrganizationId { get; set; }
+        public Guid? OrganizationId { get; set; }
     }
 
     /// <summary>

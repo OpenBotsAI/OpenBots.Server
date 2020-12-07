@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenBots.Server.DataAccess;
 
 namespace OpenBots.Server.DataAccess.Migrations
 {
     [DbContext(typeof(StorageContext))]
-    partial class StorageContextModelSnapshot : ModelSnapshot
+    [Migration("20201203153305_IntegrationEventTables")]
+    partial class IntegrationEventTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -924,6 +926,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("bit");
 
                     b.Property<Guid?>("OrganizationId")
+                        .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Rule")
@@ -2805,8 +2808,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
-                    b.Property<int>("TransportType")
-                        .HasColumnType("int");
+                    b.Property<string>("TransportType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)

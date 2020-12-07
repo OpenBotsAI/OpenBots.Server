@@ -12,6 +12,7 @@ using OpenBots.Server.Model.Identity;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.ViewModel.AgentViewModels;
+using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
 using System.Collections.Generic;
@@ -30,6 +31,7 @@ namespace OpenBots.Server.Web.Controllers
     public class AgentsController : EntityController<AgentModel>
     {
         IAgentManager agentManager;
+        IWebhookPublisher webhookPublisher;
         IAgentRepository agentRepo;
         IPersonRepository personRepo;
         IAspNetUsersRepository usersRepo;
@@ -53,6 +55,7 @@ namespace OpenBots.Server.Web.Controllers
             IAspNetUsersRepository usersRepository,
             IAgentHeartbeatRepository agentHeartbeatRepository,
             IMembershipManager membershipManager,
+            IWebhookPublisher webhookPublisher,
             ApplicationIdentityUserManager userManager,
             IAgentManager agentManager,
             IHttpContextAccessor accessor,
@@ -64,6 +67,7 @@ namespace OpenBots.Server.Web.Controllers
             this.agentHeartbeatRepo = agentHeartbeatRepository;
             this.agentManager = agentManager;
             this.agentManager.SetContext(SecurityContext);
+            this.webhookPublisher = webhookPublisher;
             _accessor = accessor;
         }
 
@@ -548,6 +552,11 @@ namespace OpenBots.Server.Web.Controllers
                 {
                     ModelState.AddModelError("HeartBeat", "Agent is not connected");
                     return BadRequest(ModelState);
+                }
+
+                if (request.IsHealthy == false)
+                {
+                    await webhookPublisher.PublishAsync("Agent.UnhealthyReported", agent.Id.ToString(), agent.Name).ConfigureAwait(false);
                 }
 
                 //Add HeartBeat Values
