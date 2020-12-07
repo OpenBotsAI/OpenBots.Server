@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Hangfire;
+using Newtonsoft.Json;
 using OpenBots.Server.Business;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model.Webhooks;
@@ -25,6 +26,7 @@ namespace OpenBots.Server.Web.Webhooks
             this.attemptRepository = attemptRepository;
         }
 
+        [AutomaticRetry(Attempts = 3)]
         public async Task SendWebhook(IntegrationEventSubscription eventSubscription, WebhookPayload payload,
             IntegrationEventSubscriptionAttempt subscriptionAttempt)
         {
@@ -43,7 +45,7 @@ namespace OpenBots.Server.Web.Webhooks
             }
             catch (Exception e)// an internal error occurred. 
             {
-                throw;
+                throw e;
             }
 
             if (!isSuccessful)
