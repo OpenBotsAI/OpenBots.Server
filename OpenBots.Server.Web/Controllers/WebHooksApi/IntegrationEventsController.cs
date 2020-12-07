@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using OpenBots.Server.Business;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model.Attributes;
@@ -24,6 +23,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
     [Authorize]
     public class IntegrationEventsController : ReadOnlyEntityController<IntegrationEvent>
     {
+        private readonly IIntegrationEventRepository repository;
         public IntegrationEventsController(
             IIntegrationEventRepository repository,
             IMembershipManager membershipManager,
@@ -31,6 +31,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
+            this.repository = repository;
         }
 
         /// <summary>

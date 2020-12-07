@@ -14,6 +14,13 @@ using System.Threading.Tasks;
 
 namespace OpenBots.Server.Web.Controllers.WebHooksApi
 {
+    /// <summary>
+    /// ReadOnlyController for IntegrationEventLog
+    /// </summary>
+    [V1]
+    [Route("api/v{apiVersion:apiVersion}/[controller]")]
+    [ApiController]
+    [Authorize]
     public class IntegrationEventLogsController : ReadOnlyEntityController<IntegrationEventLog>
     {
         private readonly IIntegrationEventLogRepository repository;

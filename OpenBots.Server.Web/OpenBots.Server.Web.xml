@@ -3192,6 +3192,11 @@
             <response code="422">Unprocessable entity</response>
             <returns>Ok response</returns>
         </member>
+        <member name="T:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventLogsController">
+            <summary>
+            ReadOnlyController for IntegrationEventLog
+            </summary>
+        </member>
         <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventLogsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
             Provides a list of all IntegrationEventLogs
@@ -3264,7 +3269,7 @@
         </member>
         <member name="T:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionAttemptsController">
             <summary>
-            Controller for IntegrationEventSubscriptionAttempts events
+            ReadOnlyController for IntegrationEventSubscriptionAttempts events
             </summary>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionAttemptsController.Get(System.String,System.String,System.Int32,System.Int32)">

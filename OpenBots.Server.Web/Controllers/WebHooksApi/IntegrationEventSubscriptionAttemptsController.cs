@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace OpenBots.Server.Web.Controllers.WebHooksApi
 {
     /// <summary>
-    /// Controller for IntegrationEventSubscriptionAttempts events
+    /// ReadOnlyController for IntegrationEventSubscriptionAttempts events
     /// </summary>
     [V1]
     [Route("api/v{apiVersion:apiVersion}/[controller]")]
@@ -23,6 +23,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
     [Authorize]
     public class IntegrationEventSubscriptionAttemptsController : ReadOnlyEntityController<IntegrationEventSubscriptionAttempt>
     {
+        private readonly IIntegrationEventSubscriptionAttemptRepository repository;
         public IntegrationEventSubscriptionAttemptsController(
             IIntegrationEventSubscriptionAttemptRepository repository,
             IMembershipManager membershipManager,
@@ -30,6 +31,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
+            this.repository = repository;
         }
 
         /// <summary>
