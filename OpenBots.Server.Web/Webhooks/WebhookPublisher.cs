@@ -79,20 +79,19 @@ namespace OpenBots.Server.Web.Webhooks
             // Get subscriptions that must receive webhook
             foreach (var eventSubscription in eventSubscriptions)
             {
-                // Create new IntegrationEventSubscriptionAttempt
-                IntegrationEventSubscriptionAttempt subscriptionAttempt = new IntegrationEventSubscriptionAttempt()
-                {
-                    EventLogID = eventLog.Id,
-                    IntegrationEventName = eventSubscription.IntegrationEventName,
-                    IntegrationEventSubscriptionID = eventSubscription.Id,
-                    Status = "InProgress",
-                    AttemptCounter = 0,
-                    CreatedOn = DateTime.UtcNow,
-                };
-
                 //create a background job to send the webhook
                 if (eventSubscription.TransportType == TransportType.HTTPS)
                 {
+                    // Create new IntegrationEventSubscriptionAttempt
+                    IntegrationEventSubscriptionAttempt subscriptionAttempt = new IntegrationEventSubscriptionAttempt()
+                    {
+                        EventLogID = eventLog.Id,
+                        IntegrationEventName = eventSubscription.IntegrationEventName,
+                        IntegrationEventSubscriptionID = eventSubscription.Id,
+                        Status = "InProgress",
+                        AttemptCounter = 0,
+                        CreatedOn = DateTime.UtcNow,
+                    };
                     backgroundJobClient.Enqueue<WebhookSender>(x => x.SendWebhook(eventSubscription, payload, subscriptionAttempt));
                 }
                 else if(eventSubscription.TransportType == TransportType.Queue)
