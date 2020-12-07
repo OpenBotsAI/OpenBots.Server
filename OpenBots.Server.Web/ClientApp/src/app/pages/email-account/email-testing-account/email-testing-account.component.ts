@@ -1,7 +1,13 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NbToastrService } from '@nebular/theme';
+import {
+  UploaderOptions,
+  UploadFile,
+  UploadInput,
+  UploadOutput,
+} from 'ngx-uploader';
 import { EmailAccountsService } from '../email-accounts.service';
 
 @Component({
@@ -11,13 +17,19 @@ import { EmailAccountsService } from '../email-accounts.service';
 })
 export class EmailTestingAccountComponent implements OnInit {
   @ViewChild('myckeditor') ckeditor: any;
+  uploadInput: EventEmitter<UploadInput>;
   submitted = false;
   showEmail: any = [];
-  getEmail:any =[];
+  getEmail: any = [];
   emailform: FormGroup;
   ckeConfig: any;
+  options: UploaderOptions;
+  files: UploadFile[];
   queryParamName: string;
   queryParamEmail: string;
+  fileSize = false;
+  showUpload = false;
+  fileArray: any[] = [];
 
   constructor(
     private toastrService: NbToastrService,
@@ -26,10 +38,10 @@ export class EmailTestingAccountComponent implements OnInit {
     private formBuilder: FormBuilder,
     protected router: Router
   ) {
-      this.route.queryParams.subscribe((params) => {
-        this.queryParamName = params.name;
-        this.queryParamEmail = localStorage.getItem('UserEmail')
-      });
+    this.route.queryParams.subscribe((params) => {
+      this.queryParamName = params.name;
+      this.queryParamEmail = localStorage.getItem('UserEmail');
+    });
     this.ckeConfig = {
       allowedContent: false,
       extraPlugins: 'divarea',
@@ -37,9 +49,8 @@ export class EmailTestingAccountComponent implements OnInit {
       removePlugins: 'about',
       removeButtons: 'Save,NewPage,Print,Preview',
     };
-  
-    this.getEmailAccount();
 
+    this.getEmailAccount();
   }
 
   ngOnInit(): void {
@@ -51,17 +62,18 @@ export class EmailTestingAccountComponent implements OnInit {
           Validators.pattern('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[a-z]{2,4}$'),
         ],
       ],
-      name: [
-        '',
-        [
-          Validators.required,
-          
-        ],
-      ],
+      name: ['', [Validators.required]],
       subject: ['', [Validators.required]],
       body: [''],
-      cc: [''],
-      bcc: [''],
+      cc: [
+        '',
+        [Validators.pattern('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[a-z]{2,4}$')],
+      ],
+      bcc: [
+        '',
+        [Validators.pattern('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[a-z]{2,4}$')],
+      ],
+      isBodyHtml: [true],
     });
 
     this.emailform.patchValue({
@@ -70,14 +82,23 @@ export class EmailTestingAccountComponent implements OnInit {
     });
   }
 
+  onUploadOutput(output: UploadOutput): void {
+    switch (output.type) {
+      case 'addedToQueue':
+        if (typeof output.file !== 'undefined') {
+          if (!output.file.size) this.fileSize = true;
+          else this.fileSize = false;
+          if (!this.fileSize) {
+            this.fileArray.push(output);
+          }
+        }
+    }
+  }
 
-
-
-
-  getEmailAccount(){
-    this.emailService.getAllEmailforfilter().subscribe((data:any) =>{
+  getEmailAccount() {
+    this.emailService.getAllEmailforfilter().subscribe((data: any) => {
       this.getEmail = data;
-    })
+    });
   }
   onChange($event: any): void {
     console.log('onChange');
@@ -101,7 +122,9 @@ export class EmailTestingAccountComponent implements OnInit {
   }
 
   onSubmit() {
+    console.log('email', this.emailform.value);
     this.submitted = true;
+    const formData = new FormData();
     let obj = {
       to: [
         {
@@ -111,10 +134,21 @@ export class EmailTestingAccountComponent implements OnInit {
       ],
       subject: this.emailform.value.subject,
       body: this.emailform.value.body,
-      isBodyHtml: true,
+      isBodyHtml: this.emailform.value.isBodyHtml,
     };
 
-    this.emailService.SendEmail(this.emailform.value.name, obj).subscribe(
+    if (this.fileArray.length) {
+      for (let data of this.fileArray) {
+        formData.append('Files', data.file.nativeFile, data.file.name);
+      }
+      formData.append('EmailMessageJson', JSON.stringify(obj));
+    }
+
+    if (this.fileArray.length == 0) {
+      formData.append('EmailMessageJson', JSON.stringify(obj));
+    }
+
+    this.emailService.SendEmail(this.emailform.value.name, formData).subscribe(
       () => {
         this.toastrService.success('Email test successfully.', 'Success');
         this.router.navigate(['pages/emailaccount/list']);

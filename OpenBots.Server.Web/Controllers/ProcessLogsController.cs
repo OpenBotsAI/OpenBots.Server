@@ -23,10 +23,17 @@ namespace OpenBots.Server.Web
     [Authorize]
     public class ProcessLogsController : EntityController<ProcessLog>
     {
+        IProcessLogManager processLogManager;
+
         /// <summary>
         /// ProcessLogsController constructor
         /// </summary>
-        IProcessLogManager processLogManager;
+        /// <param name="configuration"></param>
+        /// <param name="userManager"></param>
+        /// <param name="repository"></param>
+        /// <param name="membershipManager"></param>
+        /// <param name="httpContextAccessor"></param>
+        /// <param name="processLogManager"></param>
         public ProcessLogsController(
             IProcessLogRepository repository,
             IMembershipManager membershipManager,

@@ -44,6 +44,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <param name="backgroundJobClient"></param>
         /// <param name="httpContextAccessor"></param>
         /// <param name="hubManager"></param>
+        /// <param name="configuration"></param>
         public SchedulesController(
             IScheduleRepository repository,
             IMembershipManager membershipManager,

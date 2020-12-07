@@ -16,23 +16,23 @@ export class EmailLogService {
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
   getAllEmail(tpage: any, spage: any) {
-    let getagentUrl = `/Email?$orderby=createdOn desc&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/Emails?$orderby=createdOn desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
   getAllEmaillogOrder(tpage: any, spage: any, name) {
-    let getagentUrl = `/Email?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/Emails?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
 
   filter_emailaccount(email_name: any, tpage: any, spage: any) {
-    let getagentUrl = `/EmailLogs?$filter=${email_name}&$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/Emails?$filter=${email_name}&$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
   getEmailbyId(id) {
-    let getagentUrlbyId = `/EmailLogs/${id}`;
+    let getagentUrlbyId = `/Emails/${id}`;
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
   }
 

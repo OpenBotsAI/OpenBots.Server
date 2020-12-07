@@ -26,10 +26,17 @@ namespace OpenBots.Server.Web.Controllers
     [Authorize]
     public class QueuesController : EntityController<Queue>
     {
+        IQueueManager queueManager;
+
         /// <summary>
         /// QueuesController constructor
         /// </summary>
-        IQueueManager queueManager;
+        /// <param name="configuration"></param>
+        /// <param name="httpContextAccessor"></param>
+        /// <param name="membershipManager"></param>
+        /// <param name="queueManager"></param>
+        /// <param name="repository"></param>
+        /// <param name="userManager"></param>
         public QueuesController(
             IQueueRepository repository,
             IQueueManager queueManager,

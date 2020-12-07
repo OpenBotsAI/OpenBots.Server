@@ -16,12 +16,8 @@ using OpenBots.Server.WebAPI.Controllers;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.ViewModel.Email;
 using System.Collections.Generic;
-using OpenBots.Server.Model;
-using System.IO;
-using System.Security.Cryptography;
 using System.Linq;
 using Newtonsoft.Json;
-using AutoMapper;
 
 namespace OpenBots.Server.Web.Controllers.EmailConfiguration
 {
@@ -35,7 +31,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
     public class EmailsController : EntityController<EmailModel>
     {
         private readonly IBinaryObjectRepository binaryObjectRepository;
-        private readonly IEmailManager emailSender;
+        private readonly IEmailManager manager;
         private readonly IEmailAttachmentRepository emailAttachmentRepository;
         private readonly IBinaryObjectManager binaryObjectManager;
 
@@ -48,7 +44,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// <param name="httpContextAccessor"></param>
         /// <param name="configuration"></param>
         /// <param name="binaryObjectRepository"></param>
-        /// <param name="emailSender"></param>
+        /// <param name="manager"></param>
         /// <param name="emailAttachmentRepository"></param>
         /// <param name="binaryObjectManager"></param>
         public EmailsController(
@@ -58,12 +54,12 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
             IBinaryObjectRepository binaryObjectRepository,
-            IEmailManager emailSender,
+            IEmailManager manager,
             IEmailAttachmentRepository emailAttachmentRepository,
             IBinaryObjectManager binaryObjectManager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.binaryObjectRepository = binaryObjectRepository;
-            this.emailSender = emailSender;
+            this.manager = manager;
             this.emailAttachmentRepository = emailAttachmentRepository;
             this.binaryObjectManager = binaryObjectManager;
         }
@@ -155,7 +151,39 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         }
 
         /// <summary>
-        /// Adds a new email to the existing emails
+        /// Get email by id view
+        /// </summary>
+        /// <param name="id"></param>
+        /// <response code="200">Ok, if an email exists with the given id</response>
+        /// <response code="304">Not modified</response>
+        /// <response code="400">Bad request, if email id is not in proper format or proper Guid</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not found, when no email exists for the given email id</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Email details</returns>
+        [HttpGet("{id}/view")]
+        [ProducesResponseType(typeof(PaginatedList<EmailViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> GetView(string id)
+        {
+            try
+            {
+                return await base.GetEntity<EmailViewModel>(id);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Adds a new draft email to the existing emails
         /// </summary>
         /// <remarks>
         /// Adds the email with unique email id to the existing emails
@@ -180,185 +208,20 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
             try
             {
                 // Create email entity
-                EmailModel email = new EmailModel()
-                {
-                    EmailAccountId = request.EmailAccountId,
-                    SenderUserId = request.SenderUserId,
-                    CreatedBy = applicationUser?.Name,
-                    CreatedOn = DateTime.UtcNow,
-                    Status = "New",
-                    EmailObjectJson = request.EmailObjectJson,
-                    Direction = request.Direction
-                };
+                EmailModel email = manager.CreateEmail(request);
 
                 await base.PostEntity(email);
 
-                // Create email attachments & binary objects entities; upload files to Server
-                var attachments = new List<EmailAttachment>();
-                if (request.Files?.Length != 0 && request.Files != null)
-                {
-                    foreach (var file in request.Files)
-                    {
-                        if (file == null)
-                        {
-                            ModelState.AddModelError("Save", "No file attached");
-                            return BadRequest(ModelState);
-                        }
+                // Create email attachments & binary objects entities; upload binary object files to Server
+                var attachments = manager.AddAttachments(request.Files, (Guid)email.Id);
 
-                        long size = file.Length;
-                        if (size <= 0)
-                        {
-                            ModelState.AddModelError("File attachment", $"File size of file {file.FileName} cannot be 0");
-                            return BadRequest(ModelState);
-                        }
-
-                        string organizationId = binaryObjectManager.GetOrganizationId();
-                        string apiComponent = "EmailAPI";
-
-                        //Add file to Binary Objects (create entity and put file in EmailAPI folder in Server)
-                        BinaryObject binaryObject = new BinaryObject()
-                        {
-                            Name = file.FileName,
-                            Folder = apiComponent,
-                            CreatedBy = applicationUser?.UserName,
-                            CreatedOn = DateTime.UtcNow,
-                            CorrelationEntityId = email.Id
-                        };
-
-                        string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
-                        //Upload file to Server
-                        binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                        binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                        binaryObjectRepository.Add(binaryObject);
-
-                        // Create email attachment
-                        EmailAttachment emailAttachment = new EmailAttachment()
-                        {
-                            Name = binaryObject.Name,
-                            BinaryObjectId = binaryObject.Id,
-                            ContentType = binaryObject.ContentType,
-                            ContentStorageAddress = binaryObject.StoragePath,
-                            SizeInBytes = binaryObject.SizeInBytes,
-                            EmailId = (Guid)email.Id,
-                            CreatedOn = DateTime.UtcNow,
-                            CreatedBy = applicationUser?.UserName
-                        };
-                        emailAttachmentRepository.Add(emailAttachment);
-                        attachments.Add(emailAttachment);
-                    }
-                }
-                EmailViewModel emailViewModel = new EmailViewModel();
-                emailViewModel = emailViewModel.Map(email);
-                if (attachments.Count != 0)
-                    emailViewModel.Attachments = attachments;
+                EmailViewModel emailViewModel = manager.GetEmailViewModel(email, attachments);
                 return Ok(emailViewModel);
             }
             catch (Exception ex)
             {
-                return ex.GetActionResult();
-            }
-        }
-
-        /// <summary>
-        /// Adds the email with unique email id to existing emails with status of "Draft"
-        /// </summary>
-        /// <param name="request"></param>
-        /// <response code="200">Ok, new email created and returned</response>
-        /// <response code="400">Bad request, when the email value is not in proper format</response>
-        /// <response code="403">Forbidden, unauthorized access</response>
-        ///<response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity</response>
-        /// <returns> Newly created unique email id</returns>
-        [HttpPost("compose")]
-        [ProducesResponseType(typeof(EmailModel), StatusCodes.Status200OK)]
-        [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        [ProducesDefaultResponseType]
-        public async Task<IActionResult> Compose([FromForm] AddEmailViewModel request)
-        {
-            try
-            {
-                // Create email entity
-                EmailModel email = new EmailModel()
-                {
-                    EmailAccountId = request.EmailAccountId,
-                    SenderUserId = request.SenderUserId,
-                    CreatedBy = applicationUser?.Name,
-                    CreatedOn = DateTime.UtcNow,
-                    Status = "Draft",
-                    EmailObjectJson = request.EmailObjectJson,
-                    Direction = request.Direction
-                };
-
-                await base.PostEntity(email);
-
-                // Create email attachments & binary objects entities; upload files to Server
-                var attachments = new List<EmailAttachment>();
-                if (request.Files.Length != 0 && request.Files != null)
-                {
-                    foreach (var file in request.Files)
-                    {
-                        if (file == null)
-                        {
-                            ModelState.AddModelError("Save", "No file attached");
-                            return BadRequest(ModelState);
-                        }
-
-                        long size = file.Length;
-                        if (size <= 0)
-                        {
-                            ModelState.AddModelError("File attachment", $"File size of file {file.FileName} cannot be 0");
-                            return BadRequest(ModelState);
-                        }
-
-                        string organizationId = binaryObjectManager.GetOrganizationId();
-                        string apiComponent = "EmailAPI";
-
-                        //Add file to Binary Objects (create entity and put file in EmailAPI folder in Server)
-                        BinaryObject binaryObject = new BinaryObject()
-                        {
-                            Name = file.FileName,
-                            Folder = apiComponent,
-                            CreatedBy = applicationUser?.UserName,
-                            CreatedOn = DateTime.UtcNow,
-                            CorrelationEntityId = email.Id
-                        };
-
-                        string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
-                        //Upload file to Server
-                        binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                        binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                        binaryObjectRepository.Add(binaryObject);
-
-                        // Create email attachment
-                        EmailAttachment emailAttachment = new EmailAttachment()
-                        {
-                            Name = binaryObject.Name,
-                            BinaryObjectId = binaryObject.Id,
-                            ContentType = binaryObject.ContentType,
-                            ContentStorageAddress = binaryObject.StoragePath,
-                            SizeInBytes = binaryObject.SizeInBytes,
-                            EmailId = (Guid)email.Id,
-                            CreatedOn = DateTime.UtcNow,
-                            CreatedBy = applicationUser?.UserName
-                        };
-                        emailAttachmentRepository.Add(emailAttachment);
-                        attachments.Add(emailAttachment);
-                    }
-                }
-                
-                EmailViewModel emailViewModel = new EmailViewModel();
-                emailViewModel = emailViewModel.Map(email);
-                if (attachments.Count != 0)
-                    emailViewModel.Attachments = attachments;
-                return Ok(emailViewModel);
-            }
-            catch (Exception ex)
-            {
-                return ex.GetActionResult();
+                ModelState.AddModelError("Email", ex.Message);
+                return BadRequest(ModelState);
             }
         }
 
@@ -391,124 +254,33 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
                 Guid emailId = Guid.Parse(id);
                 var email = repository.GetOne(emailId);
 
+                var emailAttachments = new List<EmailAttachment>();
+                var attachments = emailAttachmentRepository.Find(null, q => q.EmailId == emailId)?.Items;
+
                 if (email.Status.Equals("Draft"))
                 {
-                    var attachments = emailAttachmentRepository.Find(null, q => q.EmailId == emailId)?.Items;
-                    var emailAttachments = new List<EmailAttachment>();
-                    if (request.Files != null)
-                    {
-                        var files = request.Files.ToList();
-                        // Replace attachments with new ones
-                        foreach (var attachment in attachments)
-                        {
-                            var binaryObject = binaryObjectRepository.GetOne((Guid)attachment.BinaryObjectId);
-                            bool exists = false;
-                            // Check if file with same hash and queue item id already exists
-                            foreach (var file in request.Files)
-                            {
-                                byte[] bytes = Array.Empty<byte>();
-                                using (var ms = new MemoryStream())
-                                {
-                                    await file.CopyToAsync(ms);
-                                    bytes = ms.ToArray();
-                                }
-
-                                string hash = string.Empty;
-                                using (SHA256 sha256Hash = SHA256.Create())
-                                {
-                                    hash = binaryObjectManager.GetHash(sha256Hash, bytes);
-                                }
-
-                                if (binaryObject.HashCode == hash && binaryObject.CorrelationEntityId == email.Id)
-                                {
-                                    exists = true;
-                                    files.Remove(file);
-                                }
-                            }
-                            // If queue item attachment already exists: continue
-                            if (exists)
-                                continue;
-                            // If queue item attachment doesn't exist: remove attachment and binary object
-                            else
-                            {
-                                binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
-                                emailAttachmentRepository.SoftDelete((Guid)attachment.Id);
-                            }
-                        }
-                        // If file doesn't exist in binary objects: add binary object entity, upload file, and add queue item attachment entity
-                        foreach (var file in files)
-                        {
-                            var binaryObj = binaryObjectRepository.Find(null, q => q.Name == file.Name && q.ContentType == file.ContentType && q.SizeInBytes == file.Length)?.Items?.FirstOrDefault();
-                            if (binaryObj == null)
-                            {
-                                if (file == null)
-                                {
-                                    ModelState.AddModelError("Save", "No file attached");
-                                    return BadRequest(ModelState);
-                                }
-
-                                long size = file.Length;
-                                if (size <= 0)
-                                {
-                                    ModelState.AddModelError("File attachment", $"File size of file {file.FileName} cannot be 0");
-                                    return BadRequest(ModelState);
-                                }
-
-                                string organizationId = binaryObjectManager.GetOrganizationId();
-                                string apiComponent = "EmailAPI";
-
-                                //Create binary object
-                                BinaryObject binaryObject = new BinaryObject()
-                                {
-                                    Name = file.FileName,
-                                    Folder = apiComponent,
-                                    CreatedOn = DateTime.UtcNow,
-                                    CreatedBy = applicationUser?.UserName,
-                                    CorrelationEntityId = Guid.Parse(id)
-                                };
-
-                                string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
-
-                                //Upload file to the Server
-                                binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                                binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                                binaryObjectRepository.Add(binaryObject);
-
-                                //Create queue item attachment
-                                EmailAttachment emailAttachment = new EmailAttachment()
-                                {
-                                    BinaryObjectId = (Guid)binaryObject.Id,
-                                    EmailId = Guid.Parse(id),
-                                    CreatedBy = applicationUser?.UserName,
-                                    CreatedOn = DateTime.UtcNow,
-                                    SizeInBytes = binaryObject.SizeInBytes,
-                                    ContentStorageAddress = binaryObject.StoragePath,
-                                    ContentType = binaryObject.ContentType,
-                                    Name = binaryObject.Name
-                                };
-                                emailAttachmentRepository.Add(emailAttachment);
-                                emailAttachments.Add(emailAttachment);
-                            }
-                        }
+                    // If file doesn't exist in binary objects: add binary object entity, upload file, and add email attachment entity
+                    string hash = string.Empty;
+                    IFormFile[] filesArray = manager.CheckFiles(request.Files, emailId, hash, attachments);
+                    emailAttachments = manager.AddAttachments(filesArray, emailId, hash);
+                    if (request.Files == null || request.Files.Length == 0)
                         emailMessage.Attachments = emailAttachments;
-                    }
                     else
                         emailMessage.Attachments = attachments;
 
-                    // Email account name is nullable, so it needs ot be used as a query parameter instead of in the put url
+                    // Email account name is nullable, so it needs to be used as a query parameter instead of in the put url
                     // If no email account is chosen, the default organization account will be used
-                    await emailSender.SendEmailAsync(emailMessage, emailAccountName, id, "Outgoing");
+                    await manager.SendEmailAsync(emailMessage, emailAccountName, id, "Outgoing");
 
-                    EmailViewModel emailViewModel = new EmailViewModel();
-                    emailViewModel = emailViewModel.Map(email);
-                    if (attachments.Count != 0 && attachments != null)
-                        emailViewModel.Attachments = attachments;
-                    else emailViewModel.Attachments = emailAttachments;
+                    email = repository.Find(null, q => q.Id == emailId)?.Items?.FirstOrDefault();
+                    EmailViewModel emailViewModel = manager.GetEmailViewModel(email, attachments);
+                    if (attachments.Count == 0 || attachments == null)
+                        emailViewModel.Attachments = emailAttachments;
                     return Ok(emailViewModel);
                 }
                 else
                 {
-                    ModelState.AddModelError("Send email", "Email was not able to be sent.");
+                    ModelState.AddModelError("Send email", "Email was not able to be sent.  Email is not a draft.");
                     return BadRequest(ModelState);
                 }
             }
@@ -546,73 +318,16 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
             {
                 EmailMessage emailMessage = JsonConvert.DeserializeObject<EmailMessage>(request.EmailMessageJson);
 
-                // Create Email Attachment entities for each file attached
-                var attachments = new List<EmailAttachment>();
-
+                // Create email attachment entities for each file attached
                 Guid id = Guid.NewGuid();
+                var attachments = manager.AddAttachments(request.Files, id);
 
-                if (request.Files?.Length != 0 && request.Files != null)
-                {
-                    foreach (var file in request.Files)
-                    {
-                        if (file == null)
-                        {
-                            ModelState.AddModelError("Save", "No file attached");
-                            return BadRequest(ModelState);
-                        }
+                // Add attachment entities to email message
+                emailMessage.Attachments = attachments;
+                await manager.SendEmailAsync(emailMessage, accountName, id.ToString(), "Outgoing");
 
-                        long size = file.Length;
-                        if (size <= 0)
-                        {
-                            ModelState.AddModelError("File attachment", $"File size of file {file.FileName} cannot be 0");
-                            return BadRequest(ModelState);
-                        }
-
-                        string organizationId = binaryObjectManager.GetOrganizationId();
-                        string apiComponent = "EmailAPI";
-
-                        //Add file to Binary Objects (create entity and put file in EmailAPI folder in Server)
-                        BinaryObject binaryObject = new BinaryObject()
-                        {
-                            Name = file.FileName,
-                            Folder = apiComponent,
-                            CreatedBy = applicationUser?.UserName,
-                            CreatedOn = DateTime.UtcNow,
-                            CorrelationEntityId = id
-                        };
-
-                        string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
-                        //Upload file to Server
-                        binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                        binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                        binaryObjectRepository.Add(binaryObject);
-
-                        // Create email attachment
-                        EmailAttachment emailAttachment = new EmailAttachment()
-                        {
-                            Name = binaryObject.Name,
-                            BinaryObjectId = binaryObject.Id,
-                            ContentType = binaryObject.ContentType,
-                            ContentStorageAddress = binaryObject.StoragePath,
-                            SizeInBytes = binaryObject.SizeInBytes,
-                            EmailId = id,
-                            CreatedOn = DateTime.UtcNow,
-                            CreatedBy = applicationUser?.UserName
-                        };
-                        emailAttachmentRepository.Add(emailAttachment);
-                        attachments.Add(emailAttachment);
-
-                        // Add attachment entities to email message
-                        emailMessage.Attachments = attachments;
-
-                        await emailSender.SendEmailAsync(emailMessage, accountName, id.ToString(), "Outgoing");
-                    }
-                }
                 EmailModel email = repository.Find(null, q => q.Id == id)?.Items?.FirstOrDefault();
-                EmailViewModel emailViewModel = new EmailViewModel();
-                emailViewModel = emailViewModel.Map(email);
-                if (attachments.Count != 0)
-                    emailViewModel.Attachments = attachments;
+                EmailViewModel emailViewModel = manager.GetEmailViewModel(email, attachments);
                 return Ok(emailViewModel);
             }
             catch (Exception ex)
@@ -702,112 +417,18 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
             email.Reason = request.Reason;
             email.SentOnUTC = request.SentOnUTC;
 
+            // If files don't exist in binary objects: add binary object entity, upload file, and add email attachment attachment entity
             var attachments = emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(id))?.Items;
-            var binaryObjectIds = new List<Guid>();
-            var files = request.Files.ToList();
+            string hash = string.Empty;
+            IFormFile[] filesArray = manager.CheckFiles(request.Files, (Guid)email.Id, hash, attachments);
+            var emailAttachments = manager.AddAttachments(filesArray, (Guid)email.Id, hash);
 
-            foreach (var attachment in attachments)
-            {
-                var binaryObject = binaryObjectRepository.GetOne((Guid)attachment.BinaryObjectId);
-                bool exists = false;
-                // Check if file with same hash and queue item id already exists
-                foreach (var file in request.Files)
-                {
-                    byte[] bytes = Array.Empty<byte>();
-                    using (var ms = new MemoryStream())
-                    {
-                        await file.CopyToAsync(ms);
-                        bytes = ms.ToArray();
-                    }
-
-                    string hash = string.Empty;
-                    using (SHA256 sha256Hash = SHA256.Create())
-                    {
-                        hash = binaryObjectManager.GetHash(sha256Hash, bytes);
-                    }
-
-                    if (binaryObject.HashCode == hash && binaryObject.CorrelationEntityId == email.Id)
-                    {
-                        exists = true;
-                        files.Remove(file);
-                        binaryObjectIds.Add((Guid)binaryObject.Id);
-                    }
-                }
-                // If queue item attachment already exists: continue
-                if (exists)
-                    continue;
-                // If queue item attachment doesn't exist: remove attachment and binary object
-                else
-                {
-                    binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
-                    emailAttachmentRepository.SoftDelete((Guid)attachment.Id);
-                }
-            }
-            // If file doesn't exist in binary objects: add binary object entity, upload file, and add queue item attachment entity
-            var emailAttachments = new List<EmailAttachment>();
-            foreach (var file in files)
-            {
-                var binaryObj = binaryObjectRepository.Find(null, q => q.Name == file.Name && q.ContentType == file.ContentType && q.SizeInBytes == file.Length)?.Items?.FirstOrDefault();
-                if (binaryObj == null)
-                {
-                    if (file == null)
-                    {
-                        ModelState.AddModelError("Save", "No file attached");
-                        return BadRequest(ModelState);
-                    }
-
-                    long size = file.Length;
-                    if (size <= 0)
-                    {
-                        ModelState.AddModelError("File attachment", $"File size of file {file.FileName} cannot be 0");
-                        return BadRequest(ModelState);
-                    }
-
-                    string organizationId = binaryObjectManager.GetOrganizationId();
-                    string apiComponent = "EmailAPI";
-
-                    //Create binary object
-                    BinaryObject binaryObject = new BinaryObject()
-                    {
-                        Name = file.FileName,
-                        Folder = apiComponent,
-                        CreatedOn = DateTime.UtcNow,
-                        CreatedBy = applicationUser?.UserName,
-                        CorrelationEntityId = Guid.Parse(id)
-                    };
-
-                    string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
-
-                    //Upload file to the Server
-                    binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                    binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                    binaryObjectRepository.Add(binaryObject);
-
-                    //Create queue item attachment
-                    EmailAttachment emailAttachment = new EmailAttachment()
-                    {
-                        BinaryObjectId = (Guid)binaryObject.Id,
-                        EmailId = Guid.Parse(id),
-                        CreatedBy = applicationUser?.UserName,
-                        CreatedOn = DateTime.UtcNow,
-                        SizeInBytes = binaryObject.SizeInBytes,
-                        ContentStorageAddress = binaryObject.StoragePath,
-                        ContentType = binaryObject.ContentType,
-                        Name = binaryObject.Name,
-                    };
-                    emailAttachmentRepository.Add(emailAttachment);
-                    binaryObjectIds.Add((Guid)emailAttachment.BinaryObjectId);
-                    emailAttachments.Add(emailAttachment);
-                }
-            }
-            // Update queue item
+            // Update email
             repository.Update(email);
 
-            EmailViewModel response = new EmailViewModel();
-            response = response.Map(email);
-            if (attachments.Count != 0 && attachments != null)
-                response.Attachments = attachments;
-            else
+            attachments = emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(id))?.Items;
+            EmailViewModel response = manager.GetEmailViewModel(email, attachments);
+            if (attachments.Count == 0 || attachments == null)
                 response.Attachments = emailAttachments;
             return Ok(response);
         }
