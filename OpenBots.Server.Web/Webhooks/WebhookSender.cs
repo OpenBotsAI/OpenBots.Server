@@ -26,7 +26,6 @@ namespace OpenBots.Server.Web.Webhooks
             this.attemptRepository = attemptRepository;
         }
 
-        [AutomaticRetry(Attempts = 3)]
         public async Task SendWebhook(IntegrationEventSubscription eventSubscription, WebhookPayload payload,
             IntegrationEventSubscriptionAttempt subscriptionAttempt)
         {
@@ -43,9 +42,9 @@ namespace OpenBots.Server.Web.Webhooks
             {
                 isSuccessful = await SendWebhookAsync(payload, eventSubscription.HTTP_URL);
             }
-            catch (Exception e)// an internal error occurred. 
+            catch (Exception exception)// an internal error occurred. 
             {
-                throw e;
+                throw exception;
             }
 
             if (!isSuccessful)
