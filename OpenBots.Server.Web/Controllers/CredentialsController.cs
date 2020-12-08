@@ -124,10 +124,10 @@ namespace OpenBots.Server.Web
             {
                 Guid entityId = new Guid(id);
 
-                var existingAgent = repository.GetOne(entityId);
-                if (existingAgent == null) return NotFound();
+                var existingCredential = repository.GetOne(entityId);
+                if (existingCredential == null) return NotFound();
 
-                if (credentialManager.ValidateRetrievalDate(existingAgent))
+                if (credentialManager.ValidateRetrievalDate(existingCredential))
                 {
                     return await base.GetEntity(id);
                 }

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Configuration;
+using OpenBots.Server.Model.Webhooks;
 
 namespace OpenBots.Server.DataAccess
 {
@@ -33,6 +34,11 @@ namespace OpenBots.Server.DataAccess
         public DbSet<EmailModel> Emails { get; set; }
         public DbSet<EmailAttachment> EmailAttachments { get; set; }
         public DbSet<IPFencing> IPFencings { get; set; }
+        public DbSet<IntegrationEvent> IntegrationEvents { get; set; }
+        public DbSet<IntegrationEventLog> IntegrationEventLogs { get; set; }
+        public DbSet<IntegrationEventSubscription> IntegrationEventSubscriptions { get; set; }
+        public DbSet<IntegrationEventSubscriptionAttempt> IntegrationEventSubscriptionAttempts { get; set; }
+
 
         public StorageContext(DbContextOptions<StorageContext> options)
       : base(options)

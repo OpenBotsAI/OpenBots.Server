@@ -271,7 +271,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                         entity.Timestamp = originalTimestamp;
 
                     entity.UpdatedOn = DateTime.UtcNow;
-                    entity.UpdatedBy = _caller.Identity.Name;
+                    entity.UpdatedBy = _caller?.Identity?.Name ?? "Server";
 
                     DbContext.Entry(entity).State = EntityState.Modified;
                     DbContext.SaveChanges();

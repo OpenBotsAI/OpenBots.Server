@@ -96,7 +96,6 @@ namespace OpenBots.Server.Business
             {
                 jobCheckpointRepo.SoftDelete(checkpoint.Id ?? Guid.Empty);
             }
-
         }
 
         public string GetCsv(Job[] jobs)
