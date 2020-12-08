@@ -6,6 +6,7 @@ import { JobsService } from '../jobs.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
 import { FileSaverService } from 'ngx-filesaver';
+import { automationsApiUrl } from '../../../webApiUrls/automations';
 
 @Component({
   selector: 'ngx-all-jobs',
@@ -48,13 +49,12 @@ export class AllJobsComponent implements OnInit, OnDestroy {
   constructor(
     protected router: Router,
     private _FileSaverService: FileSaverService,
-    private dialogService: NbDialogService,
     private formBuilder: FormBuilder,
     protected jobService: JobsService,
     private acroute: ActivatedRoute
   ) {
     this.showjobs = this.formBuilder.group({
-      processId: [''],
+      automationId: [''],
       agentId: [''],
     });
     this.get_filter_agent_process();
@@ -161,7 +161,8 @@ export class AllJobsComponent implements OnInit, OnDestroy {
     }
     if (this.filter_process_id != null && this.filter_process_id != '') {
       this.abc_filter =
-        this.abc_filter + `ProcessID+eq+guid'${this.filter_process_id}' and `;
+        this.abc_filter +
+        `${automationsApiUrl.automationId}+eq+guid'${this.filter_process_id}' and `;
     }
     if (this.filter_jobstatus != null && this.filter_jobstatus != '') {
       this.abc_filter =

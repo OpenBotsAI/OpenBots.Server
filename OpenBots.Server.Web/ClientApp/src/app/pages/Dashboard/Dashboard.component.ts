@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpService } from '../../@core/services/http.service';
 import { Chart } from 'chart.js';
 import { BlockUI, NgBlockUI } from 'ng-block-ui';
+import { automationsApiUrl } from '../../webApiUrls/automations';
 
 @Component({
   selector: 'ngx-Dashboard',
@@ -77,9 +78,11 @@ export class DashboardComponent implements OnInit {
   }
 
   showTotalProcess(): void {
-    this.httpService.get('Processes/count').subscribe((processData: number) => {
-      if (processData) this.dataProcess = processData;
-    });
+    this.httpService
+      .get(`${automationsApiUrl.automations}/count`)
+      .subscribe((processData: number) => {
+        if (processData || processData === 0) this.dataProcess = processData;
+      });
   }
 
   showTotalJob(): void {
@@ -100,16 +103,17 @@ export class DashboardComponent implements OnInit {
   }
 
   showAllProcess(top: number, skip: number) {
-       this.blockUI.start(
-         'Loading'
-       );
-    let getprocessUrlbyId = `processes?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+    // this.blockUI.start('Loading');
+    let getprocessUrlbyId = `${automationsApiUrl.automations}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
     this.httpService.get(getprocessUrlbyId).subscribe((allprocess: any) => {
       this.allProcess = allprocess.items;
       this.totalCount = allprocess.totalCount;
       for (let process of this.allProcess) {
         this.httpService
-          .get(`Jobs/CountByStatus?$filter= ProcessId eq guid'${process.id}'`)
+          // .get(`Jobs/CountByStatus?$filter= ProcessId eq guid'${process.id}'`)
+          .get(
+            `Jobs/CountByStatus?$filter= AutomationId eq guid'${process.id}'`
+          )
           .subscribe((jobcount: any) => {
             this.donutCount++;
             this.demoCountByStatusGraph(
@@ -118,7 +122,7 @@ export class DashboardComponent implements OnInit {
               process.name
             );
           });
-          this.blockUI.stop();
+        // this.blockUI.stop();
       }
     });
   }

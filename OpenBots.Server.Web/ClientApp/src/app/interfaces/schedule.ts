@@ -1,7 +1,9 @@
 export interface Schedule {
   agentId: string;
   agentName: string;
-  processName: string;
+  // processName: string;
+  automationId: string;
+  automationName: string;
   createdBy: string;
   createdOn: string;
   cronExpression: string;

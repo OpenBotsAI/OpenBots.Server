@@ -22,7 +22,7 @@ export class TokenInterceptor implements HttpInterceptor {
   constructor(
     private toastrService: NbToastrService,
     private authService: AuthService,
-    private router: Router, 
+    private router: Router,
     private httpService: HttpService
   ) {}
 
@@ -36,7 +36,6 @@ export class TokenInterceptor implements HttpInterceptor {
     }
     return next.handle(request).pipe(
       catchError((error) => {
-
         if (error.status == 401) {
           if (error.error != null) {
             this.toastrService.danger('Your Credentials are wrong', 'Failed');
@@ -44,21 +43,20 @@ export class TokenInterceptor implements HttpInterceptor {
           if (error.error == null) {
             return this.handleError(request, next);
           }
-        }
-        else if (error.status == 409) {
+        } else if (error.status == 409) {
           return throwError(error);
-        }
-        else if (error.status == 429) {
+        } else if (error.status == 429) {
           if (error.headers.get('Retry-After')) {
             if (this.httpService.countapi !== 1) {
-              this.httpService.watchtotal(error.status, error.headers.get('Retry-After'));
+              this.httpService.watchtotal(
+                error.status,
+                error.headers.get('Retry-After')
+              );
             }
-          }
-          else if (this.httpService.countapi !== 1) {
+          } else if (this.httpService.countapi !== 1) {
             this.httpService.watchtotal(error.status, 30);
           }
-        }
-        else if (error.status != 401) {
+        } else if (error.status != 401) {
           return this.handleErrorGlobal(error);
         }
       })
@@ -96,6 +94,7 @@ export class TokenInterceptor implements HttpInterceptor {
     } else {
       if (
         error.status == 400 &&
+        error.error.serviceErrors &&
         error.error.serviceErrors[0] ==
           'Token is no longer valid. Please log back in.'
       ) {
@@ -105,6 +104,7 @@ export class TokenInterceptor implements HttpInterceptor {
       }
       if (
         error.status == 400 &&
+        error.error.serviceErrors &&
         error.error.serviceErrors[0] !=
           'Token is no longer valid. Please log back in.'
       ) {

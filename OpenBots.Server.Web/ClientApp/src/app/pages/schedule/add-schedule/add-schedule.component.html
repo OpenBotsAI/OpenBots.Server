@@ -37,10 +37,10 @@
           <div class="row rowPadBottom">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="processId" class="label">Processes *</label>
-              <select class="custom-select" formControlName="processId">
+              <select class="custom-select" formControlName="automationId">
                 <option value="" disabled>Please select process name</option>
-                <option *ngFor="let item of allProcesses" [value]="item?.processId">
-                  {{ item?.processNameWithVersion }}
+                <option *ngFor="let item of allProcesses" [value]="item?.automationId">
+                  {{ item?.automationNameWithVersion }}
                 </option>
               </select>
             </div>

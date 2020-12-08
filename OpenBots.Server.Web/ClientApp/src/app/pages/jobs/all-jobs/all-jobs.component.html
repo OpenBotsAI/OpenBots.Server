@@ -8,7 +8,7 @@
         <div class="LeftBgText">
           <h2>Jobs</h2>
           <p>
-              Work for an agent to execute a specific Process executed.
+            Work for an agent to execute a specific Process executed.
           </p>
         </div>
       </div>
@@ -34,10 +34,10 @@
         <div class="col-md-3 col-lg-3">
           <label for="queueitemtype" class="label col-form-label" style="width: 105px">Process Name
           </label>
-          <select class="custom-select" (change)="comon_process($event.target.value)" formControlName="processId">
+          <select class="custom-select" (change)="comon_process($event.target.value)" formControlName="automationId">
             <option selected> </option>
-            <option *ngFor="let item of show_filter_process" [value]="item.processId">
-              {{ item.processNameWithVersion }}
+            <option *ngFor="let item of show_filter_process" [value]="item.automationId">
+              {{ item.automationNameWithVersion }}
             </option>
           </select>
         </div>
@@ -143,8 +143,8 @@
             <a (click)="gotoprocesslog(jobs.id)">
               <i class="fa fa-eye" aria-hidden="true"></i>
             </a>
-            </td>
-            <td>
+          </td>
+          <td>
             <a (click)="gotodetail(jobs.id)">
               <i class="fa fa-eye" aria-hidden="true"></i>
             </a>
