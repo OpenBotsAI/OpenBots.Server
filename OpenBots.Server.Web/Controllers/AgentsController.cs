@@ -239,8 +239,9 @@ namespace OpenBots.Server.Web.Controllers
                     registeredUser.PersonId = (Guid)person.Id;
                     await userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
 
-                    //post Agent entity
+                    //Post Agent entity
                     AgentModel newAgent = request.Map(request);
+                    await webhookPublisher.PublishAsync("Agent.UnhealthyReported", newAgent.Id.ToString(), newAgent.Name).ConfigureAwait(false);
                     return await base.PostEntity(newAgent);
                 }
             }
