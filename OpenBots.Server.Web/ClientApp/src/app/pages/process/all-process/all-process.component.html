@@ -6,7 +6,7 @@
           <img class="img-head-logo" src="../../../../assets/icons/Process.svg" />
         </div>
         <div class="LeftBgText">
-          <h2>Processes</h2>
+          <h2>Automation</h2>
           <p>
             Automation Scripts that are created using OpenBots Studio are published here.
           </p>
@@ -14,7 +14,7 @@
       </div>
       <div class="titleRight">
         <button type="button" class="btn btn-primary" (click)="gotoadd()">
-          Add Process
+          Add Automation
         </button>
       </div>
     </div>
@@ -24,7 +24,7 @@
       <thead>
         <tr>
           <th scope="col">
-            Process Name
+            Automation Name
             <i (click)="onSortClick($event, 'name')" [class]="show_allprocess | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
@@ -60,7 +60,7 @@
             <p>Unavailable</p>
           </td>
           <td scope="row" *ngIf="process.name != null">
-            <p>{{ process.name }} v{{ process.version }}</p>
+            <p>{{ process.name }} v{{ process.versionNumber }}</p>
           </td>
           <td scope="row">
             <ngx-tooltip [data]="process?.createdOn | timeDate: 'lll'" [size]="30">

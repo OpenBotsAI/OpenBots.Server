@@ -53,7 +53,8 @@ export class AllProcessComponent implements OnInit {
 
   goto_jobs(id) {
     this.router.navigate(['/pages/job/list'], {
-      queryParams: { ProcessID: id },
+      // queryParams: { ProcessID: id },
+      queryParams: { AutomationID: id },
     });
   }
 

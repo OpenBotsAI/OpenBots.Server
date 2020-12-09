@@ -17,14 +17,11 @@
       <div class="titleRight">
 
         <button class="btn scheduleBtn" nbTooltip="View Hangfire Dashboard" nbTooltipPlacement="top">
-
           <a href="/hangfire?access_token={{token}}" target="_blank">
-
             <img src="../../../../assets/images/hangfire-dashboard.svg" alt="Schedule Icon" />
           </a></button>
         <button class="btn btn-primary" (click)="addSchedule()">Add Schedule</button>
       </div>
-
     </div>
   </nb-card-header>
   <nb-card-body>
@@ -40,8 +37,8 @@
             <i (click)="onSortClick($event, 'agentName')" [class]="allScehduleData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
-            Process Name
-            <i (click)="onSortClick($event, 'processName')" [class]="allScehduleData | chevron: page.totalCount"></i>
+            Automation Name
+            <i (click)="onSortClick($event, 'automationName')" [class]="allScehduleData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Status

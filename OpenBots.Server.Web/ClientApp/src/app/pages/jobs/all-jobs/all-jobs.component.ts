@@ -72,8 +72,8 @@ export class AllJobsComponent implements OnInit, OnDestroy {
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
     this.acroute.queryParams.subscribe((params) => {
-      if (params.ProcessID) {
-        this.process_id = params.ProcessID;
+      if (params.AutomationID) {
+        this.process_id = params.AutomationID;
         this.filter_parmas_process_name(this.process_id);
       }
       if (params.AgentID) {
@@ -100,7 +100,7 @@ export class AllJobsComponent implements OnInit, OnDestroy {
     this.common_agent(agent_id);
   }
   filter_parmas_process_name(process_id) {
-    this.showjobs.patchValue({ processId: process_id });
+    this.showjobs.patchValue({ automationId: process_id });
     this.comon_process(process_id);
   }
 
@@ -315,6 +315,7 @@ export class AllJobsComponent implements OnInit, OnDestroy {
               }
             }
             this.show_alljobs = data.items;
+            console.log('jobs2', this.show_alljobs);
             this.showpage = data;
             this.page.totalCount = data.totalCount;
           });

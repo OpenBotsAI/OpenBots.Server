@@ -67,7 +67,7 @@ export class PagesMenu {
           {
             title: 'Add Asset',
             link: '/pages/asset/add',
-          }
+          },
         ],
       },
 
@@ -148,19 +148,19 @@ export class PagesMenu {
         ],
       },
       {
-        title: 'Processes',
+        title: 'Automations',
         icon: { icon: 'process', pack: 'custom-icons' },
         children: [
           {
-            title: 'All Processes',
+            title: 'All Automations',
             link: '/pages/process/list',
           },
           {
-            title: 'Add Process',
+            title: 'Add Automation',
             link: '/pages/process/add',
           },
           {
-            title: 'All Process Logs',
+            title: 'All Automation Logs',
             link: '/pages/processlogs',
           },
         ],
@@ -209,7 +209,7 @@ export class PagesMenu {
           {
             title: 'All Configurations',
             link: '/pages/config/list',
-          }
+          },
         ],
       },
 

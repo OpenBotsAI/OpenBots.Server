@@ -32,17 +32,30 @@
                   {{ item?.agentName }}
                 </option>
               </select>
+              <div *ngIf=" formControls.agentId.invalid &&(formControls.agentId.dirty || formControls.agentId.touched) "
+                class="invalid-feedback-frm">
+                <div *ngIf="formControls.agentId.errors.required">
+                  Agent name is required.
+                </div>
+              </div>
             </div>
           </div>
           <div class="row rowPadBottom">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <label for="processId" class="label">Processes *</label>
+              <label for="processId" class="label">Automations *</label>
               <select class="custom-select" formControlName="automationId">
-                <option value="" disabled>Please select process name</option>
+                <option value="" disabled>Please select automation name</option>
                 <option *ngFor="let item of allProcesses" [value]="item?.automationId">
                   {{ item?.automationNameWithVersion }}
                 </option>
               </select>
+              <div
+                *ngIf=" formControls.automationId.invalid &&(formControls.automationId.dirty || formControls.automationId.touched) "
+                class="invalid-feedback-frm">
+                <div *ngIf="formControls.automationId.errors.required">
+                  Automation name is required.
+                </div>
+              </div>
             </div>
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <div class="checkbox checbox-switch switch-primary">

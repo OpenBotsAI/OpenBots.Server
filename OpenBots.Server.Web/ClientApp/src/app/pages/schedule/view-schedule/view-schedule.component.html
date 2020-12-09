@@ -37,11 +37,11 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6 col-lg-6 col-xxxl-6">
-                            <label for="status" class="label  col-form-label">Process Name</label>
+                            <label for="status" class="label  col-form-label">Automation Name</label>
                             <select class="custom-select" formControlName="automationId">
-                                <option value="" disabled>Pleace select process name</option>
+                                <option value="" disabled>Pleace select automation name</option>
                                 <option *ngFor="let item of allProcesses" [value]="item?.automationId">
-                                    {{ item?.automationName }}
+                                    {{ item?.automationNameWithVersion }}
                                 </option>
                             </select>
                         </div>
