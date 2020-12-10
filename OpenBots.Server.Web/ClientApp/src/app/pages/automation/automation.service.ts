@@ -9,7 +9,7 @@ import { automationsApiUrl } from '../../webApiUrls/automations';
 @Injectable({
   providedIn: 'root',
 })
-export class ProcessService {
+export class AutomationService {
   get apiUrl(): string {
     return environment.apiUrl;
   }

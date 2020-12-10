@@ -84,8 +84,10 @@ export class GetChangelogIdComponent implements OnInit {
     else if(this.show_allaudit.serviceName == 'OpenBots.Server.Model.Asset'){
       this.router.navigate(['/pages/asset/get-asset-id'], { queryParams: { id: this.show_allaudit.objectId } })
     }
-    else if(this.show_allaudit.serviceName == 'OpenBots.Server.Model.Process'){
-      this.router.navigate(['/pages/process/get-process-id'], { queryParams: { id: this.show_allaudit.objectId } })
+    else if(this.show_allaudit.serviceName == 'OpenBots.Server.Model.Automation'){
+      this.router.navigate(['/pages/automation/get-automation-id'], {
+        queryParams: { id: this.show_allaudit.objectId },
+      });
     }
     else if(this.show_allaudit.serviceName == 'OpenBots.Server.Model.Job'){
       this.router.navigate(['/pages/job/get-jobs-id'], { queryParams: { id: this.show_allaudit.objectId } })
@@ -108,6 +110,7 @@ export class GetChangelogIdComponent implements OnInit {
     else if (this.show_allaudit.serviceName == 'OpenBots.Server.Model.Configuration.EmailLog') {
       this.router.navigate(['/pages/emaillog/get-emaillog-id'], { queryParams: { id: this.show_allaudit.objectId } })
     }
+
 
 
 

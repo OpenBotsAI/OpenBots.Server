@@ -1,18 +1,18 @@
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Page } from '../../../interfaces/paginateInstance';
-import { ProcessService } from '../process.service';
 import { DialogService } from '../../../@core/dialogservices/dialog.service';
 import { NbToastrService } from '@nebular/theme';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
 import { HelperService } from '../../../@core/services/helper.service';
+import { AutomationService } from '../automation.service';
 
 @Component({
-  selector: 'ngx-all-process',
-  templateUrl: './all-process.component.html',
-  styleUrls: ['./all-process.component.scss'],
+  selector: 'ngx-all-automation',
+  templateUrl: './all-automation.component.html',
+  styleUrls: ['./all-automation.component.scss'],
 })
-export class AllProcessComponent implements OnInit {
+export class AllAutomationComponent implements OnInit {
   show_allprocess: any = [];
   process_id: any = [];
   show_filter_process: any = [];
@@ -32,7 +32,7 @@ export class AllProcessComponent implements OnInit {
     private dialogService: DialogService,
     private toastrService: NbToastrService,
     private helperService: HelperService,
-    protected processService: ProcessService
+    protected automationService: AutomationService
   ) {}
 
   ngOnInit(): void {
@@ -43,12 +43,14 @@ export class AllProcessComponent implements OnInit {
   }
 
   gotodetail(id) {
-    this.router.navigate(['/pages/process/get-process-id'], {
+    this.router.navigate(['/pages/automation/get-automation-id'], {
       queryParams: { id: id },
     });
   }
   gotoedit(id) {
-    this.router.navigate(['/pages/process/edit'], { queryParams: { id: id } });
+    this.router.navigate(['/pages/automation/edit'], {
+      queryParams: { id: id },
+    });
   }
 
   goto_jobs(id) {
@@ -59,7 +61,7 @@ export class AllProcessComponent implements OnInit {
   }
 
   gotoadd() {
-    this.router.navigate(['/pages/process/add']);
+    this.router.navigate(['/pages/automation/add']);
   }
 
   openDialog(ref, id) {
@@ -69,7 +71,7 @@ export class AllProcessComponent implements OnInit {
 
   deleteUser(ref) {
     this.isDeleted = true;
-    this.processService.deleteProcess(this.process_id).subscribe(
+    this.automationService.deleteProcess(this.process_id).subscribe(
       () => {
         ref.close();
         this.isDeleted = false;
@@ -83,7 +85,7 @@ export class AllProcessComponent implements OnInit {
   sort(filter_val, vale) {
     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
     this.feild_name = filter_val + '+' + vale;
-    this.processService
+    this.automationService
       .getAllJobsOrder(this.page.pageSize, skip, this.feild_name)
       .subscribe((data: any) => {
         this.show_allprocess = data.items;
@@ -96,7 +98,7 @@ export class AllProcessComponent implements OnInit {
     this.page.pageSize = val;
     this.show_perpage_size = true;
     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-    this.processService
+    this.automationService
       .getAllProcess(this.page.pageSize, skip)
       .subscribe((data: any) => {
         this.show_allprocess = data.items;
@@ -106,7 +108,7 @@ export class AllProcessComponent implements OnInit {
 
   get_AllJobs(top, skip) {
     this.feild_name = 'MachineName';
-    this.processService.getAllProcess(top, skip).subscribe((data: any) => {
+    this.automationService.getAllProcess(top, skip).subscribe((data: any) => {
       this.show_allprocess = data.items;
       this.page.totalCount = data.totalCount;
     });

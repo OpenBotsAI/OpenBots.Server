@@ -14,11 +14,11 @@ import { automationsApiUrl } from '../../../webApiUrls/automations';
 import { AutomationLogs } from '../../../interfaces/automationLogs';
 
 @Component({
-  selector: 'ngx-all-process-logs',
-  templateUrl: './all-process-logs.component.html',
-  styleUrls: ['./all-process-logs.component.scss'],
+  selector: 'ngx-all-automation-logs',
+  templateUrl: './all-automation-logs.component.html',
+  styleUrls: ['./all-automation-logs.component.scss'],
 })
-export class AllProcessLogsComponent implements OnInit {
+export class AllAutomationLogsComponent implements OnInit {
   processID: string;
   agentID: string;
   jobID: string;

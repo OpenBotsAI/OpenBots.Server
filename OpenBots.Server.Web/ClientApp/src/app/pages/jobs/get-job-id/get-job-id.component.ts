@@ -128,7 +128,7 @@ export class GetJobIdComponent implements OnInit, OnDestroy {
   }
 
   gotoprocess() {
-    this.router.navigate(['/pages/process/get-process-id'], {
+    this.router.navigate(['/pages/automation/get-automation-id'], {
       queryParams: { id: this.showjobs.value.processId },
     });
   }

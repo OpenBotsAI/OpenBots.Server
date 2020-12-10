@@ -1,19 +1,23 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProcessService } from '../process.service';
+import { AutomationService } from '../automation.service';
 import { DatePipe } from '@angular/common';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { TimeDatePipe } from '../../../@core/pipe';
 import { FileSaverService } from 'ngx-filesaver';
-import { HttpRequest, HttpResponse, HttpResponseBase } from '@angular/common/http';
+import {
+  HttpRequest,
+  HttpResponse,
+  HttpResponseBase,
+} from '@angular/common/http';
 import { first } from 'rxjs/operators';
 
 @Component({
-  selector: 'ngx-get-process-id',
-  templateUrl: './get-process-id.component.html',
-  styleUrls: ['./get-process-id.component.scss'],
+  selector: 'ngx-get-automation-id',
+  templateUrl: './get-automation-id.component.html',
+  styleUrls: ['./get-automation-id.component.scss'],
 })
-export class GetProcessIdComponent implements OnInit {
+export class GetAutomationIdComponent implements OnInit {
   process_id: any = [];
   jsonValue: any = [];
   show_allprocess: any = [];
@@ -24,7 +28,7 @@ export class GetProcessIdComponent implements OnInit {
     private acroute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private _FileSaverService: FileSaverService,
-    protected processService: ProcessService,
+    protected automationService: AutomationService,
     protected router: Router
   ) {
     this.acroute.queryParams.subscribe((params) => {
@@ -51,33 +55,39 @@ export class GetProcessIdComponent implements OnInit {
     });
   }
 
-
-
   get_process(id) {
-
-    this.processService.getProcessId(id).subscribe((data:HttpResponse<any>) => {
-      this.show_allprocess = data.body;
-      const filterPipe = new TimeDatePipe();
-      console.log(data.headers.get('ETag').replace(/\"/g, ''))
-      data.body.createdOn = filterPipe.transform(data.body.createdOn, 'lll');
-      this.showprocess.patchValue(data.body);
-      this.showprocess.disable();
-    });
+    this.automationService
+      .getProcessId(id)
+      .subscribe((data: HttpResponse<any>) => {
+        this.show_allprocess = data.body;
+        const filterPipe = new TimeDatePipe();
+        console.log(data.headers.get('ETag').replace(/\"/g, ''));
+        data.body.createdOn = filterPipe.transform(data.body.createdOn, 'lll');
+        this.showprocess.patchValue(data.body);
+        this.showprocess.disable();
+      });
   }
 
   onDown() {
-    let fileName :string;
-    this.processService.getBlob(this.process_id).subscribe((data: HttpResponse<Blob>) => {
-      fileName = data.headers.get('content-disposition').split(';')[1].split('=')[1].replace(/\"/g, '')
-      this._FileSaverService.save(data.body,fileName);
- 
-    });
+    let fileName: string;
+    this.automationService
+      .getBlob(this.process_id)
+      .subscribe((data: HttpResponse<Blob>) => {
+        fileName = data.headers
+          .get('content-disposition')
+          .split(';')[1]
+          .split('=')[1]
+          .replace(/\"/g, '');
+        this._FileSaverService.save(data.body, fileName);
+      });
   }
 
   gotoaudit() {
     this.router.navigate(['/pages/change-log/list'], {
       queryParams: {
-        PageName: 'OpenBots.Server.Model.Process',
+        // PageName: 'OpenBots.Server.Model.Process',
+        PageName: 'OpenBots.Server.Model.Automation',
+
         id: this.show_allprocess.id,
       },
     });
