@@ -210,6 +210,23 @@ export class PagesMenu {
             title: 'All Configurations',
             link: '/pages/config/list',
           },
+          // {
+          //   title: 'Settings',
+          //   link: '/pages/config/settings',
+          // },
+          {
+            title: 'Settings',
+            children: [
+              {
+                title: 'Settings',
+                link: '/pages/config/settings',
+              },
+              {
+                title: 'Add Rule',
+                link: '/pages/config/settings/rule/add',
+              },
+            ],
+          },
         ],
       },
 

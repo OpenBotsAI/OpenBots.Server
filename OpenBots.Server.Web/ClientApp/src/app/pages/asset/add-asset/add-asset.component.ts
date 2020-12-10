@@ -4,7 +4,12 @@ import { NbToastrService } from '@nebular/theme';
 import { Router } from '@angular/router';
 import { AssetService } from '../asset.service';
 import { JsonEditorComponent, JsonEditorOptions } from 'ang-jsoneditor';
-import { UploadOutput, UploadInput, UploadFile, humanizeBytes, UploaderOptions } from 'ngx-uploader';
+import {
+  UploadOutput,
+  UploadInput,
+  UploadFile,
+  UploaderOptions,
+} from 'ngx-uploader';
 
 @Component({
   selector: 'ngx-add-asset',
@@ -40,10 +45,10 @@ export class AddAssetComponent implements OnInit {
     private formBuilder: FormBuilder,
     protected assetService: AssetService,
     protected router: Router,
-    private toastrService: NbToastrService) {
+    private toastrService: NbToastrService
+  ) {
     this.editorOptions = new JsonEditorOptions();
     this.editorOptions.modes = ['code', 'text', 'tree', 'view'];
-
   }
 
   ngOnInit(): void {
@@ -53,7 +58,8 @@ export class AddAssetComponent implements OnInit {
         [
           Validators.required,
           Validators.minLength(3),
-          Validators.maxLength(100), Validators.pattern('^[A-Za-z0-9_.-]{3,100}$'),
+          Validators.maxLength(100),
+          Validators.pattern('^[A-Za-z0-9_.-]{3,100}$'),
         ],
       ],
       JsonValue: ['', [Validators.minLength(2), Validators.maxLength(100000)]],
@@ -70,11 +76,6 @@ export class AddAssetComponent implements OnInit {
     });
   }
 
-
-
-
-
-
   onUploadOutput(output: UploadOutput): void {
     switch (output.type) {
       case 'addedToQueue':
@@ -82,20 +83,17 @@ export class AddAssetComponent implements OnInit {
           if (!output.file.size) {
             this.fileSize = true;
             this.submitted = true;
-          }
-          else {
+          } else {
             this.fileSize = false;
             this.submitted = false;
           }
-          this.native_file = output.file.nativeFile
+          this.native_file = output.file.nativeFile;
           this.native_file_name = output.file.nativeFile.name;
           this.show_upload = false;
         }
         break;
     }
   }
-
-
 
   get f() {
     return this.addasset.controls;
@@ -104,7 +102,12 @@ export class AddAssetComponent implements OnInit {
   onSubmit() {
     this.submitted = true;
 
-    if (this.json == true && this.numbervalue == false && this.textvalue == false && this.file == false) {
+    if (
+      this.json == true &&
+      this.numbervalue == false &&
+      this.textvalue == false &&
+      this.file == false
+    ) {
       if (!this.editor.isValidJson()) {
         this.toastrService.danger('Provided json is not valid', 'error');
         this.submitted = false;
@@ -112,76 +115,90 @@ export class AddAssetComponent implements OnInit {
       this.addasset.value.JsonValue = JSON.stringify(this.editor.get());
 
       let jsonObj = {
-        'name': this.addasset.value.name,
-        'type': this.addasset.value.type,
-        'JsonValue': this.addasset.value.JsonValue
-      }
+        name: this.addasset.value.name,
+        type: this.addasset.value.type,
+        JsonValue: this.addasset.value.JsonValue,
+      };
 
       this.assetService.addAsset(jsonObj).subscribe(
         (data) => {
           this.toastrService.success('Asset added Successfully', 'Success');
           this.router.navigate(['pages/asset/list']);
-        }, () => this.submitted = false
+        },
+        () => (this.submitted = false)
       );
-    } else if (this.json == false && this.numbervalue == true && this.textvalue == false && this.file == false) {
-
+    } else if (
+      this.json == false &&
+      this.numbervalue == true &&
+      this.textvalue == false &&
+      this.file == false
+    ) {
       let numberObj = {
-        'name': this.addasset.value.name,
-        'type': this.addasset.value.type,
-        'NumberValue': this.addasset.value.NumberValue
-      }
+        name: this.addasset.value.name,
+        type: this.addasset.value.type,
+        NumberValue: this.addasset.value.NumberValue,
+      };
 
       this.assetService.addAsset(numberObj).subscribe(
         (data) => {
           this.toastrService.success('Asset added Successfully', 'Success');
           this.router.navigate(['pages/asset/list']);
-        }, () => this.submitted = false
+        },
+        () => (this.submitted = false)
       );
-    } else if (this.json == false && this.numbervalue == false && this.textvalue == true && this.file == false) {
-
+    } else if (
+      this.json == false &&
+      this.numbervalue == false &&
+      this.textvalue == true &&
+      this.file == false
+    ) {
       let textObj = {
-        'name': this.addasset.value.name,
-        'type': this.addasset.value.type,
-        'TextValue': this.addasset.value.TextValue
-      }
+        name: this.addasset.value.name,
+        type: this.addasset.value.type,
+        TextValue: this.addasset.value.TextValue,
+      };
 
       this.assetService.addAsset(textObj).subscribe(
         (data) => {
           this.toastrService.success('Asset added Successfully', 'Success');
           this.router.navigate(['pages/asset/list']);
-        }, () => this.submitted = false
+        },
+        () => (this.submitted = false)
       );
-    }
-    else if (this.json == false && this.numbervalue == false && this.textvalue == false && this.file == true) {
+    } else if (
+      this.json == false &&
+      this.numbervalue == false &&
+      this.textvalue == false &&
+      this.file == true
+    ) {
       if (this.native_file) {
-
         let formData = new FormData();
         formData.append('file', this.native_file, this.native_file_name);
         let fileObj = {
-          'name': this.addasset.value.name,
-          'type': this.addasset.value.type
-        }
+          name: this.addasset.value.name,
+          type: this.addasset.value.type,
+        };
         this.assetService.addAsset(fileObj).subscribe(
           (data: any) => {
-            this.assetService.AssetFile(data.id, formData).subscribe((filedata: any) => {
-              this.toastrService.success('Asset added Successfully', 'Success');
-              this.router.navigate(['pages/asset/list']);
-            }
-              , () => this.submitted = false
-            )
-
-          }, () => this.submitted = false
+            this.assetService.AssetFile(data.id, formData).subscribe(
+              (filedata: any) => {
+                this.toastrService.success(
+                  'Asset added Successfully',
+                  'Success'
+                );
+                this.router.navigate(['pages/asset/list']);
+              },
+              () => (this.submitted = false)
+            );
+          },
+          () => (this.submitted = false)
         );
-      }
-      else {
+      } else {
         this.show_upload = true;
         this.native_file_name = undefined;
         this.native_file = undefined;
       }
-
     }
-
-
   }
 
   onReset() {
@@ -211,6 +228,4 @@ export class AddAssetComponent implements OnInit {
       this.numbervalue = false;
     }
   }
-
-
 }
