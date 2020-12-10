@@ -16,12 +16,16 @@
         <div class="checkbox checbox-switch switch-primary">
             Security Model
             <label>
-                <!-- <input type="checkbox" name="isAdmin" (change)="onChange($event, people.personId)"
-                    [checked]="people.isAdmin" [disabled]="people.personId == AmIAdmin" /> -->
-                <input type="checkbox" name="isAdmin" />
+                <input type="checkbox" (change)="onToggleSecurityModel($event)" />
                 <span></span>
             </label>
-            Allow/Deny All, Except Rules Defined Below.
+            <b *ngIf="isChecked">
+                Deny
+            </b>
+            <b *ngIf="!isChecked">
+                Allow
+            </b>
+            All, Except Rules Defined Below.
         </div>
     </nb-card-header>
     <nb-card-body>

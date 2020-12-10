@@ -203,29 +203,20 @@ export class PagesMenu {
         ],
       },
       {
-        title: 'Setting Configuration',
+        title: 'Settings',
         icon: { icon: 'config', pack: 'custom-icons' },
         children: [
           {
-            title: 'All Configurations',
+            title: 'Configuration',
             link: '/pages/config/list',
           },
-          // {
-          //   title: 'Settings',
-          //   link: '/pages/config/settings',
-          // },
           {
-            title: 'Settings',
-            children: [
-              {
-                title: 'Settings',
-                link: '/pages/config/settings',
-              },
-              {
-                title: 'Add Rule',
-                link: '/pages/config/settings/rule/add',
-              },
-            ],
+            title: 'Security Fencing',
+            link: '/pages/config/settings',
+          },
+          {
+            title: 'Add Rule',
+            link: '/pages/config/settings/rule/add',
           },
         ],
       },

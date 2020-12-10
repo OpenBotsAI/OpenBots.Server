@@ -12,6 +12,7 @@ import { IpFencingApiUrl } from '../ipFencing';
 export class AllSettingsComponent implements OnInit {
   organizationId: string;
   IPFencingData: IPFencing[] = [];
+  isChecked: boolean;
   usage: { name: string; value: number }[] = [
     { name: 'Allow', value: 1 },
     { name: 'Deny', value: -1 },
@@ -57,5 +58,25 @@ export class AllSettingsComponent implements OnInit {
   }
   addRule(): void {
     this.router.navigate(['pages/config/settings/rule/add']);
+  }
+
+  onToggleSecurityModel(event): void {
+    this.isChecked = event.target.checked;
+    console.log('toggle', event.target.checked);
+    const arr = [
+      {
+        value: event.target.checked,
+        path: 'ipFencingMode',
+        op: 'replace',
+      },
+    ];
+    this.httpService
+      .patch(
+        `${IpFencingApiUrl.organizationSettings}/${this.organizationId}`,
+        arr
+      )
+      .subscribe((res) => {
+        console.log('res', res);
+      });
   }
 }
