@@ -2,7 +2,7 @@
   <nb-card-header>
     <div class="row">
       <div class="col-md-8 col-lg-8 col-xxxl-6">
-        <h2>Process Log Detail</h2>
+        <h2>Automation Log Detail</h2>
       </div>
       <div class="col-md-4 col-lg-4 col-xxxl-6 text-right">
         <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn"
@@ -26,9 +26,9 @@
         </div>
 
         <div class="col-md-6 col-lg-6 col-xxxl-6">
-          <label for="processName" class="label">Process Name</label>
-          <input type="input" nbInput fullWidth id="processName" formControlName="processName" style="color:#000000" />
-          <p class="link" *ngIf="processLogsForm && processLogsForm.value.processId">
+          <label for="automationName" class="label">Automation Name</label>
+          <input type="input" nbInput fullWidth id="automationName" formControlName="automationName" style="color:#000000" />
+          <p class="link" *ngIf="processLogsForm && processLogsForm.value.automationId">
             <a (click)="navigateToProcess()">
               <u>View details</u>
             </a>

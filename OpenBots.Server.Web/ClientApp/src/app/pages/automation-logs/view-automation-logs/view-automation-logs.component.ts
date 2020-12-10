@@ -7,11 +7,11 @@ import { Agents } from '../../../interfaces/agnets';
 import { TimeDatePipe } from '../../../@core/pipe';
 
 @Component({
-  selector: 'ngx-view-process-logs',
-  templateUrl: './view-process-logs.component.html',
-  styleUrls: ['./view-process-logs.component.scss'],
+  selector: 'ngx-view-automation-logs',
+  templateUrl: './view-automation-logs.component.html',
+  styleUrls: ['./view-automation-logs.component.scss'],
 })
-export class ViewProcessLogsComponent implements OnInit, AfterViewInit {
+export class ViewAutomationLogsComponent implements OnInit, AfterViewInit {
   processLogId: string;
   processLogsForm: FormGroup;
   pipe: TimeDatePipe;
@@ -53,10 +53,10 @@ export class ViewProcessLogsComponent implements OnInit, AfterViewInit {
       exception: [''],
       properties: [''],
       jobId: [''],
-      processId: [''],
+      automationId: [''],
       agentId: [''],
       machineName: [''],
-      processName: [''],
+      automationName: [''],
       logger: [''],
       id: [''],
       isDeleted: [],
@@ -72,11 +72,11 @@ export class ViewProcessLogsComponent implements OnInit, AfterViewInit {
 
   getProcessById() {
     this.httpService
-      .get(`processlogs/${this.processLogId}`)
+      .get(`AutomationLogs/${this.processLogId}`)
       .subscribe((response) => {
         if (response) {
           this.agentId = response.agentId;
-          this.pocessId = response.processId;
+          this.pocessId = response.automationId;
           response.processLogTimeStamp = this.transformDateTime(
             response.processLogTimeStam,
             'lll'
@@ -113,14 +113,15 @@ export class ViewProcessLogsComponent implements OnInit, AfterViewInit {
   navigateToAudit() {
     this.router.navigate(['/pages/change-log/list'], {
       queryParams: {
-        PageName: 'OpenBots.Server.Model.ExecutionLog',
+        // PageName: 'OpenBots.Server.Model.ExecutionLog',
+        pageName: 'OpenBots.Server.Model.AutomationLog',
         id: this.processLogId,
       },
     });
   }
 
   navigateToProcess(): void {
-    this.router.navigate(['/pages/process/get-process-id'], {
+    this.router.navigate(['/pages/automation/get-automation-id'], {
       queryParams: { id: this.pocessId },
     });
   }

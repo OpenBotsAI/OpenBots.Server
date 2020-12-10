@@ -70,6 +70,24 @@ export class PagesMenu {
           },
         ],
       },
+      {
+        title: 'Automations',
+        icon: { icon: 'process', pack: 'custom-icons' },
+        children: [
+          {
+            title: 'All Automations',
+            link: '/pages/automation/list',
+          },
+          {
+            title: 'Add Automation',
+            link: '/pages/automation/add',
+          },
+          {
+            title: 'All Automation Logs',
+            link: '/pages/automationLogs',
+          },
+        ],
+      },
 
       {
         title: 'Change History',
@@ -144,24 +162,6 @@ export class PagesMenu {
           {
             title: 'All Jobs',
             link: '/pages/job/list',
-          },
-        ],
-      },
-      {
-        title: 'Automations',
-        icon: { icon: 'process', pack: 'custom-icons' },
-        children: [
-          {
-            title: 'All Automations',
-            link: '/pages/process/list',
-          },
-          {
-            title: 'Add Automation',
-            link: '/pages/process/add',
-          },
-          {
-            title: 'All Automation Logs',
-            link: '/pages/processlogs',
           },
         ],
       },

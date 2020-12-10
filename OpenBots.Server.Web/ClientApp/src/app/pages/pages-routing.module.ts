@@ -94,23 +94,27 @@ const routes: Routes = [
         canActivate: [LoginGuard],
       },
       {
-        path: 'process',
+        path: 'automation',
         loadChildren: () =>
-          import('./process/process.module').then((mod) => mod.ProcessModule),
+          import('./automation/automation.module').then(
+            (mod) => mod.AutomationModule
+          ),
         canActivate: [LoginGuard],
       },
       {
         path: 'refreshhangfire',
         loadChildren: () =>
-          import('./refresh-hangfire/refresh-hangfire.module').then((mod) => mod.RefreshHangfireModule),
+          import('./refresh-hangfire/refresh-hangfire.module').then(
+            (mod) => mod.RefreshHangfireModule
+          ),
         canActivate: [LoginGuard],
       },
 
       {
-        path: 'processlogs',
+        path: 'automationLogs',
         loadChildren: () =>
-          import('./process-logs/process-logs.module').then(
-            (mod) => mod.ProcessLogsModule
+          import('./automation-logs/automation-logs.module').then(
+            (mod) => mod.AutomationLogsModule
           ),
         canActivate: [LoginGuard],
       },
