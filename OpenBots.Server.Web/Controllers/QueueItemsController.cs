@@ -15,6 +15,7 @@ using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.ViewModel.QueueItem;
 using OpenBots.Server.Web.Hubs;
+using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
 using System.Collections.Generic;
@@ -43,6 +44,7 @@ namespace OpenBots.Server.Web.Controllers
         private readonly IBinaryObjectManager binaryObjectManager;
         private readonly IBinaryObjectRepository binaryObjectRepository;
         private readonly IQueueItemAttachmentRepository queueItemAttachmentRepository;
+        private readonly IWebhookPublisher webhookPublisher;
 
         /// <summary>
         /// QueueItemsController constructor
@@ -66,7 +68,8 @@ namespace OpenBots.Server.Web.Controllers
             IConfiguration configuration,
             IBinaryObjectRepository binaryObjectRepository,
             IBinaryObjectManager binaryObjectManager,
-            IQueueItemAttachmentRepository queueItemAttachmentRepository) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
+            IQueueItemAttachmentRepository queueItemAttachmentRepository,
+            IWebhookPublisher webhookPublisher) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.manager = manager;
             _hub = hub;
@@ -77,6 +80,7 @@ namespace OpenBots.Server.Web.Controllers
             this.binaryObjectManager = binaryObjectManager;
             this.binaryObjectRepository = binaryObjectRepository;
             this.queueItemAttachmentRepository = queueItemAttachmentRepository;
+            this.webhookPublisher = webhookPublisher;
         }
 
         /// <summary>
@@ -270,22 +274,33 @@ namespace OpenBots.Server.Web.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             Guid queueItemId = new Guid(id);
-            QueueItemModel queueItem = repository.GetOne(queueItemId);
-
-            if (queueItem.IsLocked)
+            QueueItemModel existingQueueItem = repository.GetOne(queueItemId);
+            if (existingQueueItem == null)
+            {
+                ModelState.AddModelError("QueueItem", "QueueItem cannot be found or does not exist.");
+                return NotFound(ModelState);
+            }
+            if (existingQueueItem.IsLocked)
             {
                 ModelState.AddModelError("Delete", "Queue Item is locked at this time and cannot be deleted");
                 return BadRequest(ModelState);
             }
 
+            await webhookPublisher.PublishAsync("QueueItems.QueueItemDeleted", existingQueueItem.Id.ToString(), existingQueueItem.Name).ConfigureAwait(false);
             var response = await base.DeleteEntity(id);
             _hub.Clients.All.SendAsync("sendnotification", "QueueItem deleted.");
 
             //Soft delete each queue item attachment entity and binary object entity that correlates to the queue item
-            var attachmentsList = queueItemAttachmentRepository.Find(null, q => q.QueueItemId == queueItem.Id)?.Items;
+            var attachmentsList = queueItemAttachmentRepository.Find(null, q => q.QueueItemId == existingQueueItem.Id)?.Items;
             foreach (var attachment in attachmentsList)
             {
                 queueItemAttachmentRepository.SoftDelete((Guid)attachment.Id);
+
+                var existingBinary = binaryObjectRepository.GetOne(attachment.BinaryObjectId);
+                if (existingBinary != null)
+                {
+                    await webhookPublisher.PublishAsync("Files.FileDeleted", existingBinary.Id.ToString(), existingBinary.Name).ConfigureAwait(false);
+                }
                 binaryObjectRepository.SoftDelete(attachment.BinaryObjectId);
             }
 
@@ -311,6 +326,14 @@ namespace OpenBots.Server.Web.Controllers
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<QueueItemModel> request)
         {
+            Guid queueItemId = new Guid(id);
+            QueueItemModel existingQueueItem = repository.GetOne(queueItemId);
+            if (existingQueueItem == null)
+            {
+                ModelState.AddModelError("QueueItem", "QueueItem cannot be found or does not exist.");
+            }
+
+            await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", existingQueueItem.Id.ToString(), existingQueueItem.Name).ConfigureAwait(false);
             return await base.PatchEntity(id, request);
         }
 
@@ -355,6 +378,8 @@ namespace OpenBots.Server.Web.Controllers
                 }
 
                 IActionResult actionResult = await base.PostEntity(response);
+                await webhookPublisher.PublishAsync("QueueItems.QueueItemtCreated", response.Id.ToString(), response.Name).ConfigureAwait(false);
+
 
                 //Send SignalR notification to all connected clients
                 await _hub.Clients.All.SendAsync("sendnotification", "New queue item added.");
@@ -444,7 +469,10 @@ namespace OpenBots.Server.Web.Controllers
                     };
                     queueItemAttachmentRepository.Add(attachment);
                     attachments.Add(attachment);
+
+                    await webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
                 }
+
                 return Ok(attachments);
             }
             catch (Exception ex)
@@ -488,6 +516,7 @@ namespace OpenBots.Server.Web.Controllers
                 string id = response.Id.ToString();
                 queueItemViewModel = manager.GetQueueItemView(queueItemViewModel, id);
 
+                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItemViewModel.Id.ToString(), queueItemViewModel.Name).ConfigureAwait(false);
                 return Ok(queueItemViewModel);
             }
             catch (Exception ex)
@@ -531,6 +560,7 @@ namespace OpenBots.Server.Web.Controllers
                     ModelState.AddModelError("Commit", "Queue item lock time has expired.  Adding back to queue and trying again.");
                     return BadRequest(ModelState);
                 }
+                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
                 return Ok(item);
             }
             catch (Exception ex)
@@ -584,6 +614,7 @@ namespace OpenBots.Server.Web.Controllers
                     ModelState.AddModelError("Rollback", item.StateMessage);
                     return BadRequest(ModelState);
                 }
+                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
                 return Ok(item);
             }
             catch (Exception ex)
@@ -628,6 +659,7 @@ namespace OpenBots.Server.Web.Controllers
                     return BadRequest(ModelState);
                 }
 
+                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
                 return Ok(item);
             }
             catch (Exception ex)
@@ -676,6 +708,7 @@ namespace OpenBots.Server.Web.Controllers
                     return BadRequest(ModelState);
                 }
 
+                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
                 return Ok(item);
             }
             catch (Exception ex)
@@ -748,6 +781,8 @@ namespace OpenBots.Server.Web.Controllers
                         exists = true;
                         files.Remove(file);
                         binaryObjectIds.Add((Guid)binaryObject.Id);
+                        await webhookPublisher.PublishAsync("Files.NewFileCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
+
                     }
                 }
                 // If queue item attachment already exists: continue
@@ -758,6 +793,7 @@ namespace OpenBots.Server.Web.Controllers
                 {
                     binaryObjectRepository.SoftDelete(attachment.BinaryObjectId);
                     queueItemAttachmentRepository.SoftDelete((Guid)attachment.Id);
+                    await webhookPublisher.PublishAsync("Files.FileDeleted", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
                 }
             }
             // If file doesn't exist in binary objects: add binary object entity, upload file, and add queue item attachment entity
@@ -809,11 +845,13 @@ namespace OpenBots.Server.Web.Controllers
                     };
                     queueItemAttachmentRepository.Add(queueItemAttachment);
                     binaryObjectIds.Add(queueItemAttachment.BinaryObjectId);
+                    await webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
                 }
             }
 
             // Update queue item
             repository.Update(queueItem);
+            await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
 
             QueueItemViewModel response = new QueueItemViewModel();
             response = response.Map(queueItem);

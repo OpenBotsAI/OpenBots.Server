@@ -10,6 +10,7 @@ using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
+using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
 using System.Linq;
@@ -26,8 +27,8 @@ namespace OpenBots.Server.Web.Controllers
     [Authorize]
     public class QueuesController : EntityController<Queue>
     {
-        IQueueManager queueManager;
-
+        private readonly IQueueManager queueManager;
+        private readonly IWebhookPublisher webhookPublisher;
         /// <summary>
         /// QueuesController constructor
         /// </summary>
@@ -42,10 +43,12 @@ namespace OpenBots.Server.Web.Controllers
             IQueueManager queueManager,
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
+            IWebhookPublisher webhookPublisher,
             IConfiguration configuration, 
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration) 
         {
             this.queueManager = queueManager;
+            this.webhookPublisher = webhookPublisher;
         }
 
         /// <summary>
@@ -165,7 +168,9 @@ namespace OpenBots.Server.Web.Controllers
             
             try
             {
-                return await base.PostEntity(request);
+                var result = await base.PostEntity(request);
+                await webhookPublisher.PublishAsync("Queues.NewQueueCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
+                return result;
             }
             catch (Exception ex)
             {
@@ -215,6 +220,7 @@ namespace OpenBots.Server.Web.Controllers
                 existingQueue.Name = request.Name;
                 existingQueue.MaxRetryCount = request.MaxRetryCount;
 
+                await webhookPublisher.PublishAsync("Queues.QueueUpdated", existingQueue.Id.ToString(), existingQueue.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingQueue);
             }
             catch (Exception ex)
@@ -240,12 +246,17 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string id)
         {
+            Guid entityId = new Guid(id);
+            var existingQueue = repository.GetOne(entityId);
+            if (existingQueue == null) return NotFound();
+
             bool lockedChildExists = queueManager.CheckReferentialIntegrity(id);
             if (lockedChildExists)
             {
                 ModelState.AddModelError("Delete Agent", "Referential Integrity in QueueItems table, please remove any locked items associated with this queue first");
                 return BadRequest(ModelState);
             }
+            await webhookPublisher.PublishAsync("Queues.QueueDeleted", existingQueue.Id.ToString(), existingQueue.Name).ConfigureAwait(false);
             return await base.DeleteEntity(id);
         }
 
@@ -267,8 +278,12 @@ namespace OpenBots.Server.Web.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<Queue> request)
-        {
+        {           
             Guid entityId = new Guid(id);
+
+            var existingQueue = repository.GetOne(entityId);
+            if (existingQueue == null) return NotFound();
+
             for (int i = 0; i < request.Operations.Count; i++)
             {
                 if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")
@@ -281,6 +296,7 @@ namespace OpenBots.Server.Web.Controllers
                     }
                 }
             }
+            await webhookPublisher.PublishAsync("Queues.QueueUpdated", existingQueue.Id.ToString(), existingQueue.Name).ConfigureAwait(false);
             return await base.PatchEntity(id, request);
         }
     }

@@ -17,6 +17,7 @@ using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
+using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
 
 namespace OpenBots.Server.Web.Controllers
@@ -35,6 +36,7 @@ namespace OpenBots.Server.Web.Controllers
         private readonly IBinaryObjectRepository binaryObjectRepo;
         private readonly IProcessVersionRepository processVersionRepo;
         private readonly StorageContext dbContext;
+        IWebhookPublisher webhookPublisher;
 
         /// <summary>
         /// Process Controller constructor
@@ -57,12 +59,14 @@ namespace OpenBots.Server.Web.Controllers
             IBinaryObjectManager binaryObjectManager,
             IConfiguration configuration,
             IProcessVersionRepository processVersionRepo,
+            IWebhookPublisher webhookPublisher,
             StorageContext dbContext) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.manager = manager;
             this.binaryObjectRepo = binaryObjectRepo;
             this.binaryObjectManager = binaryObjectManager;
             this.processVersionRepo = processVersionRepo;
+            this.webhookPublisher = webhookPublisher;
             this.dbContext = dbContext;
         }
 
@@ -273,6 +277,7 @@ namespace OpenBots.Server.Web.Controllers
                 var response = await base.PostEntity(process);
                 manager.AddProcessVersion(request);
 
+                await webhookPublisher.PublishAsync("Processes.NewProcessCreated", process.Id.ToString(), process.Name).ConfigureAwait(false);
                 return response;
             }
             catch (Exception ex)
@@ -337,6 +342,9 @@ namespace OpenBots.Server.Web.Controllers
                 process.BinaryObjectId = (Guid)binaryObject.Id;
                 process.OriginalPackageName = file.FileName;
                 repository.Update(process);
+
+                await webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
+                await webhookPublisher.PublishAsync("Processes.ProcessUpdated", process.Id.ToString(), process.Name).ConfigureAwait(false);
 
                 return Ok(process);
             }
@@ -425,6 +433,8 @@ namespace OpenBots.Server.Web.Controllers
                     response = manager.UpdateProcess(existingProcess, request);
                 }
 
+                await webhookPublisher.PublishAsync("Files.NewFileCreated", newBinaryObject.Id.ToString(), newBinaryObject.Name).ConfigureAwait(false);
+                await webhookPublisher.PublishAsync("Processes.ProcessUpdated", existingProcess.Id.ToString(), existingProcess.Name).ConfigureAwait(false);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -477,6 +487,7 @@ namespace OpenBots.Server.Web.Controllers
                     }
                     processVersionRepo.Update(processVersion);
                 }
+                await webhookPublisher.PublishAsync("Processes.ProcessUpdated", existingProcess.Id.ToString(), existingProcess.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingProcess);
             }
             catch (Exception ex)
@@ -505,6 +516,10 @@ namespace OpenBots.Server.Web.Controllers
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<Process> request)
         {
+            var existingProcess = repository.GetOne(Guid.Parse(id));
+            if (existingProcess == null) return NotFound();
+
+            await webhookPublisher.PublishAsync("Processes.ProcessUpdated", existingProcess.Id.ToString(), existingProcess.Name).ConfigureAwait(false);
             return await base.PatchEntity(id, request);
         }
 
@@ -540,7 +555,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (process == null || process.BinaryObjectId == null || process.BinaryObjectId == Guid.Empty)
                 {
                     ModelState.AddModelError("Process Export", "No process or process file found");
-                    return BadRequest(ModelState);
+                    return NotFound(ModelState);
                 }
 
                 var fileObject = manager.Export(process.BinaryObjectId.ToString());
@@ -572,7 +587,10 @@ namespace OpenBots.Server.Web.Controllers
             {
                 // Remove process
                 Guid processId = Guid.Parse(id);
-                var process = repository.GetOne(processId);
+                var existingProcess = repository.GetOne(processId);
+                if (existingProcess == null) return NotFound();
+
+                await webhookPublisher.PublishAsync("Processes.ProcessDeleted", existingProcess.Id.ToString(), existingProcess.Name).ConfigureAwait(false);
                 bool response = manager.DeleteProcess(processId);
 
                 if (response)

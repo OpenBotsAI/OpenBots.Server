@@ -241,7 +241,7 @@ namespace OpenBots.Server.Web.Controllers
 
                     //Post Agent entity
                     AgentModel newAgent = request.Map(request);
-                    await webhookPublisher.PublishAsync("Agent.UnhealthyReported", newAgent.Id.ToString(), newAgent.Name).ConfigureAwait(false);
+                    await webhookPublisher.PublishAsync("Agents.NewAgentCreated", newAgent.Id.ToString(), newAgent.Name).ConfigureAwait(false);
                     return await base.PostEntity(newAgent);
                 }
             }
@@ -307,6 +307,7 @@ namespace OpenBots.Server.Web.Controllers
                 existingAgent.IsEnabled = request.IsEnabled;
                 existingAgent.CredentialId = request.CredentialId;
 
+                await webhookPublisher.PublishAsync("Agents.AgentUpdated", existingAgent.Id.ToString(), existingAgent.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingAgent);
             }
             catch (Exception ex)
@@ -366,6 +367,7 @@ namespace OpenBots.Server.Web.Controllers
 
             agentManager.DeleteExistingHeartbeats(agent.Id ?? Guid.Empty);
 
+            await webhookPublisher.PublishAsync("Agents.AgentDeleted", agent.Id.ToString(), agent.Name).ConfigureAwait(false);
             return await base.DeleteEntity(id);
         }
 

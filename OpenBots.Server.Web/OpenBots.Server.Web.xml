@@ -1820,7 +1820,7 @@
             Controller for binary object files
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.BinaryObjectsController.#ctor(OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.Business.IOrganizationManager)">
+        <member name="M:OpenBots.Server.Web.Controllers.BinaryObjectsController.#ctor(OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.Business.IOrganizationManager,OpenBots.Server.Web.Webhooks.IWebhookPublisher)">
             <summary>
             BinaryObjectsController constructor
             </summary>
@@ -2595,7 +2595,7 @@
             Controller for Studio processes
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.#ctor(OpenBots.Server.DataAccess.Repositories.IProcessRepository,OpenBots.Server.Business.IProcessManager,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.Interfaces.IProcessVersionRepository,OpenBots.Server.DataAccess.StorageContext)">
+        <member name="M:OpenBots.Server.Web.Controllers.ProcessesController.#ctor(OpenBots.Server.DataAccess.Repositories.IProcessRepository,OpenBots.Server.Business.IProcessManager,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.Interfaces.IProcessVersionRepository,OpenBots.Server.Web.Webhooks.IWebhookPublisher,OpenBots.Server.DataAccess.StorageContext)">
             <summary>
             Process Controller constructor
             </summary>
@@ -2779,7 +2779,7 @@
             Controller for QueueItems
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.#ctor(OpenBots.Server.DataAccess.Repositories.IQueueItemRepository,OpenBots.Server.DataAccess.Repositories.IQueueRepository,OpenBots.Server.Business.IQueueItemManager,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Web.Hubs.IHubManager,OpenBots.Server.DataAccess.Repositories.IScheduleRepository,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IBinaryObjectManager,OpenBots.Server.DataAccess.Repositories.Interfaces.IQueueItemAttachmentRepository)">
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.#ctor(OpenBots.Server.DataAccess.Repositories.IQueueItemRepository,OpenBots.Server.DataAccess.Repositories.IQueueRepository,OpenBots.Server.Business.IQueueItemManager,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Web.Hubs.IHubManager,OpenBots.Server.DataAccess.Repositories.IScheduleRepository,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IBinaryObjectManager,OpenBots.Server.DataAccess.Repositories.Interfaces.IQueueItemAttachmentRepository,OpenBots.Server.Web.Webhooks.IWebhookPublisher)">
             <summary>
             QueueItemsController constructor
             </summary>
@@ -2971,7 +2971,7 @@
             Controller for Queues
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.QueuesController.#ctor(OpenBots.Server.DataAccess.Repositories.IQueueRepository,OpenBots.Server.Business.IQueueManager,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+        <member name="M:OpenBots.Server.Web.Controllers.QueuesController.#ctor(OpenBots.Server.DataAccess.Repositories.IQueueRepository,OpenBots.Server.Business.IQueueManager,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Web.Webhooks.IWebhookPublisher,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
             <summary>
             QueuesController constructor
             </summary>
@@ -3388,7 +3388,7 @@
             Controller for Assets
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.AssetsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAssetRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IProcessManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository)">
+        <member name="M:OpenBots.Server.Web.AssetsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAssetRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IProcessManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Web.Webhooks.IWebhookPublisher)">
             <summary>
             AssetsController constructor
             </summary>
