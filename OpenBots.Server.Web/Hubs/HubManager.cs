@@ -57,7 +57,7 @@ namespace OpenBots.Server.Web.Hubs
             job.CreatedOn = DateTime.Now;
             job.EnqueueTime = DateTime.Now;
             job.JobStatus = JobStatusType.New;
-            job.ProcessId = schedule.ProcessId == null ? Guid.Empty : schedule.ProcessId.Value;
+            job.AutomationId = schedule.AutomationId == null ? Guid.Empty : schedule.AutomationId.Value;
             job.Message = "Job is created through internal system logic.";
 
             jobRepository.Add(job);

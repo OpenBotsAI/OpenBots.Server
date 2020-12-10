@@ -35,7 +35,7 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Adds serilog logs from the agent to the process logs table
+        /// Adds serilog logs from the agent to the automation logs table
         /// </summary>
         /// <param name="request"></param>
         /// <response code="200">Ok, all logs were stored correctly</response>
@@ -63,7 +63,7 @@ namespace OpenBots.Server.Web.Controllers
                         new SqlColumn
                             {ColumnName = "JobId", PropertyName = "JobId", DataType = SqlDbType.UniqueIdentifier},
                         new SqlColumn
-                            {ColumnName = "ProcessId",  PropertyName = "ProcessId", DataType = SqlDbType.UniqueIdentifier},
+                            {ColumnName = "AutomationId",  PropertyName = "AutomationId", DataType = SqlDbType.UniqueIdentifier},
                          new SqlColumn
                             {ColumnName = "AgentId",  PropertyName = "AgentId", DataType = SqlDbType.UniqueIdentifier},
                         new SqlColumn
@@ -71,11 +71,11 @@ namespace OpenBots.Server.Web.Controllers
                         new SqlColumn
                             {ColumnName = "AgentName", PropertyName = "AgentName", DataType = SqlDbType.NVarChar},
                         new SqlColumn
-                            {ColumnName = "ProcessName", PropertyName = "ProcessName", DataType = SqlDbType.NVarChar},
+                            {ColumnName = "AutomationName", PropertyName = "AutomationName", DataType = SqlDbType.NVarChar},
                         new SqlColumn
                             {ColumnName = "Id",  PropertyName = "Id", DataType = SqlDbType.UniqueIdentifier},
                         new SqlColumn
-                            {ColumnName = "ProcessLogTimeStamp",  PropertyName = "ProcessLogTimeStamp", DataType = SqlDbType.DateTime2},
+                            {ColumnName = "AutomationLogTimeStamp",  PropertyName = "AutomationLogTimeStamp", DataType = SqlDbType.DateTime2},
                          new SqlColumn
                             {ColumnName = "CreatedOn",  PropertyName = "CreatedOn", DataType = SqlDbType.DateTime2},
                          new SqlColumn
@@ -96,7 +96,7 @@ namespace OpenBots.Server.Web.Controllers
                     .WriteTo
                     .MSSqlServer(
                         connectionString: _connectionString,
-                        sinkOptions: new SinkOptions { TableName = "ProcessLogs" ,AutoCreateSqlTable = true},
+                        sinkOptions: new SinkOptions { TableName = "AutomationLogs" ,AutoCreateSqlTable = true},
                         columnOptions: columnOptions)
                     .CreateLogger();
 
@@ -105,7 +105,7 @@ namespace OpenBots.Server.Web.Controllers
                 foreach (var serilog in request.events)
                 {
                     var jobId = serilog.Properties.JobId == null ? (Guid?)null : new Guid(Convert.ToString(serilog.Properties.JobId));
-                    var processId = serilog.Properties.ProcessId == null ? (Guid?)null : new Guid(Convert.ToString(serilog.Properties.ProcessId));
+                    var automationId = serilog.Properties.AutomationId == null ? (Guid?)null : new Guid(Convert.ToString(serilog.Properties.AutomationId));
                     var agentId = serilog.Properties.AgentId == null ? (Guid?)null : new Guid(Convert.ToString(serilog.Properties.AgentId));
 
                     var id = Guid.NewGuid();
@@ -114,12 +114,12 @@ namespace OpenBots.Server.Web.Controllers
                     var messageTemplate = parser.Parse(serilog.MessageTemplate.ToString());
                     var properties = new[] {
                                 new LogEventProperty("JobId", new ScalarValue(jobId)),
-                                new LogEventProperty("ProcessId", new ScalarValue(processId)),
+                                new LogEventProperty("AutomationId", new ScalarValue(automationId)),
                                 new LogEventProperty("AgentId", new ScalarValue(agentId)),
                                 new LogEventProperty("MachineName", new ScalarValue(serilog.Properties.MachineName.ToString())),
                                 new LogEventProperty("AgentName", new ScalarValue(serilog.Properties.AgentName.ToString())),
-                                new LogEventProperty("ProcessName", new ScalarValue(serilog.Properties.ProcessName.ToString())),
-                                new LogEventProperty("ProcessLogTimeStamp", new ScalarValue(timestamp)),
+                                new LogEventProperty("AutomationName", new ScalarValue(serilog.Properties.AutomationName.ToString())),
+                                new LogEventProperty("AutomationLogTimeStamp", new ScalarValue(timestamp)),
                                 new LogEventProperty("Id", new ScalarValue(id)),
                                 new LogEventProperty("CreatedOn", new ScalarValue(DateTime.Now)),
                                 new LogEventProperty("Logger", new ScalarValue(logger)),

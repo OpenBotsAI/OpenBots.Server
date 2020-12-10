@@ -22,6 +22,25 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.AutomationRepository">
+            <summary>
+            Automation Repository
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.AutomationRepository.#ctor(OpenBots.Server.DataAccess.StorageContext,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.Model.Automation},Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Construtor for Automation Repository
+            </summary>
+            <param name="storageContext"></param>
+            <param name="logger"></param>
+            <param name="httpContextAccessor"></param>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.AutomationRepository.DbTable">
+            <summary>
+            Retrieves automationes
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:OpenBots.Server.DataAccess.Repositories.BinaryObjectRepository">
             <summary>
             Binary Object Repository
@@ -145,6 +164,11 @@
             Interface for AuditLogRepository
             </summary>
         </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IAutomationRepository">
+            <summary>
+            Interface for AutomationRepository
+            </summary>
+        </member>
         <member name="T:OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository">
             <summary>
             Binary Object Repository Interface
@@ -169,30 +193,6 @@
             <summary>
             
             </summary>
-        </member>
-        <member name="T:OpenBots.Server.DataAccess.Repositories.IProcessRepository">
-            <summary>
-            Interface for ProcessRepository
-            </summary>
-        </member>
-        <member name="T:OpenBots.Server.DataAccess.Repositories.ProcessRepository">
-            <summary>
-            Process Repository
-            </summary>
-        </member>
-        <member name="M:OpenBots.Server.DataAccess.Repositories.ProcessRepository.#ctor(OpenBots.Server.DataAccess.StorageContext,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.Model.Process},Microsoft.AspNetCore.Http.IHttpContextAccessor)">
-            <summary>
-            Construtor for Process Repository
-            </summary>
-            <param name="storageContext"></param>
-            <param name="logger"></param>
-            <param name="httpContextAccessor"></param>
-        </member>
-        <member name="M:OpenBots.Server.DataAccess.Repositories.ProcessRepository.DbTable">
-            <summary>
-            Retrieves processes
-            </summary>
-            <returns></returns>
         </member>
         <member name="F:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.dbContext">
             <summary>

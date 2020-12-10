@@ -24,7 +24,7 @@ namespace OpenBots.Server.Model
         public string? Status { get; set; }
         public DateTime? ExpiryDate { get; set; }
         public DateTime? StartDate { get; set; }
-        public Guid? ProcessId { get; set; }
+        public Guid? AutomationId { get; set; }
         public Guid? QueueId { get; set; }
     }
 }

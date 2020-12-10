@@ -39,8 +39,8 @@
           <select class="custom-select" (change)="processAndAgentDropdown('process', $event.target.value)"
             formControlName="processId">
             <option selected></option>
-            <option *ngFor="let item of processLookUp" [value]="item.processId">
-              {{ item.processNameWithVersion }}
+            <option *ngFor="let item of processLookUp" [value]="item.automationId">
+              {{ item.automationNameWithVersion }}
             </option>
           </select>
         </div>
@@ -78,7 +78,7 @@
                     itemsPerPage: page.pageSize, currentPage: page.pageNumber,
                     totalItems: page.totalCount} ;trackBy: trackByFn">
           <td>
-            <ngx-tooltip [data]="data?.processName" [size]="34"> </ngx-tooltip>
+            <ngx-tooltip [data]="data?.automationName" [size]="34"> </ngx-tooltip>
           </td>
           <td>
             <ngx-tooltip [data]="data?.machineName" [size]="14"> </ngx-tooltip>

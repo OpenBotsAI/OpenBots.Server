@@ -33,7 +33,6 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         private readonly IBinaryObjectRepository binaryObjectRepository;
         private readonly IEmailManager manager;
         private readonly IEmailAttachmentRepository emailAttachmentRepository;
-        private readonly IBinaryObjectManager binaryObjectManager;
 
         /// <summary>
         /// EmailsController constructor
@@ -46,7 +45,6 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// <param name="binaryObjectRepository"></param>
         /// <param name="manager"></param>
         /// <param name="emailAttachmentRepository"></param>
-        /// <param name="binaryObjectManager"></param>
         public EmailsController(
             IEmailRepository repository,
             IMembershipManager membershipManager,
@@ -55,13 +53,11 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
             IHttpContextAccessor httpContextAccessor,
             IBinaryObjectRepository binaryObjectRepository,
             IEmailManager manager,
-            IEmailAttachmentRepository emailAttachmentRepository,
-            IBinaryObjectManager binaryObjectManager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
+            IEmailAttachmentRepository emailAttachmentRepository) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.binaryObjectRepository = binaryObjectRepository;
             this.manager = manager;
             this.emailAttachmentRepository = emailAttachmentRepository;
-            this.binaryObjectManager = binaryObjectManager;
         }
 
         /// <summary>

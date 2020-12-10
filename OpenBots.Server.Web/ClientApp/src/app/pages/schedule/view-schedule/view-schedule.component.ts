@@ -5,8 +5,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TimeDatePipe } from '../../../@core/pipe';
 import { CronOptions } from '../../../interfaces/cronJobConfiguration';
 import { Agents } from '../../../interfaces/agnets';
-import { Processes } from '../../../interfaces/processes';
 import { Schedule } from '../../../interfaces/schedule';
+import { Automation } from '../../../interfaces/automations';
+import { automationsApiUrl } from '../../../webApiUrls';
 
 @Component({
   selector: 'ngx-view-schedule',
@@ -18,7 +19,7 @@ export class ViewScheduleComponent implements OnInit {
   currentScheduleId: string;
   pipe: TimeDatePipe;
   allAgents: Agents[] = [];
-  allProcesses: Processes[] = [];
+  allProcesses: Automation[] = [];
   cronExpression = '0/0 * 0/0 * *';
   scheduleData: Schedule;
   cronOptions: CronOptions = {
@@ -59,7 +60,8 @@ export class ViewScheduleComponent implements OnInit {
     return this.fb.group({
       id: [''],
       agentId: [''],
-      processId: [''],
+      // processId: [''],
+      automationId: [''],
       agentName: [''],
       createdBy: [''],
       createdOn: [''],
@@ -116,16 +118,19 @@ export class ViewScheduleComponent implements OnInit {
   }
 
   getAllProcesses(): void {
-    this.httpService.get(`Processes/GetLookup`).subscribe((response) => {
-      if (response && response.length !== 0) this.allProcesses = [...response];
-      else this.allProcesses = [];
-    });
+    this.httpService
+      .get(`${automationsApiUrl.getLookUp}`)
+      .subscribe((response) => {
+        if (response && response.length !== 0)
+          this.allProcesses = [...response];
+        else this.allProcesses = [];
+      });
   }
 
   runNowJob(): void {
     this.httpService
       .post(
-        `Schedules/Process/${this.scheduleData.processId}/RunNow?AgentId=${this.scheduleData.agentId}`
+        `Schedules/automation/${this.scheduleData.automationId}/RunNow?AgentId=${this.scheduleData.agentId}`
       )
       .subscribe(() => this.httpService.success('Job created successfully'));
   }

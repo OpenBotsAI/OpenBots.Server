@@ -8,7 +8,7 @@
         <div class="LeftBgText">
           <h2>Jobs</h2>
           <p>
-              Work for an agent to execute a specific Process executed.
+            Work for an agent to execute a specific Process executed.
           </p>
         </div>
       </div>
@@ -23,7 +23,7 @@
     <form [formGroup]="showjobs">
       <div class="row filter-row">
         <div class="col-md-3 col-lg-3">
-          <label for="queueitemtype" class="label col-form-label" style="width: 100px">Agent Name</label>
+          <label for="queueitemtype" class="label col-form-label">Agent Name</label>
           <select class="custom-select" (change)="common_agent($event.target.value)" formControlName="agentId">
             <option selected></option>
             <option *ngFor="let item of show_filter_agent" [value]="item.agentId">
@@ -32,17 +32,17 @@
           </select>
         </div>
         <div class="col-md-3 col-lg-3">
-          <label for="queueitemtype" class="label col-form-label" style="width: 105px">Process Name
+          <label for="queueitemtype" class="label col-form-label">Automation Name
           </label>
-          <select class="custom-select" (change)="comon_process($event.target.value)" formControlName="processId">
+          <select class="custom-select" (change)="comon_process($event.target.value)" formControlName="automationId">
             <option selected> </option>
-            <option *ngFor="let item of show_filter_process" [value]="item.processId">
-              {{ item.processNameWithVersion }}
+            <option *ngFor="let item of show_filter_process" [value]="item.automationId">
+              {{ item.automationNameWithVersion }}
             </option>
           </select>
         </div>
         <div class="col-md-3 col-lg-3">
-          <label for="queueitemtype" class="label col-form-label" style="width: 100px">Status</label>
+          <label for="queueitemtype" class="label col-form-label">Status</label>
           <select class="custom-select" (change)="comon_job($event.target.value)">
             <option></option>
             <option value="New">New</option>
@@ -69,8 +69,8 @@
             <i (click)="onSortClick($event, 'agentname')" [class]="show_alljobs | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
-            Process Name
-            <i (click)="onSortClick($event, 'processName')" [class]="show_alljobs | chevron: page.totalCount"></i>
+            Automation Name
+            <i (click)="onSortClick($event, 'automationName')" [class]="show_alljobs | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Start Time
@@ -143,8 +143,8 @@
             <a (click)="gotoprocesslog(jobs.id)">
               <i class="fa fa-eye" aria-hidden="true"></i>
             </a>
-            </td>
-            <td>
+          </td>
+          <td>
             <a (click)="gotodetail(jobs.id)">
               <i class="fa fa-eye" aria-hidden="true"></i>
             </a>

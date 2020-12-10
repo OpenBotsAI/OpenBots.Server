@@ -6,8 +6,10 @@ import { NbDateService } from '@nebular/theme';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CronOptions } from '../../../interfaces/cronJobConfiguration';
 import { TimeDatePipe } from '../../../@core/pipe';
-import { Processes } from '../../../interfaces/processes';
+// import { Processes } from '../../../interfaces/automations';
 import { HelperService } from '../../../@core/services/helper.service';
+import { automationsApiUrl } from '../../../webApiUrls';
+import { Automation } from '../../../interfaces/automations';
 
 @Component({
   selector: 'ngx-add-schedule',
@@ -18,7 +20,7 @@ export class AddScheduleComponent implements OnInit {
   scheduleForm: FormGroup;
   eTag: string;
   allAgents: Agents[] = [];
-  allProcesses: Processes[] = [];
+  allProcesses: Automation[] = [];
   isSubmitted = false;
   min: Date;
   max: Date;
@@ -87,7 +89,8 @@ export class AddScheduleComponent implements OnInit {
         ],
       ],
       agentId: ['', [Validators.required]],
-      processId: ['', [Validators.required]],
+      // processId: ['', [Validators.required]],
+      automationId: ['', [Validators.required]],
       isDisabled: [false],
       cronExpression: [''],
       projectId: [''],
@@ -177,6 +180,7 @@ export class AddScheduleComponent implements OnInit {
       .subscribe((response) => {
         if (response && response.body) {
           this.eTag = response.headers.get('etag');
+          // this.min = response.body.startDate;
           if (response.body.cronExpression)
             this.cronExpression = response.body.cronExpression;
           this.scheduleForm.patchValue(response.body);
@@ -185,9 +189,11 @@ export class AddScheduleComponent implements OnInit {
   }
 
   getProcessesLookup(): void {
-    this.httpService.get(`Processes/GetLookup`).subscribe((response) => {
-      if (response) this.allProcesses = [...response];
-    });
+    this.httpService
+      .get(`${automationsApiUrl.getLookUp}`)
+      .subscribe((response) => {
+        if (response) this.allProcesses = [...response];
+      });
   }
 
   radioSetValidator(value: string): void {

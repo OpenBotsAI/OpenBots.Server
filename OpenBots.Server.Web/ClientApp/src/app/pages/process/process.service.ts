@@ -1,56 +1,54 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HelperService } from '../../@core/services/helper.service';
+import { automationsApiUrl } from '../../webApiUrls/automations';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProcessService {
-  headerData = new HttpHeaders({ 'Content-Type': 'application/json' });
   get apiUrl(): string {
     return environment.apiUrl;
   }
 
-  constructor(private http: HttpClient, private helperService: HelperService) { }
-
-
+  constructor(private http: HttpClient, private helperService: HelperService) {}
 
   getAllProcess(tpage: any, spage: any) {
-    let getprocessUrlbyId = `/processes/view?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
+    let getprocessUrlbyId = `/${automationsApiUrl.automationsView}?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getprocessUrlbyId);
   }
 
   addProcess(obj) {
-    let addassetUrl = `/processes`;
+    let addassetUrl = `/${automationsApiUrl.automations}`;
     return this.http.post(`${this.apiUrl}` + addassetUrl, obj);
   }
 
   uploadProcessFile(process_id, obj) {
-    let processUrl = `/processes/${process_id}/upload`;
+    let processUrl = `/${automationsApiUrl.automations}/${process_id}/upload`;
     return this.http.post(`${this.apiUrl}` + processUrl, obj);
   }
 
   uploadUpdateProcessFile(obj, process_id, etag) {
-    const headers = this.helperService.getETagHeaders(etag)
-    let processUrl = `/processes/${process_id}/update`;
+    const headers = this.helperService.getETagHeaders(etag);
+    let processUrl = `/${automationsApiUrl.automations}/${process_id}/update`;
     return this.http.post(`${this.apiUrl}` + processUrl, obj, { headers });
   }
 
   updateProcess(obj, process_id, etag) {
-    const headers = this.helperService.getETagHeaders(etag)
-    let updateassetUrl = `/processes/${process_id}`;
+    const headers = this.helperService.getETagHeaders(etag);
+    let updateassetUrl = `/${automationsApiUrl.automations}/${process_id}`;
     return this.http.put(`${this.apiUrl}` + updateassetUrl, obj, { headers });
   }
 
   downloadProcess(process_id) {
-    let exportUrl = `/processes/${process_id}/Export`;
+    let exportUrl = `/${automationsApiUrl.automations}/${process_id}/Export`;
     return this.http.get(`${this.apiUrl}` + exportUrl);
   }
   getBlob(process_id: string): Observable<any> {
-    let exportUrl = `/processes/${process_id}/Export`;
+    let exportUrl = `/${automationsApiUrl.automations}/${process_id}/Export`;
     let options = {};
     options = {
       responseType: 'blob',
@@ -76,7 +74,7 @@ export class ProcessService {
   }
 
   getAllJobsOrder(tpage: any, spage: any, name) {
-    let getprocessUrlbyId = `/processes/view?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    let getprocessUrlbyId = `/${automationsApiUrl.automationsView}?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getprocessUrlbyId);
   }
 
@@ -86,12 +84,12 @@ export class ProcessService {
       observe: 'response' as 'body',
       responseType: 'json',
     };
-    let getprocessUrlbyId = `/processes/view/${id}`;
+    let getprocessUrlbyId = `/${automationsApiUrl.automationsView}/${id}`;
     return this.http.get(`${this.apiUrl}` + getprocessUrlbyId, resoptions);
   }
 
   deleteProcess(id) {
-    let getprocessUrlbyId = `/processes/view/${id}`;
+    let getprocessUrlbyId = `/${automationsApiUrl.automations}/${id}`;
     return this.http.delete(`${this.apiUrl}` + getprocessUrlbyId);
   }
 }

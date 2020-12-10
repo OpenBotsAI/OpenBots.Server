@@ -197,7 +197,7 @@ namespace OpenBots.Server.Web.Controllers
                 long size = file.Length;
                 if (size <= 0)
                 {
-                    ModelState.AddModelError("Process Upload", $"File size of file {file.FileName} cannot be 0");
+                    ModelState.AddModelError("Automation Upload", $"File size of file {file.FileName} cannot be 0");
                     return BadRequest(ModelState);
                 }
 
@@ -388,7 +388,7 @@ namespace OpenBots.Server.Web.Controllers
                 long size = request.File.Length;
                 if (size <= 0)
                 {
-                    ModelState.AddModelError("Process Upload", $"File size of file {request.File.FileName} cannot be 0");
+                    ModelState.AddModelError("Automation Upload", $"File size of file {request.File.FileName} cannot be 0");
                     return BadRequest(ModelState);
                 }
 

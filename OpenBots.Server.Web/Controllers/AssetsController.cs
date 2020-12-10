@@ -28,7 +28,7 @@ namespace OpenBots.Server.Web
     [Authorize]
     public class AssetsController : EntityController<Asset>
     {
-        private readonly IProcessManager processManager;
+        private readonly IAutomationManager automationManager;
         private readonly IBinaryObjectRepository binaryObjectRepo;
         private readonly IBinaryObjectManager binaryObjectManager;
         private readonly IWebhookPublisher webhookPublisher;
@@ -39,7 +39,7 @@ namespace OpenBots.Server.Web
         /// <param name="repository"></param>
         /// <param name="membershipManager"></param>
         /// <param name="userManager"></param>
-        /// <param name="processManager"></param>
+        /// <param name="automationManager"></param>
         /// <param name="httpContextAccessor"></param>
         /// <param name="binaryObjectManager"></param>
         /// <param name="configuration"></param>
@@ -48,14 +48,14 @@ namespace OpenBots.Server.Web
             IAssetRepository repository,
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
-            IProcessManager processManager,
+            IAutomationManager automationManager,
             IHttpContextAccessor httpContextAccessor,
             IBinaryObjectManager binaryObjectManager,
             IConfiguration configuration,
             IBinaryObjectRepository binaryObjectRepo,
             IWebhookPublisher webhookPublisher) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.processManager = processManager;
+            this.automationManager = automationManager;
             this.binaryObjectRepo = binaryObjectRepo;
             this.binaryObjectManager = binaryObjectManager;
             this.webhookPublisher = webhookPublisher;
@@ -301,7 +301,7 @@ namespace OpenBots.Server.Web
                     return NotFound(ModelState);
                 }
 
-                var fileObject = processManager.Export(asset.BinaryObjectID.ToString());
+                var fileObject = automationManager.Export(asset.BinaryObjectID.ToString());
                 var file = File(fileObject?.Result?.BlobStream, fileObject?.Result?.ContentType, fileObject?.Result?.Name);
                 return file;
             }
@@ -407,7 +407,7 @@ namespace OpenBots.Server.Web
 
                 string organizationId = binaryObject.OrganizationId.ToString();
                 if (!string.IsNullOrEmpty(organizationId))
-                    organizationId = processManager.GetOrganizationId().ToString();
+                    organizationId = automationManager.GetOrganizationId().ToString();
 
                 if (request.Name != null)
                 {
@@ -427,7 +427,7 @@ namespace OpenBots.Server.Web
                 long size = request.file == null ? 0 : request.file.Length;
                 if (size <= 0)
                 {
-                    ModelState.AddModelError("Process Upload", $"File size of asset {request.file.FileName} cannot be 0");
+                    ModelState.AddModelError("Asset Upload", $"File size of asset {request.file.FileName} cannot be 0");
                     return BadRequest(ModelState);
                 }
 
@@ -449,7 +449,7 @@ namespace OpenBots.Server.Web
                     {
                         //Update Asset file in OpenBots.Server.Web using relative directory
                         string apiComponent = "AssetAPI";
-                        await processManager.Update(existingAsset.BinaryObjectID.Value, request.file, organizationId, apiComponent, request.file.FileName);
+                        await automationManager.Update(existingAsset.BinaryObjectID.Value, request.file, organizationId, apiComponent, request.file.FileName);
                     }
 
                     //Update Asset entity

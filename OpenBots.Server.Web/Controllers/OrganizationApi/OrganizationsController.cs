@@ -312,6 +312,9 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// <returns>Ok response, if the partial organization values have been updated</returns>
         [HttpPatch("{id}")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<Organization> value)

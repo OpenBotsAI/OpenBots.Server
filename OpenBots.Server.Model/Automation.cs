@@ -4,9 +4,9 @@ using System;
 namespace OpenBots.Server.Model
 {
     /// <summary>
-    /// Process model (inherits NamedEntity model)
+    /// Automation model (inherits NamedEntity model)
     /// </summary>
-    public class Process : NamedEntity
+    public class Automation : NamedEntity
     {
         /// <summary>
         /// Id linked to Binary Object data table
@@ -16,5 +16,9 @@ namespace OpenBots.Server.Model
         /// Original name of file
         /// </summary>
         public string OriginalPackageName { get; set; }
+        /// <summary>
+        /// Type of automation that will be executed (i.e. OpenBots, Python, etc.)
+        /// </summary>
+        public string AutomationEngine { get; set; }
     }
 }

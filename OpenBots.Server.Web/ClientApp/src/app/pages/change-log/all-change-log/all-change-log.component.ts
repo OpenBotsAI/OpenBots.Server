@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, OnInit, TemplateRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NbToastrService, NbDialogService } from '@nebular/theme';
@@ -40,12 +40,10 @@ export class AllChangeLogComponent implements OnInit {
 
   constructor(
     protected router: Router,
-    private dialogService: NbDialogService,
     private acroute: ActivatedRoute,
     private helperService: HelperService,
     private _FileSaverService: FileSaverService,
     protected changelogService: ChangelogService,
-    private toastrService: NbToastrService,
     private formBuilder: FormBuilder
   ) {
     this.acroute.queryParams.subscribe((params) => {

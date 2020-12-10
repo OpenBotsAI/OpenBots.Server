@@ -4,13 +4,13 @@ using System;
 
 namespace OpenBots.Server.ViewModel
 {
-    public class ProcessExecutionViewModel : IViewModel<ProcessExecutionLog, ProcessExecutionViewModel>
+    public class AutomationExecutionViewModel : IViewModel<AutomationExecutionLog, AutomationExecutionViewModel>
     {
         public Guid? Id { get; set; }
         public string AgentName { get; set; }
-        public string ProcessName { get; set; }
+        public string AutomationName { get; set; }
         public Guid? JobID { get; set; }
-        public Guid ProcessID { get; set; }
+        public Guid AutomationID { get; set; }
         public Guid AgentID { get; set; }
         public DateTime? StartedOn { get; set; }
         public DateTime? CompletedOn { get; set; }
@@ -21,13 +21,13 @@ namespace OpenBots.Server.ViewModel
         public string? ErrorMessage { get; set; }
         public string? ErrorDetails { get; set; }
 
-        public ProcessExecutionViewModel Map(ProcessExecutionLog entity)
+        public AutomationExecutionViewModel Map(AutomationExecutionLog entity)
         {
-            ProcessExecutionViewModel processExecutionViewModel = new ProcessExecutionViewModel
+            AutomationExecutionViewModel automationExecutionViewModel = new AutomationExecutionViewModel
             {
                 Id = entity.Id,
                 JobID = entity.JobID,
-                ProcessID = entity.ProcessID,
+                AutomationID = entity.AutomationID,
                 AgentID = entity.AgentID,
                 StartedOn = entity.StartedOn,
                 CompletedOn = entity.CompletedOn,
@@ -39,7 +39,7 @@ namespace OpenBots.Server.ViewModel
                 ErrorDetails = entity.ErrorDetails
             };
 
-            return processExecutionViewModel;
+            return automationExecutionViewModel;
         }
     }
 }

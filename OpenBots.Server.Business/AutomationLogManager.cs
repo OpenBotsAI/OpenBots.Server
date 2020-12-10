@@ -7,22 +7,22 @@ using System.IO.Compression;
 
 namespace OpenBots.Server.Business
 {
-    public class ProcessLogManager : BaseManager, IProcessLogManager
+    public class AutomationLogManager : BaseManager, IAutomationLogManager
     {
-        private readonly IProcessLogRepository repo;
-        public ProcessLogManager(IProcessLogRepository repo)
+        private readonly IAutomationLogRepository repo;
+        public AutomationLogManager(IAutomationLogRepository repo)
         {
             this.repo = repo;
         }
 
-        public string GetJobLogs(ProcessLog[] processLogs)
+        public string GetJobLogs(AutomationLog[] automationLogs)
         {
-            string csvString = "ID,TimeStamp,Level,Message,MachineName,ProcessName,AgentName,JobID";
-            foreach (ProcessLog log in processLogs)
+            string csvString = "ID,TimeStamp,Level,Message,MachineName,AutomationName,AgentName,JobID";
+            foreach (AutomationLog log in automationLogs)
             {
 
-                csvString += Environment.NewLine + string.Join(",", log.Id, log.ProcessLogTimeStamp, log.Level, log.Message, 
-                    log.MachineName, log.ProcessName, log.AgentName, log.JobId);
+                csvString += Environment.NewLine + string.Join(",", log.Id, log.AutomationLogTimeStamp, log.Level, log.Message, 
+                    log.MachineName, log.AutomationName, log.AgentName, log.JobId);
             }
 
             return csvString;

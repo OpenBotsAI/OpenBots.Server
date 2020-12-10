@@ -8,12 +8,12 @@
                     </div>
                     <div class="col-md-4 col-lg-4 col-xxxl-6 text-right">
                         <button class="btn btn-primary" (click)="runNowJob()" *ngIf="this.scheduleData && 
-                        this.scheduleData.processId && this.scheduleData.agentId">Run Now</button>
+                        this.scheduleData.automationId && this.scheduleData.agentId">Run Now</button>
                         <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn "
                             (click)="gotoaudit()">
                             <img class="img" src="../../../../assets/images/auditLog.svg"> </button>
                     </div>
-                 
+
                 </div>
             </nb-card-header>
             <nb-card-body>
@@ -37,11 +37,11 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6 col-lg-6 col-xxxl-6">
-                            <label for="status" class="label  col-form-label">Process Name</label>
-                            <select class="custom-select" formControlName="processId">
-                                <option value="" disabled>Pleace select agent name</option>
-                                <option *ngFor="let item of allProcesses" [value]="item?.processId">
-                                    {{ item?.processName }}
+                            <label for="status" class="label  col-form-label">Automation Name</label>
+                            <select class="custom-select" formControlName="automationId">
+                                <option value="" disabled>Pleace select automation name</option>
+                                <option *ngFor="let item of allProcesses" [value]="item?.automationId">
+                                    {{ item?.automationNameWithVersion }}
                                 </option>
                             </select>
                         </div>
@@ -69,7 +69,7 @@
                                 </nb-radio-group>
                             </div>
                         </div>
-                         
+
                     </div>
                     <div class="row rowPadBottom">
                         <div class="col-md-6 col-lg-6 col-xxxl-6"

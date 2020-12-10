@@ -6,12 +6,12 @@ namespace OpenBots.Server.ViewModel
     public class JobsLookupViewModel
     {
         public List<JobAgentsLookup> AgentsLookup { get; set; }
-        public List<JobProcessLookup> ProcessLookup { get; set; }
+        public List<JobAutomationLookup> AutomationLookup { get; set; }
 
         public JobsLookupViewModel()
         {
             AgentsLookup = new List<JobAgentsLookup>();
-            ProcessLookup = new List<JobProcessLookup>();
+            AutomationLookup = new List<JobAutomationLookup>();
         }
     }
 
@@ -21,9 +21,9 @@ namespace OpenBots.Server.ViewModel
         public string AgentName { get; set; }
     }
 
-    public class JobProcessLookup
-    {   public Guid ProcessId { get; set; }
-        public string ProcessName { get; set; }
-        public string ProcessNameWithVersion { get; set; }
+    public class JobAutomationLookup
+    {   public Guid AutomationId { get; set; }
+        public string AutomationName { get; set; }
+        public string AutomationNameWithVersion { get; set; }
     }
 }

@@ -33,10 +33,10 @@ namespace OpenBots.Server.Web
     {
         readonly IJobManager jobManager;
         readonly IJobParameterRepository jobParameterRepo;
-        readonly IProcessRepository processRepo;
+        readonly IAutomationRepository automationRepo;
         readonly IJobCheckpointRepository jobCheckpointRepo;
         private IHubContext<NotificationHub> _hub;
-        private IProcessVersionRepository processVersionRepo;
+        private IAutomationVersionRepository automationVersionRepo;
         
         /// <summary>
         /// JobsController constructor
@@ -50,11 +50,11 @@ namespace OpenBots.Server.Web
         /// <param name="httpContextAccessor"></param>
         /// <param name="jobCheckpointRepository"></param>
         /// <param name="jobParameterRepository"></param>
-        /// <param name="processRepository"></param>
-        /// <param name="processVersionRepo"></param>
+        /// <param name="automationRepository"></param>
+        /// <param name="automationVersionRepo"></param>
         public JobsController(
             IJobRepository repository,
-            IProcessRepository processRepository,
+            IAutomationRepository automationRepository,
             IJobParameterRepository jobParameterRepository,
             IJobCheckpointRepository jobCheckpointRepository,
             IMembershipManager membershipManager,
@@ -63,16 +63,16 @@ namespace OpenBots.Server.Web
             IHubContext<NotificationHub> hub,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
-            IProcessVersionRepository processVersionRepo) : base(repository, userManager, httpContextAccessor,
+            IAutomationVersionRepository automationVersionRepo) : base(repository, userManager, httpContextAccessor,
                 membershipManager, configuration)
         {
             this.jobManager = jobManager;
             this.jobParameterRepo = jobParameterRepository;
-            this.processRepo = processRepository;
+            this.automationRepo = automationRepository;
             this.jobCheckpointRepo = jobCheckpointRepository;
             this.jobManager.SetContext(base.SecurityContext);
             _hub = hub;
-            this.processVersionRepo = processVersionRepo;
+            this.automationVersionRepo = automationVersionRepo;
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace OpenBots.Server.Web
                 predicate = new Predicate<AllJobsViewModel>(oData.Filter);
             int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
             
-            return jobManager.GetJobAgentsandProcesses(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+            return jobManager.GetJobAgentsandAutomations(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
         }
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Provides a lookup list of all job agents and processes
+        /// Provides a lookup list of all job agents and automations
         /// </summary>
         /// <response code="200">Ok, a list of all jobs lookup</response>
         /// <response code="400">Bad request</response>
@@ -467,17 +467,17 @@ namespace OpenBots.Server.Web
             try
             {
                 Job job = request.Map(request); //Assign request to job entity
-                Process process = processRepo.GetOne(job.ProcessId ?? Guid.Empty);
+                Automation automation = automationRepo.GetOne(job.AutomationId ?? Guid.Empty);
                 
-                if (process == null) //No process was found
+                if (automation == null) //No automation was found
                 {
-                    ModelState.AddModelError("Save", "No process was found for the specified process ID");
+                    ModelState.AddModelError("Save", "No automation was found for the specified automation ID");
                     return NotFound(ModelState);
                 }
-                ProcessVersion processVersion = processVersionRepo.Find(null, q => q.ProcessId == process.Id).Items?.FirstOrDefault();
+                AutomationVersion automationVersion = automationVersionRepo.Find(null, q => q.AutomationId == automation.Id).Items?.FirstOrDefault();
 
-                job.ProcessVersion = processVersion.VersionNumber;
-                job.ProcessVersionId = processVersion.Id;
+                job.AutomationVersion = automationVersion.VersionNumber;
+                job.AutomationVersionId = automationVersion.Id;
 
                 foreach (var parameter in request.JobParameters ?? Enumerable.Empty<JobParameter>())
                 {
@@ -491,7 +491,7 @@ namespace OpenBots.Server.Web
                 //Send SignalR notification to all connected clients 
                 await _hub.Clients.All.SendAsync("botnewjobnotification", request.AgentId.ToString());
                 await _hub.Clients.All.SendAsync("sendjobnotification", "New Job added.");
-                await _hub.Clients.All.SendAsync("broadcastnewjobs", Tuple.Create(request.Id,request.AgentId,request.ProcessId));
+                await _hub.Clients.All.SendAsync("broadcastnewjobs", Tuple.Create(request.Id,request.AgentId,request.AutomationId));
 
                 return await base.PostEntity(job);
             }
@@ -531,23 +531,23 @@ namespace OpenBots.Server.Web
                 var existingJob = repository.GetOne(entityId);
                 if (existingJob == null) return NotFound("Unable to find a Job for the specified ID");
 
-                Process process = processRepo.GetOne(existingJob.ProcessId ?? Guid.Empty);
-                if (process == null) //No process was found
+                Automation automation = automationRepo.GetOne(existingJob.AutomationId ?? Guid.Empty);
+                if (automation == null) //No automation was found
                 {
-                    ModelState.AddModelError("Save", "No process was found for the specified process ID");
+                    ModelState.AddModelError("Save", "No automation was found for the specified automation ID");
                     return NotFound(ModelState);
                 }
 
-                ProcessVersion processVersion = processVersionRepo.Find(null, q => q.ProcessId == process.Id).Items?.FirstOrDefault();
-                existingJob.ProcessVersion = processVersion.VersionNumber;
-                existingJob.ProcessVersionId = processVersion.Id;
+                AutomationVersion automationVersion = automationVersionRepo.Find(null, q => q.AutomationId == automation.Id).Items?.FirstOrDefault();
+                existingJob.AutomationVersion = automationVersion.VersionNumber;
+                existingJob.AutomationVersionId = automationVersion.Id;
 
                 existingJob.AgentId = request.AgentId;
                 existingJob.StartTime = request.StartTime;
                 existingJob.EndTime = request.EndTime;
                 existingJob.EnqueueTime = request.EnqueueTime;
                 existingJob.DequeueTime = request.DequeueTime;
-                existingJob.ProcessId = request.ProcessId;
+                existingJob.AutomationId = request.AutomationId;
                 existingJob.JobStatus = request.JobStatus;
                 existingJob.Message = request.Message;
                 existingJob.IsSuccessful = request.IsSuccessful;
@@ -787,6 +787,7 @@ namespace OpenBots.Server.Web
         /// <response code="400">Bad request, if job id is not in the proper format or a proper Guid</response>
         /// <response code="403">Forbidden</response>
         /// <response code="404">Not found, when no job exists for the given job id</response>
+        /// <response code="422">Unprocessable entity</response>
         /// <returns>JobCheckpoint details for the given id</returns>
         [HttpGet("{JobId}/JobCheckpoints", Name = "GetJobCheckpoint")]
         [ProducesResponseType(typeof(PaginatedList<JobCheckpoint>), StatusCodes.Status200OK)]

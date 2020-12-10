@@ -149,6 +149,26 @@
             Information about entity after it was changed
             </summary>
         </member>
+        <member name="T:OpenBots.Server.Model.Automation">
+            <summary>
+            Automation model (inherits NamedEntity model)
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Automation.BinaryObjectId">
+            <summary>
+            Id linked to Binary Object data table
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Automation.OriginalPackageName">
+            <summary>
+            Original name of file
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Automation.AutomationEngine">
+            <summary>
+            Type of automation that will be executed (i.e. OpenBots, Python, etc.)
+            </summary>
+        </member>
         <member name="T:OpenBots.Server.Model.BinaryObject">
             <summary>
             Binary Object data model
@@ -584,21 +604,6 @@
         <member name="P:OpenBots.Server.Model.Options.WebAppUrlOptions.Emailaddressconfirmed">
             <summary>
             Redirection path for when email has been confirmed
-            </summary>
-        </member>
-        <member name="T:OpenBots.Server.Model.Process">
-            <summary>
-            Process model (inherits NamedEntity model)
-            </summary>
-        </member>
-        <member name="P:OpenBots.Server.Model.Process.BinaryObjectId">
-            <summary>
-            Id linked to Binary Object data table
-            </summary>
-        </member>
-        <member name="P:OpenBots.Server.Model.Process.OriginalPackageName">
-            <summary>
-            Original name of file
             </summary>
         </member>
         <member name="T:OpenBots.Server.Model.Queue">

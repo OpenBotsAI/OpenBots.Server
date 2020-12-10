@@ -23,11 +23,11 @@ namespace XUnitTests
                 .Options;
 
             var context = new StorageContext(options);
-            ProcessLog[] processLogArray = new ProcessLog[10];
+            AutomationLog[] processLogArray = new AutomationLog[10];
 
             for (int i = 0; i < 10; i++)
             {
-                var dummyProcessLog = new ProcessLog
+                var dummyProcessLog = new AutomationLog
                 {
                     Id = Guid.NewGuid(),
                     JobId = Guid.NewGuid()
@@ -36,12 +36,12 @@ namespace XUnitTests
                 processLogArray[i] = dummyProcessLog;
             }
 
-            var logger = Mock.Of<ILogger<ProcessLog>>();
+            var logger = Mock.Of<ILogger<AutomationLog>>();
             var httpContextAccessor = new Mock<IHttpContextAccessor>();
             httpContextAccessor.Setup(req => req.HttpContext.User.Identity.Name).Returns(It.IsAny<string>());
 
-            var repo = new ProcessLogRepository(context, logger, httpContextAccessor.Object);
-            var manager = new ProcessLogManager(repo);
+            var repo = new AutomationLogRepository(context, logger, httpContextAccessor.Object);
+            var manager = new AutomationLogManager(repo);
 
             // act
             var validCsv = manager.GetJobLogs(processLogArray);
@@ -52,14 +52,14 @@ namespace XUnitTests
             Assert.Equal(11, lineCount);
         }
 
-        private void Seed(StorageContext context, ProcessLog model)
+        private void Seed(StorageContext context, AutomationLog model)
         {
             var items = new[]
             {
                 model
             };
 
-            context.ProcessLogs.AddRange(items);
+            context.AutomationLogs.AddRange(items);
             context.SaveChanges();
         }
     }

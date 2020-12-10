@@ -3,10 +3,10 @@ using System;
 
 namespace OpenBots.Server.Model
 {
-    public class ProcessExecutionLog : Entity
+    public class AutomationExecutionLog : Entity
     {
         public Guid JobID { get; set; }
-        public Guid ProcessID { get; set; }
+        public Guid AutomationID { get; set; }
         public Guid AgentID { get; set; }
         public DateTime StartedOn { get; set; }
         public DateTime CompletedOn { get; set; }

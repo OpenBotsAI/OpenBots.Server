@@ -1,18 +1,17 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
- 
+import { automationsApiUrl } from '../../webApiUrls';
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class JobsService {
   get apiUrl(): string {
     return environment.apiUrl;
   }
 
-  constructor(private http: HttpClient) { }
-
-
+  constructor(private http: HttpClient) {}
 
   getAllJobs(tpage: any, spage: any) {
     let getJobstUrl = `/Jobs/view?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
@@ -35,7 +34,7 @@ export class JobsService {
   }
 
   getProcessName() {
-    let getProcessUrl = `/Processes/GetLookup`;
+    let getProcessUrl = `/${automationsApiUrl.getLookUp}`;
     return this.http.get(`${this.apiUrl}` + getProcessUrl);
   }
   getJobsId(id) {
@@ -43,25 +42,22 @@ export class JobsService {
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
   }
   getExportFile() {
-    let getexportfile = '/Jobs/Export/zip'
-    let options = {}
+    let getexportfile = '/Jobs/Export/zip';
+    let options = {};
     options = {
       responseType: 'blob',
       observe: 'response',
-    }
-    return this.http.get(`${this.apiUrl}` + getexportfile, options)
+    };
+    return this.http.get(`${this.apiUrl}` + getexportfile, options);
   }
 
   getExportFilebyfilter(filter_name: any) {
     let getJobstUrl = `/Jobs/Export/zip?$filter=${filter_name}`;
-    let options = {}
+    let options = {};
     options = {
       responseType: 'blob',
       observe: 'response',
-    }
-    return this.http.get(`${this.apiUrl}` + getJobstUrl, options)
+    };
+    return this.http.get(`${this.apiUrl}` + getJobstUrl, options);
   }
-
-
-
 }

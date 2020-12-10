@@ -4,9 +4,9 @@ using System.IO;
 
 namespace OpenBots.Server.Business
 {
-    public interface IProcessLogManager : IManager
+    public interface IAutomationLogManager : IManager
     {
-        string GetJobLogs(ProcessLog[] processLogs);
+        string GetJobLogs(AutomationLog[] automationLogs);
         MemoryStream ZipCsv(FileContentResult csvFile);
     }
 }

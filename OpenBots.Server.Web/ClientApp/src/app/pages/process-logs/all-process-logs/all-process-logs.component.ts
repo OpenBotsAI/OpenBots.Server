@@ -8,8 +8,10 @@ import { HttpService } from '../../../@core/services/http.service';
 import { Agents } from '../../../interfaces/agnets';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
 import { Page } from '../../../interfaces/paginateInstance';
-import { Processes } from '../../../interfaces/processes';
-import { ProcessLogs } from '../../../interfaces/processLogs';
+import { Automation } from '../../../interfaces/automations';
+import { automationLogsApiUrl } from '../../../webApiUrls';
+import { automationsApiUrl } from '../../../webApiUrls/automations';
+import { AutomationLogs } from '../../../interfaces/automationLogs';
 
 @Component({
   selector: 'ngx-all-process-logs',
@@ -24,10 +26,10 @@ export class AllProcessLogsComponent implements OnInit {
   processjoblogFilter: string;
   showprocessjob: FormGroup;
   agentLookUp: Agents[] = [];
-  processLookUp: Processes[] = [];
+  processLookUp: Automation[] = [];
   show_filter_jobs: any = [];
   page: Page = {};
-  allProcessLogs: ProcessLogs[] = [];
+  allProcessLogs: AutomationLogs[] = [];
   filterOrderBy: string;
   itemsPerPage: ItemsPerPage[] = [];
 
@@ -69,9 +71,9 @@ export class AllProcessLogsComponent implements OnInit {
     const filterParam = `jobId+eq+guid'${this.jobID}'`;
     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
     if (this.filterOrderBy) {
-      url = `processlogs?$filter=${filterParam}&$orderby=${this.filterOrderBy}&$top=${this.page.pageSize}&$skip=${skip}`;
+      url = `${automationLogsApiUrl.automationLogs}?$filter=${filterParam}&$orderby=${this.filterOrderBy}&$top=${this.page.pageSize}&$skip=${skip}`;
     } else {
-      url = `processlogs?$filter=${filterParam}&$orderby=createdOn+desc&$top=${this.page.pageSize}&$skip=${skip}`;
+      url = `${automationLogsApiUrl.automationLogs}?$filter=${filterParam}&$orderby=createdOn+desc&$top=${this.page.pageSize}&$skip=${skip}`;
     }
     this.getByFilterParam(url);
   }
@@ -93,18 +95,16 @@ export class AllProcessLogsComponent implements OnInit {
    */
   getProcessLookup(): void {
     this.httpService
-      .get(`/Processes/GetLookup`)
-      .subscribe((response: Processes[]) => {
+      .get(`${automationsApiUrl.getLookUp}`)
+      .subscribe((response: Automation[]) => {
         if (response) this.processLookUp = response;
       });
   }
 
   getAgentsLookup(): void {
-    this.httpService
-      .get(`/Agents/GetLookup`)
-      .subscribe((response: Agents[]) => {
-        if (response) this.agentLookUp = response;
-      });
+    this.httpService.get(`Agents/GetLookup`).subscribe((response: Agents[]) => {
+      if (response) this.agentLookUp = response;
+    });
   }
 
   processAndAgentDropdown(name: string, value: string): void {
@@ -124,7 +124,8 @@ export class AllProcessLogsComponent implements OnInit {
     }
     if (this.processID) {
       filterQueryParam =
-        filterQueryParam + `ProcessID+eq+guid'${this.processID}' and `;
+        filterQueryParam +
+        `${automationsApiUrl.automationId}+eq+guid'${this.processID}' and `;
     }
     if (filterQueryParam.endsWith(' and ')) {
       filterQueryParam = filterQueryParam.substring(
@@ -137,9 +138,9 @@ export class AllProcessLogsComponent implements OnInit {
       let url: string;
       const skip = (this.page.pageNumber - 1) * this.page.pageSize;
       if (this.filterOrderBy) {
-        url = `processlogs?$filter=${filterQueryParam}&$orderby=${this.filterOrderBy}&$top=${this.page.pageSize}&$skip=${skip}`;
+        url = `${automationLogsApiUrl.automationLogs}?$filter=${filterQueryParam}&$orderby=${this.filterOrderBy}&$top=${this.page.pageSize}&$skip=${skip}`;
       } else {
-        url = `processlogs?$filter=${filterQueryParam}&$orderby=createdOn+desc&$top=${this.page.pageSize}&$skip=${skip}`;
+        url = `${automationLogsApiUrl.automationLogs}?$filter=${filterQueryParam}&$orderby=createdOn+desc&$top=${this.page.pageSize}&$skip=${skip}`;
       }
       this.getByFilterParam(url);
     } else {
@@ -159,8 +160,9 @@ export class AllProcessLogsComponent implements OnInit {
   getProcessLogsList(top: number, skip: number, orderBy?: string): void {
     let url: string;
     if (orderBy)
-      url = `processlogs?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
-    else url = `processlogs?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+      url = `${automationLogsApiUrl.automationLogs}?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+    else
+      url = `${automationLogsApiUrl.automationLogs}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
     this.httpService.get(url).subscribe((response) => {
       if (response) {
         this.page.totalCount = response.totalCount;
@@ -226,7 +228,7 @@ export class AllProcessLogsComponent implements OnInit {
   exportFile(): void {
     let fileName: string;
     this.httpService
-      .get(`ProcessLogs/export/zip`, {
+      .get(`${automationLogsApiUrl.automationLogsExport}zip`, {
         responseType: 'blob',
         observe: 'response',
       })

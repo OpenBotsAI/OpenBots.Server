@@ -79,6 +79,7 @@ namespace OpenBots.Server.WebAPI.Controllers.Core
         /// <response code="400">Bad request, if a lookup value id is not in proper format or a proper Guid</response>
         /// <response code="403">Forbidden</response>
         /// <response code="404">Not found, when no lookup value exists for the given lookup value id</response>
+        /// <response code="422">Unprocessable entity</response>
         /// <returns>Lookup value details for the given id</returns>
         [HttpGet("{codeType}", Name = "GetLookupValue")]
         [ProducesResponseType(typeof(PaginatedList<LookupValue>), StatusCodes.Status200OK)]

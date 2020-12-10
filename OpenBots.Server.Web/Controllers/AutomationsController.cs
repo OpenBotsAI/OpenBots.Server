@@ -23,23 +23,23 @@ using OpenBots.Server.WebAPI.Controllers;
 namespace OpenBots.Server.Web.Controllers
 {
     /// <summary>
-    /// Controller for Studio processes
+    /// Controller for Studio automations
     /// </summary>
     [V1]
     [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
-    public class ProcessesController : EntityController<Process>
+    public class AutomationsController : EntityController<Automation>
     {
-        private readonly IProcessManager manager;
+        private readonly IAutomationManager manager;
         private readonly IBinaryObjectManager binaryObjectManager;
         private readonly IBinaryObjectRepository binaryObjectRepo;
-        private readonly IProcessVersionRepository processVersionRepo;
+        private readonly IAutomationVersionRepository automationVersionRepo;
         private readonly StorageContext dbContext;
         IWebhookPublisher webhookPublisher;
 
         /// <summary>
-        /// Process Controller constructor
+        /// Automation Controller constructor
         /// </summary>
         /// <param name="repository"></param>
         /// <param name="membershipManager"></param>
@@ -49,45 +49,45 @@ namespace OpenBots.Server.Web.Controllers
         /// <param name="binaryObjectManager"></param>
         /// <param name="binaryObjectRepo"></param>
         /// <param name="configuration"></param>
-        public ProcessesController(
-            IProcessRepository repository,
-            IProcessManager manager,
+        public AutomationsController(
+            IAutomationRepository repository,
+            IAutomationManager manager,
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
             IHttpContextAccessor httpContextAccessor,
             IBinaryObjectRepository binaryObjectRepo,
             IBinaryObjectManager binaryObjectManager,
             IConfiguration configuration,
-            IProcessVersionRepository processVersionRepo,
             IWebhookPublisher webhookPublisher,
+            IAutomationVersionRepository automationVersionRepo,
             StorageContext dbContext) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.manager = manager;
             this.binaryObjectRepo = binaryObjectRepo;
             this.binaryObjectManager = binaryObjectManager;
-            this.processVersionRepo = processVersionRepo;
             this.webhookPublisher = webhookPublisher;
+            this.automationVersionRepo = automationVersionRepo;
             this.dbContext = dbContext;
         }
 
         /// <summary>
-        /// Provides a list of all processes
+        /// Provides a list of all automations
         /// </summary>
-        /// <response code="200">Ok, a paginated list of all processes</response>
+        /// <response code="200">Ok, a paginated list of all automations</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Paginated list of all processes</returns>
+        /// <returns>Paginated list of all automations</returns>
         [HttpGet]
-        [ProducesResponseType(typeof(PaginatedList<Process>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<Automation>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<Process> Get(
+        public PaginatedList<Automation> Get(
         [FromQuery(Name = "$filter")] string filter = "",
         [FromQuery(Name = "$orderby")] string orderBy = "",
         [FromQuery(Name = "$top")] int top = 100,
@@ -98,34 +98,34 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Provides a view model list of all processes and corresponding process version information
+        /// Provides a view model list of all automations and corresponding automation version information
         /// </summary>
         /// <param name="top"></param>
         /// <param name="skip"></param>
         /// <param name="orderBy"></param>
         /// <param name="filter"></param>
-        /// <response code="200">Ok, a paginated list of all processes</response>
+        /// <response code="200">Ok, a paginated list of all automationes</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden, unauthorized access</response>  
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Paginated list of all processes</returns>
+        /// <returns>Paginated list of all automationes</returns>
         [HttpGet("view")]
-        [ProducesResponseType(typeof(PaginatedList<AllProcessesViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<AllAutomationsViewModel>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AllProcessesViewModel> View(
+        public PaginatedList<AllAutomationsViewModel> View(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            ODataHelper<AllProcessesViewModel> oData = new ODataHelper<AllProcessesViewModel>();
+            ODataHelper<AllAutomationsViewModel> oData = new ODataHelper<AllAutomationsViewModel>();
 
             string queryString = "";
 
@@ -139,26 +139,26 @@ namespace OpenBots.Server.Web.Controllers
             Guid parentguid = Guid.Empty;
             var newNode = oData.ParseOrderByQuery(queryString);
             if (newNode == null)
-                newNode = new OrderByNode<AllProcessesViewModel>();
+                newNode = new OrderByNode<AllAutomationsViewModel>();
 
-            Predicate<AllProcessesViewModel> predicate = null;
+            Predicate<AllAutomationsViewModel> predicate = null;
             if (oData != null && oData.Filter != null)
-                predicate = new Predicate<AllProcessesViewModel>(oData.Filter);
+                predicate = new Predicate<AllAutomationsViewModel>(oData.Filter);
             int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
 
-            return manager.GetProcessesAndProcessVersions(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+            return manager.GetAutomationsAndAutomationVersions(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
         }
 
         /// <summary>
-        /// Gets count of processes in database
+        /// Gets count of automations in database
         /// </summary>
         /// <param name="filter"></param>
-        /// <response code="200">Ok, a count of all processes</response>
+        /// <response code="200">Ok, a count of all automations</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Count of all processes</returns>
+        /// <returns>Count of all automations</returns>
         [HttpGet("count")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -173,18 +173,18 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Get process by id
+        /// Get automation by id
         /// </summary>
         /// <param name="id"></param>
-        /// <response code="200">Ok, if a process exists with the given id</response>
+        /// <response code="200">Ok, if a automation exists with the given id</response>
         /// <response code="304">Not modified</response>
-        /// <response code="400">Bad request, if process id is not in proper format or a proper Guid</response>
+        /// <response code="400">Bad request, if automation id is not in proper format or a proper Guid</response>
         /// <response code="403">Forbidden</response>
-        /// <response code="404">Not found, when no process exists for the given process id</response>
+        /// <response code="404">Not found, when no automation exists for the given automation id</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Process entity</returns>
-        [HttpGet("{id}", Name = "GetProcess")]
-        [ProducesResponseType(typeof(PaginatedList<Process>), StatusCodes.Status200OK)]
+        /// <returns>Automation entity</returns>
+        [HttpGet("{id}", Name = "GetAutomation")]
+        [ProducesResponseType(typeof(PaginatedList<Automation>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -205,18 +205,18 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Provides a process's view model details for a particular process id
+        /// Provides an automation's view model details for a particular automation id
         /// </summary>
-        /// <param name="id">Process id</param>
-        /// <response code="200">Ok, if a process exists with the given id</response>
+        /// <param name="id">Automation id</param>
+        /// <response code="200">Ok, if a automation exists with the given id</response>
         /// <response code="304">Not modified</response>
-        /// <response code="400">Bad request, if process id is not in the proper format or a proper Guid</response>
+        /// <response code="400">Bad request, if automation id is not in the proper format or a proper Guid</response>
         /// <response code="403">Forbidden</response>
-        /// <response code="404">Not found, when no process exists for the given process id</response>
+        /// <response code="404">Not found, when no automation exists for the given automation id</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Process view model details for the given id</returns>
+        /// <returns>Automation view model details for the given id</returns>
         [HttpGet("view/{id}")]
-        [ProducesResponseType(typeof(ProcessViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AutomationViewModel), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -228,13 +228,13 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                IActionResult actionResult = await base.GetEntity<ProcessViewModel>(id);
+                IActionResult actionResult = await base.GetEntity<AutomationViewModel>(id);
                 OkObjectResult okResult = actionResult as OkObjectResult;
 
                 if (okResult != null)
                 {
-                    ProcessViewModel view = okResult.Value as ProcessViewModel;
-                    view = manager.GetProcessView(view, id);
+                    AutomationViewModel view = okResult.Value as AutomationViewModel;
+                    view = manager.GetAutomationView(view, id);
                 }
 
                 return actionResult;
@@ -246,38 +246,39 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Create a new process entity
+        /// Create a new automation entity
         /// </summary>
         /// <param name="request"></param>
-        /// <response code="200">Ok, new process created and returned</response>
-        /// <response code="400">Bad request, when the process value is not in proper format</response>
+        /// <response code="200">Ok, new automation created and returned</response>
+        /// <response code="400">Bad request, when the automation value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
         /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
-        /// <returns>Newly created process details</returns>
+        /// <returns>Newly created automation details</returns>
         [HttpPost]
-        [ProducesResponseType(typeof(Process), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Automation), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Post([FromBody] ProcessViewModel request)
+        public async Task<IActionResult> Post([FromBody] AutomationViewModel request)
         {
             try
             {
                 Guid versionId = Guid.NewGuid();
-                var process = new Process()
+                var automation = new Automation()
                 {
                     Name = request.Name,
+                    AutomationEngine = request.AutomationEngine,
                     Id = request.Id
                 };
 
-                var response = await base.PostEntity(process);
-                manager.AddProcessVersion(request);
+                var response = await base.PostEntity(automation);
+                manager.AddAutomationVersion(request);
 
-                await webhookPublisher.PublishAsync("Processes.NewProcessCreated", process.Id.ToString(), process.Name).ConfigureAwait(false);
+                await webhookPublisher.PublishAsync("Automations.NewAutomationCreated", automation.Id.ToString(), automation.Name).ConfigureAwait(false);
                 return response;
             }
             catch (Exception ex)
@@ -287,18 +288,18 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Create a new binary object and upload process file
+        /// Create a new binary object and upload automation file
         /// </summary>
         /// <param name="id"></param>
         /// <param name="file"></param>
-        /// <response code="200">Ok, process updated and returned</response>
-        /// <response code="400">Bad request, when the process value is not in proper format</response>
+        /// <response code="200">Ok, automation updated and returned</response>
+        /// <response code="400">Bad request, when the automation value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
         /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
-        /// <returns>Newly updated process detaills</returns>
+        /// <returns>Newly updated automation details</returns>
         [HttpPost("{id}/upload")]
-        [ProducesResponseType(typeof(Process), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Automation), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -311,27 +312,27 @@ namespace OpenBots.Server.Web.Controllers
             {
                 if (file == null)
                 {
-                    ModelState.AddModelError("Save", "No process uploaded");
+                    ModelState.AddModelError("Save", "No automation uploaded");
                     return BadRequest(ModelState);
                 }
 
                 long size = file.Length;
                 if (size <= 0)
                 {
-                    ModelState.AddModelError("Process Upload", $"File size of process {file.FileName} cannot be 0");
+                    ModelState.AddModelError("Automation Upload", $"File size of automation {file.FileName} cannot be 0");
                     return BadRequest(ModelState);
                 }
 
-                var process = repository.GetOne(Guid.Parse(id));
+                var automation = repository.GetOne(Guid.Parse(id));
                 string organizationId = binaryObjectManager.GetOrganizationId();
-                string apiComponent = "ProcessAPI";
+                string apiComponent = "AutomationAPI";
 
                 BinaryObject binaryObject = new BinaryObject();
                 binaryObject.Name = file.FileName;
                 binaryObject.Folder = apiComponent;
                 binaryObject.CreatedOn = DateTime.UtcNow;
                 binaryObject.CreatedBy = applicationUser?.UserName;
-                binaryObject.CorrelationEntityId = process.Id;
+                binaryObject.CorrelationEntityId = automation.Id;
 
                 string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
 
@@ -339,14 +340,13 @@ namespace OpenBots.Server.Web.Controllers
                 binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
                 binaryObjectRepo.Add(binaryObject);
 
-                process.BinaryObjectId = (Guid)binaryObject.Id;
-                process.OriginalPackageName = file.FileName;
-                repository.Update(process);
+                automation.BinaryObjectId = (Guid)binaryObject.Id;
+                automation.OriginalPackageName = file.FileName;
+                repository.Update(automation);
 
                 await webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
-                await webhookPublisher.PublishAsync("Processes.ProcessUpdated", process.Id.ToString(), process.Name).ConfigureAwait(false);
-
-                return Ok(process);
+                await webhookPublisher.PublishAsync("Automations.AutomationUpdated", automation.Id.ToString(), automation.Name).ConfigureAwait(false);
+                return Ok(automation);
             }
             catch (Exception ex)
             {
@@ -356,32 +356,32 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Update process with file 
+        /// Update automation with file 
         /// </summary>
         /// <remarks>
-        /// Provides an action to update a process, when process id and the new details of process are given
+        /// Provides an action to update a automation, when automation id and the new details of automation are given
         /// </remarks>
-        /// <param name="id">Process id, produces bad request if id is null or ids don't match</param>
-        /// <param name="request">Process details to be updated</param>
-        /// <response code="200">Ok, if the process details for the given process id have been updated</response>
-        /// <response code="400">Bad request, if the process id is null or ids don't match</response>
+        /// <param name="id">Automation id, produces bad request if id is null or ids don't match</param>
+        /// <param name="request">Automation details to be updated</param>
+        /// <response code="200">Ok, if the automation details for the given automation id have been updated</response>
+        /// <response code="400">Bad request, if the automation id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Ok response with the updated value details</returns>
         [HttpPost("{id}/update")]
-        [ProducesResponseType(typeof(Process), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Automation), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Update(string id, [FromForm] ProcessViewModel request)
+        public async Task<IActionResult> Update(string id, [FromForm] AutomationViewModel request)
         {
             Guid entityId = new Guid(id);
-            var existingProcess = repository.GetOne(entityId);
-            if (existingProcess == null) return NotFound();
+            var existingAutomation = repository.GetOne(entityId);
+            if (existingAutomation == null) return NotFound();
 
             if (request.File == null)
             {
@@ -392,11 +392,11 @@ namespace OpenBots.Server.Web.Controllers
             long size = request.File.Length;
             if (size <= 0)
             {
-                ModelState.AddModelError("Process Upload", $"File size of process {request.File.FileName} cannot be 0");
+                ModelState.AddModelError("Automation Upload", $"File size of automation {request.File.FileName} cannot be 0");
                 return BadRequest(ModelState);
             }
 
-            string binaryObjectId = existingProcess.BinaryObjectId.ToString();
+            string binaryObjectId = existingAutomation.BinaryObjectId.ToString();
             var binaryObject = binaryObjectRepo.GetOne(Guid.Parse(binaryObjectId));
             string organizationId = binaryObject.OrganizationId.ToString();
 
@@ -406,9 +406,9 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 BinaryObject newBinaryObject = new BinaryObject();
-                if (existingProcess.BinaryObjectId != Guid.Empty && size > 0)
+                if (existingAutomation.BinaryObjectId != Guid.Empty && size > 0)
                 {
-                    string apiComponent = "ProcessAPI";
+                    string apiComponent = "AutomationAPI";
                     //Update file in OpenBots.Server.Web using relative directory
                     newBinaryObject.Id = Guid.NewGuid();
                     newBinaryObject.Name = request.File.FileName;
@@ -423,18 +423,18 @@ namespace OpenBots.Server.Web.Controllers
                     binaryObjectRepo.Update(binaryObject);
                 }
 
-                //Update process (Create new process and process version entities)
-                Process response = existingProcess;
-                ProcessVersion processVersion = processVersionRepo.Find(null, q => q.ProcessId == response.Id).Items?.FirstOrDefault();
-                if (existingProcess.Name.Trim().ToLower() != request.Name.Trim().ToLower() || processVersion.Status.Trim().ToLower() != request.Status?.Trim().ToLower()) 
+                //Update automation (Create new automation and automation version entities)
+                Automation response = existingAutomation;
+                AutomationVersion automationVersion = automationVersionRepo.Find(null, q => q.AutomationId == response.Id).Items?.FirstOrDefault();
+                if (existingAutomation.Name.Trim().ToLower() != request.Name.Trim().ToLower() || automationVersion.Status.Trim().ToLower() != request.Status?.Trim().ToLower()) 
                 {
-                    existingProcess.BinaryObjectId = (Guid)newBinaryObject.Id;
-                    existingProcess.OriginalPackageName = request.File.FileName;
-                    response = manager.UpdateProcess(existingProcess, request);
+                    existingAutomation.BinaryObjectId = (Guid)newBinaryObject.Id;
+                    existingAutomation.OriginalPackageName = request.File.FileName;
+                    response = manager.UpdateAutomation(existingAutomation, request);
                 }
 
                 await webhookPublisher.PublishAsync("Files.NewFileCreated", newBinaryObject.Id.ToString(), newBinaryObject.Name).ConfigureAwait(false);
-                await webhookPublisher.PublishAsync("Processes.ProcessUpdated", existingProcess.Id.ToString(), existingProcess.Name).ConfigureAwait(false);
+                await webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -444,15 +444,15 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Update a Process 
+        /// Update a Automation 
         /// </summary>
         /// <remarks>
-        /// Provides an action to update a process, when process id and the new details of process are given
+        /// Provides an action to update a automation, when automation id and the new details of automation are given
         /// </remarks>
-        /// <param name="id">Process id, produces bad request if id is null or ids don't match</param>
-        /// <param name="value">Process details to be updated</param>
-        /// <response code="200">Ok, if the process details for the given process id have been updated</response>
-        /// <response code="400">Bad request, if the process id is null or ids don't match</response>
+        /// <param name="id">Automation id, produces bad request if id is null or ids don't match</param>
+        /// <param name="value">Automation details to be updated</param>
+        /// <response code="200">Ok, if the automation details for the given automation id have been updated</response>
+        /// <response code="400">Bad request, if the automation id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Ok response with the updated value details</returns>
@@ -464,49 +464,50 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Put(string id, [FromBody] ProcessViewModel value)
+        public async Task<IActionResult> Put(string id, [FromBody] AutomationViewModel value)
         {
             try
             {
                 Guid entityId = new Guid(id);
 
-                var existingProcess = repository.GetOne(entityId);
-                if (existingProcess == null) return NotFound();
+                var existingAutomation = repository.GetOne(entityId);
+                if (existingAutomation == null) return NotFound();
 
-                existingProcess.Name = value.Name;
+                existingAutomation.Name = value.Name;
+                existingAutomation.AutomationEngine = value.AutomationEngine;
 
-                var processVersion = processVersionRepo.Find(null, q => q.ProcessId == existingProcess.Id).Items?.FirstOrDefault();
-                if (!string.IsNullOrEmpty(processVersion.Status))
+                var automationVersion = automationVersionRepo.Find(null, q => q.AutomationId == existingAutomation.Id).Items?.FirstOrDefault();
+                if (!string.IsNullOrEmpty(automationVersion.Status))
                 {
                     // Determine a way to check if previous value was not published before setting published properties
-                    processVersion.Status = value.Status;
-                    if (processVersion.Status == "Published")
+                    automationVersion.Status = value.Status;
+                    if (automationVersion.Status == "Published")
                     {
-                        processVersion.PublishedBy = applicationUser?.Email;
-                        processVersion.PublishedOnUTC = DateTime.UtcNow;
+                        automationVersion.PublishedBy = applicationUser?.Email;
+                        automationVersion.PublishedOnUTC = DateTime.UtcNow;
                     }
-                    processVersionRepo.Update(processVersion);
+                    automationVersionRepo.Update(automationVersion);
                 }
-                await webhookPublisher.PublishAsync("Processes.ProcessUpdated", existingProcess.Id.ToString(), existingProcess.Name).ConfigureAwait(false);
-                return await base.PutEntity(id, existingProcess);
+                await webhookPublisher.PublishAsync("Automations.AutomationsUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
+                return await base.PutEntity(id, existingAutomation);
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Process", ex.Message);
+                ModelState.AddModelError("Automation", ex.Message);
                 return BadRequest(ModelState);
             }
         }
 
         /// <summary>
-        /// Updates partial details of a process
+        /// Updates partial details of an automation
         /// </summary>
-        /// <param name="id">Process identifier</param>
-        /// <param name="request">Value of the process to be updated</param>
-        /// <response code="200">Ok, if update of process is successful</response>
+        /// <param name="id">Automation identifier</param>
+        /// <param name="request">Value of the automation to be updated</param>
+        /// <response code="200">Ok, if update of automation is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity ,validation error</response>
-        /// <returns>Ok response, if the partial process values have been updated</returns>
+        /// <returns>Ok response, if the partial automation values have been updated</returns>
         [HttpPatch("{id}")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -514,27 +515,27 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id,
-            [FromBody] JsonPatchDocument<Process> request)
+            [FromBody] JsonPatchDocument<Automation> request)
         {
-            var existingProcess = repository.GetOne(Guid.Parse(id));
-            if (existingProcess == null) return NotFound();
+            var existingAutomation = repository.GetOne(Guid.Parse(id));
+            if (existingAutomation == null) return NotFound();
 
-            await webhookPublisher.PublishAsync("Processes.ProcessUpdated", existingProcess.Id.ToString(), existingProcess.Name).ConfigureAwait(false);
+            await webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
             return await base.PatchEntity(id, request);
         }
 
         /// <summary>
-        /// Export/download a process
+        /// Export/download a automation
         /// </summary>
         /// <param name="id"></param>
-        /// <response code="200">Ok, if a process exists with the given id</response>
+        /// <response code="200">Ok, if a automation exists with the given id</response>
         /// <response code="304">Not modified</response>
-        /// <response code="400">Bad request, if process id is not in proper format or a proper Guid</response>
+        /// <response code="400">Bad request, if automation id is not in proper format or a proper Guid</response>
         /// <response code="403">Forbidden</response>
-        /// <response code="404">Not found, when no process exists for the given process id</response>
+        /// <response code="404">Not found, when no automation exists for the given automation id</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Downloaded process file</returns>        
-        [HttpGet("{id}/Export", Name = "ExportProcess")]
+        /// <returns>Downloaded automation file</returns>        
+        [HttpGet("{id}/Export", Name = "ExportAutomation")]
         [ProducesResponseType(typeof(MemoryStream), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
@@ -547,18 +548,18 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                Guid processId;
-                Guid.TryParse(id, out processId);
+                Guid automationId;
+                Guid.TryParse(id, out automationId);
 
-                Process process = repository.GetOne(processId);
+                Automation automation = repository.GetOne(automationId);
                
-                if (process == null || process.BinaryObjectId == null || process.BinaryObjectId == Guid.Empty)
+                if (automation == null || automation.BinaryObjectId == null || automation.BinaryObjectId == Guid.Empty)
                 {
-                    ModelState.AddModelError("Process Export", "No process or process file found");
-                    return NotFound(ModelState);
+                    ModelState.AddModelError("Automation Export", "No automation or automation file found");
+                    return BadRequest(ModelState);
                 }
 
-                var fileObject = manager.Export(process.BinaryObjectId.ToString());
+                var fileObject = manager.Export(automation.BinaryObjectId.ToString());
                 return File(fileObject?.Result?.BlobStream, fileObject?.Result?.ContentType, fileObject?.Result?.Name);
             }
             catch (Exception ex)
@@ -568,11 +569,11 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Delete process with a specified id from list of processes
+        /// Delete automation with a specified id from list of automationes
         /// </summary>
-        /// <param name="id">Process id to be deleted - throws bad request if null or empty Guid</param>
-        /// <response code="200">Ok, when process is soft deleted, (isDeleted flag is set to true in database)</response>
-        /// <response code="400">Bad request, if Process id is null or empty Guid</response>
+        /// <param name="id">Automation id to be deleted - throws bad request if null or empty Guid</param>
+        /// <response code="200">Ok, when automation is soft deleted, (isDeleted flag is set to true in database)</response>
+        /// <response code="400">Bad request, if automation id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>
         /// <returns>Ok response</returns>
         [HttpDelete("{id}")]
@@ -585,19 +586,19 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                // Remove process
-                Guid processId = Guid.Parse(id);
-                var existingProcess = repository.GetOne(processId);
-                if (existingProcess == null) return NotFound();
+                // Remove Automation
+                Guid automationId = Guid.Parse(id);
+                var existingAutomation = repository.GetOne(automationId);
+                if (existingAutomation == null) return NotFound();
 
-                await webhookPublisher.PublishAsync("Processes.ProcessDeleted", existingProcess.Id.ToString(), existingProcess.Name).ConfigureAwait(false);
-                bool response = manager.DeleteProcess(processId);
+                await webhookPublisher.PublishAsync("Automations.AutomationDeleted", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
+                bool response = manager.DeleteAutomation(automationId);
 
                 if (response)
                     return Ok();
                 else
                 {
-                    ModelState.AddModelError("Process Delete", "An error occured while deleting a process");
+                    ModelState.AddModelError("Automation Delete", "An error occured while deleting an automation");
                     return BadRequest(ModelState);
                 }
             }
@@ -608,36 +609,36 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Lookup list of all processes
+        /// Lookup list of all automationes
         /// </summary>
-        /// <response code="200">Ok, a lookup list of all processes</response>
+        /// <response code="200">Ok, a lookup list of all automationes</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Lookup list of all processes</returns>
+        /// <returns>Lookup list of all automationes</returns>
         [HttpGet("GetLookup")]
-        [ProducesResponseType(typeof(List<JobProcessLookup>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<JobAutomationLookup>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public List<JobProcessLookup> GetLookup()
+        public List<JobAutomationLookup> GetLookup()
         {
-            var processList = repository.Find(null, x => x.IsDeleted == false);
-            var processLookup = from p in processList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
-                                join v in dbContext.ProcessVersions on p.Id equals v.ProcessId into table1
+            var automationList = repository.Find(null, x => x.IsDeleted == false);
+            var automationLookup = from p in automationList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
+                                join v in dbContext.AutomationVersions on p.Id equals v.AutomationId into table1
                                 from v in table1.DefaultIfEmpty()
-                                select new JobProcessLookup
+                                select new JobAutomationLookup
                                 {
-                                    ProcessId = (p == null || p.Id == null) ? Guid.Empty : p.Id.Value,
-                                    ProcessName = p?.Name,
-                                    ProcessNameWithVersion = string.Format("{0} (v{1})", p?.Name.Trim(), v?.VersionNumber) 
+                                    AutomationId = (p == null || p.Id == null) ? Guid.Empty : p.Id.Value,
+                                    AutomationName = p?.Name,
+                                    AutomationNameWithVersion = string.Format("{0} (v{1})", p?.Name.Trim(), v?.VersionNumber) 
                                 };
 
-            return processLookup.ToList();
+            return automationLookup.ToList();
         }
     }
 }

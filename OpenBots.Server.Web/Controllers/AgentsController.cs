@@ -586,6 +586,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="304">Not modified</response>
         /// <response code="400">Bad request, if agent id is not in the proper format or a proper Guid</response>
         /// <response code="403">Forbidden</response>
+        /// <response code="422">Unprocessable entity</response>
         /// <response code="404">Not found, when no agent exists for the given agent id</response>
         /// <returns>Agent heaetbeat details for the given id</returns>
         [HttpGet("{AgentId}/AgentHeartbeats", Name = "GetAgentHeartbeat")]
