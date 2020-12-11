@@ -10,6 +10,7 @@ using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
+using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
 using System.IO;
@@ -28,7 +29,7 @@ namespace OpenBots.Server.Web.Controllers
     public class BinaryObjectsController : EntityController<BinaryObject>
     {
         private readonly IBinaryObjectManager binaryObjectManager;
-        private readonly IOrganizationManager organizationManager;
+        private readonly IWebhookPublisher webhookPublisher;
 
         /// <summary>
         /// BinaryObjectsController constructor
@@ -45,11 +46,12 @@ namespace OpenBots.Server.Web.Controllers
             IBinaryObjectManager binaryObjectManager,
             IHttpContextAccessor httpContextAccessor,
             IConfiguration configuration,
-            IOrganizationManager organizationManager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
+            IOrganizationManager organizationManager,
+            IWebhookPublisher webhookPublisher) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.binaryObjectManager = binaryObjectManager;
-            this.organizationManager = organizationManager;
             this.binaryObjectManager.SetContext(SecurityContext);
+            this.webhookPublisher = webhookPublisher;
         }
 
         /// <summary>
@@ -154,6 +156,7 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 var response = await base.PostEntity(request);
+                await webhookPublisher.PublishAsync("Files.NewFileCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
                 return response;
             }
             catch (Exception ex)
@@ -198,18 +201,19 @@ namespace OpenBots.Server.Web.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var binaryObject = repository.GetOne(Guid.Parse(id));
+                var existingBinaryObject = repository.GetOne(Guid.Parse(id));
+                if (existingBinaryObject == null) return NotFound();
                 string organizationId = binaryObjectManager.GetOrganizationId();
                 string apiComponent = "BinaryObjectAPI";
 
-                if (string.IsNullOrEmpty(binaryObject.Folder))
-                    binaryObject.Folder = apiComponent;
+                if (string.IsNullOrEmpty(existingBinaryObject.Folder))
+                    existingBinaryObject.Folder = apiComponent;
 
                 //Find relative directory where binary object is being saved
-                string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
+                string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, existingBinaryObject.Id.ToString());
                 if (filePath != null)
                 {
-                    var existingbinary = repository.Find(null, x => x.Folder?.ToLower(null) == binaryObject.Folder.ToLower(null) && x.Name.ToLower(null) == file?.FileName?.ToLower(null) && x.Id != Guid.Parse(id))?.Items?.FirstOrDefault();
+                    var existingbinary = repository.Find(null, x => x.Folder?.ToLower(null) == existingBinaryObject.Folder.ToLower(null) && x.Name.ToLower(null) == file?.FileName?.ToLower(null) && x.Id != Guid.Parse(id))?.Items?.FirstOrDefault();
                     if (existingbinary != null)
                     {
                         ModelState.AddModelError("BinaryObject", "Same file name already exists in the given folder");
@@ -217,12 +221,13 @@ namespace OpenBots.Server.Web.Controllers
                     }
                     else
                     {
-                        binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                        binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                        repository.Update(binaryObject);
+                        binaryObjectManager.Upload(file, organizationId, apiComponent, existingBinaryObject.Id.ToString());
+                        binaryObjectManager.SaveEntity(file, filePath, existingBinaryObject, apiComponent, organizationId);
+                        repository.Update(existingBinaryObject);
                     }
                 }
-                return Ok(binaryObject);
+                await webhookPublisher.PublishAsync("Files.FileUpdated", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
+                return Ok(existingBinaryObject);
             }
             catch (Exception ex)
             {
@@ -319,7 +324,8 @@ namespace OpenBots.Server.Web.Controllers
 
                 existingBinaryObject.Name = request.Name ?? existingBinaryObject.Name;
                 existingBinaryObject.Folder = request.Folder;
-                
+
+                await webhookPublisher.PublishAsync("Files.FileUpdated", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingBinaryObject);
                                      
             }
@@ -404,6 +410,7 @@ namespace OpenBots.Server.Web.Controllers
                     await base.PutEntity(id, existingBinaryObject);
                 }
 
+                await webhookPublisher.PublishAsync("Files.FileUpdated", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
                 return Ok(existingBinaryObject);
             }
             catch (Exception ex)
@@ -428,8 +435,12 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string id)
         {
-                BinaryObject binaryObject = repository.GetOne(Guid.Parse(id));
-                if (string.IsNullOrEmpty(binaryObject.CorrelationEntity) || binaryObject.CorrelationEntity == "BinaryObjectAPI")
+            Guid entityId = Guid.Parse(id);
+            var existingBinaryObject = repository.GetOne(entityId);
+            if (existingBinaryObject == null) return NotFound();
+            await webhookPublisher.PublishAsync("Files.FileDeleted", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
+
+            if (string.IsNullOrEmpty(existingBinaryObject.CorrelationEntity) || existingBinaryObject.CorrelationEntity == "BinaryObjectAPI")
                     return await base.DeleteEntity(id);
 
                 Exception ex = new Exception();
@@ -456,6 +467,11 @@ namespace OpenBots.Server.Web.Controllers
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<BinaryObject> request)
         {
+            Guid entityId = Guid.Parse(id);
+            var existingBinaryObject = repository.GetOne(entityId);
+            if (existingBinaryObject == null) return NotFound();
+
+            await webhookPublisher.PublishAsync("Files.FileUpdated", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
             return await base.PatchEntity(id, request);
         }
     }
