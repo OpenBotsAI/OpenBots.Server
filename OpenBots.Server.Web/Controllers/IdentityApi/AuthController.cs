@@ -58,6 +58,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         readonly IAgentRepository agentRepository;
         readonly IAuditLogRepository auditLogRepository;
         readonly WebAppUrlOptions webAppUrlOptions;
+        readonly IIPFencingManager iPFencingManager;
+        readonly IPFencingOptions iPFencingOptions;
 
         /// <summary>
         /// AuthController constructor
@@ -90,7 +92,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
            IOrganizationMemberRepository organizationMemberRepository,
            IAgentRepository agentRepository,
            ITermsConditionsManager termsConditionsManager,
-           IAuditLogRepository auditLogRepository) : base(httpContextAccessor, userManager, membershipManager)
+           IAuditLogRepository auditLogRepository,
+           IIPFencingManager iPFencingManager) : base(httpContextAccessor, userManager, membershipManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -110,7 +113,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             this.agentRepository = agentRepository;
             this.auditLogRepository = auditLogRepository;
             this.webAppUrlOptions = configuration.GetSection(WebAppUrlOptions.WebAppUrl).Get<WebAppUrlOptions>();
-
+            this.iPFencingManager = iPFencingManager;
+            iPFencingOptions = configuration.GetSection(IPFencingOptions.IPFencing).Get<IPFencingOptions>();
         }
 
         /// <summary>
@@ -125,6 +129,18 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             logger.LogInformation(string.Format("Login user : {0}", loginModel.UserName));
             if (ModelState.IsValid)
             {
+                var ipCheck = iPFencingOptions.IPFencingCheck;
+                if (ipCheck != "Disabled")
+                {
+                    var ipAddress = HttpContext.Connection.RemoteIpAddress;
+                    bool isAllowedRequest = iPFencingManager.IsRequestAllowed(ipAddress);
+
+                    if (!isAllowedRequest)
+                    {
+                        return Forbid();
+                    }
+                }
+
                 ApplicationUser user = null;
                 //Sign in user id
                 string signInUser = loginModel.UserName;
@@ -837,6 +853,18 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         [Route("Refresh")]
         public async Task<IActionResult> Refresh(RefreshModel model)
         {
+            var ipCheck = iPFencingOptions.IPFencingCheck;
+            if (ipCheck != "Disabled")
+            {
+                var ipAddress = HttpContext.Connection.RemoteIpAddress;
+                bool isAllowedRequest = iPFencingManager.IsRequestAllowed(ipAddress);
+
+                if (!isAllowedRequest)
+                {
+                    return Forbid();
+                }
+            }
+
             var principal = GetPrincipalFromExpiredToken(model.Token);
             var username = principal.Identity.Name;
             var savedRefreshToken = await GetRefreshToken(username); //Retrieve the refresh token from [AspNetUserTokens] table
