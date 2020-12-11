@@ -132,6 +132,7 @@ namespace OpenBots.Server.Business
                         //Check if IP matches rule
                         case RuleType.IPv4:
                         case RuleType.IPv6:
+                            if (rule.IPAddress == null) break;
                             if (iPAddress.Equals(IPAddress.Parse(rule.IPAddress)))
                             {
                                 ipMatched = true;
@@ -145,10 +146,27 @@ namespace OpenBots.Server.Business
                         //Check if IP is in range
                         case RuleType.IPv4Range:
                         case RuleType.IPv6Range:
+                            IPAddress lowerBoundIP;
+                            IPAddress upperBoundIP;
+                            if (rule.IPRange == null) break;
+
                             var rangeStrings = rule.IPRange.Split('/');
                             String lowerBound = rangeStrings[0];
+                            bool isValidLowerIP = IPAddress.TryParse(lowerBound, out lowerBoundIP);
+
+                            if (rangeStrings[1] == null || isValidLowerIP == false) break;
+
                             String upperBound = lowerBound.Substring(0, lowerBound.LastIndexOf(".")) + "." + rangeStrings[1];
-                            IPAddressRange range = new IPAddressRange(IPAddress.Parse(lowerBound), IPAddress.Parse(upperBound));
+                            bool isValidUpperIP = IPAddress.TryParse(upperBound, out upperBoundIP);
+
+                            if (isValidUpperIP == false) break;
+                            IPAddressRange range = new IPAddressRange(lowerBoundIP, upperBoundIP);
+
+                            if (rule.Rule == RuleType.IPv6Range)
+                            {
+                                upperBound = lowerBound.Substring(0, lowerBound.LastIndexOf(":")) + ":" + rangeStrings[1];
+                                range = new IPAddressRange(IPAddress.Parse(lowerBound), IPAddress.Parse(upperBound));
+                            }
 
                             if (range.IsInRange(iPAddress))
                             {
@@ -164,6 +182,7 @@ namespace OpenBots.Server.Business
                         case RuleType.Header:
                             if (headers.ContainsKey(rule.HeaderName))
                             {
+                                if (rule.IPRange == null) break;
                                 if (rule.HeaderValue == headers[rule.HeaderName].ToString())
                                 {
                                     headersMatched = true;
@@ -203,6 +222,16 @@ namespace OpenBots.Server.Business
         /// <returns>True if the IP is allowed for the current organization</returns>
         public bool IsRequestAllowed(IPAddress iPAddress)
         {
+            // Localhost addresses
+            IPAddress localIPV4 = IPAddress.Parse("::1");
+            IPAddress localIPV6 = IPAddress.Parse("127.0.0.1");
+
+            //Ip is localhost
+            if (iPAddress.Equals(localIPV4) || iPAddress.Equals(localIPV6))
+            {
+                return true;
+            }
+
             List<IPFencing> ipFencingRules = new List<IPFencing>();
             Guid? organizationId = Guid.Empty;
             IPFencingMode? fencingMode = IPFencingMode.AllowMode;
@@ -230,8 +259,6 @@ namespace OpenBots.Server.Business
             }
             else
             {
-                ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == organizationId)?.ToList();
-
                 //Get Organization Settings
                 organizationSettingRepo.ForceIgnoreSecurity();
                 var orgSettings = organizationSettingRepo.Find(0, 1).Items?.
@@ -239,6 +266,19 @@ namespace OpenBots.Server.Business
                 organizationSettingRepo.ForceSecurity();
 
                 fencingMode = orgSettings.IPFencingMode;
+
+                if  (fencingMode == IPFencingMode.AllowMode)
+                {
+                    ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == organizationId 
+                        && i.Usage == UsageType.Deny)?.ToList();
+                }
+                else
+                {
+                    ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == organizationId
+                        && i.Usage == UsageType.Allow)?.ToList();
+                }
+
+
             }
 
             if (fencingMode == IPFencingMode.AllowMode)

@@ -480,6 +480,20 @@
             Sets minimum number of seconds between failure notifications to avoid receiver flooding
             </summary>
         </member>
+        <member name="T:OpenBots.Server.Model.Options.IPFencingOptions">
+            <summary>
+            Options for IPFencing Configuration
+            </summary>
+            <remarks>
+            IPFencing manages the HTTP requests that are allowed to be made to the server based on IP and Headers
+            </remarks>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.IPFencingOptions.IPFencingCheck">
+            <summary>
+            Determines when IPFencing rules will be applied 
+            </summary>
+            <remarks>This value can be set to Disabled, LoginOnly, or EveryRequest</remarks>
+        </member>
         <member name="T:OpenBots.Server.Model.Options.KestrelOptions">
             <summary>
             Options for KestrelOptions Configuration
