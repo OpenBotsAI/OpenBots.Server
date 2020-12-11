@@ -3378,7 +3378,6 @@
             <returns>Ok response</returns>
         </member>
         <member name="T:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventLogsController">
-<<<<<<< HEAD
             <summary>
             ReadOnlyController for IntegrationEventLog
             </summary>
@@ -3570,17 +3569,11 @@
             <returns>Ok response, if the partial IntegrationEventSubscription values have been updated</returns>
         </member>
         <member name="T:OpenBots.Server.Web.AssetsController">
-=======
->>>>>>> f1fcabc4de66ea394a4920fcc5a732093e9b4c02
             <summary>
             ReadOnlyController for IntegrationEventLog
             </summary>
         </member>
-<<<<<<< HEAD
         <member name="M:OpenBots.Server.Web.AssetsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAssetRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IProcessManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Web.Webhooks.IWebhookPublisher)">
-=======
-        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventLogsController.Get(System.String,System.String,System.Int32,System.Int32)">
->>>>>>> f1fcabc4de66ea394a4920fcc5a732093e9b4c02
             <summary>
             Provides a list of all IntegrationEventLogs
             </summary>
