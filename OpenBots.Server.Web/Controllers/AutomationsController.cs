@@ -488,7 +488,7 @@ namespace OpenBots.Server.Web.Controllers
                     }
                     automationVersionRepo.Update(automationVersion);
                 }
-                await webhookPublisher.PublishAsync("Automations.AutomationsUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
+                await webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingAutomation);
             }
             catch (Exception ex)

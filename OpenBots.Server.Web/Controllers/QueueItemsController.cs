@@ -378,7 +378,7 @@ namespace OpenBots.Server.Web.Controllers
                 }
 
                 IActionResult actionResult = await base.PostEntity(response);
-                await webhookPublisher.PublishAsync("QueueItems.QueueItemtCreated", response.Id.ToString(), response.Name).ConfigureAwait(false);
+                await webhookPublisher.PublishAsync("QueueItems.NewQueueItemCreated", response.Id.ToString(), response.Name).ConfigureAwait(false);
 
 
                 //Send SignalR notification to all connected clients
