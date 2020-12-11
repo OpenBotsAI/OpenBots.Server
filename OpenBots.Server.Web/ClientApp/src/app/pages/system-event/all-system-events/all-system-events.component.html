@@ -1,0 +1,102 @@
+<nb-card>
+  <nb-card-header>
+    <div class="titleHeader">
+      <div class="titleLeft">
+        <div class="LeftBgIcon">
+          <img class="img-head-logo" src="../../../../assets/icons/Log.svg" />
+        </div>
+        <div class="LeftBgText">
+          <h2>System Events</h2>
+          <p>
+          List of Events that are raised by the system that can be used for Integrations
+
+          </p>
+        </div>
+      </div>
+       
+    </div>
+  </nb-card-header>
+  <nb-card-body>
+    <form [formGroup]="systemEventform">
+      <div class="row row-fil">
+        <div class="col-md-8 col-lg-8">
+          <label class="label-ser">Entity:</label>
+          <select class="custom-select service-name" (change)="getEntityname($event.target.value)"
+            formControlName="page_name">
+            <option value="" selected>All</option>
+            <option *ngFor="let item of show_Entityname" [value]="item.entityType">
+              {{ item.entityType }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </form>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">
+            Entity
+            <i (click)="onSortClick($event, 'entityType')" [class]="show_allsystemevent | chevron: page.totalCount">
+            </i>
+          </th>
+          <th scope="col">
+            Event
+            <i (click)="onSortClick($event, 'name')" [class]="show_allsystemevent | chevron: page.totalCount"></i>
+          </th>
+          <!-- <th scope="col">
+            Created By
+            <i (click)="onSortClick($event, 'createdBy')" [class]="show_allsystemevent | chevron: page.totalCount"></i>
+          </th> -->
+          <!-- <th scope="col">
+            Created On
+            <i (click)="onSortClick($event, 'createdOn')" [class]="show_allsystemevent | chevron: page.totalCount"></i>
+          </th> -->
+          <th scope="col">View</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="
+            let systemevent of show_allsystemevent
+              | paginate
+                : {
+                    id: '1',
+                    itemsPerPage: page.pageSize,
+                    currentPage: page.pageNumber,
+                    totalItems: page.totalCount
+                  };trackBy: trackByFn
+          ">
+          <td>
+            <ngx-tooltip [data]="systemevent?.entityType" [size]="40"> </ngx-tooltip>
+          </td>
+          <td scope="row">
+            <ngx-tooltip [data]="systemevent?.name" [size]="40"> </ngx-tooltip>
+          </td>
+          
+          <td>
+            <a (click)="gotodetail(systemevent.id)">
+              <i class="fa fa-eye" aria-hidden="true"></i>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </nb-card-body>
+  <nb-card-body class="noTopPadding">
+    <div class="row pagerow">
+      <div class="col-md-8 col-lg-8 no-left-padding">
+        <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+          (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks="true"
+          autoHide="true" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
+          screenReaderCurrentLabel="You're on page"></pagination-controls>
+      </div>
+      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
+        <label class="label">Total {{ showpage.totalCount }} /</label>
+        <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
+          <option *ngFor="let item of itemsPerPage" [value]="item.id">
+            {{ item.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>

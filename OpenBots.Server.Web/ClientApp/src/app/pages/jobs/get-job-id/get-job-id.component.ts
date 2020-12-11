@@ -61,12 +61,12 @@ export class GetJobIdComponent implements OnInit, OnDestroy {
       isSuccessful: [''],
       jobStatus: [''],
       message: [''],
-      processId: [''],
+      automationId: [''],
       startTime: [''],
       timestamp: [''],
       updatedBy: [''],
       agentName: [''],
-      processName: [''],
+      automationName: [''],
     });
     this.startConnection();
   }
@@ -129,7 +129,7 @@ export class GetJobIdComponent implements OnInit, OnDestroy {
 
   gotoprocess() {
     this.router.navigate(['/pages/automation/get-automation-id'], {
-      queryParams: { id: this.showjobs.value.processId },
+      queryParams: { id: this.showjobs.value.automationId },
     });
   }
   gotoagent() {

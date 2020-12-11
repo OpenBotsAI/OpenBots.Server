@@ -88,6 +88,28 @@ export class PagesMenu {
           },
         ],
       },
+      {
+        title: 'Integration',
+        icon: { icon: 'process', pack: 'custom-icons' },
+        children: [
+          {
+            title: 'System Events',
+            link: '/pages/system-event/list',
+          },
+          {
+            title: 'Subscriptions',
+            link: '/pages/automation/add',
+          },
+          {
+            title: 'Add Subscriptions',
+            link: '/pages/automation/add',
+          },
+          {
+            title: 'Logs',
+            link: '/pages/automationLogs',
+          },
+        ],
+      },
 
       {
         title: 'Change History',
