@@ -153,20 +153,24 @@ namespace OpenBots.Server.Business
                             var rangeStrings = rule.IPRange.Split('/');
                             String lowerBound = rangeStrings[0];
                             bool isValidLowerIP = IPAddress.TryParse(lowerBound, out lowerBoundIP);
+                            bool isValidUpperIP = false;
 
-                            if (rangeStrings[1] == null || isValidLowerIP == false) break;
+                            if (rangeStrings.Length == 1 || isValidLowerIP == false) break; // No UpperBound was specified or lower bound was an invalid IP
 
-                            String upperBound = lowerBound.Substring(0, lowerBound.LastIndexOf(".")) + "." + rangeStrings[1];
-                            bool isValidUpperIP = IPAddress.TryParse(upperBound, out upperBoundIP);
+                            if (rule.Rule == RuleType.IPv4Range)
+                            {
+                                String upperBound = lowerBound.Substring(0, lowerBound.LastIndexOf(".")) + "." + rangeStrings[1];
+                                isValidUpperIP = IPAddress.TryParse(upperBound, out upperBoundIP);
+                            }
+                            else
+                            {
+                                String upperBound = lowerBound.Substring(0, lowerBound.LastIndexOf(":")) + ":" + rangeStrings[1];
+                                isValidUpperIP = IPAddress.TryParse(upperBound, out upperBoundIP);
+                            }
 
                             if (isValidUpperIP == false) break;
                             IPAddressRange range = new IPAddressRange(lowerBoundIP, upperBoundIP);
 
-                            if (rule.Rule == RuleType.IPv6Range)
-                            {
-                                upperBound = lowerBound.Substring(0, lowerBound.LastIndexOf(":")) + ":" + rangeStrings[1];
-                                range = new IPAddressRange(IPAddress.Parse(lowerBound), IPAddress.Parse(upperBound));
-                            }
 
                             if (range.IsInRange(iPAddress))
                             {

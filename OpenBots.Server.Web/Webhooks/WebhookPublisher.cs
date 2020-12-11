@@ -58,6 +58,7 @@ namespace OpenBots.Server.Web.Webhooks
             //Get current Integration Event
             var integrationEvent = eventRepository.Find(0, 1).Items?.Where(e => e.Name == integrationEventName).FirstOrDefault();
 
+            if (integrationEvent == null) return;
             WebhookPayload payload = CreatePayload(integrationEvent, entityId, entityName);
 
             //Log Integration Event

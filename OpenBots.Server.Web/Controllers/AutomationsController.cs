@@ -431,6 +431,8 @@ namespace OpenBots.Server.Web.Controllers
                     existingAutomation.BinaryObjectId = (Guid)newBinaryObject.Id;
                     existingAutomation.OriginalPackageName = request.File.FileName;
                     response = manager.UpdateAutomation(existingAutomation, request);
+                    automationVersion.Status = request.Status;
+                    response = manager.UpdateAutomation(existingAutomation, request);
                 }
 
                 await webhookPublisher.PublishAsync("Files.NewFileCreated", newBinaryObject.Id.ToString(), newBinaryObject.Name).ConfigureAwait(false);
@@ -488,7 +490,7 @@ namespace OpenBots.Server.Web.Controllers
                     }
                     automationVersionRepo.Update(automationVersion);
                 }
-                await webhookPublisher.PublishAsync("Automations.AutomationsUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
+                await webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingAutomation);
             }
             catch (Exception ex)
