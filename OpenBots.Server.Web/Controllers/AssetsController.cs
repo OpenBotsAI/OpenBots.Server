@@ -495,9 +495,11 @@ namespace OpenBots.Server.Web
                     var existingBinaryObject = binaryObjectRepo.GetOne(binaryObjectId);
 
                     if (existingBinaryObject != null)
+                    {
+                        await webhookPublisher.PublishAsync("Files.FileDeleted", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
                         binaryObjectRepo.SoftDelete(binaryObjectId);
+                    }
 
-                    await webhookPublisher.PublishAsync("Files.FileDeleted", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
                     await webhookPublisher.PublishAsync("Assets.AssetDeleted", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
                     return await base.DeleteEntity(id);
                 }
