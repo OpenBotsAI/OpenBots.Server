@@ -119,6 +119,22 @@ const routes: Routes = [
         canActivate: [LoginGuard],
       },
       {
+        path: 'system-event',
+        loadChildren: () =>
+          import('./system-event/system-event.module').then(
+            (mod) => mod.SyetemEventModule
+          ),
+        canActivate: [LoginGuard],
+      },
+      {
+        path: 'integration-logs',
+        loadChildren: () =>
+          import('./integration-logs/integration-logs.module').then(
+            (mod) => mod.IntegrationLogsModule
+          ),
+        canActivate: [LoginGuard],
+      },
+      {
         path: 'credentials',
         loadChildren: () =>
           import('./credentials/credentials.module').then(
