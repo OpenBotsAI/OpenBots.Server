@@ -21,6 +21,7 @@ export class EditAutomationComponent implements OnInit {
   //// file upload declartion ////
   options: UploaderOptions;
   files: UploadFile[];
+  automationSelection: string[] = ['OpenBots', 'Python'];
   uploadInput: EventEmitter<UploadInput>;
   humanizeBytes: Function;
   dragOver: boolean;
@@ -72,6 +73,7 @@ export class EditAutomationComponent implements OnInit {
         ],
       ],
       status: [''],
+      automationEngine: [''],
     });
   }
 
@@ -103,13 +105,17 @@ export class EditAutomationComponent implements OnInit {
       formData.append('file', this.native_file, this.native_file_name);
       formData.append('name', this.showprocess.value.name);
       formData.append('status', this.showprocess.value.status);
+      formData.append(
+        'automationEngine',
+        this.showprocess.value.automationEngine
+      );
       this.automationService
         .uploadUpdateProcessFile(formData, this.process_id, this.etag)
         .subscribe(
           (data: any) => {
             this.showprocess.value.binaryObjectId = data.binaryObjectId;
             this.toastrService.success('Updated successfully', 'Success');
-            this.router.navigate(['pages/process/list']);
+            this.router.navigate(['/pages/automation/list']);
             this.native_file = undefined;
             this.native_file_name = undefined;
           },
@@ -124,19 +130,19 @@ export class EditAutomationComponent implements OnInit {
       let processobj = {
         name: this.showprocess.value.name,
         status: this.showprocess.value.status,
+        automationEngine: this.showprocess.value.automationEngine,
       };
       this.automationService
         .updateProcess(processobj, this.process_id, this.etag)
         .subscribe(
           (data) => {
             this.toastrService.success('Updated successfully', 'Success');
-            this.router.navigate(['pages/process/list']);
+            this.router.navigate(['/pages/automation/list']);
             this.native_file = undefined;
             this.native_file_name = undefined;
           },
           (error) => {
-            console.log(error.status, error);
-            if (error.error.status === 409) {
+            if (error && error.error && error.error.status === 409) {
               this.toastrService.danger(error.error.serviceErrors, 'error');
               this.get_process(this.process_id);
             }

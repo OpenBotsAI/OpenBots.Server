@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NbToastrService } from '@nebular/theme';
@@ -26,6 +26,7 @@ export class AddAutomationComponent implements OnInit {
   dragOver: boolean;
   native_file: any;
   native_file_name: any;
+  automationSelection: string[] = ['OpenBots', 'Python'];
   ///// end declartion////
   fileSize = false;
   value = ['Published', 'Commited'];
@@ -57,6 +58,7 @@ export class AddAutomationComponent implements OnInit {
         ],
       ],
       status: ['Published'],
+      automationEngine: [''],
     });
   }
 
@@ -103,6 +105,7 @@ export class AddAutomationComponent implements OnInit {
       let processobj = {
         name: this.showprocess.value.name,
         status: this.showprocess.value.status,
+        automationEngine: this.showprocess.value.automationEngine,
       };
 
       this.automationService.addProcess(processobj).subscribe(
@@ -115,7 +118,7 @@ export class AddAutomationComponent implements OnInit {
                 'Process Add  Successfully!',
                 'Success'
               );
-              this.router.navigate(['pages/process/list']);
+              this.router.navigate(['/pages/automation/list']);
             },
             () => (this.submitted = false)
           );

@@ -53,6 +53,24 @@
                                 You cannot upload empty file.
                             </div>
                         </div>
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label for="automationEngine" class="label">Automation Engine *</label>
+                            <select class="custom-select" formControlName="automationEngine"
+                                placeholder="Please choose automation engine">
+                                <option value="" disabled="true" selected>
+                                    Please choose automation engine
+                                </option>
+                                <option *ngFor="let item of automationSelection" [value]="item">
+                                    {{ item }}
+                                </option>
+                            </select>
+                            <div *ngIf="f.automationEngine.invalid && (f.automationEngine.dirty || f.automationEngine.touched)"
+                                class="invalid-feedback-frm">
+                                <div *ngIf="f.automationEngine.errors.required">
+                                    Automation engine is required.
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="row rowPadTOp">

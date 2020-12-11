@@ -23,7 +23,7 @@ export class GetAutomationIdComponent implements OnInit {
   show_allprocess: any = [];
   showprocess: FormGroup;
   show_createdon: any = [];
-
+  automationSelection: string[] = ['OpenBots', 'Python'];
   constructor(
     private acroute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -52,6 +52,7 @@ export class GetAutomationIdComponent implements OnInit {
       updatedBy: [''],
       updatedOn: [''],
       version: [''],
+      automationEngine: [''],
     });
   }
 

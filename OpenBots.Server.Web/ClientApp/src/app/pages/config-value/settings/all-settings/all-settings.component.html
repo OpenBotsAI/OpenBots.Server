@@ -14,18 +14,21 @@
             </div>
         </div>
         <div class="checkbox checbox-switch switch-primary">
-            Security Model
-            <label>
-                <input type="checkbox" (change)="onToggleSecurityModel($event)" />
-                <span></span>
-            </label>
-            <b *ngIf="isChecked">
-                Deny
-            </b>
-            <b *ngIf="!isChecked">
-                Allow
-            </b>
-            All, Except Rules Defined Below.
+            <form [formGroup]="ipFencingForm">
+                Security Model
+                <label>
+                    <input type="checkbox" (change)="onToggleSecurityModel($event)" formControlName="ipFencingMode" />
+                    <span></span>
+                </label>
+
+                <b *ngIf="isChecked">
+                    Deny
+                </b>
+                <b *ngIf="!isChecked">
+                    Allow
+                </b>
+                All, Except Rules Defined Below.
+            </form>
         </div>
     </nb-card-header>
     <nb-card-body>
@@ -41,6 +44,9 @@
                     </th>
                     <th scope="col">
                         Rule
+                    </th>
+                    <th scope="col">
+                        IP Range
                     </th>
                     <th scope="col">
                         IP Address
@@ -61,6 +67,10 @@
                     </td>
                     <td>
                         <ngx-tooltip [data]="data?.rule" [size]="15">
+                        </ngx-tooltip>
+                    </td>
+                    <td>
+                        <ngx-tooltip [data]="data?.ipRange" [size]="10">
                         </ngx-tooltip>
                     </td>
                     <td>

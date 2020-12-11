@@ -32,7 +32,8 @@
             <div class="row rowPadding">
                 <div class="col-md-12 col-lg-12 col-xxxl-12">
                     <label for="rule" class="label">Rule Type *</label>
-                    <select class="custom-select" formControlName="rule" placeholder="Please choose rule type">
+                    <select class="custom-select" formControlName="rule" placeholder="Please choose rule type"
+                        (change)="onRuleChange($event)">
                         <option value="" disabled="true" selected>
                             Please choose rule type
                         </option>
@@ -48,20 +49,46 @@
                     </div>
                 </div>
             </div>
-
-            <div *ngIf="ruleForm && ruleForm.value.rule === 'IPv4' && ruleForm.value.usage === 'Allow'">
+            <div *ngIf="ruleForm && (ruleForm.value.rule === 'IPv4' || ruleForm.value.rule === 'IPv6')  ">
                 <div class="row rowPadding">
                     <div class="col-md-12 col-lg-12 col-xxxl-12">
-                        <label for="rule" class="label">IP Range</label>
+                        <label for="rule" class="label">IP Address *</label>
+                        <input type="input" nbInput fullWidth id="ipAddress" formControlName="ipAddress"
+                            placeholder="Please enter ip address" trim="blur" />
+                        <div *ngIf="formControls.ipAddress.invalid && (formControls.ipAddress.dirty || formControls.ipAddress.touched)"
+                            class="invalid-feedback-frm">
+                            <div *ngIf="formControls.ipAddress.errors.required">
+                                Ip address is required.
+                            </div>
+                            <div *ngIf="formControls.ipAddress.errors?.pattern">
+                                Ip address is not valid.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="ruleForm && (ruleForm.value.rule === 'IPv4Range' || ruleForm.value.rule === 'IPv6Range')  ">
+                <div class="row rowPadding">
+                    <div class="col-md-12 col-lg-12 col-xxxl-12">
+                        <label for="rule" class="label">IP Range *</label>
                         <input type="input" nbInput fullWidth id="ipRange" formControlName="ipRange"
                             placeholder="Please enter iprange" trim="blur" />
+                        <div *ngIf="formControls.ipRange.invalid && (formControls.ipRange.dirty || formControls.ipRange.touched)"
+                            class="invalid-feedback-frm">
+                            <div *ngIf="formControls.ipRange.errors.required">
+                                Ip range is required.
+                            </div>
+                            <div *ngIf="formControls.ipRange.errors?.pattern">
+                                Ip range is not valid.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
 
 
-            <div *ngIf="ruleForm && ruleForm.value.rule === 'HTTP Header' &&  ruleForm.value.usage === 'Allow'">
+            <div *ngIf="ruleForm && ruleForm.value.rule === 'HTTP Header'">
                 <div class="row rowPadding">
                     <div class="col-md-12 col-lg-12 col-xxxl-12">
                         <label for="HTTP Header" class="label">HTTP Header</label>
@@ -71,7 +98,7 @@
                 </div>
             </div>
 
-            <div *ngIf="ruleForm && (ruleForm.value.rule === 'HTTP Header' && ruleForm.value.usage === 'Allow')">
+            <div *ngIf="ruleForm && ruleForm.value.rule === 'HTTP Header'">
                 <div class="row rowPadding">
                     <div class="col-md-12 col-lg-12 col-xxxl-12">
                         <label for="headerValue" class="label">Value</label>
