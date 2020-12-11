@@ -7,6 +7,7 @@ import { NgxJsonViewerModule } from 'ngx-json-viewer';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { SharedModule } from '../../@core/shared';
 import { SystemEventRoutingModule } from './system-event-routing.module';
+import { SystemEventService } from './system-event.service';
 
 @NgModule({
   declarations: [AllSystemEventsComponent, GetSystemEventsIdComponent],
@@ -17,5 +18,6 @@ import { SystemEventRoutingModule } from './system-event-routing.module';
     NgxPaginationModule,
     NgxJsonViewerModule,
   ],
+  providers: [SystemEventService],
 })
 export class SyetemEventModule {}

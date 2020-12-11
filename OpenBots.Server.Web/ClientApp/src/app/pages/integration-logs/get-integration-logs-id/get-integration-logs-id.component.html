@@ -1,0 +1,67 @@
+<div class="row">
+    <div class="col-md-12">
+        <nb-card> 
+            <nb-card-header>
+                
+                <div class="row">
+                    <div class="col-md-8 col-lg-8 col-xxxl-6">
+                      <h2>System Event </h2>
+                    </div>
+          
+                  
+                  </div>
+               </nb-card-header>
+            <nb-card-body>
+               
+                <form [formGroup]="systemEventform">
+                  <div class="row">
+                        <div class="col-md-6" >
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Entity </label>
+                                <input type="input" nbInput fullWidth formControlName="entityType"
+                                    style="color:#000000">
+                            </div>
+                        </div>
+                        <div class="col-md-6"  >
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Event </label>
+
+                                <input type="input" nbInput fullWidth formControlName="name" style="color:#000000">
+                                
+                            </div>
+                        </div>
+                       
+                            
+                         
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Description</label>
+
+                                <textarea type="input" nbInput fullWidth id="status" formControlName="description"
+                                    style="color:#000000"></textarea>
+                            </div>
+                            </div>
+                    </div>
+
+
+                  
+                    <div class="row">
+                        <div class="col-md-6" *ngIf="showpayloadSchemaJson" >
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Payload JSON Schema</label>
+                                <p class="p-text">
+                                    <ngx-json-viewer [json]="payloadJSON" [expanded]="false"></ngx-json-viewer>
+                                </p>
+
+                            </div>
+                        </div>
+                       
+                    </div>
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
+</div>

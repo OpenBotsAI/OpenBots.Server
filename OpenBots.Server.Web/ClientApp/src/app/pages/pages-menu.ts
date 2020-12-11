@@ -106,7 +106,7 @@ export class PagesMenu {
           },
           {
             title: 'Logs',
-            link: '/pages/automationLogs',
+            link: '/pages/integration-logs/list',
           },
         ],
       },

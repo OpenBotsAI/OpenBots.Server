@@ -127,6 +127,14 @@ const routes: Routes = [
         canActivate: [LoginGuard],
       },
       {
+        path: 'integration-logs',
+        loadChildren: () =>
+          import('./integration-logs/integration-logs.module').then(
+            (mod) => mod.IntegrationLogsModule
+          ),
+        canActivate: [LoginGuard],
+      },
+      {
         path: 'credentials',
         loadChildren: () =>
           import('./credentials/credentials.module').then(
