@@ -4,7 +4,7 @@ import { HttpHeaders } from '@angular/common/http';
 import { tap } from 'rxjs/internal/operators/tap';
 
 @Injectable({
-  providedIn: 'root', 
+  providedIn: 'root',
 })
 export class AuthService {
   headerData = new HttpHeaders({ 'Content-Type': 'application/json' });
@@ -15,6 +15,8 @@ export class AuthService {
       token: localStorage.getItem('accessToken'),
       refreshToken: localStorage.getItem('refreshToken'),
     };
+    localStorage.removeItem('accessToken');
+    localStorage.getItem('refreshToken');
     return this.httpService.post('Auth/Refresh', obj, this.headerData).pipe(
       tap((response) => {
         this.storeToken(response);

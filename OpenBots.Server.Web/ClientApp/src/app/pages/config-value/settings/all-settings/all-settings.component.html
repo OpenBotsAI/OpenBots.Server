@@ -1,0 +1,92 @@
+<nb-card>
+    <nb-card-header>
+        <div class="titleHeader">
+            <div class="titleLeft">
+                <div class="LeftBgText">
+                    <h2>Security Fencing</h2>
+                    <p>Security rules for allowing and denying access on Ip Origin or HTTP Headers</p>
+                </div>
+            </div>
+            <div class="titleRight">
+                <button type="button" class="btn btn-primary" (click)="addRule()">
+                    Add Rule
+                </button>
+            </div>
+        </div>
+        <div class="checkbox checbox-switch switch-primary">
+            <form [formGroup]="ipFencingForm">
+                Security Model
+                <label>
+                    <input type="checkbox" (change)="onToggleSecurityModel($event)" formControlName="ipFencingMode" />
+                    <span></span>
+                </label>
+
+                <b *ngIf="isChecked">
+                    Deny
+                </b>
+                <b *ngIf="!isChecked">
+                    Allow
+                </b>
+                All, Except Rules Defined Below.
+            </form>
+        </div>
+    </nb-card-header>
+    <nb-card-body>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">
+                        Usage
+                        <!-- <i
+                          (click)="onSortClick($event, 'name')"
+                          [class]="showallconfigValue | chevron: page.totalCount"
+                        ></i> -->
+                    </th>
+                    <th scope="col">
+                        Rule
+                    </th>
+                    <th scope="col">
+                        IP Range
+                    </th>
+                    <th scope="col">
+                        IP Address
+                    </th>
+                    <th scope="col">
+                        Header
+                    </th>
+                    <th scope="col">
+                        Value
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of IPFencingData">
+                    <td>
+                        <ngx-tooltip [data]="data?.usage" [size]="10">
+                        </ngx-tooltip>
+                    </td>
+                    <td>
+                        <ngx-tooltip [data]="data?.rule" [size]="15">
+                        </ngx-tooltip>
+                    </td>
+                    <td>
+                        <ngx-tooltip [data]="data?.ipRange" [size]="10">
+                        </ngx-tooltip>
+                    </td>
+                    <td>
+                        <ngx-tooltip [data]="data?.ipAddress" [size]="10">
+                        </ngx-tooltip>
+                    </td>
+                    <td>
+                        <ngx-tooltip [data]="data?.headerName" [size]="10">
+                        </ngx-tooltip>
+                    </td>
+                    <td>
+                        <ngx-tooltip [data]="data?.headerValue" [size]="10">
+                        </ngx-tooltip>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </nb-card-body>
+</nb-card>

@@ -1,0 +1,120 @@
+<nb-card>
+    <nb-card-header>
+        <div class="titleHeader">
+            <div class="titleLeft">
+                <div class="LeftBgText">
+                    <h2>Add Security Fencing Rule</h2>
+                </div>
+            </div>
+        </div>
+    </nb-card-header>
+    <nb-card-body>
+        <form [formGroup]="ruleForm" autocomplete="off">
+            <div class="row rowPadding">
+                <div class="col-md-12 col-lg-12 col-xxxl-12">
+                    <label for="usage" class="label">Usage *</label>
+                    <select class="custom-select" formControlName="usage" placeholder="Please choose usage">
+                        <option value="" disabled="true" selected>
+                            Please choose usage
+                        </option>
+                        <option *ngFor="let item of usage" [value]="item">
+                            {{ item }}
+                        </option>
+                    </select>
+                    <div *ngIf="formControls.usage.invalid && (formControls.usage.dirty || formControls.usage.touched)"
+                        class="invalid-feedback-frm">
+                        <div *ngIf="formControls.usage.errors.required">
+                            Usage is required.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row rowPadding">
+                <div class="col-md-12 col-lg-12 col-xxxl-12">
+                    <label for="rule" class="label">Rule Type *</label>
+                    <select class="custom-select" formControlName="rule" placeholder="Please choose rule type"
+                        (change)="onRuleChange($event)">
+                        <option value="" disabled="true" selected>
+                            Please choose rule type
+                        </option>
+                        <option *ngFor="let item of rule" [value]="item">
+                            {{ item }}
+                        </option>
+                    </select>
+                    <div *ngIf="formControls.rule.invalid && (formControls.rule.dirty || formControls.rule.touched)"
+                        class="invalid-feedback-frm">
+                        <div *ngIf="formControls.rule.errors.required">
+                            Rule is required.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="ruleForm && (ruleForm.value.rule === 'IPv4' || ruleForm.value.rule === 'IPv6')  ">
+                <div class="row rowPadding">
+                    <div class="col-md-12 col-lg-12 col-xxxl-12">
+                        <label for="rule" class="label">IP Address *</label>
+                        <input type="input" nbInput fullWidth id="ipAddress" formControlName="ipAddress"
+                            placeholder="Please enter ip address" trim="blur" />
+                        <div *ngIf="formControls.ipAddress.invalid && (formControls.ipAddress.dirty || formControls.ipAddress.touched)"
+                            class="invalid-feedback-frm">
+                            <div *ngIf="formControls.ipAddress.errors.required">
+                                Ip address is required.
+                            </div>
+                            <div *ngIf="formControls.ipAddress.errors?.pattern">
+                                Ip address is not valid.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="ruleForm && (ruleForm.value.rule === 'IPv4Range' || ruleForm.value.rule === 'IPv6Range')  ">
+                <div class="row rowPadding">
+                    <div class="col-md-12 col-lg-12 col-xxxl-12">
+                        <label for="rule" class="label">IP Range *</label>
+                        <input type="input" nbInput fullWidth id="ipRange" formControlName="ipRange"
+                            placeholder="Please enter iprange" trim="blur" />
+                        <div *ngIf="formControls.ipRange.invalid && (formControls.ipRange.dirty || formControls.ipRange.touched)"
+                            class="invalid-feedback-frm">
+                            <div *ngIf="formControls.ipRange.errors.required">
+                                Ip range is required.
+                            </div>
+                            <div *ngIf="formControls.ipRange.errors?.pattern">
+                                Ip range is not valid.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div *ngIf="ruleForm && ruleForm.value.rule === 'HTTP Header'">
+                <div class="row rowPadding">
+                    <div class="col-md-12 col-lg-12 col-xxxl-12">
+                        <label for="HTTP Header" class="label">HTTP Header</label>
+                        <input type="input" nbInput fullWidth id="HTTP Header" formControlName="headerName"
+                            placeholder="Please enter HTTP Header" ngxSpecialChar trim="blur" />
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="ruleForm && ruleForm.value.rule === 'HTTP Header'">
+                <div class="row rowPadding">
+                    <div class="col-md-12 col-lg-12 col-xxxl-12">
+                        <label for="headerValue" class="label">Value</label>
+                        <input type="input" nbInput fullWidth id="headerValue" formControlName="headerValue"
+                            placeholder="Please enter value" ngxSpecialChar trim="blur" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-lg-12 col-xxxl-12">
+                    <button type="submit" [disabled]="ruleForm.invalid" class="btn btn-primary" status="primary"
+                        (click)="onSubmit()">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </form>
+    </nb-card-body>
+</nb-card>

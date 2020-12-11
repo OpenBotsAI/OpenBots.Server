@@ -1,21 +1,16 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { NbToastrService, NbDialogService } from '@nebular/theme';
-import { DialogService } from '../../../@core/dialogservices';
 import { HelperService } from '../../../@core/services/helper.service';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
 import { Page } from '../../../interfaces/paginateInstance';
 import { ConfigValueService } from '../config-value.service';
 
-
 @Component({
   selector: 'ngx-all-config-value',
   templateUrl: './all-config-value.component.html',
-  styleUrls: ['./all-config-value.component.scss']
+  styleUrls: ['./all-config-value.component.scss'],
 })
 export class AllConfigValueComponent implements OnInit {
-
   isDeleted = false;
   showpage: any = [];
   showallconfigValue: any = [];
@@ -32,14 +27,10 @@ export class AllConfigValueComponent implements OnInit {
   itemsPerPage: ItemsPerPage[] = [];
 
   constructor(
-    protected router: Router,
-    private dialogService: DialogService,
-    protected configService: ConfigValueService,
-    private helperService: HelperService,
-    private toastrService: NbToastrService
-  ) {
-
-  }
+    private router: Router,
+    private configService: ConfigValueService,
+    private helperService: HelperService
+  ) {}
 
   ngOnInit(): void {
     this.page.pageNumber = 1;
@@ -47,7 +38,6 @@ export class AllConfigValueComponent implements OnInit {
     this.pagination(this.page.pageNumber, this.page.pageSize);
     this.itemsPerPage = this.helperService.getItemsPerPage();
   }
-
 
   gotoedit(id) {
     this.router.navigate(['/pages/config/edit'], {
@@ -71,8 +61,6 @@ export class AllConfigValueComponent implements OnInit {
         this.showallconfigValue = data.items;
       });
   }
-
-
 
   getAllConfigValue(top, skip) {
     this.get_perPage = false;

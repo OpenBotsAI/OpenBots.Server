@@ -1,0 +1,100 @@
+ <div class="row">
+     <div class="col-md-12">
+         <nb-card>
+             <nb-card-header>Update Automation
+
+             </nb-card-header>
+             <nb-card-body>
+                 <form [formGroup]="showprocess">
+                     <div class="row">
+                         <div class="col-md-6 col-lg-6 col-xxxl-6">
+                             <label for="agentname">
+                                 Automation Name</label>
+
+                             <input type="input" nbInput fullWidth id="name" formControlName="name" class="form-control"
+                                 placeholder="Please enter Process name" />
+                             <div *ngIf="f.name.touched && f.name.invalid" class="invalid-feedback-frm">
+                                 <div *ngIf="f.name.errors && f.name.errors.required">
+                                     Automation Name is required.
+                                 </div>
+                                 <div *ngIf="f.name.errors.minlength">
+                                     Automation Name at least 2 characters long.
+                                 </div>
+                                 <div *ngIf="f.name.errors.maxlength">
+                                     Automation Name at least 100 characters long.
+                                 </div>
+                                 <div *ngIf=" f.name.errors.pattern">
+                                     Please enter valid automation name .
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-lg-6 col-xxxl-6">
+
+                             <label>
+                                 Status</label>
+
+                             <select class="custom-select" formControlName="status">
+                                 <option *ngFor="let item of value" [value]="item">
+                                     {{ item }}
+                                 </option>
+                             </select>
+                             <div *ngIf="f.status.touched && f.status.invalid" class="invalid-feedback-frm">
+                                 <div *ngIf="f.status.errors && f.status.errors.required">
+                                     Status is required.
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                     <div class="row rowPadTOp">
+                         <div class="col-md-6 col-lg-6 col-xxxl-6">
+                             <label class="label">Upload Automation File</label>
+                             <label class="upload-button">
+                                 <input type="file" ngFileSelect [options]="options"
+                                     (uploadOutput)="onUploadOutput($event)" [uploadInput]="uploadInput" multiple>
+
+                             </label>
+                             <div *ngIf="show_upload" class="invalid-feedback-frm">
+                                 Please upload automation file.
+                             </div>
+                             <div *ngIf="fileSize" class="invalid-feedback-frm">
+                                 You cannot upload empty file.
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-lg-6 col-xxxl-6">
+                             <label for="automationEngine" class="label">Automation Engine *</label>
+                             <select class="custom-select" formControlName="automationEngine"
+                                 placeholder="Please choose automation engine">
+                                 <option value="" disabled="true" selected>
+                                     Please choose automation engine
+                                 </option>
+                                 <option *ngFor="let item of automationSelection" [value]="item">
+                                     {{ item }}
+                                 </option>
+                             </select>
+                             <div *ngIf="f.automationEngine.invalid && (f.automationEngine.dirty || f.automationEngine.touched)"
+                                 class="invalid-feedback-frm">
+                                 <div *ngIf="f.automationEngine.errors.required">
+                                     Automation engine is required.
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+
+                     <div class="row rowPadTOp">
+                         <div class="col-md-6 col-lg-6 col-xxxl-6">
+                             <button type="submit" class="btn btn-primary" status="primary"
+                                 [disabled]="submitted || !showprocess.valid" (click)="onSubmit()">
+                                 Save
+                             </button>
+                         </div>
+                     </div>
+
+
+
+                 </form>
+             </nb-card-body>
+         </nb-card>
+
+
+     </div>
+ </div>

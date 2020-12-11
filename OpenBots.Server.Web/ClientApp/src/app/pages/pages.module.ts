@@ -4,9 +4,7 @@ import { PagesRoutingModule } from './pages-routing.module';
 import { ThemeModule } from '../@theme/theme.module';
 import { MiscellaneousModule } from './miscellaneous/miscellaneous.module';
 import { PagesMenu } from './pages-menu';
-
 import { NbMenuModule } from '@nebular/theme';
-import { AuthModule } from '../@auth/auth.module';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { dashboardModule } from './Dashboard/Dashboard.module';
 
@@ -23,6 +21,5 @@ const PAGES_COMPONENTS = [PagesComponent];
   ],
   declarations: [...PAGES_COMPONENTS],
   providers: [PagesMenu],
-  
 })
 export class PagesModule {}

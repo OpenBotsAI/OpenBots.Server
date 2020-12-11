@@ -70,6 +70,46 @@ export class PagesMenu {
           },
         ],
       },
+      {
+        title: 'Automations',
+        icon: { icon: 'process', pack: 'custom-icons' },
+        children: [
+          {
+            title: 'All Automations',
+            link: '/pages/automation/list',
+          },
+          {
+            title: 'Add Automation',
+            link: '/pages/automation/add',
+          },
+          {
+            title: 'All Automation Logs',
+            link: '/pages/automationLogs',
+          },
+        ],
+      },
+      {
+        title: 'Integration',
+        icon: { icon: 'process', pack: 'custom-icons' },
+        children: [
+          {
+            title: 'System Events',
+            link: '/pages/system-event/list',
+          },
+          {
+            title: 'Subscriptions',
+            link: '/pages/automation/add',
+          },
+          {
+            title: 'Add Subscriptions',
+            link: '/pages/automation/add',
+          },
+          {
+            title: 'Logs',
+            link: '/pages/integration-logs/list',
+          },
+        ],
+      },
 
       {
         title: 'Change History',
@@ -147,24 +187,6 @@ export class PagesMenu {
           },
         ],
       },
-      {
-        title: 'Automations',
-        icon: { icon: 'process', pack: 'custom-icons' },
-        children: [
-          {
-            title: 'All Automations',
-            link: '/pages/process/list',
-          },
-          {
-            title: 'Add Automation',
-            link: '/pages/process/add',
-          },
-          {
-            title: 'All Automation Logs',
-            link: '/pages/processlogs',
-          },
-        ],
-      },
 
       {
         title: 'Queues',
@@ -203,12 +225,20 @@ export class PagesMenu {
         ],
       },
       {
-        title: 'Setting Configuration',
+        title: 'Settings',
         icon: { icon: 'config', pack: 'custom-icons' },
         children: [
           {
-            title: 'All Configurations',
+            title: 'Configuration',
             link: '/pages/config/list',
+          },
+          {
+            title: 'Security Fencing',
+            link: '/pages/config/settings',
+          },
+          {
+            title: 'Add Rule',
+            link: '/pages/config/settings/rule/add',
           },
         ],
       },
