@@ -342,6 +342,8 @@ namespace OpenBots.Server.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, IConfiguration configuration)
         {
+            var iPFencingOptions = Configuration.GetSection(IPFencingOptions.IPFencing).Get<IPFencingOptions>();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -362,7 +364,10 @@ namespace OpenBots.Server.Web
                 app.UseSpaStaticFiles();
             }
             app.UseAuthentication();
-            app.UseIPFilter();
+            if (iPFencingOptions.IPFencingCheck.Equals("EveryRequest"))
+            {
+                app.UseIPFilter();
+            }
             app.UseMvc();
             app.UseRouting();
             app.UseAuthorization();

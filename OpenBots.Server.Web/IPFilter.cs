@@ -29,20 +29,9 @@ namespace OpenBots.Server.Web
             IIPFencingManager iPFencingManager,
             IIPFencingRepository iPFencingRepository)
         {
-            IPAddress localIPV4 = IPAddress.Parse("::1");
-            IPAddress localIPV6 = IPAddress.Parse("127.0.0.1");
             var ipAddress = context.Connection.RemoteIpAddress;
-            bool isAllowedRequest = false;
-            
-            //Ip is localhost
-            if (ipAddress.Equals(localIPV4) || ipAddress.Equals(localIPV6))
-            {
-                isAllowedRequest = true;
-            }
-            else
-            {               
-                isAllowedRequest = iPFencingManager.IsRequestAllowed(ipAddress);
-            }
+            bool isAllowedRequest = false;         
+            isAllowedRequest = iPFencingManager.IsRequestAllowed(ipAddress);
 
             if (!isAllowedRequest)
             {

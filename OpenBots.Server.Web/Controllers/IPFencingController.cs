@@ -11,12 +11,14 @@ using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Membership;
+using OpenBots.Server.Model.Options;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.Web.Hubs;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -34,6 +36,8 @@ namespace OpenBots.Server.Web
         private readonly IOrganizationRepository organizationRepository;
         private readonly IIPFencingRepository iPFencingRepository;
         private readonly IIPFencingManager iPFencingManager;
+        private readonly IPFencingOptions iPFencingOptions;
+
 
         /// <summary>
         /// IPFencing controller's constructor
@@ -56,6 +60,7 @@ namespace OpenBots.Server.Web
             this.organizationRepository = organizationRepository;
             this.iPFencingRepository = repository;
             this.iPFencingManager = iPFencingManager;
+            iPFencingOptions = configuration.GetSection(IPFencingOptions.IPFencing).Get<IPFencingOptions>();
         }
 
         /// <summary>
@@ -147,6 +152,13 @@ namespace OpenBots.Server.Web
         {
             try
             {
+                var ipCheck = iPFencingOptions.IPFencingCheck;
+                if (ipCheck.Equals("Disabled"))
+                {
+                    ModelState.AddModelError("Post", "IPFencing rule could not be added because IPFencingCheck is disabled");
+                    return BadRequest(ModelState);
+                }
+
                 IPFencing iPFencing = request.Map(request);
                 iPFencing.OrganizationId = Guid.Parse(organizationId);
 
@@ -192,8 +204,14 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> Put(string organizationId, string id, [FromBody] IPFencing request)
         {
-            Guid entityId = new Guid(id);
+            var ipCheck = iPFencingOptions.IPFencingCheck;
+            if (ipCheck.Equals("Disabled"))
+            {
+                ModelState.AddModelError("Post", "IPFencing rule could not be updated because IPFencingCheck is disabled");
+                return BadRequest(ModelState);
+            }
 
+            Guid entityId = new Guid(id);
             var iPFencing = repository.GetOne(entityId);
             if (iPFencing == null)
             {
@@ -235,6 +253,13 @@ namespace OpenBots.Server.Web
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string organizationId, string id)
         {
+            var ipCheck = iPFencingOptions.IPFencingCheck;
+            if (ipCheck.Equals("Disabled"))
+            {
+                ModelState.AddModelError("Post", "IPFencing rule could not be deleted because IPFencingCheck is disabled");
+                return BadRequest(ModelState);
+            }
+
             Guid entityId = new Guid(id);
             var iPFencing = repository.GetOne(entityId, Guid.Parse(organizationId));
 
@@ -272,6 +297,13 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string organizationId, string id, [FromBody] JsonPatchDocument<IPFencing> value)
         {
+            var ipCheck = iPFencingOptions.IPFencingCheck;
+            if (ipCheck.Equals("Disabled"))
+            {
+                ModelState.AddModelError("Post", "IPFencing rule could not be updated because IPFencingCheck is disabled");
+                return BadRequest(ModelState);
+            }
+
             Guid entityId = new Guid(id);
             var iPFencing = repository.GetOne(entityId);
 
