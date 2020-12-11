@@ -17,6 +17,7 @@ using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
+using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
 
 namespace OpenBots.Server.Web.Controllers
@@ -35,6 +36,7 @@ namespace OpenBots.Server.Web.Controllers
         private readonly IBinaryObjectRepository binaryObjectRepo;
         private readonly IAutomationVersionRepository automationVersionRepo;
         private readonly StorageContext dbContext;
+        IWebhookPublisher webhookPublisher;
 
         /// <summary>
         /// Automation Controller constructor
@@ -56,12 +58,14 @@ namespace OpenBots.Server.Web.Controllers
             IBinaryObjectRepository binaryObjectRepo,
             IBinaryObjectManager binaryObjectManager,
             IConfiguration configuration,
+            IWebhookPublisher webhookPublisher,
             IAutomationVersionRepository automationVersionRepo,
             StorageContext dbContext) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.manager = manager;
             this.binaryObjectRepo = binaryObjectRepo;
             this.binaryObjectManager = binaryObjectManager;
+            this.webhookPublisher = webhookPublisher;
             this.automationVersionRepo = automationVersionRepo;
             this.dbContext = dbContext;
         }
@@ -274,6 +278,7 @@ namespace OpenBots.Server.Web.Controllers
                 var response = await base.PostEntity(automation);
                 manager.AddAutomationVersion(request);
 
+                await webhookPublisher.PublishAsync("Automations.NewAutomationCreated", automation.Id.ToString(), automation.Name).ConfigureAwait(false);
                 return response;
             }
             catch (Exception ex)
@@ -339,6 +344,8 @@ namespace OpenBots.Server.Web.Controllers
                 automation.OriginalPackageName = file.FileName;
                 repository.Update(automation);
 
+                await webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
+                await webhookPublisher.PublishAsync("Automations.AutomationUpdated", automation.Id.ToString(), automation.Name).ConfigureAwait(false);
                 return Ok(automation);
             }
             catch (Exception ex)
@@ -426,6 +433,8 @@ namespace OpenBots.Server.Web.Controllers
                     response = manager.UpdateAutomation(existingAutomation, request);
                 }
 
+                await webhookPublisher.PublishAsync("Files.NewFileCreated", newBinaryObject.Id.ToString(), newBinaryObject.Name).ConfigureAwait(false);
+                await webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -479,6 +488,7 @@ namespace OpenBots.Server.Web.Controllers
                     }
                     automationVersionRepo.Update(automationVersion);
                 }
+                await webhookPublisher.PublishAsync("Automations.AutomationsUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingAutomation);
             }
             catch (Exception ex)
@@ -507,6 +517,10 @@ namespace OpenBots.Server.Web.Controllers
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<Automation> request)
         {
+            var existingAutomation = repository.GetOne(Guid.Parse(id));
+            if (existingAutomation == null) return NotFound();
+
+            await webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
             return await base.PatchEntity(id, request);
         }
 
@@ -572,9 +586,12 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                // Remove automation
+                // Remove Automation
                 Guid automationId = Guid.Parse(id);
-                var automation = repository.GetOne(automationId);
+                var existingAutomation = repository.GetOne(automationId);
+                if (existingAutomation == null) return NotFound();
+
+                await webhookPublisher.PublishAsync("Automations.AutomationDeleted", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
                 bool response = manager.DeleteAutomation(automationId);
 
                 if (response)
