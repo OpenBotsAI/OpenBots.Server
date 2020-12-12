@@ -178,6 +178,7 @@ namespace OpenBots.Server.Web
                 }
 
                 var response = await base.PostEntity(request);
+                asset = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
 
                 await webhookPublisher.PublishAsync("Assets.NewAssetCreated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
                 return response;
@@ -418,16 +419,16 @@ namespace OpenBots.Server.Web
                         return BadRequest(ModelState);
                     }
                 }
-                if (request.file == null)
+                if (request.File == null)
                 {
                     ModelState.AddModelError("Save", "No asset uploaded");
                     return BadRequest(ModelState);
                 }
 
-                long size = request.file == null ? 0 : request.file.Length;
+                long size = request.File == null ? 0 : request.File.Length;
                 if (size <= 0)
                 {
-                    ModelState.AddModelError("Asset Upload", $"File size of asset {request.file.FileName} cannot be 0");
+                    ModelState.AddModelError("Asset Upload", $"File size of asset {request.File.FileName} cannot be 0");
                     return BadRequest(ModelState);
                 }
 
@@ -449,7 +450,7 @@ namespace OpenBots.Server.Web
                     {
                         //Update Asset file in OpenBots.Server.Web using relative directory
                         string apiComponent = "AssetAPI";
-                        await automationManager.Update(existingAsset.BinaryObjectID.Value, request.file, organizationId, apiComponent, request.file.FileName);
+                        await automationManager.Update(existingAsset.BinaryObjectID.Value, request.File, organizationId, apiComponent, request.File.FileName);
                     }
 
                     //Update Asset entity

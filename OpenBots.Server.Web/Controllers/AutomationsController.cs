@@ -430,6 +430,8 @@ namespace OpenBots.Server.Web.Controllers
                 {
                     existingAutomation.BinaryObjectId = (Guid)newBinaryObject.Id;
                     existingAutomation.OriginalPackageName = request.File.FileName;
+                    existingAutomation.AutomationEngine = request.AutomationEngine;
+                    automationVersion.Status = request.Status;
                     response = manager.UpdateAutomation(existingAutomation, request);
                     automationVersion.Status = request.Status;
                     response = manager.UpdateAutomation(existingAutomation, request);
