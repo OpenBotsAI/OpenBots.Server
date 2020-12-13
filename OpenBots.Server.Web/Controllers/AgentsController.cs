@@ -559,7 +559,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 if (request.IsHealthy == false)
                 {
-                    await webhookPublisher.PublishAsync("Agent.UnhealthyReported", agent.Id.ToString(), agent.Name).ConfigureAwait(false);
+                    await webhookPublisher.PublishAsync("Agents.UnhealthyReported", agent.Id.ToString(), agent.Name).ConfigureAwait(false);
                 }
 
                 //Add HeartBeat Values

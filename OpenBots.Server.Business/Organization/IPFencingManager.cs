@@ -273,7 +273,7 @@ namespace OpenBots.Server.Business
 
                 if  (fencingMode == IPFencingMode.AllowMode)
                 {
-                    ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == organizationId 
+                    ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == Guid.NewGuid() 
                         && i.Usage == UsageType.Deny)?.ToList();
                 }
                 else

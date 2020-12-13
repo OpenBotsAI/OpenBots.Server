@@ -168,7 +168,7 @@ namespace OpenBots.Server.Web
                 }
                 else
                 {
-                    ModelState.AddModelError("Post", "IPFencing rule could not be added. The Organization's" +
+                    ModelState.AddModelError("Post", "IPFencing rule could not be added. The Organization's " +
                         "settings may not support this rule");
                     return BadRequest(ModelState);
                 }

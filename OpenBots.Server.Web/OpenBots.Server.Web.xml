@@ -3225,6 +3225,17 @@
             <response code="422">Unprocessable entity</response>
             <returns>IntegrationEventLog details for the given id</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventLogsController.AllIntegrationEventLogs">
+            <summary>
+            Provides a list of all integration event logs by name
+            </summary>
+            <response code="200">Ok, a list of all event bogs</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>List of all event logs</returns>
+        </member>
         <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventLogsController.Export(System.String)">
             <summary>
             Exports the JSONPayload for the specified IntegrationEventLog

@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using OpenBots.Server.Model.Webhooks;
 
 namespace OpenBots.Server.DataAccess.Repositories
 {
@@ -69,7 +70,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                 if (!validation.IsValid)
                     throw new EntityValidationException(validation);
 
-                if (!typeof(T).Equals(typeof(AuditLog)))
+                if (!typeof(T).Equals(typeof(AuditLog))|| !typeof(T).Equals(typeof(IntegrationEventLog)))
                 {
                     if (Exists(entity.Id.Value))
                         throw new EntityAlreadyExistsException();
