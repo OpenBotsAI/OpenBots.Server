@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Web
@@ -33,10 +34,11 @@ namespace OpenBots.Server.Web
     [Authorize]
     public class IPFencingController : EntityController<IPFencing>
     {
-        private readonly IOrganizationRepository organizationRepository;
+        private readonly IOrganizationSettingRepository organizationSettingRepository;
         private readonly IIPFencingRepository iPFencingRepository;
         private readonly IIPFencingManager iPFencingManager;
         private readonly IPFencingOptions iPFencingOptions;
+        private readonly IHttpContextAccessor _accessor;
 
 
         /// <summary>
@@ -53,13 +55,14 @@ namespace OpenBots.Server.Web
             ApplicationIdentityUserManager userManager,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
-            IOrganizationRepository organizationRepository,
+            IOrganizationSettingRepository organizationSettingRepository,
             IIPFencingManager iPFencingManager) : base(repository, userManager, httpContextAccessor,
                 membershipManager, configuration)
         {
-            this.organizationRepository = organizationRepository;
+            this.organizationSettingRepository = organizationSettingRepository;
             this.iPFencingRepository = repository;
             this.iPFencingManager = iPFencingManager;
+            _accessor = httpContextAccessor;
             iPFencingOptions = configuration.GetSection(IPFencingOptions.IPFencing).Get<IPFencingOptions>();
         }
 
@@ -130,6 +133,38 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
+        /// Returns the IPFencingMode for the specified organizationID 
+        /// </summary>
+        /// <param name="organizationId">Organization identifier</param>
+        /// <response code="200">Ok, a string containg the IPFencingMode of the current organization /response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response> 
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>String with the IPFencingMode</returns>
+        [HttpGet("Mode")]
+        [ProducesResponseType(typeof(PaginatedList<IPFencing>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> Mode(string organizationId)
+        {
+            try
+            {
+                Guid orgID = Guid.Parse(organizationId);
+                var fencingMode = iPFencingManager.GetIPFencingMode(orgID).ToString();
+                return Ok(fencingMode);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Adds a new IPFencing rule with the specified organization ID
         /// </summary>
         /// <param name="organizationId">Organization identifier</param>
@@ -156,22 +191,13 @@ namespace OpenBots.Server.Web
                 if (ipCheck.Equals("Disabled"))
                 {
                     ModelState.AddModelError("Post", "IPFencing rule could not be added because IPFencingCheck is disabled");
-                    return BadRequest(ModelState);
+                    return NotFound(ModelState);
                 }
 
                 IPFencing iPFencing = request.Map(request);
                 iPFencing.OrganizationId = Guid.Parse(organizationId);
 
-                if (iPFencingManager.CanBeAdded(iPFencing))
-                {
-                    return await base.PostEntity(iPFencing);
-                }
-                else
-                {
-                    ModelState.AddModelError("Post", "IPFencing rule could not be added. The Organization's " +
-                        "settings may not support this rule");
-                    return BadRequest(ModelState);
-                }
+                return await base.PostEntity(iPFencing);
             }
             catch (Exception ex)
             {
@@ -235,6 +261,130 @@ namespace OpenBots.Server.Web
             iPFencing.OrganizationId = request.OrganizationId;
 
             return await base.PutEntity(id, iPFencing);
+        }
+
+        /// <summary>
+        /// Updates the IPFencing Mode to AllowMode
+        /// </summary>
+        /// <remarks>Updates the IPFencingMode of the specified organizationID to AllowMode</remarks>
+        /// <param name="organizationId">Organization identifier</param>
+        /// <response code="200">Ok, if the update of the IPFencing for the particular id has been successful</response>
+        /// <response code="400">Bad request, if IPFencing request was unable to be processed</response>
+        /// <response code="403">Forbidden, unauthorized access by the user</response>
+        /// <response code="404">Not found, if no OrganizationSettings exists for the given id</response>
+        /// <response code="409">Conflict</response>
+        /// <response code="422">Unprocessable Entity, validation error</response>
+        /// <returns>Ok response with success message</returns>
+        [HttpPut("Mode/AllowAll")]
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        [Produces("application/json")]
+        public async Task<IActionResult> AllowAll(string organizationId)
+        {
+            IPAddress userIp = _accessor.HttpContext.Connection.RemoteIpAddress;
+            var ipCheck = iPFencingOptions.IPFencingCheck;
+            if (ipCheck.Equals("Disabled"))
+            {
+                ModelState.AddModelError("AllowAll", "IP Fencing Mode could not be updated because IPFencingCheck is disabled");
+                return BadRequest(ModelState);
+            }
+
+            // Get the organization's settings
+            organizationSettingRepository.ForceIgnoreSecurity();
+            var existingOrganizationSettings = organizationSettingRepository.Find(0, 1).Items.
+                Where(s => s.OrganizationId == Guid.Parse(organizationId)).FirstOrDefault();          
+
+            if (existingOrganizationSettings == null)
+            {
+                ModelState.AddModelError("AllowAll", "No OrganizationSettings exist for this Organization");
+                return NotFound(ModelState);
+            }
+
+            if(existingOrganizationSettings.IPFencingMode == IPFencingMode.AllowMode)
+            {
+                return Ok("IPFencing Mode is already set to AllowAll");
+            }
+
+            // Check if user will be able to make requests under the new IPfencing
+            if (iPFencingManager.IsRequestAllowed(userIp))
+            {
+                existingOrganizationSettings.IPFencingMode = IPFencingMode.AllowMode;
+                organizationSettingRepository.Update(existingOrganizationSettings);
+                organizationSettingRepository.ForceSecurity();
+                return Ok("IPFencingMode has been set AllowAll");
+            }
+            else
+            {
+                organizationSettingRepository.ForceSecurity();
+                return Forbid("This action would prevent you from making further requests to the server. Try updating the Fencing rules");
+            }    
+        }
+
+        /// <summary>
+        /// Updates the IPFencing Mode to AllowMode
+        /// </summary>
+        /// <remarks>Updates the IPFencingMode of the specified organizationID to AllowMode</remarks>
+        /// <param name="organizationId">Organization identifier</param>
+        /// <response code="200">Ok, if the update of the IPFencing for the particular id has been successful</response>
+        /// <response code="400">Bad request, if IPFencing request was unable to be processed</response>
+        /// <response code="403">Forbidden, unauthorized access by the user</response>
+        /// <response code="404">Not found, if no OrganizationSettings exists for the given id</response>
+        /// <response code="409">Conflict</response>
+        /// <response code="422">Unprocessable Entity, validation error</response>
+        /// <returns>Ok response with the updated OrganizationSettings details</returns>
+        [HttpPut("Mode/DenyAll")]
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        [Produces("application/json")]
+        public async Task<IActionResult> DenyAll(string organizationId)
+        {
+            IPAddress userIp = _accessor.HttpContext.Connection.RemoteIpAddress;
+            var ipCheck = iPFencingOptions.IPFencingCheck;
+            if (ipCheck.Equals("Disabled"))
+            {
+                ModelState.AddModelError("DenyAll", "IP Fencing Mode could not be updated because IPFencingCheck is disabled");
+                return BadRequest(ModelState);
+            }
+
+            // Get the organization's settings
+            organizationSettingRepository.ForceIgnoreSecurity();
+            var existingOrganizationSettings = organizationSettingRepository.Find(0, 1).Items.
+                Where(s => s.OrganizationId == Guid.Parse(organizationId)).FirstOrDefault();
+
+            if (existingOrganizationSettings == null)
+            {
+                ModelState.AddModelError("DenyAll", "No OrganizationSettings exist for this Organization");
+                return NotFound(ModelState);
+            }
+
+            if (existingOrganizationSettings.IPFencingMode == IPFencingMode.DenyMode)
+            {
+                return Ok("IP Fencing Mode is already set to DenyAll");
+            }      
+
+            // Check if user will be able to make requests under the new IPfencing
+            if (iPFencingManager.IsRequestAllowed(userIp,IPFencingMode.DenyMode))
+            {
+                existingOrganizationSettings.IPFencingMode = IPFencingMode.DenyMode;
+                organizationSettingRepository.Update(existingOrganizationSettings);
+                organizationSettingRepository.ForceSecurity();
+                return Ok("IPFencingMode has been set DenyAll");
+            }
+            else
+            {
+                organizationSettingRepository.ForceSecurity();
+                return Forbid("This action would prevent you from making further requests to the server. Try updating the Fencing rules");
+            }
         }
 
         /// <summary>
