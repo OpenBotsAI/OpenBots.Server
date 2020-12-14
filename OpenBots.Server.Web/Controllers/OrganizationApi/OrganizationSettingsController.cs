@@ -123,7 +123,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             var existingOrganizationSetting = repository.Find(0, 1).
                 Items.Where(s => s.OrganizationId == Guid.Parse(organizationId)).FirstOrDefault();
 
-            if (existingOrganizationSetting == null)
+            if (existingOrganizationSetting != null)
             {
                 ModelState.AddModelError("OrganizationSettings", "Settings already exist for this OrganizationID");
                 return BadRequest(ModelState);
