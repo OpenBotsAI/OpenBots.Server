@@ -268,7 +268,7 @@ namespace OpenBots.Server.Web
         /// </summary>
         /// <remarks>Updates the IPFencingMode of the specified organizationID to AllowMode</remarks>
         /// <param name="organizationId">Organization identifier</param>
-        /// <response code="200">Ok, if the update of the IPFencing for the particular id has been successful</response>
+        /// <response code="200">Ok, if the update of the IPFencingMode for the particular organizationId has been successful</response>
         /// <response code="400">Bad request, if IPFencing request was unable to be processed</response>
         /// <response code="403">Forbidden, unauthorized access by the user</response>
         /// <response code="404">Not found, if no OrganizationSettings exists for the given id</response>
@@ -326,17 +326,17 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Updates the IPFencing Mode to AllowMode
+        /// Updates the IPFencing Mode to DenyAll
         /// </summary>
-        /// <remarks>Updates the IPFencingMode of the specified organizationID to AllowMode</remarks>
+        /// <remarks>Updates the IPFencingMode of the specified organizationID to DenyMode</remarks>
         /// <param name="organizationId">Organization identifier</param>
-        /// <response code="200">Ok, if the update of the IPFencing for the particular id has been successful</response>
+        /// <response code="200">Ok, if the update of the IPFencingMode for the particular id has been successful</response>
         /// <response code="400">Bad request, if IPFencing request was unable to be processed</response>
         /// <response code="403">Forbidden, unauthorized access by the user</response>
         /// <response code="404">Not found, if no OrganizationSettings exists for the given id</response>
         /// <response code="409">Conflict</response>
         /// <response code="422">Unprocessable Entity, validation error</response>
-        /// <returns>Ok response with the updated OrganizationSettings details</returns>
+        /// <returns>Ok response with sucess message</returns>
         [HttpPut("Mode/DenyAll")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
