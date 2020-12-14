@@ -222,7 +222,7 @@ export class AllAutomationLogsComponent implements OnInit {
   }
 
   navigateToProcessView(id: string): void {
-    this.router.navigate([`/pages/processlogs/view/${id}`]);
+    this.router.navigate([`/pages/automationLogs/view/${id}`]);
   }
 
   exportFile(): void {
