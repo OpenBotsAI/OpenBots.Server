@@ -12,7 +12,7 @@ using Xunit;
 
 namespace XUnitTests
 {
-    public class ProcessLogManagerTests
+    public class AutomationLogManagerTests
     {
         [Fact]
         public async Task GetJobLogs()
