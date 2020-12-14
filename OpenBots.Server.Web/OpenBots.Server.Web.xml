@@ -3225,6 +3225,17 @@
             <response code="422">Unprocessable entity</response>
             <returns>IntegrationEventLog details for the given id</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventLogsController.AllIntegrationEventLogs">
+            <summary>
+            Provides a list of all integration event logs by name
+            </summary>
+            <response code="200">Ok, a list of all event bogs</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>List of all event logs</returns>
+        </member>
         <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventLogsController.Export(System.String)">
             <summary>
             Exports the JSONPayload for the specified IntegrationEventLog
@@ -3950,7 +3961,7 @@
             Controller for IPFencing
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.IPFencingController.#ctor(OpenBots.Server.DataAccess.Repositories.IIPFencingRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IOrganizationRepository,OpenBots.Server.Business.IIPFencingManager)">
+        <member name="M:OpenBots.Server.Web.IPFencingController.#ctor(OpenBots.Server.DataAccess.Repositories.IIPFencingRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IOrganizationSettingRepository,OpenBots.Server.Business.IIPFencingManager)">
             <summary>
             IPFencing controller's constructor
             </summary>
@@ -3990,6 +4001,7 @@
             <response code="422">Unprocessable entity</response>
             <returns>IPFencing details for the given id</returns>
         </member>
+        <!-- Badly formed XML comment ignored for member "M:OpenBots.Server.Web.IPFencingController.Mode(System.String)" -->
         <member name="M:OpenBots.Server.Web.IPFencingController.Post(System.String,OpenBots.Server.ViewModel.CreateIPFencingViewModel)">
             <summary>
             Adds a new IPFencing rule with the specified organization ID
@@ -4018,6 +4030,34 @@
             <response code="409">Conflict</response>
             <response code="422">Unprocessable Entity, validation error</response>
             <returns>Ok response with the updated IPFencing details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.IPFencingController.AllowAll(System.String)">
+            <summary>
+            Updates the IPFencing Mode to AllowMode
+            </summary>
+            <remarks>Updates the IPFencingMode of the specified organizationID to AllowMode</remarks>
+            <param name="organizationId">Organization identifier</param>
+            <response code="200">Ok, if the update of the IPFencing for the particular id has been successful</response>
+            <response code="400">Bad request, if IPFencing request was unable to be processed</response>
+            <response code="403">Forbidden, unauthorized access by the user</response>
+            <response code="404">Not found, if no OrganizationSettings exists for the given id</response>
+            <response code="409">Conflict</response>
+            <response code="422">Unprocessable Entity, validation error</response>
+            <returns>Ok response with the updated OrganizationSettings details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.IPFencingController.DenyAll(System.String)">
+            <summary>
+            Updates the IPFencing Mode to AllowMode
+            </summary>
+            <remarks>Updates the IPFencingMode of the specified organizationID to AllowMode</remarks>
+            <param name="organizationId">Organization identifier</param>
+            <response code="200">Ok, if the update of the IPFencing for the particular id has been successful</response>
+            <response code="400">Bad request, if IPFencing request was unable to be processed</response>
+            <response code="403">Forbidden, unauthorized access by the user</response>
+            <response code="404">Not found, if no OrganizationSettings exists for the given id</response>
+            <response code="409">Conflict</response>
+            <response code="422">Unprocessable Entity, validation error</response>
+            <returns>Ok response with the updated OrganizationSettings details</returns>
         </member>
         <member name="M:OpenBots.Server.Web.IPFencingController.Delete(System.String,System.String)">
             <summary>
