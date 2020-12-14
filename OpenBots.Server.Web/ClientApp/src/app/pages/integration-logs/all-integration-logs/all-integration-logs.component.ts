@@ -1,11 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+ 
+
+
+import { Component, OnInit, TemplateRef, OnDestroy } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { NbDialogService } from '@nebular/theme';
 import { Page } from '../../../interfaces/paginateInstance';
-import { HelperService } from '../../../@core/services/helper.service';
-import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { HttpResponse } from '@angular/common/http';
+import { FileSaverService } from 'ngx-filesaver';
+import { automationsApiUrl } from '../../../webApiUrls/automations';
 import { IntegrationLogsService } from '../integration-logs.service';
-import { TimeDatePipe } from '../../../@core/pipe';
 
 @Component({
   selector: 'ngx-all-integration-logs',
@@ -13,51 +17,114 @@ import { TimeDatePipe } from '../../../@core/pipe';
   styleUrls: ['./all-integration-logs.component.scss'],
 })
 export class AllIntegrationLogsComponent implements OnInit {
-  pipe: TimeDatePipe;
-  showExportbtn = false;
-  showpage: any = [];
-  params_page_name: any = [];
-  systemEventform: FormGroup;
-  params_id: any = [];
+  process_id: any = [];
+  agent_id: any = [];
+  jobId: any = [];
+  showjobs: FormGroup;
   show_allsystemevent: any = [];
-  show_Entityname: any = [];
-  selectEntityname: any = [];
-  service_name_page: boolean = false;
+  show_filter_agent: any = [];
+  show_filter_process: any = [];
+  showpage: any = [];
   sortDir = 1;
   view_dialog: any;
   del_id: any = [];
   toggle: boolean;
   feild_name: any = [];
   page: Page = {};
-  value: any = [];
-  service_name_Arr = [];
   show_perpage_size: boolean = false;
-  get_perPage: boolean = false;
   per_page_num: any = [];
-  params: boolean = false;
-  itemsPerPage: ItemsPerPage[] = [];
+  abc_filter: string;
+  filter: string = '';
+  filter_agent_id: string;
+  filter_process_id: string;
+  filter_jobstatus: string;
+  filter_successful: string;
 
+  jobStatus: { id: number; name: string }[] = [
+    { id: 0, name: 'Unknown' },
+    { id: 1, name: 'New' },
+    { id: 2, name: 'Assigned' },
+    { id: 3, name: 'InProgress' },
+    { id: 4, name: 'Failed' },
+    { id: 5, name: 'Completed' },
+    { id: 9, name: 'Abandoned' },
+  ];
   constructor(
     protected router: Router,
-    private acroute: ActivatedRoute,
-    private helperService: HelperService,
-    protected SystemEventService: IntegrationLogsService,
-    private formBuilder: FormBuilder
+    private _FileSaverService: FileSaverService,
+    private formBuilder: FormBuilder,
+    protected jobService: IntegrationLogsService,
+    private acroute: ActivatedRoute
   ) {
-    this.systemEventform = this.formBuilder.group({
-      page_name: [''],
+    this.showjobs = this.formBuilder.group({
+      automationId: [''],
+      agentId: [''],
     });
-
-    // this.systemEventform.patchValue({ page_name: this.params_page_name });
-    this.service_name();
+    this.get_filter_agent_process();
   }
 
-  service_name() {
-    this.service_name_Arr = [];
-    this.SystemEventService.get_EntityName().subscribe((data: any) => {
-      this.show_Entityname = data.items;
+  get_filter_agent_process() {
+    this.jobService.get_EntityName().subscribe((data: any) => {
+      this.show_filter_agent = data.items;
+      // this.show_filter_process = data;
     });
+    // this.jobService.getProcessName().subscribe((data: any) => {
+    //   this.show_filter_process = data;
+    // });
   }
+  ngOnInit(): void {
+    this.page.pageNumber = 1;
+    this.page.pageSize = 5;
+    // this.acroute.queryParams.subscribe((params) => {
+    //   if (params.AutomationID) {
+    //     this.process_id = params.AutomationID;
+    //     this.filter_parmas_process_name(this.process_id);
+    //   }
+    //   if (params.AgentID) {
+    //     this.agent_id = params.AgentID;
+    //     this.filter_parmas_agent_name(this.agent_id);
+    //   }
+    //   if (params.JobID) {
+    //     this.jobId = params.JobID;
+    //     this.filter_parmas_jobId(this.jobId);
+    //   }
+    // });
+
+    // if (
+    //   this.agent_id.length == 0 &&
+    //   this.process_id.length == 0 &&
+    //   this.jobId == 0
+    // ) {
+      this.pagination(this.page.pageNumber, this.page.pageSize);
+    // }
+  }
+
+  // filter_parmas_agent_name(agent_id) {
+  //   this.showjobs.patchValue({ agentId: agent_id });
+  //   this.common_agent(agent_id);
+  // }
+  // filter_parmas_process_name(process_id) {
+  //   this.showjobs.patchValue({ automationId: process_id });
+  //   this.comon_process(process_id);
+  // }
+
+  // filter_parmas_jobId(job_id) {
+  //   const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+  //   this.jobService
+  //     .filter_EntityName(`id+eq+guid'${job_id}'`, this.page.pageSize, skip)
+  //     .subscribe((data: any) => {
+  //       for (let ab of data.items) {
+  //         for (let status of this.jobStatus) {
+  //           if (ab.jobStatus == status.id) {
+  //             ab.jobStatus = status.name;
+  //           }
+  //         }
+  //       }
+  //       this.show_allsystemevent = data.items;
+  //       this.showpage = data;
+  //       this.page.totalCount = data.totalCount;
+  //     });
+  // }
 
   gotodetail(id) {
     this.router.navigate(['/pages/integration-logs/get-integration-log-id'], {
@@ -65,163 +132,169 @@ export class AllIntegrationLogsComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.page.pageNumber = 1;
-    this.page.pageSize = 5;
-    // if (this.params_page_name != undefined || this.params_page_name != null) {
-    //   this.showExportbtn = true;
-
-    //   this.getEntityname(this.params_page_name);
-    // } else if (
-    //   this.params_page_name == undefined ||
-    //   this.params_page_name == null
-    // ) {
-    this.pagination(this.page.pageNumber, this.page.pageSize);
-    // }
-    this.itemsPerPage = this.helperService.getItemsPerPage();
+  gotoprocesslog(id) {
+    this.router.navigate(['/pages/automationLogs'], {
+      queryParams: { jobId: id },
+    });
+  }
+  comon_Status(val) {
+    this.filter_jobstatus = val;
+    this.filter_job();
   }
 
-  sort(filter_value, vale) {
-    if (this.service_name_page == true) {
+  comon_Event(val) {
+    this.filter_process_id = val;
+    this.filter_job();
+  }
+
+ 
+
+  common_Entity(val) {
+    this.filter_agent_id = val;
+    this.filter_job();
+  }
+
+  filter_job() {
+    this.abc_filter = '';
+    if (this.filter_agent_id != null && this.filter_agent_id != '') {
+      this.abc_filter =
+        this.abc_filter + `entityType+eq+'${this.filter_agent_id}' and `;
+    }
+    if (this.filter_process_id != null && this.filter_process_id != '') {
+      this.abc_filter =
+        this.abc_filter +
+        `integrationEventName+eq+'${this.filter_process_id}' and `;
+    }
+    if (this.filter_jobstatus != null && this.filter_jobstatus != '') {
+      this.abc_filter =
+        this.abc_filter +
+        `status+eq+'${this.filter_jobstatus}' and `;
+    }
+    
+    if (this.abc_filter.endsWith(' and ')) {
+      this.abc_filter = this.abc_filter.substring(
+        0,
+        this.abc_filter.length - 5
+      );
+    }
+
+    if (this.abc_filter) {
       const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-      this.feild_name = filter_value + '+' + vale;
-      this.SystemEventService.get_AllEntityorderbyEntityname(
-        `entityType+eq+'${this.selectEntityname}'`,
-        this.page.pageSize,
-        skip,
-        this.feild_name
-      ).subscribe((data: any) => {
-        this.showpage = data;
-        this.show_allsystemevent = data.items;
-        this.get_perPage = true;
-      });
-    } else if (this.service_name_page == false) {
+      this.jobService
+        .filter_EntityName(`${this.abc_filter}`, this.page.pageSize, skip)
+        .subscribe((data: any) => {
+          // for (let ab of data.items) {
+          //   for (let status of this.jobStatus) {
+          //     if (ab.jobStatus == status.id) {
+          //       ab.jobStatus = status.name;
+          //     }
+          //   }
+          // }
+          this.show_allsystemevent = data.items;
+          this.showpage = data;
+          this.page.totalCount = data.totalCount;
+        });
+    } else {
       const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-      this.feild_name = filter_value + '+' + vale;
-      this.SystemEventService.getAllEntityorder(
-        this.page.pageSize,
-        skip,
-        this.feild_name
-      ).subscribe((data: any) => {
-        this.showpage = data;
-        this.show_allsystemevent = data.items;
-        this.get_perPage = true;
-      });
+      this.get_AllJobs(this.page.pageSize, skip);
     }
   }
 
-  getEntityname(val) {
-    if (val) {
-      // if (this.params == false) {
-      this.service_name_page = true;
-      this.selectEntityname = val;
-      const skip = (this.page.pageNumber - 1) * this.per_page_num;
-      this.SystemEventService.filter_EntityName(
-        `entityType+eq+'${this.selectEntityname}'`,
-        this.page.pageSize,
-        skip
-      ).subscribe((data: any) => {
-        this.showpage = data;
-        this.show_allsystemevent = data.items;
-        this.page.totalCount = data.totalCount;
-        this.get_perPage = true;
-      });
-      // } else if (this.params == true) {
-      //   this.service_name_page = true;
-      //   this.select_serice_name = val;
-      //   const skip = (this.page.pageNumber - 1) * this.per_page_num;
-      //   this.SystemEventService
-      //     .filter_servicename(
-      //       `ServiceName eq '${this.select_serice_name}'and ObjectId eq guid'${this.params_id}'`,
-      //       this.page.pageSize,
-      //       skip
-      //     )
-      //     .subscribe((data: any) => {
-      //       this.showpage = data;
-      //       this.show_allsystemevent = data.items;
-      //       this.page.totalCount = data.totalCount;
-      //       this.get_perPage = true;
-      //     });
-      // }
-    } else if (val == null || val == '' || val == undefined) {
-      this.service_name_page = false;
-      this.pagination(this.page.pageNumber, this.page.pageSize);
-    }
+  sort(filter_val, vale) {
+    console.log(filter_val, vale);
+     if (this.abc_filter) {
+          this.feild_name = filter_val + '+' + vale;
+   const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+    // filter_EntityName_order_by(entityname: any, tpage: any, spage: any, order) {
+   this.jobService
+     .filter_EntityName_order_by(
+       `${this.abc_filter}`,
+       this.page.pageSize,
+       skip,
+       this.feild_name
+     )
+     .subscribe((data: any) => {
+       // for (let ab of data.items) {
+       //   for (let status of this.jobStatus) {
+       //     if (ab.jobStatus == status.id) {
+       //       ab.jobStatus = status.name;
+       //     }
+       //   }
+       // }
+       this.show_allsystemevent = data.items;
+       this.showpage = data;
+       this.page.totalCount = data.totalCount;
+     });
+     }
+     else if (this.abc_filter == undefined || this.abc_filter == '') {
+       const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+       this.feild_name = filter_val + '+' + vale;
+       this.jobService
+         .getAllEntityorder(this.page.pageSize, skip, this.feild_name)
+         .subscribe((data: any) => {
+           for (let ab of data.items) {
+             for (let status of this.jobStatus) {
+               if (ab.jobStatus == status.id) {
+                 ab.jobStatus = status.name;
+               }
+             }
+           }
+           this.show_allsystemevent = data.items;
+           this.showpage = data;
+           this.page.totalCount = data.totalCount;
+         });
+     }
   }
 
   per_page(val) {
-    if (this.service_name_page == true) {
-      this.service_name_page = true;
+    if (this.abc_filter) {
+      this.per_page_num = val;
+      this.page.pageSize = val;
+      const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+      this.jobService
+        .filter_EntityName(`${this.abc_filter}`, this.page.pageSize, skip)
+        .subscribe((data: any) => {
+          // for (let ab of data.items) {
+          //   for (let status of this.jobStatus) {
+          //     if (ab.jobStatus == status.id) {
+          //       ab.jobStatus = status.name;
+          //     }
+          //   }
+          // }
+          this.show_allsystemevent = data.items;
+          this.showpage = data;
+          this.page.totalCount = data.totalCount;
+        });
+    } else if (this.abc_filter == undefined || this.abc_filter == '') {
       this.per_page_num = val;
       this.page.pageSize = val;
       this.show_perpage_size = true;
-      const skip = (this.page.pageNumber - 1) * this.per_page_num;
-      if (this.feild_name.length != 0) {
-        this.SystemEventService.filter_EntityName_order_by(
-          `entityType+eq+'${this.selectEntityname}'`,
-          this.page.pageSize,
-          skip,
-          this.feild_name
-        ).subscribe((data: any) => {
-          this.showpage = data;
+      const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+      this.jobService
+        .get_AllSystemEvent(this.page.pageSize, skip)
+        .subscribe((data: any) => {
+          // for (let ab of data.items) {
+          //   for (let status of this.jobStatus) {
+          //     if (ab.jobStatus == status.id) {
+          //       ab.jobStatus = status.name;
+          //     }
+          //   }
+          // }
           this.show_allsystemevent = data.items;
           this.page.totalCount = data.totalCount;
-          this.get_perPage = true;
         });
-      } else if (this.feild_name.length == 0) {
-        this.SystemEventService.filter_EntityName(
-          `entityType+eq+'${this.selectEntityname}'`,
-          this.page.pageSize,
-          skip
-        ).subscribe((data: any) => {
-          this.showpage = data;
-          this.show_allsystemevent = data.items;
-          this.page.totalCount = data.totalCount;
-          this.get_perPage = true;
-        });
-      }
-    } else if (this.service_name_page == false) {
-      this.page.pageSize = val;
-      this.per_page_num = val;
-      const skip = (this.page.pageNumber - 1) * this.per_page_num;
-      if (this.feild_name.length != 0) {
-        this.show_perpage_size = true;
-        this.SystemEventService.getAllEntityorder(
-          this.page.pageSize,
-          skip,
-          this.feild_name
-        ).subscribe((data: any) => {
-          this.showpage = data;
-          this.show_allsystemevent = data.items;
-          this.page.totalCount = data.totalCount;
-          this.get_perPage = true;
-        });
-      } else if (this.feild_name.length == 0) {
-        this.show_perpage_size = true;
-        this.SystemEventService.get_AllSystemEvent(
-          this.page.pageSize,
-          skip
-        ).subscribe((data: any) => {
-          this.showpage = data;
-          this.show_allsystemevent = data.items;
-          this.page.totalCount = data.totalCount;
-          this.get_perPage = true;
-        });
-      }
     }
   }
 
-  get_allagent(top, skip) {
-    this.get_perPage = false;
-    this.SystemEventService.get_AllSystemEvent(top, skip).subscribe(
-      (data: any) => {
-        // data.occuredOnUTC = this.transformDate(data.occuredOnUTC, 'lll');
-        this.showpage = data;
-        this.show_allsystemevent = data.items;
-        this.page.totalCount = data.totalCount;
-        this.get_perPage = true;
-      }
-    );
+  get_AllJobs(top, skip) {
+    // this.feild_name = 'MachineName';
+    this.jobService.get_AllSystemEvent(top, skip).subscribe((data: any) => {
+   
+      this.show_allsystemevent = data.items;
+
+      this.showpage = data;
+      this.page.totalCount = data.totalCount;
+    });
   }
 
   onSortClick(event, filter_val) {
@@ -247,100 +320,65 @@ export class AllIntegrationLogsComponent implements OnInit {
   }
 
   pagination(pageNumber, pageSize?) {
-    if (this.service_name_page == true) {
+    if (this.abc_filter) {
       if (this.show_perpage_size == false) {
-        const top: number = pageSize;
         const skip = (pageNumber - 1) * pageSize;
-        this.service_name_page = true;
-        this.SystemEventService.filter_EntityName(
-          `entityType+eq+'${this.selectEntityname}'`,
-          top,
-          skip
-        ).subscribe((data: any) => {
-          this.showpage = data;
-          this.show_allsystemevent = data.items;
-          this.page.totalCount = data.totalCount;
-          this.get_perPage = true;
-        });
+
+        this.jobService
+          .filter_EntityName(`${this.abc_filter}`, this.page.pageSize, skip)
+          .subscribe((data: any) => {
+            // for (let ab of data.items) {
+            //   for (let status of this.jobStatus) {
+            //     if (ab.jobStatus == status.id) {
+            //       ab.jobStatus = status.name;
+            //     }
+            //   }
+            // }
+            this.show_allsystemevent = data.items;
+            console.log('jobs2', this.show_allsystemevent);
+            this.showpage = data;
+            this.page.totalCount = data.totalCount;
+          });
       } else if (this.show_perpage_size == true) {
-        if (this.feild_name.length != 0) {
-          const top: number = this.per_page_num;
-          const skip = (pageNumber - 1) * this.per_page_num;
-          this.service_name_page = true;
-          this.SystemEventService.filter_EntityName_order_by(
-            `entityType+eq+'${this.selectEntityname}'`,
-            top,
-            skip,
-            this.feild_name
-          ).subscribe((data: any) => {
-            this.showpage = data;
+        const top: number = this.per_page_num;
+        const skip = (pageNumber - 1) * this.per_page_num;
+
+        this.jobService
+          .filter_EntityName(`${this.abc_filter}`, this.page.pageSize, skip)
+          .subscribe((data: any) => {
+            // for (let ab of data.items) {
+            //   for (let status of this.jobStatus) {
+            //     if (ab.jobStatus == status.id) {
+            //       ab.jobStatus = status.name;
+            //     }
+            //   }
+            // }
             this.show_allsystemevent = data.items;
-            this.page.totalCount = data.totalCount;
-            this.get_perPage = true;
-          });
-        } else if (this.feild_name.length == 0) {
-          const top: number = this.per_page_num;
-          const skip = (pageNumber - 1) * this.per_page_num;
-          this.service_name_page = true;
-          this.SystemEventService.filter_EntityName(
-            `entityType+eq+'${this.selectEntityname}'`,
-            top,
-            skip
-          ).subscribe((data: any) => {
             this.showpage = data;
-            this.show_allsystemevent = data.items;
             this.page.totalCount = data.totalCount;
-            this.get_perPage = true;
           });
-        }
       }
-    } else {
+    } else if (this.abc_filter == undefined || this.abc_filter == '') {
       if (this.show_perpage_size == false) {
         const top: number = pageSize;
         const skip = (pageNumber - 1) * pageSize;
-        if (this.feild_name.length == 0) {
-          this.get_allagent(top, skip);
-        } else if (this.feild_name.length != 0) {
-          this.SystemEventService.getAllEntityorder(
-            top,
-            skip,
-            this.feild_name
-          ).subscribe((data: any) => {
-            this.showpage = data;
-            this.show_allsystemevent = data.items;
-            this.page.totalCount = data.totalCount;
-            this.get_perPage = true;
-          });
-        }
+        this.get_AllJobs(top, skip);
       } else if (this.show_perpage_size == true) {
-        if (this.feild_name.length == 0) {
-          const top: number = pageSize;
-          const skip = (pageNumber - 1) * pageSize;
-          this.get_allagent(top, skip);
-        } else if (this.feild_name.length != 0) {
-          const top: number = this.per_page_num;
-          const skip = (pageNumber - 1) * this.per_page_num;
-          this.SystemEventService.getAllEntityorder(
-            top,
-            skip,
-            this.feild_name
-          ).subscribe((data: any) => {
-            this.showpage = data;
-            this.show_allsystemevent = data.items;
-            this.page.totalCount = data.totalCount;
-            this.get_perPage = true;
-          });
-        }
+        const top: number = this.per_page_num;
+        const skip = (pageNumber - 1) * this.per_page_num;
+        this.get_AllJobs(top, skip);
       }
     }
   }
+  ngOnDestroy() {
+    this.process_id = [];
+    this.agent_id = [];
+  }
+
+  
 
   trackByFn(index: number, item: unknown): number | null {
     if (!item) return null;
     return index;
-  }
-  transformDate(value, format) {
-    this.pipe = new TimeDatePipe();
-    return this.pipe.transform(value, `${format}`);
   }
 }

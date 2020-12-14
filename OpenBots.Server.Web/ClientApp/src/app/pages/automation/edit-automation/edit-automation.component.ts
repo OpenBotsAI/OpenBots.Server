@@ -120,7 +120,7 @@ export class EditAutomationComponent implements OnInit {
             this.native_file_name = undefined;
           },
           (error) => {
-            if (error.error.status === 409) {
+            if (error && error.error && error.error.status === 409) {
               this.toastrService.danger(error.error.serviceErrors, 'error');
               this.get_process(this.process_id);
             }
