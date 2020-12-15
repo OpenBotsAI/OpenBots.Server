@@ -5,6 +5,8 @@ using OpenBots.Server.Model;
 using System;
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
+using OpenBots.Server.DataAccess.Repositories.Interfaces;
+using System.Linq;
 
 namespace OpenBots.Server.Web.Hubs
 {
@@ -12,13 +14,16 @@ namespace OpenBots.Server.Web.Hubs
     {
         private readonly IJobRepository jobRepository;
         private readonly IRecurringJobManager recurringJobManager;
+        private readonly IAutomationVersionRepository automationVersionRepository;
         private IHubContext<NotificationHub> _hub;
 
         public HubManager(IRecurringJobManager recurringJobManager,
-            IJobRepository jobRepository, IHubContext<NotificationHub> hub)
+            IJobRepository jobRepository, IHubContext<NotificationHub> hub,
+            IAutomationVersionRepository automationVersionRepository)
         {
             this.recurringJobManager = recurringJobManager;
             this.jobRepository = jobRepository;
+            this.automationVersionRepository = automationVersionRepository;
             _hub = hub;
         }
 
@@ -50,6 +55,8 @@ namespace OpenBots.Server.Web.Hubs
         public string CreateJob(string scheduleSerializeObject, string jobId = "")
         {
             var schedule = JsonSerializer.Deserialize<Schedule>(scheduleSerializeObject);
+            var automationVersion = automationVersionRepository.Find(0, 1).Items?.
+                    Where(a => a.AutomationId == schedule.AutomationId).FirstOrDefault();
 
             Job job = new Job();
             job.AgentId = schedule.AgentId == null ? Guid.Empty : schedule.AgentId.Value;
@@ -58,6 +65,8 @@ namespace OpenBots.Server.Web.Hubs
             job.EnqueueTime = DateTime.Now;
             job.JobStatus = JobStatusType.New;
             job.AutomationId = schedule.AutomationId == null ? Guid.Empty : schedule.AutomationId.Value;
+            job.AutomationVersion = automationVersion.VersionNumber;
+            job.AutomationVersionId = automationVersion.Id;
             job.Message = "Job is created through internal system logic.";
 
             jobRepository.Add(job);
