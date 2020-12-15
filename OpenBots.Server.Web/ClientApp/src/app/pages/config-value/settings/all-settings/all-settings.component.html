@@ -37,30 +37,47 @@
                 <tr>
                     <th scope="col">
                         Usage
-                        <!-- <i
-                          (click)="onSortClick($event, 'name')"
-                          [class]="showallconfigValue | chevron: page.totalCount"
-                        ></i> -->
+                        <i (click)="onSortClick($event, 'usage')"
+                            [class]="IPFencingData | chevron: page.totalCount"></i>
                     </th>
                     <th scope="col">
                         Rule
+                        <i (click)="onSortClick($event, 'rule')" [class]="IPFencingData | chevron: page.totalCount"></i>
                     </th>
                     <th scope="col">
                         IP Range
+                        <i (click)="onSortClick($event, 'ipRange')"
+                            [class]="IPFencingData | chevron: page.totalCount"></i>
                     </th>
                     <th scope="col">
                         IP Address
+                        <i (click)="onSortClick($event, 'ipAddress')"
+                            [class]="IPFencingData | chevron: page.totalCount"></i>
                     </th>
                     <th scope="col">
                         Header
+                        <i (click)="onSortClick($event, 'headerName')"
+                            [class]="IPFencingData | chevron: page.totalCount"></i>
                     </th>
                     <th scope="col">
                         Value
+                        <i (click)="onSortClick($event, 'headerValue')"
+                            [class]="IPFencingData | chevron: page.totalCount"></i>
                     </th>
+                    <th scope="col">
+                        View
+                    </th>
+                    <th scope="col">
+                        Edit
+                    </th>
+                    <th scope="col">Delete</th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let data of IPFencingData">
+                <tr *ngFor="let data of IPFencingData  | paginate
+                : {id: '1', itemsPerPage: page.pageSize,currentPage: page.pageNumber,
+                    totalItems: page.totalCount
+                  };trackBy: trackByFn">
                     <td>
                         <ngx-tooltip [data]="data?.usage" [size]="10">
                         </ngx-tooltip>
@@ -85,8 +102,59 @@
                         <ngx-tooltip [data]="data?.headerValue" [size]="10">
                         </ngx-tooltip>
                     </td>
+                    <td>
+                        <a (click)="viewIPFencing(data?.id)"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                    </td>
+                    <td>
+                        <a (click)="editIpFencing(data?.id)"> <i class="fa fa-edit" aria-hidden="true"></i></a>
+                    </td>
+                    <td>
+                        <a (click)="openDialog(deleteDialog, data.id)">
+                            <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
+                        </a>
+                    </td>
+
                 </tr>
             </tbody>
         </table>
     </nb-card-body>
+    <nb-card-body class="noTopPadding">
+        <div class="row pagerow">
+            <div class="col-md-8 col-lg-8 no-left-padding">
+                <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+                    (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)"
+                    directionLinks="true" autoHide="true" screenReaderPaginationLabel="Pagination"
+                    screenReaderPageLabel="page" screenReaderCurrentLabel="You're on page"></pagination-controls>
+            </div>
+            <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="page.totalCount > 5">
+                <label class="label">Total {{ page.totalCount }} /</label>
+                <select class="custom-select per-page-drop" (change)="selectChange($event)">
+                    <option *ngFor="let item of itemsPerPage" [value]="item.id">
+                        {{ item.name }}
+                    </option>
+                </select>
+            </div>
+        </div>
+    </nb-card-body>
 </nb-card>
+
+<ng-template #deleteDialog let-data let-ref="dialogRef">
+    <nb-card>
+        <nb-card-header>
+            <h6>Delete Credentials </h6>
+        </nb-card-header>
+        <nb-card-body>
+            <div aria-labelledby="title">
+                <p>Are you sure you want to delete?</p>
+            </div>
+        </nb-card-body>
+        <nb-card-footer>
+            <button [disabled]="isDeleted" class="btn btn-danger" (click)="deleteIPFencing(ref)">
+                Delete
+            </button>
+            <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
+                Cancel
+            </button>
+        </nb-card-footer>
+    </nb-card>
+</ng-template>
