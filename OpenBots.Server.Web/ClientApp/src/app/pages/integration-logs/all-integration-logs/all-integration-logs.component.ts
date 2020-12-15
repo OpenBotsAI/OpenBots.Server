@@ -22,8 +22,8 @@ export class AllIntegrationLogsComponent implements OnInit {
   jobId: any = [];
   showjobs: FormGroup;
   show_allsystemevent: any = [];
-  show_filter_agent: any = [];
-  show_filter_process: any = [];
+  show_filter_entity: any = [];
+  show_filter_event: any = [];
   showpage: any = [];
   sortDir = 1;
   view_dialog: any;
@@ -65,8 +65,9 @@ export class AllIntegrationLogsComponent implements OnInit {
 
   get_filter_agent_process() {
     this.jobService.get_EntityName().subscribe((data: any) => {
-      this.show_filter_agent = data.items;
-      // this.show_filter_process = data;
+      console.log(data.integrationEntityTypeList);
+      this.show_filter_entity = data.integrationEntityTypeList;
+      this.show_filter_event = data.integrationEventNameList;
     });
     // this.jobService.getProcessName().subscribe((data: any) => {
     //   this.show_filter_process = data;
@@ -95,7 +96,7 @@ export class AllIntegrationLogsComponent implements OnInit {
     //   this.process_id.length == 0 &&
     //   this.jobId == 0
     // ) {
-      this.pagination(this.page.pageNumber, this.page.pageSize);
+    this.pagination(this.page.pageNumber, this.page.pageSize);
     // }
   }
 
@@ -147,8 +148,6 @@ export class AllIntegrationLogsComponent implements OnInit {
     this.filter_job();
   }
 
- 
-
   common_Entity(val) {
     this.filter_agent_id = val;
     this.filter_job();
@@ -167,10 +166,9 @@ export class AllIntegrationLogsComponent implements OnInit {
     }
     if (this.filter_jobstatus != null && this.filter_jobstatus != '') {
       this.abc_filter =
-        this.abc_filter +
-        `status+eq+'${this.filter_jobstatus}' and `;
+        this.abc_filter + `status+eq+'${this.filter_jobstatus}' and `;
     }
-    
+
     if (this.abc_filter.endsWith(' and ')) {
       this.abc_filter = this.abc_filter.substring(
         0,
@@ -202,48 +200,47 @@ export class AllIntegrationLogsComponent implements OnInit {
 
   sort(filter_val, vale) {
     console.log(filter_val, vale);
-     if (this.abc_filter) {
-          this.feild_name = filter_val + '+' + vale;
-   const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-    // filter_EntityName_order_by(entityname: any, tpage: any, spage: any, order) {
-   this.jobService
-     .filter_EntityName_order_by(
-       `${this.abc_filter}`,
-       this.page.pageSize,
-       skip,
-       this.feild_name
-     )
-     .subscribe((data: any) => {
-       // for (let ab of data.items) {
-       //   for (let status of this.jobStatus) {
-       //     if (ab.jobStatus == status.id) {
-       //       ab.jobStatus = status.name;
-       //     }
-       //   }
-       // }
-       this.show_allsystemevent = data.items;
-       this.showpage = data;
-       this.page.totalCount = data.totalCount;
-     });
-     }
-     else if (this.abc_filter == undefined || this.abc_filter == '') {
-       const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-       this.feild_name = filter_val + '+' + vale;
-       this.jobService
-         .getAllEntityorder(this.page.pageSize, skip, this.feild_name)
-         .subscribe((data: any) => {
-           for (let ab of data.items) {
-             for (let status of this.jobStatus) {
-               if (ab.jobStatus == status.id) {
-                 ab.jobStatus = status.name;
-               }
-             }
-           }
-           this.show_allsystemevent = data.items;
-           this.showpage = data;
-           this.page.totalCount = data.totalCount;
-         });
-     }
+    if (this.abc_filter) {
+      this.feild_name = filter_val + '+' + vale;
+      const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+      // filter_EntityName_order_by(entityname: any, tpage: any, spage: any, order) {
+      this.jobService
+        .filter_EntityName_order_by(
+          `${this.abc_filter}`,
+          this.page.pageSize,
+          skip,
+          this.feild_name
+        )
+        .subscribe((data: any) => {
+          // for (let ab of data.items) {
+          //   for (let status of this.jobStatus) {
+          //     if (ab.jobStatus == status.id) {
+          //       ab.jobStatus = status.name;
+          //     }
+          //   }
+          // }
+          this.show_allsystemevent = data.items;
+          this.showpage = data;
+          this.page.totalCount = data.totalCount;
+        });
+    } else if (this.abc_filter == undefined || this.abc_filter == '') {
+      const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+      this.feild_name = filter_val + '+' + vale;
+      this.jobService
+        .getAllEntityorder(this.page.pageSize, skip, this.feild_name)
+        .subscribe((data: any) => {
+          //  for (let ab of data.items) {
+          //    for (let status of this.jobStatus) {
+          //      if (ab.jobStatus == status.id) {
+          //        ab.jobStatus = status.name;
+          //      }
+          //    }
+          //  }
+          this.show_allsystemevent = data.items;
+          this.showpage = data;
+          this.page.totalCount = data.totalCount;
+        });
+    }
   }
 
   per_page(val) {
@@ -289,7 +286,6 @@ export class AllIntegrationLogsComponent implements OnInit {
   get_AllJobs(top, skip) {
     // this.feild_name = 'MachineName';
     this.jobService.get_AllSystemEvent(top, skip).subscribe((data: any) => {
-   
       this.show_allsystemevent = data.items;
 
       this.showpage = data;
@@ -374,8 +370,6 @@ export class AllIntegrationLogsComponent implements OnInit {
     this.process_id = [];
     this.agent_id = [];
   }
-
-  
 
   trackByFn(index: number, item: unknown): number | null {
     if (!item) return null;

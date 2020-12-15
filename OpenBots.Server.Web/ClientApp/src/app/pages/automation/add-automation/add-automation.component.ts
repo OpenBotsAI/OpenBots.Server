@@ -115,7 +115,7 @@ export class AddAutomationComponent implements OnInit {
               this.native_file_name = undefined;
               this.native_file = undefined;
               this.toastrService.success(
-                'Process Add  Successfully!',
+                'Automation Add  Successfully!',
                 'Success'
               );
               this.router.navigate(['/pages/automation/list']);
@@ -127,7 +127,7 @@ export class AddAutomationComponent implements OnInit {
       );
     } else {
       this.show_upload = true;
-      this.toastrService.danger('Please Add Process file!', 'Failed');
+      this.toastrService.danger('Please Add Automation file!', 'Failed');
       this.submitted = false;
       this.native_file_name = undefined;
       this.native_file = undefined;
