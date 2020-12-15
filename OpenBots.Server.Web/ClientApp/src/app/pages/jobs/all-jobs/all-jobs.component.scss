@@ -142,7 +142,7 @@ h4 {
     content: "Agent Name";
   }
   td:nth-of-type(2):before {
-    content: "Process Name";
+    content: "Automation Name";
   }
   td:nth-of-type(3):before {
     content: "Start Time";
@@ -157,6 +157,9 @@ h4 {
     content: "Successful";
   }
   td:nth-of-type(7):before { 
+    content: "Log";
+  }
+  td:nth-of-type(8):before { 
     content: "View";
   }
 }
