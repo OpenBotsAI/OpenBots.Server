@@ -258,7 +258,6 @@ namespace OpenBots.Server.Web
             iPFencing.IPRange = request.IPRange;
             iPFencing.HeaderName = request.HeaderName;
             iPFencing.HeaderValue = request.HeaderValue;
-            iPFencing.OrganizationId = request.OrganizationId;
 
             return await base.PutEntity(id, iPFencing);
         }
@@ -321,7 +320,7 @@ namespace OpenBots.Server.Web
             else
             {
                 organizationSettingRepository.ForceSecurity();
-                return Forbid("This action would prevent you from making further requests to the server. Try updating the Fencing rules");
+                return Conflict("This action would prevent you from making further requests to the server. Try updating the Fencing rules");
             }    
         }
 
@@ -383,7 +382,7 @@ namespace OpenBots.Server.Web
             else
             {
                 organizationSettingRepository.ForceSecurity();
-                return Forbid("This action would prevent you from making further requests to the server. Try updating the Fencing rules");
+                return Conflict("This action would prevent you from making further requests to the server. Try updating the Fencing rules");
             }
         }
 
