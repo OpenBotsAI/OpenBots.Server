@@ -60,14 +60,17 @@
                             <div *ngIf="formControls.ipAddress.errors.required">
                                 Ip address is required.
                             </div>
-                            <div *ngIf="formControls.ipAddress.errors?.pattern">
+                            <div *ngIf="formControls.ipAddress.errors?.ip">
                                 Ip address is not valid.
                             </div>
+                            <!-- <div *ngIf="formControls.ipAddress.errors?.pattern">
+                                Ip address is not valid.
+                            </div> -->
                         </div>
                     </div>
                 </div>
             </div>
-            <div *ngIf="ruleForm && (ruleForm.value.rule == 'IPv4Range' || ruleForm.value.rule == 'IPv6Range')  ">
+            <div *ngIf="ruleForm && (ruleForm.value.rule == 'IPv4Range' || ruleForm.value.rule === 'IPv6Range')  ">
                 <div class="row rowPadding">
                     <div class="col-md-12 col-lg-12 col-xxxl-12">
                         <label for="rule" class="label">IP Range *</label>

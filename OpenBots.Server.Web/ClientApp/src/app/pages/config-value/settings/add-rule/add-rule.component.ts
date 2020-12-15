@@ -1,17 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  CIDR_IPv4_Pattern,
-  CIDR_IPv6_Pattern,
-  IPv4Regex,
-  IPv6Regex,
-} from '../../../../@auth/components';
 import { HelperService } from '../../../../@core/services/helper.service';
 import { HttpService } from '../../../../@core/services/http.service';
 import { Rule, Usage } from '../../../../interfaces/ipFencing';
 import { IpFencingApiUrl } from '../ipFencing';
-
+import { RxwebValidators, IpVersion } from '@rxweb/reactive-form-validators';
 @Component({
   selector: 'ngx-add-rule',
   templateUrl: './add-rule.component.html',
@@ -91,6 +85,7 @@ export class AddRuleComponent implements OnInit {
       )
       .subscribe((response) => {
         if (response && response.status === 201) {
+          this.httpService.success('');
           this.router.navigate(['/pages/config/settings']);
         }
       });
@@ -101,13 +96,19 @@ export class AddRuleComponent implements OnInit {
       this.ruleForm.get('ipAddress').clearValidators();
       this.ruleForm
         .get('ipAddress')
-        .setValidators([Validators.required, Validators.pattern(IPv4Regex)]);
+        .setValidators([
+          Validators.required,
+          RxwebValidators.ip({ version: IpVersion.V4 }),
+        ]);
       this.ruleForm.get('ipAddress').updateValueAndValidity();
     } else if (event.target.value == 'IPv6') {
       this.ruleForm.get('ipAddress').clearValidators();
       this.ruleForm
         .get('ipAddress')
-        .setValidators([Validators.required, Validators.pattern(IPv6Regex)]);
+        .setValidators([
+          Validators.required,
+          RxwebValidators.ip({ version: IpVersion.V6 }),
+        ]);
       this.ruleForm.get('ipAddress').updateValueAndValidity();
     } else if (event.target.value == 'IPv4Range') {
       this.ruleForm.get('ipRange').clearValidators();
@@ -115,7 +116,7 @@ export class AddRuleComponent implements OnInit {
         .get('ipRange')
         .setValidators([
           Validators.required,
-          Validators.pattern(CIDR_IPv4_Pattern),
+          RxwebValidators.ip({ version: IpVersion.V4, isCidr: true }),
         ]);
       this.ruleForm.get('ipRange').updateValueAndValidity();
     } else if (event.target.value == 'IPv6Range') {
@@ -124,7 +125,7 @@ export class AddRuleComponent implements OnInit {
         .get('ipRange')
         .setValidators([
           Validators.required,
-          Validators.pattern(CIDR_IPv6_Pattern),
+          RxwebValidators.ip({ version: IpVersion.V4, isCidr: true }),
         ]);
       this.ruleForm.get('ipRange').updateValueAndValidity();
     }

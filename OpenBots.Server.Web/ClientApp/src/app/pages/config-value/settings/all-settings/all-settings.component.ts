@@ -41,27 +41,29 @@ export class AllSettingsComponent implements OnInit {
     this.rule = this.helperService.getRules();
     if (localStorage.getItem('ActiveOrganizationID'))
       this.organizationId = localStorage.getItem('ActiveOrganizationID');
-    this.getSettingsId();
+    // this.getSettingsId();
+    this.getToggleButtonState();
     this.itemsPerPage = this.helperService.getItemsPerPage();
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
+    this.pagination(this.page.pageNumber, this.page.pageSize);
     this.ipFencingForm = this.fb.group({
       ipFencingMode: [],
     });
   }
 
-  getSettingsId(): void {
-    this.httpService
-      .get(
-        `${IpFencingApiUrl.organizations}/${this.organizationId}/${IpFencingApiUrl.organizationSettings}`
-      )
-      .subscribe((response) => {
-        if (response && response.items.length)
-          this.orgSettingId = response.items[0].id;
-        this.getToggleButtonState();
-        this.pagination(this.page.pageNumber, this.page.pageSize);
-      });
-  }
+  // getSettingsId(): void {
+  //   this.httpService
+  //     .get(
+  //       `${IpFencingApiUrl.organizations}/${this.organizationId}/${IpFencingApiUrl.organizationSettings}`
+  //     )
+  //     .subscribe((response) => {
+  //       if (response && response.items.length)
+  //         this.orgSettingId = response.items[0].id;
+  //       this.getToggleButtonState();
+  //       this.pagination(this.page.pageNumber, this.page.pageSize);
+  //     });
+  // }
 
   pagination(pageNumber: number, pageSize: number, orderBy?: string): void {
     const top = pageSize;
@@ -102,32 +104,43 @@ export class AllSettingsComponent implements OnInit {
   onToggleSecurityModel(event): void {
     this.isChecked = event.target.checked;
     let data: number;
-    if (event.target.checked) data = 1;
-    else data = -1;
-    const arr = [
-      {
-        value: data,
-        path: '/ipFencingMode',
-        op: 'replace',
-      },
-    ];
-    this.httpService
-      .patch(
-        `${IpFencingApiUrl.organizations}/${this.organizationId}/${IpFencingApiUrl.organizationSettings}/${this.orgSettingId}`,
-        arr,
-        { observe: 'response' }
-      )
-      .subscribe();
+    // if (event.target.checked) data = 1;
+    // else data = -1;
+    let url: string;
+    if (event.target.checked)
+      url = `${IpFencingApiUrl.organizations}/${this.organizationId}/${IpFencingApiUrl.IPFencing}/${IpFencingApiUrl.mode}/${IpFencingApiUrl.allowAll}`;
+    else
+      url = url = `${IpFencingApiUrl.organizations}/${this.organizationId}/${IpFencingApiUrl.IPFencing}/${IpFencingApiUrl.mode}/${IpFencingApiUrl.denyAll}`;
+    // const arr = [
+    //   {
+    //     value: data,
+    //     path: '/ipFencingMode',
+    //     op: 'replace',
+    //   },
+    // ];
+    this.httpService.put(url, null).subscribe((response) => {
+      console.log('res', response);
+    });
+    // this.httpService
+    //   .patch(
+    //     `${IpFencingApiUrl.organizations}/${this.organizationId}/${IpFencingApiUrl.organizationSettings}/${this.orgSettingId}`,
+    //     // `${IpFencingApiUrl.organizations}/${this.organizationId}/${IpFencingApiUrl.mode}`,
+    //     arr,
+    //     { observe: 'response' }
+    //   )
+    //   .subscribe();
   }
 
   getToggleButtonState(): void {
     this.httpService
       .get(
-        `${IpFencingApiUrl.organizations}/${this.organizationId}/${IpFencingApiUrl.organizationSettings}/${this.orgSettingId}`
+        `${IpFencingApiUrl.organizations}/${this.organizationId}/${IpFencingApiUrl.IPFencing}/${IpFencingApiUrl.mode}`,
+        // `${IpFencingApiUrl.organizations}/${this.organizationId}/${IpFencingApiUrl.organizationSettings}/${this.orgSettingId}`
+        { observe: 'response' }
       )
       .subscribe((response) => {
-        if (response && response.ipFencingMode) {
-          if (response.ipFencingMode == 1) {
+        if (response && response.status === 200) {
+          if (response.body === 'AllowMode') {
             this.isChecked = true;
             this.ipFencingForm.patchValue({
               ipFencingMode: true,
