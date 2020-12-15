@@ -126,12 +126,15 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             if (response != null)
             {
                 eventLogList.IntegrationEventNameList = new List<string>();
+                eventLogList.IntegrationEntityTypeList = new List<string>();
+
                 foreach (var item in response.Items)
                 {
                     eventLogList.IntegrationEventNameList.Add(item.IntegrationEventName);
-
+                    eventLogList.IntegrationEntityTypeList.Add(item.EntityType);
                 }
                 eventLogList.IntegrationEventNameList = eventLogList.IntegrationEventNameList.Distinct().ToList();
+                eventLogList.IntegrationEntityTypeList = eventLogList.IntegrationEntityTypeList.Distinct().ToList();
             }
             return eventLogList;
         }
