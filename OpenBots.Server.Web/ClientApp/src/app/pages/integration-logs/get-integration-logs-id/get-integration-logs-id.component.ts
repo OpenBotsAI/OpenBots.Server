@@ -12,7 +12,7 @@ import { IntegrationLogsService } from '../integration-logs.service';
 export class GetIntegrationLogsIdComponent implements OnInit {
   createdOn: any = [];
   showallsystemEvent: any = [];
-  // changedToJson: any = [];
+  showallpayload: any = [];
   payloadJSON: any = [];
   systemEventform: FormGroup;
   showChangedToJson: boolean = false;
@@ -26,6 +26,7 @@ export class GetIntegrationLogsIdComponent implements OnInit {
   ) {
     this.acroute.queryParams.subscribe((params) => {
       this.get_allagent(params.id);
+      this.getintegrationEventlogpayload(params.id);
     });
   }
 
@@ -53,7 +54,7 @@ export class GetIntegrationLogsIdComponent implements OnInit {
   get_allagent(id) {
     this.systemEventService.getSystemEventid(id).subscribe((data: any) => {
       this.showallsystemEvent = data;
-      data.createdOn = this.transformDate(data.createdOn, 'lll');
+      data.occuredOnUTC = this.transformDate(data.occuredOnUTC, 'lll');
       this.systemEventform.patchValue(data);
       this.systemEventform.disable();
 
@@ -62,14 +63,25 @@ export class GetIntegrationLogsIdComponent implements OnInit {
         this.payloadJSON = data.payloadJSON;
         this.payloadJSON = JSON.parse(this.payloadJSON);
       }
-      // if (data.changedToJson != null) {
-      //   this.showChangedToJson = true;
-      //   this.changedToJson = data.changedToJson;
-      //   this.changedToJson = JSON.parse(this.changedToJson);
-      // }
     });
+    // this.getintegrationEventlogpayload(data.entityID);
   }
+  getintegrationEventlogpayload(id) {
+    this.systemEventService
+      .getIntegrationEventlogsPayload(`eventLogID+eq+guid'${id}'`)
+      .subscribe((data: any) => {
+        this.showallpayload = data;
+        // data.occuredOnUTC = this.transformDate(data.occuredOnUTC, 'lll');
+        // this.systemEventform.patchValue(data);
+        // this.systemEventform.disable();
 
+        // if (data.payloadJSON != null) {
+        //   this.showpayloadSchemaJson = true;
+        //   this.payloadJSON = data.payloadJSON;
+        //   this.payloadJSON = JSON.parse(this.payloadJSON);
+        // }
+      });
+  }
   transformDate(value, format) {
     this.pipe = new TimeDatePipe();
     return this.pipe.transform(value, `${format}`);
