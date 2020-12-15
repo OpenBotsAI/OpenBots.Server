@@ -68,6 +68,14 @@ export class ViewIPFencingComponent implements OnInit {
               response.body.rule = data.name;
             }
           }
+          response.body.createdOn = this.helperService.transformDate(
+            response.body.createdOn,
+            'll'
+          );
+          response.body.updatedOn = this.helperService.transformDate(
+            response.body.updatedOn,
+            'll'
+          );
           this.ruleForm.patchValue({ ...response.body });
           this.ruleForm.disable();
         }
