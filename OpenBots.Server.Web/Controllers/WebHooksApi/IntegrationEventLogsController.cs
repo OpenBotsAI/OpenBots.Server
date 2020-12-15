@@ -8,8 +8,11 @@ using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Webhooks;
 using OpenBots.Server.Security;
+using OpenBots.Server.ViewModel.Lookup;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Web.Controllers.WebHooksApi
@@ -96,6 +99,41 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             {
                 return ex.GetActionResult();
             }
+        }
+
+        /// <summary>
+        /// Provides a list of all integration event logs by name
+        /// </summary>
+        /// <response code="200">Ok, a list of all event bogs</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>List of all event logs</returns>
+        [HttpGet("IntegrationEventLogsLookup")]
+        [ProducesResponseType(typeof(List<IntegrationEventLogLookupViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public IntegrationEventLogLookupViewModel AllIntegrationEventLogs()
+        {
+            var response = repository.Find(null, x => x.IsDeleted == false);
+            IntegrationEventLogLookupViewModel eventLogList = new IntegrationEventLogLookupViewModel();
+
+            if (response != null)
+            {
+                eventLogList.IntegrationEventNameList = new List<string>();
+                foreach (var item in response.Items)
+                {
+                    eventLogList.IntegrationEventNameList.Add(item.IntegrationEventName);
+
+                }
+                eventLogList.IntegrationEventNameList = eventLogList.IntegrationEventNameList.Distinct().ToList();
+            }
+            return eventLogList;
         }
 
         /// <summary>

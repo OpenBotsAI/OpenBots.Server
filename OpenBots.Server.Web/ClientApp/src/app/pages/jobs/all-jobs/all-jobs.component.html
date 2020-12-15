@@ -107,11 +107,11 @@
             <ngx-tooltip [data]="jobs?.agentName" [size]="12">
             </ngx-tooltip>
           </td>
-          <td scope="row" *ngIf="jobs.processName == null">
+          <td scope="row" *ngIf="jobs.automationName == null">
             Unavailable
           </td>
-          <td scope="row" *ngIf="jobs.processName != null">
-            <ngx-tooltip [data]="jobs?.processName" [size]="14">
+          <td scope="row" *ngIf="jobs.automationName != null">
+            <ngx-tooltip [data]="jobs?.automationName" [size]="14">
             </ngx-tooltip>
           </td>
           <td scope="row">

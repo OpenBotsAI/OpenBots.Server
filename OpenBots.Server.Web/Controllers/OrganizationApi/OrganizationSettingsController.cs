@@ -11,6 +11,7 @@ using OpenBots.Server.Business;
 using Microsoft.AspNetCore.Authorization;
 using OpenBots.Server.Model.Attributes;
 using Microsoft.Extensions.Configuration;
+using System.Linq;
 
 namespace OpenBots.Server.WebAPI.Controllers
 {
@@ -119,6 +120,15 @@ namespace OpenBots.Server.WebAPI.Controllers
         public async Task<IActionResult> Post(string organizationId, [FromBody] OrganizationSetting value)
         {
             value.OrganizationId = new Guid(organizationId);
+            var existingOrganizationSetting = repository.Find(0, 1).
+                Items.Where(s => s.OrganizationId == Guid.Parse(organizationId)).FirstOrDefault();
+
+            if (existingOrganizationSetting != null)
+            {
+                ModelState.AddModelError("OrganizationSettings", "Settings already exist for this OrganizationID");
+                return BadRequest(ModelState);
+            }
+
             return await base.PostEntity(value);
         }
 

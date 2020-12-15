@@ -41,73 +41,6 @@ namespace OpenBots.Server.Business
         }
 
         /// <summary>
-        /// Checks if the rule can be added based on the organization's IPFencingMode
-        /// </summary>
-        /// <param name="iPFencing"></param>
-        /// <returns>True if rule can be added</returns>
-        public bool CanBeAdded(IPFencing iPFencing)
-        {
-            organizationSettingRepo.ForceIgnoreSecurity();
-            var orgSettings = organizationSettingRepo.Find(0, 1).Items?.
-                Where(s => s.OrganizationId == iPFencing.OrganizationId)?.FirstOrDefault();
-            organizationSettingRepo.ForceSecurity();
-
-            if (orgSettings == null)
-            {
-                return false;
-            }
-
-            switch (orgSettings.IPFencingMode)
-            {
-                // If IPFencing mode is null, then set it based on the first added record
-                case null:
-                    if (iPFencing.Usage == UsageType.Allow)
-                    {
-                        orgSettings.IPFencingMode = IPFencingMode.DenyMode;
-                        organizationSettingRepo.ForceIgnoreSecurity();
-                        organizationSettingRepo.Update(orgSettings);
-                        organizationSettingRepo.ForceSecurity();
-
-                        return true;
-                    }
-                    else
-                    {
-                        orgSettings.IPFencingMode = IPFencingMode.AllowMode;
-                        organizationSettingRepo.ForceIgnoreSecurity();
-                        organizationSettingRepo.Update(orgSettings);
-                        organizationSettingRepo.ForceSecurity();
-
-                        return true;
-                    }
-
-                //If mode is AllowMode, then only Deny type rules can be added
-                case IPFencingMode.AllowMode:
-                    if (iPFencing.Usage == UsageType.Deny)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-
-                //If mode is DenyMode, then only Allow type rules can be added.
-                case IPFencingMode.DenyMode:
-                    if (iPFencing.Usage == UsageType.Allow)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-
-                default:
-                    return false;
-            }
-        }
-
-        /// <summary>
         /// Checks if the current request matches on any IPFencing rules
         /// </summary>
         /// <param name="iPAddress"></param>
@@ -224,7 +157,7 @@ namespace OpenBots.Server.Business
         /// </summary>
         /// <param name="iPAddress"></param>
         /// <returns>True if the IP is allowed for the current organization</returns>
-        public bool IsRequestAllowed(IPAddress iPAddress)
+        public bool IsRequestAllowed(IPAddress iPAddress, IPFencingMode? fencingMode = null)
         {
             // Localhost addresses
             IPAddress localIPV4 = IPAddress.Parse("::1");
@@ -238,7 +171,6 @@ namespace OpenBots.Server.Business
 
             List<IPFencing> ipFencingRules = new List<IPFencing>();
             Guid? organizationId = Guid.Empty;
-            IPFencingMode? fencingMode = IPFencingMode.AllowMode;
             var user = _accessor.HttpContext.User;
             var requestHeaders = _accessor.HttpContext.Request.Headers;
 
@@ -262,14 +194,12 @@ namespace OpenBots.Server.Business
                 ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == null)?.ToList();
             }
             else
-            {
-                //Get Organization Settings
-                organizationSettingRepo.ForceIgnoreSecurity();
-                var orgSettings = organizationSettingRepo.Find(0, 1).Items?.
-                    Where(s => s.OrganizationId == organizationId)?.FirstOrDefault();
-                organizationSettingRepo.ForceSecurity();
-
-                fencingMode = orgSettings.IPFencingMode;
+            {   
+                //Get IPFencingMode
+                if (fencingMode == null)
+                {
+                    fencingMode = GetIPFencingMode(organizationId??Guid.Empty);
+                }               
 
                 if  (fencingMode == IPFencingMode.AllowMode)
                 {
@@ -295,6 +225,21 @@ namespace OpenBots.Server.Business
                 //If mode is deny, then any matched rules will be allowed
                 return MatchedOnRule(iPAddress, ipFencingRules, requestHeaders);
             }
+        }
+
+        public IPFencingMode? GetIPFencingMode(Guid organizationId)
+        {
+            //Get Organization Settings
+            organizationSettingRepo.ForceIgnoreSecurity();
+            var orgSettings = organizationSettingRepo.Find(0, 1).Items?.
+                Where(s => s.OrganizationId == organizationId)?.FirstOrDefault();
+            organizationSettingRepo.ForceSecurity();
+
+            if (orgSettings == null)
+            {
+                throw new Exception("No Organization exists for the given ID");
+            }
+            return orgSettings.IPFencingMode;
         }
     }
 }
