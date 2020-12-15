@@ -88,7 +88,7 @@ export class PagesMenu {
           },
         ],
       },
-      {
+      /*{
         title: 'Integration',
         icon: { icon: 'process', pack: 'custom-icons' },
         children: [
@@ -109,7 +109,7 @@ export class PagesMenu {
             link: '/pages/integration-logs/list',
           },
         ],
-      },
+      },*/
 
       {
         title: 'Change History',

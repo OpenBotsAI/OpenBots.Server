@@ -129,7 +129,7 @@ export class AllJobsComponent implements OnInit, OnDestroy {
   }
 
   gotoprocesslog(id) {
-    this.router.navigate(['/pages/automationLogs'], {
+    this.router.navigate(['/pages/automationlogs'], {
       queryParams: { jobId: id },
     });
   }
