@@ -6,17 +6,17 @@
           <img class="img-head-logo" src="../../../../assets/icons/Job.svg">
         </div>
         <div class="LeftBgText">
-                 <h2>Integration Logs</h2>
+                 <h2>Event Subscriptions</h2>
           <p>
-                Event Subscriptions 
+               Subscription of Events by External Applications or Automations
           </p>
         </div>
       </div>
-      <!-- <div class="titleRight">
-        <button type="button" class="btn btn-primary" (click)="exportFile()">
-          <i class="fa fa-download"></i> Export
+      <div class="titleRight">
+        <button type="button" class="btn btn-primary" (click)="gotoAdd()" >
+           Add Subscription
         </button>
-      </div> -->
+      </div>
     </div>
   </nb-card-header>
   <nb-card-body>
@@ -26,9 +26,10 @@
           <label for="queueitemtype" class="label col-form-label">Entity</label>
           <select class="custom-select" (change)="common_Entity($event.target.value)" formControlName="agentId">
             <option selected></option>
-            <option *ngFor="let item of show_filter_entity" [value]="item">
+             <option *ngFor="let item of show_filter_entity" [value]="item">
               {{ item }}
             </option>
+           
           </select>
         </div>
         <div class="col-md-3 col-lg-3">
@@ -36,12 +37,13 @@
           </label>
           <select class="custom-select" (change)="comon_Event($event.target.value)" formControlName="automationId">
             <option selected> </option>
-            <option *ngFor="let item of show_filter_event" [value]="item">
+             <option *ngFor="let item of show_filter_event" [value]="item">
               {{ item}}
             </option>
+            
           </select>
         </div>
-        <div class="col-md-3 col-lg-3">
+        <!-- <div class="col-md-3 col-lg-3">
           <label for="queueitemtype" class="label col-form-label">Status</label>
           <select class="custom-select" (change)="comon_Status($event.target.value)">
             <option></option>
@@ -50,7 +52,7 @@
             <option value="Completed">Completed</option>
             <option value="Failed">Failed</option>
           </select>
-        </div>
+        </div> -->
         <!-- <div class="col-md-3 col-lg-3">
           <label for="queueitemtype" class="label col-form-label">Successful</label>
           <select class="custom-select" (change)="comon_succesful($event.target.value)">
@@ -66,28 +68,34 @@
         
            <tr>
           <th scope="col">
-            Entity
-            <i (click)="onSortClick($event, 'entityType')" [class]="show_allsystemevent | chevron: page.totalCount">
+            Name
+            <i (click)="onSortClick($event, 'entityName')" [class]="showalleventsubscription | chevron: page.totalCount">
             </i>
           </th>
           <th scope="col">
+            Entity
+            <i (click)="onSortClick($event, 'entityType')" [class]="showalleventsubscription | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
+            ID
+            <i (click)="onSortClick($event, 'entityID')" [class]="showalleventsubscription | chevron: page.totalCount"></i>
+          </th>
+          <th scope="col">
             Event
-            <i (click)="onSortClick($event, 'integrationEventName')" [class]="show_allsystemevent | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'integrationEventName')" [class]="showalleventsubscription | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
-            Occurred On
-            <i (click)="onSortClick($event, 'occuredOnUTC')" [class]="show_allsystemevent | chevron: page.totalCount"></i>
-          </th>
-          <th scope="col">
-            Status
-            <i (click)="onSortClick($event, 'status')" [class]="show_allsystemevent | chevron: page.totalCount"></i>
+            Transport
+            <i (click)="onSortClick($event, 'transportType')" [class]="showalleventsubscription | chevron: page.totalCount"></i>
           </th>
           <th scope="col">View</th>
+            <th scope="col">Edit</th>
+              <th scope="col">Delete</th>
         </tr>
       </thead>
       <tbody>
          <tr *ngFor="
-            let systemevent of show_allsystemevent
+            let systemevent of showalleventsubscription
               | paginate
                 : {
                     id: '1',
@@ -97,16 +105,19 @@
                   };trackBy: trackByFn
           ">
           <td>
+            <ngx-tooltip [data]="systemevent?.entityName" [size]="40"> </ngx-tooltip>
+          </td>
+          <td scope="row">
             <ngx-tooltip [data]="systemevent?.entityType" [size]="40"> </ngx-tooltip>
+          </td>
+           <td scope="row">
+            <ngx-tooltip [data]="systemevent?.entityID" [size]="40"> </ngx-tooltip>
           </td>
           <td scope="row">
             <ngx-tooltip [data]="systemevent?.integrationEventName" [size]="40"> </ngx-tooltip>
           </td>
            <td scope="row">
-            <ngx-tooltip [data]="systemevent?.occuredOnUTC | timeDate: 'lll' " [size]="40"> </ngx-tooltip>
-          </td>
-          <td scope="row">
-            <ngx-tooltip [data]="systemevent?.status" [size]="40"> </ngx-tooltip>
+            <ngx-tooltip [data]="systemevent?.transportType" [size]="40"> </ngx-tooltip>
           </td>
           
           <td>
@@ -114,6 +125,17 @@
               <i class="fa fa-eye" aria-hidden="true"></i>
             </a>
           </td>
+             <td>
+         <a (click)="gotodetail(systemevent.id)">
+              <i class="fa fa-edit"> </i>
+            </a>
+          </td>
+          <td>
+            <a (click)="open2(dialog,systemevent.id)">
+              <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
+            </a>
+          </td>
+           
         </tr>
          
       </tbody>
@@ -142,3 +164,22 @@
     </div>
   </nb-card-body>
 </nb-card>
+
+<ng-template #dialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <h6>Delete Subscription</h6>
+    </nb-card-header>
+    <nb-card-body>
+      <div aria-labelledby="title">
+        <p>Are you sure you want to delete?</p>
+      </div>
+    </nb-card-body>
+    <nb-card-footer>
+      <button class="btn btn-danger" [disabled]="isDeleted" (click)="delSubscription(ref)">Delete </button>
+      <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
+        Cancel
+      </button>
+    </nb-card-footer>
+  </nb-card>
+</ng-template>

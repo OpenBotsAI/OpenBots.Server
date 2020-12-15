@@ -1,6 +1,7 @@
 import { HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { Rule, Usage } from '../../interfaces/ipFencing';
 import { ItemsPerPage } from '../../interfaces/itemsPerPage';
 import { TimeDatePipe } from '../pipe';
 
@@ -24,7 +25,7 @@ export class HelperService {
       { id: 10, name: '10 per page' },
       { id: 25, name: '25 per page' },
       { id: 50, name: '50 per page' },
-      { id: 100, name: '100 per page' }, 
+      { id: 100, name: '100 per page' },
     ]);
   }
 
@@ -41,5 +42,22 @@ export class HelperService {
   getETagHeaders(etag: string) {
     const headers = new HttpHeaders({ 'If-Match': etag });
     return headers;
+  }
+
+  getUsage(): Usage[] {
+    return [
+      { name: 'Allow', value: 1 },
+      { name: 'Deny', value: -1 },
+    ];
+  }
+
+  getRules(): Rule[] {
+    return [
+      { name: 'IPv4', value: 1 },
+      { name: 'IPv4Range', value: 2 },
+      { name: 'IPv6', value: 3 },
+      { name: 'IPv6Range', value: 4 },
+      { name: 'HTTP Header', value: 5 },
+    ];
   }
 }

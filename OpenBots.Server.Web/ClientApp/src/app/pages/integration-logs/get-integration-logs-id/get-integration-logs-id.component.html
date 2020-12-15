@@ -25,9 +25,9 @@
                         </div>
                         <div class="col-md-6"  >
                             <div class="form-group ">
-                                <label class="label  col-form-label">Event </label>
+                                <label class="label  col-form-label">ID </label>
 
-                                <input type="input" nbInput fullWidth formControlName="name" style="color:#000000">
+                                <input type="input" nbInput fullWidth formControlName="id" style="color:#000000">
                                 
                             </div>
                         </div>
@@ -37,20 +37,59 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-6"  >
                             <div class="form-group ">
-                                <label class="label  col-form-label">Description</label>
+                                <label class="label  col-form-label">Event </label>
 
-                                <textarea type="input" nbInput fullWidth id="status" formControlName="description"
-                                    style="color:#000000"></textarea>
+                                <input type="input" nbInput fullWidth formControlName="integrationEventName" style="color:#000000">
+                                
                             </div>
+                        </div>
+                          <div class="col-md-6"  >
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Occurred On </label>
+
+                                <input type="input" nbInput fullWidth formControlName="occuredOnUTC" style="color:#000000">
+                                
                             </div>
+                        </div>
+                        
                     </div>
 
 
-                  
+                     <div class="row">
+                        <div class="col-md-6"  >
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Message </label>
+
+                                <input type="input" nbInput fullWidth formControlName="message" style="color:#000000">
+                                
+                            </div>
+                        </div>
+                          <div class="col-md-6"  >
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Status  </label>
+
+                                <input type="input" nbInput fullWidth formControlName="status" style="color:#000000">
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                   <!-- <div class="row">
+                        <div class="col-md-6"   >
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Payload</label>
+                                
+                                    <input type="input" nbInput fullWidth formControlName="payloadJSON" style="color:#000000">
+
+                            </div>
+                        </div>
+                       
+                    </div> -->
                     <div class="row">
-                        <div class="col-md-6" *ngIf="showpayloadSchemaJson" >
+                        <div class="col-md-12" *ngIf="showpayloadSchemaJson" >
                             <div class="form-group ">
                                 <label class="label  col-form-label">Payload JSON Schema</label>
                                 <p class="p-text">

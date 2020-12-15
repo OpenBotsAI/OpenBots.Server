@@ -18,7 +18,6 @@ export class CredentialsComponent implements OnInit {
   deleteId: string;
   filterOrderBy: string;
   isDeleted = false;
-  isPagination = false;
   itemsPerPage: ItemsPerPage[] = [];
 
   constructor(
