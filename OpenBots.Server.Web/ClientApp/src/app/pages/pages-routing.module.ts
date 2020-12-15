@@ -135,6 +135,14 @@ const routes: Routes = [
         canActivate: [LoginGuard],
       },
       {
+        path: 'subscription',
+        loadChildren: () =>
+          import('./subscription/subscription.module').then(
+            (mod) => mod.SubscriptionModule
+          ),
+        canActivate: [LoginGuard],
+      },
+      {
         path: 'credentials',
         loadChildren: () =>
           import('./credentials/credentials.module').then(

@@ -72,3 +72,115 @@
     /* box-shadow: rgb(109, 163, 221) 0px 0px 0px 8px inset;*/
     transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
   }
+
+
+
+  .my-icon{
+    font-size: 14px;
+    color: gray;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+  
+  h4 {
+    margin: 2rem 0rem 1rem;
+  }
+  
+  .table {
+    width: 100%;
+    margin-bottom: 0rem;
+    color: #212529;
+  }
+  .table-image {
+    td, th {
+      vertical-align: middle;
+    }
+  }
+  .table tbody tr:nth-child(even) {
+     background-color: #f1f1f1;
+  }
+  .filter-row{
+    padding-bottom: 12px;
+  }
+  ::ng-deep .ngx-pagination {
+    padding-left: 0px !important;
+    margin-bottom: 0px !important;
+  }
+  .ngx-pagination .current, .btn-info {
+    background: #17a2b8 !important;
+    border: transparent !important;
+    border-radius: 20px !important;
+  }
+  .ngx-pagination .current:hover {
+    background: #17a2b8 !important;
+    border-radius: 20px !important; 
+    border: transparent !important;
+  }
+  .top-perpage{
+    top:10px
+  }
+  .paginateDiv{
+    width: 100%;;
+  }
+  .row.pagerow{
+    width: 100%;
+    margin: 0px;
+  }
+  .top-perpage{
+    top:10px
+  }
+  .perpage{
+    text-align: right;
+  }
+  .per-page-drop{
+    width: 141px;
+    height: 37px;
+  }
+  .no-right-padding{
+    padding:0px;
+  }
+  .no-left-padding{
+    padding: 0px;
+  }
+  .label{
+    padding: 3px;
+  }
+  .btn{
+    padding: 6px;
+  }
+  
+  @media only screen and (max-width: 750px) {
+    .checkbox.checbox-switch label{
+      margin-bottom: 0px;
+    }
+    table, thead, tbody, th, td, tr {
+      display: block;
+    }
+    thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+    tr {
+      border: 1px solid #ccc;
+    }
+    td {
+      border: none;
+      border-bottom: 1px solid #e0e0e0;
+      position: relative;
+      padding-left: 20px;
+      margin-left: 150px;
+      min-height: 50px;
+    }
+    td:before {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 151px;
+      padding: 12px;
+      white-space: nowrap;
+      margin-left: -150px;
+      min-height: 50px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+  }

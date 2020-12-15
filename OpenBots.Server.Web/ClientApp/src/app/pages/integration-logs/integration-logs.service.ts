@@ -19,7 +19,8 @@ export class IntegrationLogsService {
   }
 
   get_EntityName() {
-    let getagentUrl = `/IntegrationEventLogs`;
+    // /IntegrationEventLogsLookup
+    let getagentUrl = `/IntegrationEventLogs/IntegrationEventLogsLookup`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
@@ -33,11 +34,6 @@ export class IntegrationLogsService {
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
-  getAllJobsOrder(tpage: any, spage: any, name) {
-    let getJobsUrl = `/Jobs/view?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
-    return this.http.get(`${this.apiUrl}` + getJobsUrl);
-  }
-   
   getAllEntityorder(tpage: any, spage: any, name) {
     let getagentUrl = `/IntegrationEventLogs?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
@@ -53,6 +49,9 @@ export class IntegrationLogsService {
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
   }
 
-  
+  getIntegrationEventlogsPayload(entityname) {
+    let getagentUrlbyId = `/IntegrationEventSubscriptionAttempts?$filter=${entityname}`;
+    return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
+  }
 }
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    

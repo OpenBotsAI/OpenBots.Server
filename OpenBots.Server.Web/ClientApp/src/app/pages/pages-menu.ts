@@ -88,28 +88,6 @@ export class PagesMenu {
           },
         ],
       },
-      /*{
-        title: 'Integration',
-        icon: { icon: 'process', pack: 'custom-icons' },
-        children: [
-          {
-            title: 'System Events',
-            link: '/pages/system-event/list',
-          },
-          {
-            title: 'Subscriptions',
-            link: '/pages/automation/add',
-          },
-          {
-            title: 'Add Subscriptions',
-            link: '/pages/automation/add',
-          },
-          {
-            title: 'Logs',
-            link: '/pages/integration-logs/list',
-          },
-        ],
-      },*/
 
       {
         title: 'Change History',
@@ -174,6 +152,28 @@ export class PagesMenu {
           {
             title: 'Add File',
             link: '/pages/file/add',
+          },
+        ],
+      },
+      {
+        title: 'Integration',
+        icon: { icon: 'process', pack: 'custom-icons' },
+        children: [
+          {
+            title: 'System Events',
+            link: '/pages/system-event/list',
+          },
+          // {
+          //   title: 'Subscriptions',
+          //   link: '/pages/subscription/list',
+          // },
+          // {
+          //   title: 'Add Subscriptions',
+          //   link: '/pages/subscription/add',
+          // },
+          {
+            title: 'Logs',
+            link: '/pages/integration-logs/list',
           },
         ],
       },

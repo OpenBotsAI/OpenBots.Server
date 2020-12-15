@@ -16,3 +16,13 @@ export interface IPFencing {
   headerValue: string;
   organizationId: string;
 }
+
+export interface Usage {
+  name: string;
+  value: number;
+}
+
+export interface Rule {
+  name: string;
+  value: number;
+}
