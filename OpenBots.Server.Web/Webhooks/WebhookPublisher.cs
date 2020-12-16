@@ -52,7 +52,7 @@ namespace OpenBots.Server.Web.Webhooks
 
             if (eventSubscriptions == null)
             {
-                return ;
+                return;
             }
 
             //Get current Integration Event
