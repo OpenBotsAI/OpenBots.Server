@@ -43,24 +43,7 @@
             
           </select>
         </div>
-        <!-- <div class="col-md-3 col-lg-3">
-          <label for="queueitemtype" class="label col-form-label">Status</label>
-          <select class="custom-select" (change)="comon_Status($event.target.value)">
-            <option></option>
-            <option value="New">New</option>
-            <option value="InProgress">InProgress</option>
-            <option value="Completed">Completed</option>
-            <option value="Failed">Failed</option>
-          </select>
-        </div> -->
-        <!-- <div class="col-md-3 col-lg-3">
-          <label for="queueitemtype" class="label col-form-label">Successful</label>
-          <select class="custom-select" (change)="comon_succesful($event.target.value)">
-            <option></option>
-            <option value="true">Yes</option>
-            <option value="false">No</option>
-          </select>
-        </div> -->
+        
       </div>
     </form>
     <table class="table table-bordered">
@@ -95,7 +78,7 @@
       </thead>
       <tbody>
          <tr *ngFor="
-            let systemevent of showalleventsubscription
+            let subscription of showalleventsubscription
               | paginate
                 : {
                     id: '1',
@@ -105,33 +88,36 @@
                   };trackBy: trackByFn
           ">
           <td>
-            <ngx-tooltip [data]="systemevent?.entityName" [size]="40"> </ngx-tooltip>
+            <ngx-tooltip [data]="subscription?.entityName" [size]="40"> </ngx-tooltip>
           </td>
           <td scope="row">
-            <ngx-tooltip [data]="systemevent?.entityType" [size]="40"> </ngx-tooltip>
+            <ngx-tooltip [data]="subscription?.entityType" [size]="40"> </ngx-tooltip>
           </td>
            <td scope="row">
-            <ngx-tooltip [data]="systemevent?.entityID" [size]="40"> </ngx-tooltip>
+            <ngx-tooltip [data]="subscription?.entityID" [size]="40"> </ngx-tooltip>
           </td>
           <td scope="row">
-            <ngx-tooltip [data]="systemevent?.integrationEventName" [size]="40"> </ngx-tooltip>
+            <ngx-tooltip [data]="subscription?.integrationEventName" [size]="40"> </ngx-tooltip>
           </td>
-           <td scope="row">
-            <ngx-tooltip [data]="systemevent?.transportType" [size]="40"> </ngx-tooltip>
+           <td scope="row" *ngIf="subscription?.transportType == 1">
+            <ngx-tooltip data="HTTPS" [size]="40"> </ngx-tooltip>
+          </td>
+          <td scope="row" *ngIf="subscription?.transportType == 2">
+            <ngx-tooltip data="Queue" [size]="40"> </ngx-tooltip>
           </td>
           
           <td>
-            <a (click)="gotodetail(systemevent.id)">
+            <a (click)="gotodetail(subscription.id)">
               <i class="fa fa-eye" aria-hidden="true"></i>
             </a>
           </td>
              <td>
-         <a (click)="gotodetail(systemevent.id)">
+         <a (click)="gotoedit(subscription.id)">
               <i class="fa fa-edit"> </i>
             </a>
           </td>
           <td>
-            <a (click)="open2(dialog,systemevent.id)">
+            <a (click)="open2(dialog,subscription.id)">
               <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
             </a>
           </td>

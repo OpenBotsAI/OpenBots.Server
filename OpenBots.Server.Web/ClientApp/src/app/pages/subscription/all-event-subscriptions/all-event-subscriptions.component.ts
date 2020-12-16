@@ -13,8 +13,6 @@ import { SubscriptionService } from '../subscription.service';
   styleUrls: ['./all-event-subscriptions.component.scss'],
 })
 export class AllEventSubscriptionsComponent implements OnInit {
-  // process_id: any = [];
-  // agent_id: any = [];
   isDeleted = false;
   showjobs: FormGroup;
   showalleventsubscription: any = [];
@@ -31,9 +29,8 @@ export class AllEventSubscriptionsComponent implements OnInit {
   per_page_num: any = [];
   abc_filter: string;
   filter: string = '';
-  filter_agent_id: string;
-  filter_process_id: string;
-  filter_successful: string;
+  filterEntity: string;
+  filterEvent: string;
 
   constructor(
     protected router: Router,
@@ -62,7 +59,12 @@ export class AllEventSubscriptionsComponent implements OnInit {
   }
 
   gotodetail(id) {
-    this.router.navigate(['/pages/subscription/get-integration-log-id'], {
+    this.router.navigate(['/pages/subscription/get-subscription-id'], {
+      queryParams: { id: id },
+    });
+  }
+  gotoedit(id) {
+    this.router.navigate(['/pages/subscription/edit'], {
       queryParams: { id: id },
     });
   }
@@ -99,25 +101,24 @@ export class AllEventSubscriptionsComponent implements OnInit {
   }
 
   comon_Event(val) {
-    this.filter_process_id = val;
+    this.filterEvent = val;
     this.filter_job();
   }
 
   common_Entity(val) {
-    this.filter_agent_id = val;
+    this.filterEntity = val;
     this.filter_job();
   }
 
   filter_job() {
     this.abc_filter = '';
-    if (this.filter_agent_id != null && this.filter_agent_id != '') {
+    if (this.filterEntity != null && this.filterEntity != '') {
       this.abc_filter =
-        this.abc_filter + `entityType+eq+'${this.filter_agent_id}' and `;
+        this.abc_filter + `entityType+eq+'${this.filterEntity}' and `;
     }
-    if (this.filter_process_id != null && this.filter_process_id != '') {
+    if (this.filterEvent != null && this.filterEvent != '') {
       this.abc_filter =
-        this.abc_filter +
-        `integrationEventName+eq+'${this.filter_process_id}' and `;
+        this.abc_filter + `integrationEventName+eq+'${this.filterEvent}' and `;
     }
 
     if (this.abc_filter.endsWith(' and ')) {
@@ -129,7 +130,7 @@ export class AllEventSubscriptionsComponent implements OnInit {
 
     if (this.abc_filter) {
       const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-      this.SubscriptionService.filter_EntityName(
+      this.SubscriptionService.filterSubscriptionName(
         `${this.abc_filter}`,
         this.page.pageSize,
         skip
@@ -149,7 +150,7 @@ export class AllEventSubscriptionsComponent implements OnInit {
     if (this.abc_filter) {
       this.feild_name = filter_val + '+' + vale;
       const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-      this.SubscriptionService.filter_EntityName_order_by(
+      this.SubscriptionService.filterSubscriptionNameorderby(
         `${this.abc_filter}`,
         this.page.pageSize,
         skip,
@@ -162,7 +163,7 @@ export class AllEventSubscriptionsComponent implements OnInit {
     } else if (this.abc_filter == undefined || this.abc_filter == '') {
       const skip = (this.page.pageNumber - 1) * this.page.pageSize;
       this.feild_name = filter_val + '+' + vale;
-      this.SubscriptionService.getAllEntityorder(
+      this.SubscriptionService.getAllSubscriptionOrder(
         this.page.pageSize,
         skip,
         this.feild_name
@@ -179,7 +180,7 @@ export class AllEventSubscriptionsComponent implements OnInit {
       this.per_page_num = val;
       this.page.pageSize = val;
       const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-      this.SubscriptionService.filter_EntityName(
+      this.SubscriptionService.filterSubscriptionName(
         `${this.abc_filter}`,
         this.page.pageSize,
         skip
@@ -241,7 +242,7 @@ export class AllEventSubscriptionsComponent implements OnInit {
       if (this.show_perpage_size == false) {
         const skip = (pageNumber - 1) * pageSize;
 
-        this.SubscriptionService.filter_EntityName(
+        this.SubscriptionService.filterSubscriptionName(
           `${this.abc_filter}`,
           this.page.pageSize,
           skip
@@ -254,7 +255,7 @@ export class AllEventSubscriptionsComponent implements OnInit {
         const top: number = this.per_page_num;
         const skip = (pageNumber - 1) * this.per_page_num;
 
-        this.SubscriptionService.filter_EntityName(
+        this.SubscriptionService.filterSubscriptionName(
           `${this.abc_filter}`,
           this.page.pageSize,
           skip
@@ -276,7 +277,6 @@ export class AllEventSubscriptionsComponent implements OnInit {
       }
     }
   }
-  ngOnDestroy() {}
 
   trackByFn(index: number, item: unknown): number | null {
     if (!item) return null;

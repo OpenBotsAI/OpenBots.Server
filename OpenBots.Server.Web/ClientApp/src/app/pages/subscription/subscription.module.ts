@@ -8,9 +8,11 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { SharedModule } from '../../@core/shared';
 import { SubscriptionService } from './subscription.service';
 import { AddSubscriptionComponent } from './add-subscription/add-subscription.component';
+import { GetSubscriptionIdComponent } from './get-subscription-id/get-subscription-id.component';
+import { EditSubscriptionComponent } from './edit-subscription/edit-subscription.component';
 
 @NgModule({
-  declarations: [AllEventSubscriptionsComponent, AddSubscriptionComponent],
+  declarations: [AllEventSubscriptionsComponent, AddSubscriptionComponent, GetSubscriptionIdComponent, EditSubscriptionComponent],
   imports: [
     CommonModule,
     SubscriptionRoutingModule,

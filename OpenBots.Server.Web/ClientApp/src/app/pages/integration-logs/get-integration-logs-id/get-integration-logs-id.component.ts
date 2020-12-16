@@ -18,6 +18,7 @@ export class GetIntegrationLogsIdComponent implements OnInit {
   showChangedToJson: boolean = false;
   showpayloadSchemaJson: boolean = false;
   pipe: TimeDatePipe;
+  showAttempt: boolean;
   constructor(
     private acroute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -64,22 +65,18 @@ export class GetIntegrationLogsIdComponent implements OnInit {
         this.payloadJSON = JSON.parse(this.payloadJSON);
       }
     });
-    // this.getintegrationEventlogpayload(data.entityID);
   }
   getintegrationEventlogpayload(id) {
     this.systemEventService
       .getIntegrationEventlogsPayload(`eventLogID+eq+guid'${id}'`)
       .subscribe((data: any) => {
-        this.showallpayload = data;
-        // data.occuredOnUTC = this.transformDate(data.occuredOnUTC, 'lll');
-        // this.systemEventform.patchValue(data);
-        // this.systemEventform.disable();
-
-        // if (data.payloadJSON != null) {
-        //   this.showpayloadSchemaJson = true;
-        //   this.payloadJSON = data.payloadJSON;
-        //   this.payloadJSON = JSON.parse(this.payloadJSON);
-        // }
+        if (data.items.length == 0) {
+          this.showAttempt = false;
+        } else if (data.items.length !== 0) {
+          this.showAttempt = true;
+          this.showallpayload = data.items;
+        }
+       
       });
   }
   transformDate(value, format) {
