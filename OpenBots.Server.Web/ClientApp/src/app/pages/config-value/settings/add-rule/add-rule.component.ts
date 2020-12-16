@@ -19,6 +19,7 @@ export class AddRuleComponent implements OnInit {
   editRuleId: string;
   title = 'Add';
   eTag: string;
+  isSubmitted = false;
 
   constructor(
     private fb: FormBuilder,
@@ -57,6 +58,7 @@ export class AddRuleComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.isSubmitted = true;
     if (this.editRuleId) this.updateRule();
     else this.addRule();
   }
@@ -69,11 +71,15 @@ export class AddRuleComponent implements OnInit {
         this.ruleForm.value,
         { observe: 'response', headers }
       )
-      .subscribe((response) => {
-        if (response && response.status === 200) {
-          this.router.navigate(['/pages/config/settings']);
-        }
-      });
+      .subscribe(
+        (response) => {
+          if (response && response.status === 200) {
+            this.httpService.success('Rule updated successfully');
+            this.router.navigate(['/pages/config/settings']);
+          }
+        },
+        () => (this.isSubmitted = false)
+      );
   }
 
   addRule(): void {
@@ -83,17 +89,21 @@ export class AddRuleComponent implements OnInit {
         this.ruleForm.value,
         { observe: 'response' }
       )
-      .subscribe((response) => {
-        if (response && response.status === 201) {
-          this.httpService.success('');
-          this.router.navigate(['/pages/config/settings']);
-        }
-      });
+      .subscribe(
+        (response) => {
+          if (response && response.status === 201) {
+            this.httpService.success('Rule created successfully');
+            this.router.navigate(['/pages/config/settings']);
+          }
+        },
+        () => (this.isSubmitted = false)
+      );
   }
 
-  onRuleChange(event) {
-    if (event.target.value == 'IPv4') {
+  onRuleChange(value) {
+    if (value == 'IPv4' || value === 'IPv4') {
       this.ruleForm.get('ipAddress').clearValidators();
+      this.ruleForm.get('ipAddress').reset();
       this.ruleForm
         .get('ipAddress')
         .setValidators([
@@ -101,8 +111,9 @@ export class AddRuleComponent implements OnInit {
           RxwebValidators.ip({ version: IpVersion.V4 }),
         ]);
       this.ruleForm.get('ipAddress').updateValueAndValidity();
-    } else if (event.target.value == 'IPv6') {
+    } else if (value == 'IPv6') {
       this.ruleForm.get('ipAddress').clearValidators();
+      this.ruleForm.get('ipAddress').reset();
       this.ruleForm
         .get('ipAddress')
         .setValidators([
@@ -110,8 +121,9 @@ export class AddRuleComponent implements OnInit {
           RxwebValidators.ip({ version: IpVersion.V6 }),
         ]);
       this.ruleForm.get('ipAddress').updateValueAndValidity();
-    } else if (event.target.value == 'IPv4Range') {
+    } else if (value == 'IPv4Range') {
       this.ruleForm.get('ipRange').clearValidators();
+      this.ruleForm.get('ipRange').reset();
       this.ruleForm
         .get('ipRange')
         .setValidators([
@@ -119,13 +131,14 @@ export class AddRuleComponent implements OnInit {
           RxwebValidators.ip({ version: IpVersion.V4, isCidr: true }),
         ]);
       this.ruleForm.get('ipRange').updateValueAndValidity();
-    } else if (event.target.value == 'IPv6Range') {
+    } else if (value == 'IPv6Range') {
       this.ruleForm.get('ipRange').clearValidators();
+      this.ruleForm.get('ipRange').reset();
       this.ruleForm
         .get('ipRange')
         .setValidators([
           Validators.required,
-          RxwebValidators.ip({ version: IpVersion.V4, isCidr: true }),
+          RxwebValidators.ip({ version: IpVersion.V6, isCidr: true }),
         ]);
       this.ruleForm.get('ipRange').updateValueAndValidity();
     }
@@ -148,6 +161,7 @@ export class AddRuleComponent implements OnInit {
           for (let data of this.rule) {
             if (response.body.rule == data.value) {
               response.body.rule = data.name;
+              this.onRuleChange(response.body.rule);
             }
           }
           this.ruleForm.patchValue({ ...response.body });
