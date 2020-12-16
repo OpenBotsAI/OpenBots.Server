@@ -55,8 +55,7 @@ namespace OpenBots.Server.Web.Hubs
         public string CreateJob(string scheduleSerializeObject, string jobId = "")
         {
             var schedule = JsonSerializer.Deserialize<Schedule>(scheduleSerializeObject);
-            var automationVersion = automationVersionRepository.Find(0, 1).Items?.
-                    Where(a => a.AutomationId == schedule.AutomationId).FirstOrDefault();
+            var automationVersion = automationVersionRepository.Find(null, a => a.AutomationId == schedule.AutomationId).Items?.FirstOrDefault();
 
             Job job = new Job();
             job.AgentId = schedule.AgentId == null ? Guid.Empty : schedule.AgentId.Value;
@@ -65,8 +64,8 @@ namespace OpenBots.Server.Web.Hubs
             job.EnqueueTime = DateTime.Now;
             job.JobStatus = JobStatusType.New;
             job.AutomationId = schedule.AutomationId == null ? Guid.Empty : schedule.AutomationId.Value;
-            job.AutomationVersion = automationVersion.VersionNumber;
-            job.AutomationVersionId = automationVersion.Id;
+            job.AutomationVersion = automationVersion != null? automationVersion.VersionNumber : 0;
+            job.AutomationVersionId = automationVersion != null? automationVersion.Id : Guid.Empty;
             job.Message = "Job is created through internal system logic.";
 
             jobRepository.Add(job);
