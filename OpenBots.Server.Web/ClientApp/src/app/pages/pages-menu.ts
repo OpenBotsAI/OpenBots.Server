@@ -163,14 +163,14 @@ export class PagesMenu {
             title: 'System Events',
             link: '/pages/system-event/list',
           },
-          // {
-          //   title: 'Subscriptions',
-          //   link: '/pages/subscription/list',
-          // },
-          // {
-          //   title: 'Add Subscriptions',
-          //   link: '/pages/subscription/add',
-          // },
+          {
+            title: 'Subscriptions',
+            link: '/pages/subscription/list',
+          },
+          {
+            title: 'Add Subscriptions',
+            link: '/pages/subscription/add',
+          },
           {
             title: 'Logs',
             link: '/pages/integration-logs/list',
