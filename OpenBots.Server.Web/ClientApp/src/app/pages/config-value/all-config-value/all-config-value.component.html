@@ -18,11 +18,11 @@
         <tr>
           <th scope="col">
             Name
-            <i (click)="onSortClick($event, 'name')" [class]="showallconfigValue | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'name')" [attr.class]="showallconfigValue | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Configuration Value
-            <i (click)="onSortClick($event, 'value')" [class]="showallconfigValue | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'value')" [attr.class]="showallconfigValue | chevron: page.totalCount"></i>
           </th>
 
           <th scope="col">View</th>

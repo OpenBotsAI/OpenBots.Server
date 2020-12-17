@@ -8,7 +8,7 @@
         <div class="LeftBgText">
           <h2>Queue Items</h2>
           <p>
-            Items enqueued/published by automation and other sources for automation  to consume.
+            Items enqueued/published by automation and other sources for automation to consume.
           </p>
         </div>
       </div>
@@ -47,31 +47,34 @@
         <tr>
           <th scope="col">
             Name
-            <i (click)="onSortClick($event, 'name')" [class]="allQueueItemData | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'name')" [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             State
-            <i (click)="onSortClick($event, 'state')" [class]="allQueueItemData | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'state')" [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             State Message
-            <i (click)="onSortClick($event, 'stateMessage')" [class]="allQueueItemData | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'stateMessage')"
+              [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Locked By
-            <i (click)="onSortClick($event, 'lockedBy')" [class]="allQueueItemData | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'lockedBy')" [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Start Time
-            <i (click)="onSortClick($event, 'lockedOn')" [class]="allQueueItemData | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'lockedOn')" [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Expiration Time
-            <i (click)="onSortClick($event, 'lockedUntil')" [class]="allQueueItemData | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'lockedUntil')"
+              [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             End Time
-            <i (click)="onSortClick($event, 'lockedEndTime')" [class]="allQueueItemData | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'lockedEndTime')"
+              [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th *ngIf="show" scope="col">View</th>
           <th *ngIf="show" scope="col">Edit</th>

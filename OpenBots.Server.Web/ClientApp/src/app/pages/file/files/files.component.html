@@ -23,21 +23,21 @@
         <tr>
           <th scope="col">
             Name
-            <i (click)="onSortClick($event, 'name')" [class]="binaryObjectsData | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'name')" [attr.class]="binaryObjectsData | chevron: page.totalCount"></i>
           </th>
 
           <th scope="col">
             Correlation Entity
             <i (click)="onSortClick($event, 'correlationEntity')"
-              [class]="binaryObjectsData | chevron: page.totalCount"></i>
+              [attr.class]="binaryObjectsData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Folder
-            <i (click)="onSortClick($event, 'folder')" [class]="binaryObjectsData | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'folder')" [attr.class]="binaryObjectsData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Size
-            <i (click)="onSortClick($event, 'sizeInBytes')" [class]="binaryObjectsData | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'sizeInBytes')" [attr.class]="binaryObjectsData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">View</th>
           <th scope="col">Edit</th>
