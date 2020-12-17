@@ -29,13 +29,8 @@ namespace OpenBots.Server.Web.Webhooks
         public async Task SendWebhook(IntegrationEventSubscription eventSubscription, WebhookPayload payload,
             IntegrationEventSubscriptionAttempt subscriptionAttempt)
         {
-            var attempCount = attemptManager.SaveAndGetAttemptCount(subscriptionAttempt, eventSubscription.HTTP_Max_RetryCount);
-            payload.AttemptCount = attempCount;
-
-            if (attempCount > eventSubscription.HTTP_Max_RetryCount)
-            {
-                return;
-            }
+            var attemptCount = attemptManager.SaveAndGetAttemptCount(subscriptionAttempt, eventSubscription.HTTP_Max_RetryCount);
+            payload.AttemptCount = attemptCount;
 
             bool isSuccessful;
             try
@@ -49,13 +44,22 @@ namespace OpenBots.Server.Web.Webhooks
 
             if (!isSuccessful)
             {
-                throw new Exception($"Webhook sending attempt failed.");
+                if (attemptCount >= eventSubscription.HTTP_Max_RetryCount)
+                {
+                    var previousAttempt = attemptManager.GetLastAttempt(subscriptionAttempt);
+                    previousAttempt.Status = "FailedFatally";
+                    attemptRepository.Update(previousAttempt);
+                }
+                else
+                {
+                    throw new Exception($"Webhook sending attempt failed.");
+                }
             }
             else
             {
-                var existingAttempt = attemptManager.GetLastAttempt(subscriptionAttempt);
-                existingAttempt.Status = "Completed";
-                attemptRepository.Update(existingAttempt);
+                var previousAttempt = attemptManager.GetLastAttempt(subscriptionAttempt);
+                previousAttempt.Status = "Completed";
+                attemptRepository.Update(previousAttempt);
             }
 
             return;

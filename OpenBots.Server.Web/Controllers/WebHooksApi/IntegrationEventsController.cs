@@ -8,8 +8,11 @@ using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Webhooks;
 using OpenBots.Server.Security;
+using OpenBots.Server.ViewModel.Lookup;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Web.Controllers.WebHooksApi
@@ -95,6 +98,40 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             {
                 return ex.GetActionResult();
             }
+        }
+
+        /// <summary>
+        /// Provides a list of all IntegrationEvent Entity names
+        /// </summary>
+        /// <response code="200">Ok, a list of all event Entity names</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>List of all names in IntegrationEvents table</returns>
+        [HttpGet("IntegrationEventLookup")]
+        [ProducesResponseType(typeof(List<IntegrationEventEntitiesLookupViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public IntegrationEventEntitiesLookupViewModel AllIntegrationEvents()
+        {
+            var response = repository.Find(null, x => x.IsDeleted == false);
+            IntegrationEventEntitiesLookupViewModel eventLogList = new IntegrationEventEntitiesLookupViewModel();
+
+            if (response != null)
+            {
+                eventLogList.EntityNameList = new List<string>();
+
+                foreach (var item in response.Items)
+                {
+                    eventLogList.EntityNameList.Add(item.EntityType);
+                }
+                eventLogList.EntityNameList = eventLogList.EntityNameList.Distinct().ToList();            }
+            return eventLogList;
         }
     }
 }

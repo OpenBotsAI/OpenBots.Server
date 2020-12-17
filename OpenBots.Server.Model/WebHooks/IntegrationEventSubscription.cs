@@ -8,7 +8,6 @@ namespace OpenBots.Server.Model.Webhooks
     {
         public string? EntityType { get; set; }
 
-        [Required]
         public string? IntegrationEventName { get; set; }
 
         public Guid? EntityID { get; set; }

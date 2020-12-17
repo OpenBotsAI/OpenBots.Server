@@ -104,7 +104,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         /// <summary>
         /// Provides a list of all integration event logs by name
         /// </summary>
-        /// <response code="200">Ok, a list of all event bogs</response>
+        /// <response code="200">Ok, a list of all event logs</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="404">Not found</response>

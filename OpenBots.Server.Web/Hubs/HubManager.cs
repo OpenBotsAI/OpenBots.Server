@@ -7,6 +7,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using System.Linq;
+using OpenBots.Server.Web.Webhooks;
 
 namespace OpenBots.Server.Web.Hubs
 {
@@ -16,14 +17,17 @@ namespace OpenBots.Server.Web.Hubs
         private readonly IRecurringJobManager recurringJobManager;
         private readonly IAutomationVersionRepository automationVersionRepository;
         private IHubContext<NotificationHub> _hub;
+        private readonly IWebhookPublisher webhookPublisher;
 
         public HubManager(IRecurringJobManager recurringJobManager,
             IJobRepository jobRepository, IHubContext<NotificationHub> hub,
-            IAutomationVersionRepository automationVersionRepository)
+            IAutomationVersionRepository automationVersionRepository,
+            IWebhookPublisher webhookPublisher)
         {
             this.recurringJobManager = recurringJobManager;
             this.jobRepository = jobRepository;
             this.automationVersionRepository = automationVersionRepository;
+            this.webhookPublisher = webhookPublisher;
             _hub = hub;
         }
 
@@ -70,6 +74,8 @@ namespace OpenBots.Server.Web.Hubs
 
             jobRepository.Add(job);
             _hub.Clients.All.SendAsync("botnewjobnotification", job.AgentId.ToString());
+            webhookPublisher.PublishAsync("Jobs.NewJobCreated", job.Id.ToString()).ConfigureAwait(false);
+
 
             return "Success";
         }

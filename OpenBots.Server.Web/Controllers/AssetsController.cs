@@ -178,9 +178,7 @@ namespace OpenBots.Server.Web
                 }
 
                 var response = await base.PostEntity(request);
-                asset = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
-
-                await webhookPublisher.PublishAsync("Assets.NewAssetCreated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
+                await webhookPublisher.PublishAsync("Assets.NewAssetCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
                 return response;
             }
             catch (Exception ex)

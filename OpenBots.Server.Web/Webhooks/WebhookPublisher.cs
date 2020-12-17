@@ -52,7 +52,7 @@ namespace OpenBots.Server.Web.Webhooks
 
             if (eventSubscriptions == null)
             {
-                return ;
+                return;
             }
 
             //Get current Integration Event
@@ -99,6 +99,7 @@ namespace OpenBots.Server.Web.Webhooks
                 {
                     QueueItemModel queueItem = new QueueItemModel
                     {
+                        Name = eventSubscription.Name,
                         IsLocked = false,
                         QueueId = eventSubscription.QUEUE_QueueID ?? Guid.Empty,
                         Type = "Json",
@@ -107,7 +108,8 @@ namespace OpenBots.Server.Web.Webhooks
                         State = "New",
                         RetryCount = eventSubscription.HTTP_Max_RetryCount ?? default,
                         Source = eventSubscription.IntegrationEventName,
-                        Event = integrationEvent.Description
+                        Event = integrationEvent.Description,
+                        CreatedOn = DateTime.UtcNow
                     };
                     queueItemRepository.Add(queueItem);
                 }

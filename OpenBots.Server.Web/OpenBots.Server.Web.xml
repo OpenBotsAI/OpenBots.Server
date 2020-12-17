@@ -3229,7 +3229,7 @@
             <summary>
             Provides a list of all integration event logs by name
             </summary>
-            <response code="200">Ok, a list of all event bogs</response>
+            <response code="200">Ok, a list of all event logs</response>
             <response code="400">Bad request</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="404">Not found</response>
@@ -3278,6 +3278,17 @@
             <response code="404">Not found, when no IntegrationEvent exists for the given IntegrationEvent id</response>
             <response code="422">Unprocessable entity</response>
             <returns>IntegrationEvent details for the given id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.AllIntegrationEvents">
+            <summary>
+            Provides a list of all IntegrationEvent Entity names
+            </summary>
+            <response code="200">Ok, a list of all event Entity names</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>List of all names in IntegrationEvents table</returns>
         </member>
         <member name="T:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionAttemptsController">
             <summary>
