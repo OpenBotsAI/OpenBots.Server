@@ -67,20 +67,20 @@
            <tr>
           <th scope="col">
             Entity
-            <i (click)="onSortClick($event, 'entityType')" [class]="show_allsystemevent | chevron: page.totalCount">
+            <i (click)="onSortClick($event, 'entityType')" [attr.class]="show_allsystemevent | chevron: page.totalCount">
             </i>
           </th>
           <th scope="col">
             Event
-            <i (click)="onSortClick($event, 'integrationEventName')" [class]="show_allsystemevent | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'integrationEventName')" [attr.class]="show_allsystemevent | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Occurred On
-            <i (click)="onSortClick($event, 'occuredOnUTC')" [class]="show_allsystemevent | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'occuredOnUTC')" [attr.class]="show_allsystemevent | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Status
-            <i (click)="onSortClick($event, 'status')" [class]="show_allsystemevent | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'status')" [attr.class]="show_allsystemevent | chevron: page.totalCount"></i>
           </th>
           <th scope="col">View</th>
         </tr>

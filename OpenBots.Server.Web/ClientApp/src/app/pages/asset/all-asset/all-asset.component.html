@@ -25,11 +25,11 @@
         <tr>
           <th scope="col">
             Name
-            <i (click)="onSortClick($event, 'name')" [class]="showallassets | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'name')" [attr.class]="showallassets | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Type
-            <i (click)="onSortClick($event, 'type')" [class]="showallassets | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'type')" [attr.class]="showallassets | chevron: page.totalCount"></i>
           </th>
           <th scope="col">View</th>
           <th scope="col">Edit</th>

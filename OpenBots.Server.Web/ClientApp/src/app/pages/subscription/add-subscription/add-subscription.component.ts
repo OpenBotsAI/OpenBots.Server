@@ -16,17 +16,18 @@ export class AddSubscriptionComponent implements OnInit {
   showQueues: any = [];
   subscriptionForm: FormGroup;
   submitted = false;
-  automationSelection: string[] = ['HTTPS', 'Queue'];
+  transportType: string[] = ['HTTPS', 'Queue'];
   constructor(
     private formBuilder: FormBuilder,
     private toastrService: NbToastrService,
     protected router: Router,
     protected SubscriptionService: SubscriptionService
-  ) {}
-  
+  ) {   
+     this.getallEntity();
+  }
 
   ngOnInit(): void {
-    this.getallEntity();
+
     this.subscriptionForm = this.formBuilder.group({
       name: [
         '',

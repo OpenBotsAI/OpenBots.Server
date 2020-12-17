@@ -39,20 +39,20 @@
         <tr>
           <th scope="col">
             Service
-            <i (click)="onSortClick($event, 'serviceName')" [class]="show_allagents | chevron: page.totalCount">
+            <i (click)="onSortClick($event, 'serviceName')" [attr.class]="show_allagents | chevron: page.totalCount">
             </i>
           </th>
           <th scope="col">
             Method
-            <i (click)="onSortClick($event, 'methodName')" [class]="show_allagents | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'methodName')" [attr.class]="show_allagents | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Created By
-            <i (click)="onSortClick($event, 'createdBy')" [class]="show_allagents | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'createdBy')" [attr.class]="show_allagents | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Created On
-            <i (click)="onSortClick($event, 'createdOn')" [class]="show_allagents | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'createdOn')" [attr.class]="show_allagents | chevron: page.totalCount"></i>
           </th>
           <th scope="col">View</th>
         </tr>
