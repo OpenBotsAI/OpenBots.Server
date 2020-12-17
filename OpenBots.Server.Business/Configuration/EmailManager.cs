@@ -102,7 +102,7 @@ namespace OpenBots.Server.Business
                 {
                     if (hash == null || hash == string.Empty)
                         hash = GetHash(hash, file);
-                    var binaryObject = binaryObjectRepository.Find(null, q => q.HashCode == hash && q.CorrelationEntityId == id)?.Items?.FirstOrDefault();
+                    var binaryObject = binaryObjectRepository.Find(null, q => q.HashCode == hash && q.CorrelationEntityId == id && q.Name == file.FileName)?.Items?.FirstOrDefault();
                     if (binaryObject == null)
                     {
                         if (file == null)
