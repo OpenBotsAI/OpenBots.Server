@@ -55,16 +55,6 @@ namespace OpenBots.Server.Web.Webhooks
                 return;
             }
 
-            //Delete loop
-            foreach (var eventSubscription in eventSubscriptions)
-            {
-                if ((eventSubscription.IntegrationEventName == integrationEventName|| eventSubscription.IntegrationEventName == null) 
-                    && (eventSubscription.EntityID == new Guid(entityId) || eventSubscription.EntityID == null))
-                {
-                    var notify = "Should be included";
-                }
-            }
-
             //Get current Integration Event
             var integrationEvent = eventRepository.Find(0, 1).Items?.Where(e => e.Name == integrationEventName).FirstOrDefault();
 
@@ -90,16 +80,6 @@ namespace OpenBots.Server.Web.Webhooks
             // Get subscriptions that must receive webhook
             foreach (var eventSubscription in eventSubscriptions)
             {
-                //handle cases that should not be notified
-                if (eventSubscription.IntegrationEventName == integrationEventName && (eventSubscription.EntityID != new Guid(entityId)|| eventSubscription.EntityID == null))
-                {
-                    break;
-                }
-                if (eventSubscription.EntityID == new Guid(entityId) && (eventSubscription.IntegrationEventName != integrationEventName || eventSubscription.EntityID == null))
-                {
-                    break;
-                }
-
                 //create a background job to send the webhook
                 if (eventSubscription.TransportType == TransportType.HTTPS)
                 {
