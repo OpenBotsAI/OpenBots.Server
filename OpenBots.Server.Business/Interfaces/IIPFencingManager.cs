@@ -12,7 +12,7 @@ namespace OpenBots.Server.Business
     public interface IIPFencingManager : IManager
     {
         bool MatchedOnRule(IPAddress iPAddress, List<IPFencing> ipFencingRules, IHeaderDictionary headers);
-        bool IsRequestAllowed(IPAddress iPAddress, IPFencingMode? fencingMode = IPFencingMode.AllowMode);
+        bool IsRequestAllowed(IPAddress iPAddress, IPFencingMode? fencingMode = null);
         IPFencingMode? GetIPFencingMode(Guid organizationId);
     }
 }

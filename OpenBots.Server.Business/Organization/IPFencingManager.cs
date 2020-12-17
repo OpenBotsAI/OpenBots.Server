@@ -157,7 +157,7 @@ namespace OpenBots.Server.Business
         /// </summary>
         /// <param name="iPAddress"></param>
         /// <returns>True if the IP is allowed for the current organization</returns>
-        public bool IsRequestAllowed(IPAddress iPAddress, IPFencingMode? fencingMode = null)
+        public bool IsRequestAllowed(IPAddress iPAddress,  IPFencingMode? fencingMode = null)
         {
             // Localhost addresses
             IPAddress localIPV4 = IPAddress.Parse("::1");

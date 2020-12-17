@@ -14,6 +14,7 @@ using OpenBots.Server.Model.Core;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.Web.Hubs;
+using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
 using System.Collections.Generic;
@@ -37,7 +38,9 @@ namespace OpenBots.Server.Web
         readonly IJobCheckpointRepository jobCheckpointRepo;
         private IHubContext<NotificationHub> _hub;
         private IAutomationVersionRepository automationVersionRepo;
-        
+        private readonly IWebhookPublisher webhookPublisher;
+        private readonly IJobRepository repository;
+
         /// <summary>
         /// JobsController constructor
         /// </summary>
@@ -63,7 +66,8 @@ namespace OpenBots.Server.Web
             IHubContext<NotificationHub> hub,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
-            IAutomationVersionRepository automationVersionRepo) : base(repository, userManager, httpContextAccessor,
+            IAutomationVersionRepository automationVersionRepo,
+            IWebhookPublisher webhookPublisher) : base(repository, userManager, httpContextAccessor,
                 membershipManager, configuration)
         {
             this.jobManager = jobManager;
@@ -71,8 +75,10 @@ namespace OpenBots.Server.Web
             this.automationRepo = automationRepository;
             this.jobCheckpointRepo = jobCheckpointRepository;
             this.jobManager.SetContext(base.SecurityContext);
+            this.repository = repository;
             _hub = hub;
             this.automationVersionRepo = automationVersionRepo;
+            this.webhookPublisher = webhookPublisher;
         }
 
         /// <summary>
@@ -492,6 +498,8 @@ namespace OpenBots.Server.Web
                 await _hub.Clients.All.SendAsync("botnewjobnotification", request.AgentId.ToString());
                 await _hub.Clients.All.SendAsync("sendjobnotification", "New Job added.");
                 await _hub.Clients.All.SendAsync("broadcastnewjobs", Tuple.Create(request.Id,request.AgentId,request.AutomationId));
+                await webhookPublisher.PublishAsync("Jobs.NewJobCreated", job.Id.ToString()).ConfigureAwait(false);
+
 
                 return await base.PostEntity(job);
             }
@@ -572,6 +580,7 @@ namespace OpenBots.Server.Web
                 }
 
                 //Send SignalR notification to all connected clients 
+                await webhookPublisher.PublishAsync("Jobs.JobUpdated", existingJob.Id.ToString()).ConfigureAwait(false);
                 await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", existingJob.Id));
 
                 return response;
@@ -657,6 +666,7 @@ namespace OpenBots.Server.Web
                 var response = await base.PutEntity(id, existingJob);
                 //Send SignalR notification to all connected clients 
                 await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", existingJob.Id));
+                await webhookPublisher.PublishAsync("Jobs.JobUpdated", existingJob.Id.ToString()).ConfigureAwait(false);
 
                 return response;
             }
@@ -684,6 +694,13 @@ namespace OpenBots.Server.Web
         public async Task<IActionResult> Delete(string id)
         {
             Guid jobId = new Guid(id);
+            var existingJob = repository.GetOne(jobId);
+
+            if (existingJob == null)
+            {
+                ModelState.AddModelError("Job", "Job cannot be found or does not exist.");
+                return NotFound(ModelState);
+            }
 
             var response = await base.DeleteEntity(id);
             jobManager.DeleteExistingParameters(jobId);
@@ -691,6 +708,7 @@ namespace OpenBots.Server.Web
 
             //Send SignalR notification to all connected clients 
             await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} deleted.", id));
+            await webhookPublisher.PublishAsync("Jobs.JobDeleted", existingJob.Id.ToString()).ConfigureAwait(false);
 
             return response;
         }
@@ -714,10 +732,20 @@ namespace OpenBots.Server.Web
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<Job> request)
         {
+            Guid jobId = new Guid(id);
+            var existingJob = repository.GetOne(jobId);
+
+            if (existingJob == null)
+            {
+                ModelState.AddModelError("Job", "Job cannot be found or does not exist.");
+                return NotFound(ModelState);
+            }
+
             var response = await base.PatchEntity(id, request);
 
             //Send SignalR notification to all connected clients 
             await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", id));
+            await webhookPublisher.PublishAsync("Jobs.JobUpdated", existingJob.Id.ToString()).ConfigureAwait(false);
 
             return response;
         }

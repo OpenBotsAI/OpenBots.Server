@@ -32,11 +32,6 @@ namespace OpenBots.Server.Web.Webhooks
             var attemptCount = attemptManager.SaveAndGetAttemptCount(subscriptionAttempt, eventSubscription.HTTP_Max_RetryCount);
             payload.AttemptCount = attemptCount;
 
-            if (attemptCount > eventSubscription.HTTP_Max_RetryCount)
-            {
-                return;
-            }
-
             bool isSuccessful;
             try
             {
@@ -49,13 +44,23 @@ namespace OpenBots.Server.Web.Webhooks
 
             if (!isSuccessful)
             {
-                throw new Exception($"Webhook sending attempt failed.");
+
+                if (attemptCount >= eventSubscription.HTTP_Max_RetryCount)
+                {
+                    var previousAttempt = attemptManager.GetLastAttempt(subscriptionAttempt);
+                    previousAttempt.Status = "FailedFataly";
+                    attemptRepository.Update(previousAttempt);
+                }
+                else
+                {
+                    throw new Exception($"Webhook sending attempt failed.");
+                }
             }
             else
             {
-                var existingAttempt = attemptManager.GetLastAttempt(subscriptionAttempt);
-                existingAttempt.Status = "Completed";
-                attemptRepository.Update(existingAttempt);
+                var previousAttempt = attemptManager.GetLastAttempt(subscriptionAttempt);
+                previousAttempt.Status = "Completed";
+                attemptRepository.Update(previousAttempt);
             }
 
             return;

@@ -15,31 +15,27 @@ namespace OpenBots.Server.Business
             this.repo = repo;
         }
 
-        public int? SaveAndGetAttemptCount(IntegrationEventSubscriptionAttempt subscriptionAttempt, int? maxRetryCount)
+        public int? SaveAndGetAttemptCount(IntegrationEventSubscriptionAttempt currentAttempt, int? maxRetryCount)
         {
             int? attemptCount = 0;
-            var existingAttempt = GetLastAttempt(subscriptionAttempt);
+            var previousAttempt = GetLastAttempt(currentAttempt);
 
             //If no attempt exists, then this is the first attempt
-            if (existingAttempt == null)
+            if (previousAttempt == null)
             {
                 attemptCount = 1;
             }
             else
             {
-                existingAttempt.Status = "Failed";
-                attemptCount = existingAttempt.AttemptCounter;
+                previousAttempt.Status = "Failed";
+                attemptCount = previousAttempt.AttemptCounter;
                 attemptCount++;
-
-                if (existingAttempt.AttemptCounter > maxRetryCount)
-                {
-                    existingAttempt.Status = "FailedFataly";
-                    return attemptCount;
-                }
-                repo.Update(existingAttempt);
+                repo.Update(previousAttempt);
             }
-            subscriptionAttempt.AttemptCounter = attemptCount;
-            repo.Add(subscriptionAttempt);
+            currentAttempt.AttemptCounter = attemptCount;
+            currentAttempt.CreatedOn = DateTime.Now;
+            currentAttempt.Id = Guid.NewGuid();
+            repo.Add(currentAttempt);
             return attemptCount;
         }
 
