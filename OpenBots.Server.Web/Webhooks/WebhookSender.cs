@@ -44,11 +44,10 @@ namespace OpenBots.Server.Web.Webhooks
 
             if (!isSuccessful)
             {
-
                 if (attemptCount >= eventSubscription.HTTP_Max_RetryCount)
                 {
                     var previousAttempt = attemptManager.GetLastAttempt(subscriptionAttempt);
-                    previousAttempt.Status = "FailedFataly";
+                    previousAttempt.Status = "FailedFatally";
                     attemptRepository.Update(previousAttempt);
                 }
                 else
