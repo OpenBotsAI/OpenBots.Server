@@ -32,7 +32,7 @@
           </th>
           <th scope="col">
             Status
-            <i (click)="onSortClick($event, 'status')" [class]="get_allpeople | chevron"></i>
+            <i (click)="onSortClick($event, 'status')" [attr.class]="get_allpeople | chevron"></i>
           </th>
           <th scope="col" *ngIf="isAdmin == 'true'">Delete</th>
         </tr>

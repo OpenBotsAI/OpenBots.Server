@@ -3,21 +3,13 @@
     <div class="titleHeader">
       <div class="titleLeft">
         <div class="LeftBgIcon">
-          <img
-            class="img-head-logo"
-            src="../../../../assets/icons/config.svg"
-          />
+          <img class="img-head-logo" src="../../../../assets/icons/config.svg" />
         </div>
         <div class="LeftBgText">
           <h2>All Configuration Values</h2>
-          <p>All Configuration Values of the server.</p>
+          <p>All configuration values of the server.</p>
         </div>
       </div>
-      <!-- <div class="titleRight">
-                <button type="button" class="btn btn-primary" (click)="gotoadd()">
-            Add Email Account
-          </button>
-            </div> -->
     </div>
   </nb-card-header>
   <nb-card-body>
@@ -26,27 +18,20 @@
         <tr>
           <th scope="col">
             Name
-            <i
-              (click)="onSortClick($event, 'name')"
-              [class]="showallconfigValue | chevron: page.totalCount"
-            ></i>
+            <i (click)="onSortClick($event, 'name')" [attr.class]="showallconfigValue | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Configuration Value
-            <i
-              (click)="onSortClick($event, 'value')"
-              [class]="showallconfigValue | chevron: page.totalCount"
-            ></i>
+            <i (click)="onSortClick($event, 'value')" [attr.class]="showallconfigValue | chevron: page.totalCount"></i>
           </th>
 
           <th scope="col">View</th>
           <th scope="col">Edit</th>
-         
+
         </tr>
       </thead>
       <tbody>
-        <tr
-          *ngFor="
+        <tr *ngFor="
             let config of showallconfigValue
               | paginate
                 : {
@@ -56,8 +41,7 @@
                     totalItems: page.totalCount
                   };
             trackBy: trackByFn
-          "
-        >
+          ">
           <td scope="row" *ngIf="config.name != null">
             <ngx-tooltip [data]="config?.name" [size]="50"> </ngx-tooltip>
           </td>
@@ -76,7 +60,7 @@
               <i class="fa fa-edit"> </i>
             </a>
           </td>
-          
+
         </tr>
       </tbody>
     </table>
@@ -84,31 +68,15 @@
   <nb-card-body class="noTopPadding">
     <div class="row pagerow">
       <div class="col-md-8 col-lg-8 no-left-padding">
-        <pagination-controls
-          id="1"
-          class="paginateDiv"
-          previousLabel="Prev"
-          nextLabel="Next"
-          responsive="true"
-          (pageChange)="pageChanged($event)"
-          (pageBoundsCorrection)="pageChanged($event)"
-          directionLinks="true"
-          autoHide="true"
-          screenReaderPaginationLabel="Pagination"
-          screenReaderPageLabel="page"
-          screenReaderCurrentLabel="You're on page"
-        ></pagination-controls>
+        <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+          (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks="true"
+          autoHide="true" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
+          screenReaderCurrentLabel="You're on page"></pagination-controls>
       </div>
-      <div
-        class="col-md-4 col-lg-4 text-right no-right-padding"
-        *ngIf="get_perPage"
-      >
+      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
         <label class="label">Total {{ showpage.totalCount }} /</label>
 
-        <select
-          class="custom-select per-page-drop"
-          (change)="per_page($event.target.value)"
-        >
+        <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
           <option *ngFor="let item of itemsPerPage" [value]="item.id">
             {{ item.name }}
           </option>
@@ -117,4 +85,3 @@
     </div>
   </nb-card-body>
 </nb-card>
- 

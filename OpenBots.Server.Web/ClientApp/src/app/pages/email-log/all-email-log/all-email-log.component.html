@@ -35,17 +35,17 @@
                 <tr>
                     <th scope="col">
                         Id
-                        <i (click)="onSortClick($event, 'id')" [class]="showallEmail | chevron: page.totalCount"></i>
+                        <i (click)="onSortClick($event, 'id')" [attr.class]="showallEmail | chevron: page.totalCount"></i>
                     </th>
                     <th scope="col">
                         Sender User Id
                         <i (click)="onSortClick($event, 'senderUserId')"
-                            [class]="showallEmail | chevron: page.totalCount"></i>
+                            [attr.class]="showallEmail | chevron: page.totalCount"></i>
                     </th>
                     <th scope="col">
                         Sent On UTC
                         <i (click)="onSortClick($event, 'sentOnUTC')"
-                            [class]="showallEmail | chevron: page.totalCount"></i>
+                            [attr.class]="showallEmail | chevron: page.totalCount"></i>
                     </th>
                     <th scope="col">View</th>
 

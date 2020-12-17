@@ -25,19 +25,19 @@
         <tr>
           <th scope="col">
             Name
-            <i (click)="onSortClick($event, 'name')" [class]="allQueues | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'name')" [attr.class]="allQueues | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Max Retry Count
-            <i (click)="onSortClick($event, 'maxRetryCount')" [class]="allQueues | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'maxRetryCount')" [attr.class]="allQueues | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Created By
-            <i (click)="onSortClick($event, 'createdBy')" [class]="allQueues | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'createdBy')" [attr.class]="allQueues | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Created On
-            <i (click)="onSortClick($event, 'createdOn')" [class]="allQueues | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'createdOn')" [attr.class]="allQueues | chevron: page.totalCount"></i>
           </th>
           <th scope="col">View</th>
           <th scope="col">Edit</th>

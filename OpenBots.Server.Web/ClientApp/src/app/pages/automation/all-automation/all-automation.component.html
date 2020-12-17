@@ -25,19 +25,19 @@
         <tr>
           <th scope="col">
             Automation Name
-            <i (click)="onSortClick($event, 'name')" [class]="show_allprocess | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'name')" [attr.class]="show_allprocess | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Created On
-            <i (click)="onSortClick($event, 'createdOn')" [class]="show_allprocess | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'createdOn')" [attr.class]="show_allprocess | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Created By
-            <i (click)="onSortClick($event, 'createdBy')" [class]="show_allprocess | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'createdBy')" [attr.class]="show_allprocess | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Status
-            <i (click)="onSortClick($event, 'status')" [class]="show_allprocess | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'status')" [attr.class]="show_allprocess | chevron: page.totalCount"></i>
           </th>
           <th scope="col">Jobs</th>
           <th scope="col">View</th>

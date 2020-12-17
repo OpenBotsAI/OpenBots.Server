@@ -33,7 +33,7 @@
                 <div class="col-md-12 col-lg-12 col-xxxl-12">
                     <label for="rule" class="label">Rule Type *</label>
                     <select class="custom-select" formControlName="rule" placeholder="Please choose rule type"
-                        (change)="onRuleChange($event)">
+                        (change)="onRuleChange($event.target.value)">
                         <option value="" disabled="true" selected>
                             Please choose rule type
                         </option>
@@ -81,7 +81,7 @@
                             <div *ngIf="formControls.ipRange.errors.required">
                                 Ip range is required.
                             </div>
-                            <div *ngIf="formControls.ipRange.errors?.pattern">
+                            <div *ngIf="formControls.ipRange.errors?.ip">
                                 Ip range is not valid.
                             </div>
                         </div>
@@ -108,8 +108,8 @@
             </div>
             <div class="row">
                 <div class="col-md-12 col-lg-12 col-xxxl-12">
-                    <button type="submit" [disabled]="ruleForm.invalid" class="btn btn-primary" status="primary"
-                        (click)="onSubmit()">
+                    <button type="submit" [disabled]="ruleForm.invalid || isSubmitted" class="btn btn-primary"
+                        status="primary" (click)="onSubmit()">
                         Save
                     </button>
                 </div>

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, } from 'rxjs';
+import { Observable } from 'rxjs';
 import { NbToastrService } from '@nebular/theme';
 import { environment } from '../../../environments/environment';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
@@ -57,14 +57,17 @@ export class HttpService {
     this.toastrService.primary(`${param}`, 'Info');
   }
 
+  info(param): void {
+    this.toastrService.info(`${param}`, 'Info');
+  }
+
   /// for 429 error with data sharing flag .
   watchtotal(error, time) {
-
     const errorTime = {
-      error, time
-    }
+      error,
+      time,
+    };
     this.countapi = 1;
     this.watchtotalSubject.next(errorTime);
   }
-
 }

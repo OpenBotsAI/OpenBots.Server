@@ -1,9 +1,3 @@
-/*
- * Copyright (c) Akveo 2019. All Rights Reserved.
- * Licensed under the Single Application / Multi Application License.
- * See LICENSE_SINGLE_APP / LICENSE_MULTI_APP in the 'docs' folder for license information on type of purchased license.
- */
-
 import { NbIconLibraries, NbMenuItem } from '@nebular/theme';
 import { Observable, of } from 'rxjs';
 import { Injectable } from '@angular/core';
@@ -163,14 +157,14 @@ export class PagesMenu {
             title: 'System Events',
             link: '/pages/system-event/list',
           },
-          // {
-          //   title: 'Subscriptions',
-          //   link: '/pages/subscription/list',
-          // },
-          // {
-          //   title: 'Add Subscriptions',
-          //   link: '/pages/subscription/add',
-          // },
+          {
+            title: 'Subscriptions',
+            link: '/pages/subscription/list',
+          },
+          {
+            title: 'Add Subscriptions',
+            link: '/pages/subscription/add',
+          },
           {
             title: 'Logs',
             link: '/pages/integration-logs/list',

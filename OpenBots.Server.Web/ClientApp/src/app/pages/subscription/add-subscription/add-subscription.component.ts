@@ -2,8 +2,6 @@ import { Component, EventEmitter, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NbToastrService } from '@nebular/theme';
-import { UploadInput, humanizeBytes, UploadOutput } from 'ngx-uploader';
-import { AutomationService } from '../../automation/automation.service';
 import { SubscriptionService } from '../subscription.service';
 
 @Component({
@@ -18,25 +16,18 @@ export class AddSubscriptionComponent implements OnInit {
   showQueues: any = [];
   subscriptionForm: FormGroup;
   submitted = false;
-  automationSelection: string[] = ['HTTPS', 'Queue'];
+  transportType: string[] = ['HTTPS', 'Queue'];
   constructor(
     private formBuilder: FormBuilder,
     private toastrService: NbToastrService,
     protected router: Router,
     protected SubscriptionService: SubscriptionService
-  ) {}
-  // name: [
-  //   '',
-  //   [
-  //     Validators.required,
-  //     Validators.minLength(3),
-  //     Validators.maxLength(100),
-  //     Validators.pattern('^[A-Za-z0-9_.-]{3,100}$'),
-  //   ],
-  // ],
+  ) {   
+     this.getallEntity();
+  }
 
   ngOnInit(): void {
-    this.getallEntity();
+
     this.subscriptionForm = this.formBuilder.group({
       name: [
         '',
@@ -90,48 +81,10 @@ export class AddSubscriptionComponent implements OnInit {
   }
 
   showHTTP(val) {
-    // alert(val);
     if (val == 'HTTPS') {
       this.showTabview = true;
-      // this.subscriptionForm = this.formBuilder.group({
-      //   name: [
-      //     '',
-      //     [
-      //       Validators.required,
-      //       Validators.minLength(3),
-      //       Validators.maxLength(100),
-      //       Validators.pattern('^[A-Za-z0-9_.-]{3,100}$'),
-      //     ],
-      //   ],
-
-      //   integrationEventName: ['', [Validators.required]],
-      //   entityID: ['', [Validators.required]],
-      //   entityName: ['', [Validators.required]],
-      //   transportType: ['', [Validators.required]],
-      //   httP_URL: [''],
-      //   httP_AddHeader_Key: [''],
-      //   httP_AddHeader_Value: [''],
-      //   httP_Max_RetryCount: [''],
-      // });
     } else if (val == 'Queue') {
       this.showTabview = false;
-      // this.subscriptionForm = this.formBuilder.group({
-      //   name: [
-      //     '',
-      //     [
-      //       Validators.required,
-      //       Validators.minLength(3),
-      //       Validators.maxLength(100),
-      //       Validators.pattern('^[A-Za-z0-9_.-]{3,100}$'),
-      //     ],
-      //   ],
-
-      //   integrationEventName: ['', [Validators.required]],
-      //   entityID: ['', [Validators.required]],
-      //   entityName: ['', [Validators.required]],
-      //   transportType: ['', [Validators.required]],
-      //   queuE_QueueID: ['', [Validators.required]],
-      // });
     }
   }
 }

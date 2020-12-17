@@ -433,10 +433,6 @@ namespace OpenBots.Server.Web.Controllers
                     existingAutomation.AutomationEngine = request.AutomationEngine;
                     automationVersion.Status = request.Status;
                     response = manager.UpdateAutomation(existingAutomation, request);
-                    automationVersion.Status = request.Status;
-                    response = manager.UpdateAutomation(existingAutomation, request);
-                    automationVersion.Status = request.Status;
-                    response = manager.UpdateAutomation(existingAutomation, request);
                 }
 
                 await webhookPublisher.PublishAsync("Files.NewFileCreated", newBinaryObject.Id.ToString(), newBinaryObject.Name).ConfigureAwait(false);

@@ -17,26 +17,26 @@ export class SystemEventService {
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
-  get_EntityName() {
+  getIntegrationEventName() {
     let getagentUrl = `/IntegrationEvents`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
-  filter_EntityName(entityname: any, tpage: any, spage: any) {
+  filterIntegrationEventName(entityname: any, tpage: any, spage: any) {
     let getagentUrl = `/IntegrationEvents?$filter=${entityname}&$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
-  filter_EntityName_order_by(entityname: any, tpage: any, spage: any, name) {
+  filterEntityNameOrderby(entityname: any, tpage: any, spage: any, name) {
     let getagentUrl = `/IntegrationEvents?$filter=${entityname}&$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
-  getAllEntityorder(tpage: any, spage: any, name) {
+  getAllIntegrationEventorder(tpage: any, spage: any, name) {
     let getagentUrl = `/IntegrationEvents?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
-  get_AllEntityorderbyEntityname(entityname, tpage: any, spage: any, name) {
+  getAllorderbyEntityname(entityname, tpage: any, spage: any, name) {
     let getagentUrl = `/IntegrationEvents?$filter=${entityname}&$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }

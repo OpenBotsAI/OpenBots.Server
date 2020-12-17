@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AllSettingsComponent } from './all-settings.component';
+import { GetSubscriptionIdComponent } from './get-subscription-id.component';
 
-describe('AllSettingsComponent', () => {
-  let component: AllSettingsComponent;
-  let fixture: ComponentFixture<AllSettingsComponent>;
+describe('GetSubscriptionIdComponent', () => {
+  let component: GetSubscriptionIdComponent;
+  let fixture: ComponentFixture<GetSubscriptionIdComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AllSettingsComponent ]
+      declarations: [ GetSubscriptionIdComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AllSettingsComponent);
+    fixture = TestBed.createComponent(GetSubscriptionIdComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

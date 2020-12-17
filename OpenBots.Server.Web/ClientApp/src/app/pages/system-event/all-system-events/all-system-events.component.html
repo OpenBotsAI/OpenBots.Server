@@ -24,8 +24,8 @@
           <select class="custom-select service-name" (change)="getEntityname($event.target.value)"
             formControlName="page_name">
             <option value="" selected>All</option>
-            <option *ngFor="let item of show_Entityname" [value]="item.entityType">
-              {{ item.entityType }}
+            <option *ngFor="let item of show_Entityname" [value]="item">
+              {{ item }}
             </option>
           </select>
         </div>
@@ -36,21 +36,14 @@
         <tr>
           <th scope="col">
             Entity
-            <i (click)="onSortClick($event, 'entityType')" [class]="show_allsystemevent | chevron: page.totalCount">
+            <i (click)="onSortClick($event, 'entityType')" [attr.class]="show_allsystemevent | chevron: page.totalCount">
             </i>
           </th>
           <th scope="col">
             Event
-            <i (click)="onSortClick($event, 'name')" [class]="show_allsystemevent | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'name')" [attr.class]="show_allsystemevent | chevron: page.totalCount"></i>
           </th>
-          <!-- <th scope="col">
-            Created By
-            <i (click)="onSortClick($event, 'createdBy')" [class]="show_allsystemevent | chevron: page.totalCount"></i>
-          </th> -->
-          <!-- <th scope="col">
-            Created On
-            <i (click)="onSortClick($event, 'createdOn')" [class]="show_allsystemevent | chevron: page.totalCount"></i>
-          </th> -->
+         
           <th scope="col">View</th>
         </tr>
       </thead>

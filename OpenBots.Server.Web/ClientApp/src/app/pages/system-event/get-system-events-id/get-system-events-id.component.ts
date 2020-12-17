@@ -12,12 +12,12 @@ import { SystemEventService } from '../system-event.service';
 export class GetSystemEventsIdComponent implements OnInit {
   createdOn: any = [];
   showallsystemEvent: any = [];
-  // changedToJson: any = [];
   payloadSchema: any = [];
   systemEventform: FormGroup;
   showChangedToJson: boolean = false;
   showpayloadSchemaJson: boolean = false;
   pipe: TimeDatePipe;
+
   constructor(
     private acroute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -60,11 +60,7 @@ export class GetSystemEventsIdComponent implements OnInit {
         this.payloadSchema = data.payloadSchema;
         this.payloadSchema = JSON.parse(this.payloadSchema);
       }
-      // if (data.changedToJson != null) {
-      //   this.showChangedToJson = true;
-      //   this.changedToJson = data.changedToJson;
-      //   this.changedToJson = JSON.parse(this.changedToJson);
-      // }
+      
     });
   }
 
