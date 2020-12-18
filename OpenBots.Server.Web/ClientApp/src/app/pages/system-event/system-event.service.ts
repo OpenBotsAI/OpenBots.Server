@@ -18,7 +18,7 @@ export class SystemEventService {
   }
 
   getIntegrationEventName() {
-    let getagentUrl = `/IntegrationEvents`;
+    let getagentUrl = `/IntegrationEvents/IntegrationEventLookup`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 

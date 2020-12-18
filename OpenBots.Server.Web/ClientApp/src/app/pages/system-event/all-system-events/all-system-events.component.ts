@@ -46,18 +46,18 @@ export class AllSystemEventsComponent implements OnInit {
 
   entityName() {
     this.SystemEventService.getIntegrationEventName().subscribe((data: any) => {
-      this.show_Entityname = data.items;
-      let duplicatePushArray = [];
-      for (let i = 0; i < this.show_Entityname.length; i++) {
-        if (
-          duplicatePushArray.indexOf(this.show_Entityname[i].entityType) === -1
-        ) {
-          duplicatePushArray.push(this.show_Entityname[i].entityType);
-        }
-      }
-
-      this.show_Entityname = duplicatePushArray;
+      this.show_Entityname = data.entityNameList;
     });
+    // let duplicatePushArray = [];
+    // for (let i = 0; i < this.show_Entityname.length; i++) {
+    //   if (
+    //     duplicatePushArray.indexOf(this.show_Entityname[i].entityType) === -1
+    //   ) {
+    //     duplicatePushArray.push(this.show_Entityname[i].entityType);
+    //   }
+    // }
+
+    // this.show_Entityname = duplicatePushArray;
   }
 
   gotodetail(id) {

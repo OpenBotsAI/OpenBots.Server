@@ -1,6 +1,6 @@
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { NbToastrService, NbDialogService } from '@nebular/theme';
+import { NbToastrService } from '@nebular/theme';
 import { AgentsService } from '../agents.service';
 import { Page } from '../../../interfaces/paginateInstance';
 import { SignalRService } from '../../../@core/services/signal-r.service';
@@ -103,7 +103,7 @@ export class AllAgentsComponent implements OnInit {
   }
 
   per_page(val) {
-    this.blockUI.start('Loading');
+    // this.blockUI.start('Loading');
     console.log(val);
     this.per_page_num = val;
     this.show_perpage_size = true;
@@ -115,7 +115,7 @@ export class AllAgentsComponent implements OnInit {
         this.showpage = data;
         this.show_allagents = data.items;
         this.page.totalCount = data.totalCount;
-        this.blockUI.stop();
+        // this.blockUI.stop();
       });
   }
 
@@ -141,7 +141,7 @@ export class AllAgentsComponent implements OnInit {
   }
 
   get_allagent(top, skip) {
-    this.blockUI.start('Loading');
+    // this.blockUI.start('Loading');
     this.get_perPage = false;
     this.agentService.getAllAgent(top, skip).subscribe(
       (data: any) => {
@@ -149,7 +149,7 @@ export class AllAgentsComponent implements OnInit {
         this.show_allagents = data.items;
         this.page.totalCount = data.totalCount;
         this.get_perPage = true;
-        this.blockUI.stop();
+        // this.blockUI.stop();
       },
       (error) => {}
     );
