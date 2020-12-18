@@ -19,11 +19,13 @@ namespace OpenBots.Server.DataAccess.Repositories
             return dbContext.Agents;
         }
 
-        public AgentModel FindAgent(string machineName, string macAddress, string ipAddress)
+        public AgentModel FindAgent(string machineName, string macAddress, string ipAddress, Guid? agentID)
         {
-            var agent = DbTable().Where(AuthorizeRead()).AsQueryable().Where(e => e.MachineName.Equals(machineName) 
-                                                                                && e.MacAddresses.Equals(macAddress) 
-                                                                                && e.IPAddresses.Equals(ipAddress)).FirstOrDefault();
+            var agent = DbTable().Where(AuthorizeRead()).AsQueryable().Where(RemoveSoftDeleted())
+                                                                      .Where(a => a.Id == agentID
+                                                                               && a.MachineName.Equals(machineName) 
+                                                                               && a.MacAddresses.Equals(macAddress) 
+                                                                               && a.IPAddresses.Equals(ipAddress)).FirstOrDefault();
             return agent;
         }
 

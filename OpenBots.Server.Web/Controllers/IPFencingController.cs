@@ -310,7 +310,7 @@ namespace OpenBots.Server.Web
             }
 
             // Check if user will be able to make requests under the new IPfencing
-            if (iPFencingManager.IsRequestAllowed(userIp))
+            if (iPFencingManager.IsRequestAllowed(userIp, IPFencingMode.AllowMode))
             {
                 existingOrganizationSettings.IPFencingMode = IPFencingMode.AllowMode;
                 organizationSettingRepository.Update(existingOrganizationSettings);

@@ -12,7 +12,5 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
         [Required]
         [FromQuery(Name = "MacAddresses")]
         public string MacAddresses { get; set; }
-        [FromQuery(Name = "AgentId")]
-        public Guid AgentId { get; set; }
     }
 }

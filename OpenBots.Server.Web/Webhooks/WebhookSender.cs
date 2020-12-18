@@ -35,7 +35,7 @@ namespace OpenBots.Server.Web.Webhooks
             bool isSuccessful;
             try
             {
-                isSuccessful = await SendWebhookAsync(payload, eventSubscription.HTTP_URL);
+                isSuccessful = await SendWebhookAsync(payload, eventSubscription.HTTP_URL, eventSubscription);
             }
             catch (Exception exception)// an internal error occurred. 
             {
@@ -44,7 +44,7 @@ namespace OpenBots.Server.Web.Webhooks
 
             if (!isSuccessful)
             {
-                if (attemptCount >= eventSubscription.HTTP_Max_RetryCount)
+                if (attemptCount > eventSubscription.HTTP_Max_RetryCount)
                 {
                     var previousAttempt = attemptManager.GetLastAttempt(subscriptionAttempt);
                     previousAttempt.Status = "FailedFatally";
@@ -65,13 +65,19 @@ namespace OpenBots.Server.Web.Webhooks
             return;
         }
 
-        public async Task<bool> SendWebhookAsync(WebhookPayload payload, string url)
+        public async Task<bool> SendWebhookAsync(WebhookPayload payload, string url, IntegrationEventSubscription eventSubscription)
         {          
             string payloadString = JsonConvert.SerializeObject(payload);
 
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "POST";
+
+            if (!String.IsNullOrEmpty(eventSubscription.HTTP_AddHeader_Key))
+            {
+                httpWebRequest.Headers[eventSubscription.HTTP_AddHeader_Key] = eventSubscription?.HTTP_AddHeader_Value ?? "";
+            }
+
 
             string myJson = payloadString;
             using (var client = new HttpClient())
