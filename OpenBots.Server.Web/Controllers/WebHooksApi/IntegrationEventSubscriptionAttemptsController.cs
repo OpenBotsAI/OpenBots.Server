@@ -62,41 +62,40 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
-            [FromQuery(Name = "$skip")] int skip = 0
-            )
+            [FromQuery(Name = "$skip")] int skip = 0)
         {
             return base.GetMany();
         }
 
         /// <summary>
-        /// Provides a view model list of all subscriptionAttempts
+        /// Provides a view model list of all SubscriptionAttempts
         /// </summary>
         /// <param name="top"></param>
         /// <param name="skip"></param>
         /// <param name="orderBy"></param>
         /// <param name="filter"></param>
-        /// <response code="200">Ok, a paginated list of all subscriptionAttempts</response>
+        /// <response code="200">Ok, a paginated list of all SubscriptionAttempts</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden, unauthorized access</response>  
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Paginated list of all subscriptionAttempts</returns>
+        /// <returns>Paginated list of all SubscriptionAttempts</returns>
         [HttpGet("view")]
-        [ProducesResponseType(typeof(PaginatedList<AllSubscriptionAttemptsViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<SubscriptionAttemptViewModel>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AllSubscriptionAttemptsViewModel> View(
+        public PaginatedList<SubscriptionAttemptViewModel> View(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            ODataHelper<AllSubscriptionAttemptsViewModel> oData = new ODataHelper<AllSubscriptionAttemptsViewModel>();
+            ODataHelper<SubscriptionAttemptViewModel> oData = new ODataHelper<SubscriptionAttemptViewModel>();
 
             string queryString = "";
 
@@ -110,11 +109,11 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             Guid parentguid = Guid.Empty;
             var newNode = oData.ParseOrderByQuery(queryString);
             if (newNode == null)
-                newNode = new OrderByNode<AllSubscriptionAttemptsViewModel>();
+                newNode = new OrderByNode<SubscriptionAttemptViewModel>();
 
-            Predicate<AllSubscriptionAttemptsViewModel> predicate = null;
+            Predicate<SubscriptionAttemptViewModel> predicate = null;
             if (oData != null && oData.Filter != null)
-                predicate = new Predicate<AllSubscriptionAttemptsViewModel>(oData.Filter);
+                predicate = new Predicate<SubscriptionAttemptViewModel>(oData.Filter);
             int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
 
             return repository.FindAllView(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
@@ -154,18 +153,18 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         }
 
         /// <summary>
-        /// Provides a subscriptionAttempt's view model details for a particular subscriptionAttempt id
+        /// Provides a SubscriptionAttempt's view model details for a particular SubscriptionAttempt id
         /// </summary>
-        /// <param name="id">subscriptionAttempt id</param>
-        /// <response code="200">Ok, if a subscriptionAttempt exists with the given id</response>
+        /// <param name="id">SubscriptionAttempt id</param>
+        /// <response code="200">Ok, if a SubscriptionAttempt exists with the given id</response>
         /// <response code="304">Not modified</response>
-        /// <response code="400">Bad request, if subscriptionAttempt id is not in the proper format or a proper Guid</response>
+        /// <response code="400">Bad request, if SubscriptionAttempt id is not in the proper format or a proper Guid</response>
         /// <response code="403">Forbidden</response>
-        /// <response code="404">Not found, when no subscriptionAttempt exists for the given subscriptionAttempt id</response>
+        /// <response code="404">Not found, when no SubscriptionAttempt exists for the given SubscriptionAttempt id</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>subscriptionAttempt view model details for the given id</returns>
+        /// <returns>SubscriptionAttempt view model details for the given id</returns>
         [HttpGet("view/{id}")]
-        [ProducesResponseType(typeof(SubscriptionAttemptViewmodel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SubscriptionAttemptViewModel), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -177,12 +176,12 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         {
             try
             {
-                IActionResult actionResult = await base.GetEntity<SubscriptionAttemptViewmodel>(id);
+                IActionResult actionResult = await base.GetEntity<SubscriptionAttemptViewModel>(id);
                 OkObjectResult okResult = actionResult as OkObjectResult;
 
                 if (okResult != null)
                 {
-                    SubscriptionAttemptViewmodel view = okResult.Value as SubscriptionAttemptViewmodel;
+                    SubscriptionAttemptViewModel view = okResult.Value as SubscriptionAttemptViewModel;
                     view = attemptManager.GetAttemptView(view);
                 }
 

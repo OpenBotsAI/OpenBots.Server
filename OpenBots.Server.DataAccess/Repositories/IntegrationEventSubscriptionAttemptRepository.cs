@@ -21,9 +21,9 @@ namespace OpenBots.Server.DataAccess.Repositories
             return dbContext.IntegrationEventSubscriptionAttempts;
         }
 
-        public PaginatedList<AllSubscriptionAttemptsViewModel> FindAllView(Predicate<AllSubscriptionAttemptsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        public PaginatedList<SubscriptionAttemptViewModel> FindAllView(Predicate<SubscriptionAttemptViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
-            PaginatedList<AllSubscriptionAttemptsViewModel> paginatedList = new PaginatedList<AllSubscriptionAttemptsViewModel>();
+            PaginatedList<SubscriptionAttemptViewModel> paginatedList = new PaginatedList<SubscriptionAttemptViewModel>();
 
             var attemptList = base.Find(null, a => a.IsDeleted == false);
             if (attemptList != null && attemptList.Items != null && attemptList.Items.Count > 0)
@@ -31,7 +31,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                 var attemptRecord = from a in attemptList.Items
                                 join s in dbContext.IntegrationEventSubscriptions on a.IntegrationEventSubscriptionID equals s.Id into table1
                                 from s in table1.DefaultIfEmpty()
-                                select new AllSubscriptionAttemptsViewModel
+                                select new SubscriptionAttemptViewModel
                                 {
                                     Id = a?.Id,
                                     CreatedOn = a?.CreatedOn,
@@ -50,7 +50,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                     else if (direction == OrderByDirectionType.Descending)
                         attemptRecord = attemptRecord.OrderByDescending(j => j.GetType().GetProperty(sortColumn).GetValue(j)).ToList();
 
-                List<AllSubscriptionAttemptsViewModel> filterRecord = null;
+                List<SubscriptionAttemptViewModel> filterRecord = null;
                 if (predicate != null)
                     filterRecord = attemptRecord.ToList().FindAll(predicate);
                 else

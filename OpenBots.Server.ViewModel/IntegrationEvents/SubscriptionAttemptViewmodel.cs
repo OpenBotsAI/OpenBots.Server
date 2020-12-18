@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OpenBots.Server.ViewModel
 {
-    public class SubscriptionAttemptViewmodel : IViewModel<IntegrationEventSubscriptionAttempt, SubscriptionAttemptViewmodel>
+    public class SubscriptionAttemptViewModel : IViewModel<IntegrationEventSubscriptionAttempt, SubscriptionAttemptViewModel>
     {
         public Guid? Id { get; set; }
         public string? TransportType { get; set; }
@@ -19,9 +19,9 @@ namespace OpenBots.Server.ViewModel
         public DateTime? CreatedOn { get; set; }
         public string? CreatedBy { get; set; }
 
-        public SubscriptionAttemptViewmodel Map(IntegrationEventSubscriptionAttempt entity)
+        public SubscriptionAttemptViewModel Map(IntegrationEventSubscriptionAttempt entity)
         {
-            SubscriptionAttemptViewmodel attemptViewModel = new SubscriptionAttemptViewmodel
+            SubscriptionAttemptViewModel attemptViewModel = new SubscriptionAttemptViewModel
             {
                 Id = entity.Id,
                 EventLogID = entity.EventLogID,

@@ -53,7 +53,7 @@ namespace OpenBots.Server.Business
 
             return result;
         }
-            public SubscriptionAttemptViewmodel GetAttemptView(SubscriptionAttemptViewmodel subscriptionAttempt)
+            public SubscriptionAttemptViewModel GetAttemptView(SubscriptionAttemptViewModel subscriptionAttempt)
         {
             subscriptionAttempt.TransportType = subscriptionRepository.GetOne(subscriptionAttempt.IntegrationEventSubscriptionID ?? Guid.Empty)?.TransportType.ToString();
 

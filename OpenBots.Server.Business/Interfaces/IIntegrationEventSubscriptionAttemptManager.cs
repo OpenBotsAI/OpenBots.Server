@@ -10,6 +10,6 @@ namespace OpenBots.Server.Business
     {
         int? SaveAndGetAttemptCount(IntegrationEventSubscriptionAttempt subscriptionAttempt, int? maxRetryCount);
         IntegrationEventSubscriptionAttempt GetLastAttempt(IntegrationEventSubscriptionAttempt currentAttempt);
-        SubscriptionAttemptViewmodel GetAttemptView(SubscriptionAttemptViewmodel subscriptionAttemptn);
+        SubscriptionAttemptViewModel GetAttemptView(SubscriptionAttemptViewModel subscriptionAttemptn);
     }
 }

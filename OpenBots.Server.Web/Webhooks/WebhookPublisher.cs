@@ -117,7 +117,7 @@ namespace OpenBots.Server.Web.Webhooks
                             JsonType = "IntegrationEvent",
                             DataJson = JsonConvert.SerializeObject(payload),
                             State = "New",
-                            RetryCount = eventSubscription.HTTP_Max_RetryCount ?? 1,//TODO FIX
+                            RetryCount = eventSubscription.HTTP_Max_RetryCount ?? 1,
                             Source = eventSubscription.IntegrationEventName,
                             Event = integrationEvent.Description,
                             CreatedOn = DateTime.UtcNow,                        
