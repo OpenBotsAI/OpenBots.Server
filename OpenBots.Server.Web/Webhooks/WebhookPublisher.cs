@@ -17,6 +17,7 @@ namespace OpenBots.Server.Web.Webhooks
         private readonly IIntegrationEventRepository eventRepository;
         private readonly IIntegrationEventLogRepository eventLogRepository;
         private readonly IIntegrationEventSubscriptionRepository eventSubscriptionRepository;
+        private readonly IIntegrationEventSubscriptionAttemptRepository attemptRepository;
         private readonly IBackgroundJobClient backgroundJobClient;
         private readonly IQueueItemRepository queueItemRepository;
         private IHubContext<NotificationHub> _hub;
@@ -25,6 +26,7 @@ namespace OpenBots.Server.Web.Webhooks
         IIntegrationEventRepository eventRepository,
         IIntegrationEventLogRepository eventLogRepository,
         IIntegrationEventSubscriptionRepository eventSubscriptionRepository,
+        IIntegrationEventSubscriptionAttemptRepository integrationEventSubscriptionAttemptRepository,
         IBackgroundJobClient backgroundJobClient,
         IQueueItemRepository queueItemRepository,
         IHubContext<NotificationHub> hub)
@@ -34,6 +36,7 @@ namespace OpenBots.Server.Web.Webhooks
             this.eventSubscriptionRepository = eventSubscriptionRepository;
             this.backgroundJobClient = backgroundJobClient;
             this.queueItemRepository = queueItemRepository;
+            attemptRepository = integrationEventSubscriptionAttemptRepository;
             _hub = hub;
         }
 
@@ -80,42 +83,54 @@ namespace OpenBots.Server.Web.Webhooks
             // Get subscriptions that must receive webhook
             foreach (var eventSubscription in eventSubscriptions)
             {
-                //create a background job to send the webhook
-                if (eventSubscription.TransportType == TransportType.HTTPS)
+                //Handle subscriptions that should not get notified
+                if (!((eventSubscription.IntegrationEventName == integrationEventName || eventSubscription.IntegrationEventName == null)
+                    && (eventSubscription.EntityID == new Guid(entityId) || eventSubscription.EntityID == null)))
                 {
-                    // Create new IntegrationEventSubscriptionAttempt
-                    IntegrationEventSubscriptionAttempt subscriptionAttempt = new IntegrationEventSubscriptionAttempt()
-                    {
-                        EventLogID = eventLog.Id,
-                        IntegrationEventName = eventSubscription.IntegrationEventName,
-                        IntegrationEventSubscriptionID = eventSubscription.Id,
-                        Status = "InProgress",
-                        AttemptCounter = 0,
-                        CreatedOn = DateTime.UtcNow,
-                    };
-                    backgroundJobClient.Enqueue<WebhookSender>(x => x.SendWebhook(eventSubscription, payload, subscriptionAttempt));
+                    continue; //Do not create an attempt in this case
                 }
-                else if(eventSubscription.TransportType == TransportType.Queue)
+
+                // Create new IntegrationEventSubscriptionAttempt
+                IntegrationEventSubscriptionAttempt subscriptionAttempt = new IntegrationEventSubscriptionAttempt()
                 {
-                    QueueItemModel queueItem = new QueueItemModel
-                    {
-                        Name = eventSubscription.Name,
-                        IsLocked = false,
-                        QueueId = eventSubscription.QUEUE_QueueID ?? Guid.Empty,
-                        Type = "Json",
-                        JsonType = "IntegrationEvent",
-                        DataJson = JsonConvert.SerializeObject(payload),
-                        State = "New",
-                        RetryCount = eventSubscription.HTTP_Max_RetryCount ?? default,
-                        Source = eventSubscription.IntegrationEventName,
-                        Event = integrationEvent.Description,
-                        CreatedOn = DateTime.UtcNow
-                    };
-                    queueItemRepository.Add(queueItem);
-                }
-                else if (eventSubscription.TransportType == TransportType.SignalR)
+                    EventLogID = eventLog.Id,
+                    IntegrationEventName = eventSubscription.IntegrationEventName,
+                    IntegrationEventSubscriptionID = eventSubscription.Id,
+                    Status = "InProgress",
+                    AttemptCounter = 0,
+                    CreatedOn = DateTime.UtcNow,
+                };
+
+                switch (eventSubscription.TransportType)
                 {
-                   await _hub.Clients.All.SendAsync(integrationEventName, JsonConvert.SerializeObject(payload)).ConfigureAwait(false);
+                    case TransportType.HTTPS:
+                        //create a background job to send the webhook
+                        backgroundJobClient.Enqueue<WebhookSender>(x => x.SendWebhook(eventSubscription, payload, subscriptionAttempt));
+                        break;
+                    case TransportType.Queue:
+                        QueueItemModel queueItem = new QueueItemModel
+                        {
+                            Name = eventSubscription.Name,
+                            IsLocked = false,
+                            QueueId = eventSubscription.QUEUE_QueueID ?? Guid.Empty,
+                            Type = "Json",
+                            JsonType = "IntegrationEvent",
+                            DataJson = JsonConvert.SerializeObject(payload),
+                            State = "New",
+                            RetryCount = eventSubscription.HTTP_Max_RetryCount ?? 1,
+                            Source = eventSubscription.IntegrationEventName,
+                            Event = integrationEvent.Description,
+                            CreatedOn = DateTime.UtcNow,                        
+                        };
+                        queueItemRepository.Add(queueItem);
+                        subscriptionAttempt.AttemptCounter = 1;
+                        attemptRepository.Add(subscriptionAttempt);
+                        break;
+                    case TransportType.SignalR:
+                        await _hub.Clients.All.SendAsync(integrationEventName, JsonConvert.SerializeObject(payload)).ConfigureAwait(false);
+                        subscriptionAttempt.AttemptCounter = 1;
+                        attemptRepository.Add(subscriptionAttempt);
+                        break;
                 }
             }
 

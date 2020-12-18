@@ -1,5 +1,6 @@
 ﻿using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model.Webhooks;
+using OpenBots.Server.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,12 @@ namespace OpenBots.Server.Business
     public class IntegrationEventSubscriptionAttemptManager: BaseManager, IIntegrationEventSubscriptionAttemptManager
     {
         private readonly IIntegrationEventSubscriptionAttemptRepository repo;
-        public IntegrationEventSubscriptionAttemptManager(IIntegrationEventSubscriptionAttemptRepository repo)
+        private readonly IIntegrationEventSubscriptionRepository subscriptionRepository;
+        public IntegrationEventSubscriptionAttemptManager(IIntegrationEventSubscriptionAttemptRepository repo,
+            IIntegrationEventSubscriptionRepository subscriptionRepository)
         {
             this.repo = repo;
+            this.subscriptionRepository = subscriptionRepository;
         }
 
         public int? SaveAndGetAttemptCount(IntegrationEventSubscriptionAttempt currentAttempt, int? maxRetryCount)
@@ -48,6 +52,12 @@ namespace OpenBots.Server.Business
                 .FirstOrDefault();
 
             return result;
+        }
+            public SubscriptionAttemptViewModel GetAttemptView(SubscriptionAttemptViewModel subscriptionAttempt)
+        {
+            subscriptionAttempt.TransportType = subscriptionRepository.GetOne(subscriptionAttempt.IntegrationEventSubscriptionID ?? Guid.Empty)?.TransportType.ToString();
+
+            return subscriptionAttempt;
         }
     }
 }

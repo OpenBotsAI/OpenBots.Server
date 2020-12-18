@@ -76,7 +76,6 @@ namespace OpenBots.Server.Web.Hubs
             _hub.Clients.All.SendAsync("botnewjobnotification", job.AgentId.ToString());
             webhookPublisher.PublishAsync("Jobs.NewJobCreated", job.Id.ToString()).ConfigureAwait(false);
 
-
             return "Success";
         }
     }

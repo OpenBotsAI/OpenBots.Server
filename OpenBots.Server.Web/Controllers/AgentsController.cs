@@ -425,7 +425,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="404">Not found</response>
         /// <response code="422">UnprocessableE entity</response>
         /// <returns>Connected view model that matches the provided machine details</returns>
-        [HttpPatch("Connect")]
+        [HttpPatch("{agentID}/Connect")]
         [ProducesResponseType(typeof(ConnectedViewModel), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -433,13 +433,15 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Connect([FromQuery] ConnectAgentViewModel request = null)
+        public async Task<IActionResult> Connect(string agentID, [FromQuery] ConnectAgentViewModel request)
         {
             try
             {
+                Guid entityId = new Guid(agentID);
+
                 ConnectedViewModel connectedViewModel = new ConnectedViewModel();
                 var requestIp = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
-                var agent = agentRepo.FindAgent(request.MachineName, request.MacAddresses, requestIp);
+                var agent = agentRepo.FindAgent(request.MachineName, request.MacAddresses, requestIp, entityId);
 
                 if (agent == null)
                 {
@@ -472,7 +474,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Ok response, if the isConnected field was updated</returns>
-        [HttpPatch("Disconnect")]
+        [HttpPatch("{agentID}/Disconnect")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -480,18 +482,19 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Disconnect([FromQuery] DisConnectAgentViewModel request = null)
+        public async Task<IActionResult> Disconnect(string agentID, [FromQuery] ConnectAgentViewModel request)
         {
             try
             {
+                Guid? agentGuid = new Guid(agentID);
                 var requestIp = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
-                var agent = this.agentRepo.FindAgent(request.MachineName, request.MacAddresses, requestIp);
+                var agent = this.agentRepo.FindAgent(request.MachineName, request.MacAddresses, requestIp, agentGuid);
 
                 if (agent == null)
                 {
                     return NotFound("Agent not found");
                 }
-                if (agent.Id != request.AgentId)
+                if (agent.Id != agentGuid)
                 {
                     ModelState.AddModelError("Disconnect", "AgentId does not match existing agent");
                     return BadRequest(ModelState);
@@ -505,7 +508,7 @@ namespace OpenBots.Server.Web.Controllers
                 JsonPatchDocument<AgentModel> disconnectPatch = new JsonPatchDocument<AgentModel>();
 
                 disconnectPatch.Replace(e => e.IsConnected, false);
-                return await base.PatchEntity(request.AgentId.ToString(), disconnectPatch);
+                return await base.PatchEntity(agentID, disconnectPatch);
 
             }
             catch (Exception ex)
