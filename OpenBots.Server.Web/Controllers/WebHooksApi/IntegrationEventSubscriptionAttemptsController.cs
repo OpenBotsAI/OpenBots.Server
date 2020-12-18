@@ -92,8 +92,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
-            [FromQuery(Name = "$skip")] int skip = 0
-            )
+            [FromQuery(Name = "$skip")] int skip = 0)
         {
             ODataHelper<SubscriptionAttemptViewModel> oData = new ODataHelper<SubscriptionAttemptViewModel>();
 
