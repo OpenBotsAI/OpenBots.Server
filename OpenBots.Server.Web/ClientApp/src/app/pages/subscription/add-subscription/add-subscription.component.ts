@@ -38,7 +38,7 @@ export class AddSubscriptionComponent implements OnInit {
           Validators.pattern('^[A-Za-z0-9_.-]{3,100}$'),
         ],
       ],
-
+      entityType: [''],
       integrationEventName: ['', [Validators.required]],
       entityID: ['', [Validators.required]],
       entityName: ['', [Validators.required]],

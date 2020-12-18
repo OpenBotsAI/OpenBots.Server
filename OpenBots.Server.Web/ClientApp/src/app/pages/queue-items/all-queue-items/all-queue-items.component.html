@@ -64,11 +64,12 @@
           </th>
           <th scope="col">
             Start Time
-            <i (click)="onSortClick($event, 'lockedOn')" [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'lockedOnUTC')"
+              [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Expiration Time
-            <i (click)="onSortClick($event, 'lockedUntil')"
+            <i (click)="onSortClick($event, 'lockedUntilUTC')"
               [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">

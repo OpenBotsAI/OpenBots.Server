@@ -108,7 +108,8 @@
           
           <td>
             <a (click)="gotodetail(subscription.id)">
-              <i class="fa fa-eye" aria-hidden="true"></i>
+              
+              <i class="fa fa-eye" aria-hidden="true"> </i>
             </a>
           </td>
              <td>
@@ -140,11 +141,9 @@
       <div class="col-md-4 col-lg-4 text-right no-right-padding">
         <label class="label">Total {{showpage.totalCount}} / </label>
         <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
-          <option [value]="5">5 per page</option>
-          <option [value]="10">10 per page</option>
-          <option [value]="25">25 per page</option>
-          <option [value]="50">50 per page</option>
-          <option [value]="100">100 per page</option>
+          <option *ngFor="let item of itemsPerPage" [value]="item.id">
+            {{ item.name }}
+          </option>
         </select>
       </div>
     </div>

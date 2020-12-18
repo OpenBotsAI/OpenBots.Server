@@ -2,10 +2,10 @@ import { Component, OnInit, TemplateRef } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NbToastrService } from '@nebular/theme';
-import { FileSaverService } from 'ngx-filesaver';
 import { DialogService } from '../../../@core/dialogservices';
 import { Page } from '../../../interfaces/paginateInstance';
 import { SubscriptionService } from '../subscription.service';
+import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
 
 @Component({
   selector: 'ngx-all-event-subscriptions',
@@ -31,7 +31,7 @@ export class AllEventSubscriptionsComponent implements OnInit {
   filter: string = '';
   filterEntity: string;
   filterEvent: string;
-
+  itemsPerPage: ItemsPerPage[] = [];
   constructor(
     protected router: Router,
     private formBuilder: FormBuilder,
