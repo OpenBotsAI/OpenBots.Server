@@ -7,6 +7,8 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("DELETE FROM [ConfigurationValues]", true);
+
             migrationBuilder.DropTable(
                 name: "EmailLogs");
 
