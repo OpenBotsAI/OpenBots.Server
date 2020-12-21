@@ -181,8 +181,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                 table: "ConfigurationValues",
                 type: "rowversion",
                 rowVersion: true,
-                nullable: false,
-                defaultValue: new byte[0]);
+                nullable: false);
 
             migrationBuilder.AddColumn<string>(
                 name: "UIHint",
@@ -967,20 +966,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProcessLogs", x => x.Id);
-                });
-
-            migrationBuilder.InsertData(
-                table: "ConfigurationValues",
-                columns: new[] { "Name", "Value" },
-                values: new object[,]
-                {
-                    { "BinaryObjects:Adapter", "FileSystemAdapter" },
-                    { "BinaryObjects:Path", "BinaryObjects" },
-                    { "BinaryObjects:StorageProvider", "FileSystem.Default" },
-                    { "Queue.Global:DefaultMaxRetryCount", "2" },
-                    { "App:MaxExportRecords", "100" },
-                    { "App:MaxReturnRecords", "100" },
-                    { "App:EnableSwagger", "true" }
                 });
 
             migrationBuilder.CreateIndex(
