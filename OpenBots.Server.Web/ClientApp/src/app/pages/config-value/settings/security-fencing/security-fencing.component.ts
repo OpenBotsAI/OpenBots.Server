@@ -7,7 +7,7 @@ import { HttpService } from '../../../../@core/services/http.service';
 import { IPFencing, Rule, Usage } from '../../../../interfaces/ipFencing';
 import { ItemsPerPage } from '../../../../interfaces/itemsPerPage';
 import { Page } from '../../../../interfaces/paginateInstance';
-import { IpFencingApiUrl } from '../ipFencing';
+import { IpFencingApiUrl } from '../../../../webApiUrls';
 
 @Component({
   selector: 'ngx-security-fencing',
@@ -95,13 +95,11 @@ export class SecurityFencingComponent implements OnInit {
     else
       url = `${IpFencingApiUrl.organizations}/${this.organizationId}/${IpFencingApiUrl.IPFencing}/${IpFencingApiUrl.mode}/${IpFencingApiUrl.denyAll}`;
     this.httpService.put(url, null).subscribe(
-      (response) => {
-        console.log('ress', response);
-      },
+      () => {},
       (error) => {
         if (error && error.status === 409 && error.error) {
           this.httpService.info(error.error);
-          console.log('err', error);
+          this.patchValueToForm(true);
         }
       }
     );
@@ -111,22 +109,12 @@ export class SecurityFencingComponent implements OnInit {
     this.httpService
       .get(
         `${IpFencingApiUrl.organizations}/${this.organizationId}/${IpFencingApiUrl.IPFencing}/${IpFencingApiUrl.mode}`,
-        // `${IpFencingApiUrl.organizations}/${this.organizationId}/${IpFencingApiUrl.organizationSettings}/${this.orgSettingId}`
         { observe: 'response' }
       )
       .subscribe((response) => {
         if (response && response.status === 200) {
-          if (response.body === 'AllowMode') {
-            this.isChecked = true;
-            this.ipFencingForm.patchValue({
-              ipFencingMode: true,
-            });
-          } else {
-            this.isChecked = false;
-            this.ipFencingForm.patchValue({
-              ipFencingMode: false,
-            });
-          }
+          if (response.body === 'AllowMode') this.patchValueToForm(true);
+          else this.patchValueToForm(false);
         }
       });
   }
@@ -208,5 +196,19 @@ export class SecurityFencingComponent implements OnInit {
         },
         () => (this.isDeleted = false)
       );
+  }
+
+  patchValueToForm(value: boolean) {
+    if (value) {
+      this.isChecked = true;
+      this.ipFencingForm.patchValue({
+        ipFencingMode: true,
+      });
+    } else {
+      this.isChecked = false;
+      this.ipFencingForm.patchValue({
+        ipFencingMode: false,
+      });
+    }
   }
 }

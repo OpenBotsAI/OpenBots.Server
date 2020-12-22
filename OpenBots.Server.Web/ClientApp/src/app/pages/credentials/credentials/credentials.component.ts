@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { DialogService } from '../../../@core/dialogservices/dialog.service';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
 import { HelperService } from '../../../@core/services/helper.service';
+import { CredentialsApiUrl } from '../../../webApiUrls';
 
 @Component({
   selector: 'ngx-credentials',
@@ -44,8 +45,9 @@ export class CredentialsComponent implements OnInit {
   getAllCredentials(top: number, skip: number, orderBy?: string): void {
     let url: string;
     if (orderBy)
-      url = `Credentials?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
-    else url = `Credentials?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+      url = `${CredentialsApiUrl.credentials}?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+    else
+      url = `${CredentialsApiUrl.credentials}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
     this.httpService.get(url).subscribe((response) => {
       if (response && response.items.length) {
         this.credentialsArr = [...response.items];
@@ -75,7 +77,9 @@ export class CredentialsComponent implements OnInit {
   deleteCredential(ref): void {
     this.isDeleted = true;
     this.httpService
-      .delete(`Credentials/${this.deleteId}`, { observe: 'response' })
+      .delete(`${CredentialsApiUrl.credentials}/${this.deleteId}`, {
+        observe: 'response',
+      })
       .subscribe(
         () => {
           ref.close();

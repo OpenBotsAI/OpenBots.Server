@@ -4,8 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HelperService } from '../../../../@core/services/helper.service';
 import { HttpService } from '../../../../@core/services/http.service';
 import { Rule, Usage } from '../../../../interfaces/ipFencing';
-import { IpFencingApiUrl } from '../ipFencing';
 import { RxwebValidators, IpVersion } from '@rxweb/reactive-form-validators';
+import { IpFencingApiUrl } from '../../../../webApiUrls';
 @Component({
   selector: 'ngx-add-rule',
   templateUrl: './add-rule.component.html',
