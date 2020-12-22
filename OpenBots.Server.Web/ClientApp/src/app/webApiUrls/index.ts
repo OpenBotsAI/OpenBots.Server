@@ -6,3 +6,5 @@ export * from './files';
 export * from './queueItems';
 export * from './queues';
 export * from './schedule';
+export * from './agentsUrl';
+export * from './assetsUrl';
