@@ -39,10 +39,6 @@ export class AllScheduleComponent implements OnInit {
     this.itemsPerPage = this.helperService.getItemsPerPage();
   }
 
-  gotoHangfire() {
-    window.open('/hangfire?access_token={{token}}', '_blank');
-  }
-
   getAllSchedule(top, skip, orderBy?): void {
     let url: string;
     if (orderBy)

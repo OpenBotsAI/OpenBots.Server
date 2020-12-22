@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { HelperService } from '../../@core/services/helper.service';
 import { AgentApiUrl } from '../../webApiUrls/agentsUrl';
-import { CredentialsApiUrl } from '../../webApiUrls/Credentials';
+import { CredentialsApiUrl } from '../../webApiUrls/credential';
 
 @Injectable()
 export class AgentsService {
@@ -11,7 +11,7 @@ export class AgentsService {
     return environment.apiUrl;
   }
 
-  constructor(private http: HttpClient, private helperService: HelperService) { }
+  constructor(private http: HttpClient, private helperService: HelperService) {}
 
   getAllAgent(tpage: any, spage: any) {
     let getagentUrl = `/${AgentApiUrl.Agents}?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
@@ -28,7 +28,7 @@ export class AgentsService {
     resoptions = {
       observe: 'response' as 'body',
       responseType: 'json',
-    };   
+    };
     let getagentUrlbyId = `/${AgentApiUrl.Agents}/${id}`;
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId, resoptions);
   }
@@ -42,9 +42,8 @@ export class AgentsService {
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
   }
 
-
   getCred() {
-    let getagentUrlbyId = `/${CredentialsApiUrl.CredentialsGetLookup}`;
+    let getagentUrlbyId = `/${CredentialsApiUrl.credentials}/${CredentialsApiUrl.getLookUp}`;
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
   }
   delAgentbyID(id) {
@@ -58,7 +57,7 @@ export class AgentsService {
   }
 
   editAgent(id, obj, etag) {
-    const headers = this.helperService.getETagHeaders(etag)
+    const headers = this.helperService.getETagHeaders(etag);
     let editagentUrl = `/${AgentApiUrl.Agents}/${id}`;
     return this.http.put(`${this.apiUrl}` + editagentUrl, obj, {
       headers,

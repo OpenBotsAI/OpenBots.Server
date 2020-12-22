@@ -7,7 +7,11 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CronOptions } from '../../../interfaces/cronJobConfiguration';
 import { TimeDatePipe } from '../../../@core/pipe';
 import { HelperService } from '../../../@core/services/helper.service';
-import { automationsApiUrl } from '../../../webApiUrls';
+import {
+  AgentApiUrl,
+  automationsApiUrl,
+  SchedulesApiUrl,
+} from '../../../webApiUrls';
 import { Automation } from '../../../interfaces/automations';
 
 @Component({
@@ -105,10 +109,12 @@ export class AddScheduleComponent implements OnInit {
   }
 
   getAllAgents(): void {
-    this.httpService.get(`Agents/GetLookup`).subscribe((response) => {
-      if (response && response.length !== 0) this.allAgents = [...response];
-      else this.allAgents = [];
-    });
+    this.httpService
+      .get(`${AgentApiUrl.Agents}/${AgentApiUrl.getLookup}`)
+      .subscribe((response) => {
+        if (response && response.length !== 0) this.allAgents = [...response];
+        else this.allAgents = [];
+      });
   }
 
   onScheduleSubmit(): void {
@@ -136,9 +142,11 @@ export class AddScheduleComponent implements OnInit {
   updateSchedule(): void {
     const headers = this.helperService.getETagHeaders(this.eTag);
     this.httpService
-      .put(`Schedules/${this.currentScheduleId}`, this.scheduleForm.value, {
-        headers,
-      })
+      .put(
+        `${SchedulesApiUrl.schedules}/${this.currentScheduleId}`,
+        this.scheduleForm.value,
+        { headers }
+      )
       .subscribe(
         () => {
           this.isSubmitted = false;
@@ -157,7 +165,9 @@ export class AddScheduleComponent implements OnInit {
 
   addSchedule(): void {
     this.httpService
-      .post('Schedules', this.scheduleForm.value, { observe: 'response' })
+      .post(`${SchedulesApiUrl.schedules}`, this.scheduleForm.value, {
+        observe: 'response',
+      })
       .subscribe(
         (response) => {
           if (response && response.status === 201) {
@@ -173,7 +183,9 @@ export class AddScheduleComponent implements OnInit {
 
   getScheduleById(): void {
     this.httpService
-      .get(`Schedules/${this.currentScheduleId}`, { observe: 'response' })
+      .get(`${SchedulesApiUrl.schedules}/${this.currentScheduleId}`, {
+        observe: 'response',
+      })
       .subscribe((response) => {
         if (response && response.body) {
           this.eTag = response.headers.get('etag');

@@ -4,4 +4,5 @@ export enum automationsApiUrl {
   getLookUp = 'automations/GetLookup',
   automationId = 'automationId',
   automationsView = 'automations/view',
+  automation = 'automation', // used for run now button on schedules
 }
