@@ -8,7 +8,7 @@
         <div class="LeftBgText">
           <h2>Queues</h2>
           <p>
-              List of queues that are published and subscribed by various automation.
+            List of queues that are published and subscribed by various automation.
           </p>
         </div>
       </div>
@@ -60,7 +60,7 @@
             <ngx-tooltip [data]="data?.name" [size]="30"> </ngx-tooltip>
           </td>
           <td>
-            <ngx-tooltip [data]="data?.maxRetryCount" [size]="16"> </ngx-tooltip>
+            {{data?.maxRetryCount}}
           </td>
           <td>
             <ngx-tooltip [data]="data?.createdBy" [size]="16"> </ngx-tooltip>
@@ -88,7 +88,7 @@
   <nb-card-body class="noTopPadding">
     <div class="row pagerow">
       <div class="col-md-8 col-lg-8 no-left-padding">
-       
+
         <pagination-controls id="1" (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)"
           directionLinks="true" autoHide="true" responsive="true" previousLabel="Prev" nextLabel="Next"
           screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"

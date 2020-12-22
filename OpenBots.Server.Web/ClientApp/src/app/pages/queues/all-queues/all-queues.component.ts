@@ -6,6 +6,7 @@ import { HttpService } from '../../../@core/services/http.service';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
 import { Page } from '../../../interfaces/paginateInstance';
 import { Queues } from '../../../interfaces/queues';
+import { QueuesApiUrls } from '../../../webApiUrls';
 
 @Component({
   selector: 'ngx-all-queues',
@@ -42,8 +43,10 @@ export class AllQueuesComponent implements OnInit {
 
   getAllQueues(top: number, skip: number, orderBy?: string): void {
     let url: string;
-    if (orderBy) url = `Queues?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
-    else url = `Queues?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+    if (orderBy)
+      url = `${QueuesApiUrls.Queues}?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+    else
+      url = `${QueuesApiUrls.Queues}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
     this.httpService.get(url).subscribe((response) => {
       if (response) {
         this.page.totalCount = response.totalCount;
@@ -82,7 +85,9 @@ export class AllQueuesComponent implements OnInit {
   deleteQueue(ref): void {
     this.isDeleted = true;
     this.httpService
-      .delete(`Queues/${this.deleteId}`, { observe: 'response' })
+      .delete(`${QueuesApiUrls.Queues}/${this.deleteId}`, {
+        observe: 'response',
+      })
       .subscribe(
         () => {
           ref.close();

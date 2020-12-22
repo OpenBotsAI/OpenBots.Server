@@ -4,6 +4,7 @@ import { HttpService } from '../../../@core/services/http.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NbDateService } from '@nebular/theme';
 import { HelperService } from '../../../@core/services/helper.service';
+import { CredentialsApiUrl } from '../../../webApiUrls';
 
 @Component({
   selector: 'ngx-add-credentials',
@@ -99,7 +100,9 @@ export class AddCredentialsComponent implements OnInit {
       );
     }
     this.httpService
-      .post('Credentials', this.credentialForm.value, { observe: 'response' })
+      .post(`${CredentialsApiUrl.credentials}`, this.credentialForm.value, {
+        observe: 'response',
+      })
       .subscribe(
         (response) => {
           if (response && response.status == 201) {
@@ -128,10 +131,14 @@ export class AddCredentialsComponent implements OnInit {
       );
     }
     this.httpService
-      .put(`Credentials/${this.currentUrlId}`, this.credentialForm.value, {
-        observe: 'response',
-        headers,
-      })
+      .put(
+        `${CredentialsApiUrl.credentials}/${this.currentUrlId}`,
+        this.credentialForm.value,
+        {
+          observe: 'response',
+          headers,
+        }
+      )
       .subscribe(
         (response) => {
           if (response) {
@@ -153,7 +160,10 @@ export class AddCredentialsComponent implements OnInit {
 
   getCredentialsById(): void {
     this.httpService
-      .get(`Credentials/View/${this.currentUrlId}`, { observe: 'response' })
+      .get(
+        `${CredentialsApiUrl.credentials}/$${CredentialsApiUrl.view}/${this.currentUrlId}`,
+        { observe: 'response' }
+      )
       .subscribe((response) => {
         if (response && response.body) {
           this.eTag = response.headers.get('etag');

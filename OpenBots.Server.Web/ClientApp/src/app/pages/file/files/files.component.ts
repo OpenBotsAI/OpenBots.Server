@@ -7,6 +7,7 @@ import { Page } from '../../../interfaces/paginateInstance';
 import { DialogService } from '../../../@core/dialogservices/dialog.service';
 import { HelperService } from '../../../@core/services/helper.service';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
+import { FilesApiUrl } from '../../../webApiUrls';
 
 @Component({
   selector: 'ngx-files',
@@ -64,8 +65,8 @@ export class FileComponent implements OnInit {
   getAllBinaryObjects(top, skip, orderBy?): void {
     let url: string;
     orderBy
-      ? (url = `BinaryObjects?$top=${top}&$skip=${skip}&$orderby=${orderBy}`)
-      : (url = `BinaryObjects?$top=${top}&$skip=${skip}&$orderby=createdOn+desc`);
+      ? (url = `${FilesApiUrl.BinaryObjects}?$top=${top}&$skip=${skip}&$orderby=${orderBy}`)
+      : (url = `${FilesApiUrl.BinaryObjects}?$top=${top}&$skip=${skip}&$orderby=createdOn+desc`);
 
     this.httpService.get(url).subscribe((response) => {
       response && response.items && response.items.length !== 0
@@ -88,22 +89,24 @@ export class FileComponent implements OnInit {
   }
 
   deleteBinaryObjects(ref): void {
-    this.httpService.delete(`BinaryObjects/${this.deleteId}`).subscribe(
-      () => {
-        ref.close();
-        this.httpService.success('Deleted Successfully');
-        this.filterOrderBy
-          ? this.pagination(
-              this.page.pageNumber,
-              this.page.pageSize,
-              `${this.filterOrderBy}`
-            )
-          : this.pagination(this.page.pageNumber, this.page.pageSize);
-      },
-      (error) => {
-        this.httpService.error(error.error.ServiceErrors[0]);
-      }
-    );
+    this.httpService
+      .delete(`${FilesApiUrl.BinaryObjects}/${this.deleteId}`)
+      .subscribe(
+        () => {
+          ref.close();
+          this.httpService.success('Deleted Successfully');
+          this.filterOrderBy
+            ? this.pagination(
+                this.page.pageNumber,
+                this.page.pageSize,
+                `${this.filterOrderBy}`
+              )
+            : this.pagination(this.page.pageNumber, this.page.pageSize);
+        },
+        (error) => {
+          this.httpService.error(error.error.ServiceErrors[0]);
+        }
+      );
   }
 
   pageChanged(event): void {

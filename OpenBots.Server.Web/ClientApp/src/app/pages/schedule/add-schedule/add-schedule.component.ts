@@ -6,7 +6,6 @@ import { NbDateService } from '@nebular/theme';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CronOptions } from '../../../interfaces/cronJobConfiguration';
 import { TimeDatePipe } from '../../../@core/pipe';
-// import { Processes } from '../../../interfaces/automations';
 import { HelperService } from '../../../@core/services/helper.service';
 import { automationsApiUrl } from '../../../webApiUrls';
 import { Automation } from '../../../interfaces/automations';
@@ -89,7 +88,6 @@ export class AddScheduleComponent implements OnInit {
         ],
       ],
       agentId: ['', [Validators.required]],
-      // processId: ['', [Validators.required]],
       automationId: ['', [Validators.required]],
       isDisabled: [false],
       cronExpression: [''],
@@ -98,7 +96,6 @@ export class AddScheduleComponent implements OnInit {
       startingType: ['', [Validators.required]],
       status: [''],
       expiryDate: [''],
-      // startDate: ['', [Validators.required]],
       startDate: [''],
     });
   }

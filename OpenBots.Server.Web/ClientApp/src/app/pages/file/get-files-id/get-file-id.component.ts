@@ -1,4 +1,4 @@
-import { Component, OnInit,TemplateRef } from '@angular/core';
+import { Component, OnInit, TemplateRef } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FileSaverService } from 'ngx-filesaver';
@@ -7,12 +7,12 @@ import { HttpService } from '../../../@core/services/http.service';
 import { DialogService } from '../../../@core/dialogservices/dialog.service';
 import { TimeDatePipe } from '../../../@core/pipe';
 import { HttpResponse } from '@angular/common/http';
-
+import { FilesApiUrl } from '../../../webApiUrls';
 
 @Component({
   selector: 'ngx-get-file-id',
   templateUrl: './get-file-id.component.html',
-  styleUrls: ['./get-file-id.component.scss']
+  styleUrls: ['./get-file-id.component.scss'],
 })
 export class GetFileIdComponent implements OnInit {
   filterOrderBy: string;
@@ -20,16 +20,17 @@ export class GetFileIdComponent implements OnInit {
   currentUrlId: string;
   pipe: TimeDatePipe;
   show_name: any = [];
-  show_del:any =[];
+  show_del: any = [];
   colRealtionId: string;
   deleteId: string;
-  constructor(protected router: Router,
+  constructor(
+    protected router: Router,
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private httpService: HttpService,
     private _FileSaverService: FileSaverService,
     private dialogService: DialogService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.currentUrlId = this.route.snapshot.params['id'];
@@ -49,7 +50,7 @@ export class GetFileIdComponent implements OnInit {
       deleteOn: [''],
       deletedBy: [''],
       hashCode: [''],
-      folder:[''],
+      folder: [''],
       id: [''],
       isDeleted: [''],
       name: [''],
@@ -60,13 +61,14 @@ export class GetFileIdComponent implements OnInit {
       timestamp: [''],
       updatedBy: [''],
       updatedOn: [''],
-
     });
   }
 
   getCredentialById(): void {
     this.httpService
-      .get(`BinaryObjects/${this.currentUrlId}`, { observe: 'response' })
+      .get(`${FilesApiUrl.BinaryObjects}/${this.currentUrlId}`, {
+        observe: 'response',
+      })
       .subscribe((response) => {
         if (response && response.status == 200) {
           response.body.createdOn = this.transformDate(
@@ -77,9 +79,11 @@ export class GetFileIdComponent implements OnInit {
             response.body.updatedOn,
             'lll'
           );
-          let file_size = new FileSizePipe;
-          response.body.sizeInBytes = file_size.transform(response.body.sizeInBytes);
-            this.show_del = response.body.correlationEntity ;
+          let file_size = new FileSizePipe();
+          response.body.sizeInBytes = file_size.transform(
+            response.body.sizeInBytes
+          );
+          this.show_del = response.body.correlationEntity;
           this.colRealtionId = response.body.correlationEntityId;
 
           this.show_name = this.objectViewForm.value.name;
@@ -89,40 +93,48 @@ export class GetFileIdComponent implements OnInit {
       });
   }
 
-
   transformDate(value, format) {
     this.pipe = new TimeDatePipe();
     return this.pipe.transform(value, `${format}`);
   }
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'OpenBots.Server.Model.BinaryObject', id: this.currentUrlId } })
+    this.router.navigate(['/pages/change-log/list'], {
+      queryParams: {
+        PageName: 'OpenBots.Server.Model.BinaryObject',
+        id: this.currentUrlId,
+      },
+    });
   }
   onDown(): void {
-    let fileName :string;
+    let fileName: string;
     this.httpService
-      .get(`BinaryObjects/${this.currentUrlId}/download`, { observe: 'response', responseType: 'blob' })
+      .get(`${FilesApiUrl.BinaryObjects}/${this.currentUrlId}/download`, {
+        observe: 'response',
+        responseType: 'blob',
+      })
       .subscribe((res: HttpResponse<Blob>) => {
-        fileName = res.headers.get('content-disposition').split(';')[1].split('=')[1].replace(/\"/g, '')
-        this._FileSaverService.save(res.body,fileName);
+        fileName = res.headers
+          .get('content-disposition')
+          .split(';')[1]
+          .split('=')[1]
+          .replace(/\"/g, '');
+        this._FileSaverService.save(res.body, fileName);
       });
-      
   }
 
-
   openDeleteDialog(ref: TemplateRef<any>): void {
-
     this.deleteId = this.currentUrlId;
     this.dialogService.openDialog(ref);
   }
 
   deleteBinaryObjects(ref): void {
-    this.httpService.delete(`BinaryObjects/${this.deleteId}`).subscribe(
-      () => {
+    this.httpService
+      .delete(`${FilesApiUrl.BinaryObjects}/${this.deleteId}`)
+      .subscribe(() => {
         ref.close();
         this.httpService.success('Deleted Successfully');
-        this.router.navigate(['/pages/file/list'])
-      }
-    );
+        this.router.navigate(['/pages/file/list']);
+      });
   }
 }

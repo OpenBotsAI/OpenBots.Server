@@ -11,6 +11,7 @@ import { environment } from '../../../../environments/environment';
 import { DialogService } from '../../../@core/dialogservices/dialog.service';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
 import { HelperService } from '../../../@core/services/helper.service';
+import { QueueItemsApiUrl, QueuesApiUrls } from '../../../webApiUrls';
 
 @Component({
   selector: 'ngx-all-queue-items',
@@ -57,11 +58,11 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
   getQeueItemsList(top: number, skip: number, orderBy?: string): void {
     let url: string;
     if (orderBy)
-      url = `QueueItems/view?$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter= Queueid eq guid'${this.queueForm.value.id}'`;
+      url = `${QueueItemsApiUrl.QueueItems}/${QueueItemsApiUrl.view}?$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter= Queueid eq guid'${this.queueForm.value.id}'`;
     else
-      url = `QueueItems/view?$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter= Queueid eq guid'${this.queueForm.value.id}'`;
+      url = `${QueueItemsApiUrl.QueueItems}/${QueueItemsApiUrl.view}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter= Queueid eq guid'${this.queueForm.value.id}'`;
     this.httpService.get(url).subscribe((response) => {
-      if (response) {
+      if (response && response.items.length) {
         this.page.totalCount = response.totalCount;
         this.allQueueItemData = [...response.items];
       } else this.allQueueItemData = [];
@@ -91,15 +92,17 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
 
   deleteQueueItem(ref): void {
     this.isDeleted = true;
-    this.httpService.delete(`QueueItems/${this.deleteId}`).subscribe(
-      () => {
-        ref.close();
-        this.httpService.success('Deleted Successfully');
-        this.isDeleted = false;
-        this.pagination(this.page.pageNumber, this.page.pageSize);
-      },
-      () => (this.isDeleted = false)
-    );
+    this.httpService
+      .delete(`${QueueItemsApiUrl.QueueItems}/${this.deleteId}`)
+      .subscribe(
+        () => {
+          ref.close();
+          this.httpService.success('Deleted Successfully');
+          this.isDeleted = false;
+          this.pagination(this.page.pageNumber, this.page.pageSize);
+        },
+        () => (this.isDeleted = false)
+      );
   }
 
   viewQueueItem(id: string): void {
@@ -170,7 +173,7 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
   }
 
   getQueues(): void {
-    const url = `Queues?$orderby=createdOn+desc`;
+    const url = `${QueuesApiUrls.Queues}?$orderby=createdOn+desc`;
     this.httpService.get(url).subscribe((response) => {
       if (response && response.items.length !== 0)
         this.queuesArr = [...response.items];

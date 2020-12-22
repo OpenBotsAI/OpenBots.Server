@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpService } from '../../../@core/services/http.service';
 import { TimeDatePipe } from '../../../@core/pipe';
+import { HelperService } from '../../../@core/services/helper.service';
 
 @Component({
   selector: 'ngx-view-credentials',
@@ -21,7 +22,8 @@ export class ViewCredentialsComponent implements OnInit {
     protected router: Router,
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private httpService: HttpService
+    private httpService: HttpService,
+    private helperService: HelperService
   ) {}
 
   ngOnInit(): void {
@@ -57,19 +59,19 @@ export class ViewCredentialsComponent implements OnInit {
       .get(`Credentials/View/${this.currentUrlId}`, { observe: 'response' })
       .subscribe((response) => {
         if (response && response.status == 200) {
-          response.body.startDate = this.transformDate(
+          response.body.startDate = this.helperService.transformDate(
             response.body.startDate,
             'll'
           );
-          response.body.endDate = this.transformDate(
+          response.body.endDate = this.helperService.transformDate(
             response.body.endDate,
             'll'
           );
-          response.body.createdOn = this.transformDate(
+          response.body.createdOn = this.helperService.transformDate(
             response.body.createdOn,
             'lll'
           );
-          response.body.updatedOn = this.transformDate(
+          response.body.updatedOn = this.helperService.transformDate(
             response.body.updatedOn,
             'lll'
           );
@@ -81,11 +83,6 @@ export class ViewCredentialsComponent implements OnInit {
           this.credentialViewForm.disable();
         }
       });
-  }
-
-  transformDate(value, format: string) {
-    this.pipe = new TimeDatePipe();
-    return this.pipe.transform(value, `${format}`);
   }
 
   navigateToAudit(): void {
