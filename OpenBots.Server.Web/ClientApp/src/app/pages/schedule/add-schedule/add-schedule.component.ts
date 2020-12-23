@@ -98,7 +98,6 @@ export class AddScheduleComponent implements OnInit {
       projectId: [''],
       recurrence: [],
       startingType: ['', [Validators.required]],
-      status: [''],
       expiryDate: [''],
       startDate: [''],
     });

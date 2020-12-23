@@ -8,7 +8,7 @@
         <div class="LeftBgText">
           <h2>Jobs</h2>
           <p>
-            Work for an agent to execute a specific Automation executed.
+            Work for an agent to execute a specific automation executed.
           </p>
         </div>
       </div>
@@ -70,7 +70,8 @@
           </th>
           <th scope="col">
             Automation Name
-            <i (click)="onSortClick($event, 'automationName')" [attr.class]="show_alljobs | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'automationName')"
+              [attr.class]="show_alljobs | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Start Time
