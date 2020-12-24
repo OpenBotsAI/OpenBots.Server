@@ -37,7 +37,7 @@
             </div>
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
-                <label class="label">Upload File *</label>
+                <label class="label">Upload File {{necessary}}</label>
                 <label class="upload-button">
                   <input type="file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
                     [uploadInput]="uploadInput" />
@@ -47,6 +47,9 @@
                 </div>
                 <div *ngIf="fileSize" class="invalid-feedback-frm">
                   You cannot upload empty file.
+                </div>
+                <div *ngIf="addFileValidation" class="invalid-feedback-frm">
+                  File is required.
                 </div>
               </div>
             </div>

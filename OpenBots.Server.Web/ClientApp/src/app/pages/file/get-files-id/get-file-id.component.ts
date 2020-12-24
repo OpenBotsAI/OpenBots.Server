@@ -8,6 +8,7 @@ import { DialogService } from '../../../@core/dialogservices/dialog.service';
 import { TimeDatePipe } from '../../../@core/pipe';
 import { HttpResponse } from '@angular/common/http';
 import { FilesApiUrl } from '../../../webApiUrls';
+import { HelperService } from '../../../@core/services/helper.service';
 
 @Component({
   selector: 'ngx-get-file-id',
@@ -23,13 +24,15 @@ export class GetFileIdComponent implements OnInit {
   show_del: any = [];
   colRealtionId: string;
   deleteId: string;
+  downloadFile: string;
   constructor(
     protected router: Router,
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private httpService: HttpService,
     private _FileSaverService: FileSaverService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private helperService: HelperService
   ) {}
 
   ngOnInit(): void {
@@ -71,11 +74,12 @@ export class GetFileIdComponent implements OnInit {
       })
       .subscribe((response) => {
         if (response && response.status == 200) {
-          response.body.createdOn = this.transformDate(
+          this.downloadFile = response.body.sizeInBytes;
+          response.body.createdOn = this.helperService.transformDate(
             response.body.createdOn,
             'lll'
           );
-          response.body.updatedOn = this.transformDate(
+          response.body.updatedOn = this.helperService.transformDate(
             response.body.updatedOn,
             'lll'
           );
@@ -85,17 +89,11 @@ export class GetFileIdComponent implements OnInit {
           );
           this.show_del = response.body.correlationEntity;
           this.colRealtionId = response.body.correlationEntityId;
-
           this.show_name = this.objectViewForm.value.name;
           this.objectViewForm.patchValue({ ...response.body });
           this.objectViewForm.disable();
         }
       });
-  }
-
-  transformDate(value, format) {
-    this.pipe = new TimeDatePipe();
-    return this.pipe.transform(value, `${format}`);
   }
 
   gotoaudit() {
