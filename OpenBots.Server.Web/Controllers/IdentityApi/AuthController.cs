@@ -170,7 +170,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                 var agentId = (Guid?)null;
                 if (person.IsAgent)
                 {
-                    agentId = agentRepository.Find(null, p => p.Name == user.Name)?.Items?.FirstOrDefault()?.Id;
+                    agentId = agentRepository.Find(null, p => p.Name == person.Name)?.Items?.FirstOrDefault()?.Id;
                 }
 
                 string startsWith = "";

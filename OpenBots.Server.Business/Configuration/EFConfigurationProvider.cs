@@ -57,7 +57,8 @@ namespace OpenBots.Server.Business
                     Value = value.Value,
                     CreatedOn = DateTime.UtcNow,
                     CreatedBy = "OpenBots Server",
-                    IsDeleted = false
+                    IsDeleted = false,
+                    Timestamp = new byte[1]
                 };
                 dbContext.ConfigurationValues.Add(configValue);
 

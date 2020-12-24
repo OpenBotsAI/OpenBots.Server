@@ -48,7 +48,9 @@ namespace OpenBots.Server.DataAccess.Repositories
                                     StartTime = j.StartTime,
                                     EndTime = j.EndTime,
                                     EnqueueTime = j.EnqueueTime,
-                                    DequeueTime = j.DequeueTime
+                                    DequeueTime = j.DequeueTime,
+                                    AutomationVersion = j.AutomationVersion,
+                                    AutomationVersionId = j.AutomationVersionId
                                 };
 
                 if (!string.IsNullOrWhiteSpace(sortColumn))

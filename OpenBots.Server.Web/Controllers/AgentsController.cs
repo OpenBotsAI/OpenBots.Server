@@ -61,10 +61,10 @@ namespace OpenBots.Server.Web.Controllers
             IHttpContextAccessor accessor,
             IConfiguration configuration) : base(agentRepository, userManager, accessor, membershipManager, configuration)
         {
-            this.agentRepo = agentRepository;
-            this.personRepo = personRepository;
-            this.usersRepo = usersRepository;
-            this.agentHeartbeatRepo = agentHeartbeatRepository;
+            agentRepo = agentRepository;
+            personRepo = personRepository;
+            usersRepo = usersRepository;
+            agentHeartbeatRepo = agentHeartbeatRepository;
             this.agentManager = agentManager;
             this.agentManager.SetContext(SecurityContext);
             this.webhookPublisher = webhookPublisher;
@@ -212,9 +212,19 @@ namespace OpenBots.Server.Web.Controllers
                 };
 
                 var loginResult = await userManager.CreateAsync(user, request.Password).ConfigureAwait(false);
+                var errors = loginResult.Errors;
 
-                if (!loginResult.Succeeded)
+                if (errors.Any())
                 {
+                    foreach (var error in errors)
+                    {
+                        if (error.Code == "DuplicateUserName")
+                        {
+                            ModelState.AddModelError("Agent", "Username Already Exists");
+                            return BadRequest(ModelState);
+                        }
+                    }
+
                     ModelState.AddModelError("Agent", "Failed to Create Agent User");
                     return BadRequest(ModelState);
                 }
@@ -291,13 +301,25 @@ namespace OpenBots.Server.Web.Controllers
 
                 if (existingAgent.Name != request.Name)
                 {
-                    Person person = personRepo.Find(0, 1).Items?.Where(p => p.Name == existingAgent.Name && p.IsAgent && (p.IsDeleted ?? false))?.FirstOrDefault();
+                    personRepo.ForceIgnoreSecurity();
+                    Person person = personRepo.Find(0,1).Items?.Where(p => p.Name == existingAgent.Name && p.IsAgent && p.IsDeleted == false)?.FirstOrDefault();
                     if (person != null)
                     {
                         person.UpdatedBy = string.IsNullOrWhiteSpace(applicationUser?.Name) ? person.UpdatedBy : applicationUser?.Name;
                         person.Name = request.Name;
                         personRepo.Update(person);
+
+                        usersRepo.ForceIgnoreSecurity();
+                        var aspUser = usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
+                        if (aspUser != null)
+                        {
+                            var existingUser = await userManager.FindByIdAsync(aspUser.Id).ConfigureAwait(false);
+                            existingUser.Name = request.Name;
+                            var result = await userManager.UpdateAsync(existingUser).ConfigureAwait(true);
+                        }
+                        usersRepo.ForceSecurity();
                     }
+                    personRepo.ForceSecurity();
                 }
 
                 existingAgent.Name = request.Name;
@@ -347,7 +369,19 @@ namespace OpenBots.Server.Web.Controllers
                 return BadRequest(ModelState);
             }
 
+            personRepo.ForceIgnoreSecurity();
             Person person = personRepo.Find(0, 1).Items?.Where(p => p.IsAgent && p.Name == agent.Name && !(p.IsDeleted ?? false))?.FirstOrDefault();
+            if (person == null)
+            {
+                ModelState.AddModelError("Delete Agent", "Something went wrong, could not find Agent Person");
+                return BadRequest(ModelState);
+            }
+            else
+            {
+                personRepo.SoftDelete((Guid)person.Id);
+            }
+            personRepo.ForceSecurity();
+
             var aspUser = usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
 
             if (aspUser == null)
@@ -488,7 +522,7 @@ namespace OpenBots.Server.Web.Controllers
             {
                 Guid? agentGuid = new Guid(agentID);
                 var requestIp = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
-                var agent = this.agentRepo.FindAgent(request.MachineName, request.MacAddresses, requestIp, agentGuid);
+                var agent = agentRepo.FindAgent(request.MachineName, request.MacAddresses, requestIp, agentGuid);
 
                 if (agent == null)
                 {

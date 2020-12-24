@@ -18,7 +18,7 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
         [Required]
         public bool IsEnabled { get; set; }
         [Required]
-        public bool isConnected { get; set; }
+        public bool IsConnected { get; set; }
         public Guid? CredentialId { get; set; }
         [RegularExpression("^[A-Za-z0-9_.-]{3,100}$", ErrorMessage = "Enter valid UserName.")] // Alphanumeric with Underscore, Hyphen and Dot only
         [Required(ErrorMessage = "Please enter your username.")]
@@ -36,7 +36,7 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
                 MacAddresses = viewModel.MacAddresses,
                 IPAddresses = viewModel.IPAddresses,
                 IsEnabled = viewModel.IsEnabled,
-                IsConnected = viewModel.isConnected,
+                IsConnected = viewModel.IsConnected,
                 CredentialId = viewModel.CredentialId
             };
 
