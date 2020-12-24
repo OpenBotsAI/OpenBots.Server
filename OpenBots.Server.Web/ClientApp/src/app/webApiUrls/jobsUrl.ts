@@ -1,3 +1,4 @@
-export enum AgentApiUrl {
-  Agents = 'Agents',
+export enum JobsApiUrl {
+  Jobs = 'Jobs/view',
+  JobsExportzip = 'Jobs/Export/zip',
 }

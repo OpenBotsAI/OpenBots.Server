@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { HelperService } from '../../@core/services/helper.service';
+import { SubscribeApiUrl } from '../../webApiUrls/SubscribeUrls';
+import { QueuesApiUrls } from '../../webApiUrls/queues';
 @Injectable({
   providedIn: 'root',
 })
@@ -13,37 +15,37 @@ export class SubscriptionService {
   constructor(private http: HttpClient, private helperService: HelperService) {}
 
   addsubscription(obj) {
-    let addassetUrl = `/IntegrationEventSubscriptions`;
+    let addassetUrl = `/${SubscribeApiUrl.IntegrationEventSubscriptions}`;
     return this.http.post(`${this.apiUrl}` + addassetUrl, obj);
   }
 
   updateSubscription(obj, id, etag) {
     const headers = this.helperService.getETagHeaders(etag);
-    let updateassetUrl = `/IntegrationEventSubscriptions/${id}`;
+    let updateassetUrl = `/${SubscribeApiUrl.IntegrationEventSubscriptions}/${id}`;
     return this.http.put(`${this.apiUrl}` + updateassetUrl, obj, { headers });
   }
 
   delsubscriptionbyID(id) {
-    let getagentUrlbyId = `/IntegrationEventSubscriptions/${id}`;
+    let getagentUrlbyId = `/${SubscribeApiUrl.IntegrationEventSubscriptions}/${id}`;
     return this.http.delete(`${this.apiUrl}` + getagentUrlbyId);
   }
 
   get_EntityName() {
-    let getagentUrl = `/IntegrationEventLogs/IntegrationEventLogsLookup`;
+    let getagentUrl = `/${SubscribeApiUrl.IntegrationEventLogs}/${SubscribeApiUrl.IntegrationEventLogsLookup}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
   getQueues() {
-    let getagentUrl = `/Queues`;
+    let getagentUrl = `/${QueuesApiUrls.Queues}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
   getAllEventSubscription(tpage: any, spage: any) {
-    let getagentUrl = `/IntegrationEventSubscriptions?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/${SubscribeApiUrl.IntegrationEventSubscriptions}?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
   filterSubscriptionName(entityname: any, tpage: any, spage: any) {
-    let getagentUrl = `/IntegrationEventSubscriptions?$filter=${entityname}&$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/${SubscribeApiUrl.IntegrationEventSubscriptions}?$filter=${entityname}&$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
@@ -53,12 +55,12 @@ export class SubscriptionService {
     spage: any,
     order
   ) {
-    let getagentUrl = `/IntegrationEventSubscriptions?$filter=${entityname}&$orderby=${order}&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/${SubscribeApiUrl.IntegrationEventSubscriptions}?$filter=${entityname}&$orderby=${order}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
   getAllSubscriptionOrder(tpage: any, spage: any, name) {
-    let getagentUrl = `/IntegrationEventSubscriptions?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/${SubscribeApiUrl.IntegrationEventSubscriptions}?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
@@ -73,7 +75,7 @@ export class SubscriptionService {
       observe: 'response' as 'body',
       responseType: 'json',
     };
-    let getagentUrlbyId = `/IntegrationEventSubscriptions/${id}`;
+    let getagentUrlbyId = `/${SubscribeApiUrl.IntegrationEventSubscriptions}/${id}`;
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId, resoptions);
   }
 

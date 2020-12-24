@@ -8,3 +8,6 @@ export * from './queues';
 export * from './schedule';
 export * from './agentsUrl';
 export * from './assetsUrl';
+export * from './ChangesLogUrls';
+export * from './ConfigValues';
+export * from './SubscribeUrls';
