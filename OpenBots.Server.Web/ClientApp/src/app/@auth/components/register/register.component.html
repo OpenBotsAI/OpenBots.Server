@@ -85,6 +85,23 @@
                   Password and confirm password does not match!
                 </p>
               </div>
+              <div class="form-control-group" >
+                <re-captcha
+    (resolved)="resolved($event)"
+    siteKey="6Lfj2RcaAAAAAAwxqmlmUS6wlFQYJtoGKTe-aDec"  formControlName="recaptcha" 
+  ></re-captcha>
+    <!-- <div [hidden]="registerForm.valid || registerForm.pristine" class="error">
+    Captcha must be solved
+  </div>
+  <div [hidden]="!registerForm.valid" class="success">Captcha is valid</div>
+  <div [hidden]="registerForm.valid" class="error">
+    The form must be filled out
+  </div>
+  <div [hidden]="!registerForm.valid" class="success">
+    The form is valid
+  </div> -->
+ 
+              </div>
               <button nbButton status="primary" size="large" [disabled]="submitted || !registerForm.valid 
                         || password.value != confirmPassword.value" [class.btn-pulse]="submitted" (click)="register()">
                 Register
