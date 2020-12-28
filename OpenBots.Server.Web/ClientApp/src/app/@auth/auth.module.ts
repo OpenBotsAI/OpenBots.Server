@@ -1,5 +1,5 @@
-import { NgModule, ModuleWithProviders } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { NgModule, ModuleWithProviders, forwardRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import {
@@ -7,6 +7,7 @@ import {
 } from '@nebular/auth';
 import { RoleProvider } from './role.provider';
 import { NbRoleProvider, NbSecurityModule } from '@nebular/security';
+import { RecaptchaFormsModule, RecaptchaModule } from 'ng-recaptcha';
 
 import {
   NgxLoginComponent,
@@ -53,13 +54,15 @@ const NB_MODULES = [
   NbCheckboxModule,
   NbInputModule,
   NbButtonModule,
+  RecaptchaModule,
+  RecaptchaFormsModule,
 ];
 
  
 
 @NgModule({
-  declarations: [ ...COMPONENTS ],
- 
+  declarations: [...COMPONENTS],
+
   imports: [
     AuthRoutingModule,
     ReactiveFormsModule,
@@ -68,13 +71,18 @@ const NB_MODULES = [
     ...NB_MODULES,
     NbAuthModule.forRoot(),
   ],
-  exports: [
-  ],
+  exports: [],
   providers: [
     NbSecurityModule.forRoot().providers,
     {
-      provide: NbRoleProvider, useClass: RoleProvider,
-    }
+      provide: NbRoleProvider,
+      useClass: RoleProvider,
+    },
+    {
+      provide: NG_VALUE_ACCESSOR,
+      multi: true,
+      useExisting: forwardRef(() => NgxRegisterComponent),
+    },
   ],
 })
 export class AuthModule {
@@ -83,7 +91,8 @@ export class AuthModule {
       ngModule: AuthModule,
       providers: [
         { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
-        ...GUARDS],
+        ...GUARDS,
+      ],
     };
   }
 }
