@@ -2,12 +2,9 @@ import { NgModule, ModuleWithProviders, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import {
-  NbAuthModule,
-} from '@nebular/auth';
+import { NbAuthModule } from '@nebular/auth';
 import { RoleProvider } from './role.provider';
 import { NbRoleProvider, NbSecurityModule } from '@nebular/security';
-import { RecaptchaFormsModule, RecaptchaModule } from 'ng-recaptcha';
 
 import {
   NgxLoginComponent,
@@ -43,7 +40,7 @@ const COMPONENTS = [
   NgxResetPasswordComponent,
   NgxAuthBlockComponent,
   TermsConditionComponent,
-  ResetForgetPasswordComponent
+  ResetForgetPasswordComponent,
 ];
 
 const NB_MODULES = [
@@ -54,11 +51,7 @@ const NB_MODULES = [
   NbCheckboxModule,
   NbInputModule,
   NbButtonModule,
-  RecaptchaModule,
-  RecaptchaFormsModule,
 ];
-
- 
 
 @NgModule({
   declarations: [...COMPONENTS],
