@@ -2,11 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
-using OpenBots.Server.Model.Core;
-using OpenBots.Server.Model.Identity;
 using OpenBots.Server.Model.Membership;
 using OpenBots.Server.Security;
-using OpenBots.Server.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +20,7 @@ namespace OpenBots.Server.Business
         private readonly IAspNetUsersRepository aspNetUsersRepository;
         private readonly IOrganizationMemberRepository organizationMemberRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IOrganizationRepository organizationRepository;
 
         public IPFencingManager(IIPFencingRepository repository,
             IOrganizationSettingRepository organizationSettingRepository,
@@ -30,7 +28,8 @@ namespace OpenBots.Server.Business
             IHttpContextAccessor accessor,
             IAspNetUsersRepository aspNetUsersRepository,
             IOrganizationMemberRepository organizationMemberRepository,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IOrganizationRepository organizationRepository)
         {
             repo = repository;
             _accessor = accessor;
@@ -38,6 +37,8 @@ namespace OpenBots.Server.Business
             organizationSettingRepo = organizationSettingRepository;
             this.organizationManager = organizationManager;
             this.aspNetUsersRepository = aspNetUsersRepository;
+            this.organizationMemberRepository = organizationMemberRepository;
+            this.organizationRepository = organizationRepository;
         }
 
         /// <summary>
@@ -173,6 +174,7 @@ namespace OpenBots.Server.Business
             Guid? organizationId = Guid.Empty;
             var user = _accessor.HttpContext.User;
             var requestHeaders = _accessor.HttpContext.Request.Headers;
+            Guid userId = Guid.Empty;
 
             var defaultOrg = organizationManager.GetDefaultOrganization();
             if (defaultOrg != null)
@@ -182,16 +184,30 @@ namespace OpenBots.Server.Business
             //If there is no default organization find the current user's organization
             else if (user != null)
             {
-                Guid userId = Guid.Parse(_userManager.GetUserId(user));
-                var aspUser = aspNetUsersRepository.GetOne(userId);
-                organizationId = organizationMemberRepository.Find(0, 1).Items?.
-                    Where(o => o.PersonId == aspUser.PersonId)?.FirstOrDefault()?.Id;
-            }
-
-            //If there is no user, then use default IPFencing rules
-            if (organizationId == null || organizationId == Guid.Empty)
-            {
-                ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == null)?.ToList();
+                string userIdStr = _userManager.GetUserId(user);
+                if (string.IsNullOrEmpty(userIdStr))
+                {
+                    //If there is no user or organization, then use default IPFencing rules
+                    if (organizationId == null || organizationId == Guid.Empty)
+                    {
+                        ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == null)?.ToList();
+                        // If no organization, user, or rules exist, allow user to access the site
+                        // This means the user is accessing the Server application for the first time
+                        if (ipFencingRules.Count == 0)
+                            return true;
+                    }
+                }
+                else
+                    userId = Guid.Parse(userIdStr);
+                if (userId != Guid.Empty)
+                {
+                    var aspUser = aspNetUsersRepository.GetOne(userId);
+                    if (aspUser != null)
+                    {
+                        organizationId = organizationMemberRepository.Find(0, 1).Items?.
+                            Where(o => o.PersonId == aspUser.PersonId)?.FirstOrDefault()?.Id;
+                    }
+                }
             }
             else
             {   
