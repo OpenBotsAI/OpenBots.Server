@@ -20,7 +20,7 @@ namespace OpenBots.Server.Business
         private readonly IAspNetUsersRepository aspNetUsersRepository;
         private readonly IOrganizationMemberRepository organizationMemberRepository;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IOrganizationRepository organizationRepository;
+        private readonly IIPFencingRepository iPFencingRepository;
 
         public IPFencingManager(IIPFencingRepository repository,
             IOrganizationSettingRepository organizationSettingRepository,
@@ -29,7 +29,8 @@ namespace OpenBots.Server.Business
             IAspNetUsersRepository aspNetUsersRepository,
             IOrganizationMemberRepository organizationMemberRepository,
             UserManager<ApplicationUser> userManager,
-            IOrganizationRepository organizationRepository)
+            IOrganizationRepository organizationRepository,
+            IIPFencingRepository iPFencingRepository)
         {
             repo = repository;
             _accessor = accessor;
@@ -38,7 +39,7 @@ namespace OpenBots.Server.Business
             this.organizationManager = organizationManager;
             this.aspNetUsersRepository = aspNetUsersRepository;
             this.organizationMemberRepository = organizationMemberRepository;
-            this.organizationRepository = organizationRepository;
+            this.iPFencingRepository = iPFencingRepository;
         }
 
         /// <summary>
@@ -180,6 +181,14 @@ namespace OpenBots.Server.Business
             if (defaultOrg != null)
             {
                 organizationId = defaultOrg.Id;
+
+                var orgSettings = organizationSettingRepo.Find(0,1).Items?.Where(q => q.OrganizationId == organizationId).FirstOrDefault();
+                //If no organization settings exist, set fencing mode to allow mode
+                //TODO: create new organization settings
+                if (orgSettings == null)
+                {
+                    fencingMode = IPFencingMode.AllowMode;
+                }
             }
             //If there is no default organization find the current user's organization
             else if (user != null)
@@ -194,7 +203,24 @@ namespace OpenBots.Server.Business
                         // If no organization, user, or rules exist, allow user to access the site
                         // This means the user is accessing the Server application for the first time
                         if (ipFencingRules.Count == 0)
-                            return true;
+                        {
+                            {
+                                IPFencing rule = new IPFencing()
+                                {
+                                    IPAddress = iPAddress.ToString(),
+                                    OrganizationId = null,
+                                    CreatedBy = user.Identity.Name,
+                                    CreatedOn = DateTime.UtcNow,
+                                    //HeaderName = "",
+                                    //HeaderValue = "",
+                                    Rule = RuleType.IPv4,
+                                    Usage = UsageType.Allow
+                                };
+
+                                iPFencingRepository.Add(rule);
+                                return true;
+                            }
+                        }
                     }
                 }
                 else
@@ -227,8 +253,6 @@ namespace OpenBots.Server.Business
                     ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == organizationId
                         && i.Usage == UsageType.Allow)?.ToList();
                 }
-
-
             }
 
             if (fencingMode == IPFencingMode.AllowMode)

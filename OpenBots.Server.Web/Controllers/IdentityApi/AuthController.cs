@@ -60,6 +60,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         readonly WebAppUrlOptions webAppUrlOptions;
         readonly IIPFencingManager iPFencingManager;
         readonly IPFencingOptions iPFencingOptions;
+        readonly IIPFencingRepository iPFencingRepository;
+        readonly IHttpContextAccessor context;
 
         /// <summary>
         /// AuthController constructor
@@ -93,7 +95,9 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
            IAgentRepository agentRepository,
            ITermsConditionsManager termsConditionsManager,
            IAuditLogRepository auditLogRepository,
-           IIPFencingManager iPFencingManager) : base(httpContextAccessor, userManager, membershipManager)
+           IIPFencingManager iPFencingManager,
+           IIPFencingRepository iPFencingRepository,
+           IHttpContextAccessor context) : base(httpContextAccessor, userManager, membershipManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -112,9 +116,11 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             this.termsConditionsManager = termsConditionsManager;
             this.agentRepository = agentRepository;
             this.auditLogRepository = auditLogRepository;
-            this.webAppUrlOptions = configuration.GetSection(WebAppUrlOptions.WebAppUrl).Get<WebAppUrlOptions>();
+            webAppUrlOptions = configuration.GetSection(WebAppUrlOptions.WebAppUrl).Get<WebAppUrlOptions>();
             this.iPFencingManager = iPFencingManager;
             iPFencingOptions = configuration.GetSection(IPFencingOptions.IPFencing).Get<IPFencingOptions>();
+            this.iPFencingRepository = iPFencingRepository;
+            this.context = context;
         }
 
         /// <summary>
@@ -421,6 +427,12 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                         organizationMemberRepository.ForceIgnoreSecurity();
                         organizationMemberRepository.Add(newOrgMember);
                         organizationMemberRepository.ForceSecurity();
+
+                        //Update IPFencing allow rule for the current user
+                        var ipAddress = context.HttpContext.Connection.RemoteIpAddress;
+                        var rule = iPFencingRepository.Find(0, 1).Items?.Where(q => q.IPAddress == ipAddress.ToString()).FirstOrDefault();
+                        rule.OrganizationId = newOrganization.Id;
+                        iPFencingRepository.Update(rule);
                     }
                 }
                 else

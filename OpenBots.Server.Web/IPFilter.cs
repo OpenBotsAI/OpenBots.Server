@@ -20,8 +20,6 @@ namespace OpenBots.Server.Web
         {
             var ipAddress = context.Connection.RemoteIpAddress;
             bool isAllowedRequest = iPFencingManager.IsRequestAllowed(ipAddress);
-            if (isAllowedRequest == null)
-                isAllowedRequest = false;
 
             if (!isAllowedRequest)
             {
