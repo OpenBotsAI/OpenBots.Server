@@ -17,8 +17,6 @@ namespace OpenBots.Server.Business
         private readonly IOrganizationSettingRepository organizationSettingRepo;
         private readonly IOrganizationManager organizationManager;
         private readonly IHttpContextAccessor _accessor;
-        private readonly IAspNetUsersRepository aspNetUsersRepository;
-        private readonly IOrganizationMemberRepository organizationMemberRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IIPFencingRepository iPFencingRepository;
 
@@ -26,19 +24,13 @@ namespace OpenBots.Server.Business
             IOrganizationSettingRepository organizationSettingRepository,
             IOrganizationManager organizationManager,
             IHttpContextAccessor accessor,
-            IAspNetUsersRepository aspNetUsersRepository,
-            IOrganizationMemberRepository organizationMemberRepository,
-            UserManager<ApplicationUser> userManager,
-            IOrganizationRepository organizationRepository,
-            IIPFencingRepository iPFencingRepository)
+            UserManager<ApplicationUser> userManager)
         {
             repo = repository;
             _accessor = accessor;
             _userManager = userManager;
             organizationSettingRepo = organizationSettingRepository;
             this.organizationManager = organizationManager;
-            this.aspNetUsersRepository = aspNetUsersRepository;
-            this.organizationMemberRepository = organizationMemberRepository;
             this.iPFencingRepository = iPFencingRepository;
         }
 
@@ -182,13 +174,16 @@ namespace OpenBots.Server.Business
             {
                 organizationId = defaultOrg.Id;
 
-                var orgSettings = organizationSettingRepo.Find(0,1).Items?.Where(q => q.OrganizationId == organizationId).FirstOrDefault();
-                //If no organization settings exist, set fencing mode to allow mode
-                //TODO: create new organization settings
+                organizationSettingRepo.ForceIgnoreSecurity();
+                var orgSettings = organizationSettingRepo.Find(0, 1).Items?.Where(q => q.OrganizationId == organizationId).FirstOrDefault();
+                organizationSettingRepo.ForceSecurity();
+
                 if (orgSettings == null)
                 {
                     fencingMode = IPFencingMode.AllowMode;
                 }
+                else
+                    fencingMode = orgSettings.IPFencingMode;
             }
             //If there is no default organization find the current user's organization
             else if (user != null)
@@ -203,65 +198,34 @@ namespace OpenBots.Server.Business
                         // If no organization, user, or rules exist, allow user to access the site
                         // This means the user is accessing the Server application for the first time
                         if (ipFencingRules.Count == 0)
+                            return true;
+                        else
                         {
+                            foreach (var rule in ipFencingRules)
                             {
-                                IPFencing rule = new IPFencing()
-                                {
-                                    IPAddress = iPAddress.ToString(),
-                                    OrganizationId = null,
-                                    CreatedBy = user.Identity.Name,
-                                    CreatedOn = DateTime.UtcNow,
-                                    //HeaderName = "",
-                                    //HeaderValue = "",
-                                    Rule = RuleType.IPv4,
-                                    Usage = UsageType.Allow
-                                };
-
-                                iPFencingRepository.Add(rule);
-                                return true;
+                                if (rule.IPAddress == iPAddress.ToString() && rule.Usage == UsageType.Allow)
+                                    return true;
                             }
                         }
                     }
                 }
-                else
-                    userId = Guid.Parse(userIdStr);
-                if (userId != Guid.Empty)
-                {
-                    var aspUser = aspNetUsersRepository.GetOne(userId);
-                    if (aspUser != null)
-                    {
-                        organizationId = organizationMemberRepository.Find(0, 1).Items?.
-                            Where(o => o.PersonId == aspUser.PersonId)?.FirstOrDefault()?.Id;
-                    }
-                }
             }
             else
-            {   
-                //Get IPFencingMode
-                if (fencingMode == null)
-                {
-                    fencingMode = GetIPFencingMode(organizationId??Guid.Empty);
-                }               
-
-                if  (fencingMode == IPFencingMode.AllowMode)
-                {
-                    ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == organizationId 
-                        && i.Usage == UsageType.Deny)?.ToList();
-                }
-                else
-                {
-                    ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == organizationId
-                        && i.Usage == UsageType.Allow)?.ToList();
-                }
-            }
+                return false;
 
             if (fencingMode == IPFencingMode.AllowMode)
             {
+                ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == organizationId
+                    && i.Usage == UsageType.Deny)?.ToList();
+
                 //If mode is allow, then any matched rules will be forbidden
                 return !MatchedOnRule(iPAddress, ipFencingRules, requestHeaders);
             }
             else
             {
+                ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == organizationId
+                    && i.Usage == UsageType.Allow)?.ToList();
+
                 //If mode is deny, then any matched rules will be allowed
                 return MatchedOnRule(iPAddress, ipFencingRules, requestHeaders);
             }
