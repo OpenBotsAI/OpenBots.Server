@@ -28,6 +28,7 @@ using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Options;
 using OpenBots.Server.Web.Extensions;
 using OpenBots.Server.ViewModel.Email;
+using OpenBots.Server.Model.Membership;
 
 namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
 {
@@ -60,6 +61,9 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         readonly WebAppUrlOptions webAppUrlOptions;
         readonly IIPFencingManager iPFencingManager;
         readonly IPFencingOptions iPFencingOptions;
+        readonly IIPFencingRepository iPFencingRepository;
+        readonly IHttpContextAccessor context;
+        readonly IOrganizationSettingRepository organizationSettingRepository;
 
         /// <summary>
         /// AuthController constructor
@@ -93,7 +97,10 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
            IAgentRepository agentRepository,
            ITermsConditionsManager termsConditionsManager,
            IAuditLogRepository auditLogRepository,
-           IIPFencingManager iPFencingManager) : base(httpContextAccessor, userManager, membershipManager)
+           IIPFencingManager iPFencingManager,
+           IIPFencingRepository iPFencingRepository,
+           IHttpContextAccessor context,
+           IOrganizationSettingRepository organizationSettingRepository) : base(httpContextAccessor, userManager, membershipManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -112,9 +119,12 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             this.termsConditionsManager = termsConditionsManager;
             this.agentRepository = agentRepository;
             this.auditLogRepository = auditLogRepository;
-            this.webAppUrlOptions = configuration.GetSection(WebAppUrlOptions.WebAppUrl).Get<WebAppUrlOptions>();
+            webAppUrlOptions = configuration.GetSection(WebAppUrlOptions.WebAppUrl).Get<WebAppUrlOptions>();
             this.iPFencingManager = iPFencingManager;
             iPFencingOptions = configuration.GetSection(IPFencingOptions.IPFencing).Get<IPFencingOptions>();
+            this.iPFencingRepository = iPFencingRepository;
+            this.context = context;
+            this.organizationSettingRepository = organizationSettingRepository;
         }
 
         /// <summary>
@@ -403,14 +413,14 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                 //Create new organization if count is zero
                 if (signupModel.CreateNewOrganization)
                 {
-                    Model.Membership.Organization value = new Model.Membership.Organization();
+                    Organization value = new Organization();
                     value.Name = signupModel.Organization;
                     value.Description = "System created organization";
                     var newOrganization = organizationManager.AddNewOrganization(value);
 
                     if (newOrganization != null && newOrganization.Id != null)
                     {
-                        Model.Membership.OrganizationMember newOrgMember = new Model.Membership.OrganizationMember()
+                        OrganizationMember newOrgMember = new OrganizationMember()
                         {
                             PersonId = person.Id,
                             OrganizationId = newOrganization.Id,
@@ -421,6 +431,40 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                         organizationMemberRepository.ForceIgnoreSecurity();
                         organizationMemberRepository.Add(newOrgMember);
                         organizationMemberRepository.ForceSecurity();
+
+                        //Update IPFencing allow rule for the current user
+                        var ipAddress = context.HttpContext.Connection.RemoteIpAddress;
+                        var rule = iPFencingRepository.Find(0, 1).Items?.Where(q => q.IPAddress == ipAddress.ToString()).FirstOrDefault();
+                        if (rule != null && rule.OrganizationId == null || rule.OrganizationId == Guid.Empty)
+                        {
+                            rule.OrganizationId = newOrganization.Id;
+                            iPFencingRepository.Update(rule);
+                        }
+                        else
+                        {
+                            rule = new IPFencing()
+                            {
+                                IPAddress = ipAddress.ToString(),
+                                OrganizationId = newOrganization.Id,
+                                CreatedBy = user.Name,
+                                CreatedOn = DateTime.UtcNow,
+                                Rule = RuleType.IPv4,
+                                Usage = UsageType.Allow
+                            };
+                            iPFencingRepository.Add(rule);
+                        }
+
+                        //Add organization setting to deny all users except current one
+                        var orgSettings = new OrganizationSetting()
+                        {
+                            IPFencingMode = IPFencingMode.AllowMode,
+                            OrganizationId = newOrganization.Id,
+                            CreatedBy = user.Name,
+                            CreatedOn = DateTime.UtcNow
+                        };
+                        organizationSettingRepository.ForceIgnoreSecurity();
+                        organizationSettingRepository.Add(orgSettings);
+                        organizationSettingRepository.ForceSecurity();
                     }
                 }
                 else
@@ -430,7 +474,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     if (oldOrganization != null)
                     {
                         //Add it to access requests
-                        Model.Membership.AccessRequest accessRequest = new Model.Membership.AccessRequest()
+                        AccessRequest accessRequest = new AccessRequest()
                         {
                             OrganizationId = oldOrganization.Id,
                             PersonId = person.Id,
