@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HelperService } from '../../../../@core/services/helper.service';
 import { HttpService } from '../../../../@core/services/http.service';
 import { Rule, Usage } from '../../../../interfaces/ipFencing';
-import { IpFencingApiUrl } from '../ipFencing';
+import { IpFencingApiUrl } from '../../../../webApiUrls';
 
 @Component({
   selector: 'ngx-view-ipfencing',

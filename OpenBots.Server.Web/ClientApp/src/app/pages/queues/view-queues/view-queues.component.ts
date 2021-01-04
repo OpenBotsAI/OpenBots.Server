@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { HelperService } from '../../../@core/services/helper.service';
 import { HttpService } from '../../../@core/services/http.service';
+import { QueuesApiUrls } from '../../../webApiUrls';
 
 @Component({
   selector: 'ngx-view-queues',
@@ -44,19 +45,21 @@ export class ViewQueuesComponent implements OnInit {
   }
 
   getQueueById(): void {
-    this.httpService.get(`Queues/${this.urlId}`).subscribe((response) => {
-      if (response) {
-        response.createdOn = this.helperService.transformDate(
-          response.createdOn,
-          'lll'
-        );
-        response.updatedOn = this.helperService.transformDate(
-          response.updatedOn,
-          'lll'
-        );
-        this.viewQueueForm.patchValue({ ...response });
-        this.viewQueueForm.disable();
-      }
-    });
+    this.httpService
+      .get(`${QueuesApiUrls.Queues}/${this.urlId}`)
+      .subscribe((response) => {
+        if (response) {
+          response.createdOn = this.helperService.transformDate(
+            response.createdOn,
+            'lll'
+          );
+          response.updatedOn = this.helperService.transformDate(
+            response.updatedOn,
+            'lll'
+          );
+          this.viewQueueForm.patchValue({ ...response });
+          this.viewQueueForm.disable();
+        }
+      });
   }
 }

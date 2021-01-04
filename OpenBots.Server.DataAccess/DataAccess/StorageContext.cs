@@ -51,6 +51,7 @@ namespace OpenBots.Server.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+        
             CreateMembershipModel(modelBuilder);
             CreateIdentityModel(modelBuilder);
             CreateCoreModel(modelBuilder);

@@ -15,6 +15,11 @@ import {
 } from 'ngx-uploader';
 import { BinaryFile } from '../../../interfaces/file';
 import { FileSaverService } from 'ngx-filesaver';
+import {
+  FilesApiUrl,
+  QueueItemsApiUrl,
+  QueuesApiUrls,
+} from '../../../webApiUrls';
 @Component({
   selector: 'ngx-add-queue-items',
   templateUrl: './add-queue-items.component.html',
@@ -148,14 +153,17 @@ export class AddQueueItemsComponent implements OnInit {
 
   getQueueDataById(): void {
     this.httpService
-      .get(`QueueItems/view/${this.queueItemId}`, { observe: 'response' })
+      .get(
+        `${QueueItemsApiUrl.QueueItems}/${QueueItemsApiUrl.view}/${this.queueItemId}`,
+        { observe: 'response' }
+      )
       .subscribe((response) => {
         if (response && response.status === 200) {
           this.min = response.body.expireOnUTC;
           this.eTag = response.headers.get('etag');
           this.queuefiles = response.body.binaryObjectIds;
           if (this.queuefiles) this.getQueueItemFiles();
-          if (response.body.type === 'Json')
+          if (response.body.type.toLowerCase() === 'json')
             response.body.dataJson = JSON.parse(response.body.dataJson);
           this.queueItemForm.patchValue(response.body);
           this.oldQueueFormValue = this.queueItemForm.value;
@@ -165,7 +173,10 @@ export class AddQueueItemsComponent implements OnInit {
 
   addItem(): void {
     this.httpService
-      .post('QueueItems/Enqueue', this.queueItemForm.value)
+      .post(
+        `${QueueItemsApiUrl.QueueItems}/${QueueItemsApiUrl.enqueue}`,
+        this.queueItemForm.value
+      )
       .subscribe(
         (response) => {
           if (response && response.id) {
@@ -175,7 +186,10 @@ export class AddQueueItemsComponent implements OnInit {
               for (let data of this.fileArray) {
                 formData.append('Files', data.file.nativeFile, data.file.name);
                 this.httpService
-                  .post(`QueueItems/${response.id}/attach`, formData)
+                  .post(
+                    `${QueueItemsApiUrl.QueueItems}/${response.id}/${QueueItemsApiUrl.attach}`,
+                    formData
+                  )
                   .subscribe(
                     (response) => {
                       if (response) {
@@ -227,13 +241,12 @@ export class AddQueueItemsComponent implements OnInit {
         formData.append('Files', data.file.nativeFile, data.file.name);
       }
       this.httpService
-        .put(`QueueItems/${this.queueItemId}`, formData, {
+        .put(`${QueueItemsApiUrl.QueueItems}/${this.queueItemId}`, formData, {
           headers,
           observe: 'response',
         })
         .subscribe(
           (response) => {
-            console.log('reponse', response);
             if (response && response.status === 200) {
               this.httpService.success('Queue item updated successfully');
               this.navigateToQueueItemsList();
@@ -260,7 +273,7 @@ export class AddQueueItemsComponent implements OnInit {
         }
       }
       this.httpService
-        .patch(`QueueItems/${this.queueItemId}`, data, {
+        .patch(`${QueueItemsApiUrl.QueueItems}/${this.queueItemId}`, data, {
           headers,
           observe: 'response',
         })
@@ -289,7 +302,7 @@ export class AddQueueItemsComponent implements OnInit {
   }
 
   getQueues(): void {
-    const url = `Queues?$orderby=createdOn+desc`;
+    const url = `${QueuesApiUrls.Queues}?$orderby=createdOn+desc`;
     this.httpService.get(url).subscribe((response) => {
       if (response && response.items.length !== 0)
         this.queuesArr = response.items;
@@ -322,7 +335,7 @@ export class AddQueueItemsComponent implements OnInit {
   getQueueItemFiles(): void {
     for (let binaryObjectId of this.queuefiles) {
       this.httpService
-        .get(`BinaryObjects/${binaryObjectId}`)
+        .get(`${FilesApiUrl.BinaryObjects}/${binaryObjectId}`)
         .subscribe((response) => {
           if (response) this.queueItemFiles.push(response);
         });
@@ -331,7 +344,7 @@ export class AddQueueItemsComponent implements OnInit {
 
   downloadFile(id: string): void {
     this.httpService
-      .get(`BinaryObjects/${id}/download`, {
+      .get(`${FilesApiUrl.BinaryObjects}/${id}/${FilesApiUrl.download}`, {
         responseType: 'blob',
         observe: 'response',
       })

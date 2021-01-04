@@ -10,8 +10,8 @@ using OpenBots.Server.DataAccess;
 namespace OpenBots.Server.DataAccess.Migrations
 {
     [DbContext(typeof(StorageContext))]
-    [Migration("20201210194318_MakeOrgSettings1to1")]
-    partial class MakeOrgSettings1to1
+    [Migration("20201221161155_seedForConfigurationValues")]
+    partial class seedForConfigurationValues
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -2158,9 +2158,7 @@ namespace OpenBots.Server.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrganizationId")
-                        .IsUnique()
-                        .HasFilter("[OrganizationId] IS NOT NULL");
+                    b.HasIndex("OrganizationId");
 
                     b.ToTable("OrganizationSettings");
                 });
@@ -2680,6 +2678,308 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("IntegrationEvents");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("744ba6f9-161f-41dc-b76e-c1602fc65d1b"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A Queue has been updated",
+                            EntityType = "Queue",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Queues.QueueUpdated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("b00eeecd-5729-4f82-9cd2-dcfafd946965"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A Queue has been deleted",
+                            EntityType = "Queue",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Queues.QueueDeleted",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("e9f64119-edbf-4779-a796-21ad59f76534"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A new Queue has been created",
+                            EntityType = "Queue",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Queues.NewQueueCreated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("0719a4c3-2143-4b9a-92ae-8b5a93075b98"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A QueueItem has been updated",
+                            EntityType = "QueueItem",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "QueueItems.QueueItemUpdated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("860689af-fd19-44ba-a5c7-53f6fed92065"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A QueueItem has been deleted",
+                            EntityType = "QueueItem",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "QueueItems.QueueItemDeleted",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("30a8dcb9-10cf-43c6-a08f-b45fe2125dae"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A new QueueItem has been created",
+                            EntityType = "QueueItem",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "QueueItems.NewQueueItemCreated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("06dd9940-a483-4a21-9551-cf2e32eeccae"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A new Job has been created",
+                            EntityType = "Job",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Jobs.NewJobCreated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("9d8e576a-a69d-43cf-bbc9-18103105d0a0"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A Job has been updated",
+                            EntityType = "Job",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Jobs.JobUpdated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("82b8d08d-5ae2-4031-bdf8-5fba5597ac4b"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A Job has been deleted",
+                            EntityType = "Job",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Jobs.JobsDeleted",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("04cf6a7a-ca72-48bc-887f-666ef580d198"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A new File has been created",
+                            EntityType = "File",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Files.NewFileCreated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("3ff9b456-7832-4499-b263-692c021e7d80"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A File has been updated",
+                            EntityType = "File",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Files.FileUpdated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("32d63e9d-aa6e-481f-b928-541ddf979bdf"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A File has been deleted",
+                            EntityType = "File",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Files.FileDeleted",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("76f6ab13-c430-46ad-b859-3d2dfd802e84"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A new Credential has been created",
+                            EntityType = "Credential",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Credentials.NewCredentialCreated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("efd1d688-1881-4d5e-aed7-81528d54d7ef"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A Credential has been updated",
+                            EntityType = "Credential",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Credentials.CredentialUpdated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("ecced501-9c35-4b37-a7b2-b6b901f91234"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A Credential has been deleted",
+                            EntityType = "Credential",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Credentials.CredentialDeleted",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("93416738-3284-4bb0-869e-e2f191446b44"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A new Process has been created",
+                            EntityType = "Automation",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Automations.NewAutomationCreated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("8437fa1f-777a-4905-a169-feb32214c0c8"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A Process has been updated",
+                            EntityType = "Automation",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Automations.AutomationUpdated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("90f9f691-90e5-41d0-9b2c-1e8437bc85d3"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A Process has been deleted",
+                            EntityType = "Automation",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Automations.AutomationDeleted",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("f1b111cc-1f26-404d-827c-e30305c2ecc4"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A new Asset has been created",
+                            EntityType = "Asset",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Assets.NewAssetCreated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("4ce67735-2edc-4b7f-849a-5575740a496f"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "An Asset has been updated",
+                            EntityType = "Asset",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Assets.AssetUpdated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("6e0c741c-34b0-471e-a491-c7ec61782e94"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "An Asset has been deleted",
+                            EntityType = "Asset",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Assets.AssetDeleted",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("35fd2aa3-6c77-4995-9ed8-9b262e5afdfc"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "An Agent has reported an unhealthy status",
+                            EntityType = "Agent",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Agents.UnhealthyReported",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("6ce8b3da-0373-4da2-bc77-ea845212855d"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A new agent has been created",
+                            EntityType = "Agent",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Agents.NewAgentCreated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("2b4bd195-62ac-4111-97ca-d6df6dd3f0fb"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "An Agent has been updated",
+                            EntityType = "Agent",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Agents.AgentUpdated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("6ce0bb0e-cda1-49fa-a9e4-b67d904f826e"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "An Agent has been deleted",
+                            EntityType = "Agent",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Agents.AgentDeleted",
+                            Timestamp = new byte[] { 0 }
+                        });
                 });
 
             modelBuilder.Entity("OpenBots.Server.Model.Webhooks.IntegrationEventLog", b =>
@@ -2792,7 +3092,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("IntegrationEventName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool?>("IsDeleted")
@@ -3028,8 +3327,8 @@ namespace OpenBots.Server.DataAccess.Migrations
             modelBuilder.Entity("OpenBots.Server.Model.Membership.OrganizationSetting", b =>
                 {
                     b.HasOne("OpenBots.Server.Model.Membership.Organization", "Organization")
-                        .WithOne("Settings")
-                        .HasForeignKey("OpenBots.Server.Model.Membership.OrganizationSetting", "OrganizationId")
+                        .WithMany("Settings")
+                        .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Organization");
@@ -3088,8 +3387,7 @@ namespace OpenBots.Server.DataAccess.Migrations
 
                     b.Navigation("Members");
 
-                    b.Navigation("Settings")
-                        .IsRequired();
+                    b.Navigation("Settings");
 
                     b.Navigation("Units");
                 });

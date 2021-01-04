@@ -10,6 +10,7 @@ import {
 import { HelperService } from '../../../@core/services/helper.service';
 import { HttpService } from '../../../@core/services/http.service';
 import { BinaryFile } from '../../../interfaces/file';
+import { FilesApiUrl } from '../../../webApiUrls';
 
 @Component({
   selector: 'ngx-add-file',
@@ -30,18 +31,20 @@ export class AddFileComponent implements OnInit {
   showKeyError: boolean = false;
   orgId = localStorage.getItem('ActiveOrganizationID');
   fileId: any = [];
-  saveForm: any = [];
+  saveForm: any;
   addfile: FormGroup;
   submitted = false;
   cred_value: any = [];
-  show_upload: boolean = false;
-  confrimUpoad: boolean = false;
+  show_upload = false;
+  confrimUpoad = false;
   value = ['JSON', 'Number', 'Text'];
   urlId: string;
   fileByIdData: BinaryFile;
   title = 'Add';
   fileSize = false;
   eTag: string;
+  addFileValidation: boolean;
+  necessary = '*';
   constructor(
     private formBuilder: FormBuilder,
     protected router: Router,
@@ -54,6 +57,7 @@ export class AddFileComponent implements OnInit {
     this.urlId = this.route.snapshot.params['id'];
     if (this.urlId) {
       this.title = 'Update';
+      this.necessary = '';
       this.getFileDataById();
     }
     this.addfile = this.formBuilder.group({
@@ -78,6 +82,7 @@ export class AddFileComponent implements OnInit {
           else this.fileSize = false;
           this.native_file = output.file.nativeFile;
           this.native_file_name = output.file.nativeFile.name;
+          this.addFileValidation = false;
           this.confrimUpoad = true;
           this.addfile.patchValue({ name: this.native_file_name });
         }
@@ -91,11 +96,7 @@ export class AddFileComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
-    if (this.addfile.invalid) {
-      return;
-    }
-
-    if (this.confrimUpoad == true) {
+    if (this.confrimUpoad) {
       let formData = new FormData();
       formData.append('file', this.native_file, this.native_file_name);
       formData.append('name', this.addfile.value.name);
@@ -121,7 +122,9 @@ export class AddFileComponent implements OnInit {
 
   getFileDataById(): void {
     this.httpService
-      .get(`BinaryObjects/${this.urlId}`, { observe: 'response' })
+      .get(`${FilesApiUrl.BinaryObjects}/${this.urlId}`, {
+        observe: 'response',
+      })
       .subscribe((response) => {
         if (response && response.body) {
           this.eTag = response.headers.get('etag');
@@ -132,29 +135,39 @@ export class AddFileComponent implements OnInit {
   }
 
   addFile(): void {
-    this.httpService.post('binaryobjects', this.addfile.value).subscribe(
-      (response) => {
-        if (response) {
-          if (this.confrimUpoad && response.id) {
-            this.httpService
-              .post(`binaryobjects/${response.id}/upload`, this.saveForm)
-              .subscribe(
-                () => {
-                  this.httpService.success(
-                    'File uploaded and created successfully'
+    if (this.saveForm) {
+      this.httpService
+        .post(`${FilesApiUrl.BinaryObjects}`, this.addfile.value)
+        .subscribe(
+          (response) => {
+            if (response) {
+              if (this.confrimUpoad && response.id) {
+                this.httpService
+                  .post(
+                    `${FilesApiUrl.BinaryObjects}/${response.id}/upload`,
+                    this.saveForm
+                  )
+                  .subscribe(
+                    () => {
+                      this.httpService.success(
+                        'File uploaded and created successfully'
+                      );
+                      this.router.navigate(['pages/file/list']);
+                    },
+                    () => (this.submitted = false)
                   );
-                  this.router.navigate(['pages/file/list']);
-                },
-                () => (this.submitted = false)
-              );
-          } else {
-            this.httpService.success('File created successfully');
-            this.router.navigate(['pages/file/list']);
-          }
-        }
-      },
-      () => (this.submitted = false)
-    );
+              } else {
+                this.httpService.success('File created successfully');
+                this.router.navigate(['pages/file/list']);
+              }
+            }
+          },
+          () => (this.submitted = false)
+        );
+    } else {
+      this.addFileValidation = true;
+      this.submitted = false;
+    }
   }
 
   updateFile(): void {
@@ -162,10 +175,14 @@ export class AddFileComponent implements OnInit {
     if (this.confrimUpoad) {
       this.saveForm.append('folder', this.addfile.value.folder);
       this.httpService
-        .put(`binaryobjects/${this.urlId}/update`, this.saveForm, {
-          observe: 'response',
-          headers,
-        })
+        .put(
+          `${FilesApiUrl.BinaryObjects}/${this.urlId}/update`,
+          this.saveForm,
+          {
+            observe: 'response',
+            headers,
+          }
+        )
         .subscribe(
           (response) => {
             if (response && response.status) {
@@ -183,7 +200,7 @@ export class AddFileComponent implements OnInit {
         );
     } else {
       this.httpService
-        .put(`binaryobjects/${this.urlId}`, this.addfile.value, {
+        .put(`${FilesApiUrl.BinaryObjects}/${this.urlId}`, this.addfile.value, {
           observe: 'response',
           headers,
         })

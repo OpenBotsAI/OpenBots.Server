@@ -4,6 +4,7 @@ import { HttpService } from '../../../@core/services/http.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Name_Regex } from '../../../@auth/components';
 import { HelperService } from '../../../@core/services/helper.service';
+import { QueuesApiUrls } from '../../../webApiUrls';
 
 @Component({
   selector: 'ngx-queue',
@@ -60,7 +61,9 @@ export class AddQueueComponent implements OnInit {
 
   addQueue(): void {
     this.httpService
-      .post('Queues', this.queueForm.value, { observe: 'response' })
+      .post(`${QueuesApiUrls.Queues}`, this.queueForm.value, {
+        observe: 'response',
+      })
       .subscribe(
         (response) => {
           if (response && response.status == 201) {
@@ -77,7 +80,7 @@ export class AddQueueComponent implements OnInit {
   updateQueue() {
     const headers = this.helperService.getETagHeaders(this.eTag);
     this.httpService
-      .put(`Queues/${this.urlId}`, this.queueForm.value, {
+      .put(`${QueuesApiUrls.Queues}/${this.urlId}`, this.queueForm.value, {
         observe: 'response',
         headers,
       })
@@ -102,7 +105,7 @@ export class AddQueueComponent implements OnInit {
 
   getQueueById(): void {
     this.httpService
-      .get(`Queues/${this.urlId}`, { observe: 'response' })
+      .get(`${QueuesApiUrls.Queues}/${this.urlId}`, { observe: 'response' })
       .subscribe((response) => {
         if (response && response.body) {
           this.eTag = response.headers.get('etag');

@@ -7,6 +7,7 @@ import { HelperService } from '../../../@core/services/helper.service';
 import { HttpService } from '../../../@core/services/http.service';
 import { BinaryFile } from '../../../interfaces/file';
 import { QueueItem } from '../../../interfaces/queueItem';
+import { FilesApiUrl, QueueItemsApiUrl } from '../../../webApiUrls';
 
 @Component({
   selector: 'ngx-view-queue-item',
@@ -74,10 +75,12 @@ export class ViewQueueItemComponent implements OnInit {
 
   getQueueDataById(): void {
     this.httpService
-      .get(`QueueItems/view/${this.queueItemId}`)
+      .get(
+        `${QueueItemsApiUrl.QueueItems}/${QueueItemsApiUrl.view}/${this.queueItemId}`
+      )
       .subscribe((response: QueueItem) => {
         if (response) {
-          if (response.type === 'Json')
+          if (response.type.toLowerCase() === 'json')
             response.dataJson = JSON.parse(response.dataJson);
           response.isDequeued = this.helperService.changeBoolean(
             response.isDequeued
@@ -122,7 +125,7 @@ export class ViewQueueItemComponent implements OnInit {
   getFilesById(): void {
     for (let attachedFileId of this.attachedFiles)
       this.httpService
-        .get(`BinaryObjects/${attachedFileId}`)
+        .get(`${FilesApiUrl.BinaryObjects}/${attachedFileId}`)
         .subscribe((response) => {
           if (response) this.queueItemFiles.push(response);
         });
@@ -130,7 +133,7 @@ export class ViewQueueItemComponent implements OnInit {
 
   downloadFile(id: string): void {
     this.httpService
-      .get(`BinaryObjects/${id}/download`, {
+      .get(`${FilesApiUrl.BinaryObjects}/${id}/${FilesApiUrl.download}`, {
         responseType: 'blob',
         observe: 'response',
       })

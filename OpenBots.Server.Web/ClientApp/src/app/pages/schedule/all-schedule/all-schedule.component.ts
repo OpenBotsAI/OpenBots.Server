@@ -6,6 +6,7 @@ import { Page } from '../../../interfaces/paginateInstance';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
 import { DialogService } from '../../../@core/dialogservices/dialog.service';
 import { HelperService } from '../../../@core/services/helper.service';
+import { SchedulesApiUrl } from '../../../webApiUrls';
 
 @Component({
   selector: 'ngx-all-schedule',
@@ -38,18 +39,15 @@ export class AllScheduleComponent implements OnInit {
     this.itemsPerPage = this.helperService.getItemsPerPage();
   }
 
-  gotoHangfire() {
-    window.open('/hangfire?access_token={{token}}', '_blank');
-  }
-
   getAllSchedule(top, skip, orderBy?): void {
     let url: string;
     if (orderBy)
-      url = `Schedules?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
-    else url = `Schedules?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+      url = `${SchedulesApiUrl.schedules}?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+    else
+      url = `${SchedulesApiUrl.schedules}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
     this.httpService.get(url).subscribe((response) => {
       this.page.totalCount = response.totalCount;
-      if (response && response.items.length !== 0)
+      if (response && response.items.length)
         this.allScehduleData = response.items;
       else this.allScehduleData = [];
     });
@@ -69,14 +67,16 @@ export class AllScheduleComponent implements OnInit {
 
   deleteSchedule(ref) {
     this.isDeleted = true;
-    this.httpService.delete(`Schedules/${this.deleteId}`).subscribe(() => {
-      ref.close();
-      if (this.allScehduleData.length == 1 && this.page.pageNumber > 1) {
-        this.page.pageNumber--;
-      }
-      this.pagination(this.page.pageNumber, this.page.pageSize);
-      this.isDeleted = false;
-    }),
+    this.httpService
+      .delete(`${SchedulesApiUrl.schedules}/${this.deleteId}`)
+      .subscribe(() => {
+        ref.close();
+        if (this.allScehduleData.length == 1 && this.page.pageNumber > 1) {
+          this.page.pageNumber--;
+        }
+        this.pagination(this.page.pageNumber, this.page.pageSize);
+        this.isDeleted = false;
+      }),
       () => (this.isDeleted = false);
   }
 

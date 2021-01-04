@@ -74,7 +74,7 @@
           </th>
           <th scope="col">
             End Time
-            <i (click)="onSortClick($event, 'lockedEndTime')"
+            <i (click)="onSortClick($event, 'lockedEndTimeUTC')"
               [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th *ngIf="show" scope="col">View</th>

@@ -2,7 +2,7 @@
 <div class="whiteBK">
   <div class="row mainPaddingBotm">
     <div class="col-md-3 col-sm-6 col-xxl-3">
-      <div class="chartTop">{{ dataProcess }} <span>Processes</span></div>
+      <div class="chartTop">{{ dataProcess }} <span>Automations</span></div>
     </div>
     <div class="col-md-3 col-sm-6 col-xxl-3">
       <div class="chartTop chartPurple">
@@ -25,7 +25,7 @@
 
   <div class="row mainPaddingBotm" id="charts"></div>
 
-  <div class="row" >
+  <div class="row">
     <div class="col-md-12 showmore" *ngIf="showMorebtn">
       <button type="button" class="btn btn-primary" [disabled]="pageMore" (click)="loadmore(true)">Show More </button>
     </div>

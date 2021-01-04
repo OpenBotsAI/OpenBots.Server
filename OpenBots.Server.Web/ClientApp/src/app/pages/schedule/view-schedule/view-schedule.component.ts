@@ -7,7 +7,12 @@ import { CronOptions } from '../../../interfaces/cronJobConfiguration';
 import { Agents } from '../../../interfaces/agnets';
 import { Schedule } from '../../../interfaces/schedule';
 import { Automation } from '../../../interfaces/automations';
-import { automationsApiUrl } from '../../../webApiUrls';
+import {
+  AgentApiUrl,
+  automationsApiUrl,
+  SchedulesApiUrl,
+} from '../../../webApiUrls';
+import { HelperService } from '../../../@core/services/helper.service';
 
 @Component({
   selector: 'ngx-view-schedule',
@@ -44,7 +49,8 @@ export class ViewScheduleComponent implements OnInit {
     protected router: Router,
     private fb: FormBuilder,
     private httpService: HttpService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private helperService: HelperService
   ) {}
 
   ngOnInit(): void {
@@ -60,7 +66,6 @@ export class ViewScheduleComponent implements OnInit {
     return this.fb.group({
       id: [''],
       agentId: [''],
-      // processId: [''],
       automationId: [''],
       agentName: [''],
       createdBy: [''],
@@ -81,24 +86,31 @@ export class ViewScheduleComponent implements OnInit {
 
   getScheduleById() {
     this.httpService
-      .get(`Schedules/${this.currentScheduleId}`)
+      .get(`${SchedulesApiUrl.schedules}/${this.currentScheduleId}`)
       .subscribe((response) => {
         if (response) {
-          response.startDate = this.transformDate(response.startDate, 'lll');
-          response.expiryDate = this.transformDate(response.expiryDate, 'lll');
-          response.createdOn = this.transformDate(response.createdOn, 'lll');
-          response.updatedOn = this.transformDate(response.updatedOn, 'lll');
+          response.startDate = this.helperService.transformDate(
+            response.startDate,
+            'lll'
+          );
+          response.expiryDate = this.helperService.transformDate(
+            response.expiryDate,
+            'lll'
+          );
+          response.createdOn = this.helperService.transformDate(
+            response.createdOn,
+            'lll'
+          );
+          response.updatedOn = this.helperService.transformDate(
+            response.updatedOn,
+            'lll'
+          );
           this.cronExpression = response.cronExpression;
           this.scheduleData = { ...response };
           this.scheduleForm.patchValue(response);
           this.scheduleForm.disable();
         }
       });
-  }
-
-  transformDate(value, format: string) {
-    this.pipe = new TimeDatePipe();
-    return this.pipe.transform(value, `${format}`);
   }
 
   gotoaudit() {
@@ -111,10 +123,12 @@ export class ViewScheduleComponent implements OnInit {
   }
 
   getAllAgents(): void {
-    this.httpService.get(`Agents/GetLookup`).subscribe((response) => {
-      if (response && response.length !== 0) this.allAgents = [...response];
-      else this.allAgents = [];
-    });
+    this.httpService
+      .get(`${AgentApiUrl.Agents}/${AgentApiUrl.getLookup}`)
+      .subscribe((response) => {
+        if (response && response.length) this.allAgents = [...response];
+        else this.allAgents = [];
+      });
   }
 
   getAllProcesses(): void {
@@ -130,7 +144,7 @@ export class ViewScheduleComponent implements OnInit {
   runNowJob(): void {
     this.httpService
       .post(
-        `Schedules/automation/${this.scheduleData.automationId}/RunNow?AgentId=${this.scheduleData.agentId}`
+        `${SchedulesApiUrl.schedules}/${automationsApiUrl.automation}/${this.scheduleData.automationId}/${SchedulesApiUrl.runNow}?AgentId=${this.scheduleData.agentId}`
       )
       .subscribe(() => this.httpService.success('Job created successfully'));
   }

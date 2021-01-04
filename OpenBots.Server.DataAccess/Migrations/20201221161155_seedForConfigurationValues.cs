@@ -2,28 +2,10 @@
 
 namespace OpenBots.Server.DataAccess.Migrations
 {
-    public partial class RemoveConfigurationValues : Migration
+    public partial class seedForConfigurationValues : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "ConfigurationValues");
-        }
-
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.CreateTable(
-                name: "ConfigurationValues",
-                columns: table => new
-                {
-                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ConfigurationValues", x => x.Name);
-                });
-
             migrationBuilder.InsertData(
                 table: "ConfigurationValues",
                 columns: new[] { "Name", "Value" },
@@ -37,6 +19,12 @@ namespace OpenBots.Server.DataAccess.Migrations
                     { "App:MaxReturnRecords", "100" },
                     { "App:EnableSwagger", "true" }
                 });
+
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+
         }
     }
 }

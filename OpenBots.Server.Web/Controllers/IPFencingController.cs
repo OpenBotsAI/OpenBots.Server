@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business;
 using OpenBots.Server.DataAccess.Repositories;
@@ -14,11 +12,8 @@ using OpenBots.Server.Model.Membership;
 using OpenBots.Server.Model.Options;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
-using OpenBots.Server.Web.Hubs;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -35,7 +30,6 @@ namespace OpenBots.Server.Web
     public class IPFencingController : EntityController<IPFencing>
     {
         private readonly IOrganizationSettingRepository organizationSettingRepository;
-        private readonly IIPFencingRepository iPFencingRepository;
         private readonly IIPFencingManager iPFencingManager;
         private readonly IPFencingOptions iPFencingOptions;
         private readonly IHttpContextAccessor _accessor;
@@ -60,7 +54,6 @@ namespace OpenBots.Server.Web
                 membershipManager, configuration)
         {
             this.organizationSettingRepository = organizationSettingRepository;
-            this.iPFencingRepository = repository;
             this.iPFencingManager = iPFencingManager;
             _accessor = httpContextAccessor;
             iPFencingOptions = configuration.GetSection(IPFencingOptions.IPFencing).Get<IPFencingOptions>();

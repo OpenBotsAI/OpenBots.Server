@@ -22,7 +22,7 @@ export class PagesMenu {
     });
   }
   getMenu(): Observable<NbMenuItem[]> {
-    const dashboardMenu: NbMenuItem[] = [
+    const menu: NbMenuItem[] = [
       {
         title: 'Dashboard',
         icon: { icon: 'dashboard', pack: 'custom-icons' },
@@ -30,9 +30,6 @@ export class PagesMenu {
         home: true,
         children: undefined,
       },
-    ];
-
-    const menu: NbMenuItem[] = [
       {
         title: 'Agents',
         icon: { icon: 'agent', pack: 'custom-icons' },
@@ -252,6 +249,6 @@ export class PagesMenu {
         ],
       },
     ];
-    return of([...dashboardMenu, ...menu]);
+    return of([...menu]);
   }
 }

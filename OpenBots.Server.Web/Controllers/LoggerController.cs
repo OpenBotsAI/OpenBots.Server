@@ -96,7 +96,7 @@ namespace OpenBots.Server.Web.Controllers
                     .WriteTo
                     .MSSqlServer(
                         connectionString: _connectionString,
-                        sinkOptions: new SinkOptions { TableName = "AutomationLogs" ,AutoCreateSqlTable = true},
+                        sinkOptions: new SinkOptions { TableName = "AutomationLogs", AutoCreateSqlTable = true},
                         columnOptions: columnOptions)
                     .CreateLogger();
 
