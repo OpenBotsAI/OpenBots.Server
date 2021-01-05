@@ -408,6 +408,52 @@
             Specifies the name of the policy to be created
             </summary>
         </member>
+        <member name="T:OpenBots.Server.Model.Options.FeatureManagementOptions">
+            <summary>
+            Options for managaing feature flags
+            </summary>
+            <remarks> Feature flags allow us to enable/disable features using appSettings</remarks>
+        </member>
+        <member name="F:OpenBots.Server.Model.Options.FeatureManagementOptions.FeatureManagement">
+            <summary>
+            Configuration Name in App Settings For FeatureManagementOptions
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.FeatureManagementOptions.IPFencing">
+            <summary>
+            Used to enable the IPFencing feature in the application
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.FeatureManagementOptions.Swagger">
+            <summary>
+            Used to enable the Swagger documentation feature in the application
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.FeatureManagementOptions.Hangfire">
+            <summary>
+            Used to enable the Hangfire feature in the application
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.FeatureManagementOptions.HealthChecks">
+            <summary>
+            Used to enable the HealthChecks-UI and HealthChecks-API 
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.FeatureManagementOptions.Emails">
+            <summary>
+            Used to enable the Emails API 
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.FeatureManagementOptions.Files">
+            <summary>
+            Used to enable the BinaryObjects API
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Options.FeatureManagementOptions.Queues">
+            <summary>
+            Used to enable the Queues API
+            </summary>
+        </member>
         <member name="T:OpenBots.Server.Model.Options.HealthCheckSetupOptions">
             <summary>
             Options for HealthCheckSetupOptions Configuration
