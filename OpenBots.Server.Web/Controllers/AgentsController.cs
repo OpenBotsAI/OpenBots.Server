@@ -524,7 +524,6 @@ namespace OpenBots.Server.Web.Controllers
                 var requestIp = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
                 var agent = agentRepo.FindAgent(request.MachineName, request.MacAddresses, requestIp, agentGuid);
 
-
                 if (agent == null)
                 {
                     return NotFound("Agent not found");
