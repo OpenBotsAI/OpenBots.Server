@@ -5,4 +5,5 @@ export enum automationsApiUrl {
   automationId = 'automationId',
   automationsView = 'automations/view',
   automation = 'automation', // used for run now button on schedules
+  count = 'count',
 }
