@@ -98,16 +98,15 @@ export class NgxLoginComponent implements OnInit {
     this.httpService
       .post('Auth/token', loginCredentials, headers)
       .subscribe((result: User) => {
-        console.log('result', result);
         if (
           result &&
           result.isJoinOrgRequestPending == false &&
-          result.myOrganizations.length != 0
+          result.myOrganizations.length
         ) {
+          this.submitted = false;
           this.SetLocalStorageForUser(result);
           this.httpService.success('You have successfully logged in');
           this.router.navigate(['pages/dashboard']);
-          this.submitted = false;
           this.loginForm.reset();
         } else {
           this.submitted = false;

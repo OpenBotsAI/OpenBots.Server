@@ -99,7 +99,6 @@ export class NgxRegisterComponent implements OnInit {
       Validators.maxLength(100),
     ];
     this.isFullNameRequired && loginValidators.push(Validators.required);
-   
 
     const emailValidators = [Validators.pattern(EMAIL_PATTERN)];
     this.isEmailRequired && emailValidators.push(Validators.required);
@@ -126,7 +125,6 @@ export class NgxRegisterComponent implements OnInit {
         Organization: this.fb.control('', [...orgValidators]),
         password: this.fb.control('', [...passwordValidators]),
         confirmPassword: this.fb.control('', [...passwordValidators]),
-        recaptcha: this.fb.control('',[Validators.required]),
       });
     } else {
       this.registerForm = this.fb.group({
@@ -136,7 +134,6 @@ export class NgxRegisterComponent implements OnInit {
         Organization: this.fb.control(''),
         password: this.fb.control('', [...passwordValidators]),
         confirmPassword: this.fb.control('', [...passwordValidators]),
-        recaptcha: this.fb.control('', [Validators.required]),
       });
       this.CreateNeworganization = false;
     }

@@ -3182,57 +3182,57 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.ToTable("IntegrationEventSubscriptionAttempts");
                 });
 
-            modelBuilder.Entity("OpenBots.Server.Security.AspNetUsers", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+            //modelBuilder.Entity("OpenBots.Server.Security.AspNetUsers", b =>
+            //    {
+            //        b.Property<string>("Id")
+            //            .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
+            //        b.Property<int>("AccessFailedCount")
+            //            .HasColumnType("int");
 
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+            //        b.Property<string>("Email")
+            //            .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
+            //        b.Property<bool>("EmailConfirmed")
+            //            .HasColumnType("bit");
 
-                    b.Property<bool>("ForcedPasswordChange")
-                        .HasColumnType("bit");
+            //        b.Property<bool>("ForcedPasswordChange")
+            //            .HasColumnType("bit");
 
-                    b.Property<bool?>("IsUserConsentRequired")
-                        .HasColumnType("bit");
+            //        b.Property<bool?>("IsUserConsentRequired")
+            //            .HasColumnType("bit");
 
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
+            //        b.Property<bool>("LockoutEnabled")
+            //            .HasColumnType("bit");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+            //        b.Property<string>("Name")
+            //            .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("NormalizedEmail")
-                        .HasColumnType("nvarchar(max)");
+            //        b.Property<string>("NormalizedEmail")
+            //            .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("NormalizedUserName")
-                        .HasColumnType("nvarchar(max)");
+            //        b.Property<string>("NormalizedUserName")
+            //            .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("PersonId")
-                        .HasColumnType("uniqueidentifier");
+            //        b.Property<Guid>("PersonId")
+            //            .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+            //        b.Property<string>("PhoneNumber")
+            //            .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
+            //        b.Property<bool>("PhoneNumberConfirmed")
+            //            .HasColumnType("bit");
 
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
+            //        b.Property<bool>("TwoFactorEnabled")
+            //            .HasColumnType("bit");
 
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
+            //        b.Property<string>("UserName")
+            //            .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+            //        b.HasKey("Id");
 
-                    b.ToTable("AspNetUsers");
-                });
+            //        b.ToTable("AspNetUsers");
+            //    });
 
             modelBuilder.Entity("OpenBots.Server.Model.Identity.EmailVerification", b =>
                 {

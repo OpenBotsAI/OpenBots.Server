@@ -1,20 +1,18 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { GetFileIdComponent } from './get-file-id.component';
 
-import { GetBinaryIdComponent } from './get-binary-id.component';
-
-describe('GetBinaryIdComponent', () => {
-  let component: GetBinaryIdComponent;
-  let fixture: ComponentFixture<GetBinaryIdComponent>;
+describe('GetFileIdComponent', () => {
+  let component: GetFileIdComponent;
+  let fixture: ComponentFixture<GetFileIdComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ GetBinaryIdComponent ]
-    })
-    .compileComponents();
+      declarations: [GetFileIdComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(GetBinaryIdComponent);
+    fixture = TestBed.createComponent(GetFileIdComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
