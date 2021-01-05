@@ -3311,18 +3311,18 @@
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionAttemptsController.View(System.String,System.String,System.Int32,System.Int32)">
             <summary>
-            Provides a view model list of all subscriptionAttempts
+            Provides a view model list of all SubscriptionAttempts
             </summary>
             <param name="top"></param>
             <param name="skip"></param>
             <param name="orderBy"></param>
             <param name="filter"></param>
-            <response code="200">Ok, a paginated list of all subscriptionAttempts</response>
+            <response code="200">Ok, a paginated list of all SubscriptionAttempts</response>
             <response code="400">Bad request</response>
             <response code="403">Forbidden, unauthorized access</response>  
             <response code="404">Not found</response>
             <response code="422">Unprocessable entity</response>
-            <returns>Paginated list of all subscriptionAttempts</returns>
+            <returns>Paginated list of all SubscriptionAttempts</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionAttemptsController.Get(System.String)">
             <summary>
@@ -3339,16 +3339,16 @@
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionAttemptsController.View(System.String)">
             <summary>
-            Provides a subscriptionAttempt's view model details for a particular subscriptionAttempt id
+            Provides a SubscriptionAttempt's view model details for a particular SubscriptionAttempt id
             </summary>
-            <param name="id">subscriptionAttempt id</param>
-            <response code="200">Ok, if a subscriptionAttempt exists with the given id</response>
+            <param name="id">SubscriptionAttempt id</param>
+            <response code="200">Ok, if a SubscriptionAttempt exists with the given id</response>
             <response code="304">Not modified</response>
-            <response code="400">Bad request, if subscriptionAttempt id is not in the proper format or a proper Guid</response>
+            <response code="400">Bad request, if SubscriptionAttempt id is not in the proper format or a proper Guid</response>
             <response code="403">Forbidden</response>
-            <response code="404">Not found, when no subscriptionAttempt exists for the given subscriptionAttempt id</response>
+            <response code="404">Not found, when no SubscriptionAttempt exists for the given SubscriptionAttempt id</response>
             <response code="422">Unprocessable entity</response>
-            <returns>subscriptionAttempt view model details for the given id</returns>
+            <returns>SubscriptionAttempt view model details for the given id</returns>
         </member>
         <member name="T:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController">
             <summary>

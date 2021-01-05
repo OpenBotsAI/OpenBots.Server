@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.FeatureManagement;
+using Microsoft.FeatureManagement.Mvc;
 using OpenBots.Server.Business;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model.Attributes;
@@ -18,6 +20,7 @@ using OpenBots.Server.ViewModel.Email;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using OpenBots.Server.Model.Options;
 
 namespace OpenBots.Server.Web.Controllers.EmailConfiguration
 {
@@ -28,6 +31,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
     [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
+    [FeatureGate(MyFeatureFlags.Emails)]
     public class EmailsController : EntityController<EmailModel>
     {
         private readonly IBinaryObjectRepository binaryObjectRepository;
