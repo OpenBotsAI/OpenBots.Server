@@ -27,6 +27,7 @@ using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.FeatureManagement;
 using Swashbuckle.AspNetCore.Filters;
 using HealthChecksUISettings = HealthChecks.UI.Configuration.Settings;
 using HealthChecks.UI.Client;
@@ -62,6 +63,8 @@ namespace OpenBots.Server.Web
             var corsPolicyOptions = Configuration.GetSection(CorsPolicyOptions.Origins).Get<CorsPolicyOptions>();
             var appInsightOptions = Configuration.GetSection(AppInsightOptions.ApplicationInsights).Get<AppInsightOptions>();
             var webAppUrlOptions = Configuration.GetSection(WebAppUrlOptions.WebAppUrl).Get<WebAppUrlOptions>();
+
+            services.AddFeatureManagement();
 
             ConfigureKestrel(services);
 
@@ -340,7 +343,7 @@ namespace OpenBots.Server.Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, IConfiguration configuration)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, IConfiguration configuration, IFeatureManager featureManager)
         {
             var iPFencingOptions = Configuration.GetSection(IPFencingOptions.IPFencing).Get<IPFencingOptions>();
 
@@ -366,22 +369,25 @@ namespace OpenBots.Server.Web
             app.UseAuthentication();
             if (iPFencingOptions.IPFencingCheck.Equals("EveryRequest"))
             {
-                app.UseIPFilter();
+                app.UseMiddlewareForFeature<IPFilter>(nameof(MyFeatureFlags.IPFencing));
             }
+
             app.UseMvc();
             app.UseRouting();
             app.UseAuthorization();
-
             //UpdateDatabase(app);
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<NotificationHub>("/notification");
-                ConfigureHealthcheck(endpoints, app);
+                if (featureManager.IsEnabledAsync(nameof(MyFeatureFlags.HealthChecks)).GetAwaiter().GetResult())
+                {
+                    ConfigureHealthcheck(endpoints, app);
+                }
             });
 
-            if (bool.Parse(Configuration["App:EnableSwagger"]))
+            if (bool.Parse(Configuration["App:EnableSwagger"]) && featureManager.IsEnabledAsync(nameof(MyFeatureFlags.Swagger)).GetAwaiter().GetResult())
             {
                 //Enable middleware to serve generated Swagger as a JSON endpoint.
                 app.UseSwagger();
@@ -395,7 +401,7 @@ namespace OpenBots.Server.Web
             }
 
             var tokensOptions = Configuration.GetSection(TokensOptions.Tokens).Get<TokensOptions>();
-            var tokenValidationParameters = new TokenValidationParameters()//////
+            var tokenValidationParameters = new TokenValidationParameters()
             {
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokensOptions.Key)),
                 ValidateAudience = true,
@@ -418,8 +424,11 @@ namespace OpenBots.Server.Web
                   }
             };
 
-            app.UseHangfireDashboard("/hangfire", options);
-            app.UseHangfireServer();
+            if (featureManager.IsEnabledAsync(nameof(MyFeatureFlags.Hangfire)).GetAwaiter().GetResult())
+            {
+                app.UseHangfireDashboard("/hangfire", options);
+                app.UseHangfireServer();
+            }
 
             app.UseForwardedHeaders();
 
