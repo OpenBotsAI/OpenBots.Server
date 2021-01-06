@@ -72,7 +72,7 @@ namespace XUnitTests
 
             //Create loggers
             var jobLogger = Mock.Of<ILogger<Job>>();
-            var agentLogger = Mock.Of<ILogger<AgentModel>>();
+            var agentLogger = Mock.Of<ILogger<Agent>>();
             var processLogger = Mock.Of<ILogger<Automation>>();
             var jobParameterLogger = Mock.Of<ILogger<JobParameter>>();
             var jobCheckpointLogger = Mock.Of<ILogger<JobCheckpoint>>();

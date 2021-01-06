@@ -4,9 +4,9 @@ using System;
 
 namespace OpenBots.Server.DataAccess.Repositories
 {
-    public interface IAgentRepository : IEntityRepository<AgentModel>
+    public interface IAgentRepository : IEntityRepository<Agent>
     {
-        AgentModel FindAgent(string machineName, string macAddress, string ipAddress, Guid? agentID);
+        Agent FindAgent(string machineName, string macAddress, string ipAddress, Guid? agentID);
 
         AgentViewModel GetAgentDetailById(string id);
     }

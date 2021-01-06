@@ -1,14 +1,13 @@
-﻿using OpenBots.Server.Model;
+﻿#nullable enable
+using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
 using System;
 using System.Collections.Generic;
 
 namespace OpenBots.Server.ViewModel
 {
-    public class AllQueueItemsViewModel : IViewModel<QueueItemModel, AllQueueItemsViewModel>
-    {
-		public string Name { get; set; }
-		public Guid? Id { get; set; }
+	public class QueueItemViewModel : NamedEntity, IViewModel<Model.QueueItem, QueueItemViewModel>
+	{
 		public string State { get; set; }
 		public string StateMessage { get; set; }
 		public bool IsLocked { get; set; }
@@ -24,13 +23,19 @@ namespace OpenBots.Server.ViewModel
 		public string? Source { get; set; }
 		public string? Event { get; set; }
 		public string? ResultJSON { get; set; }
-		public List<Guid>? BinaryObjectIds { get; set; }
-		public Guid? QueueId { get; set; }
-		public DateTime? CreatedOn { get; set; }
+		public Guid QueueId { get; set; }
+		public string Type { get; set; }
+		public string JsonType { get; set; }
+		public string DataJson { get; set; }
+		public Guid? LockTransactionKey { get; set; }
+		public int RetryCount { get; set; }
+		public int Priority { get; set; }
+		public long? PayloadSizeInBytes { get; set; }
+		public List<Guid?> BinaryObjectIds { get; set; }
 
-		public AllQueueItemsViewModel Map(QueueItemModel entity)
+		public QueueItemViewModel Map(Model.QueueItem entity)
 		{
-			AllQueueItemsViewModel queueItemViewModel = new AllQueueItemsViewModel();
+			QueueItemViewModel queueItemViewModel = new QueueItemViewModel();
 
 			queueItemViewModel.Name = entity.Name;
 			queueItemViewModel.Id = entity.Id;
@@ -49,8 +54,22 @@ namespace OpenBots.Server.ViewModel
 			queueItemViewModel.Source = entity.Source;
 			queueItemViewModel.Event = entity.Event;
 			queueItemViewModel.ResultJSON = entity.ResultJSON;
-			queueItemViewModel.QueueId = entity.QueueId;
+			queueItemViewModel.CreatedBy = entity.CreatedBy;
 			queueItemViewModel.CreatedOn = entity.CreatedOn;
+			queueItemViewModel.DeletedBy = entity.DeletedBy;
+			queueItemViewModel.DeleteOn = entity.DeleteOn;
+			queueItemViewModel.IsDeleted = entity.IsDeleted;
+			queueItemViewModel.Timestamp = entity.Timestamp;
+			queueItemViewModel.UpdatedBy = entity.UpdatedBy;
+			queueItemViewModel.UpdatedOn = entity.UpdatedOn;
+			queueItemViewModel.QueueId = entity.QueueId;
+			queueItemViewModel.Type = entity.Type;
+			queueItemViewModel.JsonType = entity.JsonType;
+			queueItemViewModel.DataJson = entity.DataJson;
+			queueItemViewModel.LockTransactionKey = entity.LockTransactionKey;
+			queueItemViewModel.RetryCount = entity.RetryCount;
+			queueItemViewModel.Priority = entity.Priority;
+			queueItemViewModel.PayloadSizeInBytes = entity.PayloadSizeInBytes;
 
 			return queueItemViewModel;
 		}

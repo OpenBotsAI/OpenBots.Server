@@ -3,13 +3,13 @@ using OpenBots.Server.Model.Core;
 
 namespace OpenBots.Server.ViewModel.AgentViewModels
 {
-    public class ConnectedViewModel : IViewModel<AgentModel, ConnectedViewModel>
+    public class ConnectedViewModel : IViewModel<Agent, ConnectedViewModel>
     {
         public string AgentId { get; set; }
 
         public string AgentName { get; set; }
 
-        public ConnectedViewModel Map(AgentModel entity)
+        public ConnectedViewModel Map(Agent entity)
         {
             ConnectedViewModel connected = new ConnectedViewModel
             {

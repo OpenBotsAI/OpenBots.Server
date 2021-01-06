@@ -7,5 +7,6 @@ namespace OpenBots.Server.Model
     {
         public Guid QueueItemId { get; set; }
         public Guid BinaryObjectId { get; set; }
+        public long SizeInBytes { get; set; }
     }
 }

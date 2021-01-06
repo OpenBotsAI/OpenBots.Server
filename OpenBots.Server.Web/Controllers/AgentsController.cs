@@ -28,7 +28,7 @@ namespace OpenBots.Server.Web.Controllers
     [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
-    public class AgentsController : EntityController<AgentModel>
+    public class AgentsController : EntityController<Agent>
     {
         IAgentManager agentManager;
         IWebhookPublisher webhookPublisher;
@@ -85,14 +85,14 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Paginated list of all agents</returns>
         [HttpGet]
-        [ProducesResponseType(typeof(PaginatedList<AgentModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<Agent>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AgentModel> Get(
+        public PaginatedList<Agent> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
@@ -137,7 +137,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="404">Not found, when no agent exists for the given agent id</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Agent details for the given id</returns>
-        [HttpGet("{id}", Name = "GetAgentModel")]
+        [HttpGet("{id}", Name = "GetAgent")]
         [ProducesResponseType(typeof(AgentViewModel), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
@@ -181,7 +181,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
         /// <returns>Newly created unique agent id with route name</returns>
         [HttpPost]
-        [ProducesResponseType(typeof(AgentModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Agent), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -193,7 +193,7 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 //Name must be unique
-                AgentModel namedAgent = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
+                Agent namedAgent = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
                 if (namedAgent != null)
                 {
                     ModelState.AddModelError("Agent", "Agent Name Already Exists");
@@ -250,7 +250,7 @@ namespace OpenBots.Server.Web.Controllers
                     await userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
 
                     //Post Agent entity
-                    AgentModel newAgent = request.Map(request);
+                    Agent newAgent = request.Map(request);
                     await webhookPublisher.PublishAsync("Agents.NewAgentCreated", newAgent.Id.ToString(), newAgent.Name).ConfigureAwait(false);
                     return await base.PostEntity(newAgent);
                 }
@@ -283,7 +283,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Put(string id, [FromBody] AgentModel request)
+        public async Task<IActionResult> Put(string id, [FromBody] Agent request)
         {
             try
             {
@@ -355,7 +355,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string id)
         {
-            AgentModel agent = agentRepo.GetOne(new Guid(id));
+            Agent agent = agentRepo.GetOne(new Guid(id));
             if (agent == null)
             {
                 ModelState.AddModelError("Delete Agent", "No Agent was found with the specified Agent ID");
@@ -422,7 +422,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id,
-            [FromBody] JsonPatchDocument<AgentModel> request)
+            [FromBody] JsonPatchDocument<Agent> request)
         {
             Guid entityId = new Guid(id);
 
@@ -484,7 +484,7 @@ namespace OpenBots.Server.Web.Controllers
                 }
                 if (agent.IsConnected == false)
                 {
-                    JsonPatchDocument<AgentModel> connectPatch = new JsonPatchDocument<AgentModel>();
+                    JsonPatchDocument<Agent> connectPatch = new JsonPatchDocument<Agent>();
 
                     connectPatch.Replace(e => e.IsConnected, true);
                     await base.PatchEntity(agent.Id.ToString(), connectPatch);
@@ -539,7 +539,7 @@ namespace OpenBots.Server.Web.Controllers
                     return BadRequest(ModelState);
                 }
 
-                JsonPatchDocument<AgentModel> disconnectPatch = new JsonPatchDocument<AgentModel>();
+                JsonPatchDocument<Agent> disconnectPatch = new JsonPatchDocument<Agent>();
 
                 disconnectPatch.Replace(e => e.IsConnected, false);
                 return await base.PatchEntity(agentID, disconnectPatch);
@@ -582,7 +582,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
                     request.Id = entityId;
 
-                AgentModel agent = agentRepo.GetOne(new Guid(agentId));
+                Agent agent = agentRepo.GetOne(new Guid(agentId));
                 if (agent == null)
                 {
                     return NotFound("The Agent ID provided does not match any existing Agents");
@@ -643,7 +643,7 @@ namespace OpenBots.Server.Web.Controllers
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            AgentModel agent = agentRepo.GetOne(new Guid(agentId));
+            Agent agent = agentRepo.GetOne(new Guid(agentId));
             if (agent == null)
             {
                 return NotFound("The Agent ID provided does not match any existing Agents");

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace OpenBots.Server.Model.Identity
 {
     [NotMapped]
-    public class VerifyAgentModel
+    public class VerifyAgent
     {
         [Required]
         public string AgentId { get; set; }

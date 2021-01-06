@@ -108,7 +108,7 @@ namespace OpenBots.Server.Web.Webhooks
                         backgroundJobClient.Enqueue<WebhookSender>(x => x.SendWebhook(eventSubscription, payload, subscriptionAttempt));
                         break;
                     case TransportType.Queue:
-                        QueueItemModel queueItem = new QueueItemModel
+                        QueueItem queueItem = new QueueItem
                         {
                             Name = eventSubscription.Name,
                             IsLocked = false,

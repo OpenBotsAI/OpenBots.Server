@@ -12,10 +12,10 @@ namespace OpenBots.Server.DataAccess
     {
         public DbSet<LookupValue> LookupValues { get; set; }
         public DbSet<ApplicationVersion> AppVersion { get; set; }
-        public DbSet<QueueItemModel> QueueItems { get; set; }
+        public DbSet<QueueItem> QueueItems { get; set; }
         public DbSet<QueueItemAttachment> QueueItemAttachments { get; set; }
         public DbSet<BinaryObject> BinaryObjects { get; set; }
-        public DbSet<AgentModel> Agents { get; set; }
+        public DbSet<Agent> Agents { get; set; }
         public DbSet<AgentHeartbeat> AgentHeartbeats { get; set; }
         public DbSet<Queue> Queues { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
@@ -32,7 +32,7 @@ namespace OpenBots.Server.DataAccess
         public DbSet<ConfigurationValue> ConfigurationValues { get; set; }
         public DbSet<EmailAccount> EmailAccounts { get; set; }
         public DbSet<EmailSettings> EmailSettings { get; set; }
-        public DbSet<EmailModel> Emails { get; set; }
+        public DbSet<Email> Emails { get; set; }
         public DbSet<EmailAttachment> EmailAttachments { get; set; }
         public DbSet<IPFencing> IPFencings { get; set; }
         public DbSet<IntegrationEvent> IntegrationEvents { get; set; }

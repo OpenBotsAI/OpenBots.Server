@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OpenBots.Server.ViewModel
 {
-    public class AgentViewModel : IViewModel<AgentModel, AgentViewModel>
+    public class AgentViewModel : IViewModel<Agent, AgentViewModel>
     {
         [Display(Name = "Id")]
         public Guid? Id { get; set; }
@@ -27,7 +27,7 @@ namespace OpenBots.Server.ViewModel
         public Guid? CredentialId { get; set; }
         public string CredentialName { get; set; }
 
-        public AgentViewModel Map(AgentModel entity)
+        public AgentViewModel Map(Agent entity)
         {
             AgentViewModel agentView = new AgentViewModel
             {

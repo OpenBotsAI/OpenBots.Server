@@ -356,6 +356,7 @@ namespace OpenBots.Server.Web
 
                 JsonPatchDocument<Job> statusPatch = new JsonPatchDocument<Job>();
                 statusPatch.Replace(j => j.JobStatus, JobStatusType.Assigned);
+                statusPatch.Replace(j => j.DequeueTime, DateTime.UtcNow);
 
                 NextJobViewModel nextJob = jobManager.GetNextJob(agentGuid);
 

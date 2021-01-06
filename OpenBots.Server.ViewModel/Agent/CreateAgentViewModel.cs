@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OpenBots.Server.ViewModel.AgentViewModels
 {
-    public class CreateAgentViewModel : IViewModel<CreateAgentViewModel, AgentModel>
+    public class CreateAgentViewModel : IViewModel<CreateAgentViewModel, Agent>
     {
         public Guid? Id { get; set; }
         [RegularExpression("^[A-Za-z0-9_.-]{3,100}$", ErrorMessage = "Please enter valid Agent name.")] // Alphanumeric with Underscore, Hyphen and Dot only
@@ -26,9 +26,9 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
         [Required(ErrorMessage = "Please enter your password.")]
         public string Password { get; set; }
 
-        public AgentModel Map(CreateAgentViewModel viewModel)
+        public Agent Map(CreateAgentViewModel viewModel)
         {
-            AgentModel agent = new AgentModel
+            Agent agent = new Agent
             {
                 Id = viewModel.Id,
                 Name = viewModel.Name,
