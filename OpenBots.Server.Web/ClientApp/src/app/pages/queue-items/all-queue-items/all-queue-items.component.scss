@@ -116,6 +116,8 @@
 
 .checkbox.checbox-switch {
   padding-left: 0px;
+  padding-right: 10px;
+  float: left;
 }
 
 .checkbox.checbox-switch label,
@@ -319,4 +321,10 @@
   .customQueueForm select {
     width: 100%;
   }
+}
+
+.refresh-icon{
+  float: right;
+  background: transparent;
+  border: none;
 }

@@ -38,4 +38,5 @@ export interface QueueItem {
   lockedEndTimeUTC: Date;
   stateMessage: string;
   binaryObjectIds: string[];
+  payloadSizeInBytes: string | string[]; // for pipe transformation
 }

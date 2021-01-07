@@ -226,4 +226,8 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
     if (!item) return null;
     return index;
   }
+
+  refreshQueueItems(): void {
+    this.pagination(this.page.pageNumber, this.page.pageSize);
+  }
 }

@@ -7,24 +7,7 @@
       <nb-card-body>
         <form [formGroup]="queueItemForm" autocomplete="off">
           <div class="row rowPadding">
-            <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <label for="queueId" class="label">Queue *</label>
-              <select class="custom-select" formControlName="queueId">
-                <option value="" [disabled]="true">Please select Queue</option>
-                <option *ngFor="let item of queuesArr" [value]="item?.id">
-                  {{ item?.name }}
-                </option>
-              </select>
-              <div *ngIf="
-                  controls.queueId.invalid &&
-                  (controls.queueId.dirty || controls.queueId.touched)
-                " class="invalid-feedback-frm">
-                <div *ngIf="controls.queueId.errors.required">
-                  Queue is required.
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 col-lg-6 col-xxxl-6">
+            <div class="col-md-12 col-lg-12 col-xxxl-12">
               <label for="name" class="label">Name *</label>
               <input type="input" nbInput fullWidth id="name" formControlName="name" placeholder="Please enter name"
                 ngxSpecialChar trim="blur" />
@@ -44,6 +27,52 @@
               </div>
             </div>
           </div>
+          <div class="row rowPadding">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="queueId" class="label">Queue *</label>
+              <select class="custom-select" formControlName="queueId">
+                <option value="" [disabled]="true">Please select Queue</option>
+                <option *ngFor="let item of queuesArr" [value]="item?.id">
+                  {{ item?.name }}
+                </option>
+              </select>
+              <div *ngIf="controls.queueId.invalid &&
+                  (controls.queueId.dirty || controls.queueId.touched)" class="invalid-feedback-frm">
+                <div *ngIf="controls.queueId.errors.required">
+                  Queue is required.
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="queueId" class="label">State</label>
+              <select class="custom-select" formControlName="state">
+                <option value="" [disabled]="true">Please select state</option>
+                <option *ngFor="let item of state" [value]="item?.name">
+                  {{ item?.name }}
+                </option>
+              </select>
+            </div>
+            <!-- <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="name" class="label">Name *</label>
+              <input type="input" nbInput fullWidth id="name" formControlName="name" placeholder="Please enter name"
+                ngxSpecialChar trim="blur" />
+              <div *ngIf="
+                  controls.name.invalid &&
+                  (controls.name.dirty || controls.name.touched)
+                " class="invalid-feedback-frm">
+                <div *ngIf="controls.name.errors.required">
+                  Name is required.
+                </div>
+                <div *ngIf="controls.name.errors.minlength">
+                  Name must be at least 3 characters long.
+                </div>
+                <div *ngIf="controls.name.errors.maxlength">
+                  Name can be 100 characters long.
+                </div>
+              </div>
+            </div> -->
+          </div>
+
           <div class="row rowPadding">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="source" class="label">Source</label>
@@ -202,15 +231,15 @@
             <tr>
               <th scope="col">
                 Name
-                <i></i>
               </th>
               <th scope="col">
                 File Size
-                <i></i>
               </th>
               <th scope="col">
                 Download File
-                <i></i>
+              </th>
+              <th scope="col">
+                Delete
               </th>
             </tr>
           </thead>
@@ -225,6 +254,11 @@
               <td>
                 <a (click)="downloadFile(files?.id)"><i class="fa fa-download"></i></a>
               </td>
+              <td>
+                <a (click)="openDeleteDialog(deleteDialog, files?.id)">
+                  <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
+                </a>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -232,3 +266,25 @@
     </nb-card>
   </div>
 </div>
+
+
+<ng-template #deleteDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <h6>Delete File</h6>
+    </nb-card-header>
+    <nb-card-body>
+      <div aria-labelledby="title">
+        <p>Are you sure you want to delete?</p>
+      </div>
+    </nb-card-body>
+    <nb-card-footer>
+      <button [disabled]="isDeleted" class="btn btn-danger" (click)="deleteFiles(ref)">
+        Delete
+      </button>
+      <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
+        Cancel
+      </button>
+    </nb-card-footer>
+  </nb-card>
+</ng-template>

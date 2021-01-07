@@ -4,4 +4,5 @@ export enum QueueItemsApiUrl {
   enqueue = 'Enqueue',
   attach = 'attach',
   count = 'count',
+  queueitemattachments = 'queueitemattachments',
 }

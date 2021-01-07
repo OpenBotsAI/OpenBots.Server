@@ -1,4 +1,10 @@
-import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpService } from '../../../@core/services/http.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -20,6 +26,7 @@ import {
   QueueItemsApiUrl,
   QueuesApiUrls,
 } from '../../../webApiUrls';
+import { DialogService } from '../../../@core/dialogservices';
 @Component({
   selector: 'ngx-add-queue-items',
   templateUrl: './add-queue-items.component.html',
@@ -52,6 +59,15 @@ export class AddQueueItemsComponent implements OnInit {
   myFiles: UploadFile[] = [];
   queueItemFiles: BinaryFile[] = [];
   queuefiles: string[] = [];
+  isDeleted = false;
+  deleteId: string;
+  state: { name: string; value: number }[] = [
+    { name: 'New', value: 0 },
+    // { name: 'InProgress', value: 1 },
+    { name: 'Failed', value: 2 },
+    { name: 'Success', value: 3 },
+    { name: 'Expired', value: 4 },
+  ];
   @ViewChild(JsonEditorComponent) editor: JsonEditorComponent;
 
   constructor(
@@ -61,7 +77,8 @@ export class AddQueueItemsComponent implements OnInit {
     private router: Router,
     private dateService: NbDateService<Date>,
     private helperService: HelperService,
-    private fileSaverService: FileSaverService
+    private fileSaverService: FileSaverService,
+    private dialogService: DialogService
   ) {}
 
   ngOnInit(): void {
@@ -77,7 +94,7 @@ export class AddQueueItemsComponent implements OnInit {
       this.getQueueDataById();
       this.title = 'Update';
       this.btnText = 'Update';
-    }
+    } else this.queueItemForm.get('state').disable();
     this.min = this.dateService.addMonth(this.dateService.today(), 0);
     this.max = this.dateService.addMonth(this.dateService.today(), 1);
   }
@@ -85,8 +102,7 @@ export class AddQueueItemsComponent implements OnInit {
   initializigQueueItemForm() {
     return this.fb.group({
       id: [''],
-      organizationId: localStorage.getItem('ActiveOrganizationID'),
-      // processID: null,
+      // organizationId: localStorage.getItem('ActiveOrganizationID'),
       name: [
         '',
         [
@@ -172,6 +188,7 @@ export class AddQueueItemsComponent implements OnInit {
   }
 
   addItem(): void {
+    delete this.queueItemForm.value.id;
     this.httpService
       .post(
         `${QueueItemsApiUrl.QueueItems}/${QueueItemsApiUrl.enqueue}`,
@@ -184,29 +201,45 @@ export class AddQueueItemsComponent implements OnInit {
             if (this.fileArray.length) {
               const formData = new FormData();
               for (let data of this.fileArray) {
-                formData.append('Files', data.file.nativeFile, data.file.name);
-                this.httpService
-                  .post(
-                    `${QueueItemsApiUrl.QueueItems}/${response.id}/${QueueItemsApiUrl.attach}`,
-                    formData
-                  )
-                  .subscribe(
-                    (response) => {
-                      if (response) {
-                        count++;
-                        if (count == this.fileArray.length) {
-                          this.httpService.success(
-                            'Queue item created successfully'
-                          );
-                          this.navigateToQueueItemsList();
-                          this.isSubmitted = false;
-                          this.queueItemForm.reset();
-                        }
-                      }
-                    },
-                    () => (this.isSubmitted = false)
-                  );
+                formData.append('files', data.file.nativeFile, data.file.name);
               }
+              this.httpService
+                .post(
+                  `${QueueItemsApiUrl.QueueItems}/${response.id}/${QueueItemsApiUrl.queueitemattachments}`,
+                  formData,
+                  { observe: 'response' }
+                )
+                .subscribe((response) => {
+                  if (response && response.status === 200)
+                    this.httpService.success('Queue item created successfully');
+                  this.navigateToQueueItemsList();
+                  this.isSubmitted = false;
+                  this.queueItemForm.reset();
+                });
+              // for (let data of this.fileArray) {
+              //   formData.append('files', data.file.nativeFile, data.file.name);
+              //   this.httpService
+              //     .post(
+              //       `${QueueItemsApiUrl.QueueItems}/${response.id}/${QueueItemsApiUrl.queueitemattachments}`,
+              //       formData
+              //     )
+              //     .subscribe(
+              //       (response) => {
+              //         if (response) {
+              //           count++;
+              //           if (count == this.fileArray.length) {
+              //             this.httpService.success(
+              //               'Queue item created successfully'
+              //             );
+              //             this.navigateToQueueItemsList();
+              //             this.isSubmitted = false;
+              //             this.queueItemForm.reset();
+              //           }
+              //         }
+              //       },
+              //       () => (this.isSubmitted = false)
+              //     );
+              // }
             } else {
               this.navigateToQueueItemsList();
               this.isSubmitted = false;
@@ -333,13 +366,18 @@ export class AddQueueItemsComponent implements OnInit {
   }
 
   getQueueItemFiles(): void {
-    for (let binaryObjectId of this.queuefiles) {
-      this.httpService
-        .get(`${FilesApiUrl.BinaryObjects}/${binaryObjectId}`)
-        .subscribe((response) => {
-          if (response) this.queueItemFiles.push(response);
-        });
-    }
+    // for (let binaryObjectId of this.queuefiles) {
+    this.httpService
+      // .get(`${FilesApiUrl.BinaryObjects}/${binaryObjectId}`)
+      .get(
+        `${QueueItemsApiUrl.QueueItems}/${this.queueItemId}/${QueueItemsApiUrl.queueitemattachments}`
+      )
+      .subscribe((response) => {
+        if (response && response.items && response.items.length)
+          this.queueItemFiles = [...response.items];
+        // this.queueItemFiles.push(response);
+      });
+    // }
   }
 
   downloadFile(id: string): void {
@@ -358,5 +396,35 @@ export class AddQueueItemsComponent implements OnInit {
             .replace(/\"/g, '')
         );
       });
+  }
+
+  openDeleteDialog(ref: TemplateRef<any>, id: string): void {
+    this.deleteId = id;
+    this.dialogService.openDialog(ref);
+  }
+
+  deleteFiles(ref): void {
+    this.isDeleted = true;
+    this.httpService
+      .delete(
+        `${QueueItemsApiUrl.QueueItems}/${this.queueItemId}/${QueueItemsApiUrl.queueitemattachments}/${this.deleteId}`,
+        { observe: 'response' }
+      )
+      .subscribe(
+        (response) => {
+          if (response && response.status === 200) {
+            ref.close();
+            let index = this.queueItemFiles.findIndex(
+              (file) => file.id === this.deleteId
+            );
+            if (index > -1) {
+              this.queueItemFiles.splice(index, 1);
+            }
+            this.httpService.success('Deleted Successfully');
+            this.isDeleted = false;
+          }
+        },
+        () => (this.isDeleted = false)
+      );
   }
 }

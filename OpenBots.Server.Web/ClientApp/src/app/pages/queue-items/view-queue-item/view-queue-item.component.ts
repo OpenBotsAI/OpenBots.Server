@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { JsonEditorComponent, JsonEditorOptions } from 'ang-jsoneditor';
 import { FileSaverService } from 'ngx-filesaver';
+import { FileSizePipe } from 'ngx-filesize';
 import { HelperService } from '../../../@core/services/helper.service';
 import { HttpService } from '../../../@core/services/http.service';
 import { BinaryFile } from '../../../interfaces/file';
@@ -70,6 +71,7 @@ export class ViewQueueItemComponent implements OnInit {
       expireOnUTC: [''],
       postponeUntilUTC: [''],
       resultJSON: [''],
+      payloadSizeInBytes: [],
     });
   }
 
@@ -105,6 +107,9 @@ export class ViewQueueItemComponent implements OnInit {
             response.postponeUntilUTC,
             'lll'
           );
+          response.payloadSizeInBytes = this.helperService.getFileSize(
+            +response.payloadSizeInBytes
+          );
           this.attachedFiles = response.binaryObjectIds;
           this.showQueueItemForm.patchValue(response);
           this.showQueueItemForm.disable();
@@ -123,12 +128,16 @@ export class ViewQueueItemComponent implements OnInit {
   }
 
   getFilesById(): void {
-    for (let attachedFileId of this.attachedFiles)
-      this.httpService
-        .get(`${FilesApiUrl.BinaryObjects}/${attachedFileId}`)
-        .subscribe((response) => {
-          if (response) this.queueItemFiles.push(response);
-        });
+    // for (let attachedFileId of this.attachedFiles)
+    this.httpService
+      // .get(`${FilesApiUrl.BinaryObjects}/${attachedFileId}`)
+      .get(
+        `${QueueItemsApiUrl.QueueItems}/${this.queueItemId}/${QueueItemsApiUrl.queueitemattachments}`
+      )
+      .subscribe((response) => {
+        if (response && response.items && response.items.length)
+          this.queueItemFiles = [...response.items];
+      });
   }
 
   downloadFile(id: string): void {
