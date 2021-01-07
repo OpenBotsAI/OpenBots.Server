@@ -208,20 +208,23 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                 await userManager.SetAuthenticationTokenAsync(user, userManager.Options.Tokens.AuthenticatorTokenProvider, "refresh", newRefreshToken).ConfigureAwait(false);
                 try
                 {
-                    AuditLog auditLog = new AuditLog();
-                    auditLog.ChangedFromJson = null;
-                    auditLog.ChangedToJson = JsonConvert.SerializeObject(authenticatedUser);
-                    auditLog.CreatedBy = user.Email;
-                    auditLog.CreatedOn = DateTime.UtcNow;
-                    auditLog.Id = Guid.NewGuid();
-                    auditLog.IsDeleted = false;
-                    auditLog.MethodName = "Login";
-                    auditLog.ServiceName = this.ToString();
-                    auditLog.Timestamp = new byte[1];
-                    auditLog.ParametersJson = "";
-                    auditLog.ExceptionJson = "";
+                    if (person.IsAgent == false)
+                    {
+                        AuditLog auditLog = new AuditLog();
+                        auditLog.ChangedFromJson = null;
+                        auditLog.ChangedToJson = JsonConvert.SerializeObject(authenticatedUser);
+                        auditLog.CreatedBy = user.Email;
+                        auditLog.CreatedOn = DateTime.UtcNow;
+                        auditLog.Id = Guid.NewGuid();
+                        auditLog.IsDeleted = false;
+                        auditLog.MethodName = "Login";
+                        auditLog.ServiceName = this.ToString();
+                        auditLog.Timestamp = new byte[1];
+                        auditLog.ParametersJson = "";
+                        auditLog.ExceptionJson = "";
 
-                    auditLogRepository.Add(auditLog); //Log entry
+                        auditLogRepository.Add(auditLog); //Log entry
+                    }
                 }
                 catch (Exception ex)
                 {

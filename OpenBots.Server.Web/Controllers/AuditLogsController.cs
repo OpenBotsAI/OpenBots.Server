@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Security;
@@ -12,12 +11,8 @@ using OpenBots.Server.WebAPI.Controllers;
 using OpenBots.Server.Business;
 using OpenBots.Server.Model;
 using OpenBots.Server.ViewModel;
-using YamlDotNet.Core.Tokens;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
+using OpenBots.Server.ViewModel.AuditLog;
 using OpenBots.Server.Model.Attributes;
-using OpenBots.Server.Model.Options;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
 
 namespace OpenBots.Server.Web.Controllers
@@ -33,6 +28,7 @@ namespace OpenBots.Server.Web.Controllers
     {
         private readonly IAuditLogManager manager;
         private IConfiguration config { get; }
+        private readonly IAuditLogRepository repository;
 
         /// <summary>
         /// AuditLogController constructor
@@ -52,6 +48,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             this.manager = manager;
             config = configuration;
+            this.repository = repository;
         }
 
         /// <summary>
@@ -77,7 +74,6 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesDefaultResponseType]
         public PaginatedList<AuditLogViewModel> Get(
         [FromQuery(Name = "$filter")] string filter = "",
-        //Order audit logs by most recent date
         [FromQuery(Name = "$orderby")] string orderBy = "",
         [FromQuery(Name = "$top")] int top = 100,
         [FromQuery(Name = "$skip")] int skip = 0
@@ -87,10 +83,62 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
+        /// Provides a ViewModel list of all audit logs
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="top"></param>
+        /// <param name="skip"></param>
+        /// <param name="orderBy"></param>
+        /// <response code="200">Ok, a paginated list of all audit logs</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Paginated ViewModel list of all audit logs</returns>
+        [HttpGet("view")]
+        [ProducesResponseType(typeof(PaginatedList<AuditLogViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public PaginatedList<AuditLogViewModel> GetView(
+        [FromQuery(Name = "$filter")] string filter = "",
+        [FromQuery(Name = "$orderby")] string orderBy = "",
+        [FromQuery(Name = "$top")] int top = 100,
+        [FromQuery(Name = "$skip")] int skip = 0
+        )
+        {
+            ODataHelper<AuditLogViewModel> oData = new ODataHelper<AuditLogViewModel>();
+
+            string queryString = "";
+
+            if (HttpContext != null
+                && HttpContext.Request != null
+                && HttpContext.Request.QueryString != null
+                && HttpContext.Request.QueryString.HasValue)
+                queryString = HttpContext.Request.QueryString.Value;
+
+            oData.Parse(queryString);
+            Guid parentguid = Guid.Empty;
+            var newNode = oData.ParseOrderByQuery(queryString);
+            if (newNode == null)
+                newNode = new OrderByNode<AuditLogViewModel>();
+
+            Predicate<AuditLogViewModel> predicate = null;
+            if (oData != null && oData.Filter != null)
+                predicate = new Predicate<AuditLogViewModel>(oData.Filter);
+            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
+
+            return manager.GetAuditLogsView(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+        }
+
+        /// <summary>
         /// Gets count of AuditLogs in database
         /// </summary>
         /// <param name="filter"></param>
-        /// <response code="200">Ok, count of alll audit logs</response>
+        /// <response code="200">Ok, count of all audit logs</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden</response>
         /// <response code="404">Not found</response>
@@ -113,7 +161,7 @@ namespace OpenBots.Server.Web.Controllers
         /// Provides additional details on a specific audit Log
         /// </summary>
         /// <param name="id">Audit log id</param>
-        /// <response code="200">Ok, if an audit Log exists with the given id</response>
+        /// <response code="200">Ok, if an audit log exists with the given id</response>
         /// <response code="304">Not modified</response>
         /// <response code="400">Bad request, if audit log id is not in proper format</response>
         /// <response code="403">Forbidden</response>
@@ -134,6 +182,49 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 return await base.GetEntity(id.ToString());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Provides additional ViewModel details on a specific audit Log
+        /// </summary>
+        /// <param name="id">Audit log id</param>
+        /// <response code="200">Ok, if an audit log exists with the given id</response>
+        /// <response code="304">Not modified</response>
+        /// <response code="400">Bad request, if audit log id is not in proper format</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not found, when no audit Log exists for the given audit log id</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Audit log details for the given id</returns>
+        [HttpGet("{id}/view")]
+        [ProducesResponseType(typeof(PaginatedList<AuditLog>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> GetDetailsView(Guid id)
+        {
+            try
+            {
+                var log = repository.GetOne(id);
+
+                string name = repository.GetServiceName(log);
+
+                var logView = new AuditLogDetailsViewModel();
+                logView = logView.Map(log);
+                logView.ServiceName = name;
+
+                PaginatedList<AuditLogDetailsViewModel> logList = new PaginatedList<AuditLogDetailsViewModel>();
+                logList.Add(logView);
+
+                return Ok(logList);
             }
             catch (Exception ex)
             {
@@ -165,13 +256,15 @@ namespace OpenBots.Server.Web.Controllers
 
             if (response != null)
             {
-                auditLogsList.ServiceNameList = new List<string>();                
-                foreach (var item in response.Items)
+                auditLogsList.ServiceNameList = new List<string>();       
+                foreach (AuditLog item in response.Items)
                 {
-                    auditLogsList.ServiceNameList.Add(item.ServiceName);
+                    string serviceName = item.ServiceName;
+                    string name = repository.GetServiceName(item);
 
+                    if (!auditLogsList.ServiceNameList.Contains(name))
+                        auditLogsList.ServiceNameList.Add(name);
                 }
-                auditLogsList.ServiceNameList = auditLogsList.ServiceNameList.Distinct().ToList();
             }
             return auditLogsList;
         }
