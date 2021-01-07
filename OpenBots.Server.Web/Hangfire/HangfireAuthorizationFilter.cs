@@ -73,7 +73,7 @@ namespace OpenBots.Server.WebAPI.Hangfire
                     access_token,
                     new CookieOptions()
                     {
-                        Expires = DateTime.Now.AddMinutes(CookieExpirationMinutes)
+                        Expires = DateTime.UtcNow.AddMinutes(CookieExpirationMinutes)
                     });
                 }
 

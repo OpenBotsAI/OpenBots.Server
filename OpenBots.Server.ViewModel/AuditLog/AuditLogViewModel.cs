@@ -1,13 +1,13 @@
-﻿using OpenBots.Server.Model;
-using OpenBots.Server.Model.Core;
+﻿using OpenBots.Server.Model.Core;
 using System;
+using AuditLogModel = OpenBots.Server.Model.AuditLog;
 
 namespace OpenBots.Server.ViewModel
 {
     /// <summary>
     /// ViewModel for Audit Log model
     /// </summary>
-    public class AuditLogViewModel : IViewModel<AuditLog, AuditLogViewModel>
+    public class AuditLogViewModel : IViewModel<AuditLogModel, AuditLogViewModel>
     {
         /// <summary>
         /// Name of Service used
@@ -39,7 +39,7 @@ namespace OpenBots.Server.ViewModel
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public AuditLogViewModel Map(AuditLog entity)
+        public AuditLogViewModel Map(AuditLogModel entity)
         {
             AuditLogViewModel auditLogViewModel = new AuditLogViewModel();
 

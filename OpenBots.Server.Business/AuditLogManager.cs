@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
+using OpenBots.Server.Model.Core;
+using OpenBots.Server.ViewModel;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -29,6 +31,7 @@ namespace OpenBots.Server.Business
 
             return csv;
         }
+
         public MemoryStream ZipCsv(FileContentResult csvFile)
         {
             var compressedFileStream = new MemoryStream();
@@ -45,6 +48,11 @@ namespace OpenBots.Server.Business
             }
             return compressedFileStream;
 
+        }
+
+        public PaginatedList<AuditLogViewModel> GetAuditLogsView(Predicate<AuditLogViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        {
+            return repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
     }
 }

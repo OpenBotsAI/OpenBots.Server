@@ -37,7 +37,7 @@ namespace OpenBots.Server.Business
                 repo.Update(previousAttempt);
             }
             currentAttempt.AttemptCounter = attemptCount;
-            currentAttempt.CreatedOn = DateTime.Now;
+            currentAttempt.CreatedOn = DateTime.UtcNow;
             currentAttempt.Id = Guid.NewGuid();
             repo.Add(currentAttempt);
             return attemptCount;

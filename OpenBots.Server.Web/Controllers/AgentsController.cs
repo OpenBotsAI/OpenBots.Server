@@ -103,6 +103,58 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
+        /// Provides a view model list of all Agents and their most recent heartbeat information
+        /// </summary>
+        /// <param name="top"></param>
+        /// <param name="skip"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="filter"></param>
+        /// <response code="200">Ok, a paginated list of all Agents</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response>  
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Paginated list of all Agents</returns>
+        [HttpGet("view")]
+        [ProducesResponseType(typeof(PaginatedList<AllAgentsViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public PaginatedList<AllAgentsViewModel> View(
+            [FromQuery(Name = "$filter")] string filter = "",
+            [FromQuery(Name = "$orderby")] string orderBy = "",
+            [FromQuery(Name = "$top")] int top = 100,
+            [FromQuery(Name = "$skip")] int skip = 0
+            )
+        {
+            ODataHelper<AllAgentsViewModel> oData = new ODataHelper<AllAgentsViewModel>();
+
+            string queryString = "";
+
+            if (HttpContext != null
+                && HttpContext.Request != null
+                && HttpContext.Request.QueryString != null
+                && HttpContext.Request.QueryString.HasValue)
+                queryString = HttpContext.Request.QueryString.Value;
+
+            oData.Parse(queryString);
+            Guid parentguid = Guid.Empty;
+            var newNode = oData.ParseOrderByQuery(queryString);
+            if (newNode == null)
+                newNode = new OrderByNode<AllAgentsViewModel>();
+
+            Predicate<AllAgentsViewModel> predicate = null;
+            if (oData != null && oData.Filter != null)
+                predicate = new Predicate<AllAgentsViewModel>(oData.Filter);
+            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
+
+            return agentRepo.FindAllView(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+        }
+
+        /// <summary>
         /// Provides a count of agents 
         /// </summary>
         /// <param name="filter"></param>

@@ -37,6 +37,21 @@
             <response code="422">Unprocessable entity</response>
             <returns>Paginated list of all agents</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.View(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a view model list of all Agents and their most recent heartbeat information
+            </summary>
+            <param name="top"></param>
+            <param name="skip"></param>
+            <param name="orderBy"></param>
+            <param name="filter"></param>
+            <response code="200">Ok, a paginated list of all Agents</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>  
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all Agents</returns>
+        </member>
         <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Count(System.String)">
             <summary>
             Provides a count of agents 
@@ -191,12 +206,27 @@
             <response code="422">Unprocessable entity</response>
             <returns>Paginated list of all audit logs</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AuditLogsController.GetView(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a ViewModel list of all audit logs
+            </summary>
+            <param name="filter"></param>
+            <param name="top"></param>
+            <param name="skip"></param>
+            <param name="orderBy"></param>
+            <response code="200">Ok, a paginated list of all audit logs</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated ViewModel list of all audit logs</returns>
+        </member>
         <member name="M:OpenBots.Server.Web.Controllers.AuditLogsController.GetCount(System.String)">
             <summary>
             Gets count of AuditLogs in database
             </summary>
             <param name="filter"></param>
-            <response code="200">Ok, count of alll audit logs</response>
+            <response code="200">Ok, count of all audit logs</response>
             <response code="400">Bad request</response>
             <response code="403">Forbidden</response>
             <response code="404">Not found</response>
@@ -208,7 +238,20 @@
             Provides additional details on a specific audit Log
             </summary>
             <param name="id">Audit log id</param>
-            <response code="200">Ok, if an audit Log exists with the given id</response>
+            <response code="200">Ok, if an audit log exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if audit log id is not in proper format</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no audit Log exists for the given audit log id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Audit log details for the given id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AuditLogsController.GetDetailsView(System.Guid)">
+            <summary>
+            Provides additional ViewModel details on a specific audit Log
+            </summary>
+            <param name="id">Audit log id</param>
+            <response code="200">Ok, if an audit log exists with the given id</response>
             <response code="304">Not modified</response>
             <response code="400">Bad request, if audit log id is not in proper format</response>
             <response code="403">Forbidden</response>
@@ -1283,8 +1326,9 @@
             <remarks>
             Provides an action to update a queue item attachment with file, when queue item attachment id and the new details of the queue item attachment are given
             </remarks>
+            <param name="queueItemId">Queue item id</param>
             <param name="id">Queue item attachment id, produces bad request if id is null or ids don't match</param>
-            <param name="request">New file to update queue item attachment</param>
+            <param name="file">New file to update queue item attachment</param>
             <response code="200">Ok, if the queue item attachment details for the given queue item attachment id have been updated</response>
             <response code="400">Bad request, if the queue item attachment id is null or ids don't match</response>
             <response code="403">Forbidden, unauthorized access</response>
@@ -1717,7 +1761,7 @@
             <response code="422">Unprocessable entity,validation error</response>
             <returns>Ok response, if the partial Schedule values has been updated</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.SchedulesController.RunNow(System.String,System.String)">
+        <member name="M:OpenBots.Server.Web.Controllers.SchedulesController.RunNow(OpenBots.Server.ViewModel.RunNowViewModel)">
             <summary>
             API to run a job now
             </summary>

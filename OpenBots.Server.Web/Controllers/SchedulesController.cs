@@ -17,6 +17,7 @@ using OpenBots.Server.Web.Hubs;
 using Cronos;
 using OpenBots.Server.Model.Attributes;
 using Microsoft.Extensions.Configuration;
+using System.Linq;
 
 namespace OpenBots.Server.Web.Controllers
 {
@@ -241,7 +242,7 @@ namespace OpenBots.Server.Web.Controllers
                     {
                         var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(requestObj);
 
-                        backgroundJobClient.Schedule(() => hubManager.StartNewRecurringJob(jsonScheduleObj),
+                        backgroundJobClient.Schedule(() => hubManager.StartNewRecurringJob(jsonScheduleObj, Enumerable.Empty<JobParameter>()),
                                 new DateTimeOffset(requestObj.StartDate.Value));
                     }
                 }
@@ -323,7 +324,7 @@ namespace OpenBots.Server.Web.Controllers
                     {
                         var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(existingSchedule);
 
-                        backgroundJobClient.Schedule(() => hubManager.StartNewRecurringJob(jsonScheduleObj),
+                        backgroundJobClient.Schedule(() => hubManager.StartNewRecurringJob(jsonScheduleObj, Enumerable.Empty<JobParameter>()),
                                new DateTimeOffset(existingSchedule.StartDate.Value));
                     }
                 }
@@ -404,7 +405,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="409">Conflict</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Ok response</returns>
-        [HttpPost("Automation/{automationId}/RunNow")]
+        [HttpPost("RunNow")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -412,28 +413,28 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> RunNow(string automationId, string agentId)
+        public async Task<IActionResult> RunNow([FromBody] RunNowViewModel request)
         {
             try
             {
-                Guid AutomationID = new Guid(automationId);
-                Guid AgentID = new Guid(agentId);
+                Guid AutomationID = request.AutomationId;
+                Guid AgentID = request.AgentId;
 
                 Schedule schedule = new Schedule();
                 schedule.AgentId = AgentID;
                 schedule.CRONExpression = "";
-                schedule.LastExecution = DateTime.Now;
-                schedule.NextExecution = DateTime.Now;
+                schedule.LastExecution = DateTime.UtcNow;
+                schedule.NextExecution = DateTime.UtcNow;
                 schedule.IsDisabled = false;
                 schedule.ProjectId = null;
                 schedule.StartingType = "";
                 schedule.Status = "New";
-                schedule.ExpiryDate = DateTime.Now.AddDays(1);
-                schedule.StartDate = DateTime.Now;
+                schedule.ExpiryDate = DateTime.UtcNow.AddDays(1);
+                schedule.StartDate = DateTime.UtcNow;
                 schedule.AutomationId = AutomationID;
                 
                 var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(schedule); 
-                var jobId = BackgroundJob.Enqueue(() => hubManager.StartNewRecurringJob(jsonScheduleObj));
+                var jobId = BackgroundJob.Enqueue(() => hubManager.StartNewRecurringJob(jsonScheduleObj, request.JobParameters));
 
                 return Ok();
             }

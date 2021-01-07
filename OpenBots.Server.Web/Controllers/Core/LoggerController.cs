@@ -121,7 +121,7 @@ namespace OpenBots.Server.Web.Controllers
                                 new LogEventProperty("AutomationName", new ScalarValue(serilog.Properties.AutomationName.ToString())),
                                 new LogEventProperty("AutomationLogTimeStamp", new ScalarValue(timestamp)),
                                 new LogEventProperty("Id", new ScalarValue(id)),
-                                new LogEventProperty("CreatedOn", new ScalarValue(DateTime.Now)),
+                                new LogEventProperty("CreatedOn", new ScalarValue(DateTime.UtcNow)),
                                 new LogEventProperty("Logger", new ScalarValue(logger)),
                                 new LogEventProperty("IsDeleted", new ScalarValue(false)),
                                 new LogEventProperty("Properties", new ScalarValue(serilog.Properties)),

@@ -359,18 +359,18 @@ namespace OpenBots.Server.Web.Controllers
                     Schedule schedule = new Schedule();
                     schedule.AgentId = existingSchedule.AgentId;
                     schedule.CRONExpression = "";
-                    schedule.LastExecution = DateTime.Now;
-                    schedule.NextExecution = DateTime.Now;
+                    schedule.LastExecution = DateTime.UtcNow;
+                    schedule.NextExecution = DateTime.UtcNow;
                     schedule.IsDisabled = false;
                     schedule.ProjectId = null;
                     schedule.StartingType = "";
                     schedule.Status = "New";
-                    schedule.ExpiryDate = DateTime.Now.AddDays(1);
-                    schedule.StartDate = DateTime.Now;
+                    schedule.ExpiryDate = DateTime.UtcNow.AddDays(1);
+                    schedule.StartDate = DateTime.UtcNow;
                     schedule.AutomationId = existingSchedule.AutomationId;
 
                     var jsonScheduleObj = System.Text.Json.JsonSerializer.Serialize(schedule);
-                    var jobId = BackgroundJob.Enqueue(() => hubManager.StartNewRecurringJob(jsonScheduleObj));
+                    var jobId = BackgroundJob.Enqueue(() => hubManager.StartNewRecurringJob(jsonScheduleObj, Enumerable.Empty<JobParameter>()));
                 }
 
                 QueueItem queueItem = new QueueItem()

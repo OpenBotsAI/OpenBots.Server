@@ -150,9 +150,6 @@ namespace OpenBots.Server.Business
                         emailAttachmentRepository.Add(emailAttachment);
                         attachments.Add(emailAttachment);
                     }
-                    //else
-                    //TODO: Check if binary object & email attachment contents are the same
-                    //If not the same, update the binary object and email attachment
                 }
             }
             return attachments;
