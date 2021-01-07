@@ -40,15 +40,26 @@
 
           <div class="row rowPadTOp">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <label for="macaddress" class="label"  >Mac Addresses</label>
+              <nb-checkbox class="label"  (checkedChange)="check($event)"  > 
+                Enhanced Security
+              </nb-checkbox>
+             
+             
+              <!-- <label for="macaddress" class="label"  >Mac Addresses</label>
               <input type="input" nbInput fullWidth id="macAddresses" formControlName="macAddresses" (keypress)="handleInput($event)"
                 class="form-control" placeholder="Please enter macaddress">
               <div *ngIf="f.macAddresses.touched && f.macAddresses.invalid" class="invalid-feedback-frm">
                 <div *ngIf="f.macAddresses.errors && f.macAddresses.errors.required"> Mac Address is required.</div>
-              </div>
+              </div> -->
             </div>
-            <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <label for="ipadd" class="label"  >Ip Address</label>
+            <div *ngIf="checked" class="col-md-6 col-lg-6 col-xxxl-6">
+              <label   for="macaddress" class="label">Mac Addresses </label>
+              <input   type="input" nbInput fullWidth id="macAddresses" formControlName="macAddresses"
+                (keyup)="handleInput($event)" class="form-control" placeholder="Please enter macaddress">
+              <div *ngIf="f.macAddresses.touched && f.macAddresses.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.macAddresses.errors && f.macAddresses.errors.required"> Mac Address is required.</div>
+              </div>
+              <!-- <label for="ipadd" class="label"  >Ip Address</label>
               <input type="input" nbInput fullWidth id="ipAddresses" formControlName="ipAddresses" class="form-control" (keypress)="handleInput($event)"
                 placeholder="Please enter ipAddress">
                 <div *ngIf="(f.ipAddresses.touched || f.ipAddresses.dirty) && f.ipAddresses.invalid" class="invalid-feedback-frm">
@@ -56,7 +67,7 @@
                 <div *ngIf="f.ipAddresses.errors.pattern">
                   Please enter valid Ip .
                 </div>
-              </div>
+              </div> -->
             </div>
          
           </div>
