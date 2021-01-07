@@ -134,7 +134,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         /// <returns>JWT Token</returns>
         [HttpPost]
         [Route("token")]
-        public async Task<IActionResult> CreateToken([FromBody] LoginModel loginModel)
+        public async Task<IActionResult> CreateToken([FromBody] Login loginModel)
         {
             logger.LogInformation(string.Format("Login user : {0}", loginModel.UserName));
             if (ModelState.IsValid)

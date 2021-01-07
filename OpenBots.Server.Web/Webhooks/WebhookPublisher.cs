@@ -68,7 +68,7 @@ namespace OpenBots.Server.Web.Webhooks
             IntegrationEventLog eventLog = new IntegrationEventLog()
             {
                 IntegrationEventName = integrationEventName,
-                OccuredOnUTC = DateTime.Now,
+                OccuredOnUTC = DateTime.UtcNow,
                 EntityType = integrationEvent.EntityType,
                 EntityID = Guid.Parse(entityId),
                 PayloadJSON = JsonConvert.SerializeObject(payload),
@@ -108,7 +108,7 @@ namespace OpenBots.Server.Web.Webhooks
                         backgroundJobClient.Enqueue<WebhookSender>(x => x.SendWebhook(eventSubscription, payload, subscriptionAttempt));
                         break;
                     case TransportType.Queue:
-                        QueueItemModel queueItem = new QueueItemModel
+                        QueueItem queueItem = new QueueItem
                         {
                             Name = eventSubscription.Name,
                             IsLocked = false,
@@ -148,7 +148,7 @@ namespace OpenBots.Server.Web.Webhooks
                 EventName = integrationEvent.Name,
                 EntityID = Guid.Parse(entityId),
                 EntityName = entityName,
-                OccuredOnUTC = DateTime.Now,
+                OccuredOnUTC = DateTime.UtcNow,
             };
 
             return newPayload;

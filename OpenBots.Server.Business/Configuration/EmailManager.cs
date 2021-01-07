@@ -69,9 +69,9 @@ namespace OpenBots.Server.Business
             base.SetContext(userSecurityContext);
         }
 
-        public EmailModel CreateEmail(AddEmailViewModel request)
+        public Email CreateEmail(AddEmailViewModel request)
         {
-            EmailModel email = new EmailModel()
+            Email email = new Email()
             {
                 EmailAccountId = request.EmailAccountId,
                 SenderUserId = request.SenderUserId,
@@ -84,7 +84,7 @@ namespace OpenBots.Server.Business
             return email;
         }
 
-        public EmailViewModel GetEmailViewModel(EmailModel email, List<EmailAttachment> attachments)
+        public EmailViewModel GetEmailViewModel(Email email, List<EmailAttachment> attachments)
         {
             EmailViewModel emailViewModel = new EmailViewModel();
             emailViewModel = emailViewModel.Map(email);
@@ -219,13 +219,13 @@ namespace OpenBots.Server.Business
 
         public Task SendEmailAsync(EmailMessage emailMessage, string accountName = null, string id = null, string direction = null)
         {
-            EmailModel emailObject = new EmailModel();
+            Email emailObject = new Email();
             if (!string.IsNullOrEmpty(id))
             {
                 emailObject = emailRepository.Find(null, q => q.Id == Guid.Parse(id))?.Items?.FirstOrDefault();
                 if (emailObject == null)
                 {
-                    emailObject = new EmailModel()
+                    emailObject = new Email()
                     {
                         Id = Guid.Parse(id),
                         Status = StatusType.Unknown.ToString()
@@ -233,7 +233,7 @@ namespace OpenBots.Server.Business
                 }
             }
 
-            EmailModel email = new EmailModel();
+            Email email = new Email();
             if (id != null || Guid.Parse(id) != Guid.Empty)
                 email.Id = Guid.Parse(id);
 

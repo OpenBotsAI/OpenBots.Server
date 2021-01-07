@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.FeatureManagement.Mvc;
 using OpenBots.Server.Business;
 using OpenBots.Server.DataAccess.Repositories;
-using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Options;
@@ -17,6 +16,7 @@ using OpenBots.Server.WebAPI.Controllers;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using QueueModel = OpenBots.Server.Model.Queue;
 
 namespace OpenBots.Server.Web.Controllers
 {
@@ -28,7 +28,7 @@ namespace OpenBots.Server.Web.Controllers
     [ApiController]
     [Authorize]
     [FeatureGate(MyFeatureFlags.Queues)]
-    public class QueuesController : EntityController<Queue>
+    public class QueuesController : EntityController<QueueModel>
     {
         private readonly IQueueManager queueManager;
         private readonly IWebhookPublisher webhookPublisher;
@@ -64,14 +64,14 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Paginated list of all queues</returns>
         [HttpGet]
-        [ProducesResponseType(typeof(PaginatedList<Queue>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<QueueModel>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<Queue> Get(
+        public PaginatedList<QueueModel> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
@@ -116,7 +116,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Queue details for the given id</returns>
         [HttpGet("{id}", Name = "GetQueue")]
-        [ProducesResponseType(typeof(Queue), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(QueueModel), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -147,14 +147,14 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
         /// <returns>Newly created unique queue id with route name</returns>
         [HttpPost]
-        [ProducesResponseType(typeof(Queue), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(QueueModel), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Post([FromBody] Queue request)
+        public async Task<IActionResult> Post([FromBody] QueueModel request)
         {
             if (request == null)
             {
@@ -280,7 +280,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id,
-            [FromBody] JsonPatchDocument<Queue> request)
+            [FromBody] JsonPatchDocument<QueueModel> request)
         {           
             Guid entityId = new Guid(id);
 

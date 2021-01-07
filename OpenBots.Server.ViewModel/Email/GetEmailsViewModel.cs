@@ -4,7 +4,7 @@ using System;
 
 namespace OpenBots.Server.ViewModel
 {
-    public class GetEmailsViewModel : IViewModel<EmailModel, GetEmailsViewModel>
+    public class GetEmailsViewModel : IViewModel<Model.Configuration.Email, GetEmailsViewModel>
     {
         public Guid? Id { get; set; }
         public Guid? EmailAccountId { get; set; }
@@ -15,7 +15,7 @@ namespace OpenBots.Server.ViewModel
         public string Status { get; set; }
         public DateTime? CreatedOn { get; set; }
 
-        public GetEmailsViewModel Map(EmailModel entity)
+        public GetEmailsViewModel Map(Model.Configuration.Email entity)
         {
             GetEmailsViewModel emailViewModel = new GetEmailsViewModel();
 

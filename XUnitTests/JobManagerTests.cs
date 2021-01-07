@@ -40,7 +40,7 @@ namespace XUnitTests
                 Id = Guid.NewGuid(),
                 JobStatus = JobStatusType.New,
                 AgentId = newJobAgentId,
-                CreatedOn = DateTime.Now
+                CreatedOn = DateTime.UtcNow
             };
 
             // Job with status of completed
@@ -49,7 +49,7 @@ namespace XUnitTests
                 Id = Guid.NewGuid(),
                 JobStatus = JobStatusType.Completed,
                 AgentId = completedJobAgentId,
-                CreatedOn = DateTime.Now
+                CreatedOn = DateTime.UtcNow
             };
 
             // Job Parameter to be removed
@@ -72,7 +72,7 @@ namespace XUnitTests
 
             //Create loggers
             var jobLogger = Mock.Of<ILogger<Job>>();
-            var agentLogger = Mock.Of<ILogger<AgentModel>>();
+            var agentLogger = Mock.Of<ILogger<Agent>>();
             var processLogger = Mock.Of<ILogger<Automation>>();
             var jobParameterLogger = Mock.Of<ILogger<JobParameter>>();
             var jobCheckpointLogger = Mock.Of<ILogger<JobCheckpoint>>();

@@ -3,7 +3,7 @@ using System;
 
 namespace OpenBots.Server.Model.Configuration
 {
-    public class EmailModel : Entity
+    public class Email : Entity
     {
         public Guid? EmailAccountId { get; set; }
         public DateTime? SentOnUTC { get; set; }

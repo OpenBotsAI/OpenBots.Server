@@ -15,20 +15,32 @@ namespace OpenBots.Server.Business
 
         public bool ValidateRetrievalDate(Credential credential) //Ensure Current Date falls within Start-End Date range
         {
-            if (DateTime.Now > credential.StartDate && DateTime.Now < credential.EndDate)
+            if (credential.StartDate != null)
             {
-                return true;
+                if (DateTime.UtcNow < credential.StartDate)
+                {
+                    return false;
+                }
             }
-            return false;
+
+            if (credential.EndDate != null)
+            {
+                if (DateTime.UtcNow > credential.EndDate)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public bool ValidateStartAndEndDates(Credential credential) //Validate Start and EndDate Values
         {
-            if (credential.StartDate < credential.EndDate)
+            if (credential.StartDate == null || credential.EndDate == null) //Valid if either wasn't provided
             {
                 return true;
             }
-            if (credential.StartDate == null && credential.EndDate == null) //Valid if neither was provided
+            if (credential.StartDate < credential.EndDate)
             {
                 return true;
             }
