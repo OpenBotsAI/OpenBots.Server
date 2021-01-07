@@ -18,8 +18,7 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
         public string? LastReportedWork { get; set; }
         public string? LastReportedMessage { get; set; }
         public bool? IsHealthy { get; set; }
-        [Required]
-        public bool IsConnected { get; set; }
+        public string Status { get; set; }
         public Guid? CredentialId { get; set; }
     }
 }

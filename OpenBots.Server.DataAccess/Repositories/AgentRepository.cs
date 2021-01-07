@@ -55,7 +55,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                                      LastReportedWork = h?.LastReportedWork,
                                      LastReportedMessage = h?.LastReportedMessage,
                                      IsHealthy = h?.IsHealthy,
-                                     IsConnected = a.IsConnected,
+                                     Status = a.IsConnected == false ? "Not Connected": ((DateTime)h.LastReportedOn).AddMinutes(5) > DateTime.UtcNow ? "Connected": "Disconnected", 
                                      CredentialId = a?.CredentialId
                                  };
 
