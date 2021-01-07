@@ -1,7 +1,10 @@
-﻿namespace OpenBots.Server.Web.Hubs
+﻿using OpenBots.Server.Model;
+using System.Collections.Generic;
+
+namespace OpenBots.Server.Web.Hubs
 {
     public interface IHubManager
     {
-        public void StartNewRecurringJob(string scheduleSerializeObject);        
+        void StartNewRecurringJob(string scheduleSerializeObject, IEnumerable<JobParameter>? jobParameters);
     }
 }

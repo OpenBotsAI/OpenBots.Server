@@ -40,7 +40,7 @@ namespace XUnitTests
                 Id = Guid.NewGuid(),
                 JobStatus = JobStatusType.New,
                 AgentId = newJobAgentId,
-                CreatedOn = DateTime.Now
+                CreatedOn = DateTime.UtcNow
             };
 
             // Job with status of completed
@@ -49,7 +49,7 @@ namespace XUnitTests
                 Id = Guid.NewGuid(),
                 JobStatus = JobStatusType.Completed,
                 AgentId = completedJobAgentId,
-                CreatedOn = DateTime.Now
+                CreatedOn = DateTime.UtcNow
             };
 
             // Job Parameter to be removed
