@@ -156,7 +156,11 @@ export class UsersComponent implements OnInit {
   gotoadd() {
     this.router.navigate(['/pages/users/add-teams']);
   }
+  gotoedit(personId, orgid, name, email) {
 
+    this.router.navigate(['/pages/users/edit-teams'], { queryParams: { personId: personId, orgid: orgid, name: name, email: email } });
+
+  }
   deleteUser(ref) {
     this.isDeleted = true;
     this.userteamService
