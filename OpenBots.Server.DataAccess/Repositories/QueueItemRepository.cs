@@ -10,15 +10,15 @@ using System.Linq;
 
 namespace OpenBots.Server.DataAccess.Repositories
 {
-    public class QueueItemRepository : EntityRepository<QueueItemModel>, IQueueItemRepository
+    public class QueueItemRepository : EntityRepository<QueueItem>, IQueueItemRepository
     {
         private readonly StorageContext context;
-        public QueueItemRepository(StorageContext context, ILogger<QueueItemModel> logger,IHttpContextAccessor httpContextAccessor) : base(context, logger, httpContextAccessor)
+        public QueueItemRepository(StorageContext context, ILogger<QueueItem> logger,IHttpContextAccessor httpContextAccessor) : base(context, logger, httpContextAccessor)
         {
             this.context = context;
         }
 
-        protected override DbSet<QueueItemModel> DbTable()
+        protected override DbSet<QueueItem> DbTable()
         {
             return dbContext.QueueItems;
         }
@@ -54,6 +54,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                                      ResultJSON = q?.ResultJSON,
                                      QueueId = q?.QueueId,
                                      CreatedOn = q?.CreatedOn,
+                                     PayloadSizeInBytes = q?.PayloadSizeInBytes,
                                      // List of all binary object ids that correlate to the queue item
                                      BinaryObjectIds = context.QueueItemAttachments.Where(a => a.QueueItemId == q.Id)?.Select(a  => a.BinaryObjectId)?.ToList()
                                  };

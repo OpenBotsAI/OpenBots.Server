@@ -5,12 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace OpenBots.Server.Model.Identity
 {
     [NotMapped]
-    public class LoginModel
+    public class Login
     {
         [Required(ErrorMessage = "Please enter your username.")]
-        public String UserName { get; set; }
+        public string UserName { get; set; }
 
         [Required]
-        public String Password { get; set; }
+        public string Password { get; set; }
     }
 }

@@ -28,7 +28,7 @@ namespace XUnitTests
             Guid agentId = Guid.NewGuid();
 
             var context = new StorageContext(options);
-            var dummyAgent = new AgentModel
+            var dummyAgent = new Agent
             {
                 Id = agentId,
                 Name = "TesterAgent",
@@ -65,7 +65,7 @@ namespace XUnitTests
 
             Seed(context, dummyAgent, dummyCredential, dummyUserAgent, dummyJob, dummyAgentHeartbeat);
 
-            var agentLogger = Mock.Of<ILogger<AgentModel>>();
+            var agentLogger = Mock.Of<ILogger<Agent>>();
             var usersLogger = Mock.Of<ILogger<AspNetUsers>>();
             var scheduleLogger = Mock.Of<ILogger<Schedule>>();
             var jobLogger = Mock.Of<ILogger<Job>>();
@@ -85,7 +85,7 @@ namespace XUnitTests
 
             //act
             AgentViewModel view = new AgentViewModel();
-            AgentModel agentModel = agentRepo.GetOne(agentId);
+            Agent agentModel = agentRepo.GetOne(agentId);
             view = view.Map(agentModel);
 
             var validAgentView = manager.GetAgentDetails(view);//Fetches agent details
@@ -101,7 +101,7 @@ namespace XUnitTests
             Assert.False(agentWithoutDependant);
         }
 
-        private void Seed(StorageContext context, AgentModel agent, Credential credential, AspNetUsers aspNetUser, Job job, AgentHeartbeat agentHeartbeat)
+        private void Seed(StorageContext context, Agent agent, Credential credential, AspNetUsers aspNetUser, Job job, AgentHeartbeat agentHeartbeat)
         {
             context.Agents.AddRange(agent);
             context.AgentHeartbeats.AddRange(agentHeartbeat);

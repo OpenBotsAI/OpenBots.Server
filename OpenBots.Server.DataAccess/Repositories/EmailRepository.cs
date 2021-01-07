@@ -5,12 +5,12 @@ using OpenBots.Server.Model.Configuration;
 
 namespace OpenBots.Server.DataAccess.Repositories
 {
-    public class EmailRepository : EntityRepository<EmailModel>, IEmailRepository
+    public class EmailRepository : EntityRepository<Email>, IEmailRepository
     {
-        public EmailRepository (StorageContext storageContext, ILogger<EmailModel> logger, IHttpContextAccessor httpContextAccessor) : base(storageContext, logger, httpContextAccessor)
+        public EmailRepository (StorageContext storageContext, ILogger<Email> logger, IHttpContextAccessor httpContextAccessor) : base(storageContext, logger, httpContextAccessor)
         { }
 
-        protected override DbSet<EmailModel> DbTable()
+        protected override DbSet<Email> DbTable()
         {
             return dbContext.Emails;
         }

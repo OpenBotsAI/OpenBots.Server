@@ -8,18 +8,18 @@ using System.Linq;
 
 namespace OpenBots.Server.DataAccess.Repositories
 {
-    public class AgentRepository : EntityRepository<AgentModel>, IAgentRepository
+    public class AgentRepository : EntityRepository<Agent>, IAgentRepository
     {
-        public AgentRepository(StorageContext context, ILogger<AgentModel> logger, IHttpContextAccessor httpContextAccessor) : base(context, logger, httpContextAccessor)
+        public AgentRepository(StorageContext context, ILogger<Agent> logger, IHttpContextAccessor httpContextAccessor) : base(context, logger, httpContextAccessor)
         {
         }
 
-        protected override DbSet<AgentModel> DbTable()
+        protected override DbSet<Agent> DbTable()
         {
             return dbContext.Agents;
         }
 
-        public AgentModel FindAgent(string machineName, string macAddress, string ipAddress, Guid? agentID)
+        public Agent FindAgent(string machineName, string macAddress, string ipAddress, Guid? agentID)
         {
             var agent = DbTable().Where(AuthorizeRead()).AsQueryable().Where(RemoveSoftDeleted())
                                                                       .Where(a => a.Id == agentID

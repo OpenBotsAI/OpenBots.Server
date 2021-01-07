@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace OpenBots.Server.ViewModel.QueueItem
 {
-    public class UpdateQueueItemViewModel : IViewModel<QueueItemModel, UpdateQueueItemViewModel>
+    public class UpdateQueueItemViewModel : IViewModel<Model.QueueItem, UpdateQueueItemViewModel>
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
@@ -21,7 +21,7 @@ namespace OpenBots.Server.ViewModel.QueueItem
         public List<Guid>? BinaryObjectIds { get; set; }
         public IFormFile[]? Files { get; set; }
 
-        public UpdateQueueItemViewModel Map(QueueItemModel entity)
+        public UpdateQueueItemViewModel Map(Model.QueueItem entity)
         {
             UpdateQueueItemViewModel viewModel = new UpdateQueueItemViewModel()
             {

@@ -6,7 +6,7 @@ namespace OpenBots.Server.Model
 	/// <summary>
 	/// QueueItem Model
 	/// </summary>
-	public class QueueItemModel : NamedEntity
+	public class QueueItem : NamedEntity
 	{
 		/// <summary>
 		/// Whether a QueueItem is locked by a job or not
@@ -107,5 +107,9 @@ namespace OpenBots.Server.Model
 		/// Result of the processed queue item
 		/// </summary>
 		public string? ResultJSON { get; set; }
+		/// <summary>
+		/// Total bytes of all attached files
+		/// </summary>
+		public long PayloadSizeInBytes { get; set; }
 	}
 }

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OpenBots.Server.Model
 {
-    public class AgentModel : NamedEntity
+    public class Agent : NamedEntity
     {
         [Required]
         public string MachineName { get; set; }

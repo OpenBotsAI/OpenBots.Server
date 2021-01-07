@@ -11,7 +11,6 @@ using OpenBots.Server.Business;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
-using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.WebAPI.Controllers;
@@ -21,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using OpenBots.Server.Model.Options;
+using EmailModel = OpenBots.Server.Model.Configuration.Email;
 
 namespace OpenBots.Server.Web.Controllers.EmailConfiguration
 {
