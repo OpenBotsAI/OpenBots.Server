@@ -19,6 +19,7 @@ using OpenBots.Server.Model.Attributes;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Web.Extensions;
 using OpenBots.Server.ViewModel.Email;
+using OpenBots.Server.ViewModel.Organization;
 
 namespace OpenBots.Server.WebAPI.Controllers
 {
@@ -150,6 +151,28 @@ namespace OpenBots.Server.WebAPI.Controllers
             [FromQuery(Name = "$skip")] int skip = 0)
         {
             return base.GetMany(organizationId);
+        }
+
+        /// <summary>
+        /// Retrieves a user's details for a particular organization memeber
+        /// </summary>
+        /// <param name="id">Person identifier</param>
+        /// <response code="200">Ok, if user details are available for the given id></response>
+        /// <response code="400">Bad request, if the user id is not provided or an improper Guid</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity, validation error</response>
+        /// <returns>Ok response with user details</returns> 
+        [HttpGet("Person/{id}")]
+        [ProducesResponseType(typeof(AspNetUsers), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [Produces("application/json")]
+        public async Task<AspNetUsers> GetUsersadasd(string id)
+        {
+            return await membershipManager.GetAspUser(id);
         }
 
         /// <summary>
@@ -452,6 +475,36 @@ namespace OpenBots.Server.WebAPI.Controllers
         {
             return await base.PatchEntity(id, value);
         }
+
+        /// <summary>
+        /// Updates the partial details of organization members
+        /// </summary>
+        /// <param name="id">Organization member identifier.</param>
+        /// <param name="value">Value to be updated</param>
+        /// <response code="200">Ok, if update of organization member is successful</response>
+        /// <response code="400">Bad request, if the id is null or ids don't match.</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="422">Unprocessable entity, validation error</response>
+        /// <returns>Ok response, if the partial organization member values have been updated</returns>
+        [HttpPatch("Person/{id}")]
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [Produces("application/json")]
+        public async Task<IActionResult> Patch(string id, [FromBody] UpdateTeamMemberViewModel request)
+        {
+            
+            try
+            {
+                return membershipManager.UpdateOrganizationMember(request, id);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
         #region Private methods - Security
 
         //TODO - To be moved to security manager 

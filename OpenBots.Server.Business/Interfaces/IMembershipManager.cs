@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Threading.Tasks;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Identity;
 using OpenBots.Server.Model.Membership;
+using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
 
 namespace OpenBots.Server.Business
@@ -35,5 +37,9 @@ namespace OpenBots.Server.Business
         PaginatedList<OrganizationUnit> GetDepartments(string organizationId);
 
         PaginatedList<Person> GetEmailByName(Guid organizationId, string startsWith, int skip, int take, bool isOrgMember = true);
+
+        Task<AspNetUsers> GetAspUser(string personId);
+
+        AspNetUsers UpdateOrganizationMember(string personId);
     }
 }

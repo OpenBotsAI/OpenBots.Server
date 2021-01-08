@@ -7,6 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenBots.Server.DataAccess.Exceptions;
+using OpenBots.Server.Security;
+using System.Threading.Tasks;
+using OpenBots.Server.ViewModel.Organization;
 
 namespace OpenBots.Server.Business
 {
@@ -506,6 +509,45 @@ namespace OpenBots.Server.Business
             var departments = _organizationUnitRepository.Find(Guid.Parse(id));
 
             return departments;
+        }
+
+        public async Task<AspNetUsers> GetAspUser(string personId)
+        {
+            var aspNetUser = _aspNetUsersRepository.Find(0,1).Items?.Where(u => u.PersonId == Guid.Parse(personId)).FirstOrDefault();
+
+            return aspNetUser;
+        }
+
+        public async Task<AspNetUsers> UpdateOrganizationMember(UpdateTeamMemberViewModel request, string personId)
+        {
+            //If email was provided
+            if (!String.IsNullOrEmpty(request.Email))
+            {
+               var existingEmailUser =  _aspNetUsersRepository.Find(null, u => u.Email == request.Email).Items?.FirstOrDefault();
+                
+                if (existingEmailUser == null)
+                {
+                    throw new Exception("A User already exists for the provided email address");
+                }
+                //Update Email in all tables
+                else
+                {
+                    //Update AspUsers
+                    var userToUpdate = _aspNetUsersRepository.Find(null, u => u.PersonId == Guid.Parse(personId)).Items?.FirstOrDefault();
+                    
+                    userToUpdate.Email = request.Email;
+                    userToUpdate.NormalizedEmail = request.Email.ToUpper();
+                    userToUpdate.UserName = request.Email;
+                    userToUpdate.NormalizedUserName = request.Email.ToUpper();
+
+                    _aspNetUsersRepository.Update(userToUpdate);
+
+                    //Update People 
+                    var personToUpdate = _personRepo.Find(null, p => p.Id == Guid.Parse(personId)).Items?.FirstOrDefault();
+
+                    return aspNetUser;
+                }
+            }
         }
     }
 

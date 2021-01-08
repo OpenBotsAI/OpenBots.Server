@@ -3535,6 +3535,18 @@
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Paginated list of all the members of an organization.</returns>
         </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.GetUsersadasd(System.String)">
+            <summary>
+            Retrieves a user's details for a particular organization memeber
+            </summary>
+            <param name="id">Person identifier</param>
+            <response code="200">Ok, if user details are available for the given id></response>
+            <response code="400">Bad request, if the user id is not provided or an improper Guid</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity, validation error</response>
+            <returns>Ok response with user details</returns> 
+        </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.Get(System.String)">
             <summary>
             Get the member for a particular organization
@@ -3602,6 +3614,18 @@
             <returns>Ok response, if the organization member with the given id has been deleted</returns>
         </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Membership.OrganizationMember})">
+            <summary>
+            Updates the partial details of organization members
+            </summary>
+            <param name="id">Organization member identifier.</param>
+            <param name="value">Value to be updated</param>
+            <response code="200">Ok, if update of organization member is successful</response>
+            <response code="400">Bad request, if the id is null or ids don't match.</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity, validation error</response>
+            <returns>Ok response, if the partial organization member values have been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.RegisterNewUser(OpenBots.Server.Model.Identity.SignUpViewModel)">
             <summary>
             Updates the partial details of organization members
             </summary>
