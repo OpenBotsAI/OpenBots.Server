@@ -150,9 +150,6 @@ namespace OpenBots.Server.Business
                         emailAttachmentRepository.Add(emailAttachment);
                         attachments.Add(emailAttachment);
                     }
-                    //else
-                    //TODO: Check if binary object & email attachment contents are the same
-                    //If not the same, update the binary object and email attachment
                 }
             }
             return attachments;
@@ -163,37 +160,30 @@ namespace OpenBots.Server.Business
             if (files != null)
             {
                 var filesList = files.ToList();
-                //Replace attachments with new ones
                 foreach (var attachment in attachments)
                 {
                     var binaryObject = binaryObjectRepository.GetOne((Guid)attachment.BinaryObjectId);
-                    bool exists = false;
                     //Check if file with same hash and email id already exists
                     foreach (var file in files)
                     {
                         hash = GetHash(hash, file);
 
-                        if (binaryObject.ContentType == file.ContentType && binaryObject.CorrelationEntityId == id && binaryObject.Name == file.FileName)
+                        //If email attachment already exists and hash is the same: remove from files list
+                        if (binaryObject.ContentType == file.ContentType && binaryObject.CorrelationEntityId == id && binaryObject.Name == file.FileName && binaryObject.HashCode == hash)
                         {
-                            exists = true;
+                            filesList.Remove(file);
+                        }
+                        //If email attachment exists but the hash is not the same: update the attachment and file, remove from files list
+                        else if (binaryObject.ContentType == file.ContentType && binaryObject.CorrelationEntityId == id && binaryObject.Name == file.Name)
+                        {
+                            emailAttachmentRepository.Update(attachment);
+                            var organizationId = binaryObjectManager.GetOrganizationId();
+                            binaryObjectManager.Update(file, organizationId, "EmailAPI", (Guid)binaryObject.Id);
                             filesList.Remove(file);
                         }
                     }
-                    //if (binaryObject.HashCode != hash)
-                    //{
-                    //    //TODO: update existing binary object and email attachment entities instead of deleting the ones that don't match
-                    //}
-
-                    // If email attachment already exists: continue
-                    if (exists)
-                        continue;
-                    // If email attachment doesn't exist: remove attachment and binary object
-                    else
-                    {
-                        binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
-                        emailAttachmentRepository.SoftDelete((Guid)attachment.Id);
-                    }
                 }
+                //If file doesn't exist, keep it in files list and return files to be attached
                 var filesArray = filesList.ToArray();
                 return filesArray;
             }

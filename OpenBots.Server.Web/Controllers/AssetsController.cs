@@ -44,6 +44,7 @@ namespace OpenBots.Server.Web
         /// <param name="binaryObjectManager"></param>
         /// <param name="configuration"></param>
         /// <param name="binaryObjectRepo"></param>
+        /// <param name="webhookPublisher"></param>
         public AssetsController(
             IAssetRepository repository,
             IMembershipManager membershipManager,

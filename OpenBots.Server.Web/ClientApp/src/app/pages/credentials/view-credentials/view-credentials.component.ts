@@ -24,7 +24,7 @@ export class ViewCredentialsComponent implements OnInit {
     private route: ActivatedRoute,
     private httpService: HttpService,
     private helperService: HelperService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.currentUrlId = this.route.snapshot.params['id'];
@@ -88,7 +88,7 @@ export class ViewCredentialsComponent implements OnInit {
   navigateToAudit(): void {
     this.router.navigate(['/pages/change-log/list'], {
       queryParams: {
-        PageName: 'OpenBots.Server.Model.Credential',
+        PageName: 'Credential',
         id: this.currentUrlId,
       },
     });

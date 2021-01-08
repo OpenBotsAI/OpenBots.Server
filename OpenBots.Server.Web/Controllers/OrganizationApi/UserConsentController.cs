@@ -40,6 +40,7 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
         /// <param name="personRepository"></param>
         /// <param name="personEmailRepository"></param>
         /// <param name="emailVerificationRepository"></param>
+        /// <param name="configuration"></param>
         public UserConsentController(
             IUserConsentRepository repository,
             ApplicationIdentityUserManager userManager,

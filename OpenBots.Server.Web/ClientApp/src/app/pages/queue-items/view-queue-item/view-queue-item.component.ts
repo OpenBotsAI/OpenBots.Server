@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { JsonEditorComponent, JsonEditorOptions } from 'ang-jsoneditor';
 import { FileSaverService } from 'ngx-filesaver';
+import { FileSizePipe } from 'ngx-filesize';
 import { HelperService } from '../../../@core/services/helper.service';
 import { HttpService } from '../../../@core/services/http.service';
 import { BinaryFile } from '../../../interfaces/file';
@@ -29,7 +30,7 @@ export class ViewQueueItemComponent implements OnInit {
     private router: Router,
     private helperService: HelperService,
     private fileSaverService: FileSaverService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.queueItemId = this.route.snapshot.params['id'];
@@ -70,6 +71,7 @@ export class ViewQueueItemComponent implements OnInit {
       expireOnUTC: [''],
       postponeUntilUTC: [''],
       resultJSON: [''],
+      payloadSizeInBytes: [],
     });
   }
 
@@ -105,6 +107,9 @@ export class ViewQueueItemComponent implements OnInit {
             response.postponeUntilUTC,
             'lll'
           );
+          response.payloadSizeInBytes = this.helperService.getFileSize(
+            +response.payloadSizeInBytes
+          );
           this.attachedFiles = response.binaryObjectIds;
           this.showQueueItemForm.patchValue(response);
           this.showQueueItemForm.disable();
@@ -116,19 +121,23 @@ export class ViewQueueItemComponent implements OnInit {
   gotoaudit() {
     this.router.navigate(['/pages/change-log/list'], {
       queryParams: {
-        PageName: 'OpenBots.Server.Model.QueueItem',
+        PageName: 'QueueItem',
         id: this.queueItemId,
       },
     });
   }
 
   getFilesById(): void {
-    for (let attachedFileId of this.attachedFiles)
-      this.httpService
-        .get(`${FilesApiUrl.BinaryObjects}/${attachedFileId}`)
-        .subscribe((response) => {
-          if (response) this.queueItemFiles.push(response);
-        });
+    // for (let attachedFileId of this.attachedFiles)
+    this.httpService
+      // .get(`${FilesApiUrl.BinaryObjects}/${attachedFileId}`)
+      .get(
+        `${QueueItemsApiUrl.QueueItems}/${this.queueItemId}/${QueueItemsApiUrl.queueitemattachments}/${QueueItemsApiUrl.view}`
+      )
+      .subscribe((response) => {
+        if (response && response.items && response.items.length)
+          this.queueItemFiles = [...response.items];
+      });
   }
 
   downloadFile(id: string): void {

@@ -85,9 +85,9 @@ export class AllChangeLogComponent implements OnInit {
       });
   }
 
-  gotodetail(id) {
+  gotodetail(id, serviceName) {
     this.router.navigate(['/pages/change-log/get-change-log-id'], {
-      queryParams: { id: id },
+      queryParams: { id: id, serviceName: serviceName },
     });
   }
 
@@ -365,7 +365,7 @@ export class AllChangeLogComponent implements OnInit {
     }
   }
 
-  trackByFn(index: number, item: unknown): number | null {
+  trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
   }

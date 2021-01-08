@@ -31,11 +31,13 @@
       <div class="customQueueForm watch">
         <div class="checkbox checbox-switch switch-primary">
           <label for="queueitemtype" class="label">Watch</label>
-          <label>
+          <label nbTooltip="Watch real time data">
             <input type="checkbox" (click)="watchRealTimeData($event)" />
             <span></span>
           </label>
         </div>
+        <nb-icon *ngIf="show" nbTooltip="Refresh data" icon="refresh" class="refresh-icon" (click)="refreshData()">
+        </nb-icon>
       </div>
     </form>
 
@@ -173,7 +175,7 @@
     </nb-card-header>
     <nb-card-body>
       <div aria-labelledby="title">
-        <p>Are you Sure you want to delete?</p>
+        <p>Are you sure you want to delete?</p>
       </div>
     </nb-card-body>
     <nb-card-footer>

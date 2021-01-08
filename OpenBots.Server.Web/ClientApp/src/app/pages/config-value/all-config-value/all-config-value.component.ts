@@ -156,7 +156,7 @@ export class AllConfigValueComponent implements OnInit {
         });
     }
   }
-  trackByFn(index: number, item: unknown): number | null {
+  trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
   }

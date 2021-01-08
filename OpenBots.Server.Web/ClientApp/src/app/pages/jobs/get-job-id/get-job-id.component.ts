@@ -138,6 +138,6 @@ export class GetJobIdComponent implements OnInit, OnDestroy {
     });
   }
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'OpenBots.Server.Model.Job', id: this.params_id } })
+    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'Job', id: this.params_id } })
   }
 }

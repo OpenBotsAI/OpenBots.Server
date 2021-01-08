@@ -3,7 +3,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TimeDatePipe } from '../../../@core/pipe';
 import { ChangelogService } from '../change-log.service';
- 
+
 
 @Component({
   selector: 'ngx-get-audit-id',
@@ -19,9 +19,11 @@ export class GetChangelogIdComponent implements OnInit {
   showChangedToJson: boolean = false;
   showChangedFromJson: boolean = false;
   pipe: TimeDatePipe;
-  constructor(private acroute: ActivatedRoute, private formBuilder: FormBuilder,protected router: Router,
+  parmasServiceName: any = []
+  constructor(private acroute: ActivatedRoute, private formBuilder: FormBuilder, protected router: Router,
     protected changelogService: ChangelogService) {
     this.acroute.queryParams.subscribe(params => {
+      this.parmasServiceName = params.serviceName;
       this.get_allagent(params.id)
 
     });
@@ -53,61 +55,63 @@ export class GetChangelogIdComponent implements OnInit {
     this.changelogService.get_Audit_id(id).subscribe(
       (data: any) => {
         this.show_allaudit = data;
+        this.show_allaudit.serviceName = this.parmasServiceName;
         data.createdOn = this.transformDate(data.createdOn, 'lll');
         this.changelogform.patchValue(data)
         this.changelogform.disable();
-        
-        if(data.changedFromJson != null){
+
+        if (data.changedFromJson != null) {
           this.showChangedFromJson = true;
           this.changedFromJson = data.changedFromJson;
           this.changedFromJson = JSON.parse(this.changedFromJson)
         }
-        if(data.changedToJson != null){
+        if (data.changedToJson != null) {
           this.showChangedToJson = true;
           this.changedToJson = data.changedToJson;
           this.changedToJson = JSON.parse(this.changedToJson)
         }
-       
 
-        
-       
+
+
+
       });
   }
 
-  goto(){
-    if(this.show_allaudit.serviceName == 'OpenBots.Server.Model.AgentModel'){
+  goto() {
+    // this.show_allaudit.serviceName 
+    if (this.show_allaudit.serviceName == 'AgentModel') {
       this.router.navigate(['/pages/agents/get-agents-id'], { queryParams: { id: this.show_allaudit.objectId } })
     }
-   else if(this.show_allaudit.serviceName == 'OpenBots.Server.Model.Schedule'){
+    else if (this.show_allaudit.serviceName == 'Schedule') {
       this.router.navigate([`/pages/schedules/view/${this.show_allaudit.objectId}`])
     }
-    else if(this.show_allaudit.serviceName == 'OpenBots.Server.Model.Asset'){
+    else if (this.show_allaudit.serviceName == 'Asset') {
       this.router.navigate(['/pages/asset/get-asset-id'], { queryParams: { id: this.show_allaudit.objectId } })
     }
-    else if(this.show_allaudit.serviceName == 'OpenBots.Server.Model.Automation'){
+    else if (this.show_allaudit.serviceName == 'Automation') {
       this.router.navigate(['/pages/automation/get-automation-id'], {
         queryParams: { id: this.show_allaudit.objectId },
       });
     }
-    else if(this.show_allaudit.serviceName == 'OpenBots.Server.Model.Job'){
+    else if (this.show_allaudit.serviceName == 'Job') {
       this.router.navigate(['/pages/job/get-jobs-id'], { queryParams: { id: this.show_allaudit.objectId } })
     }
-    else if(this.show_allaudit.serviceName == 'OpenBots.Server.Model.QueueItem'){
+    else if (this.show_allaudit.serviceName == 'QueueItem') {
       this.router.navigate([`/pages/queueitems/view/${this.show_allaudit.objectId}`])
     }
-    else if(this.show_allaudit.serviceName == 'OpenBots.Server.Model.Credential'){
+    else if (this.show_allaudit.serviceName == 'Credential') {
       this.router.navigate([`/pages/credentials/view/${this.show_allaudit.objectId}`])
     }
-    else if(this.show_allaudit.serviceName == 'OpenBots.Server.Model.BinaryObject'){
+    else if (this.show_allaudit.serviceName == 'Files') {
       this.router.navigate([`/pages/file/get-file-id/${this.show_allaudit.objectId}`])
     }
-    else if (this.show_allaudit.serviceName == 'OpenBots.Server.Model.Configuration.ConfigurationValue') {
+    else if (this.show_allaudit.serviceName == 'Configuration.ConfigurationValue') {
       this.router.navigate(['/pages/config/get-config-id'], { queryParams: { id: this.show_allaudit.objectId } })
     }
-    else if (this.show_allaudit.serviceName == 'OpenBots.Server.Model.Configuration.EmailAccount') {
+    else if (this.show_allaudit.serviceName == 'Configuration.EmailAccount') {
       this.router.navigate(['/pages/emailaccount/get-email-id'], { queryParams: { id: this.show_allaudit.objectId } })
     }
-    else if (this.show_allaudit.serviceName == 'OpenBots.Server.Model.Configuration.EmailLog') {
+    else if (this.show_allaudit.serviceName == 'Configuration.Email') {
       this.router.navigate(['/pages/emaillog/get-emaillog-id'], { queryParams: { id: this.show_allaudit.objectId } })
     }
 
@@ -118,7 +122,7 @@ export class GetChangelogIdComponent implements OnInit {
 
   }
 
-  
+
   transformDate(value, format) {
     this.pipe = new TimeDatePipe();
     return this.pipe.transform(value, `${format}`);

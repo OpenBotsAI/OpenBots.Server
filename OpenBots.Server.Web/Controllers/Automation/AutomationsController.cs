@@ -49,6 +49,9 @@ namespace OpenBots.Server.Web.Controllers
         /// <param name="binaryObjectManager"></param>
         /// <param name="binaryObjectRepo"></param>
         /// <param name="configuration"></param>
+        /// <param name="webhookPublisher"></param>
+        /// <param name="automationVersionRepo"></param>
+        /// <param name="dbContext"></param>
         public AutomationsController(
             IAutomationRepository repository,
             IAutomationManager manager,

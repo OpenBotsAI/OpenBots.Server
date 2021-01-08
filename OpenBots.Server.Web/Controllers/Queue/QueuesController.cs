@@ -41,6 +41,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <param name="queueManager"></param>
         /// <param name="repository"></param>
         /// <param name="userManager"></param>
+        /// <param name="webhookPublisher"></param>
         public QueuesController(
             IQueueRepository repository,
             IQueueManager queueManager,

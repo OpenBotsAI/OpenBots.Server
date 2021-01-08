@@ -199,11 +199,10 @@ export class AllSystemEventsComponent implements OnInit {
     );
   }
 
- 
   onSortClick(event, filter_val) {
     let target = event.currentTarget,
       classList = target.classList;
-      console.log(target)
+    console.log(target);
     if (classList.contains('fa-chevron-up')) {
       classList.remove('fa-chevron-up');
       classList.add('fa-chevron-down');
@@ -214,7 +213,7 @@ export class AllSystemEventsComponent implements OnInit {
     } else {
       classList.add('fa-chevron-up');
       classList.remove('fa-chevron-down');
-      console.log(classList)
+      console.log(classList);
       let sort_set = 'asc';
       this.sort(filter_val, sort_set);
       this.sortDir = 1;
@@ -315,7 +314,7 @@ export class AllSystemEventsComponent implements OnInit {
     }
   }
 
-  trackByFn(index: number, item: unknown): number | null {
+  trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
   }

@@ -1,21 +1,15 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Inject,
   OnInit,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import {
-  NB_AUTH_OPTIONS,
-  NbAuthSocialLink,
-  NbAuthService,
-} from '@nebular/auth';
+import { NB_AUTH_OPTIONS, NbAuthSocialLink } from '@nebular/auth';
 import { getDeepFromObject } from '../../helpers';
 import { EMAIL_PATTERN } from '../constants';
 import { HttpService } from '../../../@core/services/http.service';
-import { NbToastrService } from '@nebular/theme';
 import { HttpHeaders } from '@angular/common/http';
 
 @Component({
@@ -65,13 +59,10 @@ export class NgxRegisterComponent implements OnInit {
   registerForm: FormGroup;
   CreateNeworganization: boolean;
   constructor(
-    protected service: NbAuthService,
     @Inject(NB_AUTH_OPTIONS) protected options = {},
-    protected cd: ChangeDetectorRef,
     private fb: FormBuilder,
     private httpService: HttpService,
-    protected router: Router,
-    private toastrService: NbToastrService
+    protected router: Router
   ) {
     this.httpService
       .get('Organizations/TotalOrganizationCount')
@@ -80,6 +71,9 @@ export class NgxRegisterComponent implements OnInit {
       });
   }
 
+  resolved(captchaResponse: string) {
+    console.log(`Resolved captcha with response: ${captchaResponse}`);
+  }
   get login() {
     return this.registerForm.get('fullName');
   }
@@ -165,15 +159,17 @@ export class NgxRegisterComponent implements OnInit {
       Password: this.registerForm.value.password,
     };
 
-    this.httpService.post(url, RegCredentials, headers).subscribe((response) => {
-    this.submitted = false;
+    this.httpService
+      .post(url, RegCredentials, headers)
+      .subscribe((response) => {
+        this.submitted = false;
 
-      if (response) {
-        this.httpService.success('You have registered successfully');
-    }
-      this.router.navigate(['auth/login']);
-      this.registerForm.reset();
-    });
+        if (response) {
+          this.httpService.success('You have registered successfully');
+        }
+        this.router.navigate(['auth/login']);
+        this.registerForm.reset();
+      });
     this.submitted = false;
   }
 

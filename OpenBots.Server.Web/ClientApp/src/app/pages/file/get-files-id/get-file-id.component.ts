@@ -33,7 +33,7 @@ export class GetFileIdComponent implements OnInit {
     private _FileSaverService: FileSaverService,
     private dialogService: DialogService,
     private helperService: HelperService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.currentUrlId = this.route.snapshot.params['id'];
@@ -99,7 +99,7 @@ export class GetFileIdComponent implements OnInit {
   gotoaudit() {
     this.router.navigate(['/pages/change-log/list'], {
       queryParams: {
-        PageName: 'OpenBots.Server.Model.BinaryObject',
+        PageName: 'Files',
         id: this.currentUrlId,
       },
     });

@@ -95,7 +95,7 @@ export class EditConfigValueComponent implements OnInit {
 
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'OpenBots.Server.Model.Configuration.ConfigurationValue', id: this.showconfigValue.id } })
+    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'Configuration.ConfigurationValue', id: this.showconfigValue.id } })
   }
   gotoEmailTest() {
     this.router.navigate(['/pages/emailaccount/test-email'], { queryParams: { name: this.showconfigValue.name, email: this.showconfigValue.fromEmailAddress } })

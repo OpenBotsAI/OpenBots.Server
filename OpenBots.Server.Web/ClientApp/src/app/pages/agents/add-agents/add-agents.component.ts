@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 })
 export class AddAgentsComponent implements OnInit {
   addagent: FormGroup;
+  checked = false;
   submitted = false;
   cred_value: any = [];
   value = ['JSON', 'Number', 'Text'];
@@ -19,7 +20,7 @@ export class AddAgentsComponent implements OnInit {
     protected agentService: AgentsService,
     protected router: Router,
     private toastrService: NbToastrService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.addagent = this.formBuilder.group({
@@ -42,12 +43,12 @@ export class AddAgentsComponent implements OnInit {
         ],
       ],
       macAddresses: [''],
-      ipAddresses: [
-        '',
-        Validators.pattern(
-          '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|(::[1])$'
-        ),
-      ],
+      // ipAddresses: [
+      //   '',
+      //   Validators.pattern(
+      //     '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|(::[1])$'
+      //   ),
+      // ],
       isEnabled: [true],
       CredentialId: ['', Validators.required],
       userName: ['', Validators.required],
@@ -63,6 +64,11 @@ export class AddAgentsComponent implements OnInit {
   }
   get f() {
     return this.addagent.controls;
+  }
+  check(checked: boolean) {
+
+    this.checked = checked;
+    console.log(this.checked)
   }
 
   onSubmit() {

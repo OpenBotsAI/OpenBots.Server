@@ -6,9 +6,10 @@ import { UsersTeamService } from './users-team.service';
 import { AddUsersTeamComponent } from './add-users-team/add-users-team.component';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { SharedModule } from '../../@core/shared/shared.module';
+import { EditUsersTeamComponent } from './edit-users-team/edit-users-team.component';
 
 @NgModule({
-  declarations: [UsersComponent, RequestsUserComponent, AddUsersTeamComponent],
+  declarations: [UsersComponent, RequestsUserComponent, AddUsersTeamComponent, EditUsersTeamComponent],
   imports: [
     SharedModule,
     UsersTeamsRoutingModule,
@@ -16,4 +17,4 @@ import { SharedModule } from '../../@core/shared/shared.module';
   ],
   providers: [UsersTeamService],
 })
-export class UsersTeamsModule {}
+export class UsersTeamsModule { }

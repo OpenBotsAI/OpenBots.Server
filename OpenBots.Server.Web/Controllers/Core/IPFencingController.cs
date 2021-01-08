@@ -43,6 +43,8 @@ namespace OpenBots.Server.Web
         /// <param name="userManager"></param>
         /// <param name="configuration"></param>
         /// <param name="httpContextAccessor"></param>
+        /// <param name="iPFencingManager"></param>
+        /// <param name="organizationSettingRepository"></param>
         public IPFencingController(
             IIPFencingRepository repository,
             IMembershipManager membershipManager,

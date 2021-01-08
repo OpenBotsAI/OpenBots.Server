@@ -17,6 +17,7 @@ export class EditAgentsComponent implements OnInit {
   cred_value: any = [];
   show_allagents: any = [];
   etag;
+  checked = false;
   constructor(
     private acroute: ActivatedRoute,
     private router: Router,
@@ -62,9 +63,15 @@ export class EditAgentsComponent implements OnInit {
     this.agentService.getAgentbyID(id).subscribe((data: HttpResponse<any>) => {
       console.log(data)
       this.show_allagents = data.body;
+      if (this.show_allagents.macAddresses != null) {
+        this.checked = true;
+      } else if (this.show_allagents.macAddresses == null || this.show_allagents.macAddresses == '') {
+        this.checked = false
+      }
       console.log(data.headers.get('ETag').replace(/\"/g, ''))
       this.etag = data.headers.get('ETag').replace(/\"/g, '')
       this.addagent.patchValue(this.show_allagents);
+
       this.addagent.patchValue({
         CredentialId: this.show_allagents.credentialId,
       }
@@ -75,6 +82,11 @@ export class EditAgentsComponent implements OnInit {
     this.agentService.getCred().subscribe((data: any) => {
       this.cred_value = data;
     });
+  }
+  check(checked: boolean) {
+
+    this.checked = checked;
+    console.log(this.checked)
   }
 
   get f() {

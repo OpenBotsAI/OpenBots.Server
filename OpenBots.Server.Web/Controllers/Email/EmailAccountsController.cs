@@ -36,6 +36,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// <param name="membershipManager"></param>
         /// <param name="userManager"></param>
         /// <param name="httpContextAccessor"></param>
+        /// <param name="configuration"></param>
         public EmailAccountsController(
             IEmailAccountRepository repository,
             IMembershipManager membershipManager,

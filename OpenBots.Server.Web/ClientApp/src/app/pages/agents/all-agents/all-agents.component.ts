@@ -171,7 +171,7 @@ export class AllAgentsComponent implements OnInit {
       this.get_allagent(top, skip);
     }
   }
-  trackByFn(index: number, item: unknown): number | null {
+  trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
   }

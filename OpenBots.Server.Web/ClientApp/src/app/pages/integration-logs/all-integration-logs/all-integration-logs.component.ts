@@ -1,6 +1,3 @@
- 
-
-
 import { Component, OnInit, TemplateRef, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NbDialogService } from '@nebular/theme';
@@ -371,7 +368,7 @@ export class AllIntegrationLogsComponent implements OnInit {
     this.agent_id = [];
   }
 
-  trackByFn(index: number, item: unknown): number | null {
+  trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
   }

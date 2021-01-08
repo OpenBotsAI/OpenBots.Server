@@ -1,6 +1,7 @@
 import { HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { FileSizePipe } from 'ngx-filesize';
 import { Rule, Usage } from '../../interfaces/ipFencing';
 import { ItemsPerPage } from '../../interfaces/itemsPerPage';
 import { TimeDatePipe } from '../pipe';
@@ -11,6 +12,7 @@ import { TimeDatePipe } from '../pipe';
 export class HelperService {
   itemPerPage: ItemsPerPage[];
   pipe: TimeDatePipe;
+  fileSize: FileSizePipe;
   constructor() {}
 
   noWhitespaceValidator(control: FormControl) {
@@ -59,5 +61,10 @@ export class HelperService {
       { name: 'IPv6Range', value: 4 },
       { name: 'HTTP Header', value: 5 },
     ];
+  }
+
+  getFileSize(param: number): string | string[] {
+    this.fileSize = new FileSizePipe();
+    return this.fileSize.transform(param);
   }
 }

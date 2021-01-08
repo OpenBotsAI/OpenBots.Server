@@ -78,6 +78,18 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         /// <param name="personEmailRepository"></param>
         /// <param name="emailVerificationRepository"></param>
         /// <param name="emailSender"></param>
+        /// <param name="organizationManager"></param>
+        /// <param name="organizationSettingRepository"></param>
+        /// <param name="iPFencingManager"></param>
+        /// <param name="accessRequestManager"></param>
+        /// <param name="accessRequestRepository"></param>
+        /// <param name="agentRepository"></param>
+        /// <param name="auditLogRepository"></param>
+        /// <param name="context"></param>
+        /// <param name="iPFencingRepository"></param>
+        /// <param name="organizationMemberRepository"></param>
+        /// <param name="passwordPolicyRepository"></param>
+        /// <param name="termsConditionsManager"></param>
         public AuthController(
            ApplicationIdentityUserManager userManager,
            SignInManager<ApplicationUser> signInManager,
@@ -208,20 +220,23 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                 await userManager.SetAuthenticationTokenAsync(user, userManager.Options.Tokens.AuthenticatorTokenProvider, "refresh", newRefreshToken).ConfigureAwait(false);
                 try
                 {
-                    AuditLog auditLog = new AuditLog();
-                    auditLog.ChangedFromJson = null;
-                    auditLog.ChangedToJson = JsonConvert.SerializeObject(authenticatedUser);
-                    auditLog.CreatedBy = user.Email;
-                    auditLog.CreatedOn = DateTime.UtcNow;
-                    auditLog.Id = Guid.NewGuid();
-                    auditLog.IsDeleted = false;
-                    auditLog.MethodName = "Login";
-                    auditLog.ServiceName = this.ToString();
-                    auditLog.Timestamp = new byte[1];
-                    auditLog.ParametersJson = "";
-                    auditLog.ExceptionJson = "";
+                    if (person.IsAgent == false)
+                    {
+                        AuditLog auditLog = new AuditLog();
+                        auditLog.ChangedFromJson = null;
+                        auditLog.ChangedToJson = JsonConvert.SerializeObject(authenticatedUser);
+                        auditLog.CreatedBy = user.Email;
+                        auditLog.CreatedOn = DateTime.UtcNow;
+                        auditLog.Id = Guid.NewGuid();
+                        auditLog.IsDeleted = false;
+                        auditLog.MethodName = "Login";
+                        auditLog.ServiceName = this.ToString();
+                        auditLog.Timestamp = new byte[1];
+                        auditLog.ParametersJson = "";
+                        auditLog.ExceptionJson = "";
 
-                    auditLogRepository.Add(auditLog); //Log entry
+                        auditLogRepository.Add(auditLog); //Log entry
+                    }
                 }
                 catch (Exception ex)
                 {

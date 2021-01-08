@@ -1,10 +1,8 @@
-import { NgModule, ModuleWithProviders } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { NgModule, ModuleWithProviders, forwardRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import {
-  NbAuthModule,
-} from '@nebular/auth';
+import { NbAuthModule } from '@nebular/auth';
 import { RoleProvider } from './role.provider';
 import { NbRoleProvider, NbSecurityModule } from '@nebular/security';
 
@@ -42,7 +40,7 @@ const COMPONENTS = [
   NgxResetPasswordComponent,
   NgxAuthBlockComponent,
   TermsConditionComponent,
-  ResetForgetPasswordComponent
+  ResetForgetPasswordComponent,
 ];
 
 const NB_MODULES = [
@@ -55,11 +53,9 @@ const NB_MODULES = [
   NbButtonModule,
 ];
 
- 
-
 @NgModule({
-  declarations: [ ...COMPONENTS ],
- 
+  declarations: [...COMPONENTS],
+
   imports: [
     AuthRoutingModule,
     ReactiveFormsModule,
@@ -68,13 +64,18 @@ const NB_MODULES = [
     ...NB_MODULES,
     NbAuthModule.forRoot(),
   ],
-  exports: [
-  ],
+  exports: [],
   providers: [
     NbSecurityModule.forRoot().providers,
     {
-      provide: NbRoleProvider, useClass: RoleProvider,
-    }
+      provide: NbRoleProvider,
+      useClass: RoleProvider,
+    },
+    {
+      provide: NG_VALUE_ACCESSOR,
+      multi: true,
+      useExisting: forwardRef(() => NgxRegisterComponent),
+    },
   ],
 })
 export class AuthModule {
@@ -83,7 +84,8 @@ export class AuthModule {
       ngModule: AuthModule,
       providers: [
         { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
-        ...GUARDS],
+        ...GUARDS,
+      ],
     };
   }
 }

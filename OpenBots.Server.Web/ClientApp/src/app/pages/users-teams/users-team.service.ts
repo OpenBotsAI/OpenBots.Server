@@ -1,9 +1,3 @@
-/*
- * Copyright (c) Akveo 2019. All Rights Reserved.
- * Licensed under the Single Application / Multi Application License.
- * See LICENSE_SINGLE_APP / LICENSE_MULTI_APP in the 'docs' folder for license information on type of purchased license.
- */
- 
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
@@ -20,24 +14,24 @@ export class UsersTeamService {
   constructor(private http: HttpClient) { }
 
 
-   
-   getPeople(org,tpage:any,spage :any) {
+
+  getPeople(org, tpage: any, spage: any) {
     let getPeopleUrl = `/Organizations/${org}/OrganizationMembers/People?$orderby=joinedOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getPeopleUrl);
   }
-  getPeopleOrder(org,tpage:any,spage :any,filter) {
+  getPeopleOrder(org, tpage: any, spage: any, filter) {
     let getPeopleUrl = `/Organizations/${org}/OrganizationMembers/People?$orderby=${filter}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getPeopleUrl);
   }
 
 
-  getPeoplePending(org,tpage:any,spage :any) {
+  getPeoplePending(org, tpage: any, spage: any) {
     let pendinigRequestUrl = `/Organizations/${org}/AccessRequests/Pending?$orderby=joinedOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + pendinigRequestUrl);
   }
 
 
-  getPeoplePendingOrder(org,tpage:any,spage :any,filter) {
+  getPeoplePendingOrder(org, tpage: any, spage: any, filter) {
     let getPeopleUrl = `/Organizations/${org}/AccessRequests/Pending?$orderby=${filter}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getPeopleUrl);
   }
@@ -46,9 +40,17 @@ export class UsersTeamService {
     return this.http.delete(`${this.apiUrl}` + url);
   }
 
+  getMemberDetail(personId) {
+    let url = `/Organizations/${localStorage.getItem('ActiveOrganizationID')}/OrganizationMembers/${personId}`;
+    return this.http.get(`${this.apiUrl}` + url);
+  }
   inviteMember(obj) {
     let url = `/Organizations/${localStorage.getItem('ActiveOrganizationID')}/OrganizationMembers/InviteUser`;
     return this.http.post(`${this.apiUrl}` + url, obj);
+  }
+  updateMember(personId, obj) {
+    let url = `/Organizations/${localStorage.getItem('ActiveOrganizationID')}/OrganizationMembers/${personId}`;
+    return this.http.put(`${this.apiUrl}` + url, obj);
   }
 
   ApproveMember(OrganizationID, personId, obj) {
@@ -63,14 +65,14 @@ export class UsersTeamService {
 
 
 
-    AllowgrantAdmin(personId, org) {
-      const AccessUrl = `/People/${personId}/Organizations/${org}/GrantAdmin`;
-      return this.http.put(`${this.apiUrl}` + AccessUrl, this.headerData);
-    }
-  
-  
-    RemovegrantAdmin(personId, org) {
-      const RevokeUrl = `/People/${personId}/Organizations/${org}/RevokeAdmin`;
-      return this.http.put(`${this.apiUrl}` + RevokeUrl, this.headerData);
-    }
+  AllowgrantAdmin(personId, org) {
+    const AccessUrl = `/People/${personId}/Organizations/${org}/GrantAdmin`;
+    return this.http.put(`${this.apiUrl}` + AccessUrl, this.headerData);
+  }
+
+
+  RemovegrantAdmin(personId, org) {
+    const RevokeUrl = `/People/${personId}/Organizations/${org}/RevokeAdmin`;
+    return this.http.put(`${this.apiUrl}` + RevokeUrl, this.headerData);
+  }
 }

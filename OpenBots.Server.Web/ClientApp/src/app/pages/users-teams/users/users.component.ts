@@ -156,7 +156,16 @@ export class UsersComponent implements OnInit {
   gotoadd() {
     this.router.navigate(['/pages/users/add-teams']);
   }
-
+  gotoedit(personId, orgid, name, email) {
+    this.router.navigate(['/pages/users/edit-teams'], {
+      queryParams: {
+        personId: personId,
+        orgid: orgid,
+        name: name,
+        email: email,
+      },
+    });
+  }
   deleteUser(ref) {
     this.isDeleted = true;
     this.userteamService
@@ -223,7 +232,7 @@ export class UsersComponent implements OnInit {
     this.dialogService.openDialog(ref);
   }
 
-  trackByFn(index: number, item: unknown): number | null {
+  trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
   }

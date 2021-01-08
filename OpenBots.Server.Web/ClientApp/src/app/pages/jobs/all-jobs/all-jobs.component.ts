@@ -1,6 +1,5 @@
 import { Component, OnInit, TemplateRef, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { NbDialogService } from '@nebular/theme';
 import { Page } from '../../../interfaces/paginateInstance';
 import { JobsService } from '../jobs.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -36,6 +35,8 @@ export class AllJobsComponent implements OnInit, OnDestroy {
   filter_process_id: string;
   filter_jobstatus: string;
   filter_successful: string;
+  sortByFilter: string;
+  sortOrder: string;
 
   jobStatus: { id: number; name: string }[] = [
     { id: 0, name: 'Unknown' },
@@ -278,18 +279,21 @@ export class AllJobsComponent implements OnInit, OnDestroy {
   }
 
   onSortClick(event, filter_val) {
+    this.sortByFilter = filter_val;
     let target = event.currentTarget,
       classList = target.classList;
     if (classList.contains('fa-chevron-up')) {
       classList.remove('fa-chevron-up');
       classList.add('fa-chevron-down');
       let sort_set = 'desc';
+      this.sortOrder = sort_set;
       this.sort(filter_val, sort_set);
       this.sortDir = -1;
     } else {
       classList.add('fa-chevron-up');
       classList.remove('fa-chevron-down');
       let sort_set = 'asc';
+      this.sortOrder = sort_set;
       this.sort(filter_val, sort_set);
       this.sortDir = 1;
     }
@@ -385,8 +389,14 @@ export class AllJobsComponent implements OnInit, OnDestroy {
     }
   }
 
-  trackByFn(index: number, item: unknown): number | null {
+  trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
+  }
+
+  refreshData(): void {
+    if (this.sortByFilter && this.sortOrder)
+      this.sort(this.sortByFilter, this.sortOrder);
+    else this.pagination(this.page.pageNumber, this.page.pageSize);
   }
 }

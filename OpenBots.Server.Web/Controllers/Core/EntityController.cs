@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using OpenBots.Server.DataAccess.Exceptions;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Azure.ServiceBus;
 
 namespace OpenBots.Server.WebAPI.Controllers
 {
