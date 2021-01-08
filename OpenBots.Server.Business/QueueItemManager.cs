@@ -5,6 +5,7 @@ using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.ViewModel;
+using OpenBots.Server.ViewModel.Queue;
 using OpenBots.Server.ViewModel.QueueItem;
 using System;
 using System.Collections.Generic;
@@ -304,6 +305,11 @@ namespace OpenBots.Server.Business
             return repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
 
+        public PaginatedList<AllQueueItemAttachmentsViewModel> GetQueueItemAttachmentsAndNames(Guid queueItemId, Predicate<AllQueueItemAttachmentsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        {
+            return queueItemAttachmentRepository.FindAllView(queueItemId, predicate, sortColumn, direction, skip, take);
+        }
+
         public QueueItemViewModel GetQueueItemView(QueueItemViewModel queueItemView, string id)
         {
             var attachmentsList = queueItemAttachmentRepository.Find(null, q => q.QueueItemId == Guid.Parse(id))?.Items;
@@ -413,7 +419,7 @@ namespace OpenBots.Server.Business
                 }
             }
             // If file doesn't exist in binary objects (list of files): add binary object entity, upload file, and add queue item attachment entity
-            var binaryObjects = AttachFiles(files, (Guid)request.QueueId, queueItem);
+            var binaryObjects = AttachFiles(files, (Guid)queueItem.Id, queueItem);
 
             return binaryObjects;
         }

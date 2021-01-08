@@ -55,6 +55,7 @@ namespace OpenBots.Server.Web
         /// <param name="jobParameterRepository"></param>
         /// <param name="automationRepository"></param>
         /// <param name="automationVersionRepo"></param>
+        /// <param name="webhookPublisher"></param>
         public JobsController(
             IJobRepository repository,
             IAutomationRepository automationRepository,

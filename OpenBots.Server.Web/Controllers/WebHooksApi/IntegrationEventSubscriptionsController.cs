@@ -24,6 +24,14 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
     [Authorize]
     public class IntegrationEventSubscriptionsController : EntityController<IntegrationEventSubscription>
     {
+        /// <summary>
+        /// IntegrationEventSubscriptionsController constructor
+        /// </summary>
+        /// <param name="repository"></param>
+        /// <param name="membershipManager"></param>
+        /// <param name="userManager"></param>
+        /// <param name="configuration"></param>
+        /// <param name="httpContextAccessor"></param>
         public IntegrationEventSubscriptionsController(
             IIntegrationEventSubscriptionRepository repository,
             IMembershipManager membershipManager,

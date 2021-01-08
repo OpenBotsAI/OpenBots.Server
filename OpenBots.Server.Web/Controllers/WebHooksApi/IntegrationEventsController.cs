@@ -27,6 +27,15 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
     public class IntegrationEventsController : ReadOnlyEntityController<IntegrationEvent>
     {
         private readonly IIntegrationEventRepository repository;
+
+        /// <summary>
+        /// IntegrationEventsController constructor
+        /// </summary>
+        /// <param name="repository"></param>
+        /// <param name="membershipManager"></param>
+        /// <param name="userManager"></param>
+        /// <param name="configuration"></param>
+        /// <param name="httpContextAccessor"></param>
         public IntegrationEventsController(
             IIntegrationEventRepository repository,
             IMembershipManager membershipManager,

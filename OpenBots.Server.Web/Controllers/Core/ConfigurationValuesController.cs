@@ -16,6 +16,9 @@ using OpenBots.Server.WebAPI.Controllers;
 
 namespace OpenBots.Server.Web.Controllers.Core
 {
+    /// <summary>
+    /// Controller for Configuration Values
+    /// </summary>
     [V1]
     [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
@@ -23,6 +26,14 @@ namespace OpenBots.Server.Web.Controllers.Core
     public class ConfigurationValuesController : EntityController<ConfigurationValue>
     {
 
+        /// <summary>
+        /// ConfigurationValues constructor
+        /// </summary>
+        /// <param name="repository"></param>
+        /// <param name="userManager"></param>
+        /// <param name="httpContextAccessor"></param>
+        /// <param name="membershipManager"></param>
+        /// <param name="configuration"></param>
         public ConfigurationValuesController(
             IConfigurationValueRepository repository,
             ApplicationIdentityUserManager userManager,

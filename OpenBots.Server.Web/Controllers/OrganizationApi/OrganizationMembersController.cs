@@ -48,7 +48,9 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// <param name="personRepository"></param>
         /// <param name="accessRequestManager"></param>
         /// <param name="emailSender"></param>
-        public OrganizationMembersController(IOrganizationMemberRepository repository, 
+        /// <param name="configuration"></param>
+        public OrganizationMembersController(
+            IOrganizationMemberRepository repository, 
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
             IHttpContextAccessor httpContextAccessor,

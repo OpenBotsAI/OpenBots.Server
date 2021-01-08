@@ -53,6 +53,13 @@ namespace OpenBots.Server.Web.Controllers
         /// <param name="userManager"></param>
         /// <param name="hub"></param>
         /// <param name="httpContextAccessor"></param>
+        /// <param name="binaryObjectRepository"></param>
+        /// <param name="configuration"></param>
+        /// <param name="hubManager"></param>
+        /// <param name="queueItemAttachmentRepository"></param>
+        /// <param name="queueRepository"></param>
+        /// <param name="scheduleRepository"></param>
+        /// <param name="webhookPublisher"></param>
         public QueueItemsController(
             IQueueItemRepository repository,
             IQueueRepository queueRepository,

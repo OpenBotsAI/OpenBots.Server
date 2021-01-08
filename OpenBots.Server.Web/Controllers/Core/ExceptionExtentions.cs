@@ -6,8 +6,6 @@ using System.Linq;
 using OpenBots.Server.Web;
 using Microsoft.Azure.ServiceBus;
 using System.Net;
-using System.Net.Http;
-using Microsoft.AspNetCore.Http;
 
 namespace OpenBots.Server.WebAPI.Controllers
 {

@@ -28,6 +28,14 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
     {
         private readonly IIntegrationEventLogRepository repository;
 
+        /// <summary>
+        /// IntegrationEventLogsController constructor
+        /// </summary>
+        /// <param name="repository"></param>
+        /// <param name="membershipManager"></param>
+        /// <param name="userManager"></param>
+        /// <param name="configuration"></param>
+        /// <param name="httpContextAccessor"></param>
         public IntegrationEventLogsController(
             IIntegrationEventLogRepository repository,
             IMembershipManager membershipManager,

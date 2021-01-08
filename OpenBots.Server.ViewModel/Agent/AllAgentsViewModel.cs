@@ -20,5 +20,6 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
         public bool? IsHealthy { get; set; }
         public string Status { get; set; }
         public Guid? CredentialId { get; set; }
+        public DateTime? CreatedOn { get; set; }
     }
 }

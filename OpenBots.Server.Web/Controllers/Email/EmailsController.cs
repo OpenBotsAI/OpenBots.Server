@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.FeatureManagement;
 using Microsoft.FeatureManagement.Mvc;
 using OpenBots.Server.Business;
 using OpenBots.Server.DataAccess.Repositories;
