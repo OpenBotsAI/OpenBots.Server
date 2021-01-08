@@ -5,16 +5,16 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { TimeDatePipe } from '../../../@core/pipe';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
 import { HelperService } from '../../../@core/services/helper.service';
-import { DialogService } from '../../../@core/dialogservices'
+import { DialogService } from '../../../@core/dialogservices';
 import { Page } from '../../../interfaces/paginateInstance';
 @Component({
   selector: 'ngx-get-agents-id',
   templateUrl: './get-agents-id.component.html',
-  styleUrls: ['./get-agents-id.component.scss']
+  styleUrls: ['./get-agents-id.component.scss'],
 })
 export class GetAgentsIdComponent implements OnInit {
   show_allagents: any = [];
-  cred_value: any =[] ;
+  cred_value: any = [];
   addagent: FormGroup;
   isDeleted = false;
   showpage: any = [];
@@ -22,7 +22,7 @@ export class GetAgentsIdComponent implements OnInit {
   sortDir = 1;
   view_dialog: any;
   del_id: any = [];
-  showAgentHeartBeat: any = []
+  showAgentHeartBeat: any = [];
   toggle: boolean;
   feild_name: any = [];
   page: Page = {};
@@ -32,12 +32,16 @@ export class GetAgentsIdComponent implements OnInit {
   itemsPerPage: ItemsPerPage[] = [];
   showGridHeatbeat: boolean;
 
-  constructor(private acroute: ActivatedRoute, protected router: Router,
-    protected agentService: AgentsService, private formBuilder: FormBuilder, private helperService: HelperService,) {
-    this.acroute.queryParams.subscribe(params => {
-      this.ParmasAgentId = params.id
+  constructor(
+    private acroute: ActivatedRoute,
+    protected router: Router,
+    protected agentService: AgentsService,
+    private formBuilder: FormBuilder,
+    private helperService: HelperService
+  ) {
+    this.acroute.queryParams.subscribe((params) => {
+      this.ParmasAgentId = params.id;
       this.getAgentId(this.ParmasAgentId);
-
     });
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
@@ -69,54 +73,51 @@ export class GetAgentsIdComponent implements OnInit {
       updatedBy: [''],
       updatedOn: [''],
     });
-   
   }
 
- 
-
   getAgentId(id) {
-    this.agentService.getAgentbyID(id).subscribe(
-      (data: any) => {
-        this.show_allagents = data.body;        
-        const filterPipe = new TimeDatePipe();
-        this.show_allagents.lastReportedOn = filterPipe.transform(this.show_allagents.lastReportedOn, 'lll');
-        if (this.show_allagents.isHealthy == true) {
-          this.show_allagents.isHealthy = "yes";
-        }
-        else if (this.show_allagents.isHealthy == false) {
-          this.show_allagents.isHealthy = "No";
-        }
-        this.addagent.patchValue(this.show_allagents);
-        this.addagent.disable();
-    
-      });
-      
+    this.agentService.getAgentbyID(id).subscribe((data: any) => {
+      this.show_allagents = data.body;
+      const filterPipe = new TimeDatePipe();
+      this.show_allagents.lastReportedOn = filterPipe.transform(
+        this.show_allagents.lastReportedOn,
+        'lll'
+      );
+      if (this.show_allagents.isHealthy == true) {
+        this.show_allagents.isHealthy = 'yes';
+      } else if (this.show_allagents.isHealthy == false) {
+        this.show_allagents.isHealthy = 'No';
+      }
+      this.addagent.patchValue(this.show_allagents);
+      this.addagent.disable();
+    });
   }
 
   getAgentHeartBeatID(id, top, skip) {
     this.get_perPage = false;
     this.agentService.getAgentbyHeartBeatID(id, top, skip).subscribe(
       (data: any) => {
-        console.log(data)
+        console.log(data);
         if (data.length == 0) {
           this.showGridHeatbeat = false;
-        }
-        else if (data.length !== 0) {
-
+        } else if (data.length !== 0) {
           this.showGridHeatbeat = true;
           this.showAgentHeartBeat = data;
           this.page.totalCount = data.totalCount;
           this.get_perPage = true;
         }
-
       },
-      (error) => { }
+      (error) => {}
     );
   }
 
-
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'OpenBots.Server.Model.AgentModel', id: this.show_allagents.id } })
+    this.router.navigate(['/pages/change-log/list'], {
+      queryParams: {
+        PageName: 'OpenBots.Server.Model.AgentModel',
+        id: this.show_allagents.id,
+      },
+    });
   }
 
   onSortClick(event, fil_val) {
@@ -141,14 +142,17 @@ export class GetAgentsIdComponent implements OnInit {
     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
     this.feild_name = filter_value + '+' + vale;
     this.agentService
-      .getAgentbyHeartBeatIDorder(this.ParmasAgentId, this.page.pageSize, skip, this.feild_name)
+      .getAgentbyHeartBeatIDorder(
+        this.ParmasAgentId,
+        this.page.pageSize,
+        skip,
+        this.feild_name
+      )
       .subscribe((data: any) => {
         this.showAgentHeartBeat = data;
         // this.showAgentHeartBeat = data.items;
       });
   }
-
-
 
   per_page(val) {
     console.log(val);
@@ -164,12 +168,6 @@ export class GetAgentsIdComponent implements OnInit {
         this.page.totalCount = data.totalCount;
       });
   }
-
-
-
-
-
-
 
   pageChanged(event) {
     this.page.pageNumber = event;
@@ -188,10 +186,8 @@ export class GetAgentsIdComponent implements OnInit {
     }
   }
 
-  trackByFn(index: number, item: unknown): number | null {
+  trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
   }
-
-
 }

@@ -44,18 +44,24 @@
             </option>
           </select>
         </div>
+        <div class="col-md-6 col-lg-6">
+          <nb-icon nbTooltip="Refresh data" icon="refresh" class="refresh-icon" (click)="refreshData()">
+          </nb-icon>
+        </div>
       </div>
     </form>
     <table class="table table-bordered">
       <thead>
         <tr>
           <th scope="col">
-            Automation Name  
-            <i (click)="onSortClick($event, 'automationName')" [attr.class]="allProcessLogs | chevron: page.totalCount"></i>
+            Automation Name
+            <i (click)="onSortClick($event, 'automationName')"
+              [attr.class]="allProcessLogs | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Machine Name
-            <i (click)="onSortClick($event, 'machineName')" [attr.class]="allProcessLogs | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'machineName')"
+              [attr.class]="allProcessLogs | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Message

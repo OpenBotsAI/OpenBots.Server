@@ -36,8 +36,7 @@
             <span></span>
           </label>
         </div>
-        <nb-icon *ngIf="show" nbTooltip="Refresh data" icon="refresh" class="refresh-icon"
-          (click)="pagination(page.pageNumber, page.pageSize)">
+        <nb-icon *ngIf="show" nbTooltip="Refresh data" icon="refresh" class="refresh-icon" (click)="refreshData()">
         </nb-icon>
       </div>
     </form>

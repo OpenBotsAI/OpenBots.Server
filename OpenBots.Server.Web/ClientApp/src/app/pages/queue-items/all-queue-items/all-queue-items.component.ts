@@ -222,12 +222,18 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
     this.closeHubConnection();
   }
 
-  trackByFn(index: number, item: unknown): number | null {
+  trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
   }
 
-  refreshQueueItems(): void {
-    this.pagination(this.page.pageNumber, this.page.pageSize);
+  refreshData(): void {
+    if (this.filterOrderBy)
+      this.pagination(
+        this.page.pageNumber,
+        this.page.pageSize,
+        this.filterOrderBy
+      );
+    else this.pagination(this.page.pageNumber, this.page.pageSize);
   }
 }

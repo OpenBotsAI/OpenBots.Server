@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { Component, OnInit, TemplateRef } from '@angular/core';
+import { FormGroup, FormBuilder, FormArray, Validators } from '@angular/forms';
 import { HttpService } from '../../../@core/services/http.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TimeDatePipe } from '../../../@core/pipe';
@@ -13,6 +13,7 @@ import {
   SchedulesApiUrl,
 } from '../../../webApiUrls';
 import { HelperService } from '../../../@core/services/helper.service';
+import { DialogService } from '../../../@core/dialogservices';
 
 @Component({
   selector: 'ngx-view-schedule',
@@ -27,6 +28,10 @@ export class ViewScheduleComponent implements OnInit {
   allProcesses: Automation[] = [];
   cronExpression = '0/0 * 0/0 * *';
   scheduleData: Schedule;
+  jobRunNowForm: FormGroup;
+  dataType = ['Text', 'Number'];
+  items: FormArray;
+  isDisabled = false;
   cronOptions: CronOptions = {
     formInputClass: 'form-control cron-editor-input',
     formSelectClass: 'form-control cron-editor-select',
@@ -50,7 +55,8 @@ export class ViewScheduleComponent implements OnInit {
     private fb: FormBuilder,
     private httpService: HttpService,
     private route: ActivatedRoute,
-    private helperService: HelperService
+    private helperService: HelperService,
+    private dialogService: DialogService
   ) {}
 
   ngOnInit(): void {
@@ -58,9 +64,21 @@ export class ViewScheduleComponent implements OnInit {
     this.getAllAgents();
     this.getAllProcesses();
     this.scheduleForm = this.initScheduleForm();
+    this.jobRunNowForm = this.initializeJobRunNowForm();
     if (this.currentScheduleId) {
       this.getScheduleById();
     }
+    this.jobRunNowForm = new FormGroup({
+      items: new FormArray([]),
+    });
+  }
+
+  initializeJobRunNowForm(): FormGroup {
+    return this.fb.group({
+      Name: ['', [Validators.required]],
+      DataType: ['', [Validators.required]],
+      Value: ['', [Validators.required]],
+    });
   }
   initScheduleForm() {
     return this.fb.group({
@@ -141,11 +159,68 @@ export class ViewScheduleComponent implements OnInit {
       });
   }
 
-  runNowJob(): void {
+  runNowJob(ref: TemplateRef<any>): void {
+    this.dialogService.openDialog(ref);
+    // `${SchedulesApiUrl.schedules}/${automationsApiUrl.automation}/${this.scheduleData.automationId}/${SchedulesApiUrl.runNow}?AgentId=${this.scheduleData.agentId}`
+    // const obj = {
+    //   agentId: this.scheduleData.agentId,
+    //   automationId: this.scheduleData.automationId,
+    // };
+    // this.httpService
+    //   .post(`${SchedulesApiUrl.schedules}/${SchedulesApiUrl.runNow}`, obj, {
+    //     observe: 'response',
+    //   })
+    //   .subscribe((response) => {
+    //     console.log('res', response);
+    //     if (response && response.status === 200)
+    //       this.httpService.success('Job created successfully');
+    //   });
+  }
+
+  runJobNow(ref): void {
+    this.isDisabled = true;
+    let obj;
+    if (this.jobRunNowForm.value.items.length) {
+      obj = {
+        agentId: this.scheduleData.agentId,
+        automationId: this.scheduleData.automationId,
+        JobParameters: [...this.jobRunNowForm.value.items],
+      };
+    } else {
+      obj = {
+        agentId: this.scheduleData.agentId,
+        automationId: this.scheduleData.automationId,
+      };
+    }
+    console.log('obj', obj);
     this.httpService
-      .post(
-        `${SchedulesApiUrl.schedules}/${automationsApiUrl.automation}/${this.scheduleData.automationId}/${SchedulesApiUrl.runNow}?AgentId=${this.scheduleData.agentId}`
-      )
-      .subscribe(() => this.httpService.success('Job created successfully'));
+      .post(`${SchedulesApiUrl.schedules}/${SchedulesApiUrl.runNow}`, obj, {
+        observe: 'response',
+      })
+      .subscribe(
+        (response) => {
+          if (response && response.status === 200) {
+            this.isDisabled = false;
+            ref.close();
+            if (this.items && this.items.length) this.items.clear();
+            this.httpService.success('Job created successfully');
+          }
+        },
+        () => (this.isDisabled = false)
+      );
+  }
+
+  addJobParameter(): void {
+    this.items = this.jobRunNowForm.get('items') as FormArray;
+    this.items.push(this.initializeJobRunNowForm());
+  }
+
+  get formControls() {
+    return this.jobRunNowForm.get('items') as FormArray;
+  }
+
+  clear(ref): void {
+    ref.close();
+    if (this.items && this.items.length) this.items.clear();
   }
 }

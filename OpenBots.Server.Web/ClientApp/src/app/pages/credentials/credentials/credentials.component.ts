@@ -145,7 +145,7 @@ export class CredentialsComponent implements OnInit {
     } else this.pagination(this.page.pageNumber, this.page.pageSize);
   }
 
-  trackByFn(index: number, item: unknown): number | null {
+  trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
   }

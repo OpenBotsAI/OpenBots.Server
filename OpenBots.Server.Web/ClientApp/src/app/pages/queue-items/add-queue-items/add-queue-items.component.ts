@@ -370,7 +370,7 @@ export class AddQueueItemsComponent implements OnInit {
     this.httpService
       // .get(`${FilesApiUrl.BinaryObjects}/${binaryObjectId}`)
       .get(
-        `${QueueItemsApiUrl.QueueItems}/${this.queueItemId}/${QueueItemsApiUrl.queueitemattachments}`
+        `${QueueItemsApiUrl.QueueItems}/${this.queueItemId}/${QueueItemsApiUrl.queueitemattachments}/${QueueItemsApiUrl.view}`
       )
       .subscribe((response) => {
         if (response && response.items && response.items.length)

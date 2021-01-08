@@ -161,7 +161,7 @@ export class FileComponent implements OnInit {
     this.router.navigate([`/pages/file/edit/${id}`]);
   }
 
-  trackByFn(index: number, item: unknown): number | null {
+  trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
   }

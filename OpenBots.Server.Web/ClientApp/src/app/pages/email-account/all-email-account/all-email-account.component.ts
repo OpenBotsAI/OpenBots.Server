@@ -36,11 +36,9 @@ export class AllEmailAccountComponent implements OnInit {
     private helperService: HelperService,
     private toastrService: NbToastrService
   ) {
-
     this.emailService.getConfigValue().subscribe((data: any) => {
-      console.log(data)
-    })
-
+      console.log(data);
+    });
   }
 
   ngOnInit(): void {
@@ -189,7 +187,7 @@ export class AllEmailAccountComponent implements OnInit {
         });
     }
   }
-  trackByFn(index: number, item: unknown): number | null {
+  trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
   }
