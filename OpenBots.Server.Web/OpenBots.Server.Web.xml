@@ -21,6 +21,7 @@
             <param name="agentManager"></param>
             <param name="accessor"></param>
             <param name="configuration"></param>
+            <param name="webhookPublisher"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -190,6 +191,7 @@
             <param name="userManager"></param>
             <param name="httpContextAccessor"></param>
             <param name="manager"></param>
+            <param name="configuration"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AuditLogsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -302,6 +304,9 @@
             <param name="binaryObjectManager"></param>
             <param name="binaryObjectRepo"></param>
             <param name="configuration"></param>
+            <param name="webhookPublisher"></param>
+            <param name="automationVersionRepo"></param>
+            <param name="dbContext"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -483,6 +488,7 @@
             <param name="userManager"></param>
             <param name="binaryObjectManager"></param>
             <param name="httpContextAccessor"></param>
+            <param name="webhookPublisher"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.BinaryObjectsController.Get(System.String)">
             <summary>
@@ -610,6 +616,21 @@
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response, if the partial binary object values have been updated</returns>
         </member>
+        <member name="T:OpenBots.Server.Web.Controllers.Core.ConfigurationValuesController">
+            <summary>
+            Controller for Configuration Values
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.Core.ConfigurationValuesController.#ctor(OpenBots.Server.DataAccess.Repositories.Interfaces.IConfigurationValueRepository,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            ConfigurationValues constructor
+            </summary>
+            <param name="repository"></param>
+            <param name="userManager"></param>
+            <param name="httpContextAccessor"></param>
+            <param name="membershipManager"></param>
+            <param name="configuration"></param>
+        </member>
         <member name="M:OpenBots.Server.Web.Controllers.Core.ConfigurationValuesController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
             Provides a list of all configuration values
@@ -731,6 +752,7 @@
             <param name="membershipManager"></param>
             <param name="userManager"></param>
             <param name="httpContextAccessor"></param>
+            <param name="configuration"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailAccountsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -1013,6 +1035,8 @@
             <param name="membershipManager"></param>
             <param name="userManager"></param>
             <param name="httpContextAccessor"></param>
+            <param name="configuration"></param>
+            <param name="organizationManager"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailSettingsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -1108,6 +1132,18 @@
             <summary>
             Controller for email attachments
             </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.Email.EmailAttachmentsController.#ctor(OpenBots.Server.DataAccess.Repositories.Interfaces.IEmailAttachmentRepository,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IBinaryObjectManager)">
+            <summary>
+            EmailAttachmentsController constuctor
+            </summary>
+            <param name="repository"></param>
+            <param name="httpContextAccessor"></param>
+            <param name="userManager"></param>
+            <param name="membershipManager"></param>
+            <param name="configuration"></param>
+            <param name="binaryObjectRepository"></param>
+            <param name="binaryObjectManager"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.Email.EmailAttachmentsController.Get(System.String,System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -1600,6 +1636,7 @@
             <param name="queueManager"></param>
             <param name="repository"></param>
             <param name="userManager"></param>
+            <param name="webhookPublisher"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.QueuesController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -1704,6 +1741,7 @@
             <param name="httpContextAccessor"></param>
             <param name="hubManager"></param>
             <param name="configuration"></param>
+            <param name="recurringJobManager"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.SchedulesController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -1816,6 +1854,16 @@
             ReadOnlyController for IntegrationEventLog
             </summary>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventLogsController.#ctor(OpenBots.Server.DataAccess.Repositories.IIntegrationEventLogRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            IntegrationEventLogsController constructor
+            </summary>
+            <param name="repository"></param>
+            <param name="membershipManager"></param>
+            <param name="userManager"></param>
+            <param name="configuration"></param>
+            <param name="httpContextAccessor"></param>
+        </member>
         <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventLogsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
             Provides a list of all IntegrationEventLogs
@@ -1870,6 +1918,16 @@
             Controller for Integration events
             </summary>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.#ctor(OpenBots.Server.DataAccess.Repositories.IIntegrationEventRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            IntegrationEventsController constructor
+            </summary>
+            <param name="repository"></param>
+            <param name="membershipManager"></param>
+            <param name="userManager"></param>
+            <param name="configuration"></param>
+            <param name="httpContextAccessor"></param>
+        </member>
         <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
             Provides a list of all IntegrationEvents
@@ -1912,6 +1970,17 @@
             <summary>
             ReadOnlyController for IntegrationEventSubscriptionAttempts events
             </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionAttemptsController.#ctor(OpenBots.Server.DataAccess.Repositories.IIntegrationEventSubscriptionAttemptRepository,OpenBots.Server.Business.IIntegrationEventSubscriptionAttemptManager,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            IntegrationEventSubscriptionAttemptsController costructor
+            </summary>
+            <param name="repository"></param>
+            <param name="attemptManager"></param>
+            <param name="membershipManager"></param>
+            <param name="userManager"></param>
+            <param name="configuration"></param>
+            <param name="httpContextAccessor"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionAttemptsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -1972,6 +2041,16 @@
             <summary>
             Controller for Integration Event Subscriptions
             </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.#ctor(OpenBots.Server.DataAccess.Repositories.IIntegrationEventSubscriptionRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            IntegrationEventSubscriptionsController constructor
+            </summary>
+            <param name="repository"></param>
+            <param name="membershipManager"></param>
+            <param name="userManager"></param>
+            <param name="configuration"></param>
+            <param name="httpContextAccessor"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -2057,7 +2136,7 @@
             Controller for Assets
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.AssetsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAssetRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IAutomationManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Web.Webhooks.IWebhookPublisher)">
+        <member name="M:OpenBots.Server.Web.AssetsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAssetRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IAutomationManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Web.Webhooks.IWebhookPublisher,OpenBots.Server.Business.Interfaces.IAssetManager)">
             <summary>
             AssetsController constructor
             </summary>
@@ -2069,6 +2148,8 @@
             <param name="binaryObjectManager"></param>
             <param name="configuration"></param>
             <param name="binaryObjectRepo"></param>
+            <param name="webhookPublisher"></param>
+            <param name="manager"></param>
         </member>
         <member name="M:OpenBots.Server.Web.AssetsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -2258,6 +2339,23 @@
             <response code="403">Forbidden, unauthorized access</response>
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response with updated asset value</returns>
+        </member>
+        <member name="T:OpenBots.Server.Web.AutomationExecutionLogsController">
+            <summary>
+            Controller for Automation Execution Logs
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.AutomationExecutionLogsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAutomationExecutionLogRepository,OpenBots.Server.DataAccess.Repositories.IAgentRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IAutomationExecutionLogManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            AutomationExecutionLogsController constructor
+            </summary>
+            <param name="repository"></param>
+            <param name="agentRepository"></param>
+            <param name="membershipManager"></param>
+            <param name="userManager"></param>
+            <param name="automationExecutionLogManager"></param>
+            <param name="httpContextAccessor"></param>
+            <param name="configuration"></param>
         </member>
         <member name="M:OpenBots.Server.Web.AutomationExecutionLogsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -2490,6 +2588,8 @@
             <param name="userManager"></param>
             <param name="configuration"></param>
             <param name="httpContextAccessor"></param>
+            <param name="iPFencingManager"></param>
+            <param name="organizationSettingRepository"></param>
         </member>
         <member name="M:OpenBots.Server.Web.IPFencingController.Get(System.String,System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -2606,10 +2706,17 @@
             Controller for credentials
             </summary>
         </member>
-        <member name="F:OpenBots.Server.Web.CredentialsController.credentialManager">
+        <member name="M:OpenBots.Server.Web.CredentialsController.#ctor(OpenBots.Server.DataAccess.Repositories.ICredentialRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.ICredentialManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Web.Webhooks.IWebhookPublisher)">
             <summary>
             CredentialsController constructor
             </summary>
+            <param name="repository"></param>
+            <param name="membershipManager"></param>
+            <param name="userManager"></param>
+            <param name="credentialManager"></param>
+            <param name="configuration"></param>
+            <param name="httpContextAccessor"></param>
+            <param name="webhookPublisher"></param>
         </member>
         <member name="M:OpenBots.Server.Web.CredentialsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -2758,6 +2865,7 @@
             <param name="jobParameterRepository"></param>
             <param name="automationRepository"></param>
             <param name="automationVersionRepo"></param>
+            <param name="webhookPublisher"></param>
         </member>
         <member name="M:OpenBots.Server.Web.JobsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -3004,6 +3112,7 @@
             <param name="membershipManager"></param>
             <param name="userManager"></param>
             <param name="httpContextAccessor"></param>
+            <param name="configuration"></param>
         </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.AppController.Version(System.String)">
             <summary>
@@ -3137,6 +3246,8 @@
             <param name="membershipManager"></param>
             <param name="userManager"></param>
             <param name="httpContextAccessor"></param>
+            <param name="configuration"></param>
+            <param name="organizationManager"></param>
         </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.Core.LookupValuesController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -3325,6 +3436,18 @@
             <param name="personEmailRepository"></param>
             <param name="emailVerificationRepository"></param>
             <param name="emailSender"></param>
+            <param name="organizationManager"></param>
+            <param name="organizationSettingRepository"></param>
+            <param name="iPFencingManager"></param>
+            <param name="accessRequestManager"></param>
+            <param name="accessRequestRepository"></param>
+            <param name="agentRepository"></param>
+            <param name="auditLogRepository"></param>
+            <param name="context"></param>
+            <param name="iPFencingRepository"></param>
+            <param name="organizationMemberRepository"></param>
+            <param name="passwordPolicyRepository"></param>
+            <param name="termsConditionsManager"></param>
         </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.CreateToken(OpenBots.Server.Model.Identity.Login)">
             <summary>
@@ -3567,6 +3690,7 @@
             <param name="personRepository"></param>
             <param name="accessRequestManager"></param>
             <param name="emailSender"></param>
+            <param name="configuration"></param>
         </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.GetPeople(System.String,System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -4121,6 +4245,7 @@
             <param name="personRepository"></param>
             <param name="personEmailRepository"></param>
             <param name="emailVerificationRepository"></param>
+            <param name="configuration"></param>
         </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationApi.UserConsentController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -4213,6 +4338,7 @@
             <param name="userManager"></param>
             <param name="httpContextAccessor"></param>
             <param name="configuration"></param>
+            <param name="emailSender"></param>
         </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.EmailVerificationsController.Get(System.String,System.String,System.String,System.Int32,System.Int32)">
             <summary>
