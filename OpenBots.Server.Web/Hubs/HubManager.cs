@@ -71,7 +71,7 @@ namespace OpenBots.Server.Web.Hubs
 
             foreach (var parameter in jobParameters ?? Enumerable.Empty<JobParameter>())
             {
-                parameter.JobId = job.Id;
+                parameter.JobId = job.Id ?? Guid.Empty;
                 parameter.CreatedBy = schedule.CreatedBy;
                 parameter.CreatedOn = DateTime.UtcNow;
                 parameter.Id = Guid.NewGuid();

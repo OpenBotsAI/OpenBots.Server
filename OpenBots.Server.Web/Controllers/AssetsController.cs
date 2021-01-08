@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business;
+using OpenBots.Server.Business.Interfaces;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
@@ -32,6 +33,7 @@ namespace OpenBots.Server.Web
         private readonly IBinaryObjectRepository binaryObjectRepo;
         private readonly IBinaryObjectManager binaryObjectManager;
         private readonly IWebhookPublisher webhookPublisher;
+        private readonly IAssetManager manager;
 
         /// <summary>
         /// AssetsController constructor
@@ -45,6 +47,7 @@ namespace OpenBots.Server.Web
         /// <param name="configuration"></param>
         /// <param name="binaryObjectRepo"></param>
         /// <param name="webhookPublisher"></param>
+        /// <param name="manager"></param>
         public AssetsController(
             IAssetRepository repository,
             IMembershipManager membershipManager,
@@ -54,12 +57,14 @@ namespace OpenBots.Server.Web
             IBinaryObjectManager binaryObjectManager,
             IConfiguration configuration,
             IBinaryObjectRepository binaryObjectRepo,
-            IWebhookPublisher webhookPublisher) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
+            IWebhookPublisher webhookPublisher,
+            IAssetManager manager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.automationManager = automationManager;
             this.binaryObjectRepo = binaryObjectRepo;
             this.binaryObjectManager = binaryObjectManager;
             this.webhookPublisher = webhookPublisher;
+            this.manager = manager;
         }
 
         /// <summary>
@@ -178,6 +183,8 @@ namespace OpenBots.Server.Web
                     return BadRequest(ModelState);
                 }
 
+                request = manager.GetSizeInBytes(request);
+
                 var response = await base.PostEntity(request);
                 await webhookPublisher.PublishAsync("Assets.NewAssetCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
                 return response;
@@ -253,6 +260,7 @@ namespace OpenBots.Server.Web
                 binaryObjectRepo.Add(binaryObject);
 
                 existingAsset.BinaryObjectID = binaryObject.Id;
+                existingAsset.SizeInBytes = file.Length;
                 repository.Update(existingAsset);
 
                 await webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
@@ -358,6 +366,7 @@ namespace OpenBots.Server.Web
                 existingAsset.TextValue = request.TextValue;
                 existingAsset.NumberValue = request.NumberValue;
                 existingAsset.JsonValue = request.JsonValue;
+                existingAsset = manager.GetSizeInBytes(existingAsset);
 
                 await webhookPublisher.PublishAsync("Assets.AssetUpdated", existingAsset.Id.ToString(), existingAsset.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingAsset);
@@ -444,6 +453,7 @@ namespace OpenBots.Server.Web
                     existingAsset.TextValue = request.TextValue;
                     existingAsset.NumberValue = request.NumberValue;
                     existingAsset.JsonValue = request.JsonValue;
+                    existingAsset.SizeInBytes = request.File.Length;
 
                     if (existingAsset.BinaryObjectID != Guid.Empty && size > 0)
                     {
@@ -475,7 +485,7 @@ namespace OpenBots.Server.Web
         /// </summary>
         /// <param name="id">Asset id to be deleted - throws bad request if null or empty Guid</param>
         /// <response code="200">Ok, when asset is soft deleted, (isDeleted flag is set to true in database)</response>
-        /// <response code="400">Ba request, if asset id is null or empty Guid</response>
+        /// <response code="400">Bad request, if asset id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>
         /// <returns>Ok response</returns>
         [HttpDelete("{id}")]
@@ -594,6 +604,7 @@ namespace OpenBots.Server.Web
             }
 
             request.NumberValue = request.NumberValue + 1;
+            request = manager.GetSizeInBytes(request);
             await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
             return await base.PutEntity(id, request);
         }
@@ -633,6 +644,7 @@ namespace OpenBots.Server.Web
             }
 
             request.NumberValue = request.NumberValue - 1;
+            request = manager.GetSizeInBytes(request);
             await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
             return await base.PutEntity(id, request);
         }
@@ -673,6 +685,7 @@ namespace OpenBots.Server.Web
             }
 
             request.NumberValue = request.NumberValue + value;
+            request = manager.GetSizeInBytes(request);
             await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
             return await base.PutEntity(id, request);
         }
@@ -713,6 +726,7 @@ namespace OpenBots.Server.Web
             }
 
             request.NumberValue = request.NumberValue - value;
+            request = manager.GetSizeInBytes(request);
             await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
             return await base.PutEntity(id, request);
         }
@@ -753,6 +767,7 @@ namespace OpenBots.Server.Web
             }
 
             request.TextValue = string.Concat(request.TextValue, " ", value);
+            request = manager.GetSizeInBytes(request);
             await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
             return await base.PutEntity(id, request);
         }

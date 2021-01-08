@@ -2136,7 +2136,7 @@
             Controller for Assets
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.AssetsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAssetRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IAutomationManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Web.Webhooks.IWebhookPublisher)">
+        <member name="M:OpenBots.Server.Web.AssetsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAssetRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IAutomationManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Web.Webhooks.IWebhookPublisher,OpenBots.Server.Business.Interfaces.IAssetManager)">
             <summary>
             AssetsController constructor
             </summary>
@@ -2149,6 +2149,7 @@
             <param name="configuration"></param>
             <param name="binaryObjectRepo"></param>
             <param name="webhookPublisher"></param>
+            <param name="manager"></param>
         </member>
         <member name="M:OpenBots.Server.Web.AssetsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -2265,7 +2266,7 @@
             </summary>
             <param name="id">Asset id to be deleted - throws bad request if null or empty Guid</param>
             <response code="200">Ok, when asset is soft deleted, (isDeleted flag is set to true in database)</response>
-            <response code="400">Ba request, if asset id is null or empty Guid</response>
+            <response code="400">Bad request, if asset id is null or empty Guid</response>
             <response code="403">Forbidden</response>
             <returns>Ok response</returns>
         </member>

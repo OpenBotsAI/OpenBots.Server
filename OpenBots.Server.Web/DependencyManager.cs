@@ -9,6 +9,7 @@ using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model.Webhooks;
 using OpenBots.Server.Web.Webhooks;
+using OpenBots.Server.Business.Interfaces;
 
 namespace OpenBots.Server.Web
 {
@@ -16,7 +17,7 @@ namespace OpenBots.Server.Web
     {
         public static void ConfigureServices(IServiceCollection services)
         {
-            //Repositories and Managers
+            //Component Repositories and Managers
             services.AddTransient(typeof(IAccessRequestRepository), typeof(AccessRequestRepository));
             services.AddTransient(typeof(IOrganizationRepository), typeof(OrganizationRepository));
 
@@ -50,6 +51,7 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IAgentRepository), typeof(AgentRepository));
             services.AddTransient(typeof(IAgentManager), typeof(AgentManager));
             services.AddTransient(typeof(IAssetRepository), typeof(AssetRepository));
+            services.AddTransient(typeof(IAssetManager), typeof(AssetManager));
 
             services.AddTransient(typeof(IJobRepository), typeof(JobRepository));
             services.AddTransient(typeof(IJobManager), typeof(JobManager));

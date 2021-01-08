@@ -21,7 +21,8 @@ namespace OpenBots.Server.Business
         private readonly IAutomationVersionRepository automationVersionRepository;
         private readonly IHttpContextAccessor httpContextAccessor;
 
-        public AutomationManager(IAutomationRepository repo,
+        public AutomationManager(
+            IAutomationRepository repo,
             IBinaryObjectManager binaryObjectManager,
             IBinaryObjectRepository binaryObjectRepository,
             IBlobStorageAdapter blobStorageAdapter,

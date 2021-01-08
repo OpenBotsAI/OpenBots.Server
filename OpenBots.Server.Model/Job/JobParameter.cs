@@ -18,6 +18,6 @@ namespace OpenBots.Server.Model
         public string Value { get; set; }
 
         [Display(Name = "JobId")]
-        public Guid? JobId { get; set; }
+        public Guid JobId { get; set; }
     }
 }
