@@ -527,8 +527,7 @@ namespace OpenBots.Server.Web.Controllers
                 Guid entityId = new Guid(agentID);
 
                 ConnectedViewModel connectedViewModel = new ConnectedViewModel();
-                var requestIp = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
-                var agent = agentRepo.FindAgent(request.MachineName, request.MacAddresses, requestIp, entityId);
+                var agent = agentRepo.FindAgent(request.MachineName, request.MacAddresses, entityId);
 
                 if (agent == null)
                 {
@@ -574,8 +573,7 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 Guid? agentGuid = new Guid(agentID);
-                var requestIp = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
-                var agent = agentRepo.FindAgent(request.MachineName, request.MacAddresses, requestIp, agentGuid);
+                var agent = agentRepo.FindAgent(request.MachineName, request.MacAddresses, agentGuid);
 
                 if (agent == null)
                 {

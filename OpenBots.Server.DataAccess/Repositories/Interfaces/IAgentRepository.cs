@@ -8,7 +8,7 @@ namespace OpenBots.Server.DataAccess.Repositories
 {
     public interface IAgentRepository : IEntityRepository<Agent>
     {
-        Agent FindAgent(string machineName, string macAddress, string ipAddress, Guid? agentID);
+        Agent FindAgent(string machineName, string macAddress, Guid? agentID);
 
         PaginatedList<AllAgentsViewModel> FindAllView(Predicate<AllAgentsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
        
