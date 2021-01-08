@@ -27,7 +27,7 @@ export class GetAssetIdComponent implements OnInit {
   constructor(
     private acroute: ActivatedRoute,
     protected assetService: AssetService,
-    private formBuilder: FormBuilder,  private _FileSaverService: FileSaverService,protected router: Router, 
+    private formBuilder: FormBuilder, private _FileSaverService: FileSaverService, protected router: Router,
   ) {
     this.acroute.queryParams.subscribe((params) => {
       this.get_allagent(params.id);
@@ -56,33 +56,33 @@ export class GetAssetIdComponent implements OnInit {
 
 
   onDown() {
-    if(this.show_allagents.type == 'Text'){
-    let  type ='txt';
+    if (this.show_allagents.type == 'Text') {
+      let type = 'txt';
       const fileName = `${this.show_allagents.name}.${type}`;
       const fileType = this._FileSaverService.genType(fileName);
       const txtBlob = new Blob([this.addagent.value.textValue], { type: fileType });
-      this._FileSaverService.save(txtBlob,fileName);
+      this._FileSaverService.save(txtBlob, fileName);
     }
-    else if(this.show_allagents.type == 'JSON'){
-     let  type = 'json';
+    else if (this.show_allagents.type == 'JSON') {
+      let type = 'json';
       const fileName = `${this.show_allagents.name}.${type}`;
       const fileType = this._FileSaverService.genType(fileName);
       const txtBlob = new Blob([this.addagent.value.jsonValue], { type: fileType });
-      this._FileSaverService.save(txtBlob,fileName);
+      this._FileSaverService.save(txtBlob, fileName);
     }
-    else  if(this.show_allagents.type == 'Number'){
-    let  type ='txt';
+    else if (this.show_allagents.type == 'Number') {
+      let type = 'txt';
       const fileName = `${this.show_allagents.name}.${type}`;
       const fileType = this._FileSaverService.genType(fileName);
       const txtBlob = new Blob([this.addagent.value.numberValue], { type: fileType });
-      this._FileSaverService.save(txtBlob,fileName);
+      this._FileSaverService.save(txtBlob, fileName);
     }
-    else if (this.show_allagents.type == 'File'){
-      let fileName :string;
+    else if (this.show_allagents.type == 'File') {
+      let fileName: string;
       this.assetService.assetFileExport(this.show_allagents.id).subscribe((data: HttpResponse<Blob>) => {
         fileName = data.headers.get('content-disposition').split(';')[1].split('=')[1].replace(/\"/g, '')
         console.log(fileName)
-        this._FileSaverService.save(data.body,fileName );
+        this._FileSaverService.save(data.body, fileName);
       });
     }
 
@@ -104,7 +104,7 @@ export class GetAssetIdComponent implements OnInit {
       this.addagent.disable();
     });
   }
-  gotoaudit(){
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'OpenBots.Server.Model.Asset', id: this.show_allagents.id } })
+  gotoaudit() {
+    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'Asset', id: this.show_allagents.id } })
   }
 }

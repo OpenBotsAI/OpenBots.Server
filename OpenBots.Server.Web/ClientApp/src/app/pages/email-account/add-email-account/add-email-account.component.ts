@@ -57,7 +57,7 @@ export class AddEmailAccountComponent implements OnInit {
 
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'OpenBots.Server.Model.email', id: this.showEmail.id } })
+    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'email', id: this.showEmail.id } })
   }
 
 

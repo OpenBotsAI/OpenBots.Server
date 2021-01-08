@@ -51,7 +51,7 @@ export class ViewScheduleComponent implements OnInit {
     private httpService: HttpService,
     private route: ActivatedRoute,
     private helperService: HelperService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.currentScheduleId = this.route.snapshot.params['id'];
@@ -116,7 +116,7 @@ export class ViewScheduleComponent implements OnInit {
   gotoaudit() {
     this.router.navigate(['/pages/change-log/list'], {
       queryParams: {
-        PageName: 'OpenBots.Server.Model.Schedule',
+        PageName: 'Schedule',
         id: this.currentScheduleId,
       },
     });

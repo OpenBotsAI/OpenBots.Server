@@ -14,7 +14,7 @@ import { Page } from '../../../interfaces/paginateInstance';
 })
 export class GetAgentsIdComponent implements OnInit {
   show_allagents: any = [];
-  cred_value: any =[] ;
+  cred_value: any = [];
   addagent: FormGroup;
   isDeleted = false;
   showpage: any = [];
@@ -69,15 +69,15 @@ export class GetAgentsIdComponent implements OnInit {
       updatedBy: [''],
       updatedOn: [''],
     });
-   
+
   }
 
- 
+
 
   getAgentId(id) {
     this.agentService.getAgentbyID(id).subscribe(
       (data: any) => {
-        this.show_allagents = data.body;        
+        this.show_allagents = data.body;
         const filterPipe = new TimeDatePipe();
         this.show_allagents.lastReportedOn = filterPipe.transform(this.show_allagents.lastReportedOn, 'lll');
         if (this.show_allagents.isHealthy == true) {
@@ -88,9 +88,9 @@ export class GetAgentsIdComponent implements OnInit {
         }
         this.addagent.patchValue(this.show_allagents);
         this.addagent.disable();
-    
+
       });
-      
+
   }
 
   getAgentHeartBeatID(id, top, skip) {
@@ -116,7 +116,7 @@ export class GetAgentsIdComponent implements OnInit {
 
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'OpenBots.Server.Model.AgentModel', id: this.show_allagents.id } })
+    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'AgentModel', id: this.show_allagents.id } })
   }
 
   onSortClick(event, fil_val) {
