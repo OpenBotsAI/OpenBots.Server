@@ -34,7 +34,6 @@ namespace XUnitTests
                 Name = "TesterAgent",
                 MachineName = "TestingMachine",
                 MacAddresses = "00:00:00:a1:2b:cc",
-                IPAddresses = "192.165.1.91",
                 CredentialId = credentialId                
             };
 

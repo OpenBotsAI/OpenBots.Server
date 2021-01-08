@@ -35,7 +35,6 @@ namespace OpenBots.Server.ViewModel
                 Name = entity.Name,
                 MachineName = entity.MachineName,
                 MacAddresses = entity.MacAddresses,
-                IPAddresses = entity.IPAddresses,
                 IsEnabled = entity.IsEnabled,
                 IsConnected = entity.IsConnected,
                 CredentialId = entity.CredentialId

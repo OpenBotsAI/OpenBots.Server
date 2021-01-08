@@ -378,7 +378,6 @@ namespace OpenBots.Server.Web.Controllers
                 existingAgent.Name = request.Name;
                 existingAgent.MachineName = request.MachineName;
                 existingAgent.MacAddresses = request.MacAddresses;
-                existingAgent.IPAddresses = request.IPAddresses;
                 existingAgent.IsEnabled = request.IsEnabled;
                 existingAgent.CredentialId = request.CredentialId;
 

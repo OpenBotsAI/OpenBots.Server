@@ -3813,7 +3813,7 @@
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response, if the partial organization member values have been updated</returns>
         </member>
-        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.Patch(System.String,OpenBots.Server.ViewModel.Organization.UpdateTeamMemberViewModel)">
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.UpdateUser(System.String,OpenBots.Server.ViewModel.Organization.UpdateTeamMemberViewModel)">
             <summary>
             Updates the partial details of an organization member
             </summary>
