@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Identity;
 using OpenBots.Server.Model.Membership;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
+using OpenBots.Server.ViewModel.Organization;
 
 namespace OpenBots.Server.Business
 {
@@ -40,6 +42,6 @@ namespace OpenBots.Server.Business
 
         Task<AspNetUsers> GetAspUser(string personId);
 
-        AspNetUsers UpdateOrganizationMember(string personId);
+        Task<IActionResult> UpdateOrganizationMember(UpdateTeamMemberViewModel request, string personId);
     }
 }

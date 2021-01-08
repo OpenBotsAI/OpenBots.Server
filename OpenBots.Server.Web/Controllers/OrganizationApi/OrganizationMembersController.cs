@@ -477,10 +477,10 @@ namespace OpenBots.Server.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Updates the partial details of organization members
+        /// Updates the partial details of an organization member
         /// </summary>
-        /// <param name="id">Organization member identifier.</param>
-        /// <param name="value">Value to be updated</param>
+        /// <param name="id">Organization member person id.</param>
+        /// <param name="request">Vakues to be updated</param>
         /// <response code="200">Ok, if update of organization member is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match.</response>
         /// <response code="403">Forbidden, unauthorized access</response>
@@ -493,15 +493,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id, [FromBody] UpdateTeamMemberViewModel request)
-        {
-            
+        {         
             try
             {
-                return membershipManager.UpdateOrganizationMember(request, id);
+                return await membershipManager.UpdateOrganizationMember(request, id);
             }
             catch (Exception ex)
             {
-                return ex.GetActionResult();
+                return Ok(ex.GetActionResult());
             }
         }
 
