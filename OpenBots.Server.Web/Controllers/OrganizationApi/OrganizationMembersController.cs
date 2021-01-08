@@ -156,11 +156,11 @@ namespace OpenBots.Server.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieves a user's details for a particular organization memeber
+        /// Retrieves a user's details for a particular organization member
         /// </summary>
         /// <param name="id">Person identifier</param>
         /// <response code="200">Ok, if user details are available for the given id></response>
-        /// <response code="400">Bad request, if the user id is not provided or an improper Guid</response>
+        /// <response code="400">Bad request, if the person id is not provided or an improper Guid</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity, validation error</response>
@@ -488,13 +488,13 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
         /// <returns>Ok response, if the partial organization member values have been updated</returns>
-        [HttpPatch("Person/{id}")]
+        [HttpPatch("UpdateUser/Person/{id}")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
-        public async Task<IActionResult> Patch(string id, [FromBody] UpdateTeamMemberViewModel request)
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateTeamMemberViewModel request)
         {         
             try
             {
@@ -502,7 +502,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return Ok(ex.GetActionResult());
+                return BadRequest(ex.Message);
             }
         }
 

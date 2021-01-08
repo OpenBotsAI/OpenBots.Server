@@ -3725,11 +3725,11 @@
         </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.GetUsersadasd(System.String)">
             <summary>
-            Retrieves a user's details for a particular organization memeber
+            Retrieves a user's details for a particular organization member
             </summary>
             <param name="id">Person identifier</param>
             <response code="200">Ok, if user details are available for the given id></response>
-            <response code="400">Bad request, if the user id is not provided or an improper Guid</response>
+            <response code="400">Bad request, if the person id is not provided or an improper Guid</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="404">Not found</response>
             <response code="422">Unprocessable entity, validation error</response>
