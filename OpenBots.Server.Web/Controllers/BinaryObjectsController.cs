@@ -42,6 +42,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <param name="userManager"></param>
         /// <param name="binaryObjectManager"></param>
         /// <param name="httpContextAccessor"></param>
+        /// <param name="webhookPublisher"></param>
         public BinaryObjectsController(
             IBinaryObjectRepository repository,
             IMembershipManager membershipManager,

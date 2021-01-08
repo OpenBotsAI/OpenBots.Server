@@ -27,14 +27,21 @@ namespace OpenBots.Server.Web
     [ApiController]
     [Authorize]
     public class CredentialsController : EntityController<Credential>
-    {
-        /// <summary>
-        /// CredentialsController constructor
-        /// </summary>
+    { 
         ICredentialManager credentialManager;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IWebhookPublisher webhookPublisher;
 
+        /// <summary>
+        /// CredentialsController constructor
+        /// </summary>
+        /// <param name="repository"></param>
+        /// <param name="membershipManager"></param>
+        /// <param name="userManager"></param>
+        /// <param name="credentialManager"></param>
+        /// <param name="configuration"></param>
+        /// <param name="httpContextAccessor"></param>
+        /// <param name="webhookPublisher"></param>
         public CredentialsController(
             ICredentialRepository repository,
             IMembershipManager membershipManager,

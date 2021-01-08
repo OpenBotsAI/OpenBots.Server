@@ -38,6 +38,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <param name="userManager"></param>
         /// <param name="httpContextAccessor"></param>
         /// <param name="manager"></param>
+        /// <param name="configuration"></param>
         public AuditLogsController(
             IAuditLogRepository repository,
             IMembershipManager membershipManager,

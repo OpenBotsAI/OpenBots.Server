@@ -37,6 +37,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// <param name="userManager"></param>
         /// <param name="httpContextAccessor"></param>
         /// <param name="configuration"></param>
+        /// <param name="emailSender"></param>
         public EmailVerificationsController(
             IEmailVerificationRepository repository, 
             IMembershipManager membershipManager,

@@ -30,6 +30,8 @@ namespace OpenBots.Server.WebAPI.Controllers.Core
         /// <param name="membershipManager"></param>
         /// <param name="userManager"></param>
         /// <param name="httpContextAccessor"></param>
+        /// <param name="configuration"></param>
+        /// <param name="organizationManager"></param>
         public LookupValuesController(
             ILookupValueRepository repository,
             IMembershipManager membershipManager,

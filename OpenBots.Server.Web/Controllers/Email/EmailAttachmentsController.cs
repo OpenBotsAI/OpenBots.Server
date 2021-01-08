@@ -32,6 +32,16 @@ namespace OpenBots.Server.Web.Controllers.Email
         private readonly IBinaryObjectManager binaryObjectManager;
         private readonly IBinaryObjectRepository binaryObjectRepository;
 
+        /// <summary>
+        /// EmailAttachmentsController constuctor
+        /// </summary>
+        /// <param name="repository"></param>
+        /// <param name="httpContextAccessor"></param>
+        /// <param name="userManager"></param>
+        /// <param name="membershipManager"></param>
+        /// <param name="configuration"></param>
+        /// <param name="binaryObjectRepository"></param>
+        /// <param name="binaryObjectManager"></param>
         public EmailAttachmentsController(
             IEmailAttachmentRepository repository,
             IHttpContextAccessor httpContextAccessor,

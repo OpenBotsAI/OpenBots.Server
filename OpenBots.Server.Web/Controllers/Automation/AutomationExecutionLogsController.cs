@@ -13,12 +13,14 @@ using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Web
 {
+    /// <summary>
+    /// Controller for Automation Execution Logs
+    /// </summary>
     [V1]
     [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
@@ -27,6 +29,17 @@ namespace OpenBots.Server.Web
     {
         readonly IAgentRepository agentRepository;
         IAutomationExecutionLogManager automationExecutionLogManager;
+
+        /// <summary>
+        /// AutomationExecutionLogsController constructor
+        /// </summary>
+        /// <param name="repository"></param>
+        /// <param name="agentRepository"></param>
+        /// <param name="membershipManager"></param>
+        /// <param name="userManager"></param>
+        /// <param name="automationExecutionLogManager"></param>
+        /// <param name="httpContextAccessor"></param>
+        /// <param name="configuration"></param>
         public AutomationExecutionLogsController(
             IAutomationExecutionLogRepository repository,
             IAgentRepository agentRepository,

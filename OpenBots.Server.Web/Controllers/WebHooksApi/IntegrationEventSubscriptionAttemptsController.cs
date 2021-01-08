@@ -26,6 +26,16 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
     {
         private readonly IIntegrationEventSubscriptionAttemptRepository repository;
         private readonly IIntegrationEventSubscriptionAttemptManager attemptManager;
+
+        /// <summary>
+        /// IntegrationEventSubscriptionAttemptsController costructor
+        /// </summary>
+        /// <param name="repository"></param>
+        /// <param name="attemptManager"></param>
+        /// <param name="membershipManager"></param>
+        /// <param name="userManager"></param>
+        /// <param name="configuration"></param>
+        /// <param name="httpContextAccessor"></param>
         public IntegrationEventSubscriptionAttemptsController(
             IIntegrationEventSubscriptionAttemptRepository repository,
             IIntegrationEventSubscriptionAttemptManager attemptManager,

@@ -10,6 +10,7 @@ using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Security;
+using OpenBots.Server.ViewModel.Queue;
 using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
@@ -34,6 +35,19 @@ namespace OpenBots.Server.Web.Controllers.Queue
         private readonly IQueueItemManager manager;
         private readonly IWebhookPublisher webhookPublisher;
 
+        /// <summary>
+        /// QueueItemAttachmentsController constructor
+        /// </summary>
+        /// <param name="repository"></param>
+        /// <param name="httpContextAccessor"></param>
+        /// <param name="userManager"></param>
+        /// <param name="membershipManager"></param>
+        /// <param name="configuration"></param>
+        /// <param name="binaryObjectManager"></param>
+        /// <param name="binaryObjectRepository"></param>
+        /// <param name="queueItemRepository"></param>
+        /// <param name="manager"></param>
+        /// <param name="webhookPublisher"></param>
         public QueueItemAttachmentsController(
             IQueueItemAttachmentRepository repository,
             IHttpContextAccessor httpContextAccessor,
@@ -94,6 +108,57 @@ namespace OpenBots.Server.Web.Controllers.Queue
         }
 
         /// <summary>
+        /// Provides all queue item attachments view for a queue item
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="skip"></param>
+        /// <param name="top"></param>
+        /// <response code="200">Ok, a paginated list of queue item attachments view</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Paginated list of queue item attachments view</returns>
+        [HttpGet("view")]
+        [ProducesResponseType(typeof(PaginatedList<AllQueueItemAttachmentsViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public PaginatedList<AllQueueItemAttachmentsViewModel> GetView(string queueItemId,
+        [FromQuery(Name = "$filter")] string filter = "",
+        [FromQuery(Name = "$orderby")] string orderBy = "",
+        [FromQuery(Name = "$top")] int top = 100,
+        [FromQuery(Name = "$skip")] int skip = 0)
+        {
+            ODataHelper<AllQueueItemAttachmentsViewModel> oData = new ODataHelper<AllQueueItemAttachmentsViewModel>();
+
+            string queryString = "";
+
+            if (HttpContext != null
+                && HttpContext.Request != null
+                && HttpContext.Request.QueryString != null
+                && HttpContext.Request.QueryString.HasValue)
+                queryString = HttpContext.Request.QueryString.Value;
+
+            oData.Parse(queryString);
+            Guid parentguid = Guid.Empty;
+            var newNode = oData.ParseOrderByQuery(queryString);
+            if (newNode == null)
+                newNode = new OrderByNode<AllQueueItemAttachmentsViewModel>();
+
+            Predicate<AllQueueItemAttachmentsViewModel> predicate = null;
+            if (oData != null && oData.Filter != null)
+                predicate = new Predicate<AllQueueItemAttachmentsViewModel>(oData.Filter);
+            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
+
+            return manager.GetQueueItemAttachmentsAndNames(Guid.Parse(queueItemId), predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+        }
+
+        /// <summary>
         /// Gets count of queue item attachments related to a queue item in the database
         /// </summary>
         /// <param name="queueItemId"></param>
@@ -123,7 +188,6 @@ namespace OpenBots.Server.Web.Controllers.Queue
             {
                 return ex.GetActionResult();
             }
-
         }
 
         /// <summary>

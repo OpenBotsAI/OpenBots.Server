@@ -78,6 +78,18 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         /// <param name="personEmailRepository"></param>
         /// <param name="emailVerificationRepository"></param>
         /// <param name="emailSender"></param>
+        /// <param name="organizationManager"></param>
+        /// <param name="organizationSettingRepository"></param>
+        /// <param name="iPFencingManager"></param>
+        /// <param name="accessRequestManager"></param>
+        /// <param name="accessRequestRepository"></param>
+        /// <param name="agentRepository"></param>
+        /// <param name="auditLogRepository"></param>
+        /// <param name="context"></param>
+        /// <param name="iPFencingRepository"></param>
+        /// <param name="organizationMemberRepository"></param>
+        /// <param name="passwordPolicyRepository"></param>
+        /// <param name="termsConditionsManager"></param>
         public AuthController(
            ApplicationIdentityUserManager userManager,
            SignInManager<ApplicationUser> signInManager,
