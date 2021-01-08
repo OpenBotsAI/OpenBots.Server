@@ -134,7 +134,7 @@ export class ViewScheduleComponent implements OnInit {
   gotoaudit() {
     this.router.navigate(['/pages/change-log/list'], {
       queryParams: {
-        PageName: 'OpenBots.Server.Model.Schedule',
+        PageName: 'Schedule',
         id: this.currentScheduleId,
       },
     });

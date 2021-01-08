@@ -115,7 +115,7 @@ export class EmailTestingAccountComponent implements OnInit {
   gotoaudit() {
     this.router.navigate(['/pages/change-log/list'], {
       queryParams: {
-        PageName: 'OpenBots.Server.Model.email',
+        PageName: 'email',
         id: this.showEmail.id,
       },
     });

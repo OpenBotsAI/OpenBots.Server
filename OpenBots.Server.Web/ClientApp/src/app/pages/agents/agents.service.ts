@@ -11,15 +11,15 @@ export class AgentsService {
     return environment.apiUrl;
   }
 
-  constructor(private http: HttpClient, private helperService: HelperService) {}
+  constructor(private http: HttpClient, private helperService: HelperService) { }
 
   getAllAgent(tpage: any, spage: any) {
-    let getagentUrl = `/${AgentApiUrl.Agents}?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/${AgentApiUrl.AgentsView}?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
   getAllAgentOrder(tpage: any, spage: any, name) {
-    let getagentUrl = `/${AgentApiUrl.Agents}?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/${AgentApiUrl.AgentsView}?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 

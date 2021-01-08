@@ -86,8 +86,8 @@ export class GetAutomationIdComponent implements OnInit {
   gotoaudit() {
     this.router.navigate(['/pages/change-log/list'], {
       queryParams: {
-        // PageName: 'OpenBots.Server.Model.Process',
-        PageName: 'OpenBots.Server.Model.Automation',
+        // PageName: 'Process',
+        PageName: 'Automation',
 
         id: this.show_allprocess.id,
       },

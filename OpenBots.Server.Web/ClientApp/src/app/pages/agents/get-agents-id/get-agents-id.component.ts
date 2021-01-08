@@ -113,10 +113,7 @@ export class GetAgentsIdComponent implements OnInit {
 
   gotoaudit() {
     this.router.navigate(['/pages/change-log/list'], {
-      queryParams: {
-        PageName: 'OpenBots.Server.Model.AgentModel',
-        id: this.show_allagents.id,
-      },
+      queryParams: { PageName: 'AgentModel', id: this.show_allagents.id },
     });
   }
 
