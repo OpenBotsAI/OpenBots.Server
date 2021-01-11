@@ -498,7 +498,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         public async Task<IActionResult> UpdateUser(string id, string organizationId, [FromBody] UpdateTeamMemberViewModel request)
         {      
             try
-            {
+           {
                 return await membershipManager.UpdateOrganizationMember(request, id, organizationId);
             }
             catch (UnauthorizedAccessException unauthorized)

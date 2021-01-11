@@ -9,6 +9,7 @@ namespace OpenBots.Server.Model
         [Required]
         public string MachineName { get; set; }
         public string MacAddresses { get; set; }
+        public string IPAddresses { get; set; }
         [Required]
         public bool IsEnabled { get; set; }
         [Required]

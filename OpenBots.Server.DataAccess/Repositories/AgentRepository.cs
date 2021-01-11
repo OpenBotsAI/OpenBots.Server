@@ -22,15 +22,6 @@ namespace OpenBots.Server.DataAccess.Repositories
             return dbContext.Agents;
         }
 
-        public Agent FindAgent(string machineName, string macAddress, Guid? agentID)
-        {
-            var agent = DbTable().Where(AuthorizeRead()).AsQueryable().Where(RemoveSoftDeleted())
-                                                                      .Where(a => a.Id == agentID
-                                                                               && a.MachineName.Equals(machineName) 
-                                                                               && a.MacAddresses.Equals(macAddress)).FirstOrDefault();
-            return agent;
-        }
-
         public PaginatedList<AllAgentsViewModel> FindAllView(Predicate<AllAgentsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
             PaginatedList<AllAgentsViewModel> paginatedList = new PaginatedList<AllAgentsViewModel>();

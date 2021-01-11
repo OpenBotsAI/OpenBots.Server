@@ -1,6 +1,7 @@
 ﻿using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
 using OpenBots.Server.ViewModel;
+using OpenBots.Server.ViewModel.AgentViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,6 +76,33 @@ namespace OpenBots.Server.Business
                 agentHeartbeatRepo.SoftDelete(heartbeat.AgentId);
             }
 
+        }
+
+        public Agent GetConnectAgent(string agentId, string requestIp, ConnectAgentViewModel request)
+        {
+            Agent agent = agentRepo.GetOne(Guid.Parse(agentId));
+            if (agent == null) return agent;
+
+            if (agent.IPAddresses != null)
+            {
+                if (agent.IPAddresses != requestIp)
+                {
+                    throw new UnauthorizedAccessException("The IP address provided does not match this Agent's IP address");
+                }
+            }
+            if (agent.MacAddresses != null)
+            {
+                if (agent.MacAddresses != request.MacAddresses)
+                {
+                    throw new UnauthorizedAccessException("The MAC address provided does not match this Agent's MAC address");
+                }
+            }
+            if (agent.MachineName != request.MachineName)
+            {
+                throw new UnauthorizedAccessException("The machine name provided does not match this Agent's machine name");
+            }
+
+            return agent;
         }
     }
 }

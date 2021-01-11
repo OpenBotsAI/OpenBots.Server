@@ -14,6 +14,7 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
         [Required(ErrorMessage = "Please enter a Machine name.")]
         public string MachineName { get; set; }
         public string MacAddresses { get; set; }
+        public string IPAddresses { get; set; }
         [Required]
         public bool IsEnabled { get; set; }
         [Required]
@@ -33,6 +34,7 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
                 Name = viewModel.Name,
                 MachineName = viewModel.MachineName,
                 MacAddresses = viewModel.MacAddresses,
+                IPAddresses = viewModel.IPAddresses,
                 IsEnabled = viewModel.IsEnabled,
                 IsConnected = viewModel.IsConnected,
                 CredentialId = viewModel.CredentialId
