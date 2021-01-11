@@ -161,3 +161,9 @@
   /* box-shadow: rgb(109, 163, 221) 0px 0px 0px 8px inset;*/
   transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
 }
+
+
+.jobScroll{
+  height: 400px;
+  overflow-y: scroll;
+}
