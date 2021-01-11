@@ -42,6 +42,6 @@ namespace OpenBots.Server.Business
 
         Task<AspNetUsers> GetAspUser(string personId);
 
-        Task<IActionResult> UpdateOrganizationMember(UpdateTeamMemberViewModel request, string personId);
+        Task<IActionResult> UpdateOrganizationMember(UpdateTeamMemberViewModel request, string personId, string organizationId);
     }
 }

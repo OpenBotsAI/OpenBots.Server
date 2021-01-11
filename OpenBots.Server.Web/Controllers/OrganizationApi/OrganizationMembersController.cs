@@ -482,7 +482,8 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// Updates the partial details of an organization member
         /// </summary>
         /// <param name="id">Organization member person id.</param>
-        /// <param name="request">Vakues to be updated</param>
+        /// <param name="request">Values to be updated</param>
+        /// <param name="organizationId">Organization ID</param>
         /// <response code="200">Ok, if update of organization member is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match.</response>
         /// <response code="403">Forbidden, unauthorized access</response>
@@ -494,11 +495,15 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
-        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateTeamMemberViewModel request)
-        {         
+        public async Task<IActionResult> UpdateUser(string id, string organizationId, [FromBody] UpdateTeamMemberViewModel request)
+        {      
             try
             {
-                return await membershipManager.UpdateOrganizationMember(request, id);
+                return await membershipManager.UpdateOrganizationMember(request, id, organizationId);
+            }
+            catch (UnauthorizedAccessException unauthorized)
+            {
+                return Unauthorized("Only Admins of this organization can update existing users");
             }
             catch (Exception ex)
             {

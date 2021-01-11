@@ -3814,12 +3814,13 @@
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response, if the partial organization member values have been updated</returns>
         </member>
-        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.UpdateUser(System.String,OpenBots.Server.ViewModel.Organization.UpdateTeamMemberViewModel)">
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.UpdateUser(System.String,System.String,OpenBots.Server.ViewModel.Organization.UpdateTeamMemberViewModel)">
             <summary>
             Updates the partial details of an organization member
             </summary>
             <param name="id">Organization member person id.</param>
-            <param name="request">Vakues to be updated</param>
+            <param name="request">Values to be updated</param>
+            <param name="organizationId">Organization ID</param>
             <response code="200">Ok, if update of organization member is successful</response>
             <response code="400">Bad request, if the id is null or ids don't match.</response>
             <response code="403">Forbidden, unauthorized access</response>

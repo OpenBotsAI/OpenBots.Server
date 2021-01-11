@@ -6,12 +6,13 @@ using OpenBots.Server.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.Security;
-using System.Threading.Tasks;
 using OpenBots.Server.ViewModel.Organization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 
 namespace OpenBots.Server.Business
 {
@@ -29,6 +30,7 @@ namespace OpenBots.Server.Business
         protected IAspNetUsersRepository _aspNetUsersRepository;
         protected ApplicationIdentityUserManager _userManager;
         protected IPasswordPolicyRepository _passwordPolicyRepository;
+        protected IHttpContextAccessor _accessor;
 
         public MembershipManager(
             IPersonRepository personRepo,
@@ -41,7 +43,8 @@ namespace OpenBots.Server.Business
             IOrganizationUnitRepository organizationUnitRepository,
             IAspNetUsersRepository aspNetUsersRepository,
             ApplicationIdentityUserManager userManager,
-            IPasswordPolicyRepository passwordPolicyRepository
+            IPasswordPolicyRepository passwordPolicyRepository,
+            IHttpContextAccessor accessor
 )
         {
             _personRepo = personRepo;
@@ -55,6 +58,7 @@ namespace OpenBots.Server.Business
             _aspNetUsersRepository = aspNetUsersRepository;
             _userManager = userManager;
             _passwordPolicyRepository = passwordPolicyRepository;
+            _accessor = accessor;
         }
 
         public override void SetContext(UserSecurityContext userSecurityContext)
@@ -527,8 +531,16 @@ namespace OpenBots.Server.Business
             return aspNetUser;
         }
 
-        public async Task<IActionResult> UpdateOrganizationMember(UpdateTeamMemberViewModel request, string personId)
+        public async Task<IActionResult> UpdateOrganizationMember(UpdateTeamMemberViewModel request, string personId , string organizationId)
         {
+            var currentUser = await _userManager.FindByEmailAsync(_accessor.HttpContext.User.Identity.Name);
+            OrganizationMember currentOrgMember = _organzationMemberRepo.Find(null, o => o.PersonId == Guid.Parse(personId)).Items?.FirstOrDefault();
+
+            if (!currentOrgMember.IsAdministrator ?? false || currentOrgMember.OrganizationId != Guid.Parse(organizationId))
+            {
+                throw new UnauthorizedAccessException();
+            }
+
             var userToUpdate = _aspNetUsersRepository.Find(null, u => u.PersonId == Guid.Parse(personId)).Items?.FirstOrDefault();
             var personToUpdate = _personRepo.Find(null, p => p.Id == Guid.Parse(personId)).Items?.FirstOrDefault();
             ApplicationUser appUser = await _userManager.FindByIdAsync(userToUpdate.Id).ConfigureAwait(false);
@@ -591,7 +603,7 @@ namespace OpenBots.Server.Business
 
                 if (!result.Succeeded)
                 {
-                    throw new Exception("Faield to set new password");
+                    throw new Exception("Failed to set new password");
                 }
             }
 
