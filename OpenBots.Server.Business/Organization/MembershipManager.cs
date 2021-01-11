@@ -531,7 +531,7 @@ namespace OpenBots.Server.Business
             return aspNetUser;
         }
 
-        public async Task<IActionResult> UpdateOrganizationMember(UpdateTeamMemberViewModel request, string personId , string organizationId)
+        public async Task<IActionResult> UpdateOrganizationMember(UpdateTeamMemberViewModel request, string personId, string organizationId)
         {
             var currentUser = await _userManager.FindByEmailAsync(_accessor.HttpContext.User.Identity.Name);
             OrganizationMember currentOrgMember = _organzationMemberRepo.Find(null, o => o.PersonId == Guid.Parse(personId)).Items?.FirstOrDefault();

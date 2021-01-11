@@ -75,7 +75,6 @@ namespace OpenBots.Server.Business
             {
                 agentHeartbeatRepo.SoftDelete(heartbeat.AgentId);
             }
-
         }
 
         public Agent GetConnectAgent(string agentId, string requestIp, ConnectAgentViewModel request)
