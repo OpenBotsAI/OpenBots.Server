@@ -54,7 +54,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.swUpdate.isEnabled) {
       this.swUpdate.available.subscribe((data: any) => {
         console.log(data);
-        if (confirm('new version availale')) {
+        if (confirm('New OpenBots Server version available ')) {
           window.location.reload();
         }
       });
@@ -65,7 +65,6 @@ export class AppComponent implements OnInit, OnDestroy {
     window.addEventListener('appinstalled', (evt) => {
       if (evt.type == 'appinstalled') {
         this.showScreen = false;
-        // console.log(this.showScreen);
         console.log(evt);
         console.log('a2hs installed');
       }

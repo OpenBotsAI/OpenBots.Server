@@ -593,6 +593,7 @@ namespace OpenBots.Server.Web.Controllers
                 JsonPatchDocument<Agent> disconnectPatch = new JsonPatchDocument<Agent>();
 
                 disconnectPatch.Replace(e => e.IsConnected, false);
+                await base.PatchEntity(agentID, disconnectPatch);
                 return Ok();
 
             }
