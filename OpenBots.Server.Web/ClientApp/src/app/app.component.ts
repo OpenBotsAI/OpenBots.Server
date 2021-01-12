@@ -65,7 +65,6 @@ export class AppComponent implements OnInit, OnDestroy {
     window.addEventListener('appinstalled', (evt) => {
       if (evt.type == 'appinstalled') {
         this.showScreen = false;
-        // console.log(this.showScreen);
         console.log(evt);
         console.log('a2hs installed');
       }
