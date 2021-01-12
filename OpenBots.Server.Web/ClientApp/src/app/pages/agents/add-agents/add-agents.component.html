@@ -51,9 +51,13 @@
           <div class="row">
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
+                <label for="email" class="label"> Enhanced Security</label>
+               <label class="upload-button">
                 <nb-checkbox class="label"  (checkedChange)="check($event)"  > 
                   Enhanced Security
                 </nb-checkbox>
+                </label>
+
                  
                
               </div>
@@ -66,9 +70,14 @@
                 <!-- <div *ngIf="f.macAddresses.touched && f.macAddresses.invalid" class="invalid-feedback-frm">
                   <div *ngIf="f.macAddresses.errors && f.macAddresses.errors.required"> Mac Address is required.</div>
                 </div> -->
-                <!-- <label for="ipadd" class="label">IP (V4) Address</label>
+                
+              </div>  
+            </div>
+            <div  class="col-md-6 col-sm-6 col-xxxl-6">
+              <div class="form-group">
+              <label for="ipadd" class="label">IP (V4) Address</label>
                 <input type="input" nbInput fullWidth id="ipAddresses" formControlName="ipAddresses"
-                  (keyup)="handleInput($event)" class="form-control" placeholder="Please enter ipAddress"
+                  (keyup)="handleInput($event)" class="form-control" placeholder="Please enter IP (V4) Address"
                   disallow-spaces>
                 <div *ngIf="(f.ipAddresses.touched || f.ipAddresses.dirty) && f.ipAddresses.invalid"
                   class="invalid-feedback-frm">
@@ -76,8 +85,8 @@
                   <div *ngIf="f.ipAddresses.errors.pattern">
                     Please enter valid Ip.
                   </div>
-                </div> -->
-              </div>  
+                </div>
+              </div>
             </div>
           </div>
 
