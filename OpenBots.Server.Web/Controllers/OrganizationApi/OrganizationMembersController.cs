@@ -259,7 +259,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// <summary>
         /// Invite user to become an organization member
         /// </summary>
-        /// <param name="organizationId"></param>
+        /// <param name="organizationId">Organization identifier</param>
         /// <param name="value"></param>
         /// <response code="200">Ok, if the invite of the organization member has been successful</response>
         /// <response code="400">Bad request, if the organization id is not provided or Guid is not in proper format</response>
@@ -422,6 +422,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// Delete organization member 
         /// </summary>
         /// <param name="organizationMemberId">Organization member identifier</param>
+        /// <param name="organizationId">Organization identifier</param>
         /// <response code="200">Ok, if the organization member with the given id has been soft deleted</response>
         /// <response code="400">Bad request, if the id is not provided or not a proper Guid</response>
         /// <response code="403">Unauthorized access, if the user doesn't have permission to delete the organization member</response>
@@ -481,9 +482,9 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// <summary>
         /// Updates the partial details of an organization member
         /// </summary>
-        /// <param name="personId">Organization member person id.</param>
+        /// <param name="personId">Organization member person id</param>
         /// <param name="request">Values to be updated</param>
-        /// <param name="organizationId">Organization ID</param>
+        /// <param name="organizationId">Organization id</param>
         /// <response code="200">Ok, if update of organization member is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
