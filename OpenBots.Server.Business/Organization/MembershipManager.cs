@@ -6,7 +6,13 @@ using OpenBots.Server.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using OpenBots.Server.DataAccess.Exceptions;
+using OpenBots.Server.Security;
+using OpenBots.Server.ViewModel.Organization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 
 namespace OpenBots.Server.Business
 {
@@ -22,6 +28,9 @@ namespace OpenBots.Server.Business
         protected IAccessRequestsManager _accessRequestManager;
         protected IOrganizationUnitRepository _organizationUnitRepository;
         protected IAspNetUsersRepository _aspNetUsersRepository;
+        protected ApplicationIdentityUserManager _userManager;
+        protected IPasswordPolicyRepository _passwordPolicyRepository;
+        protected IHttpContextAccessor _accessor;
 
         public MembershipManager(
             IPersonRepository personRepo,
@@ -32,7 +41,11 @@ namespace OpenBots.Server.Business
             IEmailVerificationRepository emailVerificationRepository,
             IAccessRequestsManager accessRequestManager,
             IOrganizationUnitRepository organizationUnitRepository,
-            IAspNetUsersRepository aspNetUsersRepository)
+            IAspNetUsersRepository aspNetUsersRepository,
+            ApplicationIdentityUserManager userManager,
+            IPasswordPolicyRepository passwordPolicyRepository,
+            IHttpContextAccessor accessor
+)
         {
             _personRepo = personRepo;
             _organizationRepo = organizationRepo;
@@ -43,6 +56,9 @@ namespace OpenBots.Server.Business
             _accessRequestManager = accessRequestManager;
             _organizationUnitRepository = organizationUnitRepository;
             _aspNetUsersRepository = aspNetUsersRepository;
+            _userManager = userManager;
+            _passwordPolicyRepository = passwordPolicyRepository;
+            _accessor = accessor;
         }
 
         public override void SetContext(UserSecurityContext userSecurityContext)
@@ -506,6 +522,139 @@ namespace OpenBots.Server.Business
             var departments = _organizationUnitRepository.Find(Guid.Parse(id));
 
             return departments;
+        }
+
+        public async Task<AspNetUsers> GetAspUser(string personId)
+        {
+            var aspNetUser = _aspNetUsersRepository.Find(0,1).Items?.Where(u => u.PersonId == Guid.Parse(personId)).FirstOrDefault();
+
+            return aspNetUser;
+        }
+
+        public async Task<IActionResult> UpdateOrganizationMember(UpdateTeamMemberViewModel request, string personId, string organizationId)
+        {
+            var currentUser = await _userManager.FindByEmailAsync(_accessor.HttpContext.User.Identity.Name);
+            OrganizationMember currentOrgMember = _organzationMemberRepo.Find(null, o => o.PersonId == Guid.Parse(personId)).Items?.FirstOrDefault();
+
+            if (!currentOrgMember.IsAdministrator ?? false || currentOrgMember.OrganizationId != Guid.Parse(organizationId))
+            {
+                throw new UnauthorizedAccessException();
+            }
+
+            var userToUpdate = _aspNetUsersRepository.Find(null, u => u.PersonId == Guid.Parse(personId)).Items?.FirstOrDefault();
+            var personToUpdate = _personRepo.Find(null, p => p.Id == Guid.Parse(personId)).Items?.FirstOrDefault();
+            ApplicationUser appUser = await _userManager.FindByIdAsync(userToUpdate.Id).ConfigureAwait(false);
+
+            //Check Password's validity if one was provided
+            if (!String.IsNullOrEmpty(request.Password))
+            {
+                if (!IsPasswordValid(request.Password))
+                {
+                    throw new Exception(PasswordRequirementMessage(request.Password));
+                }
+            }
+
+            //If email was provided check its availability
+            if (!String.IsNullOrEmpty(request.Email))
+            {
+                // If email is not the same as User's current email
+                if (!appUser.NormalizedEmail.Equals(request.Email.ToUpper()))
+                {
+                    var existingEmailUser = _aspNetUsersRepository.Find(null, u => u.Email == request.Email).Items?.FirstOrDefault();
+
+                    if (existingEmailUser != null)
+                    {
+                        throw new Exception("A User already exists for the provided email address");
+                    }
+
+                    var personEmailToUpdate = _personEmailRepository.Find(null, p => p.PersonId == Guid.Parse(personId)).Items?.FirstOrDefault();
+                    var emailVerificationToUpdate = _emailVerificationRepository.Find(null, p => p.PersonId == Guid.Parse(personId)).Items?.FirstOrDefault();
+
+                    //Update AppUsers Email
+                    appUser.Email = request.Email;
+                    appUser.NormalizedEmail = request.Email.ToUpper();
+                    appUser.UserName = request.Email;
+                    appUser.NormalizedUserName = request.Email.ToUpper();
+
+                    //Update Additional Email Tables 
+                    personEmailToUpdate.Address = request.Email;
+                    emailVerificationToUpdate.Address = request.Email;
+
+                    _personEmailRepository.Update(personEmailToUpdate);
+                    _emailVerificationRepository.Update(emailVerificationToUpdate);
+                }
+            }
+
+            //Update Name if one was provided
+            if (!String.IsNullOrEmpty(request.Name))
+            {
+                appUser.Name = request.Name;
+                personToUpdate.Name = request.Name;
+
+                _personRepo.Update(personToUpdate);
+            }
+
+            //Update Password
+            if (!String.IsNullOrEmpty(request.Password))
+            {
+                appUser.ForcedPasswordChange = false;
+                var token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
+                IdentityResult result = await _userManager.ResetPasswordAsync(appUser, token, request.Password);
+
+                if (!result.Succeeded)
+                {
+                    throw new Exception("Failed to set new password");
+                }
+            }
+
+            //Update Appuser
+            if (!String.IsNullOrEmpty(request.Password) || !String.IsNullOrEmpty(request.Email))
+            {
+                _userManager.UpdateAsync(appUser);
+            }
+
+            return new OkObjectResult(appUser);
+        }
+
+        private bool IsPasswordValid(string password)
+        {
+            bool validPassword = true;
+            var passwordPolicy = _passwordPolicyRepository.Find(0, 0)?.Items?.FirstOrDefault();
+            if (passwordPolicy != null)
+            {
+                PasswordOptions passwordOptions = new PasswordOptions()
+                {
+                    RequiredLength = (int)passwordPolicy.MinimumLength,
+                    RequireLowercase = (bool)passwordPolicy.RequireAtleastOneLowercase,
+                    RequireNonAlphanumeric = (bool)passwordPolicy.RequireAtleastOneNonAlpha,
+                    RequireUppercase = (bool)passwordPolicy.RequireAtleastOneUppercase,
+                    RequiredUniqueChars = 0,
+                    RequireDigit = (bool)passwordPolicy.RequireAtleastOneNumber
+                };
+
+                validPassword = PasswordManager.IsValidPassword(password, passwordOptions);
+            }
+            return validPassword;
+        }
+
+        private string PasswordRequirementMessage(string password)
+        {
+            var passwordPolicy = _passwordPolicyRepository.Find(0, 0)?.Items?.FirstOrDefault();
+            if (passwordPolicy != null)
+            {
+                PasswordOptions passwordOptions = new PasswordOptions()
+                {
+                    RequiredLength = (int)passwordPolicy.MinimumLength,
+                    RequireLowercase = (bool)passwordPolicy.RequireAtleastOneLowercase,
+                    RequireNonAlphanumeric = (bool)passwordPolicy.RequireAtleastOneNonAlpha,
+                    RequireUppercase = (bool)passwordPolicy.RequireAtleastOneUppercase,
+                    RequiredUniqueChars = 0,
+                    RequireDigit = (bool)passwordPolicy.RequireAtleastOneNumber
+                };
+
+                return PasswordManager.PasswordRequirementMessage(password, passwordOptions);
+            }
+            return string.Empty;
         }
     }
 

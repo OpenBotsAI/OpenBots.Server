@@ -433,7 +433,9 @@ namespace OpenBots.Server.Web.Controllers
                 schedule.ExpiryDate = DateTime.UtcNow.AddDays(1);
                 schedule.StartDate = DateTime.UtcNow;
                 schedule.AutomationId = AutomationID;
-                
+                schedule.CreatedOn = DateTime.UtcNow;
+                schedule.CreatedBy = applicationUser?.UserName;
+
                 var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(schedule); 
                 var jobId = BackgroundJob.Enqueue(() => hubManager.StartNewRecurringJob(jsonScheduleObj, request.JobParameters));
 

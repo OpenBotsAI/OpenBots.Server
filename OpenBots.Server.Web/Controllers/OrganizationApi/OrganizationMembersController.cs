@@ -19,6 +19,7 @@ using OpenBots.Server.Model.Attributes;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Web.Extensions;
 using OpenBots.Server.ViewModel.Email;
+using OpenBots.Server.ViewModel.Organization;
 
 namespace OpenBots.Server.WebAPI.Controllers
 {
@@ -155,9 +156,31 @@ namespace OpenBots.Server.WebAPI.Controllers
         }
 
         /// <summary>
+        /// Retrieves a user's details for a particular organization member
+        /// </summary>
+        /// <param name="personId">Person identifier</param>
+        /// <response code="200">Ok, if user details are available for the given id></response>
+        /// <response code="400">Bad request, if the person id is not provided or an improper Guid</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity, validation error</response>
+        /// <returns>Ok response with user details</returns> 
+        [HttpGet("Person/{personId}")]
+        [ProducesResponseType(typeof(AspNetUsers), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [Produces("application/json")]
+        public async Task<AspNetUsers> GetUser(string personId)
+        {
+            return await membershipManager.GetAspUser(personId);
+        }
+
+        /// <summary>
         /// Get the member for a particular organization
         /// </summary>
-        /// <param name="id">Organization member identifier</param>
+        /// <param name="organizationMemberId">Organization member identifier</param>
         /// <response code="200">Ok, if organization member exists for the given id</response>
         /// <response code="304">Not modified</response>
         /// <response code="400">Bad request, if the organization id is not provided or is an improper Guid</response>
@@ -165,7 +188,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// <response code="404">Not found, organization member with the particular id does not exist</response>
         /// <response code="422">Unprocessable entity, validation error</response>
         /// <returns>Ok response with organization member details</returns>
-        [HttpGet("{id}", Name = "GetOrganizationMember")]
+        [HttpGet("{organizationMemberId}", Name = "GetOrganizationMember")]
         [ProducesResponseType(typeof(OrganizationMember),StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -174,9 +197,9 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
         [Produces("application/json")]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get(string organizationMemberId)
         {
-            return await base.GetEntity(id);
+            return await base.GetEntity(organizationMemberId);
         }
 
         /// <summary>
@@ -209,7 +232,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// </summary>
         /// <remarks>Updates the organization member details with the particular id for the given organization</remarks>
         /// <param name="organizationId">Organization identifier</param>
-        /// <param name="id">Organization member id</param>
+        /// <param name="organizationMemberId">Organization member id</param>
         /// <param name="value">New value of the organization member to be updated</param>
         /// <response code="200">Ok, if the update of the organization member for the particular id has been successful</response>
         /// <response code="400">Bad request, if the id is not provided or Guid is not in proper format</response>
@@ -218,7 +241,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// <response code="409">Conflict</response>
         /// <response code="422">Unprocessable entity, validation error</response>
         /// <returns>Ok response with updated organization member details</returns>
-        [HttpPut("{id}")]
+        [HttpPut("{organizationMemberId}")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -227,16 +250,16 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
         [Produces("application/json")]
-        public async Task<IActionResult> Put(string organizationId, string id, [FromBody] OrganizationMember value)
+        public async Task<IActionResult> Put(string organizationId, string organizationMemberId, [FromBody] OrganizationMember value)
         {
             value.OrganizationId = new Guid(organizationId);
-            return await base.PutEntity(id, value);
+            return await base.PutEntity(organizationMemberId, value);
         }
 
         /// <summary>
         /// Invite user to become an organization member
         /// </summary>
-        /// <param name="organizationId"></param>
+        /// <param name="organizationId">Organization identifier</param>
         /// <param name="value"></param>
         /// <response code="200">Ok, if the invite of the organization member has been successful</response>
         /// <response code="400">Bad request, if the organization id is not provided or Guid is not in proper format</response>
@@ -398,7 +421,8 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// <summary>
         /// Delete organization member 
         /// </summary>
-        /// <param name="id">Organization member identifier</param>
+        /// <param name="organizationMemberId">Organization member identifier</param>
+        /// <param name="organizationId">Organization identifier</param>
         /// <response code="200">Ok, if the organization member with the given id has been soft deleted</response>
         /// <response code="400">Bad request, if the id is not provided or not a proper Guid</response>
         /// <response code="403">Unauthorized access, if the user doesn't have permission to delete the organization member</response>
@@ -411,11 +435,11 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
         [Produces("application/json")]
-        public async Task<IActionResult> Delete(string organizationId, string id)
+        public async Task<IActionResult> Delete(string organizationId, string organizationMemberId)
         {
             //Check if the logged in user is member of the organization, do not allow self deletion from organization
             var orgId = new Guid(organizationId);
-            var orgMemberId = new Guid(id);
+            var orgMemberId = new Guid(organizationMemberId);
 
             var orgmem = membershipManager.GetOrganizationMember(orgId, SecurityContext.PersonId)?.Items?.FirstOrDefault();
             if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
@@ -431,29 +455,63 @@ namespace OpenBots.Server.WebAPI.Controllers
                 ModelState.AddModelError("Delete", "cannot remove from the organization");
                 return BadRequest(ModelState);
             }
-            return await base.DeleteEntity(id);
+            return await base.DeleteEntity(organizationMemberId);
         }
 
         /// <summary>
         /// Updates the partial details of organization members
         /// </summary>
-        /// <param name="id">Organization member identifier.</param>
+        /// <param name="organizationMemberId">Organization member identifier</param>
         /// <param name="value">Value to be updated</param>
         /// <response code="200">Ok, if update of organization member is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match.</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
         /// <returns>Ok response, if the partial organization member values have been updated</returns>
-        [HttpPatch("{id}")]
+        [HttpPatch("{organizationMemberId}")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
-        public async Task<IActionResult> Patch(string id, [FromBody]JsonPatchDocument<OrganizationMember> value)
+        public async Task<IActionResult> Patch(string organizationMemberId, [FromBody]JsonPatchDocument<OrganizationMember> value)
         {
-            return await base.PatchEntity(id, value);
+            return await base.PatchEntity(organizationMemberId, value);
         }
+
+        /// <summary>
+        /// Updates the partial details of an organization member
+        /// </summary>
+        /// <param name="personId">Organization member person id</param>
+        /// <param name="request">Values to be updated</param>
+        /// <param name="organizationId">Organization id</param>
+        /// <response code="200">Ok, if update of organization member is successful</response>
+        /// <response code="400">Bad request, if the id is null or ids don't match</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="422">Unprocessable entity, validation error</response>
+        /// <returns>Ok response, if the partial organization member values have been updated</returns>
+        [HttpPatch("Person/{personId}/UpdateUser")]
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [Produces("application/json")]
+        public async Task<IActionResult> UpdateUser(string personId, string organizationId, [FromBody] UpdateTeamMemberViewModel request)
+        {      
+            try
+           {
+                return await membershipManager.UpdateOrganizationMember(request, personId, organizationId);
+            }
+            catch (UnauthorizedAccessException unauthorized)
+            {
+                return Unauthorized("Only Admins of this organization can update existing users");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         #region Private methods - Security
 
         //TODO - To be moved to security manager 

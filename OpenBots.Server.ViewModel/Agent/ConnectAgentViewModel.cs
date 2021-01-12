@@ -8,7 +8,6 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
         [Required]
         [FromQuery(Name = "MachineName")]
         public string MachineName { get; set; }
-        [Required]
         [FromQuery(Name = "MacAddresses")]
         public string MacAddresses { get; set; }
     }

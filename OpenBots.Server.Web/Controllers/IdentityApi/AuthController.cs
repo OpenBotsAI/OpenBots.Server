@@ -450,7 +450,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                         //Update IPFencing allow rule for the current user
                         var ipAddress = context.HttpContext.Connection.RemoteIpAddress;
                         var rule = iPFencingRepository.Find(0, 1).Items?.Where(q => q.IPAddress == ipAddress.ToString()).FirstOrDefault();
-                        if (rule != null && rule.OrganizationId == null || rule.OrganizationId == Guid.Empty)
+                        if (rule != null && rule.OrganizationId == null)
                         {
                             rule.OrganizationId = newOrganization.Id;
                             iPFencingRepository.Update(rule);

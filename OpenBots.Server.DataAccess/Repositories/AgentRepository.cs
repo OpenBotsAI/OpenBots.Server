@@ -22,16 +22,6 @@ namespace OpenBots.Server.DataAccess.Repositories
             return dbContext.Agents;
         }
 
-        public Agent FindAgent(string machineName, string macAddress, string ipAddress, Guid? agentID)
-        {
-            var agent = DbTable().Where(AuthorizeRead()).AsQueryable().Where(RemoveSoftDeleted())
-                                                                      .Where(a => a.Id == agentID
-                                                                               && a.MachineName.Equals(machineName) 
-                                                                               && a.MacAddresses.Equals(macAddress) 
-                                                                               && a.IPAddresses.Equals(ipAddress)).FirstOrDefault();
-            return agent;
-        }
-
         public PaginatedList<AllAgentsViewModel> FindAllView(Predicate<AllAgentsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
             PaginatedList<AllAgentsViewModel> paginatedList = new PaginatedList<AllAgentsViewModel>();
@@ -48,7 +38,6 @@ namespace OpenBots.Server.DataAccess.Repositories
                                      Name = a?.Name,
                                      MachineName = a?.MachineName,
                                      MacAddresses = a?.MacAddresses,
-                                     IPAddresses = a?.IPAddresses,
                                      IsEnabled = a.IsEnabled,
                                      LastReportedOn = h?.LastReportedOn,
                                      LastReportedStatus = h?.LastReportedStatus,
@@ -104,7 +93,6 @@ namespace OpenBots.Server.DataAccess.Repositories
                                     Name = a.Name,
                                     MachineName = a.MachineName,
                                     MacAddresses = a.MacAddresses,
-                                    IPAddresses = a.IPAddresses,
                                     IsEnabled = a.IsEnabled,
                                     IsConnected = a.IsConnected,
                                     CredentialId = a.CredentialId,
