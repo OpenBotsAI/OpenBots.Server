@@ -528,13 +528,13 @@ namespace OpenBots.Server.Web.Controllers
 
                 ConnectedViewModel connectedViewModel = new ConnectedViewModel();
                 var requestIp = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
-                var agent = agentRepo.FindAgent(request.MachineName, request.MacAddresses, requestIp, entityId);
+                var agent = agentManager.GetConnectAgent(agentID, requestIp, request);
 
                 if (agent == null)
                 {
-                    ModelState.AddModelError("Connect", "Record does not exist or you do not have authorized access.");
-                    return BadRequest(ModelState);
+                    return NotFound("No Agent was found with the given Agent ID");
                 }
+
                 if (agent.IsConnected == false)
                 {
                     JsonPatchDocument<Agent> connectPatch = new JsonPatchDocument<Agent>();
@@ -544,6 +544,10 @@ namespace OpenBots.Server.Web.Controllers
                 }
 
                 return new OkObjectResult(connectedViewModel.Map(agent));
+            }
+            catch(UnauthorizedAccessException unauthorizedEx)
+            {
+                return Unauthorized(unauthorizedEx.Message);
             }
             catch (Exception ex)
             {
@@ -575,27 +579,21 @@ namespace OpenBots.Server.Web.Controllers
             {
                 Guid? agentGuid = new Guid(agentID);
                 var requestIp = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
-                var agent = agentRepo.FindAgent(request.MachineName, request.MacAddresses, requestIp, agentGuid);
+                var agent = agentManager.GetConnectAgent(agentID, requestIp, request);
 
                 if (agent == null)
                 {
                     return NotFound("Agent not found");
                 }
-                if (agent.Id != agentGuid)
-                {
-                    ModelState.AddModelError("Disconnect", "AgentId does not match existing agent");
-                    return BadRequest(ModelState);
-                }
                 if (agent.IsConnected == false)
                 {
-                    ModelState.AddModelError("Disconnect", "Agent is already disconnected");
-                    return BadRequest(ModelState);
+                    return Ok($"Agent {agent.Name} is already disconnected");
                 }
 
                 JsonPatchDocument<Agent> disconnectPatch = new JsonPatchDocument<Agent>();
 
                 disconnectPatch.Replace(e => e.IsConnected, false);
-                return await base.PatchEntity(agentID, disconnectPatch);
+                return Ok($"Agent {agent.Name} is now disconnected");
 
             }
             catch (Exception ex)

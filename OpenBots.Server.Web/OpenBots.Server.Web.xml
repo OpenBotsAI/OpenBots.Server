@@ -2266,7 +2266,7 @@
             </summary>
             <param name="id">Asset id to be deleted - throws bad request if null or empty Guid</param>
             <response code="200">Ok, when asset is soft deleted, (isDeleted flag is set to true in database)</response>
-            <response code="400">Ba request, if asset id is null or empty Guid</response>
+            <response code="400">Bad request, if asset id is null or empty Guid</response>
             <response code="403">Forbidden</response>
             <returns>Ok response</returns>
         </member>
@@ -3724,11 +3724,23 @@
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Paginated list of all the members of an organization.</returns>
         </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.GetUser(System.String)">
+            <summary>
+            Retrieves a user's details for a particular organization member
+            </summary>
+            <param name="personId">Person identifier</param>
+            <response code="200">Ok, if user details are available for the given id></response>
+            <response code="400">Bad request, if the person id is not provided or an improper Guid</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity, validation error</response>
+            <returns>Ok response with user details</returns> 
+        </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.Get(System.String)">
             <summary>
             Get the member for a particular organization
             </summary>
-            <param name="id">Organization member identifier</param>
+            <param name="organizationMemberId">Organization member identifier</param>
             <response code="200">Ok, if organization member exists for the given id</response>
             <response code="304">Not modified</response>
             <response code="400">Bad request, if the organization id is not provided or is an improper Guid</response>
@@ -3756,7 +3768,7 @@
             </summary>
             <remarks>Updates the organization member details with the particular id for the given organization</remarks>
             <param name="organizationId">Organization identifier</param>
-            <param name="id">Organization member id</param>
+            <param name="organizationMemberId">Organization member id</param>
             <param name="value">New value of the organization member to be updated</param>
             <response code="200">Ok, if the update of the organization member for the particular id has been successful</response>
             <response code="400">Bad request, if the id is not provided or Guid is not in proper format</response>
@@ -3783,7 +3795,7 @@
             <summary>
             Delete organization member 
             </summary>
-            <param name="id">Organization member identifier</param>
+            <param name="organizationMemberId">Organization member identifier</param>
             <response code="200">Ok, if the organization member with the given id has been soft deleted</response>
             <response code="400">Bad request, if the id is not provided or not a proper Guid</response>
             <response code="403">Unauthorized access, if the user doesn't have permission to delete the organization member</response>
@@ -3794,10 +3806,23 @@
             <summary>
             Updates the partial details of organization members
             </summary>
-            <param name="id">Organization member identifier.</param>
+            <param name="organizationMemberId">Organization member identifier</param>
             <param name="value">Value to be updated</param>
             <response code="200">Ok, if update of organization member is successful</response>
             <response code="400">Bad request, if the id is null or ids don't match.</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity, validation error</response>
+            <returns>Ok response, if the partial organization member values have been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationMembersController.UpdateUser(System.String,System.String,OpenBots.Server.ViewModel.Organization.UpdateTeamMemberViewModel)">
+            <summary>
+            Updates the partial details of an organization member
+            </summary>
+            <param name="personId">Organization member person id.</param>
+            <param name="request">Values to be updated</param>
+            <param name="organizationId">Organization ID</param>
+            <response code="200">Ok, if update of organization member is successful</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response, if the partial organization member values have been updated</returns>
