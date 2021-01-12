@@ -266,7 +266,12 @@ export class AllAutomationLogsComponent implements OnInit {
   }
 
   refreshData(): void {
-    if (this.filterOrderBy)
+    if (this.jobID) {
+      this.filterByJobId();
+    } else if (this.agentID || this.processID) {
+      this.filterAgentProcess();
+      this.patchAgentAndProcessValue();
+    } else if (this.filterOrderBy)
       this.pagination(
         this.page.pageNumber,
         this.page.pageSize,

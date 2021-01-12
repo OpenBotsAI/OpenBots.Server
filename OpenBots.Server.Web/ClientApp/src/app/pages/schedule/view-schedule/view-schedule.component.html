@@ -138,13 +138,12 @@
 <ng-template #jobsDialog let-data let-ref="dialogRef">
     <nb-card class="jobsDialog">
         <nb-card-header>
-            <h6>Run Now Job</h6>
+            <p><b>Note:</b> Click the plus icon to create Job Parameters.
+                Otherwise, you may skip this step by clicking the Proceed button.
+            </p>
         </nb-card-header>
         <nb-card-body>
             <div class="jobScroll">
-                <p><b>Note!</b> Click plus icon to create Job Parameters otherwise you can skip it by clicking on
-                    proceed.
-                    button</p>
                 <nb-icon nbTooltip="Add Job Parameter" icon="plus" (click)="addJobParameter()"></nb-icon>
                 <form [formGroup]="jobRunNowForm">
                     <div formArrayName="items" *ngFor="let item of formControls.controls; let i = index;">
@@ -156,8 +155,8 @@
                             <div class="form-group">
                                 <label for="DataType" class="label">Data type *</label>
                                 <select class="custom-select" formControlName="DataType">
-                                    <option value="" disabled>Pleace select data type</option>
-                                    <option *ngFor="let item of dataType" [value]="item">
+                                    <option *ngFor="let item of dataType" [value]="item"
+                                        [attr.selected]="item ==='Text'? true: null">
                                         {{item}}
                                     </option>
                                 </select>

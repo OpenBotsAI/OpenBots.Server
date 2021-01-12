@@ -76,7 +76,7 @@ export class ViewScheduleComponent implements OnInit {
   initializeJobRunNowForm(): FormGroup {
     return this.fb.group({
       Name: ['', [Validators.required]],
-      DataType: ['', [Validators.required]],
+      DataType: ['Text', [Validators.required]],
       Value: ['', [Validators.required]],
     });
   }
