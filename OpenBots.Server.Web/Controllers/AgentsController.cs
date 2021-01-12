@@ -587,13 +587,13 @@ namespace OpenBots.Server.Web.Controllers
                 }
                 if (agent.IsConnected == false)
                 {
-                    return Ok($"Agent {agent.Name} is already disconnected");
+                    return Ok();
                 }
 
                 JsonPatchDocument<Agent> disconnectPatch = new JsonPatchDocument<Agent>();
 
                 disconnectPatch.Replace(e => e.IsConnected, false);
-                return Ok($"Agent {agent.Name} is now disconnected");
+                return Ok();
 
             }
             catch (Exception ex)
