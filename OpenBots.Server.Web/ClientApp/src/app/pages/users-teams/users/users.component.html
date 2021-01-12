@@ -34,7 +34,7 @@
             Status
             <i (click)="onSortClick($event, 'status')" [attr.class]="get_allpeople | chevron"></i>
           </th>
-          <th scope="col" *ngIf="isAdmin == 'true'">Edit</th>
+          <!-- <th scope="col" *ngIf="isAdmin == 'true'">Edit</th> -->
           <th scope="col" *ngIf="isAdmin == 'true'">Delete</th>
         </tr>
       </thead>
@@ -68,13 +68,13 @@
           <td>
             <ngx-tooltip [data]="people?.status" [size]="15"> </ngx-tooltip>
           </td>
-          <td *ngIf="isAdmin == 'true'">
+          <!-- <td *ngIf="isAdmin == 'true'">
             <a (click)="gotoedit(people.personId,people.organizationMemberId,people.name,people.emailAddress)"
               [attr.disabled]="people.personId == AmIAdmin" class="apr-btnstyle">
               <i class="fa fa-edit"> </i></a>
-          </td>
+          </td> -->
           <td *ngIf="isAdmin == 'true'">
-           
+
             <a (click)="openDialog(deleteDialog, people.organizationMemberId)"
               [attr.disabled]="people.personId == AmIAdmin" class="apr-btnstyle">
               <img src="../../../assets/images/del-icon.png" alt="Delete Icon" /></a>
