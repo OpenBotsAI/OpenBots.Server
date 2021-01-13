@@ -18,6 +18,7 @@ using Cronos;
 using OpenBots.Server.Model.Attributes;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace OpenBots.Server.Web.Controllers
 {
@@ -34,6 +35,7 @@ namespace OpenBots.Server.Web.Controllers
         private IHubManager hubManager;
         private readonly IRecurringJobManager recurringJobManager;
         private readonly IBackgroundJobClient backgroundJobClient;
+        private readonly IScheduleParameterRepository scheduleParameterRepository;
 
         /// <summary>
         /// SchedulesController constructor
@@ -56,13 +58,15 @@ namespace OpenBots.Server.Web.Controllers
             IHttpContextAccessor httpContextAccessor,
             IHubManager hubManager,
             IConfiguration configuration,
-            IRecurringJobManager recurringJobManager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
+            IRecurringJobManager recurringJobManager,
+            IScheduleParameterRepository scheduleParameterRepository) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.manager = manager;
             this.manager.SetContext(SecurityContext);
             this.backgroundJobClient = backgroundJobClient;
             this.hubManager = hubManager;
             this.recurringJobManager = recurringJobManager;
+            this.scheduleParameterRepository = scheduleParameterRepository;
         }
 
         /// <summary>
@@ -192,7 +196,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Post([FromBody] ScheduleViewModel request)
+        public async Task<IActionResult> Post([FromBody] CreateScheduleViewModel request)
         {
             if (request == null)
             {
@@ -215,26 +219,27 @@ namespace OpenBots.Server.Web.Controllers
             }
 
             Guid entityId = Guid.NewGuid();
+            if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
+                request.Id = entityId;
 
             try
             {
-                Schedule requestObj = new Schedule();
-                requestObj.Id = entityId;
-                requestObj.Name = request.Name;
-                requestObj.AgentId = request.AgentId;
-                requestObj.CRONExpression = request.CRONExpression;
-                requestObj.LastExecution = request.LastExecution;
-                requestObj.NextExecution = request.NextExecution;
-                requestObj.IsDisabled = request.IsDisabled;
-                requestObj.ProjectId = request.ProjectId;
-                requestObj.StartingType = request.StartingType;
-                requestObj.Status = request.Status;
-                requestObj.ExpiryDate = request.ExpiryDate;
-                requestObj.StartDate = request.StartDate;
-                requestObj.AutomationId = request.AutomationId;
-                requestObj.QueueId = request.QueueId;
+                Schedule requestObj = request.Map(request); //Assign request to Schedule entity
+
+                foreach (var parameter in request.parameters ?? Enumerable.Empty<ParametersViewModel>())
+                {
+                    ScheduleParameter scheduleParameter = new ScheduleParameter
+                    {
+                        ScheduleId = entityId,
+                        CreatedBy = applicationUser?.UserName,
+                        CreatedOn = DateTime.UtcNow,
+                        Id = Guid.NewGuid()
+                    };
+                    scheduleParameterRepository.Add(scheduleParameter);
+                }
 
                 var response = await base.PostEntity(requestObj);
+
                 try
                 {
                     recurringJobManager.RemoveIfExists(requestObj.Id?.ToString());
@@ -243,7 +248,7 @@ namespace OpenBots.Server.Web.Controllers
                     {
                         var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(requestObj);
 
-                        backgroundJobClient.Schedule(() => hubManager.StartNewRecurringJob(jsonScheduleObj, Enumerable.Empty<JobParameter>()),
+                        backgroundJobClient.Schedule(() => hubManager.ScheduleNewJob(jsonScheduleObj),
                                 new DateTimeOffset(requestObj.StartDate.Value));
                     }
                 }
@@ -280,7 +285,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Put(string id, [FromBody] ScheduleViewModel request)
+        public async Task<IActionResult> Put(string id, [FromBody] CreateScheduleViewModel request)
         {
             try
             {
@@ -317,6 +322,28 @@ namespace OpenBots.Server.Web.Controllers
                 existingSchedule.AutomationId = request.AutomationId;
 
                 var response = await base.PutEntity(id, existingSchedule);
+
+                manager.DeleteExistingParameters(entityId);
+
+                var set = new HashSet<string>();
+                foreach (var parameter in request.parameters ?? Enumerable.Empty<ParametersViewModel>())
+                {
+                    if (!set.Add(parameter.Name))
+                    {
+                        ModelState.AddModelError("ScheduleParameter", "ScheduleParameter Name Already Exists");
+                        return BadRequest(ModelState);
+                    }
+
+                    ScheduleParameter scheduleParameter = new ScheduleParameter
+                    {
+                        ScheduleId = entityId,
+                        CreatedBy = applicationUser?.UserName,
+                        CreatedOn = DateTime.UtcNow,
+                        Id = Guid.NewGuid()
+                    };
+                    scheduleParameterRepository.Add(scheduleParameter);
+                }
+
                 try
                 {
                     recurringJobManager.RemoveIfExists(existingSchedule.Id?.ToString());
@@ -325,7 +352,7 @@ namespace OpenBots.Server.Web.Controllers
                     {
                         var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(existingSchedule);
 
-                        backgroundJobClient.Schedule(() => hubManager.StartNewRecurringJob(jsonScheduleObj, Enumerable.Empty<JobParameter>()),
+                        backgroundJobClient.Schedule(() => hubManager.ScheduleNewJob(jsonScheduleObj),
                                new DateTimeOffset(existingSchedule.StartDate.Value));
                     }
                 }
@@ -364,8 +391,10 @@ namespace OpenBots.Server.Web.Controllers
                 if (existingSchedule == null) return NotFound();
 
                 recurringJobManager.RemoveIfExists(existingSchedule.Id.Value.ToString());
+                manager.DeleteExistingParameters(entityId);
 
                 return await base.DeleteEntity(id);
+
             }
             catch (Exception ex)
             {
@@ -437,7 +466,7 @@ namespace OpenBots.Server.Web.Controllers
                 schedule.CreatedBy = applicationUser?.UserName;
 
                 var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(schedule); 
-                var jobId = BackgroundJob.Enqueue(() => hubManager.StartNewRecurringJob(jsonScheduleObj, request.JobParameters));
+                var jobId = BackgroundJob.Enqueue(() => hubManager.ExecuteJob(jsonScheduleObj, request.Parameters));
 
                 return Ok();
             }

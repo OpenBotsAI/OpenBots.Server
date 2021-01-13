@@ -9,6 +9,7 @@ using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using System.Linq;
 using OpenBots.Server.Web.Webhooks;
 using System.Collections.Generic;
+using OpenBots.Server.ViewModel;
 
 namespace OpenBots.Server.Web.Hubs
 {
@@ -20,12 +21,14 @@ namespace OpenBots.Server.Web.Hubs
         private IHubContext<NotificationHub> _hub;
         private readonly IWebhookPublisher webhookPublisher;
         private readonly IJobParameterRepository jobParameterRepository;
+        private readonly IScheduleParameterRepository scheduleParameterRepository;
 
         public HubManager(IRecurringJobManager recurringJobManager,
             IJobRepository jobRepository, IHubContext<NotificationHub> hub,
             IAutomationVersionRepository automationVersionRepository,
             IWebhookPublisher webhookPublisher,
-            IJobParameterRepository jobParameterRepository)
+            IJobParameterRepository jobParameterRepository,
+            IScheduleParameterRepository scheduleParameterRepository)
         {
             this.recurringJobManager = recurringJobManager;
             this.jobRepository = jobRepository;
@@ -33,27 +36,28 @@ namespace OpenBots.Server.Web.Hubs
             this.webhookPublisher = webhookPublisher;
             this.jobParameterRepository = jobParameterRepository;
             _hub = hub;
+            this.scheduleParameterRepository = scheduleParameterRepository;
         }
 
         public HubManager()
         {
         }
 
-        public void StartNewRecurringJob(string scheduleSerializeObject, IEnumerable<JobParameter>? jobParameters)
+        public void ScheduleNewJob(string scheduleSerializeObject)
         {
             var scheduleObj = JsonSerializer.Deserialize<Schedule>(scheduleSerializeObject);
 
-            if (string.IsNullOrWhiteSpace(scheduleObj.CRONExpression))
-            {
-                CreateJob(scheduleSerializeObject, jobParameters);
-            }
-            else
-            {
-                recurringJobManager.AddOrUpdate(scheduleObj.Id.Value.ToString(), () => CreateJob(scheduleSerializeObject, jobParameters), scheduleObj.CRONExpression);
-            }
+            //get parameters if non then pass empty
+            recurringJobManager.AddOrUpdate(scheduleObj.Id.Value.ToString(), () => CreateJob(scheduleSerializeObject, parameters), scheduleObj.CRONExpression);
         }
 
-        public string CreateJob(string scheduleSerializeObject, IEnumerable<JobParameter>? jobParameters)
+        public void ExecuteJob(string scheduleSerializeObject, IEnumerable<ParametersViewModel>? parameters)
+        {
+            var scheduleObj = JsonSerializer.Deserialize<Schedule>(scheduleSerializeObject);
+            CreateJob(scheduleSerializeObject, parameters);
+        }
+
+        public string CreateJob(string scheduleSerializeObject, IEnumerable<ParametersViewModel>? parameters)
         {
             var schedule = JsonSerializer.Deserialize<Schedule>(scheduleSerializeObject);
             var automationVersion = automationVersionRepository.Find(null, a => a.AutomationId == schedule.AutomationId).Items?.FirstOrDefault();
@@ -69,13 +73,16 @@ namespace OpenBots.Server.Web.Hubs
             job.AutomationVersionId = automationVersion != null? automationVersion.Id : Guid.Empty;
             job.Message = "Job is created through internal system logic.";
 
-            foreach (var parameter in jobParameters ?? Enumerable.Empty<JobParameter>())
+            foreach (var parameter in parameters ?? Enumerable.Empty<ParametersViewModel>())
             {
-                parameter.JobId = job.Id ?? Guid.Empty;
-                parameter.CreatedBy = schedule.CreatedBy;
-                parameter.CreatedOn = DateTime.UtcNow;
-                parameter.Id = Guid.NewGuid();
-                jobParameterRepository.Add(parameter);
+                JobParameter jobParameter = new JobParameter
+                {
+                    JobId = job.Id ?? Guid.Empty,
+                    CreatedBy = schedule.CreatedBy,
+                    CreatedOn = DateTime.UtcNow,
+                    Id = Guid.NewGuid()
+                };
+                jobParameterRepository.Add(jobParameter);
             }
 
             jobRepository.Add(job);

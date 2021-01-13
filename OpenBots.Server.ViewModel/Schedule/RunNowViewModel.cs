@@ -11,6 +11,6 @@ namespace OpenBots.Server.ViewModel
         public Guid AgentId { get; set; }
         [Required]
         public Guid AutomationId { get; set; }
-        public IEnumerable<JobParameter>? JobParameters { get; set; }
+        public IEnumerable<ParametersViewModel>? Parameters { get; set; }
     }
 }

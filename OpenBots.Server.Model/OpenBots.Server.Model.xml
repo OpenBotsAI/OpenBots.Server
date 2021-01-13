@@ -801,5 +801,10 @@
             Total bytes of all attached files
             </summary>
         </member>
+        <member name="T:OpenBots.Server.Model.ScheduleParameter">
+            <summary>
+            Stores the values corresponding to a schedule's parameters
+            </summary>
+        </member>
     </members>
 </doc>
