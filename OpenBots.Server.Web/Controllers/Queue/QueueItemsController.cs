@@ -377,7 +377,8 @@ namespace OpenBots.Server.Web.Controllers
                     schedule.AutomationId = existingSchedule.AutomationId;
 
                     var jsonScheduleObj = System.Text.Json.JsonSerializer.Serialize(schedule);
-                    var jobId = BackgroundJob.Enqueue(() => hubManager.StartNewRecurringJob(jsonScheduleObj, Enumerable.Empty<JobParameter>()));
+                    //Call GetScheduleParameters
+                    var jobId = BackgroundJob.Enqueue(() => hubManager.ExecuteJob(jsonScheduleObj, Enumerable.Empty<ParametersViewModel>()));
                 }
 
                 QueueItem queueItem = new QueueItem()

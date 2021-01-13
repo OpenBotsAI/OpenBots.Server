@@ -1,8 +1,12 @@
-﻿using System;
+﻿using OpenBots.Server.Model;
+using OpenBots.Server.Model.Core;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace OpenBots.Server.ViewModel
 {
-    public class ScheduleViewModel
+    public class ScheduleViewModel : IViewModel<Schedule, ScheduleViewModel>
     {
         public Guid? Id { get; set; }
         public string Name { get; set; }
@@ -24,5 +28,33 @@ namespace OpenBots.Server.ViewModel
         public string? CreatedBy { get; set; }
         public bool? ScheduleNow { get; set; }
         public Guid? QueueId { get; set; }
+        public IEnumerable<ScheduleParameter>? ScheduleParameters { get; set; }
+
+        public ScheduleViewModel Map(Schedule entity)
+        {
+            ScheduleViewModel scheduleViewModel = new ScheduleViewModel
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                AgentId = entity.AgentId,
+                AgentName = entity.AgentName,
+                CRONExpression = entity.CRONExpression,
+                LastExecution = entity.LastExecution,
+                NextExecution = entity.NextExecution,
+                IsDisabled = entity.IsDisabled,
+                ProjectId = entity.ProjectId,
+                AutomationId = entity.AutomationId,
+                TriggerName = entity.TriggerName,
+                StartingType = entity.StartingType,
+                Status = entity.Status,
+                ExpiryDate = entity.ExpiryDate,
+                StartDate = entity.StartDate,
+                CreatedOn = entity.CreatedOn,
+                CreatedBy = entity.CreatedBy,
+                QueueId = entity.QueueId
+            };
+
+            return scheduleViewModel;
+        }
     }
 }

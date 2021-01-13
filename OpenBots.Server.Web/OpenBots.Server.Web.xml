@@ -1729,7 +1729,7 @@
             Controller for Schedules
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.SchedulesController.#ctor(OpenBots.Server.DataAccess.Repositories.IScheduleRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IScheduleManager,Hangfire.IBackgroundJobClient,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Web.Hubs.IHubManager,Microsoft.Extensions.Configuration.IConfiguration,Hangfire.IRecurringJobManager)">
+        <member name="M:OpenBots.Server.Web.Controllers.SchedulesController.#ctor(OpenBots.Server.DataAccess.Repositories.IScheduleRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IScheduleManager,Hangfire.IBackgroundJobClient,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Web.Hubs.IHubManager,Microsoft.Extensions.Configuration.IConfiguration,Hangfire.IRecurringJobManager,OpenBots.Server.DataAccess.Repositories.IScheduleParameterRepository)">
             <summary>
             SchedulesController constructor
             </summary>
@@ -1783,7 +1783,33 @@
             <response code="422">Unprocessable entity</response>
             <returns>Schedule details for the given id</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.SchedulesController.Post(OpenBots.Server.ViewModel.ScheduleViewModel)">
+        <member name="M:OpenBots.Server.Web.Controllers.SchedulesController.View(System.String)">
+            <summary>
+            Provides schedule details for a particular schedule id
+            </summary>
+            <param name="id">Schedule id</param>
+            <response code="200">Ok, if a schedule exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if schedule id is not in proper format or proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no schedule exists for the given schedule id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Schedule details for the given id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.SchedulesController.GetParameters(System.String)">
+            <summary>
+            Provides schedule parameters for a particular schedule id
+            </summary>
+            <param name="id">Schedule id</param>
+            <response code="200">Ok, if a schedule exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if schedule id is not in proper format or proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no schedule exists for the given schedule id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Schedule parameters for the given id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.SchedulesController.Post(OpenBots.Server.ViewModel.CreateScheduleViewModel)">
             <summary>
             Adds a new schedule to the existing schedules
             </summary>
@@ -1798,7 +1824,7 @@
             <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
             <returns>Newly created unique schedule id with route name</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.SchedulesController.Put(System.String,OpenBots.Server.ViewModel.ScheduleViewModel)">
+        <member name="M:OpenBots.Server.Web.Controllers.SchedulesController.Put(System.String,OpenBots.Server.ViewModel.CreateScheduleViewModel)">
             <summary>
             Updates a schedule 
             </summary>
@@ -3782,7 +3808,7 @@
             <summary>
             Invite user to become an organization member
             </summary>
-            <param name="organizationId"></param>
+            <param name="organizationId">Organization identifier</param>
             <param name="value"></param>
             <response code="200">Ok, if the invite of the organization member has been successful</response>
             <response code="400">Bad request, if the organization id is not provided or Guid is not in proper format</response>
@@ -3796,6 +3822,7 @@
             Delete organization member 
             </summary>
             <param name="organizationMemberId">Organization member identifier</param>
+            <param name="organizationId">Organization identifier</param>
             <response code="200">Ok, if the organization member with the given id has been soft deleted</response>
             <response code="400">Bad request, if the id is not provided or not a proper Guid</response>
             <response code="403">Unauthorized access, if the user doesn't have permission to delete the organization member</response>
@@ -3818,9 +3845,9 @@
             <summary>
             Updates the partial details of an organization member
             </summary>
-            <param name="personId">Organization member person id.</param>
+            <param name="personId">Organization member person id</param>
             <param name="request">Values to be updated</param>
-            <param name="organizationId">Organization ID</param>
+            <param name="organizationId">Organization id</param>
             <response code="200">Ok, if update of organization member is successful</response>
             <response code="400">Bad request, if the id is null or ids don't match</response>
             <response code="403">Forbidden, unauthorized access</response>

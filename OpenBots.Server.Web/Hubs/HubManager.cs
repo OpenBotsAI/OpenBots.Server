@@ -45,10 +45,24 @@ namespace OpenBots.Server.Web.Hubs
 
         public void ScheduleNewJob(string scheduleSerializeObject)
         {
+            List<ParametersViewModel> parameters = new List<ParametersViewModel>();
             var scheduleObj = JsonSerializer.Deserialize<Schedule>(scheduleSerializeObject);
 
-            //get parameters if non then pass empty
-            recurringJobManager.AddOrUpdate(scheduleObj.Id.Value.ToString(), () => CreateJob(scheduleSerializeObject, parameters), scheduleObj.CRONExpression);
+            var scheduleParameters = scheduleParameterRepository.Find(null, p => p.ScheduleId == scheduleObj.Id).Items;
+            foreach (var scheduleParameter in scheduleParameters)
+            {
+                ParametersViewModel parametersViewModel = new ParametersViewModel
+                {
+                    Name = scheduleParameter.Name,
+                    DataType = scheduleParameter.DataType,
+                    Value = scheduleParameter.Value,
+                    CreatedBy = scheduleParameter.CreatedBy,
+                    CreatedOn = DateTime.UtcNow
+                };
+                parameters.Add(parametersViewModel);
+            }
+
+            recurringJobManager.AddOrUpdate(scheduleObj.Id.Value.ToString(), () => CreateJob(scheduleSerializeObject, parameters.AsEnumerable()), scheduleObj.CRONExpression);
         }
 
         public void ExecuteJob(string scheduleSerializeObject, IEnumerable<ParametersViewModel>? parameters)

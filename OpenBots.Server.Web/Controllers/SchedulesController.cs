@@ -83,20 +83,20 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Paginated list of all schedules </returns>
         [HttpGet]
-        [ProducesResponseType(typeof(PaginatedList<ScheduleViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<AllScheduleViewModel>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<ScheduleViewModel> Get(
+        public PaginatedList<AllScheduleViewModel> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0)
         {
-            ODataHelper<ScheduleViewModel> oData = new ODataHelper<ScheduleViewModel>();
+            ODataHelper<AllScheduleViewModel> oData = new ODataHelper<AllScheduleViewModel>();
 
             string queryString = "";
 
@@ -110,11 +110,11 @@ namespace OpenBots.Server.Web.Controllers
             Guid parentguid = Guid.Empty;
             var newNode = oData.ParseOrderByQuery(queryString);
             if (newNode == null)
-                newNode = new OrderByNode<ScheduleViewModel>();
+                newNode = new OrderByNode<AllScheduleViewModel>();
 
-            Predicate<ScheduleViewModel> predicate = null;
+            Predicate<AllScheduleViewModel> predicate = null;
             if (oData != null && oData.Filter != null)
-                predicate = new Predicate<ScheduleViewModel>(oData.Filter);
+                predicate = new Predicate<AllScheduleViewModel>(oData.Filter);
             int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
 
             return manager.GetScheduleAgentsandAutomations(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
@@ -176,6 +176,72 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
+        /// Provides schedule details for a particular schedule id
+        /// </summary>
+        /// <param name="id">Schedule id</param>
+        /// <response code="200">Ok, if a schedule exists with the given id</response>
+        /// <response code="304">Not modified</response>
+        /// <response code="400">Bad request, if schedule id is not in proper format or proper Guid</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not found, when no schedule exists for the given schedule id</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Schedule details for the given id</returns>
+        [HttpGet("view/{id}")]
+        [ProducesResponseType(typeof(PaginatedList<ScheduleViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> View(string id)
+        {
+            try
+            {
+                IActionResult actionResult = await base.GetEntity<ScheduleViewModel>(id);
+                OkObjectResult okResult = actionResult as OkObjectResult;
+
+                if (okResult != null)
+                {
+                    ScheduleViewModel view = okResult.Value as ScheduleViewModel;
+                    view = manager.GetScheduleViewModel(view);
+                }
+
+                return actionResult;
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Provides schedule parameters for a particular schedule id
+        /// </summary>
+        /// <param name="id">Schedule id</param>
+        /// <response code="200">Ok, if a schedule exists with the given id</response>
+        /// <response code="304">Not modified</response>
+        /// <response code="400">Bad request, if schedule id is not in proper format or proper Guid</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not found, when no schedule exists for the given schedule id</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Schedule parameters for the given id</returns>
+        [HttpGet("{id}/GetParameters")]
+        [ProducesResponseType(typeof(PaginatedList<ScheduleParameter>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public PaginatedList<ScheduleParameter> GetParameters(string id)
+        {
+            return manager.GetScheduleParameters(id);
+        }
+
+        /// <summary>
         /// Adds a new schedule to the existing schedules
         /// </summary>
         /// <remarks>
@@ -230,6 +296,9 @@ namespace OpenBots.Server.Web.Controllers
                 {
                     ScheduleParameter scheduleParameter = new ScheduleParameter
                     {
+                        Name = parameter.Name,
+                        DataType = parameter.DataType,
+                        Value = parameter.Value,
                         ScheduleId = entityId,
                         CreatedBy = applicationUser?.UserName,
                         CreatedOn = DateTime.UtcNow,
@@ -240,19 +309,15 @@ namespace OpenBots.Server.Web.Controllers
 
                 var response = await base.PostEntity(requestObj);
 
-                try
+                recurringJobManager.RemoveIfExists(requestObj.Id?.ToString());
+
+                if (request.IsDisabled == false && !request.StartingType.ToLower().Equals("manual"))
                 {
-                    recurringJobManager.RemoveIfExists(requestObj.Id?.ToString());
+                    var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(requestObj);
 
-                    if (request.IsDisabled == false && !request.StartingType.ToLower().Equals("manual"))
-                    {
-                        var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(requestObj);
-
-                        backgroundJobClient.Schedule(() => hubManager.ScheduleNewJob(jsonScheduleObj),
-                                new DateTimeOffset(requestObj.StartDate.Value));
-                    }
+                    backgroundJobClient.Schedule(() => hubManager.ScheduleNewJob(jsonScheduleObj),
+                            new DateTimeOffset(requestObj.StartDate.Value));
                 }
-                catch (Exception ex) { }
 
                 return response;
             }
