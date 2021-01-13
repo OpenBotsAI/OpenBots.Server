@@ -33,15 +33,12 @@ export class EditUsersTeamComponent implements OnInit {
   constructor(protected userteamService: UsersTeamService, private formBuilder: FormBuilder, protected router: Router,
     private toastrService: NbToastrService, private acroute: ActivatedRoute,) {
     this.acroute.queryParams.subscribe((params) => {
-      this.personId = params.personId
-      this.OrganizationID = params.orgid;
-      this.memberName = params.name;
-      this.memeberEmail = params.email;
-      console.log(params.id);
-      console.log(params.name);
-      console.log(params.email);
+      this.personId = params.personId;
+      // this.OrganizationID = params.orgid;
+      // this.memberName = params.name;
+      // this.memeberEmail = params.email;
+ 
       // this.getMemberDetail(params.id);
-
     });
   }
 
@@ -50,9 +47,7 @@ export class EditUsersTeamComponent implements OnInit {
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
       email: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,4}$")]],
       password: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      organizationId: this.OrganizationID,
-      personId: this.personId,
-      skipEmailVerification: [this.checked]
+      
 
     });
     this.getMemberDetail();
@@ -64,14 +59,14 @@ export class EditUsersTeamComponent implements OnInit {
 
 
   getMemberDetail() {
-    this.userteamService.getMemberDetail(this.personId).subscribe((data: any) => {
-      console.log(data)
-      this.memberRec = data
-      // this.userinviteForm.patchValue()
-    });
-    this.userinviteForm.patchValue({
-      name: this.memberName, email: this.memeberEmail
-    })
+    this.userteamService
+      .getMemberDetail(this.personId)
+      .subscribe((data: any) => {
+        console.log(data);
+        this.memberRec = data;
+        // this.userinviteForm.patchValue()
+        this.userinviteForm.patchValue(data);
+      });
   }
 
 

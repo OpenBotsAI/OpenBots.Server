@@ -160,9 +160,6 @@ export class UsersComponent implements OnInit {
     this.router.navigate(['/pages/users/edit-teams'], {
       queryParams: {
         personId: personId,
-        orgid: orgid,
-        name: name,
-        email: email,
       },
     });
   }
