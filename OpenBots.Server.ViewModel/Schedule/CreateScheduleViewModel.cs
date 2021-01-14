@@ -22,7 +22,7 @@ namespace OpenBots.Server.ViewModel
         public DateTime? ExpiryDate { get; set; }
         public DateTime? StartDate { get; set; }
         public Guid? QueueId { get; set; }
-        public IEnumerable<ParametersViewModel>? parameters { get; set; }
+        public IEnumerable<ParametersViewModel>? Parameters { get; set; }
 
         public Schedule Map(CreateScheduleViewModel viewModel)
         {

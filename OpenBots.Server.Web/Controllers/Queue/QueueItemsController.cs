@@ -370,7 +370,7 @@ namespace OpenBots.Server.Web.Controllers
                     schedule.NextExecution = DateTime.UtcNow;
                     schedule.IsDisabled = false;
                     schedule.ProjectId = null;
-                    schedule.StartingType = "";
+                    schedule.StartingType = "QueueArrival";
                     schedule.Status = "New";
                     schedule.ExpiryDate = DateTime.UtcNow.AddDays(1);
                     schedule.StartDate = DateTime.UtcNow;

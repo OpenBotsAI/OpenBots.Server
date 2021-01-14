@@ -217,31 +217,6 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Provides schedule parameters for a particular schedule id
-        /// </summary>
-        /// <param name="id">Schedule id</param>
-        /// <response code="200">Ok, if a schedule exists with the given id</response>
-        /// <response code="304">Not modified</response>
-        /// <response code="400">Bad request, if schedule id is not in proper format or proper Guid</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="404">Not found, when no schedule exists for the given schedule id</response>
-        /// <response code="422">Unprocessable entity</response>
-        /// <returns>Schedule parameters for the given id</returns>
-        [HttpGet("{id}/GetParameters")]
-        [ProducesResponseType(typeof(PaginatedList<ScheduleParameter>), StatusCodes.Status200OK)]
-        [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status304NotModified)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        [ProducesDefaultResponseType]
-        public PaginatedList<ScheduleParameter> GetParameters(string id)
-        {
-            return manager.GetScheduleParameters(id);
-        }
-
-        /// <summary>
         /// Adds a new schedule to the existing schedules
         /// </summary>
         /// <remarks>
@@ -292,7 +267,7 @@ namespace OpenBots.Server.Web.Controllers
             {
                 Schedule requestObj = request.Map(request); //Assign request to Schedule entity
 
-                foreach (var parameter in request.parameters ?? Enumerable.Empty<ParametersViewModel>())
+                foreach (var parameter in request.Parameters ?? Enumerable.Empty<ParametersViewModel>())
                 {
                     ScheduleParameter scheduleParameter = new ScheduleParameter
                     {
@@ -391,7 +366,7 @@ namespace OpenBots.Server.Web.Controllers
                 manager.DeleteExistingParameters(entityId);
 
                 var set = new HashSet<string>();
-                foreach (var parameter in request.parameters ?? Enumerable.Empty<ParametersViewModel>())
+                foreach (var parameter in request.Parameters ?? Enumerable.Empty<ParametersViewModel>())
                 {
                     if (!set.Add(parameter.Name))
                     {
@@ -401,6 +376,10 @@ namespace OpenBots.Server.Web.Controllers
 
                     ScheduleParameter scheduleParameter = new ScheduleParameter
                     {
+
+                        Name = parameter.Name,
+                        DataType = parameter.DataType,
+                        Value = parameter.Value,
                         ScheduleId = entityId,
                         CreatedBy = applicationUser?.UserName,
                         CreatedOn = DateTime.UtcNow,
@@ -522,7 +501,7 @@ namespace OpenBots.Server.Web.Controllers
                 schedule.NextExecution = DateTime.UtcNow;
                 schedule.IsDisabled = false;
                 schedule.ProjectId = null;
-                schedule.StartingType = "";
+                schedule.StartingType = "RunNow";
                 schedule.Status = "New";
                 schedule.ExpiryDate = DateTime.UtcNow.AddDays(1);
                 schedule.StartDate = DateTime.UtcNow;

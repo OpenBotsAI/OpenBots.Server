@@ -45,29 +45,12 @@ namespace OpenBots.Server.Web.Hubs
 
         public void ScheduleNewJob(string scheduleSerializeObject)
         {
-            List<ParametersViewModel> parameters = new List<ParametersViewModel>();
             var scheduleObj = JsonSerializer.Deserialize<Schedule>(scheduleSerializeObject);
-
-            var scheduleParameters = scheduleParameterRepository.Find(null, p => p.ScheduleId == scheduleObj.Id).Items;
-            foreach (var scheduleParameter in scheduleParameters)
-            {
-                ParametersViewModel parametersViewModel = new ParametersViewModel
-                {
-                    Name = scheduleParameter.Name,
-                    DataType = scheduleParameter.DataType,
-                    Value = scheduleParameter.Value,
-                    CreatedBy = scheduleParameter.CreatedBy,
-                    CreatedOn = DateTime.UtcNow
-                };
-                parameters.Add(parametersViewModel);
-            }
-
-            recurringJobManager.AddOrUpdate(scheduleObj.Id.Value.ToString(), () => CreateJob(scheduleSerializeObject, parameters.AsEnumerable()), scheduleObj.CRONExpression);
+            recurringJobManager.AddOrUpdate(scheduleObj.Id.Value.ToString(), () => CreateJob(scheduleSerializeObject, Enumerable.Empty<ParametersViewModel>()), scheduleObj.CRONExpression);
         }
 
         public void ExecuteJob(string scheduleSerializeObject, IEnumerable<ParametersViewModel>? parameters)
         {
-            var scheduleObj = JsonSerializer.Deserialize<Schedule>(scheduleSerializeObject);
             CreateJob(scheduleSerializeObject, parameters);
         }
 
@@ -75,6 +58,27 @@ namespace OpenBots.Server.Web.Hubs
         {
             var schedule = JsonSerializer.Deserialize<Schedule>(scheduleSerializeObject);
             var automationVersion = automationVersionRepository.Find(null, a => a.AutomationId == schedule.AutomationId).Items?.FirstOrDefault();
+
+            //If this is a scheduled job get the schedule parameters
+            if (schedule.StartingType.Equals("RunNow") == false)
+            {
+                List<ParametersViewModel> parametersList = new List<ParametersViewModel>();
+
+                var scheduleParameters = scheduleParameterRepository.Find(null, p => p.ScheduleId == schedule.Id).Items;
+                foreach (var scheduleParameter in scheduleParameters)
+                {
+                    ParametersViewModel parametersViewModel = new ParametersViewModel
+                    {
+                        Name = scheduleParameter.Name,
+                        DataType = scheduleParameter.DataType,
+                        Value = scheduleParameter.Value,
+                        CreatedBy = scheduleParameter.CreatedBy,
+                        CreatedOn = DateTime.UtcNow
+                    };
+                    parametersList.Add(parametersViewModel);
+                }
+                parameters = parametersList.AsEnumerable();
+            }
 
             Job job = new Job();
             job.AgentId = schedule.AgentId == null ? Guid.Empty : schedule.AgentId.Value;
@@ -91,6 +95,9 @@ namespace OpenBots.Server.Web.Hubs
             {
                 JobParameter jobParameter = new JobParameter
                 {
+                    Name = parameter.Name,
+                    DataType = parameter.DataType,
+                    Value = parameter.Value,
                     JobId = job.Id ?? Guid.Empty,
                     CreatedBy = schedule.CreatedBy,
                     CreatedOn = DateTime.UtcNow,
