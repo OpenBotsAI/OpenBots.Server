@@ -27,7 +27,7 @@ namespace OpenBots.Server.Business
             this.automationRepository = automationRepository;
         }
 
-        public PaginatedList<AllScheduleViewModel> GetScheduleAgentsandAutomations(Predicate<AllScheduleViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        public PaginatedList<AllSchedulesViewModel> GetScheduleAgentsandAutomations(Predicate<AllSchedulesViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
             return repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }

@@ -2,7 +2,7 @@
 
 namespace OpenBots.Server.ViewModel
 {
-    public class AllScheduleViewModel
+    public class AllSchedulesViewModel
     {
         public Guid? Id { get; set; }
         public string Name { get; set; }

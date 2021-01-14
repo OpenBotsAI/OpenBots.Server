@@ -83,20 +83,20 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Paginated list of all schedules </returns>
         [HttpGet]
-        [ProducesResponseType(typeof(PaginatedList<AllScheduleViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<AllSchedulesViewModel>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AllScheduleViewModel> Get(
+        public PaginatedList<AllSchedulesViewModel> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0)
         {
-            ODataHelper<AllScheduleViewModel> oData = new ODataHelper<AllScheduleViewModel>();
+            ODataHelper<AllSchedulesViewModel> oData = new ODataHelper<AllSchedulesViewModel>();
 
             string queryString = "";
 
@@ -110,11 +110,11 @@ namespace OpenBots.Server.Web.Controllers
             Guid parentguid = Guid.Empty;
             var newNode = oData.ParseOrderByQuery(queryString);
             if (newNode == null)
-                newNode = new OrderByNode<AllScheduleViewModel>();
+                newNode = new OrderByNode<AllSchedulesViewModel>();
 
-            Predicate<AllScheduleViewModel> predicate = null;
+            Predicate<AllSchedulesViewModel> predicate = null;
             if (oData != null && oData.Filter != null)
-                predicate = new Predicate<AllScheduleViewModel>(oData.Filter);
+                predicate = new Predicate<AllSchedulesViewModel>(oData.Filter);
             int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
 
             return manager.GetScheduleAgentsandAutomations(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
@@ -176,7 +176,7 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Provides schedule details for a particular schedule id
+        /// Provides schedule view model details for a particular schedule id
         /// </summary>
         /// <param name="id">Schedule id</param>
         /// <response code="200">Ok, if a schedule exists with the given id</response>
@@ -185,7 +185,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="403">Forbidden</response>
         /// <response code="404">Not found, when no schedule exists for the given schedule id</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Schedule details for the given id</returns>
+        /// <returns>Schedule view model details for the given id</returns>
         [HttpGet("view/{id}")]
         [ProducesResponseType(typeof(PaginatedList<ScheduleViewModel>), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -388,19 +388,15 @@ namespace OpenBots.Server.Web.Controllers
                     scheduleParameterRepository.Add(scheduleParameter);
                 }
 
-                try
-                {
-                    recurringJobManager.RemoveIfExists(existingSchedule.Id?.ToString());
+                recurringJobManager.RemoveIfExists(existingSchedule.Id?.ToString());
                     
-                    if (request.IsDisabled == false && !request.StartingType.ToLower().Equals("manual"))
-                    {
-                        var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(existingSchedule);
+                if (request.IsDisabled == false && !request.StartingType.ToLower().Equals("manual"))
+                {
+                    var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(existingSchedule);
 
-                        backgroundJobClient.Schedule(() => hubManager.ScheduleNewJob(jsonScheduleObj),
-                               new DateTimeOffset(existingSchedule.StartDate.Value));
-                    }
+                    backgroundJobClient.Schedule(() => hubManager.ScheduleNewJob(jsonScheduleObj),
+                            new DateTimeOffset(existingSchedule.StartDate.Value));
                 }
-                catch (Exception ex) { }
 
                 return response;
             }
