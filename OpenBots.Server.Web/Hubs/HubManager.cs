@@ -2,13 +2,15 @@
 using Common = Hangfire.Common;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
-using System;
-using System.Text.Json;
-using Microsoft.AspNetCore.SignalR;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
-using System.Linq;
 using OpenBots.Server.Web.Webhooks;
+using OpenBots.Server.Business;
+using OpenBots.Server.Business.Interfaces;
+using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Linq;
+using Microsoft.AspNetCore.SignalR;
 
 namespace OpenBots.Server.Web.Hubs
 {
@@ -20,12 +22,14 @@ namespace OpenBots.Server.Web.Hubs
         private IHubContext<NotificationHub> _hub;
         private readonly IWebhookPublisher webhookPublisher;
         private readonly IJobParameterRepository jobParameterRepository;
+        private readonly IOrganizationSettingManager organizationSettingManager;
 
         public HubManager(IRecurringJobManager recurringJobManager,
             IJobRepository jobRepository, IHubContext<NotificationHub> hub,
             IAutomationVersionRepository automationVersionRepository,
             IWebhookPublisher webhookPublisher,
-            IJobParameterRepository jobParameterRepository)
+            IJobParameterRepository jobParameterRepository,
+            IOrganizationSettingManager organizationSettingManager)
         {
             this.recurringJobManager = recurringJobManager;
             this.jobRepository = jobRepository;
@@ -33,6 +37,7 @@ namespace OpenBots.Server.Web.Hubs
             this.webhookPublisher = webhookPublisher;
             this.jobParameterRepository = jobParameterRepository;
             _hub = hub;
+            this.organizationSettingManager = organizationSettingManager;
         }
 
         public HubManager()
@@ -56,6 +61,12 @@ namespace OpenBots.Server.Web.Hubs
         public string CreateJob(string scheduleSerializeObject, IEnumerable<JobParameter>? jobParameters)
         {
             var schedule = JsonSerializer.Deserialize<Schedule>(scheduleSerializeObject);
+
+            if (organizationSettingManager.HasDisallowedExecution())
+            {
+                return "DisallowedExecution";
+            }
+
             var automationVersion = automationVersionRepository.Find(null, a => a.AutomationId == schedule.AutomationId).Items?.FirstOrDefault();
 
             Job job = new Job();
@@ -65,8 +76,8 @@ namespace OpenBots.Server.Web.Hubs
             job.EnqueueTime = DateTime.UtcNow;
             job.JobStatus = JobStatusType.New;
             job.AutomationId = schedule.AutomationId == null ? Guid.Empty : schedule.AutomationId.Value;
-            job.AutomationVersion = automationVersion != null? automationVersion.VersionNumber : 0;
-            job.AutomationVersionId = automationVersion != null? automationVersion.Id : Guid.Empty;
+            job.AutomationVersion = automationVersion != null ? automationVersion.VersionNumber : 0;
+            job.AutomationVersionId = automationVersion != null ? automationVersion.Id : Guid.Empty;
             job.Message = "Job is created through internal system logic.";
 
             foreach (var parameter in jobParameters ?? Enumerable.Empty<JobParameter>())

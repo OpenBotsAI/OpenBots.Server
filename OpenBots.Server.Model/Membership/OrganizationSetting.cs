@@ -26,6 +26,15 @@ namespace OpenBots.Server.Model.Membership
 
         [Display(Name = "IPFencingMode")]
         public IPFencingMode? IPFencingMode { get; set; }
+
+        [Display(Name = "DisallowAllExecutions")]
+        public bool DisallowAllExecutions { get; set; }
+
+        [Display(Name = "DisallowAllExecutionsReason ")]
+        public string DisallowAllExecutionsReason { get; set; }
+
+        [Display(Name = "DisallowAllExecutionsMessage ")]
+        public string DisallowAllExecutionsMessage { get; set; }
     }
     public enum IPFencingMode : int
     {
