@@ -506,7 +506,7 @@ namespace OpenBots.Server.Web.Controllers
                 schedule.CreatedBy = applicationUser?.UserName;
 
                 var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(schedule); 
-                var jobId = BackgroundJob.Enqueue(() => hubManager.ExecuteJob(jsonScheduleObj, request.Parameters));
+                var jobId = BackgroundJob.Enqueue(() => hubManager.ExecuteJob(jsonScheduleObj, request.JobParameters));
 
                 return Ok();
             }
