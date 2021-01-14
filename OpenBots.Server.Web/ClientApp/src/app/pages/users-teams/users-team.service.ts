@@ -41,7 +41,9 @@ export class UsersTeamService {
   }
 
   getMemberDetail(personId) {
-    let url = `/Organizations/${localStorage.getItem('ActiveOrganizationID')}/OrganizationMembers/${personId}`;
+    let url = `/Organizations/${localStorage.getItem(
+      'ActiveOrganizationID'
+    )}/OrganizationMembers/Person/${personId}`;
     return this.http.get(`${this.apiUrl}` + url);
   }
   inviteMember(obj) {
@@ -49,8 +51,10 @@ export class UsersTeamService {
     return this.http.post(`${this.apiUrl}` + url, obj);
   }
   updateMember(personId, obj) {
-    let url = `/Organizations/${localStorage.getItem('ActiveOrganizationID')}/OrganizationMembers/${personId}`;
-    return this.http.put(`${this.apiUrl}` + url, obj);
+    let url = `/Organizations/${localStorage.getItem(
+      'ActiveOrganizationID'
+    )}/OrganizationMembers/Person/${personId}/UpdateUser`;
+    return this.http.patch(`${this.apiUrl}` + url, obj);
   }
 
   ApproveMember(OrganizationID, personId, obj) {
