@@ -84,12 +84,12 @@ namespace XUnitTests
             // Instance of necessary repositories
             var jobRepository = new JobRepository(context, jobLogger, httpContextAccessor.Object);
             var agentRepo = new AgentRepository(context, agentLogger, httpContextAccessor.Object);
-            var processRepo = new AutomationRepository(context, processLogger, httpContextAccessor.Object);
+            var automationRepo = new AutomationRepository(context, processLogger, httpContextAccessor.Object);
             var jobParameterRepo = new JobParameterRepository(context, jobParameterLogger, httpContextAccessor.Object);
             var jobCheckpointRepo = new JobCheckpointRepository(context, jobCheckpointLogger, httpContextAccessor.Object);
 
             //manager to be tested
-            manager = new JobManager(jobRepository, agentRepo, processRepo, jobParameterRepo, jobCheckpointRepo);
+            manager = new JobManager(jobRepository, agentRepo, automationRepo, jobParameterRepo, jobCheckpointRepo);
         }
 
         // Gets the next job that has not been picked up for the specified agent ID

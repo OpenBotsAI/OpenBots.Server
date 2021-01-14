@@ -25,6 +25,7 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IOrganizationMemberRepository), typeof(OrganizationMemberRepository));
             services.AddTransient(typeof(IOrganizationUnitMemberRepository), typeof(OrganizationUnitMemberRepository));
             services.AddTransient(typeof(IOrganizationSettingRepository), typeof(OrganizationSettingRepository));
+            services.AddTransient(typeof(IOrganizationSettingManager), typeof(OrganizationSettingManager));
 
             services.AddTransient(typeof(IPersonRepository), typeof(PersonRepository));
             services.AddTransient(typeof(IPersonEmailRepository), typeof(PersonEmailRepository));

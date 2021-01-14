@@ -472,8 +472,9 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                         //Add organization setting to deny all users except current one
                         var orgSettings = new OrganizationSetting()
                         {
-                            IPFencingMode = IPFencingMode.AllowMode,
                             OrganizationId = newOrganization.Id,
+                            IPFencingMode = IPFencingMode.AllowMode,
+                            DisallowAllExecutions = false,
                             CreatedBy = user.Name,
                             CreatedOn = DateTime.UtcNow
                         };
