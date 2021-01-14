@@ -30,9 +30,9 @@ namespace OpenBots.Server.DataAccess.Repositories
             return dbContext.Schedules;
         }
 
-        public PaginatedList<ScheduleViewModel> FindAllView(Predicate<ScheduleViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        public PaginatedList<AllSchedulesViewModel> FindAllView(Predicate<AllSchedulesViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
-            PaginatedList<ScheduleViewModel> paginatedList = new PaginatedList<ScheduleViewModel>();
+            PaginatedList<AllSchedulesViewModel> paginatedList = new PaginatedList<AllSchedulesViewModel>();
 
             var schedulesList = base.Find(null, j => j.IsDeleted == false);
             if (schedulesList != null && schedulesList.Items != null && schedulesList.Items.Count > 0)
@@ -42,7 +42,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                                 from a in table1.DefaultIfEmpty()
                                 join p in dbContext.Automations on s.AutomationId equals p.Id into table2
                                 from p in table2.DefaultIfEmpty()
-                                select new ScheduleViewModel
+                                select new AllSchedulesViewModel
                                 {
                                     Id = s?.Id,
                                     StartDate = s?.StartDate,
@@ -70,7 +70,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                     else if (direction == OrderByDirectionType.Descending)
                         scheduleRecord = scheduleRecord.OrderByDescending(s => s.GetType().GetProperty(sortColumn).GetValue(s)).ToList();
 
-                List<ScheduleViewModel> filterRecord = null;
+                List<AllSchedulesViewModel> filterRecord = null;
                 if (predicate != null)
                     filterRecord = scheduleRecord.ToList().FindAll(predicate);
                 else

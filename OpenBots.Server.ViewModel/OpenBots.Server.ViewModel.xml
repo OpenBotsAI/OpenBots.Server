@@ -46,6 +46,11 @@
             <param name="entity"></param>
             <returns></returns>
         </member>
+        <member name="T:OpenBots.Server.ViewModel.ParametersViewModel">
+            <summary>
+            Used to pass parameters when creating or executing schedules
+            </summary>
+        </member>
         <member name="T:OpenBots.Server.Model.Identity.SignUpViewModel">
             <summary>
             Represents a Person
