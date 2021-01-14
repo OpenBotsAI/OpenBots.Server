@@ -8,13 +8,10 @@ using OpenBots.Server.Business;
 using OpenBots.Server.Business.Interfaces;
 using System;
 using System.Collections.Generic;
-<<<<<<< HEAD
 using OpenBots.Server.ViewModel;
-=======
 using System.Text.Json;
 using System.Linq;
 using Microsoft.AspNetCore.SignalR;
->>>>>>> 3f3f5e76c63d78bafc53f089480b29e1918d0511
 
 namespace OpenBots.Server.Web.Hubs
 {
@@ -26,22 +23,16 @@ namespace OpenBots.Server.Web.Hubs
         private IHubContext<NotificationHub> _hub;
         private readonly IWebhookPublisher webhookPublisher;
         private readonly IJobParameterRepository jobParameterRepository;
-<<<<<<< HEAD
         private readonly IScheduleParameterRepository scheduleParameterRepository;
-=======
         private readonly IOrganizationSettingManager organizationSettingManager;
->>>>>>> 3f3f5e76c63d78bafc53f089480b29e1918d0511
 
         public HubManager(IRecurringJobManager recurringJobManager,
             IJobRepository jobRepository, IHubContext<NotificationHub> hub,
             IAutomationVersionRepository automationVersionRepository,
             IWebhookPublisher webhookPublisher,
             IJobParameterRepository jobParameterRepository,
-<<<<<<< HEAD
-            IScheduleParameterRepository scheduleParameterRepository)
-=======
+            IScheduleParameterRepository scheduleParameterRepository,
             IOrganizationSettingManager organizationSettingManager)
->>>>>>> 3f3f5e76c63d78bafc53f089480b29e1918d0511
         {
             this.recurringJobManager = recurringJobManager;
             this.jobRepository = jobRepository;
@@ -49,11 +40,8 @@ namespace OpenBots.Server.Web.Hubs
             this.webhookPublisher = webhookPublisher;
             this.jobParameterRepository = jobParameterRepository;
             _hub = hub;
-<<<<<<< HEAD
             this.scheduleParameterRepository = scheduleParameterRepository;
-=======
             this.organizationSettingManager = organizationSettingManager;
->>>>>>> 3f3f5e76c63d78bafc53f089480b29e1918d0511
         }
 
         public HubManager()
