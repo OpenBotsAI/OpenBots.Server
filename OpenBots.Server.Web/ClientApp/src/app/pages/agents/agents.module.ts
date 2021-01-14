@@ -7,6 +7,7 @@ import { EditAgentsComponent } from './edit-agents/edit-agents.component';
 import { AgentsService } from './agents.service';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { SharedModule } from '../../@core/shared/shared.module';
+import { RxReactiveFormsModule } from '@rxweb/reactive-form-validators';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { SharedModule } from '../../@core/shared/shared.module';
     SharedModule,
     AgentsRoutingModule,
     NgxPaginationModule,
+    RxReactiveFormsModule,
   ],
-  providers: [AgentsService]
+  providers: [AgentsService],
 })
 export class AgentsModule {}
