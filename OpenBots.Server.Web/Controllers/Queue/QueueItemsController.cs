@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business;
+using OpenBots.Server.Business.Interfaces;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
@@ -43,6 +44,7 @@ namespace OpenBots.Server.Web.Controllers
         private readonly IBinaryObjectRepository binaryObjectRepository;
         private readonly IQueueItemAttachmentRepository queueItemAttachmentRepository;
         private readonly IWebhookPublisher webhookPublisher;
+        private readonly IOrganizationSettingManager organizationSettingManager;
 
         /// <summary>
         /// QueueItemsController constructor
@@ -73,7 +75,8 @@ namespace OpenBots.Server.Web.Controllers
             IConfiguration configuration,
             IBinaryObjectRepository binaryObjectRepository,
             IQueueItemAttachmentRepository queueItemAttachmentRepository,
-            IWebhookPublisher webhookPublisher) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
+            IWebhookPublisher webhookPublisher,
+            IOrganizationSettingManager organizationSettingManager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.manager = manager;
             _hub = hub;
@@ -84,6 +87,7 @@ namespace OpenBots.Server.Web.Controllers
             this.binaryObjectRepository = binaryObjectRepository;
             this.queueItemAttachmentRepository = queueItemAttachmentRepository;
             this.webhookPublisher = webhookPublisher;
+            this.organizationSettingManager = organizationSettingManager;
         }
 
         /// <summary>
@@ -357,6 +361,11 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
+                if (organizationSettingManager.HasDisallowedExecution())
+                {
+                    return StatusCode(StatusCodes.Status405MethodNotAllowed, "Organization is set to DisallowExecution");
+                }
+
                 var response = await manager.Enqueue(request);
 
                 // Check if a 'QueueArrival' schedule exists for this Queue
@@ -370,14 +379,15 @@ namespace OpenBots.Server.Web.Controllers
                     schedule.NextExecution = DateTime.UtcNow;
                     schedule.IsDisabled = false;
                     schedule.ProjectId = null;
-                    schedule.StartingType = "";
+                    schedule.StartingType = "QueueArrival";
                     schedule.Status = "New";
                     schedule.ExpiryDate = DateTime.UtcNow.AddDays(1);
                     schedule.StartDate = DateTime.UtcNow;
                     schedule.AutomationId = existingSchedule.AutomationId;
 
                     var jsonScheduleObj = System.Text.Json.JsonSerializer.Serialize(schedule);
-                    var jobId = BackgroundJob.Enqueue(() => hubManager.StartNewRecurringJob(jsonScheduleObj, Enumerable.Empty<JobParameter>()));
+                    //Call GetScheduleParameters
+                    var jobId = BackgroundJob.Enqueue(() => hubManager.ExecuteJob(jsonScheduleObj, Enumerable.Empty<ParametersViewModel>()));
                 }
 
                 QueueItem queueItem = new QueueItem()

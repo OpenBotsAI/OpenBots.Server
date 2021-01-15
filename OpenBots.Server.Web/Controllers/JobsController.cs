@@ -571,7 +571,7 @@ namespace OpenBots.Server.Web
                 {
                     if (!set.Add(parameter.Name)) 
                     {
-                        ModelState.AddModelError("Agent", "Agent Name Already Exists");
+                        ModelState.AddModelError("JobParameter", "JobParameter Name Already Exists");
                         return BadRequest(ModelState);
                     }
                     parameter.JobId = entityId;
