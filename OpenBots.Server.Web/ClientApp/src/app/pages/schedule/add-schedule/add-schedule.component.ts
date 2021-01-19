@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpService } from '../../../@core/services/http.service';
 import { Agents } from '../../../interfaces/agnets';
 import { NbDateService } from '@nebular/theme';
@@ -35,7 +35,8 @@ export class AddScheduleComponent implements OnInit {
     { isDisabled: true, name: 'Disable' },
   ];
   radioaButton = ['oneTime', 'recurrence'];
-
+  dataType = ['Text', 'Number'];
+  items: FormArray;
   cronExpression = '0/0 * 0/0 * *';
   isCronDisabled = false;
   cronOptions: CronOptions = {
@@ -100,6 +101,13 @@ export class AddScheduleComponent implements OnInit {
       startingType: ['', [Validators.required]],
       expiryDate: [''],
       startDate: [''],
+      parameters: this.currentScheduleId
+        ? this.fb.array([this.initializeJobRunNowForm()])
+        : this.fb.array([]),
+      // parameters: new FormArray([]),
+      // parameters: new FormGroup({
+      //   items: new FormArray([]),
+      // }),
     });
   }
 
@@ -117,6 +125,7 @@ export class AddScheduleComponent implements OnInit {
   }
 
   onScheduleSubmit(): void {
+    console.log('value', this.scheduleForm.value);
     this.isSubmitted = true;
     if (this.scheduleForm.value.startDate) {
       this.scheduleForm.value.startDate = this.helperService.transformDate(
@@ -182,18 +191,40 @@ export class AddScheduleComponent implements OnInit {
 
   getScheduleById(): void {
     this.httpService
-      .get(`${SchedulesApiUrl.schedules}/${this.currentScheduleId}`, {
-        observe: 'response',
-      })
+      .get(
+        `${SchedulesApiUrl.schedules}/${SchedulesApiUrl.view}/${this.currentScheduleId}`,
+        {
+          observe: 'response',
+        }
+      )
       .subscribe((response) => {
         if (response && response.body) {
           this.eTag = response.headers.get('etag');
-          // this.min = response.body.startDate;
+          this.min = response.body.startDate;
           if (response.body.cronExpression)
             this.cronExpression = response.body.cronExpression;
-          this.scheduleForm.patchValue(response.body);
+          this.scheduleForm.setControl(
+            'parameters',
+            this.setvalues(response.body.scheduleParameters)
+          );
+          this.scheduleForm.patchValue({ ...response.body });
+          this.scheduleForm.markAsDirty();
+          this.scheduleForm.markAsTouched();
         }
       });
+  }
+  setvalues(parameters): FormArray {
+    const formArray = new FormArray([]);
+    parameters.forEach((param) => {
+      formArray.push(
+        this.fb.group({
+          Name: param.name,
+          DataType: param.dataType,
+          Value: param.value,
+        })
+      );
+    });
+    return formArray;
   }
 
   getProcessesLookup(): void {
@@ -219,5 +250,31 @@ export class AddScheduleComponent implements OnInit {
       this.scheduleForm.get('expiryDate').clearValidators();
       this.scheduleForm.get('expiryDate').updateValueAndValidity();
     }
+  }
+
+  addJobParameter(): void {
+    this.items = this.scheduleForm.get('parameters') as FormArray;
+    this.items.push(this.initializeJobRunNowForm());
+  }
+
+  initializeJobRunNowForm(): FormGroup {
+    return this.fb.group({
+      Name: ['', [Validators.required]],
+      DataType: ['Text', [Validators.required]],
+      Value: ['', [Validators.required]],
+    });
+  }
+
+  get formArrayControl() {
+    return this.scheduleForm.get('parameters') as FormArray;
+  }
+
+  deleteJobParameter(index: number): void {
+    if (this.currentScheduleId) {
+      const arr = <FormArray>this.scheduleForm.get('parameters');
+      arr.removeAt(index);
+    } else this.items.removeAt(index);
+    this.scheduleForm.markAsDirty();
+    this.scheduleForm.markAsTouched();
   }
 }

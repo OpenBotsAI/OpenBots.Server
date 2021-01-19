@@ -7,7 +7,6 @@ import {
   UploadOutput,
   UploadInput,
   UploadFile,
-  humanizeBytes,
   UploaderOptions,
 } from 'ngx-uploader';
 import { HttpResponse } from '@angular/common/http';
@@ -102,7 +101,7 @@ export class EditAutomationComponent implements OnInit {
   onSubmit() {
     if (this.native_file) {
       let formData = new FormData();
-      formData.append('file', this.native_file, this.native_file_name);
+      formData.append('File', this.native_file, this.native_file_name);
       formData.append('name', this.showprocess.value.name);
       formData.append('status', this.showprocess.value.status);
       formData.append(

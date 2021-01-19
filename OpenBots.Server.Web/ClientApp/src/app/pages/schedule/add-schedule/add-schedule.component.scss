@@ -192,7 +192,21 @@ dp-day-calendar.dp-material .dp-selected {
   /* box-shadow: rgb(109, 163, 221) 0px 0px 0px 8px inset;*/
   transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
 }
-
+.addBtn{
+  display: inline-block;
+  padding: 11px 12px;
+  -webkit-border-radius: 33px;
+  -moz-border-radius: 33px;
+  border-radius: 33px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.topPadding{
+  padding-top: 25px;
+}
+.topPadding:nth-child(1), .topPadding:nth-child(2), .topPadding:nth-child(3){
+  padding-top: 0px;
+}
 @media only screen and (min-width: 10px)and (max-width: 768px) {
   .label {
       margin-top: 18px !important;

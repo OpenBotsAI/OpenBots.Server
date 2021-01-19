@@ -149,4 +149,18 @@ export class CredentialsComponent implements OnInit {
     if (!item) return null;
     return index;
   }
+
+  searchValue(value) {
+    if (value.length) {
+      this.httpService
+        .get(
+          `${CredentialsApiUrl.credentials}?$filter=substringof(tolower('${value}'), tolower(Name))`
+        )
+        .subscribe((response) => {
+          console.log('res', response);
+          this.credentialsArr = response.items;
+          this.page.totalCount = response.totalCount;
+        });
+    } else this.pagination(this.page.pageNumber, this.page.pageSize);
+  }
 }
