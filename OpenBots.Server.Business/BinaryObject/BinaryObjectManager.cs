@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
 using OpenBots.Server.Model;
-using System.IO;
 using System.Text;
 
 namespace OpenBots.Server.Business
@@ -61,7 +60,7 @@ namespace OpenBots.Server.Business
                 storageProvider = Configuration["BinaryObjects:StorageProvider"];
 
             string hash = string.Empty;
-            byte[] bytes = File.ReadAllBytes(filePath);
+            byte[] bytes = System.IO.File.ReadAllBytes(filePath);
             using (SHA256 sha256Hash = SHA256.Create())
             {
                 hash = GetHash(sha256Hash, bytes);
@@ -101,7 +100,7 @@ namespace OpenBots.Server.Business
         public async Task<string> UpdateEntity(IFormFile file, string filePath, string binaryObjectId, string apiComponent, string folder, string name)
         {
             string hash = string.Empty;
-            byte[] bytes = File.ReadAllBytes(filePath);
+            byte[] bytes = System.IO.File.ReadAllBytes(filePath);
             using (SHA256 sha256Hash = SHA256.Create())
             {
                 hash = GetHash(sha256Hash, bytes);

@@ -7,9 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenBots.Server.Web.Hubs;
 using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
-using OpenBots.Server.Model.Webhooks;
 using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.Business.Interfaces;
+using OpenBots.Server.DataAccess.Repositories.File;
 
 namespace OpenBots.Server.Web
 {
@@ -73,7 +73,6 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IAutomationLogManager), typeof(AutomationLogManager));
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient(typeof(IBinaryObjectManager), typeof(BinaryObjectManager));
-            services.AddTransient(typeof(IEmailAttachmentRepository), typeof(EmailAttachmentRepository));
             services.AddTransient(typeof(IAutomationVersionRepository), typeof(AutomationVersionRepository));
             services.AddTransient(typeof(IConfigurationValueRepository), typeof(ConfigurationValueRepository));
             services.AddTransient(typeof(IIPFencingRepository), typeof(IPFencingRepository));
@@ -104,6 +103,13 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IEmailRepository), typeof(EmailRepository));
             services.AddTransient(typeof(IEmailSettingsRepository), typeof(EmailSettingsRepository));
             services.AddTransient(typeof(IHubManager), typeof(HubManager));
+            services.AddTransient(typeof(IEmailAttachmentRepository), typeof(EmailAttachmentRepository));
+
+            //Files
+            services.AddTransient(typeof(IFileAttributeRepository), typeof(FileAttributeRepository));
+            services.AddTransient(typeof(IServerDriveRepository), typeof(ServerDriveRepository));
+            services.AddTransient(typeof(IServerFolderRepository), typeof(ServerFolderRepository));
+            services.AddTransient(typeof(IServerFileRepository), typeof(ServerFileRepository));
         }
     }
 }

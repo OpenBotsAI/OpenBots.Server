@@ -167,7 +167,7 @@ export class EditAssetComponent implements OnInit {
       }
 
     }
-    else if (this.show_allagents.type == 'JSON') {
+    else if (this.show_allagents.type == 'Json') {
       if (!this.editor.isValidJson()) {
         this.toastrService.danger('Provided json is not valid', 'error');
         this.submitted = false;

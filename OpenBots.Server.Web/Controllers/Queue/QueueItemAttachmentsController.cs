@@ -333,11 +333,6 @@ namespace OpenBots.Server.Web.Controllers.Queue
                     await webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
                 await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
 
-                foreach (var binaryObject in binaryObjects)
-                {
-                    await webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
-                }
-
                 var queueItemAttachments = repository.Find(null).Items?.Where(q => q.QueueItemId == entityId);
                 return Ok(queueItemAttachments);
             }

@@ -5,6 +5,7 @@ using OpenBots.Server.Model;
 using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.Model.Webhooks;
 using System;
+using OpenBots.Server.Model.File;
 
 namespace OpenBots.Server.DataAccess
 {
@@ -40,6 +41,10 @@ namespace OpenBots.Server.DataAccess
         public DbSet<IntegrationEventLog> IntegrationEventLogs { get; set; }
         public DbSet<IntegrationEventSubscription> IntegrationEventSubscriptions { get; set; }
         public DbSet<IntegrationEventSubscriptionAttempt> IntegrationEventSubscriptionAttempts { get; set; }
+        public DbSet<ServerDrive> ServerDrives { get; set; }
+        public DbSet<ServerFolder> ServerFolders { get; set; }
+        public DbSet<ServerFile> ServerFiles { get; set; }
+        public DbSet<FileAttribute> FileAttributes { get; set; }
 
 
         public StorageContext(DbContextOptions<StorageContext> options)
@@ -88,7 +93,7 @@ namespace OpenBots.Server.DataAccess
             new IntegrationEvent { Id = new Guid("6ce8b3da-0373-4da2-bc77-ea845212855d"), Description = "A new agent has been created", EntityType = "Agent", IsSystem = true, IsDeleted = false, Name = "Agents.NewAgentCreated" },
             new IntegrationEvent { Id = new Guid("2b4bd195-62ac-4111-97ca-d6df6dd3f0fb"), Description = "An Agent has been updated", EntityType = "Agent", IsSystem = true, IsDeleted = false, Name = "Agents.AgentUpdated" },
             new IntegrationEvent { Id = new Guid("6ce0bb0e-cda1-49fa-a9e4-b67d904f826e"), Description = "An Agent has been deleted", EntityType = "Agent", IsSystem = true, IsDeleted = false, Name = "Agents.AgentDeleted" }
-        );
+            );
         }
         protected void CreateCoreModel(ModelBuilder modelBuilder)
         {

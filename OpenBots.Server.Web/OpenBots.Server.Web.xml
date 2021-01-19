@@ -402,7 +402,7 @@
             Update automation with file 
             </summary>
             <remarks>
-            Provides an action to update a automation, when automation id and the new details of automation are given
+            Provides an action to update an automation, when automation id and the new details of automation are given
             </remarks>
             <param name="id">Automation id, produces bad request if id is null or ids don't match</param>
             <param name="request">Automation details to be updated</param>
@@ -415,7 +415,7 @@
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Put(System.String,OpenBots.Server.ViewModel.AutomationViewModel)">
             <summary>
-            Update a Automation 
+            Update an Automation 
             </summary>
             <remarks>
             Provides an action to update a automation, when automation id and the new details of automation are given
@@ -442,7 +442,7 @@
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Export(System.String)">
             <summary>
-            Export/download a automation
+            Export/download an automation
             </summary>
             <param name="id"></param>
             <response code="200">Ok, if a automation exists with the given id</response>
@@ -465,7 +465,7 @@
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.GetLookup">
             <summary>
-            Lookup list of all automationes
+            Lookup list of all automations
             </summary>
             <response code="200">Ok, a lookup list of all automationes</response>
             <response code="400">Bad request</response>
@@ -1278,6 +1278,53 @@
             <response code="400">Bad request, if email attachment id is null or empty Guid</response>
             <response code="403">Forbidden</response>
             <returns>Ok response</returns>
+        </member>
+        <member name="T:OpenBots.Server.Web.Controllers.FilesController">
+            <summary>
+            Controller for files
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.#ctor(OpenBots.Server.Business.Interfaces.IFileManager,OpenBots.Server.DataAccess.Repositories.Interfaces.IServerFileRepository,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Hosting.IHostingEnvironment)">
+            <summary>
+            FilesController constructor
+            </summary>
+            <param name="manager"></param>
+            <param name="serverFileRepository"></param>
+            <param name="configuration"></param>
+            <param name="httpContextAccessor"></param>
+            <param name="membershipManager"></param>
+            <param name="userManager"></param>
+            <param name="hostingEnvironment"></param>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.FileOperations(Syncfusion.EJ2.FileManager.Base.FileManagerDirectoryContent)">
+            <summary>
+            Conduct basic file and/or folder operations: read, delete, copy, move, details, create, search, and rename
+            </summary>
+            <param name="args"></param>
+            <returns>Object as a result of the operation</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Upload(System.String,System.Collections.Generic.IList{Microsoft.AspNetCore.Http.IFormFile},System.String)">
+            <summary>
+            Uploads the file(s) into a specified path
+            </summary>
+            <param name="path"></param>
+            <param name="uploadFiles"></param>
+            <param name="action"></param>
+            <returns>Content</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Download(System.String)">
+            <summary>
+            Downloads the selected file(s) and folder(s)
+            </summary>
+            <param name="downloadInput"></param>
+            <returns>Selected file(s) and folder(s) to be downloaded</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetImage(Syncfusion.EJ2.FileManager.Base.FileManagerDirectoryContent)">
+            <summary>
+            Gets the image(s) from the given path
+            </summary>
+            <param name="args"></param>
+            <returns></returns>
         </member>
         <member name="T:OpenBots.Server.Web.Controllers.Queue.QueueItemAttachmentsController">
             <summary>

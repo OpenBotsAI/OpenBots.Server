@@ -73,14 +73,15 @@ namespace OpenBots.Server.Business
                 Name = request.Name,
                 CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name,
                 CreatedOn = DateTime.UtcNow,
-                BinaryObjectId = existingAutomation.BinaryObjectId,
-                OriginalPackageName = existingAutomation.OriginalPackageName
+                BinaryObjectId = (Guid)request.BinaryObjectId,
+                OriginalPackageName = request.File.FileName,
+                AutomationEngine = request.AutomationEngine
             };
 
-            request.Id = automation.Id;
-            AddAutomationVersion(request);  
+            repo.Add(automation);
+            AddAutomationVersion(request);
 
-            return repo.Add(automation);
+            return automation;
         }
 
         public async Task<string> Update(Guid binaryObjectId, IFormFile file, string organizationId = "", string apiComponent = "", string name = "")
@@ -107,10 +108,12 @@ namespace OpenBots.Server.Business
             automationVersion.CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name;
             automationVersion.CreatedOn = DateTime.UtcNow;
             automationVersion.AutomationId = (Guid)automationViewModel.Id;
+
             if (string.IsNullOrEmpty(automationViewModel.Status))
                 automationVersion.Status = "Published";
             else automationVersion.Status = automationViewModel.Status;
             automationVersion.VersionNumber = automationViewModel.VersionNumber;
+
             if (automationVersion.Status.Equals("Published"))
             {
                 automationVersion.PublishedBy = httpContextAccessor.HttpContext.User.Identity.Name;
@@ -124,10 +127,10 @@ namespace OpenBots.Server.Business
 
             int automationVersionNumber = 0;
             automationVersion.VersionNumber = automationVersionNumber;
-            List<Automation> automationes = repo.Find(null, x => x.Name?.Trim().ToLower() == automationViewModel.Name?.Trim().ToLower())?.Items;
+            List<Automation> automations = repo.Find(null, x => x.Name?.Trim().ToLower() == automationViewModel.Name?.Trim().ToLower())?.Items;
 
-            if (automationes != null)
-                foreach (Automation automation in automationes)
+            if (automations != null)
+                foreach (Automation automation in automations)
                 {
                     var automationVersionEntity = automationVersionRepository.Find(null, q => q?.AutomationId == automation?.Id).Items?.FirstOrDefault();
                     if (automationVersionEntity != null && automationVersionNumber < automationVersionEntity.VersionNumber)

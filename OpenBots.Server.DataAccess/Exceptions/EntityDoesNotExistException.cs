@@ -9,5 +9,9 @@ namespace OpenBots.Server.DataAccess.Exceptions
         public EntityDoesNotExistException()
         {
         }
+
+        public EntityDoesNotExistException(string? message) : base(message)
+        {
+        }
     }
 }
