@@ -28,6 +28,7 @@ namespace OpenBots.Server.DataAccess
         public DbSet<Credential> Credentials { get; set; }
         public DbSet<AutomationExecutionLog> AutomationExecutionLogs { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
+        public DbSet<ScheduleParameter> ScheduleParameters { get; set; }
         public DbSet<AutomationLog> AutomationLogs { get; set; }
         public DbSet<ConfigurationValue> ConfigurationValues { get; set; }
         public DbSet<EmailAccount> EmailAccounts { get; set; }

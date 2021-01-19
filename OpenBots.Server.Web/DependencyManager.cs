@@ -25,6 +25,7 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IOrganizationMemberRepository), typeof(OrganizationMemberRepository));
             services.AddTransient(typeof(IOrganizationUnitMemberRepository), typeof(OrganizationUnitMemberRepository));
             services.AddTransient(typeof(IOrganizationSettingRepository), typeof(OrganizationSettingRepository));
+            services.AddTransient(typeof(IOrganizationSettingManager), typeof(OrganizationSettingManager));
 
             services.AddTransient(typeof(IPersonRepository), typeof(PersonRepository));
             services.AddTransient(typeof(IPersonEmailRepository), typeof(PersonEmailRepository));
@@ -32,6 +33,8 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IAspNetUsersRepository), typeof(AspNetUsersRepository));
             services.AddTransient(typeof(IAutomationRepository), typeof(AutomationRepository));
             services.AddTransient(typeof(IScheduleRepository), typeof(ScheduleRepository));
+            services.AddTransient(typeof(IScheduleManager), typeof(ScheduleManager));
+            services.AddTransient(typeof(IScheduleParameterRepository), typeof(ScheduleParameterRepository));
 
 
             services.AddTransient(typeof(IMembershipManager), typeof(MembershipManager));
@@ -40,7 +43,6 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IPasswordPolicyRepository), typeof(PasswordPolicyRepository));
             services.AddTransient(typeof(IOrganizationManager), typeof(OrganizationManager));
             services.AddTransient(typeof(IAutomationManager), typeof(AutomationManager));
-            services.AddTransient(typeof(IScheduleManager), typeof(ScheduleManager));
 
             services.AddTransient(typeof(ILookupValueRepository), typeof(LookupValueRepository));
             services.AddTransient(typeof(IApplicationVersionRepository), typeof(ApplicationVersionRepository));
