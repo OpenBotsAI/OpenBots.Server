@@ -10,6 +10,7 @@ namespace OpenBots.Server.Model
         public Guid? AgentId { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
+        public double? ExecutionTimeInMinutes { get; set; }
         public DateTime? EnqueueTime { get; set; }
         public DateTime? DequeueTime { get; set; }
         [Required]

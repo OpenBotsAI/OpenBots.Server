@@ -428,7 +428,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// <response code="403">Unauthorized access, if the user doesn't have permission to delete the organization member</response>
         /// <response code="422">Unprocessable entity, validation error</response>
         /// <returns>Ok response, if the organization member with the given id has been deleted</returns>
-        [HttpDelete("{id}")]
+        [HttpDelete("{organizationMemberId}")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]

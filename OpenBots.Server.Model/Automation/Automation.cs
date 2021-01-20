@@ -20,5 +20,13 @@ namespace OpenBots.Server.Model
         /// Type of automation that will be executed (i.e. OpenBots, Python, etc.)
         /// </summary>
         public string AutomationEngine { get; set; }
+        /// <summary>
+        /// Average execution time in minutes of successful jobs that execute this process 
+        /// </summary>
+        public double? AverageSuccessfulExecutionInMinutes { get; set; }
+        /// <summary>
+        /// Average execution time in minutes of unsuccessful jobs that execute this process 
+        /// </summary>
+        public double? AverageUnSuccessfulExecutionInMinutes { get; set; }
     }
 }

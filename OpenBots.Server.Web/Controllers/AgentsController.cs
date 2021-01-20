@@ -532,7 +532,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 if (agent == null)
                 {
-                    return NotFound("No Agent was found with the given Agent ID");
+                    return NotFound();
                 }
 
                 if (agent.IsConnected == false)
@@ -583,7 +583,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 if (agent == null)
                 {
-                    return NotFound("Agent not found");
+                    return NotFound();
                 }
                 if (agent.IsConnected == false)
                 {

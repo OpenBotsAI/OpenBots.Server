@@ -555,7 +555,7 @@ namespace OpenBots.Server.Web
                 existingJob.AgentId = request.AgentId;
                 existingJob.StartTime = request.StartTime;
                 existingJob.EndTime = request.EndTime;
-                existingJob.EnqueueTime = request.EnqueueTime;
+                existingJob.ExecutionTimeInMinutes = (existingJob.EndTime.Value - existingJob.StartTime).Value.TotalMinutes;
                 existingJob.DequeueTime = request.DequeueTime;
                 existingJob.AutomationId = request.AutomationId;
                 existingJob.JobStatus = request.JobStatus;
@@ -579,6 +579,11 @@ namespace OpenBots.Server.Web
                     parameter.CreatedOn = DateTime.UtcNow;
                     parameter.Id = Guid.NewGuid();
                     jobParameterRepo.Add(parameter);
+                }
+
+                if (request.EndTime != null)
+                {
+                    jobManager.UpdateAutomationAverages(existingJob.Id);
                 }
 
                 //Send SignalR notification to all connected clients 
@@ -734,22 +739,46 @@ namespace OpenBots.Server.Web
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<Job> request)
         {
-            Guid jobId = new Guid(id);
-            var existingJob = repository.GetOne(jobId);
-
-            if (existingJob == null)
+            try
             {
-                ModelState.AddModelError("Job", "Job cannot be found or does not exist.");
-                return NotFound(ModelState);
+                Guid jobId = new Guid(id);
+                bool endTimeReported = false;
+                var existingJob = repository.GetOne(jobId);
+
+                if (existingJob == null)
+                {
+                    ModelState.AddModelError("Job", "Job cannot be found or does not exist.");
+                    return NotFound(ModelState);
+                }
+
+                for (int i = 0; i < request.Operations.Count; i++)
+                {
+                    if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/endtime")
+                    {
+                        double executionTime = (DateTime.Parse(request.Operations[i].value.ToString()) - existingJob.StartTime).Value.TotalMinutes;
+                        request.Replace(j => j.ExecutionTimeInMinutes, executionTime);
+                        endTimeReported = true;
+                    }
+                }
+
+                var response = await base.PatchEntity(id, request);
+
+                if (endTimeReported)
+                {
+                    jobManager.UpdateAutomationAverages(existingJob.Id);
+                }
+
+                //Send SignalR notification to all connected clients 
+                await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", id));
+                await webhookPublisher.PublishAsync("Jobs.JobUpdated", existingJob.Id.ToString()).ConfigureAwait(false);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
             }
 
-            var response = await base.PatchEntity(id, request);
-
-            //Send SignalR notification to all connected clients 
-            await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", id));
-            await webhookPublisher.PublishAsync("Jobs.JobUpdated", existingJob.Id.ToString()).ConfigureAwait(false);
-
-            return response;
         }
 
         /// <summary>
