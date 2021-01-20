@@ -377,6 +377,7 @@ namespace OpenBots.Server.Business
                         SizeInBytes = file.Length
                     };
                     queueItemAttachmentRepository.Add(attachment);
+                    binaryObjects.Add(binaryObject);
                     payload += attachment.SizeInBytes;
                 }
             }

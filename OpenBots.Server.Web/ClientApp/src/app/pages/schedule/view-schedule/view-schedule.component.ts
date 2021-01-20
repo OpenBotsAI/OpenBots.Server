@@ -31,6 +31,7 @@ export class ViewScheduleComponent implements OnInit {
   jobRunNowForm: FormGroup;
   dataType = ['Text', 'Number'];
   items: FormArray;
+  parameters: any[] = [];
   isDisabled = false;
   cronOptions: CronOptions = {
     formInputClass: 'form-control cron-editor-input',
@@ -104,7 +105,9 @@ export class ViewScheduleComponent implements OnInit {
 
   getScheduleById() {
     this.httpService
-      .get(`${SchedulesApiUrl.schedules}/${this.currentScheduleId}`)
+      .get(
+        `${SchedulesApiUrl.schedules}/${SchedulesApiUrl.view}/${this.currentScheduleId}`
+      )
       .subscribe((response) => {
         if (response) {
           response.startDate = this.helperService.transformDate(
@@ -125,10 +128,26 @@ export class ViewScheduleComponent implements OnInit {
           );
           this.cronExpression = response.cronExpression;
           this.scheduleData = { ...response };
+          this.parameters = response.scheduleParameters;
+
           this.scheduleForm.patchValue(response);
           this.scheduleForm.disable();
         }
       });
+  }
+
+  setvalues(parameters): FormArray {
+    const formArray = new FormArray([]);
+    parameters.forEach((param) => {
+      formArray.push(
+        this.fb.group({
+          Name: param.name,
+          DataType: param.dataType,
+          Value: param.value,
+        })
+      );
+    });
+    return formArray;
   }
 
   gotoaudit() {
@@ -161,6 +180,14 @@ export class ViewScheduleComponent implements OnInit {
 
   runNowJob(ref: TemplateRef<any>): void {
     this.dialogService.openDialog(ref);
+
+    // this.jobRunNowForm.setControl(
+    //   'parameters',
+    //   this.setvalues(this.parameters)
+    // );
+    this.jobRunNowForm.setControl('items', this.setvalues(this.parameters));
+    this.jobRunNowForm.patchValue(this.parameters);
+    console.log('value', this.jobRunNowForm.value);
     // `${SchedulesApiUrl.schedules}/${automationsApiUrl.automation}/${this.scheduleData.automationId}/${SchedulesApiUrl.runNow}?AgentId=${this.scheduleData.agentId}`
     // const obj = {
     //   agentId: this.scheduleData.agentId,
@@ -192,7 +219,6 @@ export class ViewScheduleComponent implements OnInit {
         automationId: this.scheduleData.automationId,
       };
     }
-    console.log('obj', obj);
     this.httpService
       .post(`${SchedulesApiUrl.schedules}/${SchedulesApiUrl.runNow}`, obj, {
         observe: 'response',
@@ -210,10 +236,11 @@ export class ViewScheduleComponent implements OnInit {
       );
   }
 
-  addJobParameter(): void {
-    this.items = this.jobRunNowForm.get('items') as FormArray;
-    this.items.push(this.initializeJobRunNowForm());
-  }
+  // below code is working just commented just for now
+  // addJobParameter(): void {
+  //   this.items = this.jobRunNowForm.get('items') as FormArray;
+  //   this.items.push(this.initializeJobRunNowForm());
+  // }
 
   get formControls() {
     return this.jobRunNowForm.get('items') as FormArray;

@@ -4,9 +4,11 @@ using Newtonsoft.Json;
 using OpenBots.Server.DataAccess;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Configuration;
+using OpenBots.Server.Model.File;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static OpenBots.Server.Business.File.FileManager;
 
 namespace OpenBots.Server.Business
 {
@@ -32,6 +34,15 @@ namespace OpenBots.Server.Business
                 Data = !dbContext.ConfigurationValues.Any()
                     ? CreateAndSaveDefaultValues(dbContext)
                     : dbContext.ConfigurationValues.ToDictionary(c => c.Name, c => c.Value);
+
+                //Create server drive
+                //ServerDrive drive = dbContext.ServerDrives.FirstOrDefault();
+                //if (drive == null)
+                //{
+                //    Guid? organizationId = dbContext.Organizations.FirstOrDefault().Id;
+                //    dbContext.ServerDrives.Add(new ServerDrive { Id = new Guid("37a01356-7514-47a2-96ce-986faadd628e"), FileStorageAdapterType = AdapterType.LocalFileStorageAdapter.ToString(), Name = "ServerDrive", OrganizationId = organizationId, StorageSizeInBytes = 0, IsDeleted = false });
+                //}
+                //dbContext.SaveChanges();
             }
         }
 

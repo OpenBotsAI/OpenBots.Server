@@ -41,8 +41,8 @@ namespace OpenBots.Server.Business
 
         public void ConvertToBinaryObject(string filePath)
         {
-            byte[] bytes = File.ReadAllBytes(filePath);
-            File.WriteAllBytes(filePath, bytes);
+            byte[] bytes = System.IO.File.ReadAllBytes(filePath);
+            System.IO.File.WriteAllBytes(filePath, bytes);
         }
 
         public void UpdateFile(IFormFile file, string path, string organizationId, string apiComponent, Guid binaryObjectId)
@@ -60,7 +60,7 @@ namespace OpenBots.Server.Business
 
             if (file.Length > 0)
             {
-                File.Delete(filePath);
+                System.IO.File.Delete(filePath);
                 using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
                 {
                     file.CopyTo(stream);

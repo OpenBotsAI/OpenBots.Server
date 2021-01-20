@@ -22,6 +22,11 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IAuditLogRepository">
+            <summary>
+            Interface for AuditLogRepository
+            </summary>
+        </member>
         <member name="T:OpenBots.Server.DataAccess.Repositories.AutomationRepository">
             <summary>
             Automation Repository
@@ -40,6 +45,11 @@
             Retrieves automationes
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IAutomationRepository">
+            <summary>
+            Interface for AutomationRepository
+            </summary>
         </member>
         <member name="T:OpenBots.Server.DataAccess.Repositories.BinaryObjectRepository">
             <summary>
@@ -70,6 +80,11 @@
             <param name="apiComponent"></param>
             <param name="name"></param>
             <returns>Nothing</returns>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository">
+            <summary>
+            Binary Object Repository Interface
+            </summary>
         </member>
         <member name="T:OpenBots.Server.DataAccess.Repositories.EntityRepository`1">
             <summary>
@@ -158,41 +173,6 @@
             </summary>
             <param name="entity">The entity.</param>
             <returns></returns> 
-        </member>
-        <member name="T:OpenBots.Server.DataAccess.Repositories.IAuditLogRepository">
-            <summary>
-            Interface for AuditLogRepository
-            </summary>
-        </member>
-        <member name="T:OpenBots.Server.DataAccess.Repositories.IAutomationRepository">
-            <summary>
-            Interface for AutomationRepository
-            </summary>
-        </member>
-        <member name="T:OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository">
-            <summary>
-            Binary Object Repository Interface
-            </summary>
-        </member>
-        <member name="T:OpenBots.Server.DataAccess.Repositories.IEmailAccountRepository">
-            <summary>
-            Interface for EmailAccountRepository
-            </summary>
-        </member>
-        <member name="T:OpenBots.Server.DataAccess.Repositories.IEmailRepository">
-            <summary>
-            Interface for EmailLogRepository
-            </summary>
-        </member>
-        <member name="T:OpenBots.Server.DataAccess.Repositories.IEmailSettingsRepository">
-            <summary>
-            Interface for EmailSettingsRepository
-            </summary>
-        </member>
-        <member name="T:OpenBots.Server.DataAccess.Repositories.IPasswordPolicyRepository">
-            <summary>
-            
-            </summary>
         </member>
         <member name="F:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.dbContext">
             <summary>
@@ -304,19 +284,6 @@
             <param name="Id">The identifier.</param>
             <returns></returns>
         </member>
-        <member name="T:OpenBots.Server.DataAccess.Repositories.ScheduleRepository">
-            <summary>
-            Schedule Repository
-            </summary>
-        </member>
-        <member name="M:OpenBots.Server.DataAccess.Repositories.ScheduleRepository.#ctor(OpenBots.Server.DataAccess.StorageContext,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.Model.Schedule},Microsoft.AspNetCore.Http.IHttpContextAccessor)">
-            <summary>
-            Constructor for Schedule Repository
-            </summary>
-            <param name="context"></param>
-            <param name="logger"></param>
-            <param name="httpContextAccessor"></param>
-        </member>
         <member name="M:OpenBots.Server.DataAccess.Repositories.TenantEntityRepository`1.AuthorizeRow(`0)">
             <summary>
             Authorizes the row.
@@ -337,6 +304,39 @@
             <param name="entity">The entity.</param>
             <param name="operation">The operation.</param>
             <returns></returns>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IEmailAccountRepository">
+            <summary>
+            Interface for EmailAccountRepository
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IEmailRepository">
+            <summary>
+            Interface for EmailLogRepository
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IEmailSettingsRepository">
+            <summary>
+            Interface for EmailSettingsRepository
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.IPasswordPolicyRepository">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:OpenBots.Server.DataAccess.Repositories.ScheduleRepository">
+            <summary>
+            Schedule Repository
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.DataAccess.Repositories.ScheduleRepository.#ctor(OpenBots.Server.DataAccess.StorageContext,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.Model.Schedule},Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Constructor for Schedule Repository
+            </summary>
+            <param name="context"></param>
+            <param name="logger"></param>
+            <param name="httpContextAccessor"></param>
         </member>
     </members>
 </doc>

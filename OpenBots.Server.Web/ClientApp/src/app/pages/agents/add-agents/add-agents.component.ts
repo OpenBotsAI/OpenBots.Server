@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NbToastrService } from '@nebular/theme';
 import { AgentsService } from '../agents.service';
 import { Router } from '@angular/router';
+import { IpVersion, RxwebValidators } from '@rxweb/reactive-form-validators';
 
 @Component({
   selector: 'ngx-add-agents',
@@ -45,9 +46,11 @@ export class AddAgentsComponent implements OnInit {
       macAddresses: [''],
       ipAddresses: [
         '',
-        Validators.pattern(
-          '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|(::[1])$'
-        ),
+
+        [Validators.required, RxwebValidators.ip({ version: IpVersion.V6 })],
+        // Validators.pattern(
+        //   '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|(::[1])$'
+        // ),
       ],
       isEnabled: [true],
       CredentialId: ['', Validators.required],

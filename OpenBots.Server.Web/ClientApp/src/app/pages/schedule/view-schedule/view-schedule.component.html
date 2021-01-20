@@ -144,10 +144,13 @@
         </nb-card-header>
         <nb-card-body>
             <div class="jobScroll">
-                <nb-icon nbTooltip="Add Job Parameter" icon="plus" (click)="addJobParameter()"></nb-icon>
+                <!-- <div class="btn-primary addBtn">
+                    <nb-icon nbTooltip="Add Job Parameter" icon="plus" (click)="addJobParameter()">
+                    </nb-icon>
+                </div> -->
                 <form [formGroup]="jobRunNowForm">
                     <div formArrayName="items" *ngFor="let item of formControls.controls; let i = index;">
-                        <div [formGroupName]="i">
+                        <div [formGroupName]="i" style="padding-top: 5%;">
                             <div class="form-group">
                                 <label for="Name" class="label">Name *</label>
                                 <input id="Name" nbInput fullWidth formControlName="Name" />

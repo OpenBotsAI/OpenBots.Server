@@ -35,7 +35,7 @@ export class AddAssetComponent implements OnInit {
   file: boolean = false;
   numbervalue: boolean = false;
   textvalue: boolean = false;
-  value = ['JSON', 'Number', 'Text', 'File'];
+  value = ['Json', 'Number', 'Text', 'File'];
   public editorOptions: JsonEditorOptions;
   public data: any;
   @ViewChild(JsonEditorComponent, { static: false })
@@ -206,7 +206,7 @@ export class AddAssetComponent implements OnInit {
     this.addasset.reset();
   }
   get_val(val) {
-    if (val == 'JSON') {
+    if (val == 'Json') {
       this.json = true;
       this.numbervalue = false;
       this.file = false;
