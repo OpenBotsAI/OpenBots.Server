@@ -82,14 +82,14 @@ namespace OpenBots.Server.Business
             Agent agent = agentRepo.GetOne(Guid.Parse(agentId));
             if (agent == null) return agent;
 
-            if (agent.IPAddresses != null)
+            if (String.IsNullOrEmpty(agent.IPAddresses))
             {
                 if (agent.IPAddresses != requestIp)
                 {
                     throw new UnauthorizedAccessException("The IP address provided does not match this Agent's IP address");
                 }
             }
-            if (agent.MacAddresses != null)
+            if (String.IsNullOrEmpty(agent.MacAddresses) == false)
             {
                 if (agent.MacAddresses != request.MacAddresses)
                 {
