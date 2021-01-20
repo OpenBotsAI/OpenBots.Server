@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenBots.Server.DataAccess;
 
 namespace OpenBots.Server.DataAccess.Migrations
 {
     [DbContext(typeof(StorageContext))]
-    partial class StorageContextModelSnapshot : ModelSnapshot
+    [Migration("20210119172249_AddExecutionTimes")]
+    partial class AddExecutionTimes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -279,11 +281,11 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<string>("AutomationEngine")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double?>("AverageSuccessfulExecutionInMinutes")
-                        .HasColumnType("float");
+                    b.Property<TimeSpan?>("AverageSuccessfulExecution")
+                        .HasColumnType("time");
 
-                    b.Property<double?>("AverageUnSuccessfulExecutionInMinutes")
-                        .HasColumnType("float");
+                    b.Property<TimeSpan?>("AverageUnSuccessfulExecution")
+                        .HasColumnType("time");
 
                     b.Property<Guid>("BinaryObjectId")
                         .HasColumnType("uniqueidentifier");
@@ -1745,8 +1747,8 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<string>("ErrorReason")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double?>("ExecutionTimeInMinutes")
-                        .HasColumnType("float");
+                    b.Property<TimeSpan?>("ExecutionTime")
+                        .HasColumnType("time");
 
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");

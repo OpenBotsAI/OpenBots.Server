@@ -127,5 +127,40 @@ namespace OpenBots.Server.Business
             }
             return compressedFileStream;
         }
+
+        // Updates the automation averages for the specified job's automation
+        public void UpdateAutomationAverages(Guid? updatedJobId)
+        {
+            Job updatedJob = repo.GetOne(updatedJobId ?? Guid.Empty);
+            Automation automation = automationRepo.Find(null, a => a.Id == updatedJob.AutomationId).Items.FirstOrDefault();
+            List<Job> sameAutomationJobs;
+
+
+            if (updatedJob.IsSuccessful ?? false)
+            {
+                sameAutomationJobs = repo.Find(null, j => j.AutomationId == automation.Id && j.IsSuccessful == true).Items;
+                automation.AverageSuccessfulExecutionInMinutes = GetAverageExecutionTime(sameAutomationJobs);
+            }
+            else
+            {
+                sameAutomationJobs = repo.Find(null, j => j.AutomationId == automation.Id && j.IsSuccessful == false).Items;
+                automation.AverageUnSuccessfulExecutionInMinutes = GetAverageExecutionTime(sameAutomationJobs);
+            }
+
+            automationRepo.Update(automation);
+        }
+
+        // Gets the average execution time for the provided jobs
+        public double? GetAverageExecutionTime(List<Job> sameAutomationJobs)
+        {
+            double? sum = 0;
+
+            foreach (var job in sameAutomationJobs)
+            {
+                sum += job.ExecutionTimeInMinutes;
+            }
+
+            return sum / sameAutomationJobs.Count; 
+        }
     }
 }
