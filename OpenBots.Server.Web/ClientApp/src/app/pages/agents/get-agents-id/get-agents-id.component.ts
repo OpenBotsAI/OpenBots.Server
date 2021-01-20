@@ -97,7 +97,7 @@ export class GetAgentsIdComponent implements OnInit {
     this.get_perPage = false;
     this.agentService.getAgentbyHeartBeatID(id, top, skip).subscribe(
       (data: any) => {
-        console.log(data);
+        console.log(data.length);
         if (data.length == 0) {
           this.showGridHeatbeat = false;
         } else if (data.length !== 0) {
