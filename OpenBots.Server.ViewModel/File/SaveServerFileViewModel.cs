@@ -5,6 +5,7 @@ namespace OpenBots.Server.ViewModel.File
 {
     public class SaveServerFileViewModel
     {
+        public Guid? Id { get; set; }
         public Guid? StorageFolderId { get; set; }
         public string ContentType { get; set; }
         public Guid? CorrelationEntityId { get; set; }
