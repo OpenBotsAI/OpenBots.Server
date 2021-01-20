@@ -715,11 +715,13 @@ namespace OpenBots.Server.Web.Controllers
             oData.Parse(queryString);
             Guid parentguid = Guid.Empty;
 
-            var result =  agentHeartbeatRepo.Find(parentguid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip,
-                oData.Top).Items.Where(a => a.AgentId == new Guid(agentId));
+            var result = agentHeartbeatRepo.Find(parentguid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip, oData.Top);
+            var items = result.Items.Where(a => a.AgentId == new Guid(agentId));
+            PaginatedList<AgentHeartbeat> heartbeats = new PaginatedList<AgentHeartbeat>(items);
+            heartbeats.PageNumber = result.PageNumber;
+            heartbeats.PageSize = result.PageSize;
 
-            PaginatedList<AgentHeartbeat> team = new PaginatedList<AgentHeartbeat>(result);
-            return Ok(team);
+            return Ok(heartbeats);
         }
 
         /// <summary>
