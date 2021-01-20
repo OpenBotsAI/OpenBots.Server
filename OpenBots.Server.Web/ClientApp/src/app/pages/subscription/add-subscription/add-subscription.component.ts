@@ -46,7 +46,7 @@ export class AddSubscriptionComponent implements OnInit {
       httP_URL: [''],
       httP_AddHeader_Key: [''],
       httP_AddHeader_Value: [''],
-      httP_Max_RetryCount: [''],
+      Max_RetryCount: [''],
       queuE_QueueID: [''],
     });
   }

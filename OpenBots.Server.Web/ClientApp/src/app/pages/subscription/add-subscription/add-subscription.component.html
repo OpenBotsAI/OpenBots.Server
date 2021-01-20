@@ -232,21 +232,21 @@
                 type="input"
                 nbInput
                 fullWidth
-                id="httP_Max_RetryCount"
-                formControlName="httP_Max_RetryCount"
+                id="Max_RetryCount"
+                formControlName="Max_RetryCount"
                 class="form-control"
                 placeholder="Please enter Retries"
               />
               <div
                 *ngIf="
-                  f.httP_Max_RetryCount.touched && f.httP_Max_RetryCount.invalid
+                  f.Max_RetryCount.touched && f.Max_RetryCount.invalid
                 "
                 class="invalid-feedback-frm"
               >
                 <div
                   *ngIf="
-                    f.httP_Max_RetryCount.errors &&
-                    f.httP_Max_RetryCount.errors.required
+                    f.Max_RetryCount.errors &&
+                    f.Max_RetryCount.errors.required
                   "
                 >
                   Max Retries is required.
