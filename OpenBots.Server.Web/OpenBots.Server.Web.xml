@@ -1284,7 +1284,7 @@
             Controller for files
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.#ctor(OpenBots.Server.Business.Interfaces.IFileManager,OpenBots.Server.DataAccess.Repositories.Interfaces.IServerFileRepository,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Hosting.IHostingEnvironment)">
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.#ctor(OpenBots.Server.Business.Interfaces.IFileManager,OpenBots.Server.DataAccess.Repositories.Interfaces.IServerFileRepository,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.Interfaces.IServerDriveRepository)">
             <summary>
             FilesController constructor
             </summary>
@@ -1294,14 +1294,14 @@
             <param name="httpContextAccessor"></param>
             <param name="membershipManager"></param>
             <param name="userManager"></param>
-            <param name="hostingEnvironment"></param>
+            <param name="serverDriveRepository"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.FilesController.FileOperations(Syncfusion.EJ2.FileManager.Base.FileManagerDirectoryContent)">
             <summary>
             Conduct basic file and/or folder operations: read, delete, copy, move, details, create, search, and rename
             </summary>
             <param name="args"></param>
-            <returns>Object as a result of the operation</returns>
+            <returns>Object as a result of the operation type</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.FilesController.Upload(System.String,System.Collections.Generic.IList{Microsoft.AspNetCore.Http.IFormFile},System.String)">
             <summary>
@@ -1310,7 +1310,7 @@
             <param name="path"></param>
             <param name="uploadFiles"></param>
             <param name="action"></param>
-            <returns>Content</returns>
+            <returns>200 OK response</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.FilesController.Download(System.String)">
             <summary>
@@ -1324,7 +1324,7 @@
             Gets the image(s) from the given path
             </summary>
             <param name="args"></param>
-            <returns></returns>
+            <returns>Requested image from the given path</returns>
         </member>
         <member name="T:OpenBots.Server.Web.Controllers.Queue.QueueItemAttachmentsController">
             <summary>

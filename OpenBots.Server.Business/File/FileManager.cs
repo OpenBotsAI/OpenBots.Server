@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business.Interfaces;
 using OpenBots.Server.DataAccess.Exceptions;
-using OpenBots.Server.Model.File;
 using OpenBots.Server.ViewModel.File;
+using Syncfusion.EJ2.FileManager.Base;
+using System.Collections.Generic;
 
 namespace OpenBots.Server.Business.File
 {
@@ -19,30 +21,22 @@ namespace OpenBots.Server.Business.File
             this.localFileStorageAdapter = localFileStorageAdapter;
         }
 
-        public FileViewModel GetFile(string path)
+        public object LocalFileStorageOperation(FileManagerDirectoryContent args)
         {
             var file = new FileViewModel();
             string adapter = Configuration["Files:Adapter"];
             if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
-                file = localFileStorageAdapter.GetFile(path);
-            //else if (adapter.Equals(AdapterType.AzureBlobStorageAdapter.ToString()))
-            //    file = azureBlobStorageAdapter.GetFile(fileId);
-            //else if (adapter.Equals(AdapterType.AmazonEC2StorageAdapter.ToString()))
-            //    file = amazonEC2StorageAdapter.GetFile(fileId);
-            //else if (adapter.Equals(AdapterType.GoogleBlobStorageAdapter.ToString()))
-            //    file = googleBlobStorageAdapter.GetFile(fileId);
-            else throw new EntityDoesNotExistException("Configuration for file storage is not configured or cannot not be found");
-
-            return file;
+                return localFileStorageAdapter.LocalFileStorageOperation(args);
+            else throw new EntityOperationException("Configuration is not set up for local file storage");
         }
 
-        public FileViewModel SaveFile(SaveServerFileViewModel request)
+        public FileManagerResponse UploadFile(string path, IList<IFormFile> uploadFiles, string action)
         {
             string storageProvider = Configuration["Files:StorageProvider"];
             string adapter = Configuration["Files:Adapter"];
-            var file = new FileViewModel();
+            var content = new FileManagerResponse();
             if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()) && storageProvider.Equals("FileSystem.Default"))
-                file = localFileStorageAdapter.SaveFile(request);
+                content = localFileStorageAdapter.UploadFile(path, uploadFiles, action);
             //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
             //    azureBlobStorageAdapter.SaveFile(request);
             //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
@@ -51,71 +45,32 @@ namespace OpenBots.Server.Business.File
             //    googleBlobStorageAdapter.SaveFile(request);
             else throw new EntityDoesNotExistException("Configuration for file storage is not configured or cannot not be found");
 
-            return file;
+            return content;
         }
 
-        public FileViewModel UpdateFile(UpdateServerFileViewModel request)
+        public object DownloadFile(string downloadInput)
         {
-            var file = new FileViewModel();
+            var content = new object();
             string adapter = Configuration["Files:Adapter"];
             if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
-                file = localFileStorageAdapter.UpdateFile(request);
+                content = localFileStorageAdapter.DownloadFile(downloadInput);
             //else if (adapter.Equals(AdapterType.AzureBlobStorageAdapter.ToString()))
-            //    file = azureBlobStorageAdapter.GetFile(fileId);
+            //    content = azureBlobStorageAdapter.DownloadFile(downloadInput);
             //else if (adapter.Equals(AdapterType.AmazonEC2StorageAdapter.ToString()))
-            //    file = amazonEC2StorageAdapter.GetFile(fileId);
+            //    content = amazonEC2StorageAdapter.DownloadFile(downloadInput);
             //else if (adapter.Equals(AdapterType.GoogleBlobStorageAdapter.ToString()))
-            //    file = googleBlobStorageAdapter.GetFile(fileId);
-            else throw new EntityDoesNotExistException("Configuration for file storage is not configured or cannot be found");
+            //    content = googleBlobStorageAdapter.DownloadFile(downloadInput);
+            else throw new EntityDoesNotExistException("Configuration for file storage is not configured or cannot not be found");
 
-            return file;
+            return content;
         }
 
-        public void DeleteFile(string path)
+        public object GetImage(FileManagerDirectoryContent args)
         {
             string adapter = Configuration["Files:Adapter"];
             if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
-                localFileStorageAdapter.DeleteFile(path);
-            //else if (adapter.Equals(AdapterType.AzureBlobStorageAdapter.ToString()))
-            //    file = azureBlobStorageAdapter.DeleteFile(path);
-            //else if (adapter.Equals(AdapterType.AmazonEC2StorageAdapter.ToString()))
-            //    file = amazonEC2StorageAdapter.DeleteFile(path);
-            //else if (adapter.Equals(AdapterType.GoogleBlobStorageAdapter.ToString()))
-            //    file = googleBlobStorageAdapter.DeleteFile(path);
-            else throw new EntityDoesNotExistException("Configuration for file storage is not configured or cannot be found");
-        }
-
-        public int? GetFolderCount()
-        {
-            string adapter = Configuration["Files:Adapter"];
-            if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
-            {
-                int? count = localFileStorageAdapter.GetFolderCount();
-                return count;
-            }
-            else throw new EntityOperationException("Configuration is not set up for local file storage.");
-        }
-
-        public ServerFolder GetFolder(string name)
-        {
-            string adapter = Configuration["Files:Adapter"];
-            if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
-            {
-                var folder = localFileStorageAdapter.GetFolder(name);
-                return folder;
-            }
-            else throw new EntityOperationException("Configuration is not set up for local file storage.");
-        }
-
-        public ServerDrive GetDrive()
-        {
-            string adapter = Configuration["Files:Adapter"];
-            if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
-            {
-                var drive = localFileStorageAdapter.GetDrive();
-                return drive;
-            }
-            else throw new EntityOperationException("Configuration is not set up for local file storage.");
+                return localFileStorageAdapter.GetImage(args);
+            else throw new EntityOperationException("Configuration is not set up for local file storage");
         }
 
         public enum AdapterType

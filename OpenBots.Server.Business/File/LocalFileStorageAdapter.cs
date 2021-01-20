@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using OpenBots.Server.Business.Interfaces;
 using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model.File;
 using OpenBots.Server.ViewModel.File;
+using Syncfusion.EJ2.FileManager.Base;
+using Syncfusion.EJ2.FileManager.PhysicalFileProvider;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,6 +28,11 @@ namespace OpenBots.Server.Business.File
         private readonly IOrganizationManager organizationManager;
         private readonly IServerFolderRepository serverFolderRepository;
         private readonly IServerDriveRepository serverDriveRepository;
+
+        public PhysicalFileProvider operation;
+        public string basePath;
+        public string root = "Files";
+
         public IConfiguration Configuration { get; }
 
         public LocalFileStorageAdapter(
@@ -34,6 +43,7 @@ namespace OpenBots.Server.Business.File
             IOrganizationManager organizationManager,
             IServerFolderRepository serverFolderRepository,
             IServerDriveRepository serverDriveRepository,
+            IWebHostEnvironment hostingEnvironment,
             IConfiguration configuration)
         {
             this.fileAttributeRepository = fileAttributeRepository;
@@ -44,21 +54,243 @@ namespace OpenBots.Server.Business.File
             this.serverFolderRepository = serverFolderRepository;
             this.serverDriveRepository = serverDriveRepository;
             Configuration = configuration;
+
+            this.basePath = hostingEnvironment.ContentRootPath;
+            this.operation = new PhysicalFileProvider();
+            this.operation.RootFolder(this.basePath + "\\" + this.root);
         }
 
-        public FileViewModel GetFile(string path)
+        public object LocalFileStorageOperation(FileManagerDirectoryContent args)
         {
-            var serverFile = serverFileRepository.Find(null).Items?.Where(q => q.StoragePath == path)?.FirstOrDefault();
-
-            if (serverFile != null)
+            if (args.Action == "delete" || args.Action == "rename")
             {
-                var file = CreateFileViewModel(serverFile, true);
-                return file;
+                if ((args.TargetPath == null) && (args.Path == ""))
+                {
+                    FileManagerResponse response = new FileManagerResponse();
+                    response.Error = new ErrorDetails { Code = "401", Message = "Restricted to modify the root folder." };
+                    return this.operation.ToCamelCase(response);
+                }
             }
-            else throw new EntityDoesNotExistException($"File could not be found");
+
+            var serverDrive = GetDrive();
+            var entityId = Guid.Parse(args.Id);
+            ServerFile serverFile = new ServerFile();
+            ServerFolder serverFolder = new ServerFolder();
+            if (args.IsFile)
+                serverFile = serverFileRepository.GetOne(entityId);
+            else
+                serverFolder = serverFolderRepository.GetOne(entityId);
+
+            switch (args.Action)
+            {
+                case "read":
+                    // reads the file(s) or folder(s) from the given path.
+
+                    //update FileAttribute (retrieval)
+                    var fileAttribute = fileAttributeRepository.Find(null).Items?.Where(q => q.Name == FileAttributes.RetrievalCount.ToString()
+                        && q.ServerFileId == entityId).FirstOrDefault();
+                    fileAttribute.AttributeValue += 1;
+                    fileAttributeRepository.Update(fileAttribute);
+
+                    return this.operation.ToCamelCase(this.operation.GetFiles(args.Path, args.ShowHiddenItems));
+                case "delete":
+                    // deletes the selected file(s) or folder(s) from the given path.
+                    if (args.IsFile.Equals(true))
+                    {
+                        DeleteFile(args.Path);
+                        serverDrive.StorageSizeInBytes -= args.Size;
+        }
+                    else
+                    {
+                        //removes the size of folder and any files from server drive property
+                        var files = serverFileRepository.Find(null).Items?.Where(q => q.StorageFolderId == entityId);
+                        long fileSize = 0;
+                        foreach (var file in files)
+                            fileSize += file.SizeInBytes;
+                        serverDrive.StorageSizeInBytes -= args.Size - fileSize;
+
+                        DeleteFolder(args.Path);
+                    }
+
+                    serverDriveRepository.Update(serverDrive);
+
+                    return this.operation.ToCamelCase(this.operation.Delete(args.Path, args.Names));
+                case "copy":
+                    // copies the selected file(s) or folder(s) from a path and then pastes them into a given target path.
+                    if (args.IsFile.Equals(true))
+                    {
+                        foreach (var file in args.UploadFiles)
+                        {
+                            var folderId = GetFolderId(args.Path);
+
+                            //add serverFile entity
+                            SaveServerFileViewModel viewModel = new SaveServerFileViewModel()
+                            {
+                                Id = Guid.Parse(args.Id),
+                                ContentType = file.ContentType,
+                                CorrelationEntity = "", //TODO: update or remove
+                                CorrelationEntityId = Guid.Empty, //TODO: update or remove
+                                HashCode = null, 
+                                SizeInBytes = file.Length,
+                                StorageFolderId = folderId,
+                                StoragePath = args.Path,
+                                StorageProvider = "LocalFileStorage",
+                                File = file
+                            };
+                            SaveFile(viewModel);
+                        }
+                    }
+                    else
+                    {
+                        //add serverFolder entity
+                        AddFolder(args);
+                    }
+                    AddBytesToServerDrive(serverDrive, args.Size);
+
+                    return this.operation.ToCamelCase(this.operation.Copy(args.Path, args.TargetPath, args.Names, args.RenameFiles, args.TargetData));
+                case "move":
+                    // cuts the selected file(s) or folder(s) from a path and then pastes them into a given target path.
+                    if (args.IsFile.Equals(true))
+                    {
+                        foreach (var file in args.UploadFiles)
+                        {
+                            var folderId = GetFolderId(args.Path);
+                            UpdateServerFileViewModel viewModel = new UpdateServerFileViewModel()
+                            {
+                                ContentType = file.ContentType,
+                                CorrelationEntity = "", //TODO: remove or update
+                                CorrelationEntityId = Guid.Empty, //TODO: remove or update
+                                HashCode = null,
+                                File = file,
+                                SizeInBytes = file.Length,
+                                StorageFolderId = folderId,
+                                StoragePath = Path.Combine(args.Path, file.FileName),
+                                StorageProvider = "LocalFileStorage"
+                            };
+                            UpdateFile(viewModel);
+                        }
+                    }
+                    else
+                    {
+                        //update ServerFolder entity
+                        serverFolder.ParentFolderId = Guid.Parse(args.ParentId);
+                        serverFolder.StoragePath = args.Path;
+                        serverFolderRepository.Update(serverFolder);
+                    }
+
+                    return this.operation.ToCamelCase(this.operation.Move(args.Path, args.TargetPath, args.Names, args.RenameFiles, args.TargetData));
+                case "details":
+                    // gets the details of the selected file(s) or folder(s).
+                    return this.operation.ToCamelCase(this.operation.Details(args.Path, args.Names, args.Data));
+                case "create":
+                    // creates a new folder in a given path.
+
+                    //add ServerFolder entity
+                    AddFolder(args);
+                    AddBytesToServerDrive(serverDrive, args.Size);
+
+                    return this.operation.ToCamelCase(this.operation.Create(args.Path, args.Name));
+                case "search":
+                    // gets the list of file(s) or folder(s) from a given path based on the searched key string.
+
+                    //add to retrieval count value to file attribute entity for each file
+                    //update FileAttribute (retrieval)
+                    foreach (var file in args.UploadFiles)
+                    {
+                        fileAttribute = fileAttributeRepository.Find(null).Items?.Where(q => q.Name == FileAttributes.RetrievalCount.ToString()
+                            && q.ServerFileId == entityId).FirstOrDefault();
+                        fileAttribute.AttributeValue += 1;
+                        fileAttributeRepository.Update(fileAttribute);
+                    }
+
+                    return this.operation.ToCamelCase(this.operation.Search(args.Path, args.SearchString, args.ShowHiddenItems, args.CaseSensitive));
+                case "rename":
+                    // renames a file or folder.
+                    if (args.IsFile.Equals(true))
+                    {
+                        //update ServerFile entity
+                        foreach (var file in args.UploadFiles)
+                        {
+                            var folderId = GetFolderId(args.Path);
+                            UpdateServerFileViewModel viewModel = new UpdateServerFileViewModel()
+                            {
+                                ContentType = file.ContentType,
+                                CorrelationEntity = "", //TODO: remove or update
+                                CorrelationEntityId = Guid.Empty, //TODO: remove or update
+                                HashCode = null,
+                                File = file,
+                                SizeInBytes = file.Length,
+                                StorageFolderId = folderId,
+                                StoragePath = Path.Combine(args.Path, file.FileName),
+                                StorageProvider = "LocalFileStorage"
+                            };
+                            UpdateFile(viewModel);
+                        }
+                    }
+                    else
+        {
+                        //update ServerFoler entity
+                        serverFolder.ParentFolderId = Guid.Parse(args.ParentId);
+                        serverFolder.StoragePath = args.Path;
+                        serverFolderRepository.Update(serverFolder);
+                    }
+                    return this.operation.ToCamelCase(this.operation.Rename(args.Path, args.Name, args.NewName));
+            }
+            return null;
         }
 
-        public FileViewModel SaveFile(SaveServerFileViewModel request)
+        public FileManagerResponse UploadFile(string path, IList<IFormFile> uploadFiles, string action)
+            {
+            long filesLength = 0;
+
+            //add ServerFile entity for each file uploaded
+            foreach (var file in uploadFiles)
+            {
+                path = Path.Combine(path, file.FileName);
+                var folderId = GetFolderId(path);
+
+                SaveServerFileViewModel viewModel = new SaveServerFileViewModel()
+                {
+                    Id = Guid.NewGuid(), //TODO: update to match args id
+                    ContentType = file.ContentType,
+                    CorrelationEntity = "", //TODO: update or remove from ServerFileViewModel and ServerFile
+                    CorrelationEntityId = Guid.Empty, //TODO: update or remove from ServerFileViewModel and ServerFile
+                    File = file,
+                    HashCode = null,
+                    StorageFolderId = folderId,
+                    SizeInBytes = file.Length,
+                    StoragePath = path,
+                    StorageProvider = "LocalFileStorage"
+                };
+
+                SaveFile(viewModel);
+
+                filesLength += file.Length;
+            }
+
+            //add to SizeInBytes property in ServerDrive
+            var serverDrive = GetDrive();
+            serverDrive.StorageSizeInBytes += filesLength;
+            serverDriveRepository.Update(serverDrive);
+
+            FileManagerResponse uploadResponse = operation.Upload(path, uploadFiles, action, null);
+            return uploadResponse;
+        }
+
+        public object DownloadFile(string downloadInput)
+        {
+            FileManagerDirectoryContent args = JsonConvert.DeserializeObject<FileManagerDirectoryContent>(downloadInput);
+
+            //update FileAttribute (retrieval)
+            var fileAttribute = fileAttributeRepository.Find(null).Items?.Where(q => q.Name == FileAttributes.RetrievalCount.ToString()
+                && q.ServerFileId == Guid.Parse(args.Id)).FirstOrDefault();
+            fileAttribute.AttributeValue += 1;
+            fileAttributeRepository.Update(fileAttribute);
+
+            return operation.Download(args.Path, args.Names, args.Data);
+        }
+
+        public void SaveFile(SaveServerFileViewModel request)
         {
             var file = request.File;
             Guid? id = Guid.NewGuid();
@@ -66,7 +298,7 @@ namespace OpenBots.Server.Business.File
             Guid? organizationId = organizationManager.GetDefaultOrganization().Id;
             var hash = GetHash(path);
 
-            //Add FileAttribute entities
+            //add FileAttribute entities
             var attributes = new Dictionary<string, int>()
             {
                 { FileAttributes.StorageCount.ToString(), 1 },
@@ -79,7 +311,7 @@ namespace OpenBots.Server.Business.File
             {
                 var fileAttribute = new FileAttribute()
                 {
-                    ServerFileId = id,
+                    ServerFileId = request.Id,
                     AttributeValue = attribute.Value,
                     CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name,
                     CreatedOn = DateTime.UtcNow,
@@ -91,7 +323,7 @@ namespace OpenBots.Server.Business.File
                 fileAttributes.Add(fileAttribute);
             }
 
-            //Add file properties to ServerFile entity
+            //add file properties to ServerFile entity
             var serverFile = new ServerFile()
             {
                 Id = id,
@@ -111,7 +343,7 @@ namespace OpenBots.Server.Business.File
             };
             serverFileRepository.Add(serverFile);
 
-            //Upload file to local Server
+            //upload file to local Server
             CheckDirectoryExists(path, organizationId);
 
             if (file.Length <= 0 || file.Equals(null)) throw new Exception("No file exists");
@@ -125,10 +357,9 @@ namespace OpenBots.Server.Business.File
             }
 
             var fileViewModel = CreateFileViewModel(serverFile);
-            return fileViewModel;
         }
 
-        public FileViewModel UpdateFile(UpdateServerFileViewModel request)
+        public void UpdateFile(UpdateServerFileViewModel request)
         {
             Guid entityId = (Guid)request.Id;
             var file = request.File;
@@ -138,7 +369,7 @@ namespace OpenBots.Server.Business.File
             if (serverFile == null) throw new EntityDoesNotExistException("Server file entity could not be found");
             var hash = GetHash(path);
 
-            //Update FileAttribute entities
+            //update FileAttribute entities
             List<FileAttribute> fileAttributes = new List<FileAttribute>();
             var attributes = fileAttributeRepository.Find(null).Items?.Where(q => q.ServerFileId == entityId);
             if (attributes != null)
@@ -156,7 +387,7 @@ namespace OpenBots.Server.Business.File
             }
             else throw new EntityDoesNotExistException("File attribute entities could not be found for this file");
 
-            //Update ServerFile entity properties
+            //update ServerFile entity properties
             serverFile.ContentType = file.ContentType;
             serverFile.CorrelationEntity = request.CorrelationEntity;
             serverFile.CorrelationEntityId = request.CorrelationEntityId;
@@ -172,7 +403,7 @@ namespace OpenBots.Server.Business.File
             serverFileRepository.Update(serverFile);
 
 
-            //Update file stored in Server
+            //update file stored in Server
             CheckDirectoryExists(path, organizationId);
 
             path = Path.Combine(path, request.Id.ToString());
@@ -189,21 +420,20 @@ namespace OpenBots.Server.Business.File
             }
 
             var fileViewModel = CreateFileViewModel(serverFile);
-            return fileViewModel;
         }
 
         public void DeleteFile(string path)
         {
-            //Remove ServerFile entity
+            //remove ServerFile entity
             var serverFileId = serverFileRepository.Find(null).Items?.Where(q => q.StoragePath == path).FirstOrDefault().Id;
             serverFileRepository.Delete((Guid)serverFileId);
 
-            //Remove FileAttribute entities
+            //remove FileAttribute entities
             var attributes = fileAttributeRepository.Find(null).Items?.Where(q => q.ServerFileId == serverFileId);
             foreach (var attribute in attributes)
                 fileAttributeRepository.Delete((Guid)attribute.Id);
 
-            //Remove file
+            //remove file
             if (directoryManager.Exists(path))
                 directoryManager.Delete(path);
             else throw new DirectoryNotFoundException("File path could not be found");
@@ -290,22 +520,80 @@ namespace OpenBots.Server.Business.File
             return file;
         }
 
-        public int? GetFolderCount()
-        {
-            int? count = serverFolderRepository.Find(null).Items?.Count;
-            return count;
-        }
+        //public int? GetFolderCount()
+        //{
+        //    int? count = serverFolderRepository.Find(null).Items?.Count;
+        //    return count;
+        //}
 
         public ServerFolder GetFolder(string name)
         {
-            var serverFolder = serverFolderRepository.Find(null).Items?.Where(q => q.Name == name).FirstOrDefault();
+            var serverFolder = serverFolderRepository.Find(null).Items?.Where(q => q.Name.ToLower() == name.ToLower()).FirstOrDefault();
             return serverFolder;
+        }
+
+        public Guid? GetFolderId(string path)
+        {
+            string[] pathArray = path.Split("/");
+            string folderName = pathArray[path.Length - 2];
+            Guid? folderId = GetFolder(folderName).Id;
+            return folderId;
         }
 
         public ServerDrive GetDrive()
         {
             var serverDrive = serverDriveRepository.Find(null).Items?.FirstOrDefault();
             return serverDrive;
+        }
+
+        public void DeleteFolder(string path)
+        {
+            ServerFolder folder = serverFolderRepository.Find(null).Items?.Where(q => q.StoragePath == path).FirstOrDefault();
+            serverFolderRepository.Delete((Guid)folder.Id);
+
+            //delete any files that are in the folder
+            var files = serverFileRepository.Find(null).Items?.Where(q => q.StorageFolderId == folder.Id);
+            if (files != null)
+            {
+                foreach (var file in files)
+                    DeleteFile(file.StoragePath);
+            }
+        }
+
+        public void AddFolder(FileManagerDirectoryContent args)
+        {
+            string path = Path.Combine(args.Path, args.NewName);
+            var folderId = GetFolderId(path);
+
+            ServerFolder serverFolder = new ServerFolder()
+            {
+                ParentFolderId = folderId,
+                CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name,
+                CreatedOn = DateTime.UtcNow,
+                Name = args.Name,
+                OrganizationId = organizationManager.GetDefaultOrganization().Id,
+                SizeInBytes = args.Size,
+                StorageDriveId = GetDrive().Id,
+                StoragePath = path
+            };
+        }
+
+        public object GetImage(FileManagerDirectoryContent args)
+        {
+            //update FileAttribute (retrieval)
+            var fileAttribute = fileAttributeRepository.Find(null).Items?.Where(q => q.Name == FileAttributes.RetrievalCount.ToString()
+                && q.ServerFileId == Guid.Parse(args.Id)).FirstOrDefault();
+            fileAttribute.AttributeValue += 1;
+            fileAttributeRepository.Update(fileAttribute);
+
+            return this.operation.GetImage(args.Path, args.Id, false, null, null);
+        }
+
+        public void AddBytesToServerDrive(ServerDrive serverDrive, long size)
+        {
+            //add to SizeInBytes property in ServerDrive
+            serverDrive.StorageSizeInBytes += size;
+            serverDriveRepository.Update(serverDrive);
         }
     }
 }
