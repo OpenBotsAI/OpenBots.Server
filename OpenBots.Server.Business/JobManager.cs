@@ -128,11 +128,11 @@ namespace OpenBots.Server.Business
             return compressedFileStream;
         }
 
+        // Updates the automation averages for the specified job's automation
         public void UpdateAutomationAverages(Guid? updatedJobId)
         {
             Job updatedJob = repo.GetOne(updatedJobId ?? Guid.Empty);
             Automation automation = automationRepo.Find(null, a => a.Id == updatedJob.AutomationId).Items.FirstOrDefault();
-            double currentAverage;
             List<Job> sameAutomationJobs;
 
 
@@ -150,6 +150,7 @@ namespace OpenBots.Server.Business
             automationRepo.Update(automation);
         }
 
+        // Gets the average execution time for the provided jobs
         public double? GetAverageExecutionTime(List<Job> sameAutomationJobs)
         {
             double? sum = 0;
