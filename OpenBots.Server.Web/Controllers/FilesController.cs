@@ -24,15 +24,12 @@ namespace OpenBots.Server.Web.Controllers
     [V1]
     [Route("api/v{apiVersion:apiVersion}/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
+    [AllowAnonymous]
     [FeatureGate(MyFeatureFlags.Files)]
     public class FilesController : EntityController<ServerFile>
     {
         private readonly IFileManager manager;
-        private readonly IServerDriveRepository serverDriveRepository;
-        private readonly IServerFileRepository serverFileRepository;
-
-        //TODO: Add webhooks to controllers
         //TODO: Add folder / file (google/amazon/azure)
         //TODO: Upload / download a file (google/amazon/azure)
         //TODO: Delete a folder / file (google/amazon/azure)
@@ -41,24 +38,19 @@ namespace OpenBots.Server.Web.Controllers
         /// FilesController constructor
         /// </summary>
         /// <param name="manager"></param>
-        /// <param name="serverFileRepository"></param>
         /// <param name="configuration"></param>
         /// <param name="httpContextAccessor"></param>
         /// <param name="membershipManager"></param>
         /// <param name="userManager"></param>
-        /// <param name="serverDriveRepository"></param>
         public FilesController (
             IFileManager manager,
             IServerFileRepository serverFileRepository,
             ApplicationIdentityUserManager userManager,
             IHttpContextAccessor httpContextAccessor,
             IMembershipManager membershipManager,
-            IConfiguration configuration,
-            IServerDriveRepository serverDriveRepository) : base(serverFileRepository, userManager, httpContextAccessor, membershipManager, configuration)
+            IConfiguration configuration) : base(serverFileRepository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.manager = manager;
-            this.serverDriveRepository = serverDriveRepository;
-            this.serverFileRepository = serverFileRepository;
         }
 
         /// <summary>

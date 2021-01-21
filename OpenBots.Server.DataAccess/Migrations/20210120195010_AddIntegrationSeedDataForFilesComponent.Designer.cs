@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenBots.Server.DataAccess;
 
 namespace OpenBots.Server.DataAccess.Migrations
 {
     [DbContext(typeof(StorageContext))]
-    partial class StorageContextModelSnapshot : ModelSnapshot
+    [Migration("20210120195010_AddIntegrationSeedDataForFilesComponent")]
+    partial class AddIntegrationSeedDataForFilesComponent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,9 +47,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<string>("IPAddresses")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("IPOption")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsConnected")
                         .HasColumnType("bit");
 
@@ -55,9 +54,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsEnhancedSecurity")
                         .HasColumnType("bit");
 
                     b.Property<string>("MacAddresses")

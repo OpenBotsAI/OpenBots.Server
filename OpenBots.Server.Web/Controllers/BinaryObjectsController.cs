@@ -50,7 +50,6 @@ namespace OpenBots.Server.Web.Controllers
             IBinaryObjectManager binaryObjectManager,
             IHttpContextAccessor httpContextAccessor,
             IConfiguration configuration,
-            IOrganizationManager organizationManager,
             IWebhookPublisher webhookPublisher) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.binaryObjectManager = binaryObjectManager;
