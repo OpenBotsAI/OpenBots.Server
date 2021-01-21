@@ -66,7 +66,38 @@ export class AllChangeLogComponent implements OnInit {
     this.service_name_Arr = [];
     this.changelogService.get_servicename().subscribe((data: any) => {
       this.show_service_name = data.serviceNameList;
+      // var arr = data.serviceNameList;
+      // // var sorted = arr.sort();
+      // arr.sort(function (a, b) {
+      //   return a.age - b.age;
+      // });
+      // // arr.sort((a, b) =>
+      // //   b.color > a.color
+      // //     ? 1
+      // //     : b.color === a.color
+      // //     ? b.size > a.size
+      // //       ? 1
+      // //       : -1
+      // //     : -1
+      // // );
+      // console.log('Returned string is : ' + arr);
+      // this.show_service_name = arr;
     });
+
+    // function compareFirstNames(a, b) {
+    //   if (a.serviceNameList < a.serviceNameList) {
+    //     return -1;
+    //   }
+    //   if (a.serviceNameList > a.serviceNameList) {
+    //     return 1;
+    //   }
+    //   return 0;
+    // }
+
+    // var people = data.serviceNameList;
+
+    // people.sort(compareFirstNames);
+    // console.log(people.sort(compareFirstNames));
   }
 
   exportFile() {

@@ -28,7 +28,7 @@
           <label for="queueitemtype" class="label col-form-label">Agent Name</label>
           <select class="custom-select" (change)="common_agent($event.target.value)" formControlName="agentId">
             <option selected></option>
-            <option *ngFor="let item of show_filter_agent" [value]="item.agentId">
+            <option *ngFor="let item of show_filter_agent | orderBy:'agentName'" [value]="item.agentId">
               {{ item.agentName }}
             </option>
           </select>
@@ -38,7 +38,7 @@
           </label>
           <select class="custom-select" (change)="comon_process($event.target.value)" formControlName="automationId">
             <option selected> </option>
-            <option *ngFor="let item of show_filter_process" [value]="item.automationId">
+            <option *ngFor="let item of show_filter_process | orderBy:'automationNameWithVersion'" [value]="item.automationId">
               {{ item.automationNameWithVersion }}
             </option>
           </select>

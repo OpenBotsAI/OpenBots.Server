@@ -97,12 +97,11 @@ export class GetAgentsIdComponent implements OnInit {
     this.get_perPage = false;
     this.agentService.getAgentbyHeartBeatID(id, top, skip).subscribe(
       (data: any) => {
-        console.log(data.length);
-        if (data.length == 0) {
+        if (data.items.length == 0) {
           this.showGridHeatbeat = false;
-        } else if (data.length !== 0) {
+        } else if (data.items.length !== 0) {
           this.showGridHeatbeat = true;
-          this.showAgentHeartBeat = data;
+          this.showAgentHeartBeat = data.items;
           this.page.totalCount = data.totalCount;
           this.get_perPage = true;
         }

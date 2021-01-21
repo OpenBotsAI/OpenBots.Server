@@ -26,7 +26,7 @@
           <label for="queueitemtype" class="label col-form-label">Entity</label>
           <select class="custom-select" (change)="common_Entity($event.target.value)" formControlName="agentId">
             <option selected></option>
-             <option *ngFor="let item of show_filter_entity" [value]="item">
+             <option *ngFor="let item of show_filter_entity " [value]="item">
               {{ item }}
             </option>
            

@@ -12,7 +12,7 @@ import {
   NbTooltipModule,
   NbCheckboxModule,
 } from '@nebular/theme';
-import { TimeDatePipe, ChevronPipe } from '../pipe';
+import { TimeDatePipe, ChevronPipe, OrderByPipe } from '../pipe';
 import { NgJsonEditorModule } from 'ang-jsoneditor';
 import { NgxUploaderModule } from 'ngx-uploader';
 import { FileSizePipe } from '../pipe/filesize.pipe';
@@ -32,6 +32,7 @@ import { BlockUIModule } from 'ng-block-ui';
     TooltipComponent,
     PreventSpecialCharDirective,
     TimeagoPipe,
+    OrderByPipe,
   ],
   imports: [NbTooltipModule],
   exports: [
@@ -59,6 +60,7 @@ import { BlockUIModule } from 'ng-block-ui';
     InputTrimModule,
     TimeagoPipe,
     BlockUIModule,
+    OrderByPipe,
   ],
 })
 export class SharedModule {}
