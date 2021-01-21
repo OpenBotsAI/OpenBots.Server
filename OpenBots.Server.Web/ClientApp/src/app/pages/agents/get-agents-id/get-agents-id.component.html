@@ -116,7 +116,8 @@
             </div>
           </div>
         </form>
-   <hr  *ngIf="showGridHeatbeat == true">
+   <hr  *ngIf="showGridHeatbeat == true"> 
+   
           <table class="table table-bordered" *ngIf="showGridHeatbeat == true">
       <thead>
         <tr>
@@ -184,7 +185,7 @@
       </tbody>
     </table>
       </nb-card-body>
-       <!-- <nb-card-body class="noTopPadding">
+       <nb-card-body class="noTopPadding" *ngIf="showGridHeatbeat == true">
     <div class="row pagerow">
       <div class="col-md-8 col-lg-8 no-left-padding">
         <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
@@ -192,7 +193,7 @@
           autoHide="true" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
           screenReaderCurrentLabel="You're on page"></pagination-controls>
       </div>
-      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
+      <!-- <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
         <label class="label">Total {{ showpage.totalCount }} /</label>
 
         <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
@@ -200,9 +201,9 @@
             {{ item.name }}
           </option>
         </select>
-      </div>
+      </div> -->
     </div>
-  </nb-card-body> -->
+  </nb-card-body>
     </nb-card>
   </div>
 </div>

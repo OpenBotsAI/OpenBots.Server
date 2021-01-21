@@ -39,14 +39,14 @@ export class AddSubscriptionComponent implements OnInit {
         ],
       ],
       entityType: [''],
-      integrationEventName: ['', [Validators.required]],
-      entityID: ['', [Validators.required]],
+      integrationEventName: [''],
+      entityID: [''],
       entityName: ['', [Validators.required]],
       transportType: ['', [Validators.required]],
       httP_URL: [''],
       httP_AddHeader_Key: [''],
       httP_AddHeader_Value: [''],
-      httP_Max_RetryCount: [''],
+      Max_RetryCount: [''],
       queuE_QueueID: [''],
     });
   }
