@@ -245,7 +245,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                //Name must be unique
+                //name must be unique
                 Agent namedAgent = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
                 if (namedAgent != null)
                 {
@@ -257,7 +257,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
                     request.Id = entityId;
 
-                //create Agent app user
+                //create agent app user
                 var user = new ApplicationUser()
                 {
                     Name = request.Name,
@@ -297,12 +297,12 @@ namespace OpenBots.Server.Web.Controllers
                         return BadRequest(ModelState);
                     }
 
-                    //Update the user 
+                    //update the user 
                     var registeredUser = userManager.FindByNameAsync(user.UserName).Result;
                     registeredUser.PersonId = (Guid)person.Id;
                     await userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
 
-                    //Post Agent entity
+                    //post agent entity
                     Agent newAgent = request.Map(request);
                     await webhookPublisher.PublishAsync("Agents.NewAgentCreated", newAgent.Id.ToString(), newAgent.Name).ConfigureAwait(false);
                     return await base.PostEntity(newAgent);

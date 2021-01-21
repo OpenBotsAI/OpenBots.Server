@@ -9,7 +9,7 @@ namespace OpenBots.Server.Web
 {
     public class ServiceBadRequest : ValidationProblemDetails
     {
-        //Gets the validation errors associated with this instance of Microsoft.AspNetCore.Mvc.ValidationProblemDetails.
+        //gets the validation errors associated with this instance of Microsoft.AspNetCore.Mvc.ValidationProblemDetails
         [JsonPropertyName("serviceErrors")]
         public string[] serviceErrors { get; set; }
         private StringCollection sericeErrorMessages = new StringCollection();
@@ -40,7 +40,7 @@ namespace OpenBots.Server.Web
 
         private void ConstructErrorMessages(ActionContext context)
         {
-            //Build Error collection
+            //build error collection
             foreach (var keyModelStatePair in context.ModelState)
             {
                 var key = keyModelStatePair.Key;
@@ -63,13 +63,13 @@ namespace OpenBots.Server.Web
                     }
                 }
             }
-            //Build Error Message Collection
+            //build error message collection
             ConstructErrorMessages();
         }
 
         private void ConstructErrorMessages()
         {
-            //Build Error Message Collection
+            //build error messagecollection
             foreach (KeyValuePair<string, string[]> entry in Errors)
             {
                 foreach (string err in entry.Value)

@@ -46,7 +46,7 @@ namespace OpenBots.Server.Business
         {
             var automation = repo.GetOne(automationId);
 
-            // Remove Automation version entity associated with Automation
+            //remove automation version entity associated with automation
             var automationVersion = automationVersionRepository.Find(null, q => q.AutomationId == automationId).Items?.FirstOrDefault();
             Guid automationVersionId = (Guid)automationVersion.Id;
             automationVersionRepository.SoftDelete(automationVersionId);
@@ -55,7 +55,7 @@ namespace OpenBots.Server.Business
 
             if (automation != null)
             {
-                // Remove binary object entity associated with automation
+                //remove binary object entity associated with automation
                 binaryObjectRepository.SoftDelete(automation.BinaryObjectId);
                 repo.SoftDelete(automation.Id.Value);
 
@@ -86,7 +86,7 @@ namespace OpenBots.Server.Business
 
         public async Task<string> Update(Guid binaryObjectId, IFormFile file, string organizationId = "", string apiComponent = "", string name = "")
         {
-            //Update file in OpenBots.Server.Web using relative directory
+            //update file in OpenBots.Server.Web using relative directory
             binaryObjectManager.Update(file, organizationId, apiComponent, binaryObjectId);
 
             //find relative directory where binary object is being saved

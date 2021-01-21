@@ -54,7 +54,7 @@ namespace OpenBots.Server.DataAccess
         protected static void CreateOrganizationMemberModel(EntityTypeBuilder<OrganizationMember> entity)
         {
             if (entity == null) return;
-            //  entity.HasOne(om => om.Organization).WithMany(o => o.Members).OnDelete(DeleteBehavior.Restrict); ;
+            //entity.HasOne(om => om.Organization).WithMany(o => o.Members).OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(om => om.Person).WithMany().OnDelete(DeleteBehavior.Restrict); ;
             entity.Property(e => e.IsDeleted).HasDefaultValue(false);
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("getutcdate()");

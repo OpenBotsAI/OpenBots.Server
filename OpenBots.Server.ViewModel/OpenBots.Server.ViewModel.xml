@@ -55,7 +55,7 @@
             <summary>
             Represents a Person
             </summary>
-            <seealso cref="T:OpenBots.Server.Model.Core.NamedEntity" />
+            <seealso cref="T:OpenBots.Server.Model.Core.NamedEntity"/>
         </member>
     </members>
 </doc>

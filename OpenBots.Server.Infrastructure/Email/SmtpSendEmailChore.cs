@@ -26,7 +26,7 @@ namespace OpenBots.Server.Infrastructure.Email
                 SmtpClient client = new SmtpClient();
                 client.UseDefaultCredentials = false;
                 client.Credentials = new System.Net.NetworkCredential(_smtpSetting.Username, _smtpSetting.EncryptedPassword);
-                client.Port = _smtpSetting.Port; // You can use Port 25 if 587 is blocked
+                client.Port = _smtpSetting.Port; //use Port 25 if 587 is blocked
                 client.Host = _smtpSetting.Host;
                 client.DeliveryMethod = SmtpDeliveryMethod.Network;
                 client.EnableSsl = true;

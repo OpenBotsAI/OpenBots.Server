@@ -297,7 +297,7 @@ namespace OpenBots.Server.Web.Controllers
             var response = await base.DeleteEntity(id);
             _hub.Clients.All.SendAsync("sendnotification", "QueueItem deleted.");
 
-            //Soft delete each queue item attachment entity and binary object entity that correlates to the queue item
+            //soft delete each queue item attachment entity and binary object entity that correlates to the queue item
             var attachmentsList = queueItemAttachmentRepository.Find(null, q => q.QueueItemId == existingQueueItem.Id)?.Items;
             foreach (var attachment in attachmentsList)
             {
@@ -368,7 +368,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 var response = await manager.Enqueue(request);
 
-                // Check if a 'QueueArrival' schedule exists for this Queue
+                //check if a queue arrival schedule exists for this queue
                 Schedule existingSchedule = scheduleRepo.Find(0, 1).Items?.Where(s => s.QueueId == response.QueueId)?.FirstOrDefault();
                 if (existingSchedule != null && existingSchedule.IsDisabled == false && existingSchedule.StartingType.ToLower().Equals("queuearrival"))
                 {
@@ -386,7 +386,7 @@ namespace OpenBots.Server.Web.Controllers
                     schedule.AutomationId = existingSchedule.AutomationId;
 
                     var jsonScheduleObj = System.Text.Json.JsonSerializer.Serialize(schedule);
-                    //Call GetScheduleParameters
+                    //call GetScheduleParameters()
                     var jobId = BackgroundJob.Enqueue(() => hubManager.ExecuteJob(jsonScheduleObj, Enumerable.Empty<ParametersViewModel>()));
                 }
 
@@ -411,11 +411,11 @@ namespace OpenBots.Server.Web.Controllers
                     PayloadSizeInBytes = 0
                 };
 
-                //Create queue item
+                //create queue item
                 IActionResult actionResult = await base.PostEntity(queueItem);
                 await webhookPublisher.PublishAsync("QueueItems.NewQueueItemCreated", response.Id.ToString(), response.Name).ConfigureAwait(false);
 
-                //Send SignalR notification to all connected clients
+                //send SignalR notification to all connected clients
                 await _hub.Clients.All.SendAsync("sendnotification", "New queue item added.");
 
                 QueueItemViewModel queueItemViewModel = new QueueItemViewModel();
@@ -458,7 +458,7 @@ namespace OpenBots.Server.Web.Controllers
                     return BadRequest(ModelState);
                 }
 
-                //Send SignalR notification to all connected clients
+                //send SignalR notification to all connected clients
                 await _hub.Clients.All.SendAsync("sendnotification", "Queue item dequeued.");
 
                 QueueItemViewModel queueItemViewModel = new QueueItemViewModel();
@@ -704,7 +704,7 @@ namespace OpenBots.Server.Web.Controllers
             }
             await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
 
-            //Attach new files
+            //attach new files
             var binaryObjects = manager.UpdateAttachedFiles(request, queueItem);
             foreach (var binaryObject in binaryObjects)
                 await webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);

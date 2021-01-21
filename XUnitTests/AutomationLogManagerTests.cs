@@ -17,7 +17,7 @@ namespace XUnitTests
         [Fact]
         public async Task GetJobLogs()
         {
-            // arrange
+            //arrange
             var options = new DbContextOptionsBuilder<StorageContext>()
                 .UseInMemoryDatabase(databaseName: "ValidatesId")
                 .Options;
@@ -43,7 +43,7 @@ namespace XUnitTests
             var repo = new AutomationLogRepository(context, logger, httpContextAccessor.Object);
             var manager = new AutomationLogManager(repo);
 
-            // act
+            //act
             var validCsv = manager.GetJobLogs(processLogArray);
 
             var lineCount = validCsv.Split('\n').Length;

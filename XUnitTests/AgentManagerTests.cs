@@ -19,7 +19,7 @@ namespace XUnitTests
         [Fact]
         public async Task TestAgentManager()
         {
-            // arrange
+            //arrange
             var options = new DbContextOptionsBuilder<StorageContext>()
                 .UseInMemoryDatabase(databaseName: "AgentManager")
                 .Options;
@@ -94,7 +94,7 @@ namespace XUnitTests
             dummyJob.JobStatus = JobStatusType.Completed;//Removes referential integrity violation
             bool agentWithoutDependant = manager.CheckReferentialIntegrity(agentId.ToString());
             
-            // assert
+            //assert
             Assert.Equal(dummyCredential.Name, validAgentView.CredentialName);
             Assert.Equal(dummyUserAgent.UserName, validAgentView.UserName);
             Assert.True(agentWithDependant);

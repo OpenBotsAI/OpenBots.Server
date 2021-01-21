@@ -399,9 +399,9 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                //Determine top value
+                //determine top value
                 int maxExport = int.Parse(config["App:MaxExportRecords"]);
-                top = top > maxExport | top == 0 ? maxExport : top; //If $top is greater than max or equal to 0 use maxExport value
+                top = top > maxExport | top == 0 ? maxExport : top; //if $top is greater than max or equal to 0 use max export value
                 ODataHelper<Job> oData = new ODataHelper<Job>();
                 string queryString = HttpContext.Request.QueryString.Value;
 
@@ -474,12 +474,12 @@ namespace OpenBots.Server.Web
                 request.Id = entityId;
             try
             {
-                Job job = request.Map(request); //Assign request to job entity
+                Job job = request.Map(request); //assign request to job entity
                 Automation automation = automationRepo.GetOne(job.AutomationId ?? Guid.Empty);
                 
-                if (automation == null) //No automation was found
+                if (automation == null) //no automation was found
                 {
-                    ModelState.AddModelError("Save", "No automation was found for the specified automation ID");
+                    ModelState.AddModelError("Save", "No automation was found for the specified automation id");
                     return NotFound(ModelState);
                 }
                 AutomationVersion automationVersion = automationVersionRepo.Find(null, q => q.AutomationId == automation.Id).Items?.FirstOrDefault();
@@ -496,7 +496,7 @@ namespace OpenBots.Server.Web
                     jobParameterRepo.Add(parameter);
                 }
 
-                //Send SignalR notification to all connected clients 
+                //send SignalR notification to all connected clients 
                 await _hub.Clients.All.SendAsync("botnewjobnotification", request.AgentId.ToString());
                 await _hub.Clients.All.SendAsync("sendjobnotification", "New Job added.");
                 await _hub.Clients.All.SendAsync("broadcastnewjobs", Tuple.Create(request.Id,request.AgentId,request.AutomationId));
@@ -542,7 +542,7 @@ namespace OpenBots.Server.Web
                 if (existingJob == null) return NotFound("Unable to find a Job for the specified ID");
 
                 Automation automation = automationRepo.GetOne(existingJob.AutomationId ?? Guid.Empty);
-                if (automation == null) //No automation was found
+                if (automation == null) //no automation was found
                 {
                     ModelState.AddModelError("Save", "No automation was found for the specified automation ID");
                     return NotFound(ModelState);
@@ -586,7 +586,7 @@ namespace OpenBots.Server.Web
                     jobManager.UpdateAutomationAverages(existingJob.Id);
                 }
 
-                //Send SignalR notification to all connected clients 
+                //send SignalR notification to all connected clients 
                 await webhookPublisher.PublishAsync("Jobs.JobUpdated", existingJob.Id.ToString()).ConfigureAwait(false);
                 await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", existingJob.Id));
 
@@ -671,7 +671,7 @@ namespace OpenBots.Server.Web
                 existingJob.SerializedErrorString = string.IsNullOrEmpty(jobErrors.SerializedErrorString) ? existingJob.SerializedErrorString : jobErrors.ErrorReason;
 
                 var response = await base.PutEntity(id, existingJob);
-                //Send SignalR notification to all connected clients 
+                //send SignalR notification to all connected clients 
                 await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", existingJob.Id));
                 await webhookPublisher.PublishAsync("Jobs.JobUpdated", existingJob.Id.ToString()).ConfigureAwait(false);
 
@@ -713,7 +713,7 @@ namespace OpenBots.Server.Web
             jobManager.DeleteExistingParameters(jobId);
             jobManager.DeleteExistingCheckpoints(jobId);
 
-            //Send SignalR notification to all connected clients 
+            //send SignalR notification to all connected clients 
             await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} deleted.", id));
             await webhookPublisher.PublishAsync("Jobs.JobDeleted", existingJob.Id.ToString()).ConfigureAwait(false);
 
@@ -768,7 +768,7 @@ namespace OpenBots.Server.Web
                     jobManager.UpdateAutomationAverages(existingJob.Id);
                 }
 
-                //Send SignalR notification to all connected clients 
+                //send SignalR notification to all connected clients 
                 await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", id));
                 await webhookPublisher.PublishAsync("Jobs.JobUpdated", existingJob.Id.ToString()).ConfigureAwait(false);
 

@@ -13,7 +13,7 @@ namespace OpenBots.Server.Business
             this.repo = repo;
         }
 
-        public bool ValidateRetrievalDate(Credential credential) //Ensure Current Date falls within Start-End Date range
+        public bool ValidateRetrievalDate(Credential credential) //ensure current date falls within start-end date range
         {
             if (credential.StartDate != null)
             {
@@ -34,9 +34,9 @@ namespace OpenBots.Server.Business
             return true;
         }
 
-        public bool ValidateStartAndEndDates(Credential credential) //Validate Start and EndDate Values
+        public bool ValidateStartAndEndDates(Credential credential) //validate start and end date values
         {
-            if (credential.StartDate == null || credential.EndDate == null) //Valid if either wasn't provided
+            if (credential.StartDate == null || credential.EndDate == null) //valid if either wasn't provided
             {
                 return true;
             }

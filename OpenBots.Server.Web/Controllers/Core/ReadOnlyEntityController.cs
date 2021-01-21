@@ -114,7 +114,7 @@ namespace OpenBots.Server.WebAPI.Controllers
 
                 if (!string.IsNullOrEmpty(etag) && etag.Equals(timeStamp, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return StatusCode(304); // Not Modified if ETag is same as Current Timestamp
+                    return StatusCode(304); //not modified if ETag is same as current timestamp
                 }
             }
             try
@@ -224,7 +224,7 @@ namespace OpenBots.Server.WebAPI.Controllers
 
                 if (!string.IsNullOrEmpty(etag) && etag.Equals(timeStamp, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return StatusCode(304); // Not Modified if ETag is same as Current Timestamp
+                    return StatusCode(304); //not modified if ETag is same as current timestamp
                 }
             }
             try

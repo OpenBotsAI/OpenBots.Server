@@ -41,15 +41,15 @@ namespace OpenBots.Server.Web.Webhooks
         }
 
         /// <summary>
-        /// Publishes Webhooks to all subscriptions
+        /// Publishes IntegrationEvents to all subscriptions
         /// </summary>
-        /// <param name="integrationEventName"> Unique Name for integration event</param>
+        /// <param name="integrationEventName"> Unique name for IntegrationEvent</param>
         /// <param name="entityId">Optional parameter that specifies the entity which was affected</param>
         /// <param name="entityName">Optional parameter that specifies the name of the affected entity</param>
         /// <returns></returns>
         public async Task PublishAsync(string integrationEventName, string entityId = "", string entityName = "")
         {
-            //Get all subscriptions for the event.
+            //get all subscriptions for the event
             var eventSubscriptions = eventSubscriptionRepository.Find(0, 1).Items?.
                 Where(s => s.IntegrationEventName == integrationEventName || s.EntityID == Guid.Parse(entityId)); 
 
@@ -58,13 +58,13 @@ namespace OpenBots.Server.Web.Webhooks
                 return;
             }
 
-            //Get current Integration Event
+            //get current integration event
             var integrationEvent = eventRepository.Find(0, 1).Items?.Where(e => e.Name == integrationEventName).FirstOrDefault();
 
             if (integrationEvent == null) return;
             WebhookPayload payload = CreatePayload(integrationEvent, entityId, entityName);
 
-            //Log Integration Event
+            //log integration event
             IntegrationEventLog eventLog = new IntegrationEventLog()
             {
                 IntegrationEventName = integrationEventName,
@@ -80,17 +80,17 @@ namespace OpenBots.Server.Web.Webhooks
             eventLog = eventLogRepository.Add(eventLog);
 
 
-            // Get subscriptions that must receive webhook
+            //get subscriptions that must receive webhook
             foreach (var eventSubscription in eventSubscriptions)
             {
-                //Handle subscriptions that should not get notified
+                //handle subscriptions that should not get notified
                 if (!((eventSubscription.IntegrationEventName == integrationEventName || eventSubscription.IntegrationEventName == null)
                     && (eventSubscription.EntityID == new Guid(entityId) || eventSubscription.EntityID == null)))
                 {
-                    continue; //Do not create an attempt in this case
+                    continue; //do not create an attempt in this case
                 }
 
-                // Create new IntegrationEventSubscriptionAttempt
+                //create new IntegrationEventSubscriptionAttempt
                 IntegrationEventSubscriptionAttempt subscriptionAttempt = new IntegrationEventSubscriptionAttempt()
                 {
                     EventLogID = eventLog.Id,
@@ -140,7 +140,7 @@ namespace OpenBots.Server.Web.Webhooks
 
         private static WebhookPayload CreatePayload(IntegrationEvent integrationEvent, string entityId, string entityName)
         {
-            //Create Payload object
+            //create payload object
             var newPayload = new WebhookPayload
             {
                 EventId = integrationEvent.Id,

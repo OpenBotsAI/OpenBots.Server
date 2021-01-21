@@ -10,10 +10,10 @@ namespace OpenBots.Server.Security
     {
         /// <summary>
         /// Generates a Random Password
-        /// respecting the given strength requirements.
+        /// respecting the given strength requirements
         /// </summary>
         /// <param name="opts">A valid PasswordOptions object
-        /// containing the password strength requirements.</param>
+        /// containing the password strength requirements</param>
         /// <returns>A random password</returns>
         public string GenerateRandomPassword(PasswordOptions opts = null)
         {
@@ -28,10 +28,10 @@ namespace OpenBots.Server.Security
             };
 
             string[] randomChars = new[] {
-                "ABCDEFGHJKLMNOPQRSTUVWXYZ",    // uppercase 
-                "abcdefghijkmnopqrstuvwxyz",    // lowercase
-                "0123456789",                   // digits
-                "!@$?_-"                        // non-alphanumeric
+                "ABCDEFGHJKLMNOPQRSTUVWXYZ",    //uppercase 
+                "abcdefghijkmnopqrstuvwxyz",    //lowercase
+                "0123456789",                   //digits
+                "!@$?_-"                        //non-alphanumeric
             };
             Random rand = new Random(Environment.TickCount);
             List<char> chars = new List<char>();

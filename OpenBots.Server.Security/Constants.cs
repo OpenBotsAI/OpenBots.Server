@@ -2,7 +2,7 @@
 {
     public class Constants
     {
-        //Connection string
+        //connection string
         public const string ConnectionStringDefault = "DefaultConnection";
         public const string PRODUCT = "OpenBots Server";
     }

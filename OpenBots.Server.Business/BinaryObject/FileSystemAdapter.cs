@@ -15,7 +15,7 @@ namespace OpenBots.Server.Business
 
         public string SaveFile(IFormFile file, string path, string organizationId, string apiComponent, string binaryObjectId)
         {
-            //Save file to OpenBots.Server.Web/BinaryObjects/{organizationId}/{apiComponent}/{binaryObjectId}
+            //save file to OpenBots.Server.Web/BinaryObjects/{organizationId}/{apiComponent}/{binaryObjectId}
             apiComponent = apiComponent ?? string.Empty;
             var target = Path.Combine(path, organizationId, apiComponent);
 
@@ -47,7 +47,7 @@ namespace OpenBots.Server.Business
 
         public void UpdateFile(IFormFile file, string path, string organizationId, string apiComponent, Guid binaryObjectId)
         {
-            //Update file to OpenBots.Server.Web/BinaryObjects/{organizationId}/{apiComponent}/{binaryObjectId}
+            //update file to OpenBots.Server.Web/BinaryObjects/{organizationId}/{apiComponent}/{binaryObjectId}
             apiComponent = apiComponent ?? string.Empty;
             var target = Path.Combine(path, organizationId, apiComponent);
 

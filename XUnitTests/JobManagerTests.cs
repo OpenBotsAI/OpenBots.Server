@@ -24,7 +24,7 @@ namespace XUnitTests
 
         public JobManagerTests()
         {
-            // Arrange
+            //arrange
             var options = new DbContextOptionsBuilder<StorageContext>()
                 .UseInMemoryDatabase(databaseName: "JobManager")
                 .Options;
@@ -34,7 +34,7 @@ namespace XUnitTests
             completedJobAgentId = Guid.NewGuid();
             newJobId = Guid.NewGuid();
             
-            //Job with status of new
+            //job with status of new
             Job newDummyJob = new Job 
             {
                 Id = Guid.NewGuid(),
@@ -43,7 +43,7 @@ namespace XUnitTests
                 CreatedOn = DateTime.UtcNow
             };
 
-            // Job with status of completed
+            //job with status of completed
             Job completedDummyJob = new Job
             {
                 Id = Guid.NewGuid(),
@@ -52,7 +52,7 @@ namespace XUnitTests
                 CreatedOn = DateTime.UtcNow
             };
 
-            // Job Parameter to be removed
+            //job Parameter to be removed
             jobParameter = new JobParameter
             {
                 Id = Guid.NewGuid(),
@@ -67,21 +67,21 @@ namespace XUnitTests
                 completedDummyJob
             };
 
-            //Populate in memory database
+            //populate in memory database
             Seed(context, jobsToAdd, jobParameter);
 
-            //Create loggers
+            //create loggers
             var jobLogger = Mock.Of<ILogger<Job>>();
             var agentLogger = Mock.Of<ILogger<Agent>>();
             var processLogger = Mock.Of<ILogger<Automation>>();
             var jobParameterLogger = Mock.Of<ILogger<JobParameter>>();
             var jobCheckpointLogger = Mock.Of<ILogger<JobCheckpoint>>();
 
-            // Context accessor
+            //context accessor
             var httpContextAccessor = new Mock<IHttpContextAccessor>();
             httpContextAccessor.Setup(req => req.HttpContext.User.Identity.Name).Returns(It.IsAny<string>());
 
-            // Instance of necessary repositories
+            //instance of necessary repositories
             var jobRepository = new JobRepository(context, jobLogger, httpContextAccessor.Object);
             var agentRepo = new AgentRepository(context, agentLogger, httpContextAccessor.Object);
             var automationRepo = new AutomationRepository(context, processLogger, httpContextAccessor.Object);
@@ -92,43 +92,43 @@ namespace XUnitTests
             manager = new JobManager(jobRepository, agentRepo, automationRepo, jobParameterRepo, jobCheckpointRepo);
         }
 
-        // Gets the next job that has not been picked up for the specified agent ID
+        //gets the next job that has not been picked up for the specified agent id
         [Fact]
         public async Task GetNextJob()
         {
-            // act
+            //act
             var jobsAvailable = manager.GetNextJob(newJobAgentId);
             var jobsCompleted  = manager.GetNextJob(completedJobAgentId);
 
-            // assert
-            Assert.True(jobsAvailable.IsJobAvailable); //Agent ID with a new Job
-            Assert.False(jobsCompleted.IsJobAvailable); // Agent ID without a new JobS
+            //assert
+            Assert.True(jobsAvailable.IsJobAvailable); //agent id with a new job
+            Assert.False(jobsCompleted.IsJobAvailable); //agent id without a new job
         }
 
-        //Get the Job Parameters for the specified Job ID
+        //get the job parameters for the specified job id
         [Fact]
         public async Task GetJobParameters()
         {
-            // act
+            //act
             var jobParameters = manager.GetJobParameters(newJobId);
 
-            // assert
+            //assert
             Assert.Equal(jobParameter,jobParameters.First());
         }
 
-        //Delete Job Parameters for the specified Job ID
+        //delete job parameters for the specified job id
         [Fact]
         public async Task DeleteExistingParameters()
         {
-            // act
+            //act
             manager.DeleteExistingParameters(newJobId);
             var jobParameters = manager.GetJobParameters(newJobId);
 
-            // assert
+            //assert
             Assert.Empty(jobParameters);
         }
 
-        //Used to seed the InMemory Database
+        //used to seed the in-memory database
         private void Seed(StorageContext context, Job[] jobs, JobParameter jobParameter)
         {
             context.Jobs.AddRange(jobs);

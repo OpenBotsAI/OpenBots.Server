@@ -33,11 +33,12 @@ namespace OpenBots.Server.Web.Hangfire
                 return;
             }
 
-            //Attempt to authenticate against default auth scheme (this will attempt to authenticate using data in request, but doesn't send challenge)
+            //attempt to authenticate against default auth scheme (this will attempt to authenticate using data in request,
+            //but doesn't send challenge)
             var result = await httpContext.AuthenticateAsync();
             if (!result.Succeeded)
             {
-                //Request was not authenticated, send challenge and do not continue processing this request
+                //request was not authenticated, send challenge and do not continue processing this request
                 await httpContext.ChallengeAsync();
                 return;
             }
@@ -87,8 +88,8 @@ namespace OpenBots.Server.Web.Hangfire
                 return;
             }
 
-            //Attempt to authenticate against Cookies scheme.
-            //This will attempt to authenticate using data in request, but doesn't send challenge.
+            //attempt to authenticate against cookies scheme
+            //this will attempt to authenticate using data in request, but doesn't send challenge
             var result = await httpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             if (!result.Succeeded)
             {

@@ -24,7 +24,7 @@ namespace OpenBots.Server.Business
             int? attemptCount = 0;
             var previousAttempt = GetLastAttempt(currentAttempt);
 
-            //If no attempt exists, then this is the first attempt
+            //if no attempt exists, then this is the first attempt
             if (previousAttempt == null)
             {
                 attemptCount = 1;

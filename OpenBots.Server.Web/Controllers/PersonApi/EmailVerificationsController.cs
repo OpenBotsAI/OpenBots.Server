@@ -129,10 +129,10 @@ namespace OpenBots.Server.WebAPI.Controllers
         public async Task<IActionResult> Post(string personId, [FromBody] EmailVerification value)
         {
             value.PersonId = new Guid(personId);
-            //Check the email address in verification email table
+            //check the email address in verification email table
             var emailVerification = repository.Find(null, p=> p.Address.Equals(value.Address, StringComparison.OrdinalIgnoreCase))?.Items?.FirstOrDefault();
             
-            //If not null then email address already exists
+            //if not null then email address already exists
             if (emailVerification != null) {
                 ModelState.AddModelError("EmailAddress", "email address already in use");
                 return BadRequest(ModelState);
@@ -141,7 +141,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             value.IsVerified = false;
             try
             {
-                //Resending 
+                //resending 
                 byte[] time = BitConverter.GetBytes(DateTime.UtcNow.ToBinary());
                 byte[] key = applicationUser.PersonId.ToByteArray();
                 string token = Convert.ToBase64String(time.Concat(key).ToArray());

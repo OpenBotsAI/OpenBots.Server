@@ -245,7 +245,7 @@ namespace OpenBots.Server.Web.Controllers
                 return BadRequest(ModelState);
             }
 
-            //Validate the cron expression
+            //validate the cron expression
             if (!string.IsNullOrWhiteSpace(request.CRONExpression))
             {
                 try
@@ -265,7 +265,7 @@ namespace OpenBots.Server.Web.Controllers
 
             try
             {
-                Schedule requestObj = request.Map(request); //Assign request to Schedule entity
+                Schedule requestObj = request.Map(request); //assign request to schedule entity
 
                 foreach (var parameter in request.Parameters ?? Enumerable.Empty<ParametersViewModel>())
                 {
