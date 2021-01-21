@@ -82,20 +82,18 @@ namespace OpenBots.Server.Business
             Agent agent = agentRepo.GetOne(Guid.Parse(agentId));
             if (agent == null) return agent;
 
-            if (string.IsNullOrEmpty(agent.IPAddresses) == false)
+            if (agent.IsEnhancedSecurity == true)
             {
                 if (agent.IPAddresses != requestIp)
                 {
                     throw new UnauthorizedAccessException("The IP address provided does not match this Agent's IP address");
                 }
-            }
-            if (string.IsNullOrEmpty(agent.MacAddresses) == false)
-            {
                 if (agent.MacAddresses != request.MacAddresses)
                 {
                     throw new UnauthorizedAccessException("The MAC address provided does not match this Agent's MAC address");
                 }
             }
+
             if (agent.MachineName != request.MachineName)
             {
                 throw new UnauthorizedAccessException("The machine name provided does not match this Agent's machine name");
