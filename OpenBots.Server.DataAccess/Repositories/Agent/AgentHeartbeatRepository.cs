@@ -63,10 +63,23 @@ namespace OpenBots.Server.DataAccess.Repositories
 
                 paginatedList.Items = filterRecord.Skip(skip).Take(take).ToList();
 
+
+                if (skip == 0 || take == 0)
+                {
+                    paginatedList.PageNumber = 0;
+                    paginatedList.PageSize = 0;
+                }
+                else
+                {
+                    int pageNumber = skip;
+                    if (skip != 0 && take != 0)
+                        pageNumber = skip / take;
+
+                    paginatedList.PageNumber = pageNumber;
+                    paginatedList.PageSize = take;
+                }
                 paginatedList.Completed = itemsList.Completed;
                 paginatedList.Impediments = itemsList.Impediments;
-                paginatedList.PageNumber = itemsList.PageNumber;
-                paginatedList.PageSize = itemsList.PageSize;
                 paginatedList.ParentId = itemsList.ParentId;
                 paginatedList.Started = itemsList.Started;
                 paginatedList.TotalCount = filterRecord?.Count;
