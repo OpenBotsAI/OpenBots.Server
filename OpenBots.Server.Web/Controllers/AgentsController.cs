@@ -381,6 +381,8 @@ namespace OpenBots.Server.Web.Controllers
                 existingAgent.IPAddresses = request.IPAddresses;
                 existingAgent.IsEnabled = request.IsEnabled;
                 existingAgent.CredentialId = request.CredentialId;
+                existingAgent.IPOption = request.IPOption;
+                existingAgent.IsEnhancedSecurity = request.IsEnhancedSecurity;
 
                 await webhookPublisher.PublishAsync("Agents.AgentUpdated", existingAgent.Id.ToString(), existingAgent.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingAgent);
@@ -713,16 +715,20 @@ namespace OpenBots.Server.Web.Controllers
                 queryString = HttpContext.Request.QueryString.Value;
 
             oData.Parse(queryString);
-            Guid parentguid = Guid.Empty;
+            Guid parentguid = Guid.Parse(agentId);
 
-            var result =  agentHeartbeatRepo.Find(parentguid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip, oData.Top);
-            var items = result.Items.Where(a => a.AgentId == new Guid(agentId));
+            var newNode = oData.ParseOrderByQuery(queryString);
+            if (newNode == null)
+                newNode = new OrderByNode<AgentHeartbeat>();
 
-            PaginatedList<AgentHeartbeat> heartbeats = new PaginatedList<AgentHeartbeat>(items);
-            heartbeats.PageNumber = result.PageNumber;
-            heartbeats.PageSize = result.PageSize;
+            Predicate<AgentHeartbeat> predicate = null;
+            if (oData != null && oData.Filter != null)
+                predicate = new Predicate<AgentHeartbeat>(oData.Filter);
+            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
 
-            return Ok(heartbeats);
+            var result =  agentHeartbeatRepo.FindAllHeartbeats(parentguid, predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+
+            return Ok(result);
         }
 
         /// <summary>

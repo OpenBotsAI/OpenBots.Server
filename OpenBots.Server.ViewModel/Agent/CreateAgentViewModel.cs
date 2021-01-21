@@ -25,6 +25,8 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
         public string UserName { get; set; }
         [Required(ErrorMessage = "Please enter your password.")]
         public string Password { get; set; }
+        public string IPOption { get; set; }
+        public bool IsEnhancedSecurity { get; set; }
 
         public Agent Map(CreateAgentViewModel viewModel)
         {
@@ -37,7 +39,9 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
                 IPAddresses = viewModel.IPAddresses,
                 IsEnabled = viewModel.IsEnabled,
                 IsConnected = viewModel.IsConnected,
-                CredentialId = viewModel.CredentialId
+                CredentialId = viewModel.CredentialId,
+                IPOption = viewModel.IPOption,
+                IsEnhancedSecurity = viewModel.IsEnhancedSecurity
             };
 
             return agent;
