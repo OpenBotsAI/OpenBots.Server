@@ -479,7 +479,7 @@
             Controller for binary object files
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.BinaryObjectsController.#ctor(OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.Business.IOrganizationManager,OpenBots.Server.Web.Webhooks.IWebhookPublisher)">
+        <member name="M:OpenBots.Server.Web.Controllers.BinaryObjectsController.#ctor(OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IBinaryObjectManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.Web.Webhooks.IWebhookPublisher)">
             <summary>
             BinaryObjectsController constructor
             </summary>
@@ -1284,24 +1284,22 @@
             Controller for files
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.#ctor(OpenBots.Server.Business.Interfaces.IFileManager,OpenBots.Server.DataAccess.Repositories.Interfaces.IServerFileRepository,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Hosting.IHostingEnvironment)">
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.#ctor(OpenBots.Server.Business.Interfaces.IFileManager,OpenBots.Server.DataAccess.Repositories.Interfaces.IServerFileRepository,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration)">
             <summary>
             FilesController constructor
             </summary>
             <param name="manager"></param>
-            <param name="serverFileRepository"></param>
             <param name="configuration"></param>
             <param name="httpContextAccessor"></param>
             <param name="membershipManager"></param>
             <param name="userManager"></param>
-            <param name="hostingEnvironment"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.FilesController.FileOperations(Syncfusion.EJ2.FileManager.Base.FileManagerDirectoryContent)">
             <summary>
             Conduct basic file and/or folder operations: read, delete, copy, move, details, create, search, and rename
             </summary>
             <param name="args"></param>
-            <returns>Object as a result of the operation</returns>
+            <returns>Object as a result of the operation type</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.FilesController.Upload(System.String,System.Collections.Generic.IList{Microsoft.AspNetCore.Http.IFormFile},System.String)">
             <summary>
@@ -1310,7 +1308,7 @@
             <param name="path"></param>
             <param name="uploadFiles"></param>
             <param name="action"></param>
-            <returns>Content</returns>
+            <returns>200 OK response</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.FilesController.Download(System.String)">
             <summary>
@@ -1324,7 +1322,7 @@
             Gets the image(s) from the given path
             </summary>
             <param name="args"></param>
-            <returns></returns>
+            <returns>Requested image from the given path</returns>
         </member>
         <member name="T:OpenBots.Server.Web.Controllers.Queue.QueueItemAttachmentsController">
             <summary>
@@ -3144,20 +3142,6 @@
             <response code="404">Not found, when no job exists for the given job id</response>
             <response code="422">Unprocessable entity</response>
             <returns>JobCheckpoint details for the given id</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Webhooks.WebhookPublisher.PublishAsync(System.String,System.String,System.String)">
-            <summary>
-            Publishes Webhooks to all subscriptions
-            </summary>
-            <param name="integrationEventName"> Unique Name for integration event</param>
-            <param name="entityId">Optional parameter that specifies the entity which was affected</param>
-            <param name="entityName">Optional parameter that specifies the name of the affected entity</param>
-            <returns></returns>
-        </member>
-        <member name="T:OpenBots.Server.Web.Webhooks.WebhookSender">
-            <summary>
-            Uses a new HttpClient to send integration events to subscrubed URLs
-            </summary>
         </member>
         <member name="T:OpenBots.Server.WebAPI.Controllers.AppController">
             <summary>

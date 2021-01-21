@@ -532,7 +532,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 if (agent == null)
                 {
-                    return NotFound("No Agent was found with the given Agent ID");
+                    return NotFound();
                 }
 
                 if (agent.IsConnected == false)
@@ -583,7 +583,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 if (agent == null)
                 {
-                    return NotFound("Agent not found");
+                    return NotFound();
                 }
                 if (agent.IsConnected == false)
                 {
@@ -655,6 +655,7 @@ namespace OpenBots.Server.Web.Controllers
                 request.AgentId = new Guid(agentId);
                 request.CreatedBy = applicationUser?.UserName;
                 request.CreatedOn = DateTime.UtcNow;
+                request.LastReportedOn = request.LastReportedOn ?? DateTime.UtcNow;
                 agentHeartbeatRepo.Add(request);
                 var resultRoute = "GetAgentHeartbeat";
 
@@ -714,8 +715,13 @@ namespace OpenBots.Server.Web.Controllers
             oData.Parse(queryString);
             Guid parentguid = Guid.Empty;
 
-            return Ok(agentHeartbeatRepo.Find(parentguid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip,
-                oData.Top).Items.Where(a => a.AgentId == new Guid(agentId)));
+            var result = agentHeartbeatRepo.Find(parentguid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip, oData.Top);
+            var items = result.Items.Where(a => a.AgentId == new Guid(agentId));
+            PaginatedList<AgentHeartbeat> heartbeats = new PaginatedList<AgentHeartbeat>(items);
+            heartbeats.PageNumber = result.PageNumber;
+            heartbeats.PageSize = result.PageSize;
+
+            return Ok(heartbeats);
         }
 
         /// <summary>

@@ -169,6 +169,16 @@
             Type of automation that will be executed (i.e. OpenBots, Python, etc.)
             </summary>
         </member>
+        <member name="P:OpenBots.Server.Model.Automation.AverageSuccessfulExecutionInMinutes">
+            <summary>
+            Average execution time in minutes of successful jobs that execute this process 
+            </summary>
+        </member>
+        <member name="P:OpenBots.Server.Model.Automation.AverageUnSuccessfulExecutionInMinutes">
+            <summary>
+            Average execution time in minutes of unsuccessful jobs that execute this process 
+            </summary>
+        </member>
         <member name="T:OpenBots.Server.Model.BinaryObject">
             <summary>
             Binary Object data model

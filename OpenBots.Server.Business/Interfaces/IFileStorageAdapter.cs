@@ -4,11 +4,11 @@ namespace OpenBots.Server.Business.Interfaces
 {
     public interface IFileStorageAdapter
     {
-        public FileViewModel GetFile(string path);
+        public object DownloadFile(string downloadInput);
 
-        public FileViewModel SaveFile(SaveServerFileViewModel request);
+        public void SaveFile(SaveServerFileViewModel viewModel);
 
-        public FileViewModel UpdateFile(UpdateServerFileViewModel request);
+        public void UpdateFile(UpdateServerFileViewModel request);
 
         public void DeleteFile(string path);
     }
