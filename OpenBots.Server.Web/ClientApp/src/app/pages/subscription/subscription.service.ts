@@ -44,6 +44,10 @@ export class SubscriptionService {
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
+  filterIntegrationEventName(entityname: any) {
+    let getagentUrl = `/IntegrationEvents?$filter=${entityname}`;
+    return this.http.get(`${this.apiUrl}` + getagentUrl);
+  }
   filterSubscriptionName(entityname: any, tpage: any, spage: any) {
     let getagentUrl = `/${SubscribeApiUrl.IntegrationEventSubscriptions}?$filter=${entityname}&$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
@@ -78,6 +82,4 @@ export class SubscriptionService {
     let getagentUrlbyId = `/${SubscribeApiUrl.IntegrationEventSubscriptions}/${id}`;
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId, resoptions);
   }
-
-  
 }
