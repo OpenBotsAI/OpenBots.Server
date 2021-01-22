@@ -13,7 +13,7 @@ import { IpVersion, RxwebValidators } from '@rxweb/reactive-form-validators';
 })
 export class EditAgentsComponent implements OnInit {
   addagent: FormGroup;
-  submitted = false;
+  isSubmitted = false;
   agent_id: any = [];
   cred_value: any = [];
   show_allagents: any = [];
@@ -81,7 +81,7 @@ export class EditAgentsComponent implements OnInit {
   }
 
   onSubmit() {
-    this.submitted = true;
+    this.isSubmitted = true;
     this.agentService
       .editAgent(this.agent_id, this.addagent.value, this.etag)
       .subscribe(
@@ -93,12 +93,12 @@ export class EditAgentsComponent implements OnInit {
           if (error.error.status === 409) {
             this.toastrService.danger(error.error.serviceErrors, 'error');
             this.get_allagent(this.agent_id);
-            this.submitted = false;
+            this.isSubmitted = false;
           }
           if (error.error.status === 429) {
             this.toastrService.danger(error.error.serviceErrors, 'error');
             // this.get_allagent(this.agent_id)
-            this.submitted = false;
+            this.isSubmitted = false;
           }
         }
       );
@@ -119,16 +119,42 @@ export class EditAgentsComponent implements OnInit {
       this.ipVersion = 'V4';
       this.addagent
         .get('ipAddresses')
-        .setValidators(RxwebValidators.ip({ version: IpVersion.V4 }));
-      this.addagent.updateValueAndValidity();
+        .setValidators([
+          Validators.required,
+          RxwebValidators.ip({ version: IpVersion.V4 }),
+        ]);
+      this.addagent.get('ipAddresses').updateValueAndValidity();
     } else {
       this.ipVersion = 'V6';
       this.addagent
         .get('ipAddresses')
-        .setValidators(RxwebValidators.ip({ version: IpVersion.V6 }));
-      this.addagent.get('ipAddresses').markAsDirty();
-      this.addagent.get('ipAddresses').markAsTouched();
-      this.addagent.updateValueAndValidity();
+        .setValidators([
+          Validators.required,
+          RxwebValidators.ip({ version: IpVersion.V6 }),
+        ]);
+      this.addagent.get('ipAddresses').updateValueAndValidity();
+    }
+  }
+
+  check(checked: boolean) {
+    this.checked = checked;
+    if (checked) {
+      this.addagent
+        .get('macAddresses')
+        .setValidators([Validators.required, RxwebValidators.mac()]);
+      this.addagent.get('macAddresses').updateValueAndValidity();
+      this.addagent
+        .get('ipAddresses')
+        .setValidators([
+          Validators.required,
+          RxwebValidators.ip({ version: IpVersion.V4 }),
+        ]);
+      this.addagent.get('ipAddresses').updateValueAndValidity();
+    } else {
+      this.addagent.get('ipAddresses').clearValidators();
+      this.addagent.get('ipAddresses').updateValueAndValidity();
+      this.addagent.get('macAddresses').clearValidators();
+      this.addagent.get('macAddresses').updateValueAndValidity();
     }
   }
 }

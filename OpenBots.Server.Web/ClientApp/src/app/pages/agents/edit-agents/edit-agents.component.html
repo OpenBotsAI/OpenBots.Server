@@ -6,7 +6,7 @@
         <form [formGroup]="addagent">
           <div class="row">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <label for="agentname" class="label">Agent Name</label>
+              <label for="agentname" class="label">Agent Name *</label>
               <input type="input" nbInput fullWidth id="agentname" formControlName="name" class="form-control"
                 (keypress)="handleInput($event)" placeholder="Please enter agent name">
               <div *ngIf="(f.name.touched || f.name.dirty)  && f.name.invalid" class="invalid-feedback-frm">
@@ -23,7 +23,7 @@
               </div>
             </div>
             <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <label for="machinename" class="label">Machine Name</label>
+              <label for="machinename" class="label">Machine Name *</label>
               <input type="input" nbInput fullWidth id="machineName" formControlName="machineName" class="form-control"
                 (keypress)="handleInput($event)" placeholder="Please enter machine name">
               <div *ngIf="(f.machineName.touched || f.machineName.dirty) && f.machineName.invalid"
@@ -41,7 +41,7 @@
           <div class="row rowPadTOp">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="email" class="label"> Enhanced Security</label>
-              <nb-checkbox class="enhanceBtn" formControlName="isEnhancedSecurity">
+              <nb-checkbox class="enhanceBtn" formControlName="isEnhancedSecurity" (checkedChange)="check($event)">
               </nb-checkbox>
 
 
@@ -54,16 +54,20 @@
               </div> -->
             </div>
             <div class="col-md-6 col-lg-6 col-xxxl-6" *ngIf="addagent.value.isEnhancedSecurity">
-              <label for="macaddress" class="label">Mac Addresses </label>
+              <label for="macaddress" class="label">Mac Addresses *</label>
               <input type="input" nbInput fullWidth id="macAddresses" formControlName="macAddresses"
                 (keyup)="handleInput($event)" class="form-control" placeholder="Please enter mac address">
-              <!-- <div *ngIf="f.macAddresses.touched && f.macAddresses.invalid" class="invalid-feedback-frm">
-                <div *ngIf="f.macAddresses.errors && f.macAddresses.errors.required"> Mac Address is required.</div>
-              </div> -->
-              <!-- <label for="ipadd" class="label"  >Ip Address</label>
-              <input type="input" nbInput fullWidth id="ipAddresses" formControlName="ipAddresses" class="form-control" (keypress)="handleInput($event)"
-                placeholder="Please enter ipAddress">
-                <div *ngIf="(f.ipAddresses.touched || f.ipAddresses.dirty) && f.ipAddresses.invalid" class="invalid-feedback-frm">
+              <div *ngIf="f.macAddresses.touched && f.macAddresses.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.macAddresses.errors && f.macAddresses.errors.required"> Mac address is required.</div>
+                <div *ngIf="f.macAddresses.errors?.mac">
+                  Please enter valid mac address.
+                </div>
+              </div>
+              <!-- <label for="ipadd" class="label">Ip Address *</label>
+              <input type="input" nbInput fullWidth id="ipAddresses" formControlName="ipAddresses" class="form-control"
+                (keypress)="handleInput($event)" placeholder="Please enter ipAddress">
+              <div *ngIf="(f.ipAddresses.touched || f.ipAddresses.dirty) && f.ipAddresses.invalid"
+                class="invalid-feedback-frm">
                 <div *ngIf="f.ipAddresses.errors && f.ipAddresses.errors.required"> IpAddress is required.</div>
                 <div *ngIf="f.ipAddresses.errors.pattern">
                   Please enter valid Ip .
@@ -85,16 +89,16 @@
               </nb-radio-group>
             </div>
             <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <label for="ipadd" class="label">IP ({{ipVersion}}) Address</label>
+              <label for="ipadd" class="label">IP ({{ipVersion}}) Address *</label>
               <input type="input" nbInput fullWidth id="ipAddresses" formControlName="ipAddresses"
                 (keyup)="handleInput($event)" class="form-control" placeholder="Please enter IP Address"
                 disallow-spaces>
               <div *ngIf="(f.ipAddresses.touched || f.ipAddresses.dirty) && f.ipAddresses.invalid"
                 class="invalid-feedback-frm">
-                <div *ngIf="f.ipAddresses.errors && f.ipAddresses.errors.required"> IP ({{ipVersion}}) Address is
+                <div *ngIf="f.ipAddresses.errors && f.ipAddresses.errors.required"> IP ({{ipVersion}}) address is
                   required.
                 </div>
-                <div *ngIf="f.ipAddresses.errors.pattern">
+                <div *ngIf="f.ipAddresses.errors?.ip">
                   Please enter valid Ip.
                 </div>
               </div>
@@ -107,7 +111,7 @@
 
           <div class="row rowPadTOp">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <label for="queueitemtype" class="label">OS Logon Credentials</label>
+              <label for="queueitemtype" class="label">OS Logon Credentials *</label>
               <select class="custom-select" formControlName="CredentialId">
                 <option value='' [disabled]='true' selected>Please select OS Logon Credentials </option>
                 <option *ngFor="let item of cred_value" [value]="item.credentialId">{{item.credentialName}}</option>
@@ -134,7 +138,8 @@
 
           <div class="row rowPadTOp">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <button type="submit" class="btn btn-primary" status="primary" (click)="onSubmit()">Save</button>
+              <button [disabled]="addagent.invalid || isSubmitted" type="submit" class="btn btn-primary"
+                status="primary" (click)="onSubmit()">Save</button>
             </div>
 
           </div>

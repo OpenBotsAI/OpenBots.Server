@@ -123,7 +123,7 @@ export class AddAgentsComponent implements OnInit {
           Validators.required,
           RxwebValidators.ip({ version: IpVersion.V4 }),
         ]);
-      this.addagent.updateValueAndValidity();
+      this.addagent.get('ipAddresses').updateValueAndValidity();
     } else {
       this.ipVersion = 'V6';
       this.addagent
@@ -132,7 +132,7 @@ export class AddAgentsComponent implements OnInit {
           Validators.required,
           RxwebValidators.ip({ version: IpVersion.V6 }),
         ]);
-      this.addagent.updateValueAndValidity();
+      this.addagent.get('ipAddresses').updateValueAndValidity();
     }
   }
 }
