@@ -120,7 +120,7 @@ namespace OpenBots.Server.Model
 
             object otherValue = otherProperty.GetValue(validationContext.ObjectInstance);
 
-            // check if this value is actually required and validate it
+            //check if this value is actually required and validate it
             if (!this.IsInverted && object.Equals(otherValue, this.OtherPropertyValue) ||
                 this.IsInverted && !object.Equals(otherValue, this.OtherPropertyValue))
             {
@@ -129,7 +129,7 @@ namespace OpenBots.Server.Model
                     return new ValidationResult(this.FormatErrorMessage(validationContext.DisplayName));
                 }
 
-                // additional check for strings so they're not empty
+                //additional check for strings so they're not empty
                 string val = value as string;
                 if (val != null && val.Trim().Length == 0)
                 {

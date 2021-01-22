@@ -57,7 +57,7 @@ namespace OpenBots.Server.Web
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        //this method gets called by the runtime; use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
             var corsPolicyOptions = Configuration.GetSection(CorsPolicyOptions.Origins).Get<CorsPolicyOptions>();
@@ -134,7 +134,7 @@ namespace OpenBots.Server.Web
                 {
                     logging.AddApplicationInsights();
                 }
-                logging.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace); //Set the log level here
+                logging.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace); //set the log level here
             });
 
             services.AddMvcCore();
@@ -160,7 +160,7 @@ namespace OpenBots.Server.Web
 
             AddHealthCheck(services);
 
-            // Add API versioning and report supported/deprecated API versions in http request headers
+            //add API versioning and report supported/deprecated API versions in http request headers
             services.AddMvcCore();
             services.AddApiVersioning( options => 
                 options.ReportApiVersions = true);
@@ -168,7 +168,7 @@ namespace OpenBots.Server.Web
 
         private void ConfigureIdentity(IServiceCollection services)
         {
-            //Security configuration
+            //security configuration
             services.AddIdentity<ApplicationUser, IdentityRole>(config =>
             {
                 config.Password.RequireDigit = false;
@@ -240,7 +240,7 @@ namespace OpenBots.Server.Web
                     {
                         logging.AddApplicationInsights();
                     }
-                    logging.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace); //you can set the logLevel here
+                    logging.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace); //you can set the log level here
                 });
         }
 
@@ -342,7 +342,7 @@ namespace OpenBots.Server.Web
             }
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        //this method gets called by the runtime; use this method to configure the HTTP request pipeline
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, IConfiguration configuration, IFeatureManager featureManager)
         {
             var iPFencingOptions = Configuration.GetSection(IPFencingOptions.IPFencing).Get<IPFencingOptions>();
@@ -389,11 +389,11 @@ namespace OpenBots.Server.Web
 
             if (bool.Parse(Configuration["App:EnableSwagger"]) && featureManager.IsEnabledAsync(nameof(MyFeatureFlags.Swagger)).GetAwaiter().GetResult())
             {
-                //Enable middleware to serve generated Swagger as a JSON endpoint.
+                //enable middleware to serve generated Swagger as a JSON endpoint
                 app.UseSwagger();
 
-                //Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-                //Specifying the Swagger JSON endpoint.
+                //enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+                //specifying the Swagger JSON endpoint
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "OpenBots API v1");
@@ -433,16 +433,16 @@ namespace OpenBots.Server.Web
             app.UseForwardedHeaders();
 
             ////////////////////////////
-            // Added Service Bus functionality for Message Processing from within Service 
-            // or Other Microservices
+            //added service bus functionality for message processing from within service 
+            //or other microservices
             var bus = app.ApplicationServices.GetService<IQueueSubscriber>();
             if (bus != null)
                 bus.Register();
 
             app.UseSpa(spa =>
             {
-                // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                // see https://go.microsoft.com/fwlink/?linkid=864501
+                //to learn more about options for serving an Angular SPA from ASP.NET Core,
+                //see https://go.microsoft.com/fwlink/?linkid=864501
 
                 spa.Options.SourcePath = "ClientApp";
 
@@ -525,7 +525,7 @@ namespace OpenBots.Server.Web
                         });
 
                     options.AddServerHeader = false;
-                    options.Limits.MaxRequestLineSize = 16 * 1024; // 16KB Limit
+                    options.Limits.MaxRequestLineSize = 16 * 1024; //16KB Limit
                 });
             }
             else
@@ -551,7 +551,7 @@ namespace OpenBots.Server.Web
             options = options ?? services.GetService<DashboardOptions>() ?? new DashboardOptions();
             var routes = app.ApplicationServices.GetRequiredService<RouteCollection>();
 
-            // Use our custom middleware.
+            //use our custom middleware
             app.Map(new PathString(pathMatch), x => x.UseMiddleware<CustomHangfireDashboardMiddleware>(storage, options, routes));
             return app;
         }

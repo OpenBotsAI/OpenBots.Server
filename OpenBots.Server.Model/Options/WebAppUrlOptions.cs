@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace OpenBots.Server.Model.Options
+﻿namespace OpenBots.Server.Model.Options
 {
     /// <summary>
     /// Options for WebAppUrlOptions Configuration

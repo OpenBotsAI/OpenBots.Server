@@ -1,5 +1,4 @@
 ﻿using OpenBots.Server.Model.Core;
-using OpenBots.Server.Model.Configuration;
 using System;
 
 namespace OpenBots.Server.ViewModel

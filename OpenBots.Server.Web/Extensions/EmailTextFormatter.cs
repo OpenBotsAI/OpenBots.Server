@@ -1,6 +1,5 @@
 ﻿using Mustache;
 using OpenBots.Server.ViewModel.Email;
-using System;
 using System.IO;
 
 namespace OpenBots.Server.Web.Extensions

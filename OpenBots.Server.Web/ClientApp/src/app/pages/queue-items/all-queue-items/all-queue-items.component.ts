@@ -173,7 +173,7 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
   }
 
   getQueues(): void {
-    const url = `${QueuesApiUrls.Queues}?$orderby=createdOn+desc`;
+    const url = `${QueuesApiUrls.Queues}?$orderby=name+asc`;
     this.httpService.get(url).subscribe((response) => {
       if (response && response.items.length !== 0)
         this.queuesArr = [...response.items];

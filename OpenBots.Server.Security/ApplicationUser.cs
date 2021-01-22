@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OpenBots.Server.Security
 {
-    // You can add profile data for the user by adding more properties to your ApplicationUser class, please visit https://go.microsoft.com/fwlink/?LinkID=317594 to learn more.
+    //you can add profile data for the user by adding more properties to your ApplicationUser class, please visit https://go.microsoft.com/fwlink/?LinkID=317594 to learn more
     public class ApplicationUser : IdentityUser
     {
         public Guid PersonId { get;set; }

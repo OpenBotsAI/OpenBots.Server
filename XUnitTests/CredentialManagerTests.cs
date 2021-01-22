@@ -20,7 +20,7 @@ namespace XUnitTests
 
         public CredentialManagerTests()
         {
-            // arrange
+            //arrange
             var options = new DbContextOptionsBuilder<StorageContext>()
                 .UseInMemoryDatabase(databaseName: "CredentialManager")
                 .Options;
@@ -48,39 +48,39 @@ namespace XUnitTests
             manager = new CredentialManager(repo);
         }
 
-        //Validates if the current date falls within date range
+        //validates if the current date falls within date range
         [Fact]
         public async Task ValidateRetreivalDate()
         {
             
 
-            // act
+            //act
             var validDateRange = manager.ValidateRetrievalDate(validCredential);
             var invalidDateRange = manager.ValidateRetrievalDate(invalidCredential);
 
-            // assert
+            //assert
             Assert.True(validDateRange);
             Assert.False(invalidDateRange);
         }
 
-        //Validates if the End Date is greater than Start Date
+        //validates if the end date is greater than start date
         [Fact]
         public async Task ValidateStartAndEndDates()
         {
-            // act
+            //act
 
-            // End Date is greater than Start Date
+            //end date is greater than start date
             validCredential.StartDate = new DateTime(2020, 12, 31, 12, 00, 0);
             validCredential.EndDate = new DateTime(2022, 12, 31, 12, 00, 0);
 
-            // Start Date is greater than End Date
+            //start date is greater than end date
             invalidCredential.StartDate = new DateTime(2020, 12, 31, 12, 00, 0);
             invalidCredential.EndDate = new DateTime(2010, 12, 31, 12, 00, 0);
 
             var validDateValues = manager.ValidateStartAndEndDates(validCredential);
             var invalidDateValues = manager.ValidateStartAndEndDates(invalidCredential);
 
-            // assert
+            //assert
             Assert.True(validDateValues);
             Assert.False(invalidDateValues);
         }

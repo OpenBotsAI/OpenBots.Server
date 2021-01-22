@@ -281,12 +281,12 @@ namespace OpenBots.Server.WebAPI.Controllers
             value.OrganizationId = new Guid(organizationId);
             var user = new ApplicationUser();
 
-            //Add person to organization only if you are admin or add it to access request table
+            //add person to organization only if you are admin or add it to access request table
             var requestingUser = repository.Find(null, a => a.PersonId == SecurityContext.PersonId && a.OrganizationId == Guid.Parse(organizationId))?.Items.FirstOrDefault();
             var isRequestingUserAdministrator = requestingUser.IsAdministrator.GetValueOrDefault(false);
 
-            // If the requesting user is NOT an Administrator then the user cannot skip Email Verification
-            // Only Administrators can allow that. However this can be skipped for now
+            //if the requesting user is NOT an administrator then the user cannot skip email verification
+            //only administrators can allow that; however, this can be skipped for now
             //if (value.SkipEmailVerification && !isRequestingUserAdministrator)
             //    value.SkipEmailVerification = false;
 
@@ -300,7 +300,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                     throw new UnauthorizedAccessException();
                 }
 
-                //This is to check if the user is already in the system and where is part of the organization
+                //this is to check if the user is already in the system and where is part of the organization
                 teamMember = membershipManager.InviteUser(value, SecurityContext);
                 if (teamMember == null)
                 {
@@ -333,7 +333,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                     }
                     else
                     {
-                        //Add person email
+                        //add person email
                         var emailIds = new List<EmailVerification>();
                         var personEmail = new EmailVerification()
                         {
@@ -374,7 +374,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                             }
                         }
 
-                        //Update the user 
+                        //update the user 
                         if (person != null)
                         {
                             var registeredUser = userManager.FindByNameAsync(user.UserName).Result;
@@ -382,7 +382,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                             registeredUser.ForcedPasswordChange = true;
                             await userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
 
-                            //Add person to organization only if you are admin or add it to access request table
+                            //add person to organization only if you are admin or add it to access request table
                             if (isRequestingUserAdministrator)
                             {
                                 OrganizationMember newOrgMember = new OrganizationMember()
@@ -395,7 +395,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                                 await base.PostEntity(newOrgMember).ConfigureAwait(false);
                             }
                             else {
-                                //Add it to access requests
+                                //add it to access requests
                                 AccessRequest accessRequest = new AccessRequest() { 
                                     OrganizationId = Guid.Parse(organizationId),
                                     PersonId = person.Id,
@@ -437,7 +437,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Delete(string organizationId, string organizationMemberId)
         {
-            //Check if the logged in user is member of the organization, do not allow self deletion from organization
+            //check if the logged in user is member of the organization, do not allow self deletion from organization
             var orgId = new Guid(organizationId);
             var orgMemberId = new Guid(organizationMemberId);
 
@@ -450,7 +450,7 @@ namespace OpenBots.Server.WebAPI.Controllers
 
             var orgMem = repository.Find(null, p => p.OrganizationId == orgId && p.Id == orgMemberId)?.Items?.FirstOrDefault();
             
-            //If member is the logged in user, do not delete
+            //if member is the logged in user, do not delete
             if (orgMem != null && orgMem.PersonId == SecurityContext.PersonId) {
                 ModelState.AddModelError("Delete", "cannot remove from the organization");
                 return BadRequest(ModelState);

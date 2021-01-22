@@ -27,7 +27,8 @@
           <select class="custom-select service-name" (change)="get_service_name($event.target.value)"
             formControlName="page_name">
             <option value="" selected>All</option>
-            <option *ngFor="let item of show_service_name" [value]="item">
+            <!-- | orderBy:'item' -->
+            <option *ngFor="let item of show_service_name  " [value]="item">
               {{ item }}
             </option>
           </select>

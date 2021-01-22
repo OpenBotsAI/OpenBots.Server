@@ -299,26 +299,26 @@
         </member>
         <member name="F:OpenBots.Server.Model.Core.OrderByDirectionType.Ascending">
             <summary>
-            sort data in ascending order
+            Sort data in ascending order
             </summary>
         </member>
         <member name="F:OpenBots.Server.Model.Core.OrderByDirectionType.Descending">
             <summary>
-            sort data in descending order
+            Sort data in descending order
             </summary>
         </member>
         <member name="T:OpenBots.Server.Model.Identity.Person">
             <summary>
-            Represents a Person
+            Represents a person
             </summary>
-            <seealso cref="T:OpenBots.Server.Model.Core.NamedEntity" />
+            <seealso cref="T:OpenBots.Server.Model.Core.NamedEntity"/>
         </member>
         <member name="P:OpenBots.Server.Model.Identity.Person.FirstName">
             <summary>
-            First Name of the Person
+            First name of the person
             </summary>
             <value>
-            The first name.
+            The first name
             </value>
         </member>
         <member name="T:OpenBots.Server.Model.INonAuditable">
@@ -328,11 +328,11 @@
         </member>
         <member name="T:OpenBots.Server.Model.UsageType">
             <summary>
-            Stores the usage type for the IPFencing.
+            Stores the usage type for the IPFencing
             </summary>
             <remarks>
-            If usage type is Deny, then all IPs except the ones specified are denied. <br/>
-            If usage type is Allowed, then all IPs except the ones specified are allowed.
+            If usage type is Deny, then all IPs except the ones specified are denied<br/>
+            If usage type is Allowed, then all IPs except the ones specified are allowed
             </remarks>
         </member>
         <member name="T:OpenBots.Server.Model.RuleType">
@@ -340,7 +340,7 @@
             Represents the type of rule that is being stored
             </summary>
             <remarks>
-            IP rule values can be stored as individual addresses or as ranges. <br/>
+            IP rule values can be stored as individual addresses or as ranges<br/>
             Headers are checked after IP values and must be exist in the http request
             </remarks>
         </member>

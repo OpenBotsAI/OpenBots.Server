@@ -15,5 +15,7 @@ namespace OpenBots.Server.Model
         [Required]
         public bool IsConnected { get; set; }
         public Guid? CredentialId { get; set; }
+        public string IPOption { get; set; }
+        public bool IsEnhancedSecurity { get; set; }
     }
 }

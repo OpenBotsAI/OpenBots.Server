@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenBots.Server.DataAccess;
 
 namespace OpenBots.Server.DataAccess.Migrations
 {
     [DbContext(typeof(StorageContext))]
-    partial class StorageContextModelSnapshot : ModelSnapshot
+    [Migration("20210121171421_AgentSecurityFields")]
+    partial class AgentSecurityFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3316,54 +3318,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                             IsDeleted = false,
                             IsSystem = true,
                             Name = "Agents.AgentDeleted",
-                            Timestamp = new byte[] { 0 }
-                        },
-                        new
-                        {
-                            Id = new Guid("53b4365e-d103-4e74-a72c-294d670abdbd"),
-                            CreatedBy = "",
-                            DeletedBy = "",
-                            Description = "A new Folder has been created",
-                            EntityType = "File",
-                            IsDeleted = false,
-                            IsSystem = true,
-                            Name = "Files.NewFolderCreated",
-                            Timestamp = new byte[] { 0 }
-                        },
-                        new
-                        {
-                            Id = new Guid("d10616c6-53c4-4137-8cd0-70a5c7409938"),
-                            CreatedBy = "",
-                            DeletedBy = "",
-                            Description = "A Folder has been updated",
-                            EntityType = "File",
-                            IsDeleted = false,
-                            IsSystem = true,
-                            Name = "Files.FolderUpdated",
-                            Timestamp = new byte[] { 0 }
-                        },
-                        new
-                        {
-                            Id = new Guid("e4a9ceaa-88e2-4c03-a203-7a419749c613"),
-                            CreatedBy = "",
-                            DeletedBy = "",
-                            Description = "A Folder has been deleted",
-                            EntityType = "File",
-                            IsDeleted = false,
-                            IsSystem = true,
-                            Name = "Files.FolderDeleted",
-                            Timestamp = new byte[] { 0 }
-                        },
-                        new
-                        {
-                            Id = new Guid("513bb79b-3f2e-4846-a804-2c5b9a6792d0"),
-                            CreatedBy = "",
-                            DeletedBy = "",
-                            Description = "Local Drive has been updated",
-                            EntityType = "File",
-                            IsDeleted = false,
-                            IsSystem = true,
-                            Name = "Files.DriveUpdated",
                             Timestamp = new byte[] { 0 }
                         });
                 });

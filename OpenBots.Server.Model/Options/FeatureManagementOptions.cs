@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace OpenBots.Server.Model.Options
+﻿namespace OpenBots.Server.Model.Options
 {
     /// <summary>
     /// Options for managaing feature flags
@@ -49,7 +45,6 @@ namespace OpenBots.Server.Model.Options
         /// Used to enable the Queues API
         /// </summary>
         public bool Queues { get; set; }
-
     }
 
     public enum MyFeatureFlags

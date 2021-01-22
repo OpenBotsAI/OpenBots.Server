@@ -35,7 +35,7 @@ namespace OpenBots.Server.Business
                     ? CreateAndSaveDefaultValues(dbContext)
                     : dbContext.ConfigurationValues.ToDictionary(c => c.Name, c => c.Value);
 
-                //Create server drive
+                //create server drive
                 ServerDrive drive = dbContext.ServerDrives.FirstOrDefault();
                 if (drive == null)
                 {

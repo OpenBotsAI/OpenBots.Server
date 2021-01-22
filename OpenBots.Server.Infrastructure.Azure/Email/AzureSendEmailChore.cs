@@ -45,7 +45,7 @@ namespace OpenBots.Server.Infrastructure.Azure.Email
                     sendGridMessage.AddBcc(new SendGrid.Helpers.Mail.EmailAddress(bccAddr.Address, bccAddr.Name));
                 }
 
-                // Disable click tracking.See https://sendgrid.com/docs/User_Guide/Settings/tracking.html
+                //disable click tracking; see https://sendgrid.com/docs/User_Guide/Settings/tracking.html
                 sendGridMessage.SetClickTracking(false, false);
 
                 sendGridClient.SendEmailAsync(sendGridMessage);

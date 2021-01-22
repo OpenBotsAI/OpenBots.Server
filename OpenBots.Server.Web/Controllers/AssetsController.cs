@@ -457,12 +457,12 @@ namespace OpenBots.Server.Web
 
                     if (existingAsset.BinaryObjectID != Guid.Empty && size > 0)
                     {
-                        //Update Asset file in OpenBots.Server.Web using relative directory
+                        //update asset file in OpenBots.Server.Web using relative directory
                         string apiComponent = "AssetAPI";
                         await automationManager.Update(existingAsset.BinaryObjectID.Value, request.File, organizationId, apiComponent, request.File.FileName);
                     }
 
-                    //Update Asset entity
+                    //update asset entity
                     await webhookPublisher.PublishAsync("Assets.AssetUpdated", existingAsset.Id.ToString(), existingAsset.Name).ConfigureAwait(false);
                     await base.PutEntity(id, existingAsset);
 

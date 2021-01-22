@@ -192,12 +192,12 @@ namespace OpenBots.Server.Model.Core
     public enum OrderByDirectionType
     {
         /// <summary>
-        /// sort data in ascending order
+        /// Sort data in ascending order
         /// </summary>
         Ascending,
 
         /// <summary>
-        /// sort data in descending order
+        /// Sort data in descending order
         /// </summary>
         Descending
     }

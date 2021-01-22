@@ -55,7 +55,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                                      QueueId = q?.QueueId,
                                      CreatedOn = q?.CreatedOn,
                                      PayloadSizeInBytes = q?.PayloadSizeInBytes,
-                                     // List of all binary object ids that correlate to the queue item
+                                     //list of all binary object ids that correlate to the queue item
                                      BinaryObjectIds = context.QueueItemAttachments.Where(a => a.QueueItemId == q.Id)?.Select(a  => a.BinaryObjectId)?.ToList()
                                  };
 

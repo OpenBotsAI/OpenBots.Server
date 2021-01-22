@@ -1,7 +1,4 @@
-﻿using OpenBots.Server.Model.Identity;
-using System;
-using System.ComponentModel.DataAnnotations;
-#nullable enable
+﻿#nullable enable
 
 namespace OpenBots.Server.Model.Core
 {

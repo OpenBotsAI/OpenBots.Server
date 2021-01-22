@@ -48,7 +48,7 @@ namespace OpenBots.Server.Business
             return repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
 
-        //Gets the next available job for the given agentId
+        //gets the next available job for the given agent id
         public NextJobViewModel GetNextJob(Guid agentId)
         {
             Job job = repo.Find(0, 1).Items
@@ -128,7 +128,7 @@ namespace OpenBots.Server.Business
             return compressedFileStream;
         }
 
-        // Updates the automation averages for the specified job's automation
+        //updates the automation averages for the specified job's automation
         public void UpdateAutomationAverages(Guid? updatedJobId)
         {
             Job updatedJob = repo.GetOne(updatedJobId ?? Guid.Empty);
@@ -150,7 +150,7 @@ namespace OpenBots.Server.Business
             automationRepo.Update(automation);
         }
 
-        // Gets the average execution time for the provided jobs
+        //gets the average execution time for the provided jobs
         public double? GetAverageExecutionTime(List<Job> sameAutomationJobs)
         {
             double? sum = 0;

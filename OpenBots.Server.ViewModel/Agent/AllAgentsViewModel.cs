@@ -18,5 +18,7 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
         public string Status { get; set; }
         public Guid? CredentialId { get; set; }
         public DateTime? CreatedOn { get; set; }
+        public string IPOption { get; set; }
+        public bool IsEnhancedSecurity { get; set; }
     }
 }

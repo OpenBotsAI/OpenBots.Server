@@ -1,5 +1,4 @@
-﻿using OpenBots.Server.Model;
-using OpenBots.Server.ViewModel;
+﻿using OpenBots.Server.ViewModel;
 using System.Collections.Generic;
 
 namespace OpenBots.Server.Web.Hubs

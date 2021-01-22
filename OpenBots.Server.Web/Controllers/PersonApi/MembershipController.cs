@@ -268,7 +268,7 @@ namespace OpenBots.Server.WebAPI.Controllers.PersonApi
                 return BadRequest(ModelState);
             }
 
-            //Cannot revoke for self i.e. logged in user
+            //cannot revoke for self i.e. logged in user
             if (SecurityContext.PersonId == personGuid)
             {
                 ModelState.AddModelError("GrantAdmin", "Cannot grant admin permission for self");

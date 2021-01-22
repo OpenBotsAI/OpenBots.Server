@@ -28,7 +28,7 @@
           <select class="custom-select" (change)="processAndAgentDropdown('agent', $event.target.value)"
             formControlName="agentId">
             <option selected></option>
-            <option *ngFor="let item of agentLookUp" [value]="item.agentId">
+            <option *ngFor="let item of agentLookUp | orderBy:'agentName'" [value]="item.agentId">
               {{ item.agentName }}
             </option>
           </select>
@@ -39,7 +39,7 @@
           <select class="custom-select" (change)="processAndAgentDropdown('process', $event.target.value)"
             formControlName="processId">
             <option selected></option>
-            <option *ngFor="let item of processLookUp" [value]="item.automationId">
+            <option *ngFor="let item of processLookUp | orderBy:'automationNameWithVersion'" [value]="item.automationId">
               {{ item.automationNameWithVersion }}
             </option>
           </select>

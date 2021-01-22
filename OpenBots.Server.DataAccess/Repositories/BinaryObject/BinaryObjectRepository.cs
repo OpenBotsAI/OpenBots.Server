@@ -27,7 +27,7 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Access Binary Objects Data Table
+        /// Access Binary Objects data table
         /// </summary>
         /// <returns>Binary Object</returns>
         protected override DbSet<BinaryObject> DbTable()
@@ -36,7 +36,7 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Update an Entity to the Binary Objects data table
+        /// Update an entity to the Binary Objects data table
         /// </summary>
         /// <param name="file"></param>
         /// <param name="filePath"></param>
@@ -50,7 +50,7 @@ namespace OpenBots.Server.DataAccess.Repositories
 
             if (entity != null)
             {
-                //Save properties as entity in BinaryObjects table in Server
+                //save properties as entity in binary objects table in server
                 entity.ContentType = file.ContentType;
                 entity.UpdatedBy = _caller.Identity.Name;
                 entity.UpdatedOn = DateTime.UtcNow;

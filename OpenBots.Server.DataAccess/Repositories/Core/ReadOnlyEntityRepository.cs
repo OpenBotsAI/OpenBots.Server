@@ -10,7 +10,7 @@ namespace OpenBots.Server.DataAccess.Repositories
     public abstract class ReadOnlyEntityRepository<T> : IReadOnlyEntityRepository<T> where T : class, IEntity, new()
     {
         /// <summary>
-        /// The database context/
+        /// The database context
         /// </summary>
         protected StorageContext dbContext;
 
@@ -32,8 +32,8 @@ namespace OpenBots.Server.DataAccess.Repositories
         /// <summary>
         /// Initializes a new instance of the <see cref="EntityRepository{T}"/> class.
         /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="logger">The logger.</param>
+        /// <param name="context">The context</param>
+        /// <param name="logger">The logger</param>
         public ReadOnlyEntityRepository(StorageContext context, ILogger<T> logger)
         {
             dbContext = context;
@@ -41,10 +41,10 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Requesting Authorization the entire record set before serving it.
-        /// Override if you need entire Resultset for validation and a Lambda is not good enough.
+        /// Requesting authorization the entire record set before serving it
+        /// Override if you need entire result set for validation and a lambda is not good enough
         /// </summary>
-        /// <param name="entities">The entities.</param>
+        /// <param name="entities">The entities</param>
         /// <returns></returns>
         protected virtual IQueryable<T> AuthorizeRows(IQueryable<T> entities)
         {
@@ -57,9 +57,9 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Authorizes the row.
+        /// Authorizes the row
         /// </summary>
-        /// <param name="entity">The entity.</param>
+        /// <param name="entity">The entity</param>
         /// <returns></returns>
         protected virtual bool AuthorizeRow(T entity)
         {
@@ -67,7 +67,7 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Authorizes the read.
+        /// Authorizes the read
         /// </summary>
         /// <returns></returns>
         protected virtual Func<T, bool> AuthorizeRead()
@@ -78,10 +78,10 @@ namespace OpenBots.Server.DataAccess.Repositories
         protected abstract DbSet<T> DbTable();
 
         /// <summary>
-        /// Finds the specified skip.
+        /// Finds the specified skip
         /// </summary>
-        /// <param name="skip">The skip.</param>
-        /// <param name="take">The take.</param>
+        /// <param name="skip">The skip</param>
+        /// <param name="take">The take</param>
         /// <returns></returns>
         public virtual PaginatedList<T> Find(int skip = 0, int take = 0)
         {
@@ -92,7 +92,7 @@ namespace OpenBots.Server.DataAccess.Repositories
             PaginatedList<T> list = new PaginatedList<T>
             {
                 TotalCount = Count(),
-                PageNumber = pageNumber, // skip / take,
+                PageNumber = pageNumber, // skip/take
                 PageSize = take
             };
             if (skip == 0 || take == 0)
@@ -104,14 +104,14 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Finds the specified predicate.
+        /// Finds the specified predicate
         /// </summary>
         /// <param name="parentId"></param>
-        /// <param name="predicate">The predicate.</param>
+        /// <param name="predicate">The predicate</param>
         /// <param name="sort"></param>
         /// <param name="direction"></param>
-        /// <param name="skip">The skip.</param>
-        /// <param name="take">The take.</param>
+        /// <param name="skip">The skip</param>
+        /// <param name="take">The take</param>
         /// <returns></returns>
         public virtual PaginatedList<T> Find(Guid? parentId = null, Func<T, bool> predicate = null, Func<T, object> sort = null, OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 0)
         {
@@ -141,14 +141,14 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Finds the specified predicate.
+        /// Finds the specified predicate
         /// </summary>
         /// <param name="parentId"></param>
-        /// <param name="predicate">The predicate.</param>
+        /// <param name="predicate">The predicate</param>
         /// <param name="sort"></param>
         /// <param name="direction"></param>
-        /// <param name="skip">The skip.</param>
-        /// <param name="take">The take.</param>
+        /// <param name="skip">The skip</param>
+        /// <param name="take">The take</param>
         /// <returns></returns>
         public virtual PaginatedList<TViewModel> Find<TViewModel>(Guid? parentId = null, Func<T, bool> predicate = null, Func<T, object> sort = null, OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 0)
             where TViewModel  : class, IViewModel<T, TViewModel>, new()
@@ -180,14 +180,14 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Finds the specified predicate.
+        /// Finds the specified predicate
         /// </summary>
         /// <param name="parentId"></param>
-        /// <param name="predicate">The predicate.</param>
+        /// <param name="predicate">The predicate</param>
         /// <param name="sort"></param>
         /// <param name="direction"></param>
-        /// <param name="skip">The skip.</param>
-        /// <param name="take">The take.</param>
+        /// <param name="skip">The skip</param>
+        /// <param name="take">The take</param>
         /// <returns></returns>
         protected virtual Tuple<IQueryable<T>, int> Query(Guid? parentId = null, Func<T, bool> predicate = null, Func<T, object> sort = null, OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 0)
         {
@@ -238,9 +238,9 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Counts the specified predicate.
+        /// Counts the specified predicate
         /// </summary>
-        /// <param name="predicate">The predicate.</param>
+        /// <param name="predicate">The predicate</param>
         /// <returns></returns>
         public int Count(Func<T, bool> predicate)
         {
@@ -248,7 +248,7 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Counts this instance.
+        /// Counts this instance
         /// </summary>
         /// <returns></returns>
         public virtual int Count()
@@ -257,11 +257,11 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Gets the Entity for the specified Entity ID
+        /// Gets the entity for the specified entity id
         /// </summary>
         /// <param name="Id"></param>
         /// <param name="parentId"></param>
-        /// <returns>Entity for Entity ID</returns>
+        /// <returns>Entity for entity id</returns>
         public T GetOne(Guid Id, Guid? parentId = null)
         {
             IQueryable<T> resultSet = DbTable().AsQueryable();
@@ -277,9 +277,9 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Existses the specified identifier.
+        /// Exists the specified identifier
         /// </summary>
-        /// <param name="Id">The identifier.</param>
+        /// <param name="Id">The identifier</param>
         /// <returns></returns>
         public bool Exists(Guid Id)
         {

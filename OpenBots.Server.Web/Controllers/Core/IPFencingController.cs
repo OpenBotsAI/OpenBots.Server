@@ -288,7 +288,7 @@ namespace OpenBots.Server.Web
                 return BadRequest(ModelState);
             }
 
-            // Get the organization's settings
+            //get the organization's settings
             organizationSettingRepository.ForceIgnoreSecurity();
             var existingOrganizationSettings = organizationSettingRepository.Find(0, 1).Items.
                 Where(s => s.OrganizationId == Guid.Parse(organizationId)).FirstOrDefault();          
@@ -304,7 +304,7 @@ namespace OpenBots.Server.Web
                 return Ok("IPFencing Mode is already set to AllowAll");
             }
 
-            // Check if user will be able to make requests under the new IPfencing
+            //check if user will be able to make requests under the new IP fencing
             if (iPFencingManager.IsRequestAllowed(userIp, IPFencingMode.AllowMode))
             {
                 existingOrganizationSettings.IPFencingMode = IPFencingMode.AllowMode;
@@ -350,7 +350,7 @@ namespace OpenBots.Server.Web
                 return BadRequest(ModelState);
             }
 
-            // Get the organization's settings
+            //get the organization's settings
             organizationSettingRepository.ForceIgnoreSecurity();
             var existingOrganizationSettings = organizationSettingRepository.Find(0, 1).Items.
                 Where(s => s.OrganizationId == Guid.Parse(organizationId)).FirstOrDefault();
@@ -366,7 +366,7 @@ namespace OpenBots.Server.Web
                 return Ok("IP Fencing Mode is already set to DenyAll");
             }      
 
-            // Check if user will be able to make requests under the new IPfencing
+            //check if user will be able to make requests under the new IP fencing
             if (iPFencingManager.IsRequestAllowed(userIp,IPFencingMode.DenyMode))
             {
                 existingOrganizationSettings.IPFencingMode = IPFencingMode.DenyMode;
