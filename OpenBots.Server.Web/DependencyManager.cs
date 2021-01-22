@@ -10,6 +10,7 @@ using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.Business.Interfaces;
 using OpenBots.Server.DataAccess.Repositories.File;
+using OpenBots.Server.WebAPI.Controllers;
 
 namespace OpenBots.Server.Web
 {
@@ -35,7 +36,6 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IScheduleRepository), typeof(ScheduleRepository));
             services.AddTransient(typeof(IScheduleManager), typeof(ScheduleManager));
             services.AddTransient(typeof(IScheduleParameterRepository), typeof(ScheduleParameterRepository));
-
 
             services.AddTransient(typeof(IMembershipManager), typeof(MembershipManager));
             services.AddTransient(typeof(IAccessRequestsManager), typeof(AccessRequestsManager));

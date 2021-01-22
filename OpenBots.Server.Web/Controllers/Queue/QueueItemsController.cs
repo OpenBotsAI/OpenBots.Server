@@ -144,28 +144,11 @@ namespace OpenBots.Server.Web.Controllers
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            ODataHelper<AllQueueItemsViewModel> oData = new ODataHelper<AllQueueItemsViewModel>();
+            ODataHelper<AllQueueItemsViewModel> oDataHelper = new ODataHelper<AllQueueItemsViewModel>();
 
-            string queryString = "";
+            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            if (HttpContext != null
-                && HttpContext.Request != null
-                && HttpContext.Request.QueryString != null
-                && HttpContext.Request.QueryString.HasValue)
-                queryString = HttpContext.Request.QueryString.Value;
-
-            oData.Parse(queryString);
-            Guid parentguid = Guid.Empty;
-            var newNode = oData.ParseOrderByQuery(queryString);
-            if (newNode == null)
-                newNode = new OrderByNode<AllQueueItemsViewModel>();
-
-            Predicate<AllQueueItemsViewModel> predicate = null;
-            if (oData != null && oData.Filter != null)
-                predicate = new Predicate<AllQueueItemsViewModel>(oData.Filter);
-            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
-
-            return manager.GetQueueItemsAndBinaryObjectIds(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+            return manager.GetQueueItemsAndBinaryObjectIds(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
         }
 
         /// <summary>

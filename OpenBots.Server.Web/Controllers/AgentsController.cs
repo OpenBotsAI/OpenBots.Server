@@ -131,28 +131,11 @@ namespace OpenBots.Server.Web.Controllers
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            ODataHelper<AllAgentsViewModel> oData = new ODataHelper<AllAgentsViewModel>();
+            ODataHelper<AllAgentsViewModel> oDataHelper = new ODataHelper<AllAgentsViewModel>();
 
-            string queryString = "";
+            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            if (HttpContext != null
-                && HttpContext.Request != null
-                && HttpContext.Request.QueryString != null
-                && HttpContext.Request.QueryString.HasValue)
-                queryString = HttpContext.Request.QueryString.Value;
-
-            oData.Parse(queryString);
-            Guid parentguid = Guid.Empty;
-            var newNode = oData.ParseOrderByQuery(queryString);
-            if (newNode == null)
-                newNode = new OrderByNode<AllAgentsViewModel>();
-
-            Predicate<AllAgentsViewModel> predicate = null;
-            if (oData != null && oData.Filter != null)
-                predicate = new Predicate<AllAgentsViewModel>(oData.Filter);
-            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
-
-            return agentRepo.FindAllView(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+            return agentRepo.FindAllView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
         }
 
         /// <summary>
@@ -704,29 +687,13 @@ namespace OpenBots.Server.Web.Controllers
                 return NotFound("The Agent ID provided does not match any existing Agents");
             }
 
-            ODataHelper<AgentHeartbeat> oData = new ODataHelper<AgentHeartbeat>();
+            ODataHelper<AgentHeartbeat> oDataHelper = new ODataHelper<AgentHeartbeat>();
 
-            string queryString = "";
-
-            if (HttpContext != null
-                && HttpContext.Request != null
-                && HttpContext.Request.QueryString != null
-                && HttpContext.Request.QueryString.HasValue)
-                queryString = HttpContext.Request.QueryString.Value;
-
-            oData.Parse(queryString);
             Guid parentguid = Guid.Parse(agentId);
 
-            var newNode = oData.ParseOrderByQuery(queryString);
-            if (newNode == null)
-                newNode = new OrderByNode<AgentHeartbeat>();
+            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            Predicate<AgentHeartbeat> predicate = null;
-            if (oData != null && oData.Filter != null)
-                predicate = new Predicate<AgentHeartbeat>(oData.Filter);
-            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
-
-            var result =  agentHeartbeatRepo.FindAllHeartbeats(parentguid, predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+            var result =  agentHeartbeatRepo.FindAllHeartbeats(parentguid, oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
 
             return Ok(result);
         }
