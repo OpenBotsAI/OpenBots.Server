@@ -14,7 +14,7 @@ namespace OpenBots.Server.WebAPI.Hangfire
         {
             var httpContext = context.GetHttpContext();
 
-            // Allow all authenticated users to see the Dashboard (potentially dangerous).
+            //allow all authenticated users to see the dashboard (potentially dangerous)
             return httpContext.User.Identity.IsAuthenticated; //allow access to any user
         }
     }
@@ -43,7 +43,7 @@ namespace OpenBots.Server.WebAPI.Hangfire
                 var access_token = String.Empty;
                 var setCookie = false;
 
-                //Try to get token from query string
+                //try to get token from query string
                 if (httpContext.Request.Query.ContainsKey("access_token"))
                 {
                     access_token = httpContext.Request.Query["access_token"].FirstOrDefault();

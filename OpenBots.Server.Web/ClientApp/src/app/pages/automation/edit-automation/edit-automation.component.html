@@ -10,7 +10,6 @@
                          <div class="col-md-6 col-lg-6 col-xxxl-6">
                              <label for="agentname">
                                  Automation Name</label>
-
                              <input type="input" nbInput fullWidth id="name" formControlName="name" class="form-control"
                                  placeholder="Please enter Process name" />
                              <div *ngIf="f.name.touched && f.name.invalid" class="invalid-feedback-frm">
@@ -61,8 +60,10 @@
                              </div>
                          </div>
                          <div class="col-md-6 col-lg-6 col-xxxl-6">
-                             <label for="automationEngine" class="label">Automation Engine *</label>
-                             <select class="custom-select" formControlName="automationEngine"
+                             <label for="automationEngine" class="label">Automation Engine </label>
+                             <input type="input" nbInput fullWidth id="name" formControlName="automationEngine" class="form-control"
+                                 placeholder="Please enter Process name"  readonly/>
+                             <!-- <select class="custom-select" formControlName="automationEngine"
                                  placeholder="Please choose automation engine">
                                  <option value="" disabled="true" selected>
                                      Please choose automation engine
@@ -70,13 +71,13 @@
                                  <option *ngFor="let item of automationSelection" [value]="item">
                                      {{ item }}
                                  </option>
-                             </select>
-                             <div *ngIf="f.automationEngine.invalid && (f.automationEngine.dirty || f.automationEngine.touched)"
+                             </select> -->
+                             <!-- <div *ngIf="f.automationEngine.invalid && (f.automationEngine.dirty || f.automationEngine.touched)"
                                  class="invalid-feedback-frm">
                                  <div *ngIf="f.automationEngine.errors.required">
                                      Automation engine is required.
                                  </div>
-                             </div>
+                             </div> -->
                          </div>
                      </div>
 

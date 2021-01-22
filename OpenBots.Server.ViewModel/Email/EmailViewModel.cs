@@ -1,5 +1,4 @@
-﻿using OpenBots.Server.Model.Configuration;
-using OpenBots.Server.Model.Core;
+﻿using OpenBots.Server.Model.Core;
 using System;
 using System.Collections.Generic;
 

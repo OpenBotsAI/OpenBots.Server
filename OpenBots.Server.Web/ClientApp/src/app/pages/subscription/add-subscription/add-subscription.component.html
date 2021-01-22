@@ -45,6 +45,7 @@
                 class="custom-select"
                 formControlName="entityName"
                 placeholder="Please choose automation engine"
+                (change)="getEntityName($event)"
               >
                 <option value="" disabled="true" selected>
                   Please choose Entity *
@@ -84,15 +85,6 @@
                 <div *ngIf="f.entityID.errors && f.entityID.errors.required">
                   ID is required.
                 </div>
-                <!-- <div *ngIf="f.name.errors.minlength">
-                                    Automation Name at least 3 characters long.
-                                </div>
-                                <div *ngIf="f.name.errors.maxlength">
-                                    Automation Name at least 100 characters long.
-                                </div>
-                                <div *ngIf=" f.name.errors.pattern">
-                                    Please enter valid automation name.
-                                </div> -->
               </div>
             </div>
           </div>
@@ -100,7 +92,7 @@
           <div class="row rowPadTOp">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="integrationEventName" class="label"> Event * </label>
-              <input
+              <!-- <input
                 type="input"
                 nbInput
                 fullWidth
@@ -108,7 +100,19 @@
                 formControlName="integrationEventName"
                 class="form-control"
                 placeholder="Please enter Event"
-              />
+              /> -->
+              <select
+                class="custom-select"
+                formControlName="integrationEventName"
+                placeholder="Please choose Event"
+              >
+                <option value="" disabled="true" selected>
+                  Please choose Event *
+                </option>
+                <option *ngFor="let item of EntityFilterValue" [value]="item.name">
+                  {{ item.name }}
+                </option>
+              </select>
               <div
                 *ngIf="
                   f.integrationEventName.touched &&
@@ -126,8 +130,10 @@
                 </div>
               </div>
             </div>
-             <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <label for="integrationEventName" class="label"> Entity Type  </label>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="integrationEventName" class="label">
+                Entity Type
+              </label>
               <input
                 type="input"
                 nbInput
@@ -138,17 +144,11 @@
                 placeholder="Please enter Entity Type"
               />
               <div
-                *ngIf="
-                  f.entityType.touched &&
-                  f.entityType.invalid
-                "
+                *ngIf="f.entityType.touched && f.entityType.invalid"
                 class="invalid-feedback-frm"
               >
                 <div
-                  *ngIf="
-                    f.entityType.errors &&
-                    f.entityType.errors.required
-                  "
+                  *ngIf="f.entityType.errors && f.entityType.errors.required"
                 >
                   Entity Type is required.
                 </div>
@@ -232,21 +232,18 @@
                 type="input"
                 nbInput
                 fullWidth
-                id="httP_Max_RetryCount"
-                formControlName="httP_Max_RetryCount"
+                id="Max_RetryCount"
+                formControlName="Max_RetryCount"
                 class="form-control"
                 placeholder="Please enter Retries"
               />
               <div
-                *ngIf="
-                  f.httP_Max_RetryCount.touched && f.httP_Max_RetryCount.invalid
-                "
+                *ngIf="f.Max_RetryCount.touched && f.Max_RetryCount.invalid"
                 class="invalid-feedback-frm"
               >
                 <div
                   *ngIf="
-                    f.httP_Max_RetryCount.errors &&
-                    f.httP_Max_RetryCount.errors.required
+                    f.Max_RetryCount.errors && f.Max_RetryCount.errors.required
                   "
                 >
                   Max Retries is required.

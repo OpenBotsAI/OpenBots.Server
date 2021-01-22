@@ -416,7 +416,7 @@ namespace OpenBots.Server.Web
 
             for (int i = 0; i < request.Operations.Count; i++)
             {
-                // Verify that Credential name is not taken
+                //verify that credential name is not taken
                 if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")
                 {
                     var credential = repository.Find(null, d => d.Name.ToLower(null) == request.Operations[i].value.ToString().ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
@@ -427,7 +427,7 @@ namespace OpenBots.Server.Web
                     }
                 }
                    
-                // Generate new password hash
+                //generate new password hash
                 if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/passwordsecret" )
                 {
                     applicationUser = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
@@ -436,7 +436,7 @@ namespace OpenBots.Server.Web
                     request.Replace(e => e.PasswordHash, passwordHash);
                 }
 
-                // Verify start-end date range
+                //verify start-end date range
                 if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/startdate" 
                     | request.Operations[i].path.ToString().ToLower() == "/enddate")
                 {
@@ -479,7 +479,7 @@ namespace OpenBots.Server.Web
         [ProducesDefaultResponseType]
         public List<CredentialsLookup> GetLookup()
         {
-            var credentialList = repository.Find(null, x => x.IsDeleted == false && x.Provider == "AD"); //"AD" is to get all Active Directory credentials
+            var credentialList = repository.Find(null, x => x.IsDeleted == false && x.Provider == "AD"); //"AD" is to get all active directory credentials
             var credentialLookup = from a in credentialList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
                               select new CredentialsLookup
                               {

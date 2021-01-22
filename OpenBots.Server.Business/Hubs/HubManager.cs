@@ -1,10 +1,8 @@
 ﻿using Hangfire;
-using Common = Hangfire.Common;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Web.Webhooks;
-using OpenBots.Server.Business;
 using OpenBots.Server.Business.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -70,7 +68,7 @@ namespace OpenBots.Server.Web.Hubs
 
             var automationVersion = automationVersionRepository.Find(null, a => a.AutomationId == schedule.AutomationId).Items?.FirstOrDefault();
 
-            //If this is a scheduled job get the schedule parameters
+            //if this is a scheduled job get the schedule parameters
             if (schedule.StartingType.Equals("RunNow") == false)
             {
                 List<ParametersViewModel> parametersList = new List<ParametersViewModel>();

@@ -128,8 +128,20 @@ export class EmailTestingAccountComponent implements OnInit {
     let obj = {
       to: [
         {
-          name: this.emailform.value.name,
+          name: this.emailform.value.address,
           address: this.emailform.value.address,
+        },
+      ],
+      cc: [
+        {
+          name: this.emailform.value.cc,
+          address: this.emailform.value.cc,
+        },
+      ],
+      bcc: [
+        {
+          name: this.emailform.value.bcc,
+          address: this.emailform.value.bcc,
         },
       ],
       subject: this.emailform.value.subject,
@@ -150,7 +162,7 @@ export class EmailTestingAccountComponent implements OnInit {
 
     this.emailService.SendEmail(this.emailform.value.name, formData).subscribe(
       () => {
-        this.toastrService.success('Email test successfully.', 'Success');
+        this.toastrService.success('Email Send successfully.', 'Success');
         this.router.navigate(['pages/emailaccount/list']);
         this.submitted = false;
       },

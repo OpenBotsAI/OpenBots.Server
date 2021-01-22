@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NbToastrService } from '@nebular/theme';
 import { AgentsService } from '../agents.service';
 import { HttpResponse } from '@angular/common/http';
+import { IpVersion, RxwebValidators } from '@rxweb/reactive-form-validators';
 
 @Component({
   selector: 'ngx-edit-agents',
@@ -12,23 +13,23 @@ import { HttpResponse } from '@angular/common/http';
 })
 export class EditAgentsComponent implements OnInit {
   addagent: FormGroup;
-  submitted = false;
+  isSubmitted = false;
   agent_id: any = [];
   cred_value: any = [];
   show_allagents: any = [];
   etag;
   checked = false;
+  ipVersion = 'V4';
   constructor(
     private acroute: ActivatedRoute,
     private router: Router,
     private formBuilder: FormBuilder,
-    protected agentService: AgentsService,
+    private agentService: AgentsService,
     private toastrService: NbToastrService
   ) {
     this.acroute.queryParams.subscribe((params) => {
       this.agent_id = params.id;
       this.get_allagent(params.id);
-
     });
     this.get_cred();
   }
@@ -46,36 +47,27 @@ export class EditAgentsComponent implements OnInit {
       ],
       machineName: ['', [Validators.required]],
       macAddresses: [''],
-      ipAddresses: [
-        '',
-        [
-          Validators.pattern(
-            '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|(::[1])$'
-          ),
-        ],
-      ],
+      ipAddresses: [''],
       isEnabled: [''],
       CredentialId: ['', [Validators.required]],
+      ipOption: [''],
+      isEnhancedSecurity: false,
     });
   }
 
   get_allagent(id) {
     this.agentService.getAgentbyID(id).subscribe((data: HttpResponse<any>) => {
-      console.log(data)
-      this.show_allagents = data.body;
-      if (this.show_allagents.macAddresses != null) {
-        this.checked = true;
-      } else if (this.show_allagents.macAddresses == null || this.show_allagents.macAddresses == '') {
-        this.checked = false
+      if (data && data.body) {
+        this.show_allagents = data.body;
+        if (data.body.ipOption === 'ipv6') {
+          this.ipVersion = 'V6';
+        }
+        this.etag = data.headers.get('ETag').replace(/\"/g, '');
+        this.addagent.patchValue(this.show_allagents);
+        this.addagent.patchValue({
+          CredentialId: this.show_allagents.credentialId,
+        });
       }
-      console.log(data.headers.get('ETag').replace(/\"/g, ''))
-      this.etag = data.headers.get('ETag').replace(/\"/g, '')
-      this.addagent.patchValue(this.show_allagents);
-
-      this.addagent.patchValue({
-        CredentialId: this.show_allagents.credentialId,
-      }
-      )
     });
   }
   get_cred() {
@@ -83,42 +75,33 @@ export class EditAgentsComponent implements OnInit {
       this.cred_value = data;
     });
   }
-  check(checked: boolean) {
-
-    this.checked = checked;
-    console.log(this.checked)
-  }
 
   get f() {
     return this.addagent.controls;
   }
 
   onSubmit() {
-    this.submitted = true;
-    this.agentService.editAgent(this.agent_id, this.addagent.value, this.etag).subscribe(
-      (data) => {
-        this.toastrService.success('Updated successfully', 'Success');
-        this.router.navigate(['pages/agents/list']);
-      },
-      (error) => {
-        // console.log(error.error.status)
-        if (error.error.status === 409) {
-          this.toastrService.danger(error.error.serviceErrors, 'error')
-          this.get_allagent(this.agent_id)
-          this.submitted = false
+    this.isSubmitted = true;
+    this.agentService
+      .editAgent(this.agent_id, this.addagent.value, this.etag)
+      .subscribe(
+        () => {
+          this.toastrService.success('Updated successfully', 'Success');
+          this.router.navigate(['pages/agents/list']);
+        },
+        (error) => {
+          if (error.error.status === 409) {
+            this.toastrService.danger(error.error.serviceErrors, 'error');
+            this.get_allagent(this.agent_id);
+            this.isSubmitted = false;
+          }
+          if (error.error.status === 429) {
+            this.toastrService.danger(error.error.serviceErrors, 'error');
+            // this.get_allagent(this.agent_id)
+            this.isSubmitted = false;
+          }
         }
-        if (error.error.status === 429) {
-          this.toastrService.danger(error.error.serviceErrors, 'error')
-          // this.get_allagent(this.agent_id)
-          this.submitted = false
-        }
-      }
-    );
-  }
-
-  onReset() {
-    this.submitted = false;
-    this.addagent.reset();
+      );
   }
 
   handleInput(event) {
@@ -126,6 +109,52 @@ export class EditAgentsComponent implements OnInit {
     if (key === 32) {
       event.preventDefault();
       return false;
+    }
+  }
+
+  radioSetValidator(value: string): void {
+    this.addagent.get('ipAddresses').clearValidators();
+    this.addagent.get('ipAddresses').reset();
+    if (value === 'ipv4') {
+      this.ipVersion = 'V4';
+      this.addagent
+        .get('ipAddresses')
+        .setValidators([
+          Validators.required,
+          RxwebValidators.ip({ version: IpVersion.V4 }),
+        ]);
+      this.addagent.get('ipAddresses').updateValueAndValidity();
+    } else {
+      this.ipVersion = 'V6';
+      this.addagent
+        .get('ipAddresses')
+        .setValidators([
+          Validators.required,
+          RxwebValidators.ip({ version: IpVersion.V6 }),
+        ]);
+      this.addagent.get('ipAddresses').updateValueAndValidity();
+    }
+  }
+
+  check(checked: boolean) {
+    this.checked = checked;
+    if (checked) {
+      this.addagent
+        .get('macAddresses')
+        .setValidators([Validators.required, RxwebValidators.mac()]);
+      this.addagent.get('macAddresses').updateValueAndValidity();
+      this.addagent
+        .get('ipAddresses')
+        .setValidators([
+          Validators.required,
+          RxwebValidators.ip({ version: IpVersion.V4 }),
+        ]);
+      this.addagent.get('ipAddresses').updateValueAndValidity();
+    } else {
+      this.addagent.get('ipAddresses').clearValidators();
+      this.addagent.get('ipAddresses').updateValueAndValidity();
+      this.addagent.get('macAddresses').clearValidators();
+      this.addagent.get('macAddresses').updateValueAndValidity();
     }
   }
 }

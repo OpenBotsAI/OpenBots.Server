@@ -11,7 +11,7 @@ namespace OpenBots.Server.Business
 
         public IPAddressRange(IPAddress lowerInclusive, IPAddress upperInclusive)
         {
-            // Assert that lower.AddressFamily == upper.AddressFamily
+            //assert that lower.AddressFamily == upper.AddressFamily
 
             this.addressFamily = lowerInclusive.AddressFamily;
             this.lowerBytes = lowerInclusive.GetAddressBytes();

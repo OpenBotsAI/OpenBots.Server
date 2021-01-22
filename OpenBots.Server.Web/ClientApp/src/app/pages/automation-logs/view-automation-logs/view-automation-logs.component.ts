@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { JsonEditorComponent, JsonEditorOptions } from 'ang-jsoneditor';
@@ -11,7 +11,7 @@ import { TimeDatePipe } from '../../../@core/pipe';
   templateUrl: './view-automation-logs.component.html',
   styleUrls: ['./view-automation-logs.component.scss'],
 })
-export class ViewAutomationLogsComponent implements OnInit, AfterViewInit {
+export class ViewAutomationLogsComponent implements OnInit {
   processLogId: string;
   processLogsForm: FormGroup;
   pipe: TimeDatePipe;
@@ -28,7 +28,7 @@ export class ViewAutomationLogsComponent implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.processLogId = this.route.snapshot.params['id'];
@@ -40,8 +40,6 @@ export class ViewAutomationLogsComponent implements OnInit, AfterViewInit {
       this.getProcessById();
     }
   }
-
-  ngAfterViewInit() { }
 
   initializeForm() {
     return this.fb.group({

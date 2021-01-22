@@ -1,5 +1,4 @@
 ﻿#nullable enable
-using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
 using System;
 using System.Collections.Generic;

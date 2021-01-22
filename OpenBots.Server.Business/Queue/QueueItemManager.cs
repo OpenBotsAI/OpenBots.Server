@@ -350,7 +350,7 @@ namespace OpenBots.Server.Business
                     string organizationId = binaryObjectManager.GetOrganizationId();
                     string apiComponent = "QueueItemAPI";
 
-                    //Create binary object
+                    //create binary object
                     BinaryObject binaryObject = new BinaryObject()
                     {
                         Name = file.FileName,
@@ -362,12 +362,12 @@ namespace OpenBots.Server.Business
 
                     string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
 
-                    //Upload file to the Server
+                    //upload file to the Server
                     binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
                     binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
                     binaryObjectRepository.Add(binaryObject);
 
-                    //Create queue item attachment
+                    //create queue item attachment
                     QueueItemAttachment attachment = new QueueItemAttachment()
                     {
                         BinaryObjectId = (Guid)binaryObject.Id,
@@ -381,7 +381,7 @@ namespace OpenBots.Server.Business
                     payload += attachment.SizeInBytes;
                 }
             }
-            //Update queue item payload
+            //update queue item payload
             queueItem.PayloadSizeInBytes += payload;
             repo.Update(queueItem);
 
@@ -397,7 +397,7 @@ namespace OpenBots.Server.Business
             {
                 var binaryObject = binaryObjectRepository.GetOne(attachment.BinaryObjectId);
 
-                // Check if file with same hash and queue item id already exists
+                //check if file with same hash and queue item id already exists
                 foreach (var file in request.Files)
                 {
                     byte[] bytes = Array.Empty<byte>();
@@ -419,7 +419,7 @@ namespace OpenBots.Server.Business
                     }
                 }
             }
-            // If file doesn't exist in binary objects (list of files): add binary object entity, upload file, and add queue item attachment entity
+            //if file doesn't exist in binary objects (list of files): add binary object entity, upload file, and add queue item attachment entity
             var binaryObjects = AttachFiles(files, (Guid)queueItem.Id, queueItem);
 
             return binaryObjects;

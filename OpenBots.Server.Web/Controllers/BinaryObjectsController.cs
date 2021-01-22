@@ -212,7 +212,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (string.IsNullOrEmpty(existingBinaryObject.Folder))
                     existingBinaryObject.Folder = apiComponent;
 
-                //Find relative directory where binary object is being saved
+                //find relative directory where binary object is being saved
                 string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, existingBinaryObject.Id.ToString());
                 if (filePath != null)
                 {
@@ -402,7 +402,7 @@ namespace OpenBots.Server.Web.Controllers
                     existingBinaryObject.SizeInBytes = request.File.Length;
                     existingBinaryObject.Folder = request.Folder;
 
-                    //Update file in OpenBots.Server.Web using relative directory
+                    //update file in OpenBots.Server.Web using relative directory
                     binaryObjectManager.Update(request.File, organizationId, apiComponent, Guid.Parse(id));
                     await binaryObjectManager.UpdateEntity(request.File, existingBinaryObject.StoragePath, existingBinaryObject.Id.ToString(), apiComponent, existingBinaryObject.Folder, existingBinaryObject.Name);
                 }

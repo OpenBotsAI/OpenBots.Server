@@ -128,28 +128,11 @@ namespace OpenBots.Server.Web.Controllers
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            ODataHelper<AllAutomationsViewModel> oData = new ODataHelper<AllAutomationsViewModel>();
+            ODataHelper<AllAutomationsViewModel> oDataHelper = new ODataHelper<AllAutomationsViewModel>();
 
-            string queryString = "";
+            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            if (HttpContext != null
-                && HttpContext.Request != null
-                && HttpContext.Request.QueryString != null
-                && HttpContext.Request.QueryString.HasValue)
-                queryString = HttpContext.Request.QueryString.Value;
-
-            oData.Parse(queryString);
-            Guid parentguid = Guid.Empty;
-            var newNode = oData.ParseOrderByQuery(queryString);
-            if (newNode == null)
-                newNode = new OrderByNode<AllAutomationsViewModel>();
-
-            Predicate<AllAutomationsViewModel> predicate = null;
-            if (oData != null && oData.Filter != null)
-                predicate = new Predicate<AllAutomationsViewModel>(oData.Filter);
-            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
-
-            return manager.GetAutomationsAndAutomationVersions(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+            return manager.GetAutomationsAndAutomationVersions(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
         }
 
         /// <summary>
@@ -412,7 +395,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (existingAutomation.BinaryObjectId != Guid.Empty && size > 0)
                 {
                     string apiComponent = "AutomationAPI";
-                    //Update file in OpenBots.Server.Web using relative directory
+                    //update file in OpenBots.Server.Web using relative directory
                     newBinaryObject.Id = Guid.NewGuid();
                     newBinaryObject.Name = request.File.FileName;
                     newBinaryObject.Folder = apiComponent;
@@ -426,7 +409,7 @@ namespace OpenBots.Server.Web.Controllers
                     binaryObjectRepo.Update(binaryObject);
                 }
 
-                //Update automation (Create new automation and automation version entities)
+                //update automation (create new automation and automation version entities)
                 Automation response = existingAutomation;
                 AutomationVersion automationVersion = automationVersionRepo.Find(null, q => q.AutomationId == response.Id).Items?.FirstOrDefault();
                 if (existingAutomation.Name.Trim().ToLower() != request.Name.Trim().ToLower() || automationVersion.Status.Trim().ToLower() != request.Status?.Trim().ToLower()) 
@@ -487,7 +470,7 @@ namespace OpenBots.Server.Web.Controllers
                 var automationVersion = automationVersionRepo.Find(null, q => q.AutomationId == existingAutomation.Id).Items?.FirstOrDefault();
                 if (!string.IsNullOrEmpty(automationVersion.Status))
                 {
-                    // Determine a way to check if previous value was not published before setting published properties
+                    //determine a way to check if previous value was not published before setting published properties
                     automationVersion.Status = value.Status;
                     if (automationVersion.Status == "Published")
                     {
@@ -594,7 +577,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                // Remove Automation
+                //remove automation
                 Guid automationId = Guid.Parse(id);
                 var existingAutomation = repository.GetOne(automationId);
                 if (existingAutomation == null) return NotFound();

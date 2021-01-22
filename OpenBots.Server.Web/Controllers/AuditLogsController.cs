@@ -111,28 +111,11 @@ namespace OpenBots.Server.Web.Controllers
         [FromQuery(Name = "$skip")] int skip = 0
         )
         {
-            ODataHelper<AuditLogViewModel> oData = new ODataHelper<AuditLogViewModel>();
+            ODataHelper<AuditLogViewModel> oDataHelper = new ODataHelper<AuditLogViewModel>();
 
-            string queryString = "";
+            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            if (HttpContext != null
-                && HttpContext.Request != null
-                && HttpContext.Request.QueryString != null
-                && HttpContext.Request.QueryString.HasValue)
-                queryString = HttpContext.Request.QueryString.Value;
-
-            oData.Parse(queryString);
-            Guid parentguid = Guid.Empty;
-            var newNode = oData.ParseOrderByQuery(queryString);
-            if (newNode == null)
-                newNode = new OrderByNode<AuditLogViewModel>();
-
-            Predicate<AuditLogViewModel> predicate = null;
-            if (oData != null && oData.Filter != null)
-                predicate = new Predicate<AuditLogViewModel>(oData.Filter);
-            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
-
-            return manager.GetAuditLogsView(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+            return manager.GetAuditLogsView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
         }
 
         /// <summary>
@@ -299,9 +282,9 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                //Determine top value
+                //determine top value
                 int maxExport = int.Parse(config["App:MaxExportRecords"]);
-                top = top > maxExport | top == 0 ? maxExport : top; //If $top is greater than max or equal to 0 use maxExport value
+                top = top > maxExport | top == 0 ? maxExport : top; //if $top is greater than max or equal to 0 use max export value
                 ODataHelper<AuditLog> oData = new ODataHelper<AuditLog>();
                 string queryString = HttpContext.Request.QueryString.Value;
 

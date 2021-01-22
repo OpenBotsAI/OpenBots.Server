@@ -16,5 +16,6 @@ namespace OpenBots.Server.Business
         EmailViewModel GetEmailViewModel(Email email, List<EmailAttachment> attachments);
         Email CreateEmail(AddEmailViewModel request);
         IFormFile[] CheckFiles(IFormFile[] files, Guid id, string hash, List<EmailAttachment> attachments);
+        public PaginatedList<AllEmailAttachmentsViewModel> GetEmailAttachmentsAndNames(Guid emailId, Predicate<AllEmailAttachmentsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
     }
 }

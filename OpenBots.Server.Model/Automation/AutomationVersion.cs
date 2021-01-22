@@ -1,6 +1,5 @@
 ﻿using OpenBots.Server.Model.Core;
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenBots.Server.Model
 {

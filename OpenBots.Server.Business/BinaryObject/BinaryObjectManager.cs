@@ -71,14 +71,14 @@ namespace OpenBots.Server.Business
 
         public string GetHash(HashAlgorithm hashAlgorithm, byte[] input)
         {
-            //Convert the input string to a byte array and compute the hash
+            //convert the input string to a byte array and compute the hash
             byte[] data = hashAlgorithm.ComputeHash(input);
-            //Create new StringBuilder to collect the bytes and create a string
+            //create new StringBuilder to collect the bytes and create a string
             var sBuilder = new StringBuilder();
             //Loop through each byte of the hashed data and format each one as a hexidecimal string
             for (int i = 0; i < data.Length; i++)
                 sBuilder.Append(data[i].ToString("x2"));
-            //Return the hexidecimal string
+            //return the hexidecimal string
             return sBuilder.ToString();
         }
 

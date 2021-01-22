@@ -30,9 +30,10 @@ namespace OpenBots.Server.Web.Controllers
     public class FilesController : EntityController<ServerFile>
     {
         private readonly IFileManager manager;
-        //TODO: Add folder / file (google/amazon/azure)
-        //TODO: Upload / download a file (google/amazon/azure)
-        //TODO: Delete a folder / file (google/amazon/azure)
+
+        //TODO: add folder / file (google/amazon/azure)
+        //TODO: upload / download a file (google/amazon/azure)
+        //TODO: delete a folder / file (google/amazon/azure)
 
         /// <summary>
         /// FilesController constructor

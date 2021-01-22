@@ -11,7 +11,7 @@ namespace OpenBots.Server.Model.Identity
     /// <summary>
     /// Represents a Person
     /// </summary>
-    /// <seealso cref="NamedEntity" />
+    /// <seealso cref="NamedEntity"/>
     public class Person : NamedEntity, ITenanted
     {
         public Person()
@@ -22,10 +22,10 @@ namespace OpenBots.Server.Model.Identity
         }
 
         /// <summary>
-        /// First Name of the Person
+        /// First name of the Person
         /// </summary>
         /// <value>
-        /// The first name.
+        /// The first name
         /// </value>
         [Display(Name= "FirstName")]
         public string? FirstName { get; set; }

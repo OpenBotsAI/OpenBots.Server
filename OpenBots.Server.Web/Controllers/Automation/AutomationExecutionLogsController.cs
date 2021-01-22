@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using OpenBots.Server.Business;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
@@ -103,29 +102,11 @@ namespace OpenBots.Server.Web
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
+            ODataHelper<AutomationExecutionViewModel> oDataHelper = new ODataHelper<AutomationExecutionViewModel>();
 
-            ODataHelper<AutomationExecutionViewModel> oData = new ODataHelper<AutomationExecutionViewModel>();
+            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            string queryString = "";
-
-            if (HttpContext != null
-                && HttpContext.Request != null
-                && HttpContext.Request.QueryString != null
-                && HttpContext.Request.QueryString.HasValue)
-                queryString = HttpContext.Request.QueryString.Value;
-
-            oData.Parse(queryString);
-            Guid parentguid = Guid.Empty;
-            var newNode = oData.ParseOrderByQuery(queryString);
-            if (newNode == null)
-                newNode = new OrderByNode<AutomationExecutionViewModel>();
-
-            Predicate<AutomationExecutionViewModel> predicate = null;
-            if (oData != null && oData.Filter != null)
-                predicate = new Predicate<AutomationExecutionViewModel>(oData.Filter);
-            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
-
-            return automationExecutionLogManager.GetAutomationAndAgentNames(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+            return automationExecutionLogManager.GetAutomationAndAgentNames(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
         }
 
         /// <summary>

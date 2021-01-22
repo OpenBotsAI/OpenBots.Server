@@ -2,9 +2,6 @@
 
 namespace OpenBots.Server.DataAccess.Repositories
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public interface IPasswordPolicyRepository : IEntityRepository<PasswordPolicy>
     {
     }

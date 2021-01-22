@@ -28,10 +28,10 @@ namespace OpenBots.Server.DataAccess.Repositories
         private readonly ClaimsPrincipal _caller;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EntityRepository{T}"/> class.
+        /// Initializes a new instance of the <see cref="EntityRepository{T}"/> class
         /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="logger">The logger.</param>
+        /// <param name="context">The context</param>
+        /// <param name="logger">The logger</param>
         /// <param name="httpContextAccessor"></param>
         public EntityRepository(StorageContext context, ILogger<T> logger, IHttpContextAccessor httpContextAccessor)
             : base(context, logger)
@@ -40,10 +40,10 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Authorizes the operation.
+        /// Authorizes the operation
         /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <param name="operation">The operation.</param>
+        /// <param name="entity">The entity</param>
+        /// <param name="operation">The operation</param>
         /// <returns></returns>
         protected virtual bool AuthorizeOperation(T entity, EntityOperationType operation)
         {
@@ -76,7 +76,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                         throw new EntityAlreadyExistsException();
                 }
 
-                //Get null value from database because it hasn't been added yet
+                //get null value from database because it hasn't been added yet
                 PropertyValues originalValues = null;
                 var currentValues = DbContext.Entry(entity).CurrentValues;
                 var newValues = currentValues.Clone();
@@ -185,9 +185,9 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Softs the delete.
+        /// Softs the delete
         /// </summary>
-        /// <param name="id">The identifier.</param>
+        /// <param name="id">The identifier</param>
         /// <exception cref="EntityDoesNotExistException"></exception>
         /// <exception cref="UnauthorizedOperationException"></exception>
         /// <exception cref="EntityOperationException"></exception>
@@ -235,10 +235,10 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Updates the specified entity.
+        /// Updates the specified entity
         /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <param name="originalTimestamp">Timestamp value of original </param>
+        /// <param name="entity">The entity</param>
+        /// <param name="originalTimestamp">Timestamp value of original</param>
         /// <returns></returns>
         /// <exception cref="EntityValidationException"></exception>
         /// <exception cref="EntityDoesNotExistException"></exception>
@@ -313,7 +313,7 @@ namespace OpenBots.Server.DataAccess.Repositories
 
 
         /// <summary>
-        /// This method creates a changeset style model for Changes being made to the entity.
+        /// This method creates a changeset style model for Changes being made to the entity
         /// This can be used to create audit logs or event queues in conjunction with IEntityOperationEventSink
         /// </summary>
         /// <param name="timestamp"></param>
@@ -399,9 +399,9 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Validates the specified entity.
+        /// Validates the specified entity
         /// </summary>
-        /// <param name="entity">The entity.</param>
+        /// <param name="entity">The entity</param>
         /// <returns></returns> 
         public virtual ValidationResults Validate(T entity)
         {

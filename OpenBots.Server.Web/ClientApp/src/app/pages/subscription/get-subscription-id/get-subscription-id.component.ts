@@ -43,7 +43,7 @@ export class GetSubscriptionIdComponent implements OnInit {
       entityType: [''],
       httP_AddHeader_Key: [''],
       httP_AddHeader_Value: [''],
-      httP_Max_RetryCount: [''],
+      Max_RetryCount: [''],
       httP_URL: [''],
       id: [''],
       integrationEventName: [''],

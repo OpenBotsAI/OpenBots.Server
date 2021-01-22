@@ -27,7 +27,8 @@
 
         <div class="col-md-6 col-lg-6 col-xxxl-6">
           <label for="automationName" class="label">Automation Name</label>
-          <input type="input" nbInput fullWidth id="automationName" formControlName="automationName" style="color:#000000" />
+          <input type="input" nbInput fullWidth id="automationName" formControlName="automationName"
+            style="color:#000000" />
           <p class="link" *ngIf="processLogsForm && processLogsForm.value.automationId">
             <a (click)="navigateToProcess()">
               <u>View details</u>
@@ -40,21 +41,25 @@
           <label for="machineName" class="label">Machine Name</label>
           <input type="input" nbInput fullWidth id="machineName" formControlName="machineName" style="color:#000000" />
         </div>
-        <div class="col-md-6 col-lg-6 col-xxxl-6">
+        <!-- <div class="col-md-6 col-lg-6 col-xxxl-6">
           <label for="message" class="label">Message</label>
           <input type="input" nbInput fullWidth id="message" formControlName="message" style="color:#000000" />
-        </div>
-      </div>
-      <div class="row rowPadTop">
-        <div class="col-md-6 col-lg-6 col-xxxl-6">
-          <label for="messageTemplate" class="label">Message Template</label>
-          <input type="input" nbInput fullWidth id="messageTemplate" formControlName="messageTemplate"
-            style="color:#000000" />
-        </div>
+        </div> -->
         <div class="col-md-6 col-lg-6 col-xxxl-6">
           <label for="level" class="label">Level</label>
           <input type="input" nbInput fullWidth id="level" formControlName="level" style="color:#000000" />
         </div>
+      </div>
+      <div class="row rowPadTop">
+        <!-- <div class="col-md-6 col-lg-6 col-xxxl-6">
+          <label for="messageTemplate" class="label">Message Template</label>
+          <input type="input" nbInput fullWidth id="messageTemplate" formControlName="messageTemplate"
+            style="color:#000000" />
+        </div> -->
+        <!-- <div class="col-md-6 col-lg-6 col-xxxl-6">
+          <label for="level" class="label">Level</label>
+          <input type="input" nbInput fullWidth id="level" formControlName="level" style="color:#000000" />
+        </div> -->
       </div>
       <div class="row rowPadTop">
         <div class="col-md-6 col-lg-6 col-xxxl-6">
@@ -85,13 +90,18 @@
         </div>
       </div>
       <div class="row rowPadTop">
-        <div class="col-md-12 col-lg-12 col-xxxl-6">
+        <div class="col-md-12 col-lg-12 col-xxxl-12">
+          <label class="label">Message</label>
+          <textarea style="color: #000000" rows="4" nbInput fullWidth formControlName="message"></textarea>
+        </div>
+      </div>
+      <div class="row rowPadTop">
+        <div class="col-md-12 col-lg-12 col-xxxl-12">
           <label class="label">Properties</label>
-        
-
           <textarea style="color: #000000" rows="8" nbInput fullWidth formControlName="properties"></textarea>
         </div>
       </div>
+
     </form>
   </nb-card-body>
 </nb-card>

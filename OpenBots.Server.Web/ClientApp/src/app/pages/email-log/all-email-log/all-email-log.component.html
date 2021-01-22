@@ -23,7 +23,7 @@
                     <select class="custom-select service-name" (change)="getEmailAccount($event.target.value)"
                         formControlName="page_name">
                         <option value="" selected>All</option>
-                        <option *ngFor="let item of showallemailaccount" [value]="item.emailAccountId">
+                        <option *ngFor="let item of showallemailaccount | orderBy:'emailAccountName'" [value]="item.emailAccountId">
                             {{ item.emailAccountName }}
                         </option>
                     </select>

@@ -85,7 +85,7 @@ namespace OpenBots.Server.Business.File
             switch (args.Action)
             {
                 case "read":
-                    // reads the file(s) or folder(s) from the given path.
+                    //reads the file(s) or folder(s) from the given path
 
                     //update FileAttribute (retrieval)
                     var fileAttribute = fileAttributeRepository.Find(null).Items?.Where(q => q.Name == FileAttributes.RetrievalCount.ToString()
@@ -95,7 +95,7 @@ namespace OpenBots.Server.Business.File
 
                     return this.operation.ToCamelCase(this.operation.GetFiles(args.Path, args.ShowHiddenItems));
                 case "delete":
-                    // deletes the selected file(s) or folder(s) from the given path.
+                    //deletes the selected file(s) or folder(s) from the given path
                     if (args.IsFile.Equals(true))
                     {
                         DeleteFile(args.Path);
@@ -118,7 +118,7 @@ namespace OpenBots.Server.Business.File
 
                     return this.operation.ToCamelCase(this.operation.Delete(args.Path, args.Names));
                 case "copy":
-                    // copies the selected file(s) or folder(s) from a path and then pastes them into a given target path.
+                    //copies the selected file(s) or folder(s) from a path and then pastes them into a given target path
                     if (args.IsFile.Equals(true))
                     {
                         foreach (var file in args.UploadFiles)
@@ -151,7 +151,7 @@ namespace OpenBots.Server.Business.File
 
                     return this.operation.ToCamelCase(this.operation.Copy(args.Path, args.TargetPath, args.Names, args.RenameFiles, args.TargetData));
                 case "move":
-                    // cuts the selected file(s) or folder(s) from a path and then pastes them into a given target path.
+                    //cuts the selected file(s) or folder(s) from a path and then pastes them into a given target path
                     if (args.IsFile.Equals(true))
                     {
                         foreach (var file in args.UploadFiles)
@@ -183,10 +183,10 @@ namespace OpenBots.Server.Business.File
 
                     return this.operation.ToCamelCase(this.operation.Move(args.Path, args.TargetPath, args.Names, args.RenameFiles, args.TargetData));
                 case "details":
-                    // gets the details of the selected file(s) or folder(s).
+                    //gets the details of the selected file(s) or folder(s)
                     return this.operation.ToCamelCase(this.operation.Details(args.Path, args.Names, args.Data));
                 case "create":
-                    // creates a new folder in a given path.
+                    //creates a new folder in a given path
 
                     //add ServerFolder entity
                     AddFolder(args);
@@ -194,7 +194,7 @@ namespace OpenBots.Server.Business.File
 
                     return this.operation.ToCamelCase(this.operation.Create(args.Path, args.Name));
                 case "search":
-                    // gets the list of file(s) or folder(s) from a given path based on the searched key string.
+                    //gets the list of file(s) or folder(s) from a given path based on the searched key string
 
                     //add to retrieval count value to file attribute entity for each file
                     //update FileAttribute (retrieval)
@@ -208,7 +208,7 @@ namespace OpenBots.Server.Business.File
 
                     return this.operation.ToCamelCase(this.operation.Search(args.Path, args.SearchString, args.ShowHiddenItems, args.CaseSensitive));
                 case "rename":
-                    // renames a file or folder.
+                    //renames a file or folder
                     if (args.IsFile.Equals(true))
                     {
                         //update ServerFile entity
@@ -232,7 +232,7 @@ namespace OpenBots.Server.Business.File
                     }
                     else
         {
-                        //update ServerFoler entity
+                        //update ServerFolder entity
                         serverFolder.ParentFolderId = Guid.Parse(args.ParentId);
                         serverFolder.StoragePath = args.Path;
                         serverFolderRepository.Update(serverFolder);
@@ -349,7 +349,7 @@ namespace OpenBots.Server.Business.File
             serverFileRepository.Add(serverFile);
             webhookPublisher.PublishAsync("Files.NewFileCreated", serverFile.Id.ToString(), serverFile.Name);
 
-            ////upload file to local Server
+            //upload file to local server
             //CheckDirectoryExists(path, organizationId);
 
             //if (file.Length <= 0 || file.Equals(null)) throw new Exception("No file exists");

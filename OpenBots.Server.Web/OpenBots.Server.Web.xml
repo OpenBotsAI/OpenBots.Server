@@ -1133,7 +1133,7 @@
             Controller for email attachments
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.Email.EmailAttachmentsController.#ctor(OpenBots.Server.DataAccess.Repositories.Interfaces.IEmailAttachmentRepository,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IBinaryObjectManager)">
+        <member name="M:OpenBots.Server.Web.Controllers.Email.EmailAttachmentsController.#ctor(OpenBots.Server.DataAccess.Repositories.Interfaces.IEmailAttachmentRepository,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository,OpenBots.Server.Business.IBinaryObjectManager,OpenBots.Server.Business.IEmailManager)">
             <summary>
             EmailAttachmentsController constuctor
             </summary>
@@ -1144,6 +1144,7 @@
             <param name="configuration"></param>
             <param name="binaryObjectRepository"></param>
             <param name="binaryObjectManager"></param>
+            <param name="manager"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.Email.EmailAttachmentsController.Get(System.String,System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -1186,6 +1187,21 @@
             <response code="404">Not found, when no email attachment exists for the given email attachment id</response>
             <response code="422">Unprocessable entity</response>
             <returns>Email attachment details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.Email.EmailAttachmentsController.GetView(System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides all email attachments view for an email
+            </summary>
+            <param name="filter"></param>
+            <param name="orderBy"></param>
+            <param name="skip"></param>
+            <param name="top"></param>
+            <response code="200">Ok, a paginated list of email attachments view</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of email attachments view</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.Email.EmailAttachmentsController.Post(System.String,System.String[])">
              <summary>

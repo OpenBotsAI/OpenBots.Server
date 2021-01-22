@@ -129,7 +129,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Put(string id, [FromBody] Person value)
         {
-            //Use logged in User Context
+            //use logged in user context
             if (applicationUser == null)
             {
                 return Unauthorized();

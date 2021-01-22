@@ -164,14 +164,14 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                 }
 
                 ApplicationUser user = null;
-                //Sign in user id
+                //sign in user id
                 string signInUser = loginModel.UserName;
                 if (RegexUtilities.IsValidEmail(signInUser))
                 {
-                    //First check if emailId exists
+                    //first check if email id exists
                     user = await userManager.FindByEmailAsync(signInUser).ConfigureAwait(true);
                 }
-                else //Not emailId, then find by username.
+                else //no email id, then find by username
                 {
                     user = await userManager.FindByNameAsync(signInUser).ConfigureAwait(true);
                 }
@@ -199,8 +199,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                 int skip = 0;
                 int take = 100;
                 var personOrgs = membershipManager.Search(user.PersonId, startsWith, skip, take);
-                // Issue #2791 We will disable the need for User Consent for this release.
-                bool isUserConsentRequired = false; // VerifyUserAgreementConsentStatus(user.PersonId);
+                //issue #2791 We will disable the need for User Consent for this release
+                bool isUserConsentRequired = false; //VerifyUserAgreementConsentStatus(user.PersonId);
                 var pendingAcessOrgs = membershipManager.PendingOrganizationAccess(user.PersonId);
                 var newRefreshToken = GenerateRefreshToken();
                 var authenticatedUser = new
@@ -216,7 +216,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     myOrganizations = personOrgs?.Items,
                     agent = agentId
             };
-                //Save refresh token
+                //save refresh token
                 await userManager.SetAuthenticationTokenAsync(user, userManager.Options.Tokens.AuthenticatorTokenProvider, "refresh", newRefreshToken).ConfigureAwait(false);
                 try
                 {
@@ -235,7 +235,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                         auditLog.ParametersJson = "";
                         auditLog.ExceptionJson = "";
 
-                        auditLogRepository.Add(auditLog); //Log entry
+                        auditLogRepository.Add(auditLog); //log entry
                     }
                 }
                 catch (Exception ex)
@@ -250,7 +250,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
 
         private async void VerifyUserEmailAsync(ApplicationUser user)
         {
-            //Verify email address is confirmed with identity 
+            //verify email address is confirmed with identity 
             var emailConfirmed = userManager.IsEmailConfirmedAsync(user).Result;
             if (!emailConfirmed)
             {
@@ -275,7 +275,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                             personEmailRepository.Add(personEmail);
                         }
 
-                        //Verification completed
+                        //verification completed
                         emailVerification.IsVerified = true;
                         emailVerificationRepository.Update(emailVerification);
                     }
@@ -315,11 +315,11 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
 
                 if (member != null)
                 {
-                    //Already a member of the organization
+                    //already a member of the organization
                     ModelState.AddModelError("Register", "Email address already exists");
                     return BadRequest(ModelState);
                 }
-                // Make a request to join organization
+                //make a request to join organization
                 var oldOrganization = organizationManager.GetDefaultOrganization();
                 accessRequestRepository.ForceIgnoreSecurity();
                 var existingRequest = accessRequestRepository.Find(null, m => m.PersonId == emailAddress.PersonId)?.Items?.FirstOrDefault();
@@ -327,7 +327,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
 
                 if (oldOrganization != null && existingRequest == null)
                 {
-                    //Update user 
+                    //update user 
                     if (!IsPasswordValid(signupModel.Password))
                     {
                         ModelState.AddModelError("Password", PasswordRequirementMessage(signupModel.Password));
@@ -350,7 +350,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     person.Department = signupModel.Department;
                     personRepository.Update(person);
 
-                    //Create a new access request
+                    //create a new access request
                     Model.Membership.AccessRequest accessRequest = new Model.Membership.AccessRequest()
                     {
                         OrganizationId = oldOrganization.Id,
@@ -381,7 +381,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                 Name = signupModel.Name,
                 UserName = signupModel.Email,
                 Email = signupModel.Email,
-                ForcedPasswordChange = false //Set this property to not show password reset secreen for new user
+                ForcedPasswordChange = false //set this property to not show password reset secreen for new user
             };
 
             RandomPassword randomPass = new RandomPassword();
@@ -406,7 +406,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             }
             else
             {
-                //Add person email
+                //add person email
                 var emailIds = new List<EmailVerification>();
                 var personEmail = new EmailVerification()
                 {
@@ -425,7 +425,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                 };
                 var person = personRepository.Add(newPerson);
 
-                //Create new organization if count is zero
+                //create new organization if count is zero
                 if (signupModel.CreateNewOrganization)
                 {
                     Organization value = new Organization();
@@ -447,7 +447,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                         organizationMemberRepository.Add(newOrgMember);
                         organizationMemberRepository.ForceSecurity();
 
-                        //Update IPFencing allow rule for the current user
+                        //update IP fencing allow rule for the current user
                         var ipAddress = context.HttpContext.Connection.RemoteIpAddress;
                         var rule = iPFencingRepository.Find(0, 1).Items?.Where(q => q.IPAddress == ipAddress.ToString()).FirstOrDefault();
                         if (rule != null && rule.OrganizationId == null)
@@ -469,7 +469,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                             iPFencingRepository.Add(rule);
                         }
 
-                        //Add organization setting to deny all users except current one
+                        //add organization setting to deny all users except current one
                         var orgSettings = new OrganizationSetting()
                         {
                             OrganizationId = newOrganization.Id,
@@ -489,7 +489,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     var oldOrganization = organizationManager.GetDefaultOrganization();
                     if (oldOrganization != null)
                     {
-                        //Add it to access requests
+                        //add it to access requests
                         AccessRequest accessRequest = new AccessRequest()
                         {
                             OrganizationId = oldOrganization.Id,
@@ -502,7 +502,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     }
                 }
 
-                //Update the user 
+                //update the user 
                 if (person != null)
                 {
                     var registeredUser = userManager.FindByNameAsync(user.UserName).Result;
@@ -677,7 +677,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             }
             catch (InvalidOperationException ioe)
             {
-                // ConfirmEmailAsync throws when the userId is not found.
+                //method ConfirmEmailAsync throws exception when the userId is not found
                 return ioe.GetActionResult();
             }
 
@@ -699,7 +699,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                         personEmailRepository.Add(personEmail);
                     }
 
-                    //Verification completed
+                    //verification completed
                     emailVerification.IsVerified = true;
                     emailVerificationRepository.Update(emailVerification);
                 }
@@ -707,7 +707,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                 return Redirect(string.Format("{0}{1}", webAppUrlOptions.Url, webAppUrlOptions.Login));
             }
 
-            // If we got this far, something failed.
+            //if we got this far, something failed
             return Redirect(string.Format("{0}{1}", webAppUrlOptions.Url, webAppUrlOptions.Tokenerror));
         }
 
@@ -805,7 +805,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
 
             try
             {
-                //Resending 
+                //resending 
                 byte[] time = BitConverter.GetBytes(DateTime.UtcNow.ToBinary());
                 byte[] key = applicationUser.PersonId.ToByteArray();
                 string token = Convert.ToBase64String(time.Concat(key).ToArray());
@@ -868,7 +868,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         [Route("ConfirmEmailAddress")]
         public async Task<IActionResult> ConfirmEmailAddress(string emailAddress, string token)
         {
-            //To decode the token to get the creation time, person Id:
+            //to decode the token to get the creation time, person id
             byte[] data = Convert.FromBase64String(token);
             byte[] _time = data.Take(8).ToArray();
             byte[] _key = data.Skip(8).ToArray();
@@ -896,7 +896,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     personEmailRepository.Add(personEmail);
                 }
 
-                //Verification completed
+                //verification completed
                 emailVerification.IsVerified = true;
                 emailVerificationRepository.Update(emailVerification);
             }
@@ -927,7 +927,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
 
             var principal = GetPrincipalFromExpiredToken(model.Token);
             var username = principal.Identity.Name;
-            var savedRefreshToken = await GetRefreshToken(username); //Retrieve the refresh token from [AspNetUserTokens] table
+            var savedRefreshToken = await GetRefreshToken(username); //retrieve the refresh token from [AspNetUserTokens] table
 
             if (savedRefreshToken != model.RefreshToken)
             {

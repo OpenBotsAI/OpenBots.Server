@@ -1,8 +1,6 @@
-﻿using OpenBots.Server.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace OpenBots.Server.ViewModel
 {

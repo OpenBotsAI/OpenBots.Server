@@ -28,18 +28,18 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Authorizes the row.
+        /// Authorizes the row
         /// </summary>
-        /// <param name="entity">The entity.</param>
+        /// <param name="entity">The entity</param>
         /// <returns></returns>
         protected override bool AuthorizeRow(T entity)
         {
-            // If Security Has been Forcefully Switched Off by Calling ForceIgnoreSecurity() method
+            //if security has been forcefully switched off by calling ForceIgnoreSecurity() method
             if (ignoreSecurity)
                 return true;
 
-            // If the Entity is NULL or OrganizationID is empty, there is nothing to check.
-            // However we need to make sure that End users do not have option to Add Records that have OrganizationID as NULL/Empty.
+            //if the entity is NULL or OrganizationID is empty, there is nothing to check
+            //however, we need to make sure that end users do not have option to add records that have OrganizationID as NULL/empty
             if (entity == null|| !entity.OrganizationId.HasValue || entity.OrganizationId.Value.Equals(Guid.Empty))
                 return true;
 
@@ -60,8 +60,8 @@ namespace OpenBots.Server.DataAccess.Repositories
             if (ignoreSecurity)
                 return true;
 
-            // If the Entity is NULL or OrganizationID is empty, there is nothing to check.
-            // However we need to make sure that End users do not have option to Add Records that have OrganizationID as NULL/Empty.
+            //if the entity is NULL or OrganizationID is empty, there is nothing to check
+            //however, we need to make sure that end users do not have option to add records that have OrganizationID as NULL/empty
             if (organizationId == null)
                 return true;
 
@@ -78,7 +78,7 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Authorizes the read.
+        /// Authorizes the read
         /// </summary>
         /// <returns></returns>
         protected override Func<T, bool> AuthorizeRead()
@@ -87,14 +87,14 @@ namespace OpenBots.Server.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Authorizes the operation.
+        /// Authorizes the operation
         /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <param name="operation">The operation.</param>
+        /// <param name="entity">The entity</param>
+        /// <param name="operation">The operation</param>
         /// <returns></returns>
         protected override bool AuthorizeOperation(T entity, EntityOperationType operation)
         {
-            // get value of AuthorizeRow and if false then no acccess
+            //get value of AuthorizeRow and if false then no access
             return AuthorizeRow(entity);
         }
     }

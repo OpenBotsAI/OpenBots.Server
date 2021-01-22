@@ -24,7 +24,7 @@ p,
     padding: 0px !important;
     color: black !important;
     margin-right: 8px !important;
-    margin-bottom: 0px !important;
+    margin-bottom: 10px !important;
     font-weight: 600 !important;
 }
 
@@ -156,6 +156,9 @@ h2 {
     }
     .label, .btn.btn-primary{
         margin-top:15px !important;
+    }
+    .enhanceBtn .label, nb-checkbox.enhanceBtn{
+        margin: 0px !important;
     }
 }
 

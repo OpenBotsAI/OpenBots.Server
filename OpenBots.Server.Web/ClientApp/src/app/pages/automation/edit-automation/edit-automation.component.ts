@@ -57,6 +57,7 @@ export class EditAutomationComponent implements OnInit {
         this.show_allprocess = data.body;
         this.etag = data.headers.get('ETag').replace(/\"/g, '');
         this.showprocess.patchValue(data.body);
+        // this.showprocess.disable(this.showprocess.)
       });
   }
 

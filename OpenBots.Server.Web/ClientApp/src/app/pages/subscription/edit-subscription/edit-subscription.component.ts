@@ -45,7 +45,7 @@ export class EditSubscriptionComponent implements OnInit {
       entityType: [''],
       httP_AddHeader_Key: [''],
       httP_AddHeader_Value: [''],
-      httP_Max_RetryCount: [''],
+      Max_RetryCount: [''],
       httP_URL: [''],
       id: [''],
       integrationEventName: [''],
@@ -118,7 +118,7 @@ export class EditSubscriptionComponent implements OnInit {
       this.showTabview = false;
       this.subscriptionForm.get('httP_AddHeader_Key').reset();
       this.subscriptionForm.get('httP_AddHeader_Value').reset();
-      this.subscriptionForm.get('httP_Max_RetryCount').reset();
+      this.subscriptionForm.get('Max_RetryCount').reset();
       this.subscriptionForm.get('httP_URL').reset();
     }
   }

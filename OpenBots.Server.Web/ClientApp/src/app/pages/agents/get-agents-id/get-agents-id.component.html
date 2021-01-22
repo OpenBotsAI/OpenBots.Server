@@ -8,8 +8,9 @@
           </div>
 
           <div class="col-md-4 col-lg-4 col-xxxl-6 text-right">
-            <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn " (click)="gotoaudit()"  > 
-              <img class="img" src="../../../../assets/images/auditLog.svg">   </button>
+            <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn "
+              (click)="gotoaudit()">
+              <img class="img" src="../../../../assets/images/auditLog.svg"> </button>
           </div>
         </div>
       </nb-card-header>
@@ -34,7 +35,40 @@
             </div>
 
           </div>
-          <div class="row">
+          <div class="row rowPadTOp">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="email" class="label"> Enhanced Security</label>
+              <nb-checkbox class="enhanceBtn" formControlName="isEnhancedSecurity" style="color:#000000">
+              </nb-checkbox>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6" *ngIf="addagent.value.isEnhancedSecurity">
+              <label for="macaddress" class="label">Mac Addresses </label>
+              <input type="input" nbInput fullWidth id="macAddresses" formControlName="macAddresses"
+                style="color:#000000">
+            </div>
+          </div>
+
+          <div class="row" *ngIf="addagent.value.isEnhancedSecurity">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label class="label" style="display: block;">Please select IP version *</label>
+              <nb-radio-group formControlName="ipOption">
+                <nb-radio class="ipOption" style="display: inline-block;" value="ipv4" disabled style="color:#000000">
+                  IPV4
+                </nb-radio>
+                <nb-radio class="ipOption" style="display: inline-block;" value="ipv6" disabled style="color:#000000">
+                  IPV6
+                </nb-radio>
+              </nb-radio-group>
+            </div>
+            <!-- ({{ipVersion}})  -->
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="ipadd" class="label">IP Address</label>
+              <input type="input" nbInput fullWidth id="ipAddresses" formControlName="ipAddresses"
+                style="color:#000000">
+            </div>
+          </div>
+
+          <!-- <div class="row">
 
             <div class="col-md-6">
               <div class="form-group ">
@@ -53,12 +87,11 @@
               </div>
             </div>
 
-          </div>
+          </div> -->
           <div class="row">
             <div class="col-md-6">
               <div class="form-group ">
                 <label class="label  col-form-label">OS Logon Credentials</label>
-
                 <input type="input" nbInput fullWidth formControlName="credentialName" style="color:#000000">
               </div>
             </div>
@@ -67,7 +100,7 @@
                 <label class="label  col-form-label">Is Enabled</label>
                 <div class="checkbox checbox-switch switch-primary">
                   <label>
-                    <input type="checkbox" name="isAdmin" formControlName="isEnabled" />
+                    <input type="checkbox" name="isAdmin" formControlName="isEnabled" [attr.disabled] />
                     <span></span>
                   </label>
                 </div>
@@ -81,7 +114,6 @@
             <div class="col-md-6">
               <div class="form-group ">
                 <label class="label  col-form-label">Last Reported Status By</label>
-
                 <input type="input" nbInput fullWidth id="agentname" formControlName="lastReportedStatus"
                   style="color:#000000">
               </div>
@@ -90,7 +122,6 @@
             <div class="col-md-6">
               <div class="form-group ">
                 <label class="label  col-form-label">Is Healthy</label>
-
                 <input type="input" nbInput fullWidth id="agentname" formControlName="isHealthy" style="color:#000000">
               </div>
             </div>
@@ -101,7 +132,6 @@
             <div class="col-md-6">
               <div class="form-group ">
                 <label class="label  col-form-label">Last Reported Message</label>
-
                 <input type="input" nbInput fullWidth id="agentname" formControlName="lastReportedMessage"
                   style="color:#000000">
               </div>
@@ -109,45 +139,40 @@
             <div class="col-md-6">
               <div class="form-group ">
                 <label class="label  col-form-label">Last Reported On</label>
-
                 <input type="input" nbInput fullWidth id="agentname" formControlName="lastReportedOn"
                   style="color:#000000">
               </div>
             </div>
           </div>
         </form>
-   <hr  *ngIf="showGridHeatbeat == true">
-          <table class="table table-bordered" *ngIf="showGridHeatbeat == true">
-      <thead>
-        <tr>
-          <th scope="col">
-            last Reported Message
-            <i (click)="onSortClick($event, 'lastReportedMessage')" class="my-icon fa fa-chevron-up"></i>
-          </th>
-
-          <th scope="col">
-            last Reported On
-            <i (click)="onSortClick($event, 'lastReportedOn')" class="my-icon fa fa-chevron-up"></i>
-          </th>
-          <th scope="col">
-            last Reported Status
-            <i (click)="onSortClick($event, 'lastReportedStatus')" class="my-icon fa fa-chevron-up"></i>
-          </th>
-          <th scope="col">
-          last Reported Work
-            <i (click)="onSortClick($event, 'lastReportedWork')" class="my-icon fa fa-chevron-up"></i>
-          </th>
-   
-           <th scope="col">
-                 Healthy
-            <i (click)="onSortClick($event, 'isHealthy')" class="my-icon fa fa-chevron-up"></i>
-          </th>
- 
-        
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="
+        <hr *ngIf="showGridHeatbeat == true">
+        <table class="table table-bordered" *ngIf="showGridHeatbeat == true">
+          <thead>
+            <tr>
+              <th scope="col">
+                last Reported Message
+                <i (click)="onSortClick($event, 'lastReportedMessage')" class="my-icon fa fa-chevron-up"></i>
+              </th>
+              <th scope="col">
+                last Reported On
+                <i (click)="onSortClick($event, 'lastReportedOn')" class="my-icon fa fa-chevron-up"></i>
+              </th>
+              <th scope="col">
+                last Reported Status
+                <i (click)="onSortClick($event, 'lastReportedStatus')" class="my-icon fa fa-chevron-up"></i>
+              </th>
+              <th scope="col">
+                last Reported Work
+                <i (click)="onSortClick($event, 'lastReportedWork')" class="my-icon fa fa-chevron-up"></i>
+              </th>
+              <th scope="col">
+                Healthy
+                <i (click)="onSortClick($event, 'isHealthy')" class="my-icon fa fa-chevron-up"></i>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="
             let agent of showAgentHeartBeat
               | paginate
                 : {
@@ -156,43 +181,38 @@
                     currentPage: page.pageNumber,
                     totalItems: page.totalCount
                   } ">
-          <td scope="row"  >
-            <ngx-tooltip [data]="agent?.lastReportedMessage" [size]="40"> </ngx-tooltip>
-          </td>
-          
-          <td scope="row">
-            <ngx-tooltip [data]="agent?.lastReportedOn | timeDate: 'lll'" [size]="40">
-            </ngx-tooltip>
-          </td>
-            <td scope="row">
-            <ngx-tooltip [data]="agent?.lastReportedStatus" [size]="40">
-            </ngx-tooltip>
-          </td>
-            <td scope="row">
-            <ngx-tooltip [data]="agent?.lastReportedWork" [size]="40">
-            </ngx-tooltip>
-          </td>
-          
-          <td scope="row">
-            <ngx-tooltip [data]="agent?.isHealthy" [size]="40">
-            </ngx-tooltip>
-          </td>
-          
-           
-           
-        </tr>
-      </tbody>
-    </table>
+              <td scope="row">
+                <ngx-tooltip [data]="agent?.lastReportedMessage" [size]="40"> </ngx-tooltip>
+              </td>
+              <td scope="row">
+                <ngx-tooltip [data]="agent?.lastReportedOn | timeDate: 'lll'" [size]="40">
+                </ngx-tooltip>
+              </td>
+              <td scope="row">
+                <ngx-tooltip [data]="agent?.lastReportedStatus" [size]="40">
+                </ngx-tooltip>
+              </td>
+              <td scope="row">
+                <ngx-tooltip [data]="agent?.lastReportedWork" [size]="40">
+                </ngx-tooltip>
+              </td>
+              <td scope="row">
+                <ngx-tooltip [data]="agent?.isHealthy" [size]="40">
+                </ngx-tooltip>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </nb-card-body>
-       <!-- <nb-card-body class="noTopPadding">
-    <div class="row pagerow">
-      <div class="col-md-8 col-lg-8 no-left-padding">
-        <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
-          (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks="true"
-          autoHide="true" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
-          screenReaderCurrentLabel="You're on page"></pagination-controls>
-      </div>
-      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
+      <nb-card-body class="noTopPadding" *ngIf="showGridHeatbeat == true">
+        <div class="row pagerow">
+          <div class="col-md-8 col-lg-8 no-left-padding">
+            <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+              (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks="true"
+              autoHide="true" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
+              screenReaderCurrentLabel="You're on page"></pagination-controls>
+          </div>
+          <!-- <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
         <label class="label">Total {{ showpage.totalCount }} /</label>
 
         <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
@@ -200,9 +220,9 @@
             {{ item.name }}
           </option>
         </select>
-      </div>
-    </div>
-  </nb-card-body> -->
+      </div> -->
+        </div>
+      </nb-card-body>
     </nb-card>
   </div>
 </div>

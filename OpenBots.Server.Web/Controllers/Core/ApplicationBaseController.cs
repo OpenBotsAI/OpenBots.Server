@@ -51,7 +51,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             var userId = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId != null)
             {
-                //Get logged in user 
+                //get logged in user 
                 applicationUser = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
                 if (applicationUser != null)
                 {

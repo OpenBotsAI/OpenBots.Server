@@ -119,7 +119,7 @@ namespace OpenBots.Server.Business
                         string organizationId = binaryObjectManager.GetOrganizationId();
                         string apiComponent = "EmailAPI";
 
-                        //Add file to Binary Objects (create entity and put file in EmailAPI folder in Server)
+                        //add file to binary objects (create entity and put file in EmailAPI folder in server)
                         binaryObject = new BinaryObject()
                         {
                             Name = file.FileName,
@@ -130,12 +130,12 @@ namespace OpenBots.Server.Business
                         };
 
                         string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
-                        //Upload file to Server
+                        //upload file to server
                         binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
                         binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
                         binaryObjectRepository.Add(binaryObject);
 
-                        //Create email attachment
+                        //create email attachment
                         EmailAttachment emailAttachment = new EmailAttachment()
                         {
                             Name = binaryObject.Name,
@@ -163,17 +163,17 @@ namespace OpenBots.Server.Business
                 foreach (var attachment in attachments)
                 {
                     var binaryObject = binaryObjectRepository.GetOne((Guid)attachment.BinaryObjectId);
-                    //Check if file with same hash and email id already exists
+                    //check if file with same hash and email id already exists
                     foreach (var file in files)
                     {
                         hash = GetHash(hash, file);
 
-                        //If email attachment already exists and hash is the same: remove from files list
+                        //if email attachment already exists and hash is the same: remove from files list
                         if (binaryObject.ContentType == file.ContentType && binaryObject.CorrelationEntityId == id && binaryObject.Name == file.FileName && binaryObject.HashCode == hash)
                         {
                             filesList.Remove(file);
                         }
-                        //If email attachment exists but the hash is not the same: update the attachment and file, remove from files list
+                        //if email attachment exists but the hash is not the same: update the attachment and file, remove from files list
                         else if (binaryObject.ContentType == file.ContentType && binaryObject.CorrelationEntityId == id && binaryObject.Name == file.Name)
                         {
                             emailAttachmentRepository.Update(attachment);
@@ -183,7 +183,7 @@ namespace OpenBots.Server.Business
                         }
                     }
                 }
-                //If file doesn't exist, keep it in files list and return files to be attached
+                //if file doesn't exist, keep it in files list and return files to be attached
                 var filesArray = filesList.ToArray();
                 return filesArray;
             }
@@ -227,21 +227,21 @@ namespace OpenBots.Server.Business
             if (id != null || Guid.Parse(id) != Guid.Empty)
                 email.Id = Guid.Parse(id);
 
-            //Find Email Settings and determine is email is enabled/disabled
+            //find email settings and determine is email is enabled/disabled
             var organizationId = Guid.Parse(organizationManager.GetDefaultOrganization().Id.ToString());
             var emailSettings = emailSettingsRepository.Find(null, s => s.OrganizationId == organizationId).Items.FirstOrDefault();
-            //Check if accountName exists
+            //check if accountName exists
             var existingAccount = emailAccountRepository.Find(null, d => d.Name.ToLower(null) == accountName?.ToLower(null))?.Items?.FirstOrDefault();
             if (existingAccount == null)
                 existingAccount = emailAccountRepository.Find(null, d => d.IsDefault && !d.IsDisabled).Items.FirstOrDefault();
 
-            //If there are NO records in the Email Settings table for that Organization, email should be disabled
+            //if there are no records in the email settings table for that organization, email should be disabled
             if (emailSettings == null)
             {
                 email.Status = StatusType.Blocked.ToString();
                 email.Reason = "Email disabled.  Please configure email settings.";
             }
-            //If there are email settings but they are disabled, don't send email
+            //if there are email settings but they are disabled, don't send email
             else if (emailSettings != null && emailSettings.IsEmailDisabled)
             {
                 email.Status = StatusType.Blocked.ToString();
@@ -263,7 +263,7 @@ namespace OpenBots.Server.Business
                         email.Reason = $"Account '{accountName}' has been disabled.";
                     }
                 }
-                //Set From Email Address
+                //set from email address
                 else if (existingAccount != null)
                 {
                     EmailAddress fromEmailAddress = new EmailAddress(existingAccount.FromName, existingAccount.FromEmailAddress);
@@ -280,7 +280,7 @@ namespace OpenBots.Server.Business
                     emailMessage.From.Add(fromEmailAddress);
                 }
 
-                //Remove email addresses in to, cc, and bcc lists with domains that are blocked or not allowed
+                //remove email addresses in to, cc, and bcc lists with domains that are blocked or not allowed
                 List<EmailAddress> toList = new List<EmailAddress>();
                 List<EmailAddress> ccList = new List<EmailAddress>();
                 List<EmailAddress> bccList = new List<EmailAddress>();
@@ -289,7 +289,7 @@ namespace OpenBots.Server.Business
                 {
                     if (!string.IsNullOrEmpty(emailSettings.BlockedDomains))
                     {
-                        //Remove any email address that is in blocked domain
+                        //remove any email address that is in blocked domain
                         IEnumerable<string>? denyList = (new List<string>(emailSettings?.BlockedDomains?.Split(','))).Select(s => s.ToLowerInvariant().Trim());
                         foreach (EmailAddress address in emailMessage.To)
                         {
@@ -332,7 +332,7 @@ namespace OpenBots.Server.Business
                 {
                     if (!string.IsNullOrEmpty(emailSettings.AllowedDomains))
                     {
-                        //Remove any email address that is not on white list
+                        //remove any email address that is not on white list
                         IEnumerable<string> allowList = (new List<string>(emailSettings.AllowedDomains.Split(','))).Select(s => s.ToLowerInvariant().Trim());
                         foreach (EmailAddress address in emailMessage.To)
                         {
@@ -378,7 +378,7 @@ namespace OpenBots.Server.Business
                     email.Reason = "No email addresses to send email to.";
                 }
 
-                //Add any necessary additional email addresses (Administrators, etc.)
+                //add any necessary additional email addresses (administrators, etc.)
                 if (!string.IsNullOrEmpty(emailSettings.AddToAddress))
                 {
                     foreach (string toAddress in emailSettings.AddToAddress.Split(','))
@@ -404,7 +404,7 @@ namespace OpenBots.Server.Business
                     }
                 }
 
-                //Add Subject and Body Prefixes/Suffixes
+                //add subject and body prefixes/suffixes
                 if (!string.IsNullOrEmpty(emailSettings.SubjectAddPrefix) && !string.IsNullOrEmpty(emailSettings.SubjectAddSuffix))
                     emailMessage.Subject = string.Concat(emailSettings.SubjectAddPrefix, emailMessage.Subject, emailSettings.SubjectAddSuffix);
                 if (!string.IsNullOrEmpty(emailSettings.SubjectAddPrefix) && string.IsNullOrEmpty(emailSettings.SubjectAddSuffix))
@@ -413,7 +413,7 @@ namespace OpenBots.Server.Business
                     emailMessage.Subject = string.Concat(emailMessage.Subject, emailSettings.SubjectAddSuffix);
                 else emailMessage.Subject = emailMessage.Subject;
 
-                //Check if Email Message body is html or plaintext
+                //check if email message body is html or plaintext
                 if (emailMessage.IsBodyHtml)
                 {
                     if (!string.IsNullOrEmpty(emailSettings.BodyAddPrefix) && !string.IsNullOrEmpty(emailSettings.BodyAddSuffix))
@@ -435,7 +435,7 @@ namespace OpenBots.Server.Business
                     else emailMessage.PlainTextBody = emailMessage.Body;
                 }
 
-                //Send email
+                //send email
                 ISendEmailChore sendEmailChore = null;
 
                 if (existingAccount != null)
@@ -470,7 +470,7 @@ namespace OpenBots.Server.Business
                 }
             }
 
-            //Log email and its status
+            //log email and its status
             if (existingAccount != null)
                 email.EmailAccountId = Guid.Parse(existingAccount.Id.ToString());
             email.SentOnUTC = DateTime.UtcNow;
@@ -538,6 +538,11 @@ namespace OpenBots.Server.Business
             else if (organizationId.Equals(Guid.Empty))
                 return false;
             else return true;
+        }
+
+        public PaginatedList<AllEmailAttachmentsViewModel> GetEmailAttachmentsAndNames(Guid emailId, Predicate<AllEmailAttachmentsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        {
+            return emailAttachmentRepository.FindAllView(emailId, predicate, sortColumn, direction, skip, take);
         }
 
         public enum StatusType : int

@@ -156,9 +156,9 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                //Determine top value
+                //determine top value
                 int maxExport = int.Parse(config["App:MaxExportRecords"]);
-                top = top > maxExport | top == 0 ? maxExport : top; //If $top is greater than max or equal to 0 use maxExport value
+                top = top > maxExport | top == 0 ? maxExport : top; //if $top is greater than max or equal to 0 use max export value
                 ODataHelper<AutomationLog> oData = new ODataHelper<AutomationLog>();
                 string queryString = HttpContext.Request.QueryString.Value;
 

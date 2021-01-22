@@ -134,28 +134,11 @@ namespace OpenBots.Server.Web.Controllers.Queue
         [FromQuery(Name = "$top")] int top = 100,
         [FromQuery(Name = "$skip")] int skip = 0)
         {
-            ODataHelper<AllQueueItemAttachmentsViewModel> oData = new ODataHelper<AllQueueItemAttachmentsViewModel>();
+            ODataHelper<AllQueueItemAttachmentsViewModel> oDataHelper = new ODataHelper<AllQueueItemAttachmentsViewModel>();
 
-            string queryString = "";
+            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            if (HttpContext != null
-                && HttpContext.Request != null
-                && HttpContext.Request.QueryString != null
-                && HttpContext.Request.QueryString.HasValue)
-                queryString = HttpContext.Request.QueryString.Value;
-
-            oData.Parse(queryString);
-            Guid parentguid = Guid.Empty;
-            var newNode = oData.ParseOrderByQuery(queryString);
-            if (newNode == null)
-                newNode = new OrderByNode<AllQueueItemAttachmentsViewModel>();
-
-            Predicate<AllQueueItemAttachmentsViewModel> predicate = null;
-            if (oData != null && oData.Filter != null)
-                predicate = new Predicate<AllQueueItemAttachmentsViewModel>(oData.Filter);
-            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
-
-            return manager.GetQueueItemAttachmentsAndNames(Guid.Parse(queueItemId), predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+            return manager.GetQueueItemAttachmentsAndNames(Guid.Parse(queueItemId), oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
         }
 
         /// <summary>
@@ -274,7 +257,7 @@ namespace OpenBots.Server.Web.Controllers.Queue
                         return BadRequest(ModelState);
                     }
 
-                    // Create queue item attachment
+                    //create queue item attachment
                     QueueItemAttachment queueItemAttachment = new QueueItemAttachment()
                     {
                         BinaryObjectId = (Guid)binaryObject.Id,
@@ -287,7 +270,7 @@ namespace OpenBots.Server.Web.Controllers.Queue
                     payload += queueItemAttachment.SizeInBytes;
                 }
 
-                //Update queue item payload
+                //update queue item payload
                 queueItem.PayloadSizeInBytes += (long)payload;
                 queueItemRepository.Update(queueItem);
                 await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
@@ -413,18 +396,18 @@ namespace OpenBots.Server.Web.Controllers.Queue
 
                     if (existingAttachment.BinaryObjectId != Guid.Empty && size > 0)
                     {
-                        //Update attachment file in OpenBots.Server.Web using relative directory
+                        //update attachment file in OpenBots.Server.Web using relative directory
                         string apiComponent = "QueueItemAPI";
                         binaryObjectManager.Update(file, organizationId, apiComponent, Guid.Parse(binaryObjectId));
                         await webhookPublisher.PublishAsync("Files.FileUpdated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
                     }
 
-                    //Update queue item payload
+                    //update queue item payload
                     queueItem.PayloadSizeInBytes += file.Length;
                     queueItemRepository.Update(queueItem);
                     await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
 
-                    //Update Attachment entity
+                    //update attachment entity
                     await base.PutEntity(id, existingAttachment);
                     return Ok(existingAttachment);
                 }
@@ -495,7 +478,7 @@ namespace OpenBots.Server.Web.Controllers.Queue
                 }
             }
 
-            //Update queue item payload
+            //update queue item payload
             var queueItem = queueItemRepository.Find(0, 1).Items?.Where(q => q.Id == entityId).FirstOrDefault();
             queueItem.PayloadSizeInBytes = 0;
             queueItemRepository.Update(queueItem);
@@ -540,7 +523,7 @@ namespace OpenBots.Server.Web.Controllers.Queue
                 return BadRequest(ModelState);
             }
 
-            //Update queue item payload
+            //update queue item payload
             var queueItem = queueItemRepository.Find(0, 1).Items?.Where(q => q.Id == attachment.QueueItemId).FirstOrDefault();
             queueItem.PayloadSizeInBytes -= attachment.SizeInBytes;
             queueItemRepository.Update(queueItem);

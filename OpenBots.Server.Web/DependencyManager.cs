@@ -10,6 +10,7 @@ using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.Business.Interfaces;
 using OpenBots.Server.DataAccess.Repositories.File;
+using OpenBots.Server.WebAPI.Controllers;
 
 namespace OpenBots.Server.Web
 {
@@ -17,7 +18,7 @@ namespace OpenBots.Server.Web
     {
         public static void ConfigureServices(IServiceCollection services)
         {
-            //Component Repositories and Managers
+            //component repositories and managers
             services.AddTransient(typeof(IAccessRequestRepository), typeof(AccessRequestRepository));
             services.AddTransient(typeof(IOrganizationRepository), typeof(OrganizationRepository));
 
@@ -35,7 +36,6 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IScheduleRepository), typeof(ScheduleRepository));
             services.AddTransient(typeof(IScheduleManager), typeof(ScheduleManager));
             services.AddTransient(typeof(IScheduleParameterRepository), typeof(ScheduleParameterRepository));
-
 
             services.AddTransient(typeof(IMembershipManager), typeof(MembershipManager));
             services.AddTransient(typeof(IAccessRequestsManager), typeof(AccessRequestsManager));
@@ -79,7 +79,7 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IIPFencingManager), typeof(IPFencingManager));
             services.AddTransient(typeof(IQueueItemAttachmentRepository), typeof(QueueItemAttachmentRepository));
 
-            //WebHooks
+            //webHooks
             services.AddTransient(typeof(IIntegrationEventRepository), typeof(IntegrationEventRepository));
             services.AddTransient(typeof(IIntegrationEventLogRepository), typeof(IntegrationEventLogRepository));
             services.AddTransient(typeof(IIntegrationEventSubscriptionRepository), typeof(IntegrationEventSubscriptionRepository));
@@ -87,14 +87,14 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IIntegrationEventSubscriptionAttemptManager), typeof(IntegrationEventSubscriptionAttemptManager));
 
 
-            //Blob Storage
+            //blob storage
             services.AddTransient(typeof(IBlobStorageAdapter), typeof(BlobStorageAdapter));
             services.AddTransient(typeof(IFileSystemAdapter), typeof(FileSystemAdapter));
             services.AddTransient(typeof(IDirectoryManager), typeof(DirectoryManager));
             services.AddTransient(typeof(IWebhookPublisher), typeof(WebhookPublisher));
             services.AddTransient(typeof(IWebhookSender), typeof(WebhookSender));
 
-            //Email Services
+            //email services
             services.AddTransient(typeof(EmailSettings), typeof(EmailSettings));
             services.AddTransient(typeof(EmailAccount), typeof(EmailAccount));
             services.AddTransient(typeof(ISendEmailChore), typeof(AzureSendEmailChore));
@@ -105,7 +105,7 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IHubManager), typeof(HubManager));
             services.AddTransient(typeof(IEmailAttachmentRepository), typeof(EmailAttachmentRepository));
 
-            //Files
+            //files
             services.AddTransient(typeof(IFileAttributeRepository), typeof(FileAttributeRepository));
             services.AddTransient(typeof(IServerDriveRepository), typeof(ServerDriveRepository));
             services.AddTransient(typeof(IServerFolderRepository), typeof(ServerFolderRepository));
