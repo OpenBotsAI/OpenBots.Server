@@ -540,6 +540,11 @@ namespace OpenBots.Server.Business
             else return true;
         }
 
+        public PaginatedList<AllEmailAttachmentsViewModel> GetEmailAttachmentsAndNames(Guid emailId, Predicate<AllEmailAttachmentsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        {
+            return emailAttachmentRepository.FindAllView(emailId, predicate, sortColumn, direction, skip, take);
+        }
+
         public enum StatusType : int
         {
             Failed = 0,

@@ -104,28 +104,11 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0)
         {
-            ODataHelper<SubscriptionAttemptViewModel> oData = new ODataHelper<SubscriptionAttemptViewModel>();
+            ODataHelper<SubscriptionAttemptViewModel> oDataHelper = new ODataHelper<SubscriptionAttemptViewModel>();
 
-            string queryString = "";
+            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            if (HttpContext != null
-                && HttpContext.Request != null
-                && HttpContext.Request.QueryString != null
-                && HttpContext.Request.QueryString.HasValue)
-                queryString = HttpContext.Request.QueryString.Value;
-
-            oData.Parse(queryString);
-            Guid parentguid = Guid.Empty;
-            var newNode = oData.ParseOrderByQuery(queryString);
-            if (newNode == null)
-                newNode = new OrderByNode<SubscriptionAttemptViewModel>();
-
-            Predicate<SubscriptionAttemptViewModel> predicate = null;
-            if (oData != null && oData.Filter != null)
-                predicate = new Predicate<SubscriptionAttemptViewModel>(oData.Filter);
-            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
-
-            return repository.FindAllView(predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+            return repository.FindAllView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
         }
 
         /// <summary>

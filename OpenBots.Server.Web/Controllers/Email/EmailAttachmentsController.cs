@@ -31,6 +31,7 @@ namespace OpenBots.Server.Web.Controllers.Email
     {
         private readonly IBinaryObjectManager binaryObjectManager;
         private readonly IBinaryObjectRepository binaryObjectRepository;
+        private readonly IEmailManager manager;
 
         /// <summary>
         /// EmailAttachmentsController constuctor
@@ -42,6 +43,7 @@ namespace OpenBots.Server.Web.Controllers.Email
         /// <param name="configuration"></param>
         /// <param name="binaryObjectRepository"></param>
         /// <param name="binaryObjectManager"></param>
+        /// <param name="manager"></param>
         public EmailAttachmentsController(
             IEmailAttachmentRepository repository,
             IHttpContextAccessor httpContextAccessor,
@@ -49,10 +51,12 @@ namespace OpenBots.Server.Web.Controllers.Email
             IMembershipManager membershipManager,
             IConfiguration configuration,
             IBinaryObjectRepository binaryObjectRepository,
-            IBinaryObjectManager binaryObjectManager) : base (repository, userManager, httpContextAccessor, membershipManager, configuration)
+            IBinaryObjectManager binaryObjectManager,
+            IEmailManager manager) : base (repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             this.binaryObjectRepository = binaryObjectRepository;
             this.binaryObjectManager = binaryObjectManager;
+            this.manager = manager;
         }
 
         /// <summary>
@@ -158,6 +162,40 @@ namespace OpenBots.Server.Web.Controllers.Email
             {
                 return ex.GetActionResult();
             }
+        }
+
+        /// <summary>
+        /// Provides all email attachments view for an email
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="skip"></param>
+        /// <param name="top"></param>
+        /// <response code="200">Ok, a paginated list of email attachments view</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Paginated list of email attachments view</returns>
+        [HttpGet("view")]
+        [ProducesResponseType(typeof(PaginatedList<AllEmailAttachmentsViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public PaginatedList<AllEmailAttachmentsViewModel> GetView(string emailId,
+        [FromQuery(Name = "$filter")] string filter = "",
+        [FromQuery(Name = "$orderby")] string orderBy = "",
+        [FromQuery(Name = "$top")] int top = 100,
+        [FromQuery(Name = "$skip")] int skip = 0)
+        {
+            ODataHelper<AllEmailAttachmentsViewModel> oDataHelper = new ODataHelper<AllEmailAttachmentsViewModel>();
+
+            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
+
+            return manager.GetEmailAttachmentsAndNames(Guid.Parse(emailId), oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
         }
 
         /// <summary>

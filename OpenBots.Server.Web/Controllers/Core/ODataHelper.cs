@@ -1,4 +1,7 @@
-﻿using OpenBots.Server.Model.Core;
+﻿using Microsoft.AspNetCore.Http;
+using OpenBots.Server.DataAccess.Repositories;
+using OpenBots.Server.Model.Core;
+using OpenBots.Server.ViewModel.Core;
 using StringToExpression.LanguageDefinitions;
 using System;
 using System.Linq;
@@ -96,6 +99,43 @@ namespace OpenBots.Server.WebAPI.Controllers
             {
                 return null;
             }
+        }
+
+        public ODataHelperViewModel<T> GetOData(HttpContext context, ODataHelper<T> oData)
+        {
+            string queryString = string.Empty;
+
+            if (context != null
+                && context.Request != null
+                && context.Request.QueryString != null
+                && context.Request.QueryString.HasValue)
+                queryString = context.Request.QueryString.Value;
+
+            oData.Parse(queryString);
+            Guid parentguid = Guid.Empty;
+            var newNode = oData.ParseOrderByQuery(queryString);
+            if (newNode == null)
+                newNode = new OrderByNode<T>();
+
+            Predicate<T> predicate = null;
+            if (oData != null && oData.Filter != null)
+                predicate = new Predicate<T>(oData.Filter);
+            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
+
+            ODataHelperViewModel<T> oDataHelperViewModel = new ODataHelperViewModel<T>()
+            {
+                Direction = newNode.Direction,
+                Predicate = predicate,
+                Skip = oData.Skip,
+                PropertyName = newNode.PropertyName,
+                Take = take,
+                Filter = oData.Filter,
+                Sort = oData.Sort,
+                Top = oData.Top,
+                SortDirection = oData.SortDirection
+            };
+
+            return oDataHelperViewModel;
         }
     }
 }

@@ -350,7 +350,7 @@ namespace OpenBots.Server.Business.File
             webhookPublisher.PublishAsync("Files.NewFileCreated", serverFile.Id.ToString(), serverFile.Name);
 
             //upload file to local server
-            CheckDirectoryExists(path, organizationId);
+            //CheckDirectoryExists(path, organizationId);
 
             //if (file.Length <= 0 || file.Equals(null)) throw new Exception("No file exists");
             //if (file.Length > 0)

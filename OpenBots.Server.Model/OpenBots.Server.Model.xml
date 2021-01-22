@@ -309,13 +309,13 @@
         </member>
         <member name="T:OpenBots.Server.Model.Identity.Person">
             <summary>
-            Represents a person
+            Represents a Person
             </summary>
             <seealso cref="T:OpenBots.Server.Model.Core.NamedEntity"/>
         </member>
         <member name="P:OpenBots.Server.Model.Identity.Person.FirstName">
             <summary>
-            First name of the person
+            First name of the Person
             </summary>
             <value>
             The first name
