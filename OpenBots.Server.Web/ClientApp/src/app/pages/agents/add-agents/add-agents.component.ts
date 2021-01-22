@@ -19,8 +19,8 @@ export class AddAgentsComponent implements OnInit {
   ipVersion = 'V4';
   constructor(
     private formBuilder: FormBuilder,
-    protected agentService: AgentsService,
-    protected router: Router,
+    private agentService: AgentsService,
+    private router: Router,
     private toastrService: NbToastrService
   ) {}
 
@@ -35,28 +35,15 @@ export class AddAgentsComponent implements OnInit {
           Validators.pattern('^[A-Za-z0-9_.-]{3,100}$'),
         ],
       ],
-      machineName: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(
-            /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])?(.\\)?(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/
-          ),
-        ],
-      ],
+      machineName: [''],
       macAddresses: [''],
-      ipAddresses: [
-        '',
-        [RxwebValidators.ip({ version: IpVersion.V4 })],
-        // Validators.pattern(
-        //   '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|(::[1])$'
-        // ),
-      ],
+      ipAddresses: ['', [RxwebValidators.ip({ version: IpVersion.V4 })]],
       isEnabled: [true],
-      CredentialId: ['', Validators.required],
-      userName: ['', Validators.required],
-      password: ['', Validators.required],
+      CredentialId: ['', [Validators.required]],
+      userName: ['', [Validators.required]],
+      password: ['', [Validators.required]],
       ipOption: ['ipv4'],
+      isEnhancedSecurity: false,
     });
 
     this.get_cred();
@@ -127,17 +114,24 @@ export class AddAgentsComponent implements OnInit {
 
   radioSetValidator(value: string): void {
     this.addagent.get('ipAddresses').clearValidators();
+    this.addagent.get('ipAddresses').reset();
     if (value === 'ipv4') {
       this.ipVersion = 'V4';
       this.addagent
         .get('ipAddresses')
-        .setValidators(RxwebValidators.ip({ version: IpVersion.V4 }));
+        .setValidators([
+          Validators.required,
+          RxwebValidators.ip({ version: IpVersion.V4 }),
+        ]);
       this.addagent.updateValueAndValidity();
     } else {
       this.ipVersion = 'V6';
       this.addagent
         .get('ipAddresses')
-        .setValidators(RxwebValidators.ip({ version: IpVersion.V6 }));
+        .setValidators([
+          Validators.required,
+          RxwebValidators.ip({ version: IpVersion.V6 }),
+        ]);
       this.addagent.updateValueAndValidity();
     }
   }

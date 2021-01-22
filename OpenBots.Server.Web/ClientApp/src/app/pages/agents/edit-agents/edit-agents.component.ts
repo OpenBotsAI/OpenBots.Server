@@ -47,18 +47,11 @@ export class EditAgentsComponent implements OnInit {
       ],
       machineName: ['', [Validators.required]],
       macAddresses: [''],
-      ipAddresses: [
-        '',
-        [
-          Validators.pattern(
-            '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|(::[1])$'
-          ),
-        ],
-      ],
+      ipAddresses: [''],
       isEnabled: [''],
       CredentialId: ['', [Validators.required]],
       ipOption: [''],
-      isEnhancedSecurity: [false],
+      isEnhancedSecurity: false,
     });
   }
 
@@ -66,18 +59,9 @@ export class EditAgentsComponent implements OnInit {
     this.agentService.getAgentbyID(id).subscribe((data: HttpResponse<any>) => {
       if (data && data.body) {
         this.show_allagents = data.body;
-        if (data.body.macAddresses && data.body.ipAddresses) {
-          data.body.isEnhancedSecurity = true;
-          this.checked = true;
+        if (data.body.ipOption === 'ipv6') {
+          this.ipVersion = 'V6';
         }
-        // if (this.show_allagents.macAddresses != null) {
-        //   this.checked = true;
-        // } else if (
-        //   this.show_allagents.macAddresses == null ||
-        //   this.show_allagents.macAddresses == ''
-        // ) {
-        //   this.checked = false;
-        // }
         this.etag = data.headers.get('ETag').replace(/\"/g, '');
         this.addagent.patchValue(this.show_allagents);
         this.addagent.patchValue({
@@ -91,10 +75,6 @@ export class EditAgentsComponent implements OnInit {
       this.cred_value = data;
     });
   }
-  check(checked: boolean) {
-    this.checked = checked;
-    console.log(this.checked);
-  }
 
   get f() {
     return this.addagent.controls;
@@ -105,12 +85,11 @@ export class EditAgentsComponent implements OnInit {
     this.agentService
       .editAgent(this.agent_id, this.addagent.value, this.etag)
       .subscribe(
-        (data) => {
+        () => {
           this.toastrService.success('Updated successfully', 'Success');
           this.router.navigate(['pages/agents/list']);
         },
         (error) => {
-          // console.log(error.error.status)
           if (error.error.status === 409) {
             this.toastrService.danger(error.error.serviceErrors, 'error');
             this.get_allagent(this.agent_id);
@@ -125,11 +104,6 @@ export class EditAgentsComponent implements OnInit {
       );
   }
 
-  onReset() {
-    this.submitted = false;
-    this.addagent.reset();
-  }
-
   handleInput(event) {
     var key = event.keyCode;
     if (key === 32) {
@@ -140,6 +114,7 @@ export class EditAgentsComponent implements OnInit {
 
   radioSetValidator(value: string): void {
     this.addagent.get('ipAddresses').clearValidators();
+    this.addagent.get('ipAddresses').reset();
     if (value === 'ipv4') {
       this.ipVersion = 'V4';
       this.addagent
@@ -151,6 +126,8 @@ export class EditAgentsComponent implements OnInit {
       this.addagent
         .get('ipAddresses')
         .setValidators(RxwebValidators.ip({ version: IpVersion.V6 }));
+      this.addagent.get('ipAddresses').markAsDirty();
+      this.addagent.get('ipAddresses').markAsTouched();
       this.addagent.updateValueAndValidity();
     }
   }

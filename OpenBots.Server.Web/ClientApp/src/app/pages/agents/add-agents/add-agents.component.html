@@ -52,16 +52,11 @@
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
                 <label for="email" class="label"> Enhanced Security</label>
-                <label class="enhanceBtn">
-                  <nb-checkbox class="label" (checkedChange)="check($event)">
-                  </nb-checkbox>
-                </label>
-
-
-
+                <nb-checkbox class="enhanceBtn" (checkedChange)="check($event)" formControlName="isEnhancedSecurity">
+                </nb-checkbox>
               </div>
             </div>
-            <div *ngIf="checked" class="col-md-6 col-sm-6 col-xxxl-6">
+            <div *ngIf="addagent.value.isEnhancedSecurity" class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
                 <label for="macaddress" class="label">Mac Addresses *</label>
                 <input type="input" nbInput fullWidth id="macAddresses" formControlName="macAddresses"
@@ -77,8 +72,8 @@
             </div>
           </div>
 
-          <div class="row" *ngIf="checked">
-            <div class="col-md-6 col-sm-6 col-xxxl-6">
+          <div class="row" *ngIf="addagent.value.isEnhancedSecurity">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label class="label" style="display: block;">Please select IP version *</label>
               <nb-radio-group formControlName="ipOption">
                 <nb-radio class="ipOption" style="display: inline-block;" value="ipv4"
@@ -90,7 +85,7 @@
                 </nb-radio>
               </nb-radio-group>
             </div>
-            <div class="col-md-6 col-sm-6 col-xxxl-6">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
               <div class="form-group">
                 <label for="ipadd" class="label">IP ({{ipVersion}}) Address *</label>
                 <input type="input" nbInput fullWidth id="ipAddresses" formControlName="ipAddresses"
@@ -135,7 +130,7 @@
           <div class="row">
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
-                <label for="userName" class="label">User Name </label>
+                <label for="userName" class="label">User Name *</label>
                 <input type="input" nbInput fullWidth id="userName" formControlName="userName" class="form-control"
                   placeholder="Please enter user name" autocomplete="new-userName">
                 <div *ngIf="f.userName.touched && f.userName.invalid" class="invalid-feedback-frm">
@@ -145,7 +140,7 @@
             </div>
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
-                <label for="ipadd" class="label">Password</label>
+                <label for="ipadd" class="label">Password *</label>
                 <input type="password" nbInput fullWidth id="password" formControlName="password" class="form-control"
                   placeholder="Please enter password" autocomplete="new-password">
                 <div *ngIf="(f.password.touched || f.password.dirty) && f.password.invalid"

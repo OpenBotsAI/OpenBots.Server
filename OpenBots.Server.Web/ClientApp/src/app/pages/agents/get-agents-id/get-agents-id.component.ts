@@ -72,6 +72,8 @@ export class GetAgentsIdComponent implements OnInit {
       timestamp: [''],
       updatedBy: [''],
       updatedOn: [''],
+      isEnhancedSecurity: [],
+      ipOption: [''],
     });
   }
 

@@ -6,7 +6,7 @@
         <form [formGroup]="addagent">
           <div class="row">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <label for="agentname" class="label">Agent name</label>
+              <label for="agentname" class="label">Agent Name</label>
               <input type="input" nbInput fullWidth id="agentname" formControlName="name" class="form-control"
                 (keypress)="handleInput($event)" placeholder="Please enter agent name">
               <div *ngIf="(f.name.touched || f.name.dirty)  && f.name.invalid" class="invalid-feedback-frm">
@@ -23,7 +23,7 @@
               </div>
             </div>
             <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <label for="machinename" class="label">Machine name</label>
+              <label for="machinename" class="label">Machine Name</label>
               <input type="input" nbInput fullWidth id="machineName" formControlName="machineName" class="form-control"
                 (keypress)="handleInput($event)" placeholder="Please enter machine name">
               <div *ngIf="(f.machineName.touched || f.machineName.dirty) && f.machineName.invalid"
@@ -41,10 +41,8 @@
           <div class="row rowPadTOp">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="email" class="label"> Enhanced Security</label>
-              <label class="enhanceBtn">
-                <nb-checkbox class="label" (checkedChange)="check($event)" formControlName="isEnhancedSecurity">
-                </nb-checkbox>
-              </label>
+              <nb-checkbox class="enhanceBtn" formControlName="isEnhancedSecurity">
+              </nb-checkbox>
 
 
 
@@ -55,7 +53,7 @@
                 <div *ngIf="f.macAddresses.errors && f.macAddresses.errors.required"> Mac Address is required.</div>
               </div> -->
             </div>
-            <div class="col-md-6 col-lg-6 col-xxxl-6" *ngIf="checked">
+            <div class="col-md-6 col-lg-6 col-xxxl-6" *ngIf="addagent.value.isEnhancedSecurity">
               <label for="macaddress" class="label">Mac Addresses </label>
               <input type="input" nbInput fullWidth id="macAddresses" formControlName="macAddresses"
                 (keyup)="handleInput($event)" class="form-control" placeholder="Please enter mac address">
@@ -73,8 +71,8 @@
               </div> -->
             </div>
           </div>
-          <div class="row" *ngIf="checked">
-            <div class="col-md-6 col-sm-6 col-xxxl-6">
+          <div class="row" *ngIf="addagent.value.isEnhancedSecurity">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label class="label" style="display: block;">Please select IP version *</label>
               <nb-radio-group formControlName="ipOption">
                 <nb-radio class="ipOption" style="display: inline-block;" value="ipv4"
@@ -86,14 +84,15 @@
                 </nb-radio>
               </nb-radio-group>
             </div>
-            <div class="col-md-6 col-sm-6 col-xxxl-6">
-              <label for="ipadd" class="label">IP (V4) Address</label>
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="ipadd" class="label">IP ({{ipVersion}}) Address</label>
               <input type="input" nbInput fullWidth id="ipAddresses" formControlName="ipAddresses"
-                (keyup)="handleInput($event)" class="form-control" placeholder="Please enter IP (V4) Address"
+                (keyup)="handleInput($event)" class="form-control" placeholder="Please enter IP Address"
                 disallow-spaces>
               <div *ngIf="(f.ipAddresses.touched || f.ipAddresses.dirty) && f.ipAddresses.invalid"
                 class="invalid-feedback-frm">
-                <div *ngIf="f.ipAddresses.errors && f.ipAddresses.errors.required"> IP (V4) Address is required.
+                <div *ngIf="f.ipAddresses.errors && f.ipAddresses.errors.required"> IP ({{ipVersion}}) Address is
+                  required.
                 </div>
                 <div *ngIf="f.ipAddresses.errors.pattern">
                   Please enter valid Ip.
