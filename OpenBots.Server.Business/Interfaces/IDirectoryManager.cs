@@ -7,5 +7,6 @@ namespace OpenBots.Server.Business
         DirectoryInfo CreateDirectory(string path);
 
         bool Exists(string path);
+        void Delete(string path);
     }
 }

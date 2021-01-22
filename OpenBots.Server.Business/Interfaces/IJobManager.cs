@@ -21,5 +21,6 @@ namespace OpenBots.Server.Business
         void DeleteExistingCheckpoints(Guid jobId);
         string GetCsv(Job[] jobs);
         MemoryStream ZipCsv(FileContentResult csvFile);
+        void UpdateAutomationAverages(Guid? updatedJobId);
     }
 }

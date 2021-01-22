@@ -204,7 +204,7 @@ namespace OpenBots.Server.Business
             }
 
             if (IncludeAccessRequestedOrg) {
-                //Organizations requested for access
+                //organizations requested for access
                 var accessRequest = PendingOrganizationAccess(personId);
                 if (accessRequest?.Items?.Count > 0) cards.Items.AddRange(accessRequest.Items);
             }
@@ -262,7 +262,7 @@ namespace OpenBots.Server.Business
             List<Organization> org = new List<Organization>();
             foreach (PersonEmail email in emails.Items)
             {
-                // Ensure Email Address is valid with a @ sign
+                //ensure email address is valid with a @ sign
                 if (email != null && !string.IsNullOrEmpty(email.Address) && email.Address.Contains("@", StringComparison.InvariantCultureIgnoreCase))
                 {
                     string emailDomain = email.Address.Split('@')[1];
@@ -286,10 +286,10 @@ namespace OpenBots.Server.Business
         {
             PaginatedList<OrganizationMember> orgMems = null;
             _organzationMemberRepo.ForceIgnoreSecurity();
-                // if (isOrgMember)
+                //if (isOrgMember)
                 orgMems = _organzationMemberRepo.Find(null, om => om.PersonId.Equals(personId));
             //else
-              //  orgMems = _organzationMemberRepo.Find(null, om => !om.PersonId.Equals(personId));
+              //orgMems = _organzationMemberRepo.Find(null, om => !om.PersonId.Equals(personId));
 
             var orgIds = orgMems.Items.Select(om => om.OrganizationId).Distinct().ToArray();
 
@@ -339,7 +339,7 @@ namespace OpenBots.Server.Business
         public AccessRequest JoinOrganization(Guid personId, Guid organizationId)
         {
             _accessRequestRepo.ForceIgnoreSecurity();
-            //Check if there is already access request pending before adding new
+            //check if there is already access request pending before adding new
             var accessRequests = _accessRequestRepo.Find(null, ar => ar.PersonId == personId && ar.OrganizationId == organizationId && ar.IsAccessRequested.HasValue && ar.IsAccessRequested.Value)?.Items?.FirstOrDefault();
 
             if (accessRequests == null)
@@ -416,7 +416,7 @@ namespace OpenBots.Server.Business
                 throw new UnauthorizedAccessException("Approver not found");
 
 
-            // Check if Person has Authority to Approve/Reject
+            //check if person has authority to approve/reject
             OrganizationMember approverMembership = _organzationMemberRepo.GetMember(approver.Id.Value, accessRequest.OrganizationId.Value);
             if (approverMembership != null && approverMembership.IsAdministrator.HasValue && approverMembership.IsAdministrator.Value)
             {
@@ -443,21 +443,21 @@ namespace OpenBots.Server.Business
         {
             OrganizationMember orgMember = null;
 
-            //User in the system.. check email verification table
+            //user in the system: check email verification table
             var emailAddress = _emailVerificationRepository.Find(null, p => p.Address.Equals(inviteUser.Email, StringComparison.OrdinalIgnoreCase)).Items?.FirstOrDefault();
             if (emailAddress != null)
             {
-                //Check if the person exists in the organization
+                //check if the person exists in the organization
                 orgMember = _organzationMemberRepo.Find(null, p => p.PersonId == emailAddress.PersonId && p.OrganizationId == inviteUser.OrganizationId).Items?.FirstOrDefault();
                 if (orgMember != null) throw new CannotInsertDuplicateConstraintException(null, "Organization Member", "", "Member");
 
-                //Add to person to organization only if you are admin or add it to access request table
+                //add to person to organization only if current user is admin, or add person to access request table
                 var member = _organzationMemberRepo.Find(null, a => a.PersonId == SecurityContext.PersonId && a.OrganizationId == inviteUser.OrganizationId)?.Items.FirstOrDefault();
                 var IsOrgAdmin = member != null && member.IsAdministrator.GetValueOrDefault(false);
 
                 if (IsOrgAdmin)
                 {
-                    //Add to person to organization
+                    //add person to organization
                     OrganizationMember newOrgMember = new OrganizationMember()
                     {
                         PersonId = emailAddress.PersonId,
@@ -470,10 +470,10 @@ namespace OpenBots.Server.Business
                 }
                 else
                 {
-                    //This will check if there is any access request pending 
+                    //this will check if there is any access request pending 
                     var accessRequest = JoinOrganization(emailAddress.PersonId.GetValueOrDefault(), inviteUser.OrganizationId.GetValueOrDefault());
 
-                    //Create dummy org member object to prevent getting it created as new user in the system
+                    //create dummy org member object to prevent getting it created as new user in the system
                     orgMember = new OrganizationMember()
                     {
                         PersonId = accessRequest.PersonId,
@@ -545,8 +545,8 @@ namespace OpenBots.Server.Business
             var personToUpdate = _personRepo.Find(null, p => p.Id == Guid.Parse(personId)).Items?.FirstOrDefault();
             ApplicationUser appUser = await _userManager.FindByIdAsync(userToUpdate.Id).ConfigureAwait(false);
 
-            //Check Password's validity if one was provided
-            if (!String.IsNullOrEmpty(request.Password))
+            //check password's validity if one was provided
+            if (!string.IsNullOrEmpty(request.Password))
             {
                 if (!IsPasswordValid(request.Password))
                 {
@@ -554,10 +554,10 @@ namespace OpenBots.Server.Business
                 }
             }
 
-            //If email was provided check its availability
-            if (!String.IsNullOrEmpty(request.Email))
+            //if email was provided check its availability
+            if (!string.IsNullOrEmpty(request.Email))
             {
-                // If email is not the same as User's current email
+                //if email is not the same as user's current email
                 if (!appUser.NormalizedEmail.Equals(request.Email.ToUpper()))
                 {
                     var existingEmailUser = _aspNetUsersRepository.Find(null, u => u.Email == request.Email).Items?.FirstOrDefault();
@@ -570,13 +570,13 @@ namespace OpenBots.Server.Business
                     var personEmailToUpdate = _personEmailRepository.Find(null, p => p.PersonId == Guid.Parse(personId)).Items?.FirstOrDefault();
                     var emailVerificationToUpdate = _emailVerificationRepository.Find(null, p => p.PersonId == Guid.Parse(personId)).Items?.FirstOrDefault();
 
-                    //Update AppUsers Email
+                    //update application user's email
                     appUser.Email = request.Email;
                     appUser.NormalizedEmail = request.Email.ToUpper();
                     appUser.UserName = request.Email;
                     appUser.NormalizedUserName = request.Email.ToUpper();
 
-                    //Update Additional Email Tables 
+                    //update additional email tables 
                     personEmailToUpdate.Address = request.Email;
                     emailVerificationToUpdate.Address = request.Email;
 
@@ -585,8 +585,8 @@ namespace OpenBots.Server.Business
                 }
             }
 
-            //Update Name if one was provided
-            if (!String.IsNullOrEmpty(request.Name))
+            //update name if one was provided
+            if (!string.IsNullOrEmpty(request.Name))
             {
                 appUser.Name = request.Name;
                 personToUpdate.Name = request.Name;
@@ -594,8 +594,8 @@ namespace OpenBots.Server.Business
                 _personRepo.Update(personToUpdate);
             }
 
-            //Update Password
-            if (!String.IsNullOrEmpty(request.Password))
+            //update password
+            if (!string.IsNullOrEmpty(request.Password))
             {
                 appUser.ForcedPasswordChange = false;
                 var token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
@@ -607,8 +607,8 @@ namespace OpenBots.Server.Business
                 }
             }
 
-            //Update Appuser
-            if (!String.IsNullOrEmpty(request.Password) || !String.IsNullOrEmpty(request.Email))
+            //update application user
+            if (!string.IsNullOrEmpty(request.Password) || !string.IsNullOrEmpty(request.Email))
             {
                 _userManager.UpdateAsync(appUser);
             }

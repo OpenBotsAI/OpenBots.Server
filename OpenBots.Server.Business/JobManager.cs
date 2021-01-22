@@ -48,7 +48,7 @@ namespace OpenBots.Server.Business
             return repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
 
-        //Gets the next available job for the given agentId
+        //gets the next available job for the given agent id
         public NextJobViewModel GetNextJob(Guid agentId)
         {
             Job job = repo.Find(0, 1).Items
@@ -126,6 +126,41 @@ namespace OpenBots.Server.Business
                 }
             }
             return compressedFileStream;
+        }
+
+        //updates the automation averages for the specified job's automation
+        public void UpdateAutomationAverages(Guid? updatedJobId)
+        {
+            Job updatedJob = repo.GetOne(updatedJobId ?? Guid.Empty);
+            Automation automation = automationRepo.Find(null, a => a.Id == updatedJob.AutomationId).Items.FirstOrDefault();
+            List<Job> sameAutomationJobs;
+
+
+            if (updatedJob.IsSuccessful ?? false)
+            {
+                sameAutomationJobs = repo.Find(null, j => j.AutomationId == automation.Id && j.IsSuccessful == true).Items;
+                automation.AverageSuccessfulExecutionInMinutes = GetAverageExecutionTime(sameAutomationJobs);
+            }
+            else
+            {
+                sameAutomationJobs = repo.Find(null, j => j.AutomationId == automation.Id && j.IsSuccessful == false).Items;
+                automation.AverageUnSuccessfulExecutionInMinutes = GetAverageExecutionTime(sameAutomationJobs);
+            }
+
+            automationRepo.Update(automation);
+        }
+
+        //gets the average execution time for the provided jobs
+        public double? GetAverageExecutionTime(List<Job> sameAutomationJobs)
+        {
+            double? sum = 0;
+
+            foreach (var job in sameAutomationJobs)
+            {
+                sum += job.ExecutionTimeInMinutes;
+            }
+
+            return sum / sameAutomationJobs.Count; 
         }
     }
 }

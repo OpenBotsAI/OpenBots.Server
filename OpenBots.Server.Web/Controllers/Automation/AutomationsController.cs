@@ -362,7 +362,7 @@ namespace OpenBots.Server.Web.Controllers
         /// Update automation with file 
         /// </summary>
         /// <remarks>
-        /// Provides an action to update a automation, when automation id and the new details of automation are given
+        /// Provides an action to update an automation, when automation id and the new details of automation are given
         /// </remarks>
         /// <param name="id">Automation id, produces bad request if id is null or ids don't match</param>
         /// <param name="request">Automation details to be updated</param>
@@ -412,7 +412,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (existingAutomation.BinaryObjectId != Guid.Empty && size > 0)
                 {
                     string apiComponent = "AutomationAPI";
-                    //Update file in OpenBots.Server.Web using relative directory
+                    //update file in OpenBots.Server.Web using relative directory
                     newBinaryObject.Id = Guid.NewGuid();
                     newBinaryObject.Name = request.File.FileName;
                     newBinaryObject.Folder = apiComponent;
@@ -426,15 +426,18 @@ namespace OpenBots.Server.Web.Controllers
                     binaryObjectRepo.Update(binaryObject);
                 }
 
-                //Update automation (Create new automation and automation version entities)
+                //update automation (create new automation and automation version entities)
                 Automation response = existingAutomation;
                 AutomationVersion automationVersion = automationVersionRepo.Find(null, q => q.AutomationId == response.Id).Items?.FirstOrDefault();
                 if (existingAutomation.Name.Trim().ToLower() != request.Name.Trim().ToLower() || automationVersion.Status.Trim().ToLower() != request.Status?.Trim().ToLower()) 
                 {
-                    existingAutomation.BinaryObjectId = (Guid)newBinaryObject.Id;
                     existingAutomation.OriginalPackageName = request.File.FileName;
                     existingAutomation.AutomationEngine = request.AutomationEngine;
                     automationVersion.Status = request.Status;
+                }
+                else
+                {
+                    request.BinaryObjectId = newBinaryObject.Id;
                     response = manager.UpdateAutomation(existingAutomation, request);
                 }
 
@@ -449,7 +452,7 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Update a Automation 
+        /// Update an Automation 
         /// </summary>
         /// <remarks>
         /// Provides an action to update a automation, when automation id and the new details of automation are given
@@ -484,7 +487,7 @@ namespace OpenBots.Server.Web.Controllers
                 var automationVersion = automationVersionRepo.Find(null, q => q.AutomationId == existingAutomation.Id).Items?.FirstOrDefault();
                 if (!string.IsNullOrEmpty(automationVersion.Status))
                 {
-                    // Determine a way to check if previous value was not published before setting published properties
+                    //determine a way to check if previous value was not published before setting published properties
                     automationVersion.Status = value.Status;
                     if (automationVersion.Status == "Published")
                     {
@@ -530,7 +533,7 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Export/download a automation
+        /// Export/download an automation
         /// </summary>
         /// <param name="id"></param>
         /// <response code="200">Ok, if a automation exists with the given id</response>
@@ -591,7 +594,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                // Remove Automation
+                //remove automation
                 Guid automationId = Guid.Parse(id);
                 var existingAutomation = repository.GetOne(automationId);
                 if (existingAutomation == null) return NotFound();
@@ -614,7 +617,7 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Lookup list of all automationes
+        /// Lookup list of all automations
         /// </summary>
         /// <response code="200">Ok, a lookup list of all automationes</response>
         /// <response code="400">Bad request</response>

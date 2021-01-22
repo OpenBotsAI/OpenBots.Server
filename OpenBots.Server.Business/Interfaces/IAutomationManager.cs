@@ -11,7 +11,6 @@ namespace OpenBots.Server.Business
     {
         Task<FileObjectViewModel> Export(string binaryObjectId);
         bool DeleteAutomation(Guid automationId);
-        //Automation AssignAutomationProperties(Automation request, Guid versionId);
         Automation UpdateAutomation(Automation existingAutomation, AutomationViewModel request);
         Task<string> Update(Guid binaryObjectId, IFormFile file, string organizationId = "", string apiComponent = "", string name = "");
         string GetOrganizationId();

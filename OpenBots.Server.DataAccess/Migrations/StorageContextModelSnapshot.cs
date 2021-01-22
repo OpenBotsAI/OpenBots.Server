@@ -45,6 +45,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<string>("IPAddresses")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("IPOption")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsConnected")
                         .HasColumnType("bit");
 
@@ -52,6 +55,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEnhancedSecurity")
                         .HasColumnType("bit");
 
                     b.Property<string>("MacAddresses")
@@ -278,6 +284,12 @@ namespace OpenBots.Server.DataAccess.Migrations
 
                     b.Property<string>("AutomationEngine")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("AverageSuccessfulExecutionInMinutes")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("AverageUnSuccessfulExecutionInMinutes")
+                        .HasColumnType("float");
 
                     b.Property<Guid>("BinaryObjectId")
                         .HasColumnType("uniqueidentifier");
@@ -1156,6 +1168,255 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.ToTable("Credentials");
                 });
 
+            modelBuilder.Entity("OpenBots.Server.Model.File.FileAttribute", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AttributeValue")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DataType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeleteOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ServerFileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServerFileId");
+
+                    b.ToTable("FileAttributes");
+                });
+
+            modelBuilder.Entity("OpenBots.Server.Model.File.ServerDrive", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeleteOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FileStorageAdapterType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long?>("StorageSizeInBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ServerDrives");
+                });
+
+            modelBuilder.Entity("OpenBots.Server.Model.File.ServerFile", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CorrelationEntity")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("CorrelationEntityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeleteOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("HashCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("SizeInBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("StorageFolderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("StoragePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StorageProvider")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ServerFiles");
+                });
+
+            modelBuilder.Entity("OpenBots.Server.Model.File.ServerFolder", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeleteOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ParentFolderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("SizeInBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("StorageDriveId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("StoragePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ServerFolders");
+                });
+
             modelBuilder.Entity("OpenBots.Server.Model.IPFencing", b =>
                 {
                     b.Property<Guid?>("Id")
@@ -1738,6 +1999,9 @@ namespace OpenBots.Server.DataAccess.Migrations
 
                     b.Property<string>("ErrorReason")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("ExecutionTimeInMinutes")
+                        .HasColumnType("float");
 
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
@@ -3053,6 +3317,54 @@ namespace OpenBots.Server.DataAccess.Migrations
                             IsSystem = true,
                             Name = "Agents.AgentDeleted",
                             Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("53b4365e-d103-4e74-a72c-294d670abdbd"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A new Folder has been created",
+                            EntityType = "File",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Files.NewFolderCreated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("d10616c6-53c4-4137-8cd0-70a5c7409938"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A Folder has been updated",
+                            EntityType = "File",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Files.FolderUpdated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("e4a9ceaa-88e2-4c03-a203-7a419749c613"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A Folder has been deleted",
+                            EntityType = "File",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Files.FolderDeleted",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("513bb79b-3f2e-4846-a804-2c5b9a6792d0"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "Local Drive has been updated",
+                            EntityType = "File",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Files.DriveUpdated",
+                            Timestamp = new byte[] { 0 }
                         });
                 });
 
@@ -3159,9 +3471,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<string>("HTTP_AddHeader_Value")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("HTTP_Max_RetryCount")
-                        .HasColumnType("int");
-
                     b.Property<string>("HTTP_URL")
                         .HasColumnType("nvarchar(max)");
 
@@ -3170,6 +3479,9 @@ namespace OpenBots.Server.DataAccess.Migrations
 
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("Max_RetryCount")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -3310,6 +3622,13 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("OpenBots.Server.Model.File.FileAttribute", b =>
+                {
+                    b.HasOne("OpenBots.Server.Model.File.ServerFile", null)
+                        .WithMany("FileAttributes")
+                        .HasForeignKey("ServerFileId");
+                });
+
             modelBuilder.Entity("OpenBots.Server.Model.Identity.EmailVerification", b =>
                 {
                     b.HasOne("OpenBots.Server.Model.Identity.Person", "Person")
@@ -3444,6 +3763,11 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Navigation("OrganizationUnit");
 
                     b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("OpenBots.Server.Model.File.ServerFile", b =>
+                {
+                    b.Navigation("FileAttributes");
                 });
 
             modelBuilder.Entity("OpenBots.Server.Model.Identity.Person", b =>

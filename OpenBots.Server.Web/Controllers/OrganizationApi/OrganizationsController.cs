@@ -139,7 +139,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                 var result = base.GetEntity(id).Result;
                 if (result.GetType() == typeof(StatusCodeResult)) { return result; }
                 var organization = ((OkObjectResult)result).Value as Organization;
-                //Need to get organization member using logged in person Id 
+                //need to get organization member using logged in person id 
                 
                 if (orgmem != null)
                     organization.Members.Add(orgmem);
@@ -193,7 +193,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                //Same name organization check
+                //same name organization check
                 var existingOrg = repository.Find(null, o => o.Name.Trim().ToLower() == value.Name.Trim().ToLower()).Items?.FirstOrDefault();
                 if (existingOrg != null)
                 {
@@ -254,7 +254,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            //Same name organization check
+            //same name organization check
             var existingOrg = repository.Find(null, o => o.Name.Trim().ToLower() == value.Name.Trim().ToLower() && o.Id != entityId).Items?.FirstOrDefault();
             if (existingOrg != null)
             {

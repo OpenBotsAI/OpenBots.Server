@@ -7,7 +7,7 @@ namespace OpenBots.Server.Model.Identity
     /// <summary>
     /// Represents a Person
     /// </summary>
-    /// <seealso cref="NamedEntity" />
+    /// <seealso cref="NamedEntity"/>
     public class SignUpViewModel
     {
         public SignUpViewModel()

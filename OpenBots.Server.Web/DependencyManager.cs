@@ -7,9 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenBots.Server.Web.Hubs;
 using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
-using OpenBots.Server.Model.Webhooks;
 using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.Business.Interfaces;
+using OpenBots.Server.DataAccess.Repositories.File;
 
 namespace OpenBots.Server.Web
 {
@@ -17,7 +17,7 @@ namespace OpenBots.Server.Web
     {
         public static void ConfigureServices(IServiceCollection services)
         {
-            //Component Repositories and Managers
+            //component repositories and managers
             services.AddTransient(typeof(IAccessRequestRepository), typeof(AccessRequestRepository));
             services.AddTransient(typeof(IOrganizationRepository), typeof(OrganizationRepository));
 
@@ -73,14 +73,13 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IAutomationLogManager), typeof(AutomationLogManager));
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient(typeof(IBinaryObjectManager), typeof(BinaryObjectManager));
-            services.AddTransient(typeof(IEmailAttachmentRepository), typeof(EmailAttachmentRepository));
             services.AddTransient(typeof(IAutomationVersionRepository), typeof(AutomationVersionRepository));
             services.AddTransient(typeof(IConfigurationValueRepository), typeof(ConfigurationValueRepository));
             services.AddTransient(typeof(IIPFencingRepository), typeof(IPFencingRepository));
             services.AddTransient(typeof(IIPFencingManager), typeof(IPFencingManager));
             services.AddTransient(typeof(IQueueItemAttachmentRepository), typeof(QueueItemAttachmentRepository));
 
-            //WebHooks
+            //webHooks
             services.AddTransient(typeof(IIntegrationEventRepository), typeof(IntegrationEventRepository));
             services.AddTransient(typeof(IIntegrationEventLogRepository), typeof(IntegrationEventLogRepository));
             services.AddTransient(typeof(IIntegrationEventSubscriptionRepository), typeof(IntegrationEventSubscriptionRepository));
@@ -88,14 +87,14 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IIntegrationEventSubscriptionAttemptManager), typeof(IntegrationEventSubscriptionAttemptManager));
 
 
-            //Blob Storage
+            //blob storage
             services.AddTransient(typeof(IBlobStorageAdapter), typeof(BlobStorageAdapter));
             services.AddTransient(typeof(IFileSystemAdapter), typeof(FileSystemAdapter));
             services.AddTransient(typeof(IDirectoryManager), typeof(DirectoryManager));
             services.AddTransient(typeof(IWebhookPublisher), typeof(WebhookPublisher));
             services.AddTransient(typeof(IWebhookSender), typeof(WebhookSender));
 
-            //Email Services
+            //email services
             services.AddTransient(typeof(EmailSettings), typeof(EmailSettings));
             services.AddTransient(typeof(EmailAccount), typeof(EmailAccount));
             services.AddTransient(typeof(ISendEmailChore), typeof(AzureSendEmailChore));
@@ -104,6 +103,13 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IEmailRepository), typeof(EmailRepository));
             services.AddTransient(typeof(IEmailSettingsRepository), typeof(EmailSettingsRepository));
             services.AddTransient(typeof(IHubManager), typeof(HubManager));
+            services.AddTransient(typeof(IEmailAttachmentRepository), typeof(EmailAttachmentRepository));
+
+            //files
+            services.AddTransient(typeof(IFileAttributeRepository), typeof(FileAttributeRepository));
+            services.AddTransient(typeof(IServerDriveRepository), typeof(ServerDriveRepository));
+            services.AddTransient(typeof(IServerFolderRepository), typeof(ServerFolderRepository));
+            services.AddTransient(typeof(IServerFileRepository), typeof(ServerFileRepository));
         }
     }
 }

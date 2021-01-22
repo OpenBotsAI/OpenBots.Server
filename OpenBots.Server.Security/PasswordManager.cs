@@ -10,7 +10,7 @@ namespace OpenBots.Server.Security
     {
         /// <summary>
         /// Generic method to retrieve password strength: use this for general purpose scenarios, 
-        /// i.e. when you don't have a strict policy to follow.
+        /// i.e. when you don't have a strict policy to follow
         /// </summary>
         /// <param name="password"></param>
         /// <returns></returns>
@@ -43,7 +43,7 @@ namespace OpenBots.Server.Security
         }
 
         /// <summary>
-        /// Sample password policy implementation following the Microsoft.AspNetCore.Identity.PasswordOptions standard.
+        /// Sample password policy implementation following the Microsoft.AspNetCore.Identity.PasswordOptions standard
         /// </summary>
         public static bool IsValidPassword(string password, PasswordOptions opts)
         {
@@ -58,7 +58,7 @@ namespace OpenBots.Server.Security
         }
 
         /// <summary>
-        /// Sample password policy implementation following the Microsoft.AspNetCore.Identity.PasswordOptions standard.
+        /// Sample password policy implementation following the Microsoft.AspNetCore.Identity.PasswordOptions standard
         /// </summary>
         public static bool IsValidPassword(
             string password,

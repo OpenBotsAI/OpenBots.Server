@@ -1,9 +1,6 @@
-﻿using OpenBots.Server.Model;
-using OpenBots.Server.Model.Core;
+﻿using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Webhooks;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace OpenBots.Server.ViewModel
 {

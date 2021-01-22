@@ -45,20 +45,20 @@ namespace OpenBots.Server.Model.Core
             outMsg.Body = msg.Body;
             if (msg.Attachments != null || msg.Attachments.Count != 0)
             {
-                // Get all attachments from email message
+                //get all attachments from email message
                 foreach (var attachment in msg.Attachments)
                 {
                     string file = attachment.ContentStorageAddress;
                     string contentType = attachment.ContentType;
-                    // Create  the file attachment for this email message
+                    //create the file attachment for this email message
                     Attachment data = new Attachment(file, contentType);
                     data.Name = attachment.Name;
-                    // Add time stamp information for the file
+                    //add time stamp information for the file
                     ContentDisposition disposition = data.ContentDisposition;
                     disposition.CreationDate = System.IO.File.GetCreationTime(file);
                     disposition.ModificationDate = System.IO.File.GetLastWriteTime(file);
                     disposition.ReadDate = System.IO.File.GetLastAccessTime(file);
-                    // Add the file attachment to this outgoing email message
+                    //add the file attachment to this outgoing email message
                     outMsg.Attachments.Add(data);
                 }
             }

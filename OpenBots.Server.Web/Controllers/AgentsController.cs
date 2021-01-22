@@ -245,7 +245,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                //Name must be unique
+                //name must be unique
                 Agent namedAgent = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
                 if (namedAgent != null)
                 {
@@ -257,7 +257,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
                     request.Id = entityId;
 
-                //create Agent app user
+                //create agent app user
                 var user = new ApplicationUser()
                 {
                     Name = request.Name,
@@ -297,12 +297,12 @@ namespace OpenBots.Server.Web.Controllers
                         return BadRequest(ModelState);
                     }
 
-                    //Update the user 
+                    //update the user 
                     var registeredUser = userManager.FindByNameAsync(user.UserName).Result;
                     registeredUser.PersonId = (Guid)person.Id;
                     await userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
 
-                    //Post Agent entity
+                    //post agent entity
                     Agent newAgent = request.Map(request);
                     await webhookPublisher.PublishAsync("Agents.NewAgentCreated", newAgent.Id.ToString(), newAgent.Name).ConfigureAwait(false);
                     return await base.PostEntity(newAgent);
@@ -381,6 +381,8 @@ namespace OpenBots.Server.Web.Controllers
                 existingAgent.IPAddresses = request.IPAddresses;
                 existingAgent.IsEnabled = request.IsEnabled;
                 existingAgent.CredentialId = request.CredentialId;
+                existingAgent.IPOption = request.IPOption;
+                existingAgent.IsEnhancedSecurity = request.IsEnhancedSecurity;
 
                 await webhookPublisher.PublishAsync("Agents.AgentUpdated", existingAgent.Id.ToString(), existingAgent.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingAgent);
@@ -532,7 +534,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 if (agent == null)
                 {
-                    return NotFound("No Agent was found with the given Agent ID");
+                    return NotFound();
                 }
 
                 if (agent.IsConnected == false)
@@ -583,7 +585,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 if (agent == null)
                 {
-                    return NotFound("Agent not found");
+                    return NotFound();
                 }
                 if (agent.IsConnected == false)
                 {
@@ -655,6 +657,7 @@ namespace OpenBots.Server.Web.Controllers
                 request.AgentId = new Guid(agentId);
                 request.CreatedBy = applicationUser?.UserName;
                 request.CreatedOn = DateTime.UtcNow;
+                request.LastReportedOn = request.LastReportedOn ?? DateTime.UtcNow;
                 agentHeartbeatRepo.Add(request);
                 var resultRoute = "GetAgentHeartbeat";
 
@@ -712,10 +715,20 @@ namespace OpenBots.Server.Web.Controllers
                 queryString = HttpContext.Request.QueryString.Value;
 
             oData.Parse(queryString);
-            Guid parentguid = Guid.Empty;
+            Guid parentguid = Guid.Parse(agentId);
 
-            return Ok(agentHeartbeatRepo.Find(parentguid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip,
-                oData.Top).Items.Where(a => a.AgentId == new Guid(agentId)));
+            var newNode = oData.ParseOrderByQuery(queryString);
+            if (newNode == null)
+                newNode = new OrderByNode<AgentHeartbeat>();
+
+            Predicate<AgentHeartbeat> predicate = null;
+            if (oData != null && oData.Filter != null)
+                predicate = new Predicate<AgentHeartbeat>(oData.Filter);
+            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
+
+            var result =  agentHeartbeatRepo.FindAllHeartbeats(parentguid, predicate, newNode.PropertyName, newNode.Direction, oData.Skip, take);
+
+            return Ok(result);
         }
 
         /// <summary>

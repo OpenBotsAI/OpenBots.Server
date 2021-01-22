@@ -5,6 +5,7 @@ using OpenBots.Server.Model;
 using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.Model.Webhooks;
 using System;
+using OpenBots.Server.Model.File;
 
 namespace OpenBots.Server.DataAccess
 {
@@ -40,6 +41,10 @@ namespace OpenBots.Server.DataAccess
         public DbSet<IntegrationEventLog> IntegrationEventLogs { get; set; }
         public DbSet<IntegrationEventSubscription> IntegrationEventSubscriptions { get; set; }
         public DbSet<IntegrationEventSubscriptionAttempt> IntegrationEventSubscriptionAttempts { get; set; }
+        public DbSet<ServerDrive> ServerDrives { get; set; }
+        public DbSet<ServerFolder> ServerFolders { get; set; }
+        public DbSet<ServerFile> ServerFiles { get; set; }
+        public DbSet<FileAttribute> FileAttributes { get; set; }
 
 
         public StorageContext(DbContextOptions<StorageContext> options)
@@ -87,8 +92,12 @@ namespace OpenBots.Server.DataAccess
             new IntegrationEvent { Id = new Guid("35fd2aa3-6c77-4995-9ed8-9b262e5afdfc"), Description = "An Agent has reported an unhealthy status", EntityType = "Agent", IsSystem = true, IsDeleted = false, Name = "Agents.UnhealthyReported" },
             new IntegrationEvent { Id = new Guid("6ce8b3da-0373-4da2-bc77-ea845212855d"), Description = "A new agent has been created", EntityType = "Agent", IsSystem = true, IsDeleted = false, Name = "Agents.NewAgentCreated" },
             new IntegrationEvent { Id = new Guid("2b4bd195-62ac-4111-97ca-d6df6dd3f0fb"), Description = "An Agent has been updated", EntityType = "Agent", IsSystem = true, IsDeleted = false, Name = "Agents.AgentUpdated" },
-            new IntegrationEvent { Id = new Guid("6ce0bb0e-cda1-49fa-a9e4-b67d904f826e"), Description = "An Agent has been deleted", EntityType = "Agent", IsSystem = true, IsDeleted = false, Name = "Agents.AgentDeleted" }
-        );
+            new IntegrationEvent { Id = new Guid("6ce0bb0e-cda1-49fa-a9e4-b67d904f826e"), Description = "An Agent has been deleted", EntityType = "Agent", IsSystem = true, IsDeleted = false, Name = "Agents.AgentDeleted" },
+            new IntegrationEvent { Id = new Guid("53b4365e-d103-4e74-a72c-294d670abdbd"), Description = "A new Folder has been created", EntityType = "File", IsSystem = true, IsDeleted = false, Name = "Files.NewFolderCreated" },
+            new IntegrationEvent { Id = new Guid("d10616c6-53c4-4137-8cd0-70a5c7409938"), Description = "A Folder has been updated", EntityType = "File", IsSystem = true, IsDeleted = false, Name = "Files.FolderUpdated" },
+            new IntegrationEvent { Id = new Guid("e4a9ceaa-88e2-4c03-a203-7a419749c613"), Description = "A Folder has been deleted", EntityType = "File", IsSystem = true, IsDeleted = false, Name = "Files.FolderDeleted" },
+            new IntegrationEvent { Id = new Guid("513bb79b-3f2e-4846-a804-2c5b9a6792d0"), Description = "Local Drive has been updated", EntityType = "File", IsSystem = true, IsDeleted = false, Name = "Files.DriveUpdated" }
+            );
         }
         protected void CreateCoreModel(ModelBuilder modelBuilder)
         {

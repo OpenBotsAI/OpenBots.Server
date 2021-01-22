@@ -206,12 +206,12 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         {
             try
             {
-                // Create email entity
+                //create email entity
                 EmailModel email = manager.CreateEmail(request);
 
                 await base.PostEntity(email);
 
-                // Create email attachments & binary objects entities; upload binary object files to Server
+                //create email attachments & binary objects entities; upload binary object files to server
                 var attachments = manager.AddAttachments(request.Files, (Guid)email.Id);
 
                 EmailViewModel emailViewModel = manager.GetEmailViewModel(email, attachments);
@@ -258,7 +258,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
 
                 if (email.Status.Equals("Draft"))
                 {
-                    // If file doesn't exist in binary objects: add binary object entity, upload file, and add email attachment entity
+                    //if file doesn't exist in binary objects: add binary object entity, upload file, and add email attachment entity
                     string hash = string.Empty;
                     IFormFile[] filesArray = manager.CheckFiles(request.Files, emailId, hash, attachments);
                     emailAttachments = manager.AddAttachments(filesArray, emailId, hash);
@@ -267,8 +267,8 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
                     else
                         emailMessage.Attachments = attachments;
 
-                    // Email account name is nullable, so it needs to be used as a query parameter instead of in the put url
-                    // If no email account is chosen, the default organization account will be used
+                    //email account name is nullable, so it needs to be used as a query parameter instead of in the put url
+                    //if no email account is chosen, the default organization account will be used
                     await manager.SendEmailAsync(emailMessage, emailAccountName, id, "Outgoing");
 
                     email = repository.Find(null, q => q.Id == emailId)?.Items?.FirstOrDefault();
@@ -317,11 +317,11 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
             {
                 EmailMessage emailMessage = JsonConvert.DeserializeObject<EmailMessage>(request.EmailMessageJson);
 
-                // Create email attachment entities for each file attached
+                //create email attachment entities for each file attached
                 Guid id = Guid.NewGuid();
                 var attachments = manager.AddAttachments(request.Files, id);
 
-                // Add attachment entities to email message
+                //add attachment entities to email message
                 emailMessage.Attachments = attachments;
                 await manager.SendEmailAsync(emailMessage, accountName, id.ToString(), "Outgoing");
 
@@ -416,13 +416,13 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
             email.Reason = request.Reason;
             email.SentOnUTC = request.SentOnUTC;
 
-            // If files don't exist in binary objects: add binary object entity, upload file, and add email attachment attachment entity
+            //if files don't exist in binary objects: add binary object entity, upload file, and add email attachment attachment entity
             var attachments = emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(id))?.Items;
             string hash = string.Empty;
             IFormFile[] filesArray = manager.CheckFiles(request.Files, (Guid)email.Id, hash, attachments);
             var emailAttachments = manager.AddAttachments(filesArray, (Guid)email.Id, hash);
 
-            // Update email
+            //update email
             repository.Update(email);
 
             attachments = emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(id))?.Items;

@@ -211,7 +211,7 @@ namespace OpenBots.Server.Web.Controllers.Email
                         return BadRequest(ModelState);
                     }
 
-                    // Create email attachment
+                    //create email attachment
                     EmailAttachment emailAttachment = new EmailAttachment()
                     {
                         Name = binaryObject.Name,
@@ -284,7 +284,7 @@ namespace OpenBots.Server.Web.Controllers.Email
                     string organizationId = binaryObjectManager.GetOrganizationId();
                     string apiComponent = "EmailAPI";
 
-                    //Add file to Binary Objects (create entity and put file in EmailAPI folder in Server)
+                    //add file to binary objects (create entity and put file in EmailAPI folder in Server)
                     BinaryObject binaryObject = new BinaryObject()
                     {
                         Name = file.FileName,
@@ -295,12 +295,12 @@ namespace OpenBots.Server.Web.Controllers.Email
                     };
 
                     string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
-                    //Upload file to Server
+                    //upload file to Server
                     binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
                     binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
                     binaryObjectRepository.Add(binaryObject);
 
-                    // Create email attachment
+                    //create email attachment
                     EmailAttachment emailAttachment = new EmailAttachment()
                     {
                         Name = binaryObject.Name,
@@ -425,12 +425,12 @@ namespace OpenBots.Server.Web.Controllers.Email
 
                     if (existingAttachment.BinaryObjectId != Guid.Empty && size > 0)
                     {
-                        //Update Attachment file in OpenBots.Server.Web using relative directory
+                        //update attachment file in OpenBots.Server.Web using relative directory
                         string apiComponent = "EmailAPI";
                         binaryObjectManager.Update(request.file, organizationId, apiComponent, Guid.Parse(binaryObjectId));
                     }
 
-                    //Update Attachment entity
+                    //update attachment entity
                     await base.PutEntity(id, existingAttachment);
                     return Ok(existingAttachment);
                 }
