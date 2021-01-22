@@ -161,7 +161,7 @@ export class AddCredentialsComponent implements OnInit {
   getCredentialsById(): void {
     this.httpService
       .get(
-        `${CredentialsApiUrl.credentials}/$${CredentialsApiUrl.view}/${this.currentUrlId}`,
+        `${CredentialsApiUrl.credentials}/${CredentialsApiUrl.view}/${this.currentUrlId}`,
         { observe: 'response' }
       )
       .subscribe((response) => {

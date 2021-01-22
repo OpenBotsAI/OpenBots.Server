@@ -9,7 +9,7 @@
           <h2>Automation Logs</h2>
           <p>
             Automation Logs to keep track of changes done during the execution of a
-            Automation.
+            automation.
           </p>
         </div>
       </div>
@@ -58,10 +58,14 @@
             <i (click)="onSortClick($event, 'automationName')"
               [attr.class]="allProcessLogs | chevron: page.totalCount"></i>
           </th>
-          <th scope="col">
+          <!-- <th scope="col">
             Machine Name
             <i (click)="onSortClick($event, 'machineName')"
               [attr.class]="allProcessLogs | chevron: page.totalCount"></i>
+          </th> -->
+          <th scope="col">
+            Agent Name
+            <i (click)="onSortClick($event, 'agentName')" [attr.class]="allProcessLogs | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Message

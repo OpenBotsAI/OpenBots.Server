@@ -188,12 +188,12 @@ export class PagesMenu {
             link: '/pages/queueitems',
           },
           {
-            title: 'Add Queue Item',
-            link: '/pages/queueitems/new',
-          },
-          {
             title: 'All Queues',
             link: '/pages/queueslist',
+          },
+          {
+            title: 'Add Queue Item',
+            link: '/pages/queueitems/new',
           },
           {
             title: 'Add Queue',

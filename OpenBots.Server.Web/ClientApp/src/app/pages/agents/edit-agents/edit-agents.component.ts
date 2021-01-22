@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NbToastrService } from '@nebular/theme';
 import { AgentsService } from '../agents.service';
 import { HttpResponse } from '@angular/common/http';
+import { IpVersion, RxwebValidators } from '@rxweb/reactive-form-validators';
 
 @Component({
   selector: 'ngx-edit-agents',
@@ -18,17 +19,17 @@ export class EditAgentsComponent implements OnInit {
   show_allagents: any = [];
   etag;
   checked = false;
+  ipVersion = 'V4';
   constructor(
     private acroute: ActivatedRoute,
     private router: Router,
     private formBuilder: FormBuilder,
-    protected agentService: AgentsService,
+    private agentService: AgentsService,
     private toastrService: NbToastrService
   ) {
     this.acroute.queryParams.subscribe((params) => {
       this.agent_id = params.id;
       this.get_allagent(params.id);
-
     });
     this.get_cred();
   }
@@ -56,26 +57,33 @@ export class EditAgentsComponent implements OnInit {
       ],
       isEnabled: [''],
       CredentialId: ['', [Validators.required]],
+      ipOption: [''],
+      isEnhancedSecurity: [false],
     });
   }
 
   get_allagent(id) {
     this.agentService.getAgentbyID(id).subscribe((data: HttpResponse<any>) => {
-      console.log(data)
-      this.show_allagents = data.body;
-      if (this.show_allagents.macAddresses != null) {
-        this.checked = true;
-      } else if (this.show_allagents.macAddresses == null || this.show_allagents.macAddresses == '') {
-        this.checked = false
+      if (data && data.body) {
+        this.show_allagents = data.body;
+        if (data.body.macAddresses && data.body.ipAddresses) {
+          data.body.isEnhancedSecurity = true;
+          this.checked = true;
+        }
+        // if (this.show_allagents.macAddresses != null) {
+        //   this.checked = true;
+        // } else if (
+        //   this.show_allagents.macAddresses == null ||
+        //   this.show_allagents.macAddresses == ''
+        // ) {
+        //   this.checked = false;
+        // }
+        this.etag = data.headers.get('ETag').replace(/\"/g, '');
+        this.addagent.patchValue(this.show_allagents);
+        this.addagent.patchValue({
+          CredentialId: this.show_allagents.credentialId,
+        });
       }
-      console.log(data.headers.get('ETag').replace(/\"/g, ''))
-      this.etag = data.headers.get('ETag').replace(/\"/g, '')
-      this.addagent.patchValue(this.show_allagents);
-
-      this.addagent.patchValue({
-        CredentialId: this.show_allagents.credentialId,
-      }
-      )
     });
   }
   get_cred() {
@@ -84,9 +92,8 @@ export class EditAgentsComponent implements OnInit {
     });
   }
   check(checked: boolean) {
-
     this.checked = checked;
-    console.log(this.checked)
+    console.log(this.checked);
   }
 
   get f() {
@@ -95,25 +102,27 @@ export class EditAgentsComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
-    this.agentService.editAgent(this.agent_id, this.addagent.value, this.etag).subscribe(
-      (data) => {
-        this.toastrService.success('Updated successfully', 'Success');
-        this.router.navigate(['pages/agents/list']);
-      },
-      (error) => {
-        // console.log(error.error.status)
-        if (error.error.status === 409) {
-          this.toastrService.danger(error.error.serviceErrors, 'error')
-          this.get_allagent(this.agent_id)
-          this.submitted = false
+    this.agentService
+      .editAgent(this.agent_id, this.addagent.value, this.etag)
+      .subscribe(
+        (data) => {
+          this.toastrService.success('Updated successfully', 'Success');
+          this.router.navigate(['pages/agents/list']);
+        },
+        (error) => {
+          // console.log(error.error.status)
+          if (error.error.status === 409) {
+            this.toastrService.danger(error.error.serviceErrors, 'error');
+            this.get_allagent(this.agent_id);
+            this.submitted = false;
+          }
+          if (error.error.status === 429) {
+            this.toastrService.danger(error.error.serviceErrors, 'error');
+            // this.get_allagent(this.agent_id)
+            this.submitted = false;
+          }
         }
-        if (error.error.status === 429) {
-          this.toastrService.danger(error.error.serviceErrors, 'error')
-          // this.get_allagent(this.agent_id)
-          this.submitted = false
-        }
-      }
-    );
+      );
   }
 
   onReset() {
@@ -126,6 +135,23 @@ export class EditAgentsComponent implements OnInit {
     if (key === 32) {
       event.preventDefault();
       return false;
+    }
+  }
+
+  radioSetValidator(value: string): void {
+    this.addagent.get('ipAddresses').clearValidators();
+    if (value === 'ipv4') {
+      this.ipVersion = 'V4';
+      this.addagent
+        .get('ipAddresses')
+        .setValidators(RxwebValidators.ip({ version: IpVersion.V4 }));
+      this.addagent.updateValueAndValidity();
+    } else {
+      this.ipVersion = 'V6';
+      this.addagent
+        .get('ipAddresses')
+        .setValidators(RxwebValidators.ip({ version: IpVersion.V6 }));
+      this.addagent.updateValueAndValidity();
     }
   }
 }

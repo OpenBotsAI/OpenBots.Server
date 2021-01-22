@@ -16,12 +16,13 @@ export class AddAgentsComponent implements OnInit {
   submitted = false;
   cred_value: any = [];
   value = ['JSON', 'Number', 'Text'];
+  ipVersion = 'V4';
   constructor(
     private formBuilder: FormBuilder,
     protected agentService: AgentsService,
     protected router: Router,
     private toastrService: NbToastrService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.addagent = this.formBuilder.group({
@@ -46,8 +47,7 @@ export class AddAgentsComponent implements OnInit {
       macAddresses: [''],
       ipAddresses: [
         '',
-
-        [Validators.required, RxwebValidators.ip({ version: IpVersion.V6 })],
+        [RxwebValidators.ip({ version: IpVersion.V4 })],
         // Validators.pattern(
         //   '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|(::[1])$'
         // ),
@@ -56,6 +56,7 @@ export class AddAgentsComponent implements OnInit {
       CredentialId: ['', Validators.required],
       userName: ['', Validators.required],
       password: ['', Validators.required],
+      ipOption: ['ipv4'],
     });
 
     this.get_cred();
@@ -69,9 +70,20 @@ export class AddAgentsComponent implements OnInit {
     return this.addagent.controls;
   }
   check(checked: boolean) {
-
     this.checked = checked;
-    console.log(this.checked)
+    if (checked) {
+      this.addagent
+        .get('macAddresses')
+        .setValidators([Validators.required, RxwebValidators.mac()]);
+      this.addagent.get('ipAddresses').setValidators([Validators.required]);
+      this.addagent.get('macAddresses').updateValueAndValidity();
+      this.addagent.get('ipAddresses').updateValueAndValidity();
+    } else {
+      this.addagent.get('ipAddresses').clearValidators();
+      this.addagent.get('ipAddresses').updateValueAndValidity();
+      this.addagent.get('macAddresses').clearValidators();
+      this.addagent.get('macAddresses').updateValueAndValidity();
+    }
   }
 
   onSubmit() {
@@ -80,13 +92,12 @@ export class AddAgentsComponent implements OnInit {
       return;
     }
     this.agentService.addAgent(this.addagent.value).subscribe(
-      (data) => {
+      () => {
         this.toastrService.success('Agent added successfully', 'Success');
         this.router.navigate(['pages/agents/list']);
       },
-      (error) => {
+      () => {
         this.submitted = false;
-        console.log('error', error.error);
       }
     );
   }
@@ -111,6 +122,23 @@ export class AddAgentsComponent implements OnInit {
     if (key === 32) {
       event.preventDefault();
       return false;
+    }
+  }
+
+  radioSetValidator(value: string): void {
+    this.addagent.get('ipAddresses').clearValidators();
+    if (value === 'ipv4') {
+      this.ipVersion = 'V4';
+      this.addagent
+        .get('ipAddresses')
+        .setValidators(RxwebValidators.ip({ version: IpVersion.V4 }));
+      this.addagent.updateValueAndValidity();
+    } else {
+      this.ipVersion = 'V6';
+      this.addagent
+        .get('ipAddresses')
+        .setValidators(RxwebValidators.ip({ version: IpVersion.V6 }));
+      this.addagent.updateValueAndValidity();
     }
   }
 }
