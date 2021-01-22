@@ -6,6 +6,7 @@ import { DialogService } from '../../../@core/dialogservices';
 import { Page } from '../../../interfaces/paginateInstance';
 import { SubscriptionService } from '../subscription.service';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
+import { HelperService } from '../../../@core/services/helper.service';
 
 @Component({
   selector: 'ngx-all-event-subscriptions',
@@ -37,7 +38,8 @@ export class AllEventSubscriptionsComponent implements OnInit {
     private formBuilder: FormBuilder,
     private toastrService: NbToastrService,
     protected SubscriptionService: SubscriptionService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private helperService: HelperService
   ) {
     this.showjobs = this.formBuilder.group({
       automationId: [''],
@@ -56,6 +58,7 @@ export class AllEventSubscriptionsComponent implements OnInit {
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
     this.pagination(this.page.pageNumber, this.page.pageSize);
+    this.itemsPerPage = this.helperService.getItemsPerPage();
   }
 
   gotodetail(id) {

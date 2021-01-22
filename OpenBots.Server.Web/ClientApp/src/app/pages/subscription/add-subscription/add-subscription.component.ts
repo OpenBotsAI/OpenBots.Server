@@ -16,18 +16,19 @@ export class AddSubscriptionComponent implements OnInit {
   showQueues: any = [];
   subscriptionForm: FormGroup;
   submitted = false;
+  filterValue:any ;
+  EntityFilterValue :any =[]
   transportType: string[] = ['HTTPS', 'Queue'];
   constructor(
     private formBuilder: FormBuilder,
     private toastrService: NbToastrService,
     protected router: Router,
     protected SubscriptionService: SubscriptionService
-  ) {   
-     this.getallEntity();
+  ) {
+    this.getallEntity();
   }
 
   ngOnInit(): void {
-
     this.subscriptionForm = this.formBuilder.group({
       name: [
         '',
@@ -49,6 +50,8 @@ export class AddSubscriptionComponent implements OnInit {
       Max_RetryCount: [''],
       queuE_QueueID: [''],
     });
+      //  this.subscriptionForm.get('state').reset();
+       this.subscriptionForm.get('integrationEventName').disable();
   }
 
   get f() {
@@ -62,6 +65,20 @@ export class AddSubscriptionComponent implements OnInit {
     this.SubscriptionService.getQueues().subscribe((data: any) => {
       this.showQueues = data.items;
     });
+  }
+
+  
+  getEntityName(e)  {
+     console.log(e.target.value); 
+     this.filterValue =e.target.value;
+     this.SubscriptionService.filterIntegrationEventName(
+       `entityType+eq+'${this.filterValue}'`
+     ).subscribe((data: any) => {
+       console.log(data.items);
+       
+       this.EntityFilterValue = data.items;
+       this.subscriptionForm.get('integrationEventName').enable();
+     });
   }
   onSubmit() {
     this.submitted = true;
