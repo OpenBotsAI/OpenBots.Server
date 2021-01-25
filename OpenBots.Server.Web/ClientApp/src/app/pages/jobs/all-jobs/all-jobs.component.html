@@ -154,6 +154,7 @@
           </td>
         </tr>
       </tbody>
+      
     </table>
   </nb-card-body>
 
@@ -166,7 +167,7 @@
           screenReaderCurrentLabel="You're on page"></pagination-controls>
       </div>
 
-      <div class="col-md-4 col-lg-4 text-right no-right-padding">
+      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="showpage.totalCount !== 0">
         <label class="label">Total {{showpage.totalCount}} / </label>
         <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
           <option [value]="5">5 per page</option>
