@@ -52,8 +52,9 @@
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
                 <label for="email" class="label"> Enhanced Security</label>
-                <nb-checkbox class="enhanceBtn" (checkedChange)="check($event)" formControlName="isEnhancedSecurity">
-                </nb-checkbox>
+                 <label class="upload-button"><nb-checkbox  (checkedChange)="check($event)" formControlName="isEnhancedSecurity"> Enhanced Security
+                </nb-checkbox></label>
+                
               </div>
             </div>
             <div *ngIf="addagent.value.isEnhancedSecurity" class="col-md-6 col-sm-6 col-xxxl-6">
