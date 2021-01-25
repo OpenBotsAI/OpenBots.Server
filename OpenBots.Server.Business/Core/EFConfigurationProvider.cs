@@ -5,6 +5,7 @@ using OpenBots.Server.DataAccess;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.Model.File;
+using OpenBots.Server.Model.Membership;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,8 +40,13 @@ namespace OpenBots.Server.Business
                 ServerDrive drive = dbContext.ServerDrives.FirstOrDefault();
                 if (drive == null)
                 {
-                    Guid? organizationId = dbContext.Organizations.FirstOrDefault().Id;
-                    dbContext.ServerDrives.Add(new ServerDrive { Id = new Guid("37a01356-7514-47a2-96ce-986faadd628e"), FileStorageAdapterType = AdapterType.LocalFileStorageAdapter.ToString(), Name = "ServerDrive", OrganizationId = organizationId, StorageSizeInBytes = 0, IsDeleted = false });
+                    Organization organization = dbContext.Organizations.FirstOrDefault();
+                    if (organization != null)
+                    {
+                        Guid? organizationId = organization.Id;
+                        dbContext.ServerDrives.Add(new ServerDrive { Id = new Guid("37a01356-7514-47a2-96ce-986faadd628e"), FileStorageAdapterType = AdapterType.LocalFileStorageAdapter.ToString(), Name = "ServerDrive", OrganizationId = organizationId, StorageSizeInBytes = 0, IsDeleted = false });
+                    }
+
                 }
                 dbContext.SaveChanges();
             }
