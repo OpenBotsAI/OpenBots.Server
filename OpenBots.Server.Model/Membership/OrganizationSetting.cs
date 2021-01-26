@@ -31,10 +31,10 @@ namespace OpenBots.Server.Model.Membership
         public bool DisallowAllExecutions { get; set; }
 
         [Display(Name = "DisallowAllExecutionsReason ")]
-        public string DisallowAllExecutionsReason { get; set; }
+        public string? DisallowAllExecutionsReason { get; set; }
 
         [Display(Name = "DisallowAllExecutionsMessage ")]
-        public string DisallowAllExecutionsMessage { get; set; }
+        public string? DisallowAllExecutionsMessage { get; set; }
     }
     public enum IPFencingMode : int
     {
