@@ -41,10 +41,11 @@
           <div class="row rowPadTOp">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="email" class="label"> Enhanced Security</label>
-              <nb-checkbox class="enhanceBtn" formControlName="isEnhancedSecurity" (checkedChange)="check($event)">
-              </nb-checkbox>
+              <!-- <nb-checkbox class="enhanceBtn" formControlName="isEnhancedSecurity" (checkedChange)="check($event)">
+              </nb-checkbox> -->
 
-
+  <label class="upload-button"><nb-checkbox  (checkedChange)="check($event)" formControlName="isEnhancedSecurity"> Enhanced Security
+                </nb-checkbox></label>
 
               <!-- <label for="macaddress" class="label"  >Mac Addresses</label>
               <input type="input" nbInput fullWidth id="macAddresses" formControlName="macAddresses" (keypress)="handleInput($event)"

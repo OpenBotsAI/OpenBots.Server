@@ -36,7 +36,7 @@ export class AddEmailAccountComponent implements OnInit {
       fromName: [''],
       host: [''],
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100), Validators.pattern('^[A-Za-z0-9_.-]{3,100}$')]],
-      passwordHash: [''],
+      encryptedPassword: [''],
       port: [''],
       provider: ['', [Validators.required]],
       username: [''],
