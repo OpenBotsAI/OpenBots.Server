@@ -43,6 +43,15 @@ const routes: Routes = [
         canActivate: [LoginGuard],
       },
       {
+        path: 'file-manager',
+        loadChildren: () =>
+          import('./file-manager/file-manager.module').then(
+            (mod) => mod.FileManagerModule
+          ),
+        canActivate: [LoginGuard],
+      },
+
+      {
         path: 'change-log',
         loadChildren: () =>
           import('./change-log/change-log.module').then(

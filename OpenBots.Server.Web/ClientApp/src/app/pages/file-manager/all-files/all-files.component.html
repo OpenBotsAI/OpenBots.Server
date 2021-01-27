@@ -1,0 +1,239 @@
+<nb-card>
+    <nb-card-header>
+        <div class="titleHeader">
+            <div class="titleLeft">
+                <div class="LeftBgIcon">
+                    <img class="img-head-logo" src="../../../../assets/icons/mail.svg" />
+                </div>
+                <div class="LeftBgText">
+                    <h2>File Manager</h2>
+                    <p>
+                        <!-- Email Services and Accounts used to send out emails from the server. -->
+                    </p>
+                </div>
+            </div>
+            <!-- <div class="titleRight">
+                <button type="button" class="btn btn-primary" (click)="gotoadd()">
+            Add Email Account
+          </button>
+            </div> -->
+        </div>
+    </nb-card-header>
+    <nb-card-body>
+        <div class="row">
+            <div class="col-md-12 col-lg-12 tool-bar">
+                <div class="row">
+                    <div class="col-md-1 col-lg-1">
+                        <button type="button" class="btn btn-gray"  >
+           New Folder
+          </button>
+                    </div>
+                    <div class="col-md-1 col-lg-1">
+                        <button type="button" class="btn btn-primary "  >
+           Download File
+          </button>
+                    </div>
+                    <div class="col-md-1 col-lg-1">
+                        <button type="button" class="btn btn-primary "  >
+           Download File
+          </button>
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
+        <div class="row">
+        <div class="col-md-8 col-lg-8 ">
+             <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <!-- <th scope="col">
+                        Name
+                        <i (click)="onSortClick($event, 'name')" [attr.class]="showallEmail | chevron: page.totalCount"></i>
+                    </th> -->
+                   
+                    <th scope="col">Name</th>
+                    <th scope="col">Size</th>
+                    <th scope="col">Type</th>
+                     <th scope="col">Modified</th>
+                </tr>
+            </thead>
+            <tbody>
+                <td>
+                    Usman File 1
+                </td>
+                 <td>
+                   1 kb
+                </td>
+                <td>
+                   .pdf
+                </td>
+                 <td>
+                   02/02/2021
+                </td>
+                
+            </tbody>
+               <tbody>
+                <td>
+                    Usman File 2
+                </td>
+                 <td>
+                   10 kb
+                </td>
+                <td>
+                   .ppt
+                </td>
+                 <td>
+                   02/02/2022
+                </td>
+                
+            </tbody>
+             <tbody>
+                <td>
+                    Adnan File 3
+                </td>
+                 <td>
+                   100 kb
+                </td>
+                <td>
+                   .png
+                </td>
+                 <td>
+                   02/02/2029
+                </td>
+                
+            </tbody>
+             
+
+            <!-- <tbody>
+                <tr *ngFor="
+              let email of showallEmail
+                | paginate
+                  : {
+                      id: '1',
+                      itemsPerPage: page.pageSize,
+                      currentPage: page.pageNumber,
+                      totalItems: page.totalCount
+                    };trackBy: trackByFn
+            ">
+                    <td scope="row" *ngIf="email.name != null">
+                        <ngx-tooltip [data]="email?.name" [size]="50"> </ngx-tooltip>
+                    </td>
+                    <td scope="row" *ngIf="email.name == null">No Name</td>
+                    
+                    <td>
+                        <a (click)="gotodetail(email.id)">
+                            <i class="fa fa-eye" aria-hidden="true"></i>
+                        </a>
+                    </td>
+                    <td>
+                        <a (click)="gotoedit(email.id)">
+                            <i class="fa fa-edit"> </i>
+                        </a>
+                    </td>
+                    <td>
+                        <a (click)="open2(dialog, email.id)">
+                            <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
+                        </a>
+                    </td>
+                </tr>
+            </tbody> -->
+        </table>
+        </div>
+        <div class="col-md-4 col-lg-4">
+            <div class="square"> 
+               
+                <h2>File Manager Information</h2>
+                 <table  class="file-info">
+                     <tr>
+                         <th>
+                             Name
+                         </th>
+                         <td>
+                             ABC 1
+                         </td>
+                     </tr>
+                       <tr>
+                         <th>
+                             Size
+                         </th>
+                         <td>
+                             3kb
+                         </td>
+                     </tr>
+                       <tr>
+                         <th>
+                             Type
+                         </th>
+                         <td>
+                             Folder
+                         </td>
+                     </tr>
+                       <tr>
+                         <th>
+                             Modified
+                         </th>
+                         <td>
+                             02/02/2021
+                         </td>
+                     </tr>
+                     <tr>
+                         <th>
+                             Location
+                         </th>
+                         <td>
+                          OpenBots Server
+                         </td>
+                     </tr>
+                     
+                 </table>
+                 <div class="download-btn" >
+                     <button type="button" class="btn btn-primary "  >
+           Download File
+          </button>
+                 </div>
+                
+                </div>
+               
+        </div>
+       </div>
+    </nb-card-body>
+    <!-- <nb-card-body class="noTopPadding">
+        <div class="row pagerow">
+            <div class="col-md-8 col-lg-8 no-left-padding">
+                <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks="true" autoHide="true" screenReaderPaginationLabel="Pagination"
+                    screenReaderPageLabel="page" screenReaderCurrentLabel="You're on page"></pagination-controls>
+            </div>
+            <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
+                <label class="label">Total {{ showpage.totalCount }} /</label>
+                
+                <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
+            <option *ngFor="let item of itemsPerPage" [value]="item.id">
+              {{ item.name }}
+            </option>
+          </select>
+            </div>
+        </div>
+    </nb-card-body> -->
+</nb-card>
+
+<!-- <ng-template #dialog let-data let-ref="dialogRef">
+    <nb-card>
+        <nb-card-header>
+            <h6>Delete Agent</h6>
+        </nb-card-header>
+        <nb-card-body>
+            <div aria-labelledby="title">
+                <p>Are you sure you want to delete?</p>
+            </div>
+        </nb-card-body>
+        <nb-card-footer>
+            <button class="btn btn-danger" [disabled]="isDeleted" (click)="del_agent(ref)">Delete</button>
+            <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
+          Cancel
+        </button>
+ 
+        </nb-card-footer>
+    </nb-card>
+</ng-template> -->
