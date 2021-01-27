@@ -147,6 +147,17 @@ export class PagesMenu {
         ],
       },
       {
+        title: 'File Manager',
+        icon: { icon: 'file', pack: 'custom-icons' },
+        children: [
+          {
+            title: 'Files',
+            link: '/pages/file-manager',
+          },
+        ],
+      },
+
+      {
         title: 'Integration',
         icon: { icon: 'process', pack: 'custom-icons' },
         children: [
