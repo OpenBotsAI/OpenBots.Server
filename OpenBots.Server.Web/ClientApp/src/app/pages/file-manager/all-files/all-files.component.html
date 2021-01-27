@@ -29,110 +29,112 @@
 
         <div class="row">
         <div class="col-md-8 col-lg-8 ">
+            <div style="overflow-x:auto;">
              <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <!-- <th scope="col">
-                        Name
-                        <i (click)="onSortClick($event, 'name')" [attr.class]="showallEmail | chevron: page.totalCount"></i>
-                    </th> -->
-                   
-                    <th scope="col">Name</th>
-                    <th scope="col">Size</th>
-                    <th scope="col">Type</th>
-                     <th scope="col">Modified</th>
-                </tr>
-            </thead>
-            <!-- <tbody>
-                <td>
-                    Usman File 1
-                </td>
-                 <td>
-                   1 kb
-                </td>
-                <td>
-                   .pdf
-                </td>
-                 <td>
-                   02/02/2021
-                </td>
+                <thead>
+                    <tr>
+                        <!-- <th scope="col">
+                            Name
+                            <i (click)="onSortClick($event, 'name')" [attr.class]="showallEmail | chevron: page.totalCount"></i>
+                        </th> -->
+                    
+                        <th scope="col">Name</th>
+                        <th scope="col">Size</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Modified</th>
+                    </tr>
+                </thead>
+                <!-- <tbody>
+                    <td>
+                        Usman File 1
+                    </td>
+                    <td>
+                    1 kb
+                    </td>
+                    <td>
+                    .pdf
+                    </td>
+                    <td>
+                    02/02/2021
+                    </td>
+                    
+                </tbody>
+                <tbody>
+                    <td>
+                        Usman File 2
+                    </td>
+                    <td>
+                    10 kb
+                    </td>
+                    <td>
+                    .ppt
+                    </td>
+                    <td>
+                    02/02/2022
+                    </td>
+                    
+                </tbody>
+                <tbody>
+                    <td>
+                        Adnan File 3
+                    </td>
+                    <td>
+                    100 kb
+                    </td>
+                    <td>
+                    .png
+                    </td>
+                    <td>
+                    02/02/2029
+                    </td>
+                    
+                </tbody> -->
                 
-            </tbody>
-               <tbody>
-                <td>
-                    Usman File 2
-                </td>
-                 <td>
-                   10 kb
-                </td>
-                <td>
-                   .ppt
-                </td>
-                 <td>
-                   02/02/2022
-                </td>
-                
-            </tbody>
-             <tbody>
-                <td>
-                    Adnan File 3
-                </td>
-                 <td>
-                   100 kb
-                </td>
-                <td>
-                   .png
-                </td>
-                 <td>
-                   02/02/2029
-                </td>
-                
-            </tbody> -->
-             
 
-            <tbody>
-                <tr *ngFor="
-              let email of fileManger
-                
-            ">
-                    <td scope="row"  >
-                         <a class="lendhand" (click)="gotodetail(email.name,email.size,email.contentType,email.createdOn,email.fullStoragePath)"> 
-                             {{email?.name}}
-                               <!-- <ngx-tooltip [data]="email?.name" [size]="50"> </ngx-tooltip> -->
-                            </a>
-                     
-                    </td>
-                     
-                    <td scope="row"  >
-                        {{email?.size | filesize}}
-                        <!-- <ngx-tooltip [data]="email?.size | filesize" [size]="50"> </ngx-tooltip> -->
-                    </td>
-                     <td scope="row"  >
-                         {{email?.contentType}}
-                        <!-- <ngx-tooltip [data]="email?.contentType" [size]="50"> </ngx-tooltip> -->
-                    </td>
-                    <td scope="row"  >
-                        {{email?.createdOn | timeDate: 'll'}}
-                        <!-- <ngx-tooltip [data]="email?.createdOn | timeDate: 'll'" [size]="50"> </ngx-tooltip> -->
-                    </td>
-                    <!-- <td>
-                        <a (click)="gotodetail(email.id)">
-                            <i class="fa fa-eye" aria-hidden="true"></i>
-                        </a>
-                    </td>
-                    <td>
-                        <a (click)="gotoedit(email.id)">
-                            <i class="fa fa-edit"> </i>
-                        </a>
-                    </td>
-                    <td>
-                        <a (click)="open2(dialog, email.id)">
-                            <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
-                        </a>
-                    </td> -->
-                </tr>
-            </tbody>
-        </table>
+                    <tbody>
+                        <tr *ngFor="
+                    let email of fileManger
+                        
+                    ">
+                            <td scope="row"  >
+                                <a class="lendhand" (click)="gotodetail(email.name,email.size,email.contentType,email.createdOn,email.fullStoragePath)"> 
+                                    {{email?.name}}
+                                    <!-- <ngx-tooltip [data]="email?.name" [size]="50"> </ngx-tooltip> -->
+                                    </a>
+                            
+                            </td>
+                            
+                            <td scope="row"  >
+                                {{email?.size | filesize}}
+                                <!-- <ngx-tooltip [data]="email?.size | filesize" [size]="50"> </ngx-tooltip> -->
+                            </td>
+                            <td scope="row"  >
+                                {{email?.contentType}}
+                                <!-- <ngx-tooltip [data]="email?.contentType" [size]="50"> </ngx-tooltip> -->
+                            </td>
+                            <td scope="row"  >
+                                {{email?.createdOn | timeDate: 'll'}}
+                                <!-- <ngx-tooltip [data]="email?.createdOn | timeDate: 'll'" [size]="50"> </ngx-tooltip> -->
+                            </td>
+                            <!-- <td>
+                                <a (click)="gotodetail(email.id)">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                </a>
+                            </td>
+                            <td>
+                                <a (click)="gotoedit(email.id)">
+                                    <i class="fa fa-edit"> </i>
+                                </a>
+                            </td>
+                            <td>
+                                <a (click)="open2(dialog, email.id)">
+                                    <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
+                                </a>
+                            </td> -->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="col-md-4 col-lg-4">
             <div class="square"> 
