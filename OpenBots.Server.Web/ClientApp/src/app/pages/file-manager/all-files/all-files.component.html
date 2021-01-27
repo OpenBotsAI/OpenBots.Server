@@ -3,7 +3,7 @@
         <div class="titleHeader">
             <div class="titleLeft">
                 <div class="LeftBgIcon">
-                    <img class="img-head-logo" src="../../../../assets/images/foldermain-icon.png" />
+                    <img class="img-head-logo" src="../../../../assets/icons/File.svg" />
                 </div>
                 <div class="LeftBgText">
                     <h2>File Manager</h2>
@@ -43,7 +43,7 @@
                      <th scope="col">Modified</th>
                 </tr>
             </thead>
-            <tbody>
+            <!-- <tbody>
                 <td>
                     Usman File 1
                 </td>
@@ -87,26 +87,35 @@
                    02/02/2029
                 </td>
                 
-            </tbody>
+            </tbody> -->
              
 
-            <!-- <tbody>
+            <tbody>
                 <tr *ngFor="
-              let email of showallEmail
-                | paginate
-                  : {
-                      id: '1',
-                      itemsPerPage: page.pageSize,
-                      currentPage: page.pageNumber,
-                      totalItems: page.totalCount
-                    };trackBy: trackByFn
+              let email of fileManger
+                
             ">
-                    <td scope="row" *ngIf="email.name != null">
-                        <ngx-tooltip [data]="email?.name" [size]="50"> </ngx-tooltip>
+                    <td scope="row"  >
+                         <a class="lendhand" (click)="gotodetail(email.name,email.size,email.contentType,email.createdOn,email.fullStoragePath)"> 
+                             {{email?.name}}
+                               <!-- <ngx-tooltip [data]="email?.name" [size]="50"> </ngx-tooltip> -->
+                            </a>
+                     
                     </td>
-                    <td scope="row" *ngIf="email.name == null">No Name</td>
-                    
-                    <td>
+                     
+                    <td scope="row"  >
+                        {{email?.size | filesize}}
+                        <!-- <ngx-tooltip [data]="email?.size | filesize" [size]="50"> </ngx-tooltip> -->
+                    </td>
+                     <td scope="row"  >
+                         {{email?.contentType}}
+                        <!-- <ngx-tooltip [data]="email?.contentType" [size]="50"> </ngx-tooltip> -->
+                    </td>
+                    <td scope="row"  >
+                        {{email?.createdOn | timeDate: 'll'}}
+                        <!-- <ngx-tooltip [data]="email?.createdOn | timeDate: 'll'" [size]="50"> </ngx-tooltip> -->
+                    </td>
+                    <!-- <td>
                         <a (click)="gotodetail(email.id)">
                             <i class="fa fa-eye" aria-hidden="true"></i>
                         </a>
@@ -120,9 +129,9 @@
                         <a (click)="open2(dialog, email.id)">
                             <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
                         </a>
-                    </td>
+                    </td> -->
                 </tr>
-            </tbody> -->
+            </tbody>
         </table>
         </div>
         <div class="col-md-4 col-lg-4">
@@ -135,7 +144,7 @@
                              Name
                          </th>
                          <td>
-                             ABC 1
+                             {{name}}
                          </td>
                      </tr>
                        <tr>
@@ -143,7 +152,7 @@
                              Size
                          </th>
                          <td>
-                             3kb
+                            {{size}}
                          </td>
                      </tr>
                        <tr>
@@ -151,7 +160,7 @@
                              Type
                          </th>
                          <td>
-                             Folder
+                             {{contentType}}
                          </td>
                      </tr>
                        <tr>
@@ -159,7 +168,7 @@
                              Modified
                          </th>
                          <td>
-                             02/02/2021
+                           {{createdOn | timeDate :'ll'}}
                          </td>
                      </tr>
                      <tr>
@@ -167,7 +176,7 @@
                              Location
                          </th>
                          <td>
-                          OpenBots Server
+                         {{fullStoragePath}}
                          </td>
                      </tr>
                      
