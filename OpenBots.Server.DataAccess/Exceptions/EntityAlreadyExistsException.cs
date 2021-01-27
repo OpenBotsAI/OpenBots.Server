@@ -9,5 +9,9 @@ namespace OpenBots.Server.DataAccess.Exceptions
         public EntityAlreadyExistsException()
         {
         }
+
+        public EntityAlreadyExistsException(string? message) : base(message)
+        {
+        }
     }
 }

@@ -11,7 +11,7 @@ namespace OpenBots.Server.ViewModel.File
         public virtual string? Name { get; set; }
         public virtual long? Size { get; set; }
         public virtual string? StoragePath { get; set; }
-        public virtual bool? IsChild { get; set; }
+        public virtual bool? HasChild { get; set; }
         public virtual string? ContentType { get; set; }
         public virtual string? CreatedBy { get; set; }
         public virtual DateTime? CreatedOn { get; set; }
@@ -31,7 +31,7 @@ namespace OpenBots.Server.ViewModel.File
                 CreatedBy = entity.CreatedBy,
                 CreatedOn = entity.CreatedOn,
                 FullStoragePath = entity.StoragePath,
-                IsChild = true,
+                HasChild = false,
                 IsFile = true,
                 ParentId = entity.StorageFolderId,
                 StoragePath = path,
@@ -41,7 +41,7 @@ namespace OpenBots.Server.ViewModel.File
             return fileFolderView;
         }
 
-        public FileFolderViewModel Map(ServerFolder entity, string path)
+        public FileFolderViewModel Map(ServerFolder entity, string path, bool hasChild)
         {
             FileFolderViewModel fileFolderView = new FileFolderViewModel
             {
@@ -51,7 +51,7 @@ namespace OpenBots.Server.ViewModel.File
                 CreatedBy = entity.CreatedBy,
                 CreatedOn = entity.CreatedOn,
                 FullStoragePath = entity.StoragePath,
-                IsChild = true,
+                HasChild = hasChild,
                 IsFile = false,
                 ParentId = entity.ParentFolderId,
                 StoragePath = path,

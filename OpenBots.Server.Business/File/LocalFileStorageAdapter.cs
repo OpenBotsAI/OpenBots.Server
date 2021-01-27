@@ -92,6 +92,10 @@ namespace OpenBots.Server.Business.File
             string path = Path.Combine(request.StoragePath, file.FileName);
             Guid? organizationId = organizationManager.GetDefaultOrganization().Id;
 
+            var checkFile = serverFileRepository.Find(null)?.Items?.Where(q => q.StoragePath == path).FirstOrDefault();
+            if (checkFile != null)
+                throw new EntityAlreadyExistsException($"File with name {request.Name} already exists at path {request.StoragePath}");
+
             //upload file to local server
             CheckDirectoryExists(shortPath, organizationId);
 
@@ -157,8 +161,6 @@ namespace OpenBots.Server.Business.File
             }
 
             var viewModel = new FileFolderViewModel();
-            var pathArray = serverFile.StoragePath.Split("\\");
-            var parentIds = GetParentIds(pathArray);
             viewModel = viewModel.Map(serverFile, shortPath);
             return viewModel;
         }
@@ -353,7 +355,7 @@ namespace OpenBots.Server.Business.File
                 fileFolder.CreatedOn = file.CreatedOn;
                 fileFolder.FullStoragePath = file.StoragePath;
                 fileFolder.Size = file.SizeInBytes;
-                fileFolder.IsChild = true;
+                fileFolder.HasChild = false;
                 fileFolder.IsFile = true;
                 fileFolder.ParentId = file.StorageFolderId;
 
@@ -371,6 +373,8 @@ namespace OpenBots.Server.Business.File
                     shortPathArray.SetValue(folderName, i);
                 }
 
+                bool hasChild = CheckFolderHasChild(folder.Id);
+
                 fileFolder.Id = folder.Id;
                 fileFolder.Name = folder.Name;
                 fileFolder.ContentType = "Folder";
@@ -379,7 +383,7 @@ namespace OpenBots.Server.Business.File
                 fileFolder.CreatedOn = folder.CreatedOn;
                 fileFolder.FullStoragePath = folder.StoragePath;
                 fileFolder.Size = folder.SizeInBytes;
-                fileFolder.IsChild = true;
+                fileFolder.HasChild = hasChild;
                 fileFolder.IsFile = false;
                 fileFolder.ParentId = folder.ParentFolderId;
             }
@@ -457,6 +461,10 @@ namespace OpenBots.Server.Business.File
                 var folderId = GetFolderId(path);
                 var id = Guid.NewGuid();
 
+                var file = serverFolderRepository.Find(null).Items?.Where(q => q.StoragePath == request.FullStoragePath).FirstOrDefault();
+                if (file != null)
+                    throw new EntityAlreadyExistsException($"Folder with name {request.Name} already exists at path {request.StoragePath}");
+
                 ServerFolder serverFolder = new ServerFolder()
                 {
                     Id = id,
@@ -474,7 +482,8 @@ namespace OpenBots.Server.Business.File
                 webhookPublisher.PublishAsync("Files.NewFolderCreated", serverFolder.Id.ToString(), serverFolder.Name);
 
                 var shortPath = request.StoragePath;
-                newFileFolder = newFileFolder.Map(serverFolder, shortPath);
+                var hasChild = CheckFolderHasChild(serverFolder.Id);
+                newFileFolder = newFileFolder.Map(serverFolder, shortPath, hasChild);
             }
             return newFileFolder;
         }
@@ -541,6 +550,16 @@ namespace OpenBots.Server.Business.File
             }
 
             return fileFolder;
+        }
+
+        public bool CheckFolderHasChild(Guid? id)
+        {
+            bool hasChild = true;
+            var children = serverFolderRepository.Find(null).Items?.Where(q => q.ParentFolderId == id);
+            if (children == null)
+                hasChild = false;
+
+            return hasChild;
         }
     }
 }

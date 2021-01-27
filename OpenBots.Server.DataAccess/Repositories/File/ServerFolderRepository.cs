@@ -55,6 +55,8 @@ namespace OpenBots.Server.DataAccess.Repositories.File
                 var itemRecord = from a in itemsList.Items
                                  join b in dbContext.ServerFolders on a.ParentFolderId equals b.Id into table1
                                  from b in table1.DefaultIfEmpty()
+                                 join c in dbContext.ServerFolders on a.Id equals c.ParentFolderId into table2
+                                 from c in table1.DefaultIfEmpty()
                                  select new FileFolderViewModel
                                  {
                                      Name = a?.Name,
@@ -63,7 +65,7 @@ namespace OpenBots.Server.DataAccess.Repositories.File
                                      CreatedBy = a?.CreatedBy,
                                      CreatedOn = a?.CreatedOn,
                                      FullStoragePath = a?.StoragePath,
-                                     IsChild = true,
+                                     HasChild =  c?.ParentFolderId != null ? true : false,
                                      IsFile = false,
                                      ParentId = a?.ParentFolderId,
                                      StoragePath = b?.StoragePath != null ? b?.StoragePath : serverDriveName,

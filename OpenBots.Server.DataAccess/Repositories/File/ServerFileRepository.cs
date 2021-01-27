@@ -65,7 +65,7 @@ namespace OpenBots.Server.DataAccess.Repositories.File
                                      CreatedBy = a?.CreatedBy,
                                      CreatedOn = a?.CreatedOn,
                                      FullStoragePath = a?.StoragePath,
-                                     IsChild = true,
+                                     HasChild = false,
                                      IsFile = true,
                                      ParentId = a?.StorageFolderId,
                                      StoragePath = b?.StoragePath != null ? b?.StoragePath : serverDriveName,
