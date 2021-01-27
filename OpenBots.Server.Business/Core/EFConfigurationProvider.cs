@@ -44,7 +44,7 @@ namespace OpenBots.Server.Business
                     if (organization != null)
                     {
                         Guid? organizationId = organization.Id;
-                        dbContext.ServerDrives.Add(new ServerDrive { Id = new Guid("37a01356-7514-47a2-96ce-986faadd628e"), FileStorageAdapterType = AdapterType.LocalFileStorageAdapter.ToString(), Name = "ServerDrive", OrganizationId = organizationId, StorageSizeInBytes = 0, IsDeleted = false });
+                        dbContext.ServerDrives.Add(new ServerDrive { Id = new Guid("37a01356-7514-47a2-96ce-986faadd628e"), FileStorageAdapterType = AdapterType.LocalFileStorageAdapter.ToString(), Name = "Files", OrganizationId = organizationId, StorageSizeInBytes = 0, IsDeleted = false });
                     }
 
                 }
@@ -63,6 +63,8 @@ namespace OpenBots.Server.Business
                 { "App:EnableSwagger", "true"},
                 { "App:MaxExportRecords", "100"},
                 { "App:MaxReturnRecords", "100"},
+                { "Files:Adapter", "LocalFileStorageAdapter" },
+                { "Files:StorageProvider", "LocalFileStorage" }
             };
 
             foreach (var value in configValues)
