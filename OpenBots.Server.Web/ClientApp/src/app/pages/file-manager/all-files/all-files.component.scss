@@ -1,3 +1,23 @@
+.LeftBgIcon, .LeftBgText {
+  vertical-align: middle;
+}
+.toolPnl{
+  background-color: #fafafa;
+  border: 1px solid #dee2e6;
+}
+.btnIcon, .btnIcon img{
+  font-size:13px;
+  display:inline-block;
+  vertical-align:middle;
+}
+.btnIcon{
+  background-color:transparent;
+  padding:10px;
+  border:none;
+}
+.btnIcon:hover{
+  background-color: #dee2e6;
+}
  .table {
      width: 100%;
      margin-bottom: 0rem;
@@ -78,78 +98,89 @@
  .no-left-padding {
      padding: 0px;
  }
-
- @media only screen and (max-width: 750px) {
-    .checkbox.checbox-switch label{
-      margin-bottom: 0px;
-    }
-    table, thead, tbody, th, td, tr {
-      display: block;
-    }
-    thead tr {
-      position: absolute;
-      top: -9999px;
-      left: -9999px;
-    }
-    tr {
-      border: 1px solid #ccc;
-    }
-    td {
-      border: none;
-      border-bottom: 1px solid #e0e0e0;
-      position: relative;
-      padding-left: 20px;
-      margin-left: 150px;
-      min-height: 50px;
-    }
-    td:before {
-      position: absolute;
-      top: 0px;
-      left: 0px;
-      width: 151px;
-      padding: 12px;
-      white-space: nowrap;
-      margin-left: -150px;
-      min-height: 50px;
-      border-bottom: 1px solid #e0e0e0;
-    }
-    td:nth-of-type(1):before {
-      content: "Name";
-    }
-    td:nth-of-type(2):before {
-      content: "View";
-    }
-    td:nth-of-type(3):before {
-      content: "Edit";
-    }
-    td:nth-of-type(4):before { 
-      content: "Delete";
-    }
-  }
-  .square {
-     border-radius: 25px;
-    border: 2px solid #ececec;
-    padding: 20px;
+  a.lendhand {
+  cursor: pointer;
 }
-    .file-info{
-        width: 100%;
-    text-align: left;
-    }
-    .download-btn{
-            padding-top: 12px;
-    padding-left: 73px;
-    }
-    .tool-bar{
-            display: block;
-    background: #dee2e6;
-    }
-  @media only screen and (max-width: 500px) {
-    td:before {
-      width: 111px;
-      margin-left: -101px;
-    }
-    td{
-      margin-left: 100px;
-    }
-  } 
-  
+ .table-bordered{
+  border-top: none;
+}
+.square {
+  border: 2px solid #ececec;
+  border-top: none;
+  padding: 15px;
+}
+  .file-info{
+      width: 100%;
+      text-align: left;
+  }
+  .file-info tr:nth-child(even){
+    background-color: #fafafa;
+  }
+  .file-info th, .file-info td{
+    padding: 10px;
+    font-size: 14px;
+  }
+  .file-info td{
+    word-break: break-all;
+  }
+  .download-btn{
+    text-align: center;
+    padding-top: 12px;
+  }
+
+@media only screen and (max-width: 750px) {
+  .checkbox.checbox-switch label{
+    margin-bottom: 0px;
+  }
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  tr {
+    border: 1px solid #ccc;
+  }
+  td {
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+    position: relative;
+    padding-left: 20px;
+    margin-left: 150px;
+    min-height: 50px;
+  }
+  td:before {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 151px;
+    padding: 12px;
+    white-space: nowrap;
+    margin-left: -150px;
+    min-height: 50px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  td:nth-of-type(1):before {
+    content: "Name";
+  }
+  td:nth-of-type(2):before {
+    content: "View";
+  }
+  td:nth-of-type(3):before {
+    content: "Edit";
+  }
+  td:nth-of-type(4):before { 
+    content: "Delete";
+  }
+}
+@media only screen and (max-width: 500px) {
+  td:before {
+    width: 111px;
+    margin-left: -101px;
+  }
+  td{
+    margin-left: 100px;
+  }
+} 
