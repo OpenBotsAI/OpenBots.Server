@@ -20,23 +20,21 @@
         </div>
     </nb-card-header>
     <nb-card-body>
-        <div class="toolPnl"  >
-       <ul class='breadcrumb'>
-           <li class="lendhand"  (click)="allFiles(5,0)">All Files & Folders </li>
-    <li *ngFor="let breadcrumb of bread; index as i">
-      <a  *ngIf="breadcrumb.name !== floderName " (click)="getFileId(breadcrumb,i)"> > {{ breadcrumb?.name }} </a>
-      <p *ngIf="breadcrumb.name == floderName" >
->  {{ breadcrumb?.name }}
-      </p>
-      
-    </li>
-  </ul>
-        </div>
         <div class="toolPnl">
             <button class="btnIcon btnFolder"><img src="../../../../assets/images/folder-icon.png"/>New Folder</button>
             <button class="btnIcon btnUpload"><img src="../../../../assets/images/upload-icon.png"/>Upload</button>
             <!-- <button class="btnIcon btnSort"><img src="../../../../assets/images/sort-icon.png"/>Sort by</button> -->
             <button class="btnIcon btnFolder"><img src="../../../../assets/images/fresh-icon.png" (click)="allFiles(5,0)">Refresh</button>
+            <ul class='breadcrumb'>
+                <li class="lendhand"  (click)="allFiles(5,0)">All Files & Folders </li>
+         <li *ngFor="let breadcrumb of bread; index as i">
+           <a  *ngIf="breadcrumb.name !== floderName " (click)="getFileId(breadcrumb,i)"> > {{ breadcrumb?.name }} </a>
+           <p *ngIf="breadcrumb.name == floderName" >
+     >  {{ breadcrumb?.name }}
+           </p>
+           
+         </li>
+       </ul>
         </div>
 
         <div class="row">

@@ -138,6 +138,15 @@
     font-size: 80%;
     color: #dc3545;
 }
+.breadcrumb{
+    clear: both;
+    margin-bottom: 0rem !important;
+    background-color: transparent !important;
+    padding-top: 3px !important;
+}
+.breadcrumb li{
+  font-size: 12px;
+}
 @media only screen and (max-width: 750px) {
   .checkbox.checbox-switch label{
     margin-bottom: 0px;
