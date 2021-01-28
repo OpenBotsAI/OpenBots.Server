@@ -9,6 +9,6 @@ namespace OpenBots.Server.Model.File
         public Guid? ParentFolderId { get; set; }
         public Guid? OrganizationId { get; set; }
         public string StoragePath { get; set; }
-        public long SizeInBytes { get; set; }
+        public long? SizeInBytes { get; set; }
     }
 }

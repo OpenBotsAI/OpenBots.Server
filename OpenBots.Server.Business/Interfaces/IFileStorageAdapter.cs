@@ -1,12 +1,17 @@
-﻿using OpenBots.Server.ViewModel.File;
+﻿using OpenBots.Server.Model.Core;
+using OpenBots.Server.ViewModel.File;
+using System;
+using System.Threading.Tasks;
 
 namespace OpenBots.Server.Business.Interfaces
 {
     public interface IFileStorageAdapter
     {
-        public object DownloadFile(string downloadInput);
+        public Task<FileFolderViewModel> ExportFileFolder(string id);
 
-        public void SaveFile(SaveServerFileViewModel viewModel);
+        public PaginatedList<FileFolderViewModel> GetFilesFolders(bool? isFile = null, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
+
+        public FileFolderViewModel SaveFile(FileFolderViewModel viewModel);
 
         public void UpdateFile(UpdateServerFileViewModel request);
 
