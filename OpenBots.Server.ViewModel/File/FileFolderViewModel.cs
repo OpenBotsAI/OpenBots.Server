@@ -15,6 +15,7 @@ namespace OpenBots.Server.ViewModel.File
         public virtual string? ContentType { get; set; }
         public virtual string? CreatedBy { get; set; }
         public virtual DateTime? CreatedOn { get; set; }
+        public virtual DateTime? UpdatedOn { get; set; }
         public virtual bool? IsFile { get; set; }
         public virtual Guid? ParentId { get; set; }
         public virtual string? FullStoragePath { get; set; }
@@ -30,6 +31,7 @@ namespace OpenBots.Server.ViewModel.File
                 ContentType = entity.ContentType,
                 CreatedBy = entity.CreatedBy,
                 CreatedOn = entity.CreatedOn,
+                UpdatedOn = entity.UpdatedOn,
                 FullStoragePath = entity.StoragePath,
                 HasChild = false,
                 IsFile = true,
@@ -50,6 +52,7 @@ namespace OpenBots.Server.ViewModel.File
                 ContentType = "Folder",
                 CreatedBy = entity.CreatedBy,
                 CreatedOn = entity.CreatedOn,
+                UpdatedOn = entity.UpdatedOn,
                 FullStoragePath = entity.StoragePath,
                 HasChild = hasChild,
                 IsFile = false,
