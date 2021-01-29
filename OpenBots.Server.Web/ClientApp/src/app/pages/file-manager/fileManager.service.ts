@@ -39,7 +39,7 @@ export class FileManagerService {
   // }
 
   getFileFloder(parentId) {
-    let filesurl = `/files?filter=${parentId}`;
+    let filesurl = `/files?$filter=${parentId}`;
     return this.http.get(`${this.apiUrl}` + filesurl);
   }
 
