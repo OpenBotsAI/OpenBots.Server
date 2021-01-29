@@ -4,6 +4,7 @@
 .toolPnl{
   background-color: #fafafa;
   border: 1px solid #dee2e6;
+  padding-top: 17px;
 }
 .btnIcon, .btnIcon img{
   font-size:13px;
@@ -12,7 +13,7 @@
 }
 .btnIcon{
   background-color:transparent;
-  padding:10px;
+  padding:8px 10px;
   border:none;
 }
 .btnIcon:hover{
@@ -59,7 +60,10 @@
      border-radius: 20px !important;
      border: transparent !important;
  }
- 
+ .table tr.active td {  
+    background-color:#b9d4b3 !important;  
+    color: white;  
+  } 
  .table-image {
      td,
      th {
@@ -73,7 +77,6 @@
  
  .paginateDiv {
      width: 100%;
-     ;
  }
  
  .row.pagerow {
@@ -94,11 +97,7 @@
      height: 37px;
  }
  
- .no-right-padding {
-     padding: 0px;
- }
- 
- .no-left-padding {
+ .no-right-padding, .no-left-padding  {
      padding: 0px;
  }
   a.lendhand {
@@ -109,16 +108,18 @@
 }
 .square {
   border: 2px solid #ececec;
+  min-height: 556px;
+  border-left: none;
   border-top: none;
   padding: 15px;
 }
-  .file-info{
-      width: 100%;
-      text-align: left;
-  }
-  .file-info tr:nth-child(even){
-    background-color: #fafafa;
-  }
+.file-info{
+    width: 100%;
+    text-align: left;
+}
+.file-info tr:nth-child(even){
+  background-color: #fafafa;
+}
   .file-info th, .file-info td{
     padding: 10px;
     font-size: 14px;
@@ -126,17 +127,14 @@
   .file-info td{
     word-break: break-all;
   }
-  .download-btn{
-    text-align: center;
-    padding-top: 12px;
-  }
-
-  
   .invalid-feedback-frm {
     width: 100%;
     margin-top: 0.25rem;
     font-size: 80%;
     color: #dc3545;
+}
+hr{
+  margin-bottom: 10px;
 }
 .breadcrumb{
     clear: both;
@@ -146,6 +144,21 @@
 }
 .breadcrumb li{
   font-size: 12px;
+}
+.breadcrumb li img{
+  width: 20px;
+}
+.btn.btn-primary{
+  font-size: 14px;
+}
+.download-btn .btn-primary{
+  margin-right: 15px;
+}
+.btnIconBlue{
+  margin-right: 10px;
+}
+.btnIconBlue:nth-child(3){
+  margin-right:0px;
 }
 @media only screen and (max-width: 750px) {
   .checkbox.checbox-switch label{
