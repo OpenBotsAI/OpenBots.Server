@@ -7,7 +7,7 @@ namespace OpenBots.Server.Business.Interfaces
 {
     public interface IFileStorageAdapter
     {
-        public Task<FileFolderViewModel> ExportFileFolder(string id);
+        public Task<FileFolderViewModel> ExportFile(string id);
 
         public PaginatedList<FileFolderViewModel> GetFilesFolders(bool? isFile = null, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
 

@@ -8,6 +8,7 @@ using OpenBots.Server.Model.File;
 using OpenBots.Server.Model.Membership;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using static OpenBots.Server.Business.File.FileManager;
 
@@ -41,10 +42,12 @@ namespace OpenBots.Server.Business
                 if (drive == null)
                 {
                     Organization organization = dbContext.Organizations.FirstOrDefault();
+                    string storagePath = "Files";
+
                     if (organization != null)
                     {
                         Guid? organizationId = organization.Id;
-                        dbContext.ServerDrives.Add(new ServerDrive { Id = new Guid("37a01356-7514-47a2-96ce-986faadd628e"), FileStorageAdapterType = AdapterType.LocalFileStorageAdapter.ToString(), Name = "Files", OrganizationId = organizationId, StorageSizeInBytes = 0, IsDeleted = false });
+                        dbContext.ServerDrives.Add(new ServerDrive { Id = new Guid("37a01356-7514-47a2-96ce-986faadd628e"), FileStorageAdapterType = AdapterType.LocalFileStorageAdapter.ToString(), Name = storagePath, OrganizationId = organizationId, StorageSizeInBytes = 0, IsDeleted = false, StoragePath = storagePath });
                     }
 
                 }

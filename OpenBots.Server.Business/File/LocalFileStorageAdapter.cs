@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using OpenBots.Server.Business.Interfaces;
 using OpenBots.Server.DataAccess.Exceptions;
+using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
+using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.File;
 using OpenBots.Server.ViewModel.File;
@@ -28,6 +31,7 @@ namespace OpenBots.Server.Business.File
         private readonly IServerDriveRepository serverDriveRepository;
         private readonly IWebhookPublisher webhookPublisher;
         private readonly IDirectoryManager directoryManager;
+        private readonly IAuditLogRepository auditLogRepository;
 
         public IConfiguration Configuration { get; }
 
@@ -40,7 +44,8 @@ namespace OpenBots.Server.Business.File
             IServerDriveRepository serverDriveRepository,
             IConfiguration configuration,
             IWebhookPublisher webhookPublisher,
-            IDirectoryManager directoryManager)
+            IDirectoryManager directoryManager,
+            IAuditLogRepository auditLogRepository)
         {
             this.fileAttributeRepository = fileAttributeRepository;
             this.serverFileRepository = serverFileRepository;
@@ -50,6 +55,7 @@ namespace OpenBots.Server.Business.File
             this.serverDriveRepository = serverDriveRepository;
             this.webhookPublisher = webhookPublisher;
             this.directoryManager = directoryManager;
+            this.auditLogRepository = auditLogRepository;
             Configuration = configuration;
         }
 
@@ -70,15 +76,19 @@ namespace OpenBots.Server.Business.File
             else
             {
                 //gets all files and folders with filters
-                filesFolders = serverFileRepository.FindAllView(predicate, sortColumn, direction, skip, take);
-                var folders = serverFolderRepository.FindAllView(predicate, sortColumn, direction, skip, take).Items;
-                if (folders != null)
+                filesFolders = serverFolderRepository.FindAllView(predicate, sortColumn, direction, skip, take);
+                int count = filesFolders.Items.Count;
+                if (count < take)
                 {
-                    foreach (var folder in folders)
-                        filesFolders.Add(folder);
+                    take -= count;
+                    var files = serverFileRepository.FindAllView(predicate, sortColumn, direction, skip, take).Items;
+                    if (files != null)
+                    {
+                        foreach (var file in files)
+                            filesFolders.Add(file);
+                    }
+                    filesFolders.TotalCount += files.Count;
                 }
-
-                filesFolders.TotalCount += folders.Count;
             }
 
             return filesFolders;
@@ -89,7 +99,7 @@ namespace OpenBots.Server.Business.File
             IFormFile? file = request.File;
             Guid? id = Guid.NewGuid();
             string shortPath = request.StoragePath;
-            string path = Path.Combine(request.StoragePath, file.FileName);
+            string path = request.FullStoragePath;
             Guid? organizationId = organizationManager.GetDefaultOrganization().Id;
 
             var checkFile = serverFileRepository.Find(null)?.Items?.Where(q => q.StoragePath == path).FirstOrDefault();
@@ -110,6 +120,11 @@ namespace OpenBots.Server.Business.File
 
             Guid? folderId = GetFolderId(path);
             var hash = GetHash(path);
+            var drive = GetDriveByName(path);
+            Guid? driveId = Guid.Empty;
+            if (drive != null)
+                driveId = drive.Id;
+            else throw new EntityDoesNotExistException("Drive could not be found");
 
             //add file properties to server file entity
             var serverFile = new ServerFile()
@@ -124,13 +139,13 @@ namespace OpenBots.Server.Business.File
                 StorageFolderId = folderId,
                 StoragePath = path,
                 StorageProvider = Configuration["Files:StorageProvider"],
-                OrganizationId = organizationId
+                OrganizationId = organizationId,
+                ServerDriveId = driveId
             };
             serverFileRepository.Add(serverFile);
             webhookPublisher.PublishAsync("Files.NewFileCreated", serverFile.Id.ToString(), serverFile.Name);
 
             //add size in bytes to server drive
-            var drive = GetDrive();
             AddBytesToServerDrive(drive, serverFile.SizeInBytes);
 
             //add file attribute entities
@@ -170,7 +185,7 @@ namespace OpenBots.Server.Business.File
             string path = request.StoragePath;
             Guid? organizationId = organizationManager.GetDefaultOrganization().Id;
             var serverFile = serverFileRepository.GetOne(entityId);
-            if (serverFile == null) throw new EntityDoesNotExistException("Server file entity could not be found");
+            if (serverFile == null) throw new EntityDoesNotExistException("Server file could not be found");
             long? size = serverFile.SizeInBytes;
             var hash = GetHash(path);
 
@@ -197,8 +212,6 @@ namespace OpenBots.Server.Business.File
 
             //update server file entity properties
             serverFile.ContentType = file.ContentType;
-            //serverFile.CorrelationEntity = request.CorrelationEntity;
-            //serverFile.CorrelationEntityId = request.CorrelationEntityId;
             serverFile.HashCode = hash;
             serverFile.Name = file.FileName;
             serverFile.OrganizationId = organizationId;
@@ -211,7 +224,7 @@ namespace OpenBots.Server.Business.File
             serverFileRepository.Update(serverFile);
             webhookPublisher.PublishAsync("Files.FileUpdated", serverFile.Id.ToString(), serverFile.Name);
 
-            //update file stored in Server
+            //update file stored in server
             CheckDirectoryExists(path, organizationId);
 
             path = Path.Combine(path, request.Id.ToString());
@@ -228,7 +241,7 @@ namespace OpenBots.Server.Business.File
             }
 
             //update size in bytes in server drive
-            var drive = GetDrive();
+            var drive = GetDriveById(serverFile.ServerDriveId);
             size = request.SizeInBytes - size;
             AddBytesToServerDrive(drive, size);
         }
@@ -252,7 +265,7 @@ namespace OpenBots.Server.Business.File
             else throw new DirectoryNotFoundException("File path could not be found");
 
             //update size in bytes in server drive
-            var drive = GetDrive();
+            var drive = GetDriveById(serverFile.ServerDriveId);
             var size = -serverFile.SizeInBytes;
             AddBytesToServerDrive(drive, size);
         }
@@ -272,10 +285,14 @@ namespace OpenBots.Server.Business.File
 
                 var pathArray = path.Split("\\");
                 var length = pathArray.Length;
-                var storageDriveName = pathArray[0];
-                var storageDriveId = serverDriveRepository.Find(null).Items?.Where(q => q.Name == storageDriveName).FirstOrDefault().Id;
+                var serverDrive = GetDriveByName(path);
+                Guid? serverDriveId = Guid.Empty;
+                if (serverDrive != null)
+                    serverDriveId = serverDrive.Id;
+                else
+                    throw new EntityDoesNotExistException("Drive could not be found");
                 var parentFolderName = pathArray[length - 2];
-                var parentFolderId = serverFolderRepository.Find(null).Items?.Where(q => q.Name == parentFolderName && q.OrganizationId == organizationId && q.StorageDriveId == storageDriveId).FirstOrDefault().Id;
+                var parentFolderId = serverFolderRepository.Find(null).Items?.Where(q => q.Name == parentFolderName && q.OrganizationId == organizationId && q.StorageDriveId == serverDriveId).FirstOrDefault().Id;
                 var serverFolder = new ServerFolder()
                 {
                     CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name,
@@ -283,7 +300,7 @@ namespace OpenBots.Server.Business.File
                     Name = pathArray[length - 1],
                     OrganizationId = organizationId,
                     ParentFolderId = parentFolderId,
-                    StorageDriveId = storageDriveId,
+                    StorageDriveId = serverDriveId,
                 };
                 serverFolderRepository.Add(serverFolder);
                 webhookPublisher.PublishAsync("Files.NewFolderCreated", serverFolder.Id.ToString(), serverFolder.Name);
@@ -343,7 +360,7 @@ namespace OpenBots.Server.Business.File
                     storagePath = folder.StoragePath;
                 }
                 else
-                    storagePath = GetDrive().Name;
+                    storagePath = GetDriveById(file.ServerDriveId).Name;
 
                 fileFolder.Id = file.Id;
                 fileFolder.Name = file.Name;
@@ -415,14 +432,19 @@ namespace OpenBots.Server.Business.File
             var folder = GetFolder(folderName);
             Guid? folderId = folder?.Id;
             if (folderId == null)
-                folderId = GetDrive().Id;
+            {
+                var serverDrive = GetDriveByName(path);
+                if (serverDrive != null)
+                    folderId = serverDrive.Id;
+                else throw new EntityDoesNotExistException("Drive for storage path could not be found");
+            }
 
             return folderId;
         }
 
-        public ServerDrive GetDrive()
+        public ServerDrive GetDriveById(Guid? id)
         {
-            var serverDrive = serverDriveRepository.Find(null).Items?.FirstOrDefault();
+            var serverDrive = serverDriveRepository.Find(null).Items?.Where(q => q.Id == id).FirstOrDefault();
 
             if (serverDrive == null)
                 throw new EntityDoesNotExistException("Server drive could not be found");
@@ -430,9 +452,21 @@ namespace OpenBots.Server.Business.File
             return serverDrive;
         }
 
+        public ServerDrive GetDriveByName(string path)
+        {
+            string name = path.Split("\\")[0];
+            var serverDrive = serverDriveRepository.Find(null).Items?.Where(q => q.Name == name).FirstOrDefault();
+
+            return serverDrive;
+        }
+
         public void DeleteFolder(string path)
         {
             ServerFolder folder = serverFolderRepository.Find(null).Items?.Where(q => q.StoragePath == path).FirstOrDefault();
+
+            if (folder == null)
+                throw new EntityDoesNotExistException($"Folder with path {path} could not be found");
+
             serverFolderRepository.Delete((Guid)folder.Id);
             webhookPublisher.PublishAsync("Files.FolderDeleted", folder.Id.ToString(), folder.Name);
 
@@ -448,7 +482,7 @@ namespace OpenBots.Server.Business.File
             }
 
             //update size in bytes in server drive
-            var drive = GetDrive();
+            var drive = GetDriveById(folder.StorageDriveId);
             var size = -folder.SizeInBytes;
             AddBytesToServerDrive(drive, size);
         }
@@ -466,18 +500,29 @@ namespace OpenBots.Server.Business.File
                     throw new EntityOperationException($"File size of file {request.File.FileName} cannot be 0");
 
                 //add file
+                request.FullStoragePath = Path.Combine(request.StoragePath, request.File.FileName);
                 newFileFolder = SaveFile(request);
             }
             else
             {
                 //add folder
-                string path = request.FullStoragePath;
+                string path = Path.Combine(request.StoragePath, request.Name);
+                request.FullStoragePath = path;
                 var folderId = GetFolderId(path);
                 var id = Guid.NewGuid();
 
-                var file = serverFolderRepository.Find(null).Items?.Where(q => q.StoragePath == request.FullStoragePath).FirstOrDefault();
-                if (file != null)
+                var folder = serverFolderRepository.Find(null).Items?.Where(q => q.StoragePath == request.FullStoragePath).FirstOrDefault();
+                if (folder != null)
                     throw new EntityAlreadyExistsException($"Folder with name {request.Name} already exists at path {request.StoragePath}");
+
+                Guid? serverDriveId = Guid.Empty;
+                var serverDrive = GetDriveByName(path);
+                if (serverDrive != null)
+                    serverDriveId = serverDrive.Id;
+                if (serverDriveId == Guid.Empty)
+                    throw new EntityDoesNotExistException("Drive for storage path could not be found");
+
+                Guid? organizationId = organizationManager.GetDefaultOrganization().Id;
 
                 ServerFolder serverFolder = new ServerFolder()
                 {
@@ -486,18 +531,18 @@ namespace OpenBots.Server.Business.File
                     CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name,
                     CreatedOn = DateTime.UtcNow,
                     Name = request.Name,
-                    OrganizationId = organizationManager.GetDefaultOrganization().Id,
                     SizeInBytes = 0,
-                    StorageDriveId = GetDrive().Id,
-                    StoragePath = path
+                    StorageDriveId = serverDriveId,
+                    StoragePath = path,
+                    OrganizationId = organizationId
                 };
 
+                CheckDirectoryExists(path, organizationId);
                 serverFolderRepository.Add(serverFolder);
                 webhookPublisher.PublishAsync("Files.NewFolderCreated", serverFolder.Id.ToString(), serverFolder.Name);
 
-                var shortPath = request.StoragePath;
                 var hasChild = CheckFolderHasChild(serverFolder.Id);
-                newFileFolder = newFileFolder.Map(serverFolder, shortPath, hasChild);
+                newFileFolder = newFileFolder.Map(serverFolder, request.StoragePath, hasChild);
             }
             return newFileFolder;
         }
@@ -510,24 +555,24 @@ namespace OpenBots.Server.Business.File
             webhookPublisher.PublishAsync("Files.DriveUpdated", serverDrive.Id.ToString(), serverDrive.Name);
         }
 
-        public List<Guid?> GetParentIds(string[] pathArray)
-        {
-            List<Guid?> parentIds = new List<Guid?>();
-            foreach (var folderName in pathArray)
-            {
-                var folder = serverFolderRepository.Find(null).Items?.Where(q => q.Name.ToLower() == folderName.ToLower()).FirstOrDefault();
-                Guid? folderId = folder?.Id;
-                Guid? driveId = GetDrive().Id;
-                if (folderName == "Files")
-                    folderId = driveId;
-                if (folderId != null)
-                    parentIds.Add(folderId);
-            }
+        //public List<Guid?> GetParentIds(string[] pathArray)
+        //{
+        //    List<Guid?> parentIds = new List<Guid?>();
+        //    foreach (var folderName in pathArray)
+        //    {
+        //        var folder = serverFolderRepository.Find(null).Items?.Where(q => q.Name.ToLower() == folderName.ToLower()).FirstOrDefault();
+        //        Guid? folderId = folder?.Id;
+        //        Guid? driveId = GetDrive().Id;
+        //        if (folderName == "Files")
+        //            folderId = driveId;
+        //        if (folderId != null)
+        //            parentIds.Add(folderId);
+        //    }
 
-            return parentIds;
-        }
+        //    return parentIds;
+        //}
 
-        public async Task<FileFolderViewModel> ExportFileFolder(string id)
+        public async Task<FileFolderViewModel> ExportFile(string id)
         {
             Guid entityId = Guid.Parse(id);
             var file = serverFileRepository.GetOne(entityId);
@@ -544,6 +589,21 @@ namespace OpenBots.Server.Business.File
 
             if (isFile)
             {
+                var auditLog = new AuditLog()
+                {
+                    ChangedFromJson = null,
+                    ChangedToJson = JsonConvert.SerializeObject(file),
+                    CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name,
+                    CreatedOn = DateTime.UtcNow,
+                    ExceptionJson = "",
+                    ParametersJson = "",
+                    ObjectId = file.Id,
+                    MethodName = "Download",
+                    ServiceName = ToString()
+                };
+
+                auditLogRepository.Add(auditLog);
+
                 //export file
                 fileFolder.StoragePath = file.StoragePath;
                 fileFolder.Name = file.Name;
@@ -568,7 +628,7 @@ namespace OpenBots.Server.Business.File
         {
             bool hasChild = true;
             var children = serverFolderRepository.Find(null).Items?.Where(q => q.ParentFolderId == id);
-            if (children == null)
+           if (!children.Any())
                 hasChild = false;
 
             return hasChild;

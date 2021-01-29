@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business.Interfaces;
 using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.Model.Core;
@@ -13,6 +12,7 @@ namespace OpenBots.Server.Business.File
     public class FileManager : BaseManager, IFileManager
     {
         private readonly LocalFileStorageAdapter localFileStorageAdapter;
+
         public IConfiguration Configuration { get; }
 
         public FileManager(
@@ -67,12 +67,12 @@ namespace OpenBots.Server.Business.File
             else throw new EntityOperationException("Configuration is not set up for local file storage");
         }
 
-        public ServerDrive GetDrive()
+        public ServerDrive GetDrive(string path)
         {
             string adapter = Configuration["Files:Adapter"];
             if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
             {
-                var drive = localFileStorageAdapter.GetDrive();
+                var drive = localFileStorageAdapter.GetDriveByName(path);
                 return drive;
             }
             else throw new EntityOperationException("Configuration is not set up for local file storage");
@@ -101,7 +101,7 @@ namespace OpenBots.Server.Business.File
             var response = new FileFolderViewModel();
             string adapter = Configuration["Files:Adapter"];
             if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
-                response = await localFileStorageAdapter.ExportFileFolder(id);
+                response = await localFileStorageAdapter.ExportFile(id);
             //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
             //    azureBlobStorageAdapter.SaveFile(request);
             //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
