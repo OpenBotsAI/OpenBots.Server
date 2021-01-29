@@ -60,9 +60,12 @@
                 (keyup)="handleInput($event)" class="form-control" placeholder="Please enter mac address">
               <div *ngIf="f.macAddresses.touched && f.macAddresses.invalid" class="invalid-feedback-frm">
                 <div *ngIf="f.macAddresses.errors && f.macAddresses.errors.required"> Mac address is required.</div>
-                <div *ngIf="f.macAddresses.errors?.mac">
+                <!-- <div *ngIf="f.macAddresses.errors?.mac">
                   Please enter valid mac address.
-                </div>
+                </div> -->
+                 <div *ngIf="f.macAddresses.errors?.pattern">
+                    Please enter valid mac address.
+                  </div>
               </div>
               <!-- <label for="ipadd" class="label">Ip Address *</label>
               <input type="input" nbInput fullWidth id="ipAddresses" formControlName="ipAddresses" class="form-control"
