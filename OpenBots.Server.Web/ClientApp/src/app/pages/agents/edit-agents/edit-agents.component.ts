@@ -60,7 +60,22 @@ export class EditAgentsComponent implements OnInit {
       if (data && data.body) {
         this.show_allagents = data.body;
         if (data.body.ipOption === 'ipv6') {
+          this.addagent
+            .get('ipAddresses')
+            .setValidators([
+              Validators.required,
+              RxwebValidators.ip({ version: IpVersion.V6 }),
+            ]);
+          this.addagent.get('ipAddresses').updateValueAndValidity();
           this.ipVersion = 'V6';
+        } else {
+          this.addagent
+            .get('ipAddresses')
+            .setValidators([
+              Validators.required,
+              RxwebValidators.ip({ version: IpVersion.V4 }),
+            ]);
+          this.addagent.get('ipAddresses').updateValueAndValidity();
         }
         this.etag = data.headers.get('ETag').replace(/\"/g, '');
         this.addagent.patchValue(this.show_allagents);
@@ -141,14 +156,15 @@ export class EditAgentsComponent implements OnInit {
     if (checked) {
       this.addagent
         .get('macAddresses')
-        .setValidators([Validators.required, RxwebValidators.mac()]);
-      this.addagent.get('macAddresses').updateValueAndValidity();
-      this.addagent
-        .get('ipAddresses')
         .setValidators([
           Validators.required,
-          RxwebValidators.ip({ version: IpVersion.V4 }),
+          Validators.pattern('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$'),
         ]);
+      this.addagent.get('macAddresses').updateValueAndValidity();
+      this.addagent.get('ipAddresses').setValidators([
+        Validators.required,
+        // RxwebValidators.ip({ version: IpVersion.V4 }),
+      ]);
       this.addagent.get('ipAddresses').updateValueAndValidity();
     } else {
       this.addagent.get('ipAddresses').clearValidators();
