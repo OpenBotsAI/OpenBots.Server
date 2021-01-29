@@ -50,7 +50,7 @@ export class AllFilesComponent implements OnInit {
   ) {
     this.ClickedRow = function (index) {
       this.HighlightRow = index;
-    }; 
+    };
   }
 
   ngOnInit(): void {
@@ -77,13 +77,13 @@ export class AllFilesComponent implements OnInit {
   }
   gotodetail(file) {
     // if (value) {
-      this.showDownloadbtn = true;
-      this.fileID = file.id;
-      this.name = file.name;
-      this.size = file.size;
-      this.contentType = file.contentType;
-      this.createdOn = file.createdOn;
-      this.fullStoragePath = file.fullStoragePath;
+    this.showDownloadbtn = true;
+    this.fileID = file.id;
+    this.name = file.name;
+    this.size = file.size;
+    this.contentType = file.contentType;
+    this.createdOn = file.createdOn;
+    this.fullStoragePath = file.fullStoragePath;
     // } else {
     //   this.showDownloadbtn = false;
     //   this.fileID = file.id;
@@ -95,12 +95,9 @@ export class AllFilesComponent implements OnInit {
     // }
   }
 
-
-  createFolder(){
-     
+  createFolder() {
     let string = '';
-    this.bread.forEach(
-      (item) => (string +=  item.name + '\\'))
+    this.bread.forEach((item) => (string += item.name + '\\'));
     // console.log(string)
   }
   openDeleteDialog(ref: TemplateRef<any>, file): void {
@@ -155,21 +152,22 @@ export class AllFilesComponent implements OnInit {
   onClickUp() {
     if (this.bread.length > 1) {
       this.bread.splice(this.bread.length - 1, 1);
-      const parentId = this.bread[this.bread.length - 1].parentId;
+      const id = this.bread[this.bread.length - 1].id;
       this.floderName = this.bread[this.bread.length - 1].name;
-      this.getByIdFile(parentId);
+      this.getByIdFile(id);
     } else {
       this.bread.splice(this.bread.length, 1);
       this.allFiles(5, 0);
     }
   }
 
-  getByIdFile(parentId) {
+  getByIdFile(id) {
     this.fileManagerService
-      .getFileFloder(`ParentId+eq+guid'${parentId}'`)
+      .getFileFloder(`ParentId+eq+guid'${id}'`)
       .subscribe((data: any) => {
         this.fileManger = data.items;
         this.page.totalCount = data.totalCount;
+       
         this.showpage = data;
         // this.bread = [];
         this.gotodetail(this.fileManger[0]);
@@ -185,7 +183,7 @@ export class AllFilesComponent implements OnInit {
     if (files.isFile == false) {
       this.floderName = files.name;
       this.bread.push(files);
-      this.getByIdFile(files.parentId);
+      this.getByIdFile(files.id);
     }
   }
 
