@@ -116,8 +116,6 @@ namespace OpenBots.Server.Business.File
             {
                 Id = id,
                 ContentType = file.ContentType,
-                //CorrelationEntity = request.CorrelationEntity,
-                //CorrelationEntityId = request.CorrelationEntityId,
                 CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name,
                 CreatedOn = DateTime.UtcNow,
                 HashCode = hash,
@@ -353,6 +351,7 @@ namespace OpenBots.Server.Business.File
                 fileFolder.StoragePath = storagePath;
                 fileFolder.CreatedBy = file.CreatedBy;
                 fileFolder.CreatedOn = file.CreatedOn;
+                fileFolder.UpdatedOn = file.UpdatedOn;
                 fileFolder.FullStoragePath = file.StoragePath;
                 fileFolder.Size = file.SizeInBytes;
                 fileFolder.HasChild = false;
@@ -365,6 +364,10 @@ namespace OpenBots.Server.Business.File
             else
             {
                 folder = serverFolderRepository.Find(null).Items?.Where(q => q.Id.ToString() == id).FirstOrDefault();
+
+                if (folder == null)
+                    throw new EntityDoesNotExistException($"File or folder does not exist");
+
                 var pathArray = folder.StoragePath.Split("\\");
                 var shortPathArray = new string[pathArray.Length - 1];
                 for (int i = 0; i < pathArray.Length - 1; i++)
@@ -420,6 +423,10 @@ namespace OpenBots.Server.Business.File
         public ServerDrive GetDrive()
         {
             var serverDrive = serverDriveRepository.Find(null).Items?.FirstOrDefault();
+
+            if (serverDrive == null)
+                throw new EntityDoesNotExistException("Server drive could not be found");
+
             return serverDrive;
         }
 
@@ -451,6 +458,13 @@ namespace OpenBots.Server.Business.File
             var newFileFolder = new FileFolderViewModel();
             if ((bool)request.IsFile)
             {
+                if (request.File == null)
+                    throw new EntityOperationException("No file uploaded");
+
+                long size = request.File.Length;
+                if (size <= 0)
+                    throw new EntityOperationException($"File size of file {request.File.FileName} cannot be 0");
+
                 //add file
                 newFileFolder = SaveFile(request);
             }
@@ -545,9 +559,7 @@ namespace OpenBots.Server.Business.File
                 }
             }
             else
-            {
-                //TODO: export folder
-            }
+                throw new EntityOperationException("Folders cannot be exported at this time");
 
             return fileFolder;
         }
