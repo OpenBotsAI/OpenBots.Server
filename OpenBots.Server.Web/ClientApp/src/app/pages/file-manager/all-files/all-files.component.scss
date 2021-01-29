@@ -60,7 +60,10 @@
      border-radius: 20px !important;
      border: transparent !important;
  }
- 
+ .table tr.active td {  
+    background-color:#b9d4b3 !important;  
+    color: white;  
+  } 
  .table-image {
      td,
      th {

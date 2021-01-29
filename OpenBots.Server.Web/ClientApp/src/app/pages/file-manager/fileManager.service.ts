@@ -23,6 +23,7 @@ export class FileManagerService {
 
   getAllFilesOrder(tpage: any, spage: any, name) {
     //   ?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}
+    //  let getagentUrl = `/EmailAccounts?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     let filesurl = `/files?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + filesurl);
   }
@@ -38,7 +39,7 @@ export class FileManagerService {
   // }
 
   getFileFloder(parentId) {
-    let filesurl = `/files/${parentId}`;
+    let filesurl = `/files?filter=${parentId}`;
     return this.http.get(`${this.apiUrl}` + filesurl);
   }
 

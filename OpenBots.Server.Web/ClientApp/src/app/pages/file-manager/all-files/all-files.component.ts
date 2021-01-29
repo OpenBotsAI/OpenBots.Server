@@ -26,22 +26,20 @@ export class AllFilesComponent implements OnInit {
   bread = [];
   isSubmitted = false;
   fileType: string;
-
-  ///////
-
   showpage: any = [];
   sortDir = 1;
-  view_dialog: any;
   showData;
-  del_id: any = [];
-  toggle: boolean;
   feild_name: any = [];
   page: Page = {};
   get_perPage: boolean = false;
   show_perpage_size: boolean = false;
   per_page_num: any = [];
   itemsPerPage: ItemsPerPage[] = [];
-
+  showDownloadbtn: boolean = false;
+  ////
+  HighlightRow: number;
+  Employee: any;
+  ClickedRow: any;
   constructor(
     protected fileManagerService: FileManagerService,
     private _FileSaverService: FileSaverService,
@@ -49,7 +47,11 @@ export class AllFilesComponent implements OnInit {
     private formBuilder: FormBuilder,
     private dialogService: DialogService,
     private helperService: HelperService
-  ) {}
+  ) {
+    this.ClickedRow = function (index) {
+      this.HighlightRow = index;
+    }; 
+  }
 
   ngOnInit(): void {
     this.page.pageNumber = 1;
@@ -60,29 +62,47 @@ export class AllFilesComponent implements OnInit {
 
   allFiles(top, skip) {
     this.get_perPage = false;
-    // this.emailService.getAllEmail(top, skip).subscribe((data: any) => {
     this.fileManagerService.getAllFiles(top, skip).subscribe((data: any) => {
       this.fileManger = data.items;
-          this.page.totalCount = data.totalCount;
-            this.showpage = data;
+      this.page.totalCount = data.totalCount;
+      this.showpage = data;
       this.bread = [];
-      this.gotodetail(this.fileManger[0]);
-       if (data.totalCount == 0) {
-         this.get_perPage = false;
-       } else if (data.totalCount != 0) {
-         this.get_perPage = true;
-       }
+      // this.gotodetail(this.fileManger[0]);
+      if (data.totalCount == 0) {
+        this.get_perPage = false;
+      } else if (data.totalCount != 0) {
+        this.get_perPage = true;
+      }
     });
   }
   gotodetail(file) {
-    this.fileID = file.id;
-    this.name = file.name;
-    this.size = file.size;
-    this.contentType = file.contentType;
-    this.createdOn = file.createdOn;
-    this.fullStoragePath = file.fullStoragePath;
+    // if (value) {
+      this.showDownloadbtn = true;
+      this.fileID = file.id;
+      this.name = file.name;
+      this.size = file.size;
+      this.contentType = file.contentType;
+      this.createdOn = file.createdOn;
+      this.fullStoragePath = file.fullStoragePath;
+    // } else {
+    //   this.showDownloadbtn = false;
+    //   this.fileID = file.id;
+    //   this.name = file.name;
+    //   this.size = file.size;
+    //   this.contentType = file.contentType;
+    //   this.createdOn = file.createdOn;
+    //   this.fullStoragePath = file.fullStoragePath;
+    // }
   }
 
+
+  createFolder(){
+     
+    let string = '';
+    this.bread.forEach(
+      (item) => (string +=  item.name + '\\'))
+    // console.log(string)
+  }
   openDeleteDialog(ref: TemplateRef<any>, file): void {
     if (file.isFile == true) {
       this.fileType = 'File';
@@ -94,7 +114,7 @@ export class AllFilesComponent implements OnInit {
       // , [Validators.pattern('/^[w.-]+$/')]
       name: [''],
     });
-    this.filesFormgroup.patchValue({ name: file.name });
+    this.filesFormgroup.patchValue({ name: this.name });
     this.dialogService.openDialog(ref);
   }
 
@@ -102,12 +122,12 @@ export class AllFilesComponent implements OnInit {
     return this.filesFormgroup.controls;
   }
 
-  editFileName(file) {
-    console.log(file);
-    this.filesFormgroup = this.formBuilder.group({
-      name: [''],
-    });
-    this.filesFormgroup.patchValue({ name: file.name });
+  editFileName() {
+    // this.filesFormgroup = this.formBuilder.group({
+    //   name: [''],
+    // });
+    // this.filesFormgroup.patchValue({ name: file.name });
+    // this.filesFormgroup.value.name;
   }
 
   onDown() {
@@ -125,9 +145,6 @@ export class AllFilesComponent implements OnInit {
   }
 
   getFileId(val, i) {
-    console.log(val);
-    console.log(i);
-    console.log(this.bread);
     for (let abc in this.bread) {
       if (+abc > i) {
         this.bread.splice(+abc, this.bread.length - i);
@@ -135,42 +152,71 @@ export class AllFilesComponent implements OnInit {
     }
   }
 
-  fileFolder(files, i) {
-    this.floderName = files.name;
-    // this.bread.push(files);
-    // console.log(this.bread);
-    if (files.isFile == false && files.hasChild == true) {
-      console.log(i);
-      this.bread.push(files);
-
-      this.fileManagerService.getFileFloder(files.id).subscribe((data: any) => {
-        this.fileManger = data.items;
-      });
-    } else if (files.isFile == false && files.hasChild == false) {
-      this.toastrService.info(
-        `does not contain any sub folder or files`,
-        ` ${files.name}`
-      );
+  onClickUp() {
+    if (this.bread.length > 1) {
+      this.bread.splice(this.bread.length - 1, 1);
+      const parentId = this.bread[this.bread.length - 1].parentId;
+      this.floderName = this.bread[this.bread.length - 1].name;
+      this.getByIdFile(parentId);
+    } else {
+      this.bread.splice(this.bread.length, 1);
+      this.allFiles(5, 0);
     }
   }
-  // onSortClick(event, fil_val) {
-  //   let target = event.currentTarget,
-  //     classList = target.classList;
-  //   if (classList.contains('fa-chevron-up')) {
-  //     classList.remove('fa-chevron-up');
-  //     classList.add('fa-chevron-down');
-  //     let sort_set = 'desc';
-  //     this.sort(fil_val, sort_set);
-  //     this.sortDir = -1;
-  //   } else {
-  //     classList.add('fa-chevron-up');
-  //     classList.remove('fa-chevron-down');
-  //     let sort_set = 'asc';
-  //     this.sort(fil_val, sort_set);
-  //     this.sortDir = 1;
-  //   }
-  // }
 
+  getByIdFile(parentId) {
+    this.fileManagerService
+      .getFileFloder(`ParentId+eq+guid'${parentId}'`)
+      .subscribe((data: any) => {
+        this.fileManger = data.items;
+        this.page.totalCount = data.totalCount;
+        this.showpage = data;
+        // this.bread = [];
+        this.gotodetail(this.fileManger[0]);
+        if (data.totalCount == 0) {
+          this.get_perPage = false;
+        } else if (data.totalCount != 0) {
+          this.get_perPage = true;
+        }
+      });
+  }
+
+  fileFolder(files) {
+    if (files.isFile == false) {
+      this.floderName = files.name;
+      this.bread.push(files);
+      this.getByIdFile(files.parentId);
+    }
+  }
+
+  onSortClick(event, fil_val) {
+    let target = event.currentTarget,
+      classList = target.classList;
+    if (classList.contains('fa-chevron-up')) {
+      classList.remove('fa-chevron-up');
+      classList.add('fa-chevron-down');
+      let sort_set = 'desc';
+      this.sort(fil_val, sort_set);
+      this.sortDir = -1;
+    } else {
+      classList.add('fa-chevron-up');
+      classList.remove('fa-chevron-down');
+      let sort_set = 'asc';
+      this.sort(fil_val, sort_set);
+      this.sortDir = 1;
+    }
+  }
+
+  sort(filter_val, vale) {
+    const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+    this.feild_name = filter_val + '+' + vale;
+    this.fileManagerService
+      .getAllFilesOrder(this.page.pageSize, skip, this.feild_name)
+      .subscribe((data: any) => {
+        this.showpage = data;
+        this.fileManger = data.items;
+      });
+  }
   pageChanged(event) {
     this.page.pageNumber = event;
     this.pagination(event, this.page.pageSize);
