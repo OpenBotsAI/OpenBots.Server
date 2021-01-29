@@ -39,6 +39,9 @@
      top: 10px
  }
  
+ .rename-popup{
+   width: 500px;
+ }
  ::ng-deep .ngx-pagination {
      padding-left: 0px !important;
      margin-bottom: 0px !important;
@@ -128,6 +131,22 @@
     padding-top: 12px;
   }
 
+  
+  .invalid-feedback-frm {
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 80%;
+    color: #dc3545;
+}
+.breadcrumb{
+    clear: both;
+    margin-bottom: 0rem !important;
+    background-color: transparent !important;
+    padding-top: 3px !important;
+}
+.breadcrumb li{
+  font-size: 12px;
+}
 @media only screen and (max-width: 750px) {
   .checkbox.checbox-switch label{
     margin-bottom: 0px;
@@ -183,4 +202,7 @@
   td{
     margin-left: 100px;
   }
+  .rename-popup{
+    width: 310px;
+}
 } 

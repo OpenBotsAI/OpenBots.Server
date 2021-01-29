@@ -5,6 +5,8 @@ import { FileManagerRoutingModule } from './file-manager-routing.module';
 import { AllFilesComponent } from './all-files/all-files.component';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { SharedModule } from '../../@core/shared';
+import { FileManagerService } from './fileManager.service';
+import { FileSaverModule } from 'ngx-filesaver';
 
 @NgModule({
   declarations: [AllFilesComponent],
@@ -13,6 +15,8 @@ import { SharedModule } from '../../@core/shared';
     FileManagerRoutingModule,
     SharedModule,
     NgxPaginationModule,
+    FileSaverModule,
   ],
+  providers: [FileManagerService],
 })
 export class FileManagerModule {}
