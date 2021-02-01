@@ -11,6 +11,7 @@ namespace OpenBots.Server.ViewModel.File
         public virtual string? Name { get; set; }
         public virtual long? Size { get; set; }
         public virtual string? StoragePath { get; set; }
+        public virtual string? FullStoragePath { get; set; }
         public virtual bool? HasChild { get; set; }
         public virtual string? ContentType { get; set; }
         public virtual string? CreatedBy { get; set; }
@@ -18,7 +19,7 @@ namespace OpenBots.Server.ViewModel.File
         public virtual DateTime? UpdatedOn { get; set; }
         public virtual bool? IsFile { get; set; }
         public virtual Guid? ParentId { get; set; }
-        public virtual string? FullStoragePath { get; set; }
+        public virtual Guid? StorageDriveId { get; set; }
         public virtual FileStream? Content { get; set; }
         public virtual IFormFile? File { get; set; }
 
@@ -37,7 +38,8 @@ namespace OpenBots.Server.ViewModel.File
                 IsFile = true,
                 ParentId = entity.StorageFolderId,
                 StoragePath = path,
-                Size = entity.SizeInBytes
+                Size = entity.SizeInBytes,
+                StorageDriveId = entity.ServerDriveId
             };
 
             return fileFolderView;
@@ -59,6 +61,7 @@ namespace OpenBots.Server.ViewModel.File
                 ParentId = entity.ParentFolderId,
                 StoragePath = path,
                 Size = entity.SizeInBytes,
+                StorageDriveId = entity.StorageDriveId
             };
 
             return fileFolderView;

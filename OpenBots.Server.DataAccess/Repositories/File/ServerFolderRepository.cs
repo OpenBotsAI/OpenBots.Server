@@ -13,11 +13,8 @@ namespace OpenBots.Server.DataAccess.Repositories.File
 {
     public class ServerFolderRepository : EntityRepository<ServerFolder>, IServerFolderRepository
     {
-        private readonly IServerDriveRepository serverDriveRepository;
-
-        public ServerFolderRepository(StorageContext context, ILogger<ServerFolder> logger, IHttpContextAccessor httpContextAccessor, IServerDriveRepository serverDriveRepository) : base(context, logger, httpContextAccessor)
+        public ServerFolderRepository(StorageContext context, ILogger<ServerFolder> logger, IHttpContextAccessor httpContextAccessor) : base(context, logger, httpContextAccessor)
         {
-            this.serverDriveRepository = serverDriveRepository;
         }
 
         protected override DbSet<ServerFolder> DbTable()
@@ -27,7 +24,6 @@ namespace OpenBots.Server.DataAccess.Repositories.File
 
         public PaginatedList<FileFolderViewModel> FindAllView(Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
-            var serverDriveName = serverDriveRepository.Find(null).Items?.FirstOrDefault().Name;
             PaginatedList<FileFolderViewModel> paginatedList = new PaginatedList<FileFolderViewModel>();
             var itemsList = base.Find(null, j => j.IsDeleted == false);
 
@@ -56,7 +52,9 @@ namespace OpenBots.Server.DataAccess.Repositories.File
                                  join b in dbContext.ServerFolders on a.ParentFolderId equals b.Id into table1
                                  from b in table1.DefaultIfEmpty()
                                  join c in dbContext.ServerFolders on a.Id equals c.ParentFolderId into table2
-                                 from c in table1.DefaultIfEmpty()
+                                 from c in table2.DefaultIfEmpty()
+                                 join d in dbContext.ServerDrives on a.StorageDriveId equals d.Id into table3
+                                 from d in table3.DefaultIfEmpty()
                                  select new FileFolderViewModel
                                  {
                                      Name = a?.Name,
@@ -68,8 +66,9 @@ namespace OpenBots.Server.DataAccess.Repositories.File
                                      HasChild =  c?.ParentFolderId != null ? true : false,
                                      IsFile = false,
                                      ParentId = a?.ParentFolderId,
-                                     StoragePath = b?.StoragePath != null ? b?.StoragePath : serverDriveName,
-                                     Size = a?.SizeInBytes
+                                     StoragePath = b?.StoragePath != null ? b?.StoragePath : d?.Name,
+                                     Size = a?.SizeInBytes,
+                                     StorageDriveId = a?.StorageDriveId
                                  };
 
                 if (!string.IsNullOrWhiteSpace(sortColumn))

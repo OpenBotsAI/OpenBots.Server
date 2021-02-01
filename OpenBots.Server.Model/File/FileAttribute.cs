@@ -9,5 +9,6 @@ namespace OpenBots.Server.Model.File
         public int AttributeValue { get; set; }
         public string DataType { get; set; }
         public Guid? OrganizationId { get; set; }
+        public Guid? ServerDriveId { get; set; }
     }
 }

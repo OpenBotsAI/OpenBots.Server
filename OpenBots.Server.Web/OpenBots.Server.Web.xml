@@ -1360,7 +1360,7 @@
             <response code="422">Unprocessable entity</response>
             <returns>File details</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetDrive">
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetDrive(System.String)">
             <summary>
             Provides server drive details for local storage
             </summary>

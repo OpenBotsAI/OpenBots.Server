@@ -217,11 +217,11 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> GetDrive()
+        public async Task<IActionResult> GetDrive(string path)
         {
             try
             {
-                var drive = manager.GetDrive();
+                var drive = manager.GetDrive(path);
                 return Ok(drive);
             }
             catch (EntityDoesNotExistException ex)
@@ -321,11 +321,12 @@ namespace OpenBots.Server.Web.Controllers
             }
         }
 
-        //TODO:  update size of folder and all parent folders when file/folder is added, updated, or deleted
-
+        //TODO: update size of folder and all parent folders when file/folder is added, updated, or deleted
         //TODO additional api calls:
         //update file/folder details in server drive (rename, move, copy)
+        //add additional server drive?
         //update server drive details?
+        //delete server drive?
         //delete file/folder in server drive
         //get file attributes for a file
     }

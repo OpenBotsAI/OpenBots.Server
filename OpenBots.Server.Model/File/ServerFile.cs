@@ -13,6 +13,7 @@ namespace OpenBots.Server.Model.File
         public long? SizeInBytes { get; set; }
         public string HashCode { get; set; }
         public Guid? OrganizationId { get; set; }
+        public Guid? ServerDriveId { get; set; }
         public List<FileAttribute> FileAttributes { get; set; }
     }
 }
