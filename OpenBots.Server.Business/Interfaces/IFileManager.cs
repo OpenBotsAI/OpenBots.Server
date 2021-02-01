@@ -13,7 +13,7 @@ namespace OpenBots.Server.Business.Interfaces
 
         //public void UpdateFile(UpdateServerFileViewModel request);
 
-        //public void DeleteFile(string path);
+        public void DeleteFileFolder(string id, string driveName = null);
 
         public int? GetFileCount(string driveName = null);
 
@@ -22,8 +22,6 @@ namespace OpenBots.Server.Business.Interfaces
         public FileFolderViewModel GetFileFolder(string path, string driveName = null);
 
         public ServerDrive GetDrive(string driveName = null);
-
-        //public void DeleteFolder(string path);
 
         public PaginatedList<FileFolderViewModel> GetFilesFolders(bool? isFile, string driveName = null, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
 

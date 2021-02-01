@@ -17,6 +17,6 @@ namespace OpenBots.Server.Business.Interfaces
 
         public void UpdateFile(UpdateServerFileViewModel request);
 
-        public void DeleteFile(string path);
+        public void DeleteFileFolder(string id, string driveName = null);
     }
 }
