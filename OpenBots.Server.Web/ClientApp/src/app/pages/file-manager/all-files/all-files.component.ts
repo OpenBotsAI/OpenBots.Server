@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, OnInit, TemplateRef } from '@angular/core';
+import { Component, EventEmitter, OnInit, TemplateRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NbToastrService } from '@nebular/theme';
 import { FileSaverService } from 'ngx-filesaver';
@@ -8,12 +8,28 @@ import { FileManagerService } from '../fileManager.service';
 import { HelperService } from '../../../@core/services/helper.service';
 import { Page } from '../../../interfaces/paginateInstance';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
+import {
+  UploaderOptions,
+  UploadFile,
+  UploadInput,
+  UploadOutput,
+} from 'ngx-uploader';
 @Component({
   selector: 'ngx-all-files',
   templateUrl: './all-files.component.html',
   styleUrls: ['./all-files.component.scss'],
 })
 export class AllFilesComponent implements OnInit {
+  //// file upload declartion ////
+  options: UploaderOptions;
+  files: UploadFile[];
+  uploadInput: EventEmitter<UploadInput>;
+  humanizeBytes: Function;
+  dragOver: boolean;
+  native_file: any;
+  native_file_name: any;
+  fileSize = false;
+  ///// end declartion////
   filesFormgroup: FormGroup;
   filesCreateFolderFromgroup: FormGroup;
   fileManger: any = [];
@@ -139,6 +155,36 @@ export class AllFilesComponent implements OnInit {
     return this.filesFormgroup.controls;
   }
 
+  onUploadOutput(output: UploadOutput): void {
+    switch (output.type) {
+      case 'addedToQueue':
+        if (typeof output.file !== 'undefined') {
+          if (!output.file.size) {
+            this.fileSize = true;
+            // this.submitted = true;
+          } else {
+            this.fileSize = false;
+            // this.submitted = false;
+          }
+          // this.native_file = output.file.nativeFile;
+          // this.native_file_name = output.file.nativeFile.name;
+          // this.show_upload = false;
+        }
+        break;
+    }
+  }
+
+  cancelUpload(id: string): void {
+    this.uploadInput.emit({ type: 'cancel', id: id });
+  }
+
+  removeFile(id: string): void {
+    this.uploadInput.emit({ type: 'remove', id: id });
+  }
+
+  removeAllFiles(): void {
+    this.uploadInput.emit({ type: 'removeAll' });
+  }
   editFileName() {}
 
   onDown() {
