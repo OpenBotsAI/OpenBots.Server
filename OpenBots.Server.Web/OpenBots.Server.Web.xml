@@ -1310,12 +1310,16 @@
             <param name="membershipManager"></param>
             <param name="userManager"></param>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Get(System.String,System.String,System.String,System.Int32,System.Int32)">
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Get(System.String,System.String,System.String,System.String,System.Int32,System.Int32)">
             <summary>
             Provides a list of all files/folders
             </summary>
             <param name="file">Determines whether to retrieve all files (true), folders (false), or both (null/empty)</param>
+            <param name="driveName"></param>
             <param name="filter"></param>
+            <param name="orderBy"></param>
+            <param name="skip"></param>
+            <param name="top"></param>
             <response code="200">Ok, a paginated list of all files/folders</response>
             <response code="400">Bad request</response>
             <response code="403">Forbidden, unauthorized access</response> 
@@ -1323,10 +1327,11 @@
             <response code="422">Unprocessable entity</response>
             <returns>Paginated list of all files/folders</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetFileCount(System.String)">
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetFileCount(System.String,System.String)">
             <summary>
             Gets count of server files in database
             </summary>
+            <param name="driveName"></param>
             <param name="filter"></param>
             <response code="200">Ok, count of server files</response>
             <response code="400">Bad request</response>
@@ -1335,10 +1340,11 @@
             <response code="422">Unprocessable entity</response>
             <returns>Count of all server files</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetFolderCount(System.String)">
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetFolderCount(System.String,System.String)">
             <summary>
             Gets count of server folders in database
             </summary>
+            <param name="driveName"></param>
             <param name="filter"></param>
             <response code="200">Ok, count of server folders</response>
             <response code="400">Bad request</response>
@@ -1347,10 +1353,11 @@
             <response code="422">Unprocessable entity</response>
             <returns>Count of all server folders</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetFileFolder(System.String)">
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetFileFolder(System.String,System.String)">
             <summary>
             Provides file/folder details for a particular file/folder
             </summary>
+            <param name="driveName"></param>
             <param name="id">File or folder id</param>
             <response code="200">Ok, if a file/folder exists with the given id</response>
             <response code="304">Not modified</response>
@@ -1364,6 +1371,7 @@
             <summary>
             Provides server drive details for local storage
             </summary>
+            <param name="driveName"></param>
             <response code="200">Ok, if the server drive exists</response>
             <response code="304">Not modified</response>
             <response code="400">Bad request, if server drive entity is not in proper format</response>
@@ -1372,7 +1380,7 @@
             <response code="422">Unprocessable entity</response>
             <returns>Server drive details</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Post(OpenBots.Server.ViewModel.File.FileFolderViewModel)">
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Post(OpenBots.Server.ViewModel.File.FileFolderViewModel,System.String)">
             <summary>
             Uploads new file/folder in server drive
             </summary>
@@ -1384,10 +1392,11 @@
             <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
             <returns>Newly created file/folder details</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Download(System.String)">
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Download(System.String,System.String)">
             <summary>
             Export/Download a file
             </summary>
+            <param name="driveName"></param>
             <param name="id">File id</param>
             <response code="200">Ok, if a file exists with the given id</response>
             <response code="304">Not modified</response>

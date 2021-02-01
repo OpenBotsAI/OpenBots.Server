@@ -59,7 +59,11 @@ namespace OpenBots.Server.Web.Controllers
         /// Provides a list of all files/folders
         /// </summary>
         /// <param name="file">Determines whether to retrieve all files (true), folders (false), or both (null/empty)</param>
+        /// <param name="driveName"></param>
         /// <param name="filter"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="skip"></param>
+        /// <param name="top"></param>
         /// <response code="200">Ok, a paginated list of all files/folders</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden, unauthorized access</response> 
@@ -74,7 +78,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public IActionResult Get(string file = null,
+        public IActionResult Get(string driveName = null, string file = null,
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
@@ -88,7 +92,7 @@ namespace OpenBots.Server.Web.Controllers
                 bool? isFile = Convert.ToBoolean(file);
                 if (file == null)
                     isFile = null;
-                var filesFolders = manager.GetFilesFolders(isFile, oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
+                var filesFolders = manager.GetFilesFolders(isFile, driveName, oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
 
                 return Ok(filesFolders); //return all files/folders
             }
@@ -102,6 +106,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <summary>
         /// Gets count of server files in database
         /// </summary>
+        /// <param name="driveName"></param>
         /// <param name="filter"></param>
         /// <response code="200">Ok, count of server files</response>
         /// <response code="400">Bad request</response>
@@ -116,15 +121,25 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<int?> GetFileCount(
+        public async Task<IActionResult> GetFileCount(string driveName = null,
         [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                int? count = manager.GetFileCount(driveName);
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("File Count", ex.Message);
+                return BadRequest(ModelState);
+            }
         }
 
         /// <summary>
         /// Gets count of server folders in database
         /// </summary>
+        /// <param name="driveName"></param>
         /// <param name="filter"></param>
         /// <response code="200">Ok, count of server folders</response>
         /// <response code="400">Bad request</response>
@@ -139,24 +154,25 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> GetFolderCount(
+        public async Task<IActionResult> GetFolderCount(string driveName = null,
         [FromQuery(Name = "$filter")] string filter = "")
         {
             try
             {
-                int? count = manager.GetFolderCount();
+                int? count = manager.GetFolderCount(driveName);
                 return Ok(count);
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("Folder Count", ex.Message);
-                return BadRequest();
+                return BadRequest(ModelState);
             }
         }
 
         /// <summary>
         /// Provides file/folder details for a particular file/folder
         /// </summary>
+        /// <param name="driveName"></param>
         /// <param name="id">File or folder id</param>
         /// <response code="200">Ok, if a file/folder exists with the given id</response>
         /// <response code="304">Not modified</response>
@@ -174,11 +190,12 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> GetFileFolder(string id)
+        public async Task<IActionResult> GetFileFolder(string id, string driveName = null)
         {
             try
             {
-                var fileFolder = manager.GetFileFolder(id);
+                var fileFolder = manager.GetFileFolder(id, driveName);
+
                 var list = new PaginatedList<FileFolderViewModel>();
                 list.Add(fileFolder);
                 list.PageSize = 0;
@@ -201,6 +218,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <summary>
         /// Provides server drive details for local storage
         /// </summary>
+        /// <param name="driveName"></param>
         /// <response code="200">Ok, if the server drive exists</response>
         /// <response code="304">Not modified</response>
         /// <response code="400">Bad request, if server drive entity is not in proper format</response>
@@ -217,11 +235,11 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> GetDrive(string path)
+        public async Task<IActionResult> GetDrive(string driveName = null)
         {
             try
             {
-                var drive = manager.GetDrive(path);
+                var drive = manager.GetDrive(driveName);
                 return Ok(drive);
             }
             catch (EntityDoesNotExistException ex)
@@ -253,13 +271,13 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Post([FromForm] FileFolderViewModel request)
+        public async Task<IActionResult> Post([FromForm] FileFolderViewModel request, string driveName = null)
         {
             try
             {
                 if (request.IsFile == null)
                     request.IsFile = true;
-                var response = manager.AddFileFolder(request);
+                var response = manager.AddFileFolder(request, driveName);
                 return Ok(response);
             }
             catch (EntityAlreadyExistsException ex)
@@ -281,6 +299,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <summary>
         /// Export/Download a file
         /// </summary>
+        /// <param name="driveName"></param>
         /// <param name="id">File id</param>
         /// <response code="200">Ok, if a file exists with the given id</response>
         /// <response code="304">Not modified</response>
@@ -298,11 +317,11 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Download(string id)
+        public async Task<IActionResult> Download(string id, string driveName = null)
         {
             try
             {
-                var response = manager.ExportFileFolder(id);
+                var response = manager.ExportFileFolder(id, driveName);
                 return File(response?.Result?.Content, response?.Result?.ContentType, response?.Result?.Name);
             }
             catch (EntityDoesNotExistException ex)
@@ -323,11 +342,11 @@ namespace OpenBots.Server.Web.Controllers
 
         //TODO: update size of folder and all parent folders when file/folder is added, updated, or deleted
         //TODO additional api calls:
-        //update file/folder details in server drive (rename, move, copy)
-        //add additional server drive?
-        //update server drive details?
-        //delete server drive?
-        //delete file/folder in server drive
-        //get file attributes for a file
+            //update file/folder details in server drive (rename, move, copy)
+            //add additional server drive?
+            //update server drive details?
+            //delete server drive?
+            //delete file/folder in server drive
+            //get file attributes for a file
     }
 }

@@ -160,6 +160,90 @@ hr{
 .btnIconBlue:nth-child(3){
   margin-right:0px;
 }
+.bbSlach{
+  padding: 0px 7px;
+}
+label.upload-button{
+  border:1px solid #e4e9f2;
+  display: block;
+  padding: 7px;
+}
+
+.upload-files{
+  border: 1px solid #cbcbcb;
+  background: #406a9c1a;
+  padding: 28px 10px;
+  margin:4% 0%;
+  width:424px !important;
+}
+.upload-files-error{
+  border: 1px solid red !important;
+  background: rgba(156, 64, 64, 0.19) !important;
+  padding: 12px;
+  text-align: center;
+}
+.drop-container{
+  display: inline-block;
+  vertical-align: top;
+}
+.drop-container p{
+  background-image: url(../../../../assets/images/icon-cloud.png);
+  background-position:left center;
+  background-repeat: no-repeat;
+  color: #406a9c;
+  font-size:14px;
+  font-weight:400;
+  margin:0px;
+  display: inline-block;
+  line-height: 1.2;
+  padding-left: 56px;
+}
+.drop-container p span, .drop-container span{
+  color: #406a9c;
+  display: block;
+  font-size: 14px;
+  font-weight: 300;
+}
+.drop-container span.or-file{
+  font-weight: 500;
+  display:inline-block;
+  vertical-align: top;
+  padding-left: 56px;
+  padding-top: 6px;
+}
+label.upload-button{
+  background-color: #406A9C;
+  float: right;
+  color: #fff;
+  font-weight: 300;
+  font-size: 14px;
+  text-transform: uppercase;
+  margin: 0px;
+  padding: 11px 10px 7px 10px;
+  line-height: 1;
+}
+.custom-file-input {
+  color: transparent !important;
+  border: none !important;
+  padding: 0px !important;
+  margin: 0px !important;
+  width: 111px !important;
+  height: 45px !important;
+  display: none;
+}
+.custom-file-input::-webkit-file-upload-button {
+  visibility: hidden !important;
+}
+.custom-file-input:hover:before {
+  border-color: black !important;
+}
+.custom-file-input:active {
+  outline: 0 !important;
+}
+.custom-file-input:active:before {
+  background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9) !important;
+}
+
 @media only screen and (max-width: 750px) {
   .checkbox.checbox-switch label{
     margin-bottom: 0px;
@@ -217,5 +301,21 @@ hr{
   }
   .rename-popup{
     width: 310px;
-}
+  }
 } 
+@media only screen and (min-width: 10px) and (max-width: 768px){
+  .btn.btn-primary.btnNoMargn {
+      margin-top: 0px !important;
+  }
+}
+@media only screen and
+(min-width: 10px)and
+(max-width: 500px) {
+  .upload-files{
+    width:320px !important;
+  }
+  .drop-container span.or-file{
+    padding-left: 16px !important;
+  }
+  
+}
