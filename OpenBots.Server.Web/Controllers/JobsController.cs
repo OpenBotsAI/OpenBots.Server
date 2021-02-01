@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business;
+using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
@@ -683,24 +684,24 @@ namespace OpenBots.Server.Web
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string id)
         {
-            Guid jobId = new Guid(id);
-            var existingJob = repository.GetOne(jobId);
-
-            if (existingJob == null)
+            try
             {
-                ModelState.AddModelError("Job", "Job cannot be found or does not exist.");
-                return NotFound(ModelState);
+
+                Guid jobId = new Guid(id);
+
+                jobManager.DeleteJobChildTables(jobId);
+                var response = await base.DeleteEntity(id);
+
+                //send SignalR notification to all connected clients 
+                await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} deleted.", id));
+                await webhookPublisher.PublishAsync("Jobs.JobDeleted", id).ConfigureAwait(false);
+
+                return response;
             }
-
-            var response = await base.DeleteEntity(id);
-            jobManager.DeleteExistingParameters(jobId);
-            jobManager.DeleteExistingCheckpoints(jobId);
-
-            //send SignalR notification to all connected clients 
-            await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} deleted.", id));
-            await webhookPublisher.PublishAsync("Jobs.JobDeleted", existingJob.Id.ToString()).ConfigureAwait(false);
-
-            return response;
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
