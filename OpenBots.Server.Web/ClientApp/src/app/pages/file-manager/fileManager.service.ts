@@ -17,23 +17,23 @@ export class FileManagerService {
 
   getAllFiles(tpage: any, spage: any) {
     
-    let filesurl = `/files?driveName=Files$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
+    let filesurl = `/files?driveName=Files&$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + filesurl);
   }
 
   getAllFilesOrder(tpage: any, spage: any, name) {
     
-    let filesurl = `/files?driveName=Files$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    let filesurl = `/files?driveName=Files&$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + filesurl);
   }
 
  Createfolder(obj){
-    let createfile = `/files`;
+    let createfile = `/files?driveName=Files`;
     return this.http.post(`${this.apiUrl}` + createfile,obj);
  }
 
   getFileFloder(parentId) {
-    let filesurl = `/files?driveName=Files$filter=${parentId}`;
+    let filesurl = `/files?driveName=Files&$filter=${parentId}`;
     return this.http.get(`${this.apiUrl}` + filesurl);
   }
 
