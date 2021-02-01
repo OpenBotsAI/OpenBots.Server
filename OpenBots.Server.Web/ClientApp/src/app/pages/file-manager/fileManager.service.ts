@@ -17,13 +17,13 @@ export class FileManagerService {
 
   getAllFiles(tpage: any, spage: any) {
     
-    let filesurl = `/files?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
+    let filesurl = `/files?driveName=Files$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + filesurl);
   }
 
   getAllFilesOrder(tpage: any, spage: any, name) {
     
-    let filesurl = `/files?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    let filesurl = `/files?driveName=Files$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + filesurl);
   }
 
@@ -33,7 +33,7 @@ export class FileManagerService {
  }
 
   getFileFloder(parentId) {
-    let filesurl = `/files?$filter=${parentId}`;
+    let filesurl = `/files?driveName=Files$filter=${parentId}`;
     return this.http.get(`${this.apiUrl}` + filesurl);
   }
 

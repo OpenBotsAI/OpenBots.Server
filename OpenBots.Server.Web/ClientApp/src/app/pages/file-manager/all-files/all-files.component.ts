@@ -138,10 +138,10 @@ export class AllFilesComponent implements OnInit {
     formData.append('Name', this.filesCreateFolderFromgroup.value.name);
     formData.append('StoragePath', 'Files' + storagePath);
     formData.append('isFile', this.filesCreateFolderFromgroup.value.isFile);
-    formData.append(
-      'FullStoragePath',
-      'Files' + storagePath + '\\' + this.filesCreateFolderFromgroup.value.name
-    );
+    // formData.append(
+    //   'FullStoragePath',
+    //   'Files' + storagePath + '\\' + this.filesCreateFolderFromgroup.value.name
+    // );
     this.fileManagerService.Createfolder(formData).subscribe((data: any) => {
       console.log(data);
     });
