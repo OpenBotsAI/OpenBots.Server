@@ -273,35 +273,30 @@
             <h6>File Upload</h6>
         </nb-card-header>
         <nb-card-body>
-            <div aria-labelledby="title">
+
+            <div class="upload-files uploadTempFiles">
+                <div class="drop-container" [ngClass]="{ 'is-drop-over': dragOver }">
+                    <p>Drag and Drop <span>your file here</span></p>
+                    <span class="or-file">OR</span>
+                </div>
+                <label class="upload-button">
+                    <input type="file" class="btn-files custom-file-input"><span>Browse</span>
+                </label>
+            </div>
+
+            <!-- <div aria-labelledby="title">
                 <label class="label">Upload Automation File *</label>
                 <label class="upload-button">
                     <input type="file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
                         [uploadInput]="uploadInput" multiple>
 
                 </label>
-                <!--             
-    
-                   <input type="input" nbInput fullWidth id="name" formControlName="name"
-                  class="form-control" placeholder="Please enter  name" />
-                  <div *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid"
-                  class="invalid-feedback-frm">
-                  <div *ngIf="f.name.errors && f.name.errors.required">  Name is required.</div>
-                  <div *ngIf="f.name.errors.minlength">
-                     Name at least 3 characters long.
-                  </div>
-                  <div *ngIf="f.name.errors.maxlength">
-                     Name at least 100 characters long.
-                  </div>
-                  <div *ngIf="f.name.errors.pattern">
-                    Please enter valid  name .
-                  </div>
-                </div> -->
-            </div>
+
+            </div> -->
         </nb-card-body>
         <nb-card-footer>
             <!-- [disabled]="isDeleted" (click)="del_agent(ref)" -->
-            <button class="btn btn-primary" [disabled]="isSubmitted">Upload</button>
+            <button class="btn btn-primary btnNoMargn" [disabled]="isSubmitted">Upload</button>
             <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
                 Cancel
             </button>
