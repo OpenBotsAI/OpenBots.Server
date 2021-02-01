@@ -15,6 +15,7 @@ import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
 })
 export class AllFilesComponent implements OnInit {
   filesFormgroup: FormGroup;
+  filesCreateFolderFromgroup: FormGroup;
   fileManger: any = [];
   fileID: any = [];
   name: any = [];
@@ -36,10 +37,10 @@ export class AllFilesComponent implements OnInit {
   per_page_num: any = [];
   itemsPerPage: ItemsPerPage[] = [];
   showDownloadbtn: boolean = false;
-  ////
+  //// select row ///
   HighlightRow: number;
-  Employee: any;
   ClickedRow: any;
+
   constructor(
     protected fileManagerService: FileManagerService,
     private _FileSaverService: FileSaverService,
@@ -76,7 +77,6 @@ export class AllFilesComponent implements OnInit {
     });
   }
   gotodetail(file) {
-    // if (value) {
     this.showDownloadbtn = true;
     this.fileID = file.id;
     this.name = file.name;
@@ -84,28 +84,14 @@ export class AllFilesComponent implements OnInit {
     this.contentType = file.contentType;
     this.createdOn = file.createdOn;
     this.fullStoragePath = file.fullStoragePath;
-    // } else {
-    //   this.showDownloadbtn = false;
-    //   this.fileID = file.id;
-    //   this.name = file.name;
-    //   this.size = file.size;
-    //   this.contentType = file.contentType;
-    //   this.createdOn = file.createdOn;
-    //   this.fullStoragePath = file.fullStoragePath;
-    // }
   }
 
-  createFolder() {
-    let string = '';
-    this.bread.forEach((item) => (string += item.name + '\\'));
-    // console.log(string)
-  }
-  openDeleteDialog(ref: TemplateRef<any>, file): void {
-    if (file.isFile == true) {
-      this.fileType = 'File';
-    } else {
-      this.fileType = 'Folder';
-    }
+  openRenameDialog(ref: TemplateRef<any>, file): void {
+    // if (file.isFile == true) {
+    //   this.fileType = 'File';
+    // } else {
+    //   this.fileType = 'Folder';
+    // }
 
     this.filesFormgroup = this.formBuilder.group({
       // , [Validators.pattern('/^[w.-]+$/')]
@@ -115,17 +101,38 @@ export class AllFilesComponent implements OnInit {
     this.dialogService.openDialog(ref);
   }
 
+  openCreateFolderDialog(ref: TemplateRef<any>): void {
+    this.filesCreateFolderFromgroup = this.formBuilder.group({
+      name: [''],
+      StoragePath: [''],
+      isFile: [false],
+    });
+    // this.filesFormgroup.patchValue({ name: this.name });
+    this.dialogService.openDialog(ref);
+  }
+
+  createFolder() {
+    let storagePath = '';
+    this.bread.forEach((item) => (storagePath +='\\'+ item.name ));
+     let formData = new FormData();
+      formData.append('Name', this.filesCreateFolderFromgroup.value.name);
+       formData.append('StoragePath', 'Files' + storagePath);
+        formData.append('isFile', this.filesCreateFolderFromgroup.value.isFile);
+         formData.append('FullStoragePath', 'Files' + storagePath+ '\\'+this.filesCreateFolderFromgroup.value.name);
+    this.fileManagerService.Createfolder(formData).subscribe((data:any ) =>{
+      console.log(data);
+    })
+
+    console.log('Files'+storagePath);
+  }
+  get fc() {
+    return this.filesCreateFolderFromgroup.controls;
+  }
   get f() {
     return this.filesFormgroup.controls;
   }
 
-  editFileName() {
-    // this.filesFormgroup = this.formBuilder.group({
-    //   name: [''],
-    // });
-    // this.filesFormgroup.patchValue({ name: file.name });
-    // this.filesFormgroup.value.name;
-  }
+  editFileName() {}
 
   onDown() {
     let fileName: string;
@@ -167,7 +174,7 @@ export class AllFilesComponent implements OnInit {
       .subscribe((data: any) => {
         this.fileManger = data.items;
         this.page.totalCount = data.totalCount;
-       
+
         this.showpage = data;
         // this.bread = [];
         this.gotodetail(this.fileManger[0]);
