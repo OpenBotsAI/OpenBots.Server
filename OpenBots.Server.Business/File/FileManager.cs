@@ -5,6 +5,7 @@ using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.File;
 using OpenBots.Server.ViewModel.File;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Business.File
@@ -23,12 +24,12 @@ namespace OpenBots.Server.Business.File
             this.localFileStorageAdapter = localFileStorageAdapter;
         }
 
-        public PaginatedList<FileFolderViewModel> GetFilesFolders(bool? isFile, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        public PaginatedList<FileFolderViewModel> GetFilesFolders(bool? isFile = null, string driveName = null, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
             string adapter = Configuration["Files:Adapter"];
 
             if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
-                return localFileStorageAdapter.GetFilesFolders(isFile, predicate, sortColumn, direction, skip, take);
+                return localFileStorageAdapter.GetFilesFolders(isFile, driveName, predicate, sortColumn, direction, skip, take);
             //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
             //    azureBlobStorageAdapter.SaveFile(request);
             //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
@@ -39,23 +40,34 @@ namespace OpenBots.Server.Business.File
 
         }
 
-        public int? GetFolderCount()
+        public int? GetFileCount(string driveName)
         {
             string adapter = Configuration["Files:Adapter"];
             if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
             {
-                int? count = localFileStorageAdapter.GetFolderCount();
+                int? count = localFileStorageAdapter.GetFileCount(driveName);
                 return count;
             }
             else throw new EntityOperationException("Configuration is not set up for local file storage");
         }
 
-        public FileFolderViewModel GetFileFolder(string id)
+        public int? GetFolderCount(string driveName)
         {
             string adapter = Configuration["Files:Adapter"];
             if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
             {
-                var folder = localFileStorageAdapter.GetFileFolderViewModel(id);
+                int? count = localFileStorageAdapter.GetFolderCount(driveName);
+                return count;
+            }
+            else throw new EntityOperationException("Configuration is not set up for local file storage");
+        }
+
+        public FileFolderViewModel GetFileFolder(string id, string driveName = null)
+        {
+            string adapter = Configuration["Files:Adapter"];
+            if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
+            {
+                var folder = localFileStorageAdapter.GetFileFolderViewModel(id, driveName);
                 return folder;
             }
             //else if (adapter.Equals(AdapterType.AzureBlobStorageAdapter.ToString()))
@@ -67,24 +79,24 @@ namespace OpenBots.Server.Business.File
             else throw new EntityOperationException("Configuration is not set up for local file storage");
         }
 
-        public ServerDrive GetDrive(string path)
+        public ServerDrive GetDrive(string driveName = null)
         {
             string adapter = Configuration["Files:Adapter"];
             if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
             {
-                var drive = localFileStorageAdapter.GetDriveByName(path);
+                var drive = localFileStorageAdapter.GetDriveByName(driveName);
                 return drive;
             }
             else throw new EntityOperationException("Configuration is not set up for local file storage");
         }
 
-        public FileFolderViewModel AddFileFolder(FileFolderViewModel request)
+        public List<FileFolderViewModel> AddFileFolder(FileFolderViewModel request, string driveName = null)
         {
-            FileFolderViewModel response = new FileFolderViewModel();
+            var response = new List<FileFolderViewModel>();
             string adapter = Configuration["Files:Adapter"];
 
             if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
-                response = localFileStorageAdapter.AddFileFolder(request);
+                response = localFileStorageAdapter.AddFileFolder(request, driveName);
             //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
             //    azureBlobStorageAdapter.SaveFile(request);
             //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
@@ -96,12 +108,12 @@ namespace OpenBots.Server.Business.File
             return response;
         }
 
-        public async Task<FileFolderViewModel> ExportFileFolder(string id)
+        public async Task<FileFolderViewModel> ExportFileFolder(string id, string driveName = null)
         {
             var response = new FileFolderViewModel();
             string adapter = Configuration["Files:Adapter"];
             if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
-                response = await localFileStorageAdapter.ExportFile(id);
+                response = await localFileStorageAdapter.ExportFile(id, driveName);
             //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
             //    azureBlobStorageAdapter.SaveFile(request);
             //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))

@@ -22,10 +22,10 @@ namespace OpenBots.Server.DataAccess.Repositories.File
             return dbContext.ServerFolders;
         }
 
-        public PaginatedList<FileFolderViewModel> FindAllView(Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        public PaginatedList<FileFolderViewModel> FindAllView(Guid? driveId, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
             PaginatedList<FileFolderViewModel> paginatedList = new PaginatedList<FileFolderViewModel>();
-            var itemsList = base.Find(null, j => j.IsDeleted == false);
+            var itemsList = base.Find(null, j => j.IsDeleted == false && j.StorageDriveId == driveId);
 
             if (itemsList != null && itemsList.Items != null && itemsList.Items.Count > 0)
             {

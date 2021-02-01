@@ -21,7 +21,7 @@ namespace OpenBots.Server.ViewModel.File
         public virtual Guid? ParentId { get; set; }
         public virtual Guid? StorageDriveId { get; set; }
         public virtual FileStream? Content { get; set; }
-        public virtual IFormFile? File { get; set; }
+        public virtual IFormFile[]? Files { get; set; }
 
         public FileFolderViewModel Map(ServerFile entity, string path)
         {
