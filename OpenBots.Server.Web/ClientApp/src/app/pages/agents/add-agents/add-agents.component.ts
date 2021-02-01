@@ -59,9 +59,15 @@ export class AddAgentsComponent implements OnInit {
   check(checked: boolean) {
     this.checked = checked;
     if (checked) {
+      //^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$
+      // ^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$
+      //  RxwebValidators.mac()
       this.addagent
         .get('macAddresses')
-        .setValidators([Validators.required, RxwebValidators.mac()]);
+        .setValidators([
+          Validators.required,
+          Validators.pattern('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$'),
+        ]);
       this.addagent.get('ipAddresses').setValidators([Validators.required]);
       this.addagent.get('macAddresses').updateValueAndValidity();
       this.addagent.get('ipAddresses').updateValueAndValidity();

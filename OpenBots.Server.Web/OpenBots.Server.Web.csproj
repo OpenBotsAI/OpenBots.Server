@@ -113,7 +113,6 @@
     <PackageReference Include="StringToExpression" Version="1.1.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="6.0.1" />
-    <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="18.4.0.34" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
@@ -158,6 +157,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="BinaryObjects\" />
+    <Folder Include="Files\Folder1\SubFolder1\" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptTarget>ES2020</TypeScriptTarget>

@@ -1,32 +1,30 @@
-﻿using Microsoft.AspNetCore.Http;
-using Syncfusion.EJ2.FileManager.Base;
-using System.Collections.Generic;
+﻿using OpenBots.Server.Model.Core;
+using OpenBots.Server.Model.File;
+using OpenBots.Server.ViewModel.File;
+using System;
+using System.Threading.Tasks;
 
 namespace OpenBots.Server.Business.Interfaces
 {
     public interface IFileManager : IManager
     {
-        public object DownloadFile(string downloadInput);
-
-        //public void SaveFile(SaveServerFileViewModel request);
+        public FileFolderViewModel AddFileFolder(FileFolderViewModel request);
 
         //public void UpdateFile(UpdateServerFileViewModel request);
 
         //public void DeleteFile(string path);
 
-        //public int? GetFolderCount();
+        public int? GetFolderCount();
 
-        //public ServerFolder GetFolder(string name);
+        public FileFolderViewModel GetFileFolder(string path);
 
-        //public ServerDrive GetDrive();
+        public ServerDrive GetDrive(string path);
 
         //public void DeleteFolder(string path);
 
-        public object LocalFileStorageOperation(FileManagerDirectoryContent args);
+        public PaginatedList<FileFolderViewModel> GetFilesFolders(bool? isFile, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
 
-        public FileManagerResponse UploadFile(string path, IList<IFormFile> uploadFiles, string action);
-
-        public object GetImage(FileManagerDirectoryContent args);
+        public Task<FileFolderViewModel> ExportFileFolder(string id);
 
         public enum AdapterType
         { }
