@@ -274,7 +274,14 @@
         </nb-card-header>
         <nb-card-body>
             <div aria-labelledby="title">
+                <label class="label">Upload Automation File *</label>
+                <label class="upload-button">
+                    <input type="file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
+                        [uploadInput]="uploadInput" multiple>
+
+                </label>
                 <!--             
+    
                    <input type="input" nbInput fullWidth id="name" formControlName="name"
                   class="form-control" placeholder="Please enter  name" />
                   <div *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid"
