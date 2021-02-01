@@ -16,27 +16,21 @@ export class FileManagerService {
   constructor(private http: HttpClient, private helperService: HelperService) {}
 
   getAllFiles(tpage: any, spage: any) {
-    //   ?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}
+    
     let filesurl = `/files?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + filesurl);
   }
 
   getAllFilesOrder(tpage: any, spage: any, name) {
-    //   ?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}
-    //  let getagentUrl = `/EmailAccounts?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    
     let filesurl = `/files?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + filesurl);
   }
 
-  // getAllEmail(tpage: any, spage: any) {
-  //   let getagentUrl = `/EmailAccounts?$orderby=createdOn desc&$top=${tpage}&$skip=${spage}`;
-  //   return this.http.get(`${this.apiUrl}` + getagentUrl);
-  // }
-
-  // getAllEmailOrder(tpage: any, spage: any, name) {
-  //   let getagentUrl = `/EmailAccounts?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
-  //   return this.http.get(`${this.apiUrl}` + getagentUrl);
-  // }
+ Createfolder(obj){
+    let createfile = `/files`;
+    return this.http.post(`${this.apiUrl}` + createfile,obj);
+ }
 
   getFileFloder(parentId) {
     let filesurl = `/files?$filter=${parentId}`;
