@@ -23,9 +23,12 @@
         <div class="toolPnl">
             <div class="row">
                 <div class="col-md-4 col-lg-4">
-                    <button class="btnIcon btnFolder" (click)="createFolder()"><img src="../../../../assets/images/folder-icon.png" />New Folder</button>
-                    <button class="btnIcon btnUpload"><img src="../../../../assets/images/upload-icon.png"/>Upload</button>
-                    <button class="btnIcon btnFolder" (click)="allFiles(5,0)"><img src="../../../../assets/images/fresh-icon.png" />Refresh</button>
+                    <button class="btnIcon btnFolder" (click)="createFolder()"><img
+                            src="../../../../assets/images/folder-icon.png" />New Folder</button>
+                    <button class="btnIcon btnUpload"><img
+                            src="../../../../assets/images/upload-icon.png" />Upload</button>
+                    <button class="btnIcon btnFolder" (click)="allFiles(5,0)"><img
+                            src="../../../../assets/images/fresh-icon.png" />Refresh</button>
                 </div>
                 <div class="col-md-4 col-lg-4 text-center" *ngIf="showDownloadbtn">
                     <button class="btnIconBlue btn btn-primary">Delete</button>
@@ -33,136 +36,143 @@
                     <button class="btnIconBlue btn btn-primary">Move</button>
                 </div>
                 <div *ngIf="showDownloadbtn" class="col-md-4 col-lg-4 download-btn text-right">
-                    <button type="button" class="btn btn-primary"  (click)="onDown()">Download</button>
+                    <button type="button" class="btn btn-primary" (click)="onDown()">Download</button>
                 </div>
             </div>
-            
-        <hr>
+
+            <hr>
             <ul class='breadcrumb'>
-               
-  <li><a [routerLink]="" (click)="onClickUp()"><img src="../../../../assets/images/upload-icon.png"/></a> </li>
-                <li class="lendhand" > <a [routerLink]="" (click)="allFiles(5,0)">Files</a> </li>
+
+                <li><a [routerLink]="" (click)="onClickUp()"><img src="../../../../assets/images/upload-icon.png" /></a>
+                </li>
+                <li class="lendhand"> <a [routerLink]="" (click)="allFiles(5,0)">Files</a> </li>
                 <li *ngFor="let breadcrumb of bread;">
-                    <a  [routerLink]="" *ngIf="breadcrumb.name !== floderName " (click)="getFileId(breadcrumb)"> / {{ breadcrumb?.name }} </a>
-                    <a    *ngIf="breadcrumb.name == floderName" >
-                        /  {{ breadcrumb?.name }}
+                    <a [routerLink]="" *ngIf="breadcrumb.name !== floderName " (click)="getFileId(breadcrumb)"><span
+                            class="bbSlach">/</span> {{ breadcrumb?.name }} </a>
+                    <a *ngIf="breadcrumb.name == floderName"><span class="bbSlach">/</span>{{ breadcrumb?.name }}
                     </a>
                 </li>
             </ul>
         </div>
 
         <div class="row">
-        <div class="col-md-8 col-lg-8 noRightPadding">
-            <div style="overflow-x:auto;">
-             <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th scope="col">
-                            Name
-                            <i (click)="onSortClick($event, 'name')" [attr.class]="fileManger | chevron: page.totalCount"></i>
-                        </th>
-                    
-                   
-                        <th scope="col">Type
-                            <i (click)="onSortClick($event, 'contentType')" [attr.class]="fileManger | chevron: page.totalCount"></i>
-                        </th>
-                       
-                    </tr>
-                </thead>
-                
-                
+            <div class="col-md-8 col-lg-8 noRightPadding">
+                <div style="overflow-x:auto;">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">
+                                    Name
+                                    <i (click)="onSortClick($event, 'name')"
+                                        [attr.class]="fileManger | chevron: page.totalCount"></i>
+                                </th>
 
-                    <tbody>
-                        <tr *ngFor=" let files of fileManger | paginate
+
+                                <th scope="col">Type
+                                    <i (click)="onSortClick($event, 'contentType')"
+                                        [attr.class]="fileManger | chevron: page.totalCount"></i>
+                                </th>
+
+                            </tr>
+                        </thead>
+
+
+
+                        <tbody>
+                            <tr *ngFor=" let files of fileManger | paginate
                   : {
                       id: '1',
                       itemsPerPage: page.pageSize,
                       currentPage: page.pageNumber,
                       totalItems: page.totalCount
                     };trackBy: trackByFn ; index as i " (click)="ClickedRow(i)" [class.active]="i == HighlightRow">
-                            <td scope="row"  >
-                                <a class="lendhand"  (click)="gotodetail(files)" (dblclick)="fileFolder(files,i)"> 
-                                    <img  *ngIf="files.isFile == false "src="../../../../assets/images/folder-icon.png"/>
-                                     <img *ngIf="files.isFile == true " src="../../../../assets/images/file-icon.png"/>
-                                    {{files?.name}}
+                                <td scope="row">
+                                    <a class="lendhand" (click)="gotodetail(files)" (dblclick)="fileFolder(files,i)">
+                                        <img *ngIf="files.isFile == false "
+                                            src="../../../../assets/images/folder-icon.png" />
+                                        <img *ngIf="files.isFile == true "
+                                            src="../../../../assets/images/file-icon.png" />
+                                        {{files?.name}}
                                     </a>
+                                </td>
+
+                                <td scope="row">
+                                    {{files?.contentType}}
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-4  noLeftPadding" *ngIf="showDownloadbtn">
+                <div class="square noBorederLeft">
+
+                    <h2>Properties</h2>
+                    <table class="file-info">
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <td>
+                                {{name}}
                             </td>
-                            
-                            <td scope="row"  >
-                                {{files?.contentType}}
-                            </td>
-                            
                         </tr>
-                    </tbody>
-                </table>
+                        <tr>
+                            <th>
+                                Size
+                            </th>
+                            <td>
+                                {{size |filesize}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                Type
+                            </th>
+                            <td>
+                                {{contentType}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                Modified
+                            </th>
+                            <td>
+                                {{createdOn | timeDate :'ll'}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                Location
+                            </th>
+                            <td>
+                                {{fullStoragePath}}
+                            </td>
+                        </tr>
+
+                    </table>
+                </div>
+
             </div>
         </div>
-        <div class="col-md-4 col-lg-4  noLeftPadding" *ngIf="showDownloadbtn">
-            <div class="square noBorederLeft"> 
-               
-                <h2>Properties</h2>
-                 <table  class="file-info">
-                     <tr>
-                         <th>
-                             Name
-                         </th>
-                         <td>
-                             {{name}}
-                         </td>
-                     </tr>
-                       <tr>
-                         <th>
-                             Size
-                         </th>
-                         <td>
-                            {{size |filesize}}
-                         </td>
-                     </tr>
-                       <tr>
-                         <th>
-                             Type
-                         </th>
-                         <td>
-                             {{contentType}}
-                         </td>
-                     </tr>
-                       <tr>
-                         <th>
-                             Modified
-                         </th>
-                         <td>
-                           {{createdOn | timeDate :'ll'}}
-                         </td>
-                     </tr>
-                     <tr>
-                         <th>
-                             Location
-                         </th>
-                         <td>
-                         {{fullStoragePath}}
-                         </td>
-                     </tr>
-                     
-                 </table>
-                </div>
-               
-        </div>
-       </div>
     </nb-card-body>
     <nb-card-body class="noTopPadding">
         <div class="row pagerow">
             <div class="col-md-8 col-lg-8 no-left-padding">
-                <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks="true" autoHide="true" screenReaderPaginationLabel="Pagination"
+                <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+                    (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)"
+                    directionLinks="true" autoHide="true" screenReaderPaginationLabel="Pagination"
                     screenReaderPageLabel="page" screenReaderCurrentLabel="You're on page"></pagination-controls>
             </div>
             <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
                 <label class="label">Total {{ page.totalCount}} /</label>
-                
+
                 <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
-            <option *ngFor="let item of itemsPerPage" [value]="item.id">
-              {{ item.name }}
-            </option>
-          </select>
+                    <option *ngFor="let item of itemsPerPage" [value]="item.id">
+                        {{ item.name }}
+                    </option>
+                </select>
             </div>
         </div>
     </nb-card-body>
@@ -170,38 +180,37 @@
 
 <ng-template #dialog let-data let-ref="dialogRef">
     <form class="rename-popup" [formGroup]="filesFormgroup">
-    <nb-card>
-        <nb-card-header>
-            <h6>Rename  {{fileType}}</h6>
-        </nb-card-header>
-        <nb-card-body>
-            <div aria-labelledby="title">
-            
-                   <input type="input" nbInput fullWidth id="name" formControlName="name"
-                  class="form-control" placeholder="Please enter  name" />
-                  <div *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid"
-                  class="invalid-feedback-frm">
-                  <div *ngIf="f.name.errors && f.name.errors.required">  Name is required.</div>
-                  <div *ngIf="f.name.errors.minlength">
-                     Name at least 3 characters long.
-                  </div>
-                  <div *ngIf="f.name.errors.maxlength">
-                     Name at least 100 characters long.
-                  </div>
-                  <div *ngIf="f.name.errors.pattern">
-                    Please enter valid  name .
-                  </div>
+        <nb-card>
+            <nb-card-header>
+                <h6>Rename {{fileType}}</h6>
+            </nb-card-header>
+            <nb-card-body>
+                <div aria-labelledby="title">
+
+                    <input type="input" nbInput fullWidth id="name" formControlName="name" class="form-control"
+                        placeholder="Please enter  name" />
+                    <div *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid" class="invalid-feedback-frm">
+                        <div *ngIf="f.name.errors && f.name.errors.required"> Name is required.</div>
+                        <div *ngIf="f.name.errors.minlength">
+                            Name at least 3 characters long.
+                        </div>
+                        <div *ngIf="f.name.errors.maxlength">
+                            Name at least 100 characters long.
+                        </div>
+                        <div *ngIf="f.name.errors.pattern">
+                            Please enter valid name .
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </nb-card-body>
-        <nb-card-footer>
-            <!-- [disabled]="isDeleted" (click)="del_agent(ref)" -->
-            <button class="btn btn-primary" [disabled]="isSubmitted || !filesFormgroup.valid" >Save</button>
-            <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
-          Cancel
-        </button>
- 
-        </nb-card-footer>
-    </nb-card>
+            </nb-card-body>
+            <nb-card-footer>
+                <!-- [disabled]="isDeleted" (click)="del_agent(ref)" -->
+                <button class="btn btn-primary" [disabled]="isSubmitted || !filesFormgroup.valid">Save</button>
+                <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
+                    Cancel
+                </button>
+
+            </nb-card-footer>
+        </nb-card>
     </form>
 </ng-template>
