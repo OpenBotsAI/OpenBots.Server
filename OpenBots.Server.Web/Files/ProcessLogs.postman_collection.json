@@ -1,0 +1,190 @@
+{
+	"info": {
+		"_postman_id": "51e82c90-0f2f-464f-bf58-e48cb935aca2",
+		"name": "ProcessLogs",
+		"description": "Handles all logs that are sent by the client to the logger controller",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get all ProcessLogs",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/api/v1/ProcessLogs",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"v1",
+						"ProcessLogs"
+					]
+				},
+				"description": "Provides a paginated list of all process logs\r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Get by ProcessLog Id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/api/v1/ProcessLogs/405c4a50-74e6-4c02-9755-e1c72d068e7b",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"v1",
+						"ProcessLogs",
+						"405c4a50-74e6-4c02-9755-e1c72d068e7b"
+					]
+				},
+				"description": "Provides a ProcessLog's details for a particular ProcessLog Id."
+			},
+			"response": []
+		},
+		{
+			"name": "Download logs by job id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/api/v1/ProcessLogs/export/csv?$filter=jobId eq guid'78c2a60a-d666-48be-bae2-50808ab5abbe'",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"v1",
+						"ProcessLogs",
+						"export",
+						"csv"
+					],
+					"query": [
+						{
+							"key": "$filter",
+							"value": "jobId eq guid'78c2a60a-d666-48be-bae2-50808ab5abbe'"
+						}
+					]
+				},
+				"description": "Provides a downloadable file for the provided JobId."
+			},
+			"response": []
+		},
+		{
+			"name": "Post Process Logs",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"message\": \"string\",\r\n  \"messageTemplate\": \"string\",\r\n  \"level\": \"string\",\r\n  \"processLogTimeStamp\": \"2020-09-16T13:28:36.610Z\",\r\n  \"exception\": \"string\",\r\n  \"jobId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\r\n  \"processId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\r\n  \"agentId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\r\n  \"machineName\": \"string\",\r\n  \"processName\": \"string\",\r\n  \"logger\": \"string\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:5001/api/v1/ProcessLogs",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"v1",
+						"ProcessLogs"
+					]
+				},
+				"description": "Adds a new ProcessLog to the existing ProcessLogs"
+			},
+			"response": []
+		},
+		{
+			"name": "Get ProcessLogs Count",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/api/v1/ProcessLogs/count",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"v1",
+						"ProcessLogs",
+						"count"
+					]
+				},
+				"description": "Gets the total count of processLogs"
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

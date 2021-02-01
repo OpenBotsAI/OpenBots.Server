@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.FeatureManagement.Mvc;
 using OpenBots.Server.Business;
 using OpenBots.Server.Business.Interfaces;
+using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
@@ -74,7 +75,10 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
         public IActionResult Get(string file = null,
-            [FromQuery(Name = "$filter")] string filter = "")
+            [FromQuery(Name = "$filter")] string filter = "",
+            [FromQuery(Name = "$orderby")] string orderBy = "",
+            [FromQuery(Name = "$top")] int top = 100,
+            [FromQuery(Name = "$skip")] int skip = 0)
         {
             try
             {
@@ -175,7 +179,18 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 var fileFolder = manager.GetFileFolder(id);
-                return Ok(fileFolder);
+                var list = new PaginatedList<FileFolderViewModel>();
+                list.Add(fileFolder);
+                list.PageSize = 0;
+                list.PageNumber = 0;
+                list.TotalCount = 1;
+
+                return Ok(list);
+            }
+            catch (EntityDoesNotExistException ex)
+            {
+                ModelState.AddModelError("Get File or Folder", ex.Message);
+                return NotFound(ModelState);
             }
             catch (Exception ex)
             {
@@ -202,12 +217,17 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> GetDrive()
+        public async Task<IActionResult> GetDrive(string path)
         {
             try
             {
-                var drive = manager.GetDrive();
+                var drive = manager.GetDrive(path);
                 return Ok(drive);
+            }
+            catch (EntityDoesNotExistException ex)
+            {
+                ModelState.AddModelError("Get Drive", ex.Message);
+                return NotFound(ModelState);
             }
             catch (Exception ex)
             {
@@ -237,8 +257,20 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
+                if (request.IsFile == null)
+                    request.IsFile = true;
                 var response = manager.AddFileFolder(request);
                 return Ok(response);
+            }
+            catch (EntityAlreadyExistsException ex)
+            {
+                ModelState.AddModelError("Get File or Folder", ex.Message);
+                return UnprocessableEntity(ModelState);
+            }
+            catch (EntityOperationException ex)
+            {
+                ModelState.AddModelError("Add File or Folder", ex.Message);
+                return BadRequest(ModelState);
             }
             catch (Exception ex)
             {
@@ -247,16 +279,16 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Export/Download a binary object
+        /// Export/Download a file
         /// </summary>
-        /// <param name="id">File or folder id</param>
-        /// <response code="200">Ok, if a file/folder exists with the given id</response>
+        /// <param name="id">File id</param>
+        /// <response code="200">Ok, if a file exists with the given id</response>
         /// <response code="304">Not modified</response>
-        /// <response code="400">Bad request, if file/folder id is not in proper format or a proper Guid</response>
+        /// <response code="400">Bad request, if file id is not in proper format or a proper Guid</response>
         /// <response code="403">Forbidden</response>
-        /// <response code="404">Not found, when no file/folder exists for the given binary object id</response>
+        /// <response code="404">Not found, when no file exists for the given id</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Binary object file/folder with binary object files converted back to original file format</returns>
+        /// <returns>Binary object file converted back to original file format</returns>
         [HttpGet("{id}/download")]
         [ProducesResponseType(typeof(MemoryStream), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -273,19 +305,28 @@ namespace OpenBots.Server.Web.Controllers
                 var response = manager.ExportFileFolder(id);
                 return File(response?.Result?.Content, response?.Result?.ContentType, response?.Result?.Name);
             }
+            catch (EntityDoesNotExistException ex)
+            {
+                ModelState.AddModelError("Export File", ex.Message);
+                return NotFound(ModelState);
+            }
+            catch (EntityOperationException ex)
+            {
+                ModelState.AddModelError("Export File", ex.Message);
+                return BadRequest(ModelState);
+            }
             catch (Exception ex)
             {
                 return ex.GetActionResult();
             }
         }
 
-        //TODO: export/download entire folder from server drive
-        //TODO:  update size of folder and all parent folders when file/folder is added, updated, or deleted
-
-
+        //TODO: update size of folder and all parent folders when file/folder is added, updated, or deleted
         //TODO additional api calls:
-        //update file/folder details in server drive
-        //update server drive details
+        //update file/folder details in server drive (rename, move, copy)
+        //add additional server drive?
+        //update server drive details?
+        //delete server drive?
         //delete file/folder in server drive
         //get file attributes for a file
     }

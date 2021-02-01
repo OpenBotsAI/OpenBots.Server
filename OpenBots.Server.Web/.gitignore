@@ -3,7 +3,6 @@
 # BinaryObjects content
 BinaryObjects/
 logs/
-Files/
 
 # compiled output
 /dist

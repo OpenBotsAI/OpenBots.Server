@@ -47,7 +47,6 @@ namespace OpenBots.Server.Business
                 }
             }
             return compressedFileStream;
-
         }
 
         public PaginatedList<AuditLogViewModel> GetAuditLogsView(Predicate<AuditLogViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)

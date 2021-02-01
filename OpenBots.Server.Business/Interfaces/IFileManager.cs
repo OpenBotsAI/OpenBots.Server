@@ -18,7 +18,7 @@ namespace OpenBots.Server.Business.Interfaces
 
         public FileFolderViewModel GetFileFolder(string path);
 
-       public ServerDrive GetDrive();
+        public ServerDrive GetDrive(string path);
 
         //public void DeleteFolder(string path);
 

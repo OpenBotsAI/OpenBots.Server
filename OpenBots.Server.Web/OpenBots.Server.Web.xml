@@ -1310,7 +1310,7 @@
             <param name="membershipManager"></param>
             <param name="userManager"></param>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Get(System.String,System.String)">
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Get(System.String,System.String,System.String,System.Int32,System.Int32)">
             <summary>
             Provides a list of all files/folders
             </summary>
@@ -1360,7 +1360,7 @@
             <response code="422">Unprocessable entity</response>
             <returns>File details</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetDrive">
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetDrive(System.String)">
             <summary>
             Provides server drive details for local storage
             </summary>
@@ -1386,16 +1386,16 @@
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.FilesController.Download(System.String)">
             <summary>
-            Export/Download a binary object
+            Export/Download a file
             </summary>
-            <param name="id">File or folder id</param>
-            <response code="200">Ok, if a file/folder exists with the given id</response>
+            <param name="id">File id</param>
+            <response code="200">Ok, if a file exists with the given id</response>
             <response code="304">Not modified</response>
-            <response code="400">Bad request, if file/folder id is not in proper format or a proper Guid</response>
+            <response code="400">Bad request, if file id is not in proper format or a proper Guid</response>
             <response code="403">Forbidden</response>
-            <response code="404">Not found, when no file/folder exists for the given binary object id</response>
+            <response code="404">Not found, when no file exists for the given id</response>
             <response code="422">Unprocessable entity</response>
-            <returns>Binary object file/folder with binary object files converted back to original file format</returns>
+            <returns>Binary object file converted back to original file format</returns>
         </member>
         <member name="T:OpenBots.Server.Web.Controllers.Queue.QueueItemAttachmentsController">
             <summary>
