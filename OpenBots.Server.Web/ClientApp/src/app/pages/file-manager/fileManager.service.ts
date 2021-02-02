@@ -38,7 +38,7 @@ export class FileManagerService {
   }
 
   getFiledownload(Id): Observable<any> {
-    let downloadurl = `/files/${Id}/download`;
+    let downloadurl = `/files/${Id}/download?driveName=Files`;
     let options = {};
     options = {
       responseType: 'blob',

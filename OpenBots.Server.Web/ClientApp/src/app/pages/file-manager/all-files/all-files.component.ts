@@ -128,25 +128,29 @@ export class AllFilesComponent implements OnInit {
   }
 
   openpopupDialog(ref: TemplateRef<any>): void {
-    // this.filesFormgroup.patchValue({ name: this.name });
     this.dialogService.openDialog(ref);
   }
-  createFolder() {
+  createFolder(ref) {
     let storagePath = '';
     this.bread.forEach((item) => (storagePath += '\\' + item.name));
     let formData = new FormData();
     formData.append('Name', this.filesCreateFolderFromgroup.value.name);
     formData.append('StoragePath', 'Files' + storagePath);
     formData.append('isFile', this.filesCreateFolderFromgroup.value.isFile);
-    // formData.append(
-    //   'FullStoragePath',
-    //   'Files' + storagePath + '\\' + this.filesCreateFolderFromgroup.value.name
-    // );
-    this.fileManagerService.Createfolder(formData).subscribe((data: any) => {
-      console.log(data);
-    });
+     this.fileManagerService.Createfolder(formData).subscribe(
+      (data: any) => {
+        console.log(data);
+        this.allFiles(5, 0);
+        ref.close();
+        
+      },
+      (error) => {
+        console.log(error)
+      }
+    
+      );
 
-    console.log('Files' + storagePath);
+   
   }
   get fc() {
     return this.filesCreateFolderFromgroup.controls;

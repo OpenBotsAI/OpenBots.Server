@@ -29,6 +29,8 @@
                             src="../../../../assets/images/upload-icon.png" />Upload</button>
                     <button class="btnIcon btnFolder" (click)="allFiles(5,0)"><img
                             src="../../../../assets/images/fresh-icon.png" />Refresh</button>
+                       
+                            
                 </div>
                 <div class="col-md-4 col-lg-4 text-center" *ngIf="showDownloadbtn">
                     <button class="btnIconBlue btn btn-primary">Delete</button>
@@ -209,7 +211,7 @@
             <nb-card-footer>
                 <!-- [disabled]="isDeleted" (click)="del_agent(ref)" -->
                 <button class="btn btn-primary" [disabled]="isSubmitted || !filesCreateFolderFromgroup.valid"
-                    (click)="createFolder()">Save</button>
+                    (click)="createFolder(ref)">Save</button>
                 <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
                     Cancel
                 </button>
