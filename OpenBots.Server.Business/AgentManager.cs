@@ -88,17 +88,17 @@ namespace OpenBots.Server.Business
             {
                 if (agent.IPAddresses != requestIp)
                 {
-                    throw new UnauthorizedOperationException("The IP address provided does not match this Agent's IP address", EntityOperationType.Update);
+                    throw new UnauthorizedOperationException("The IP address provided does not match this agent's IP address", EntityOperationType.Update);
                 }
                 if (agent.MacAddresses != request.MacAddresses)
                 {
-                    throw new UnauthorizedOperationException("The MAC address provided does not match this Agent's MAC address", EntityOperationType.Update);
+                    throw new UnauthorizedOperationException("The MAC address provided does not match this agent's MAC address", EntityOperationType.Update);
                 }
             }
 
             if (agent.MachineName != request.MachineName)
             {
-                throw new UnauthorizedOperationException("The machine name provided does not match this Agent's machine name", EntityOperationType.Update);
+                throw new UnauthorizedOperationException("The machine name provided does not match this agent's machine name", EntityOperationType.Update);
             }
 
             return agent;
