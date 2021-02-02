@@ -159,6 +159,10 @@
     <Folder Include="BinaryObjects\" />
     <Folder Include="Files\Folder1\SubFolder11\" />
     <Folder Include="Files\Folder1\SubFolder1\" />
+    <Folder Include="Files\Folder1\usman2\" />
+    <Folder Include="Files\Folder1\usman\parent\child1\" />
+    <Folder Include="Files\Folder1\usman\parent\child2\" />
+    <Folder Include="Files\Folder2\NewFolder\" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptTarget>ES2020</TypeScriptTarget>

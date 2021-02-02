@@ -1,0 +1,204 @@
+{
+	"info": {
+		"_postman_id": "29602fc7-4b6f-4fbe-9243-e68b045bffb0",
+		"name": "Audit Log Component",
+		"description": "The audit log component is able to pull a list of audit logs from the Server.  It can pull all audit logs, pull audit logs based on filtering (Service Name, Method Name, Updated By, and Timestamp), and pull individual audit log information by it's unique id.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "All Audit Logs",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/api/v1/AuditLogs",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"v1",
+						"AuditLogs"
+					]
+				},
+				"description": "Get information for all audit logs from the Server."
+			},
+			"response": []
+		},
+		{
+			"name": "Audit Log Details by Id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/api/v1/AuditLogs/5d94fc55-0c04-4193-88b5-034cd8ddf50f",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"v1",
+						"AuditLogs",
+						"5d94fc55-0c04-4193-88b5-034cd8ddf50f"
+					]
+				},
+				"description": "Retrieve all audit log details by individual audit log id"
+			},
+			"response": []
+		},
+		{
+			"name": "Export CSV",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/api/v1/auditlogs/export",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"v1",
+						"auditlogs",
+						"export"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Audit Logs Count",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/api/v1/auditlogs/count",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"v1",
+						"auditlogs",
+						"count"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Service Name List",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/api/v1/auditlogs/auditlogslookup",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"v1",
+						"auditlogs",
+						"auditlogslookup"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "925e66a1-dace-4906-8f6a-fb5e12aa0980",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "9429c630-9648-46f5-9aff-72bef0e639f9",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
