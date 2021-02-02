@@ -20,7 +20,7 @@ import {
   styleUrls: ['./all-files.component.scss'],
 })
 export class AllFilesComponent implements OnInit {
-  FolderIDs:any =[];
+  FolderIDs: any = [];
   //// file upload declartion ////
   options: UploaderOptions;
   files: UploadFile[];
@@ -94,15 +94,15 @@ export class AllFilesComponent implements OnInit {
     });
   }
   gotodetail(file) {
-    this.showDownloadbtn = true;
-    //console.log(file,file.id)
-    this.fileID = file.id;
-    //console.log(this.fileID)
-    this.name = file.name;
-    this.size = file.size;
-    this.contentType = file.contentType;
-    this.createdOn = file.createdOn;
-    this.fullStoragePath = file.fullStoragePath;
+    if (file) {
+      this.showDownloadbtn = true;
+      this.fileID = file.id;
+      this.name = file.name;
+      this.size = file.size;
+      this.contentType = file.contentType;
+      this.createdOn = file.createdOn;
+      this.fullStoragePath = file.fullStoragePath;
+    }
   }
 
   deleteFiles() {
@@ -148,7 +148,7 @@ export class AllFilesComponent implements OnInit {
       (data: any) => {
         //console.log(data);
         // this.allFiles(5, 0);
-       this.getByIdFile(this.FolderIDs);
+        this.getByIdFile(this.FolderIDs);
         ref.close();
       },
       (error) => {
@@ -189,7 +189,7 @@ export class AllFilesComponent implements OnInit {
     let storagePath = '';
     this.bread.forEach((item) => (storagePath += '/' + item.name));
     let formData = new FormData();
-       formData.append('Files', this.native_file, this.native_file_name);
+    formData.append('Files', this.native_file, this.native_file_name);
     formData.append('StoragePath', 'Files' + storagePath);
     // formData.append('isFile', this.filesCreateFolderFromgroup.value.isFile);
     this.fileManagerService.Createfolder(formData).subscribe(
@@ -234,13 +234,11 @@ export class AllFilesComponent implements OnInit {
     for (let abc in this.bread) {
       if (+abc > i) {
         this.bread.splice(+abc, this.bread.length - i);
-        this.getByIdFile(this.bread[+abc].id);
-
+        console.log('+abc', +abc);
+        this.getByIdFile(this.bread[i].id);
       }
     }
   }
-
- 
 
   onClickUp() {
     if (this.bread.length > 1) {
@@ -263,7 +261,7 @@ export class AllFilesComponent implements OnInit {
 
         this.showpage = data;
         // this.bread = [];
-        this.gotodetail(this.fileManger[0]);
+        // this.gotodetail(this.fileManger[0]);// commented just 2 api calls
         if (data.totalCount == 0) {
           this.get_perPage = false;
         } else if (data.totalCount != 0) {
@@ -276,7 +274,7 @@ export class AllFilesComponent implements OnInit {
     if (files && files.isFile == false) {
       this.floderName = files.name;
       this.bread.push(files);
-      this.FolderIDs = files.id
+      this.FolderIDs = files.id;
       this.getByIdFile(files.id);
     }
   }
