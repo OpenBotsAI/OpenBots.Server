@@ -29,8 +29,8 @@
                             src="../../../../assets/images/upload-icon.png" />Upload</button>
                     <button class="btnIcon btnFolder" (click)="allFiles(5,0)"><img
                             src="../../../../assets/images/fresh-icon.png" />Refresh</button>
-                       
-                            
+
+
                 </div>
                 <div class="col-md-4 col-lg-4 text-center" *ngIf="showDownloadbtn">
                     <button class="btnIconBlue btn btn-primary">Delete</button>
@@ -48,8 +48,8 @@
                 <li><a [routerLink]="" (click)="onClickUp()"><img src="../../../../assets/images/upload-icon.png" /></a>
                 </li>
                 <li class="lendhand"> <a [routerLink]="" (click)="allFiles(5,0)">Files</a> </li>
-                <li *ngFor="let breadcrumb of bread;">
-                    <a [routerLink]="" *ngIf="breadcrumb.name !== floderName " (click)="getFileId(breadcrumb)"><span
+                <li *ngFor="let breadcrumb of bread;index as i">
+                    <a [routerLink]="" *ngIf="breadcrumb.name !== floderName " (click)="getFileId(breadcrumb,i)"><span
                             class="bbSlach">/</span> {{ breadcrumb?.name }} </a>
                     <a *ngIf="breadcrumb.name == floderName"><span class="bbSlach">/</span>{{ breadcrumb?.name }}
                     </a>
@@ -88,8 +88,8 @@
                       currentPage: page.pageNumber,
                       totalItems: page.totalCount
                     };trackBy: trackByFn ; index as i " (click)="ClickedRow(i)" [class.active]="i == HighlightRow">
-                                <td scope="row">
-                                    <a class="lendhand" (click)="gotodetail(files)" (dblclick)="fileFolder(files,i)">
+                                <td scope="row" (click)="gotodetail(files)">
+                                    <a class="lendhand" (dblclick)="fileFolder(files,i)">
                                         <img *ngIf="files.isFile == false "
                                             src="../../../../assets/images/folder-icon.png" />
                                         <img *ngIf="files.isFile == true "

@@ -93,13 +93,15 @@ export class AllFilesComponent implements OnInit {
     });
   }
   gotodetail(file) {
-    this.showDownloadbtn = true;
-    this.fileID = file.id;
-    this.name = file.name;
-    this.size = file.size;
-    this.contentType = file.contentType;
-    this.createdOn = file.createdOn;
-    this.fullStoragePath = file.fullStoragePath;
+    if (file) {
+      this.showDownloadbtn = true;
+      this.fileID = file.id;
+      this.name = file.name;
+      this.size = file.size;
+      this.contentType = file.contentType;
+      this.createdOn = file.createdOn;
+      this.fullStoragePath = file.fullStoragePath;
+    }
   }
 
   openRenameDialog(ref: TemplateRef<any>, file): void {
@@ -137,20 +139,16 @@ export class AllFilesComponent implements OnInit {
     formData.append('Name', this.filesCreateFolderFromgroup.value.name);
     formData.append('StoragePath', 'Files' + storagePath);
     formData.append('isFile', this.filesCreateFolderFromgroup.value.isFile);
-     this.fileManagerService.Createfolder(formData).subscribe(
+    this.fileManagerService.Createfolder(formData).subscribe(
       (data: any) => {
         console.log(data);
         this.allFiles(5, 0);
         ref.close();
-        
       },
       (error) => {
-        console.log(error)
+        console.log(error);
       }
-    
-      );
-
-   
+    );
   }
   get fc() {
     return this.filesCreateFolderFromgroup.controls;
@@ -244,7 +242,7 @@ export class AllFilesComponent implements OnInit {
   }
 
   fileFolder(files) {
-    if (files.isFile == false) {
+    if (files && files.isFile == false) {
       this.floderName = files.name;
       this.bread.push(files);
       this.getByIdFile(files.id);
