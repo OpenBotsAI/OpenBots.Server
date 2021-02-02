@@ -20,6 +20,7 @@ import {
   styleUrls: ['./all-files.component.scss'],
 })
 export class AllFilesComponent implements OnInit {
+  FolderIDs:any =[];
   //// file upload declartion ////
   options: UploaderOptions;
   files: UploadFile[];
@@ -93,17 +94,24 @@ export class AllFilesComponent implements OnInit {
     });
   }
   gotodetail(file) {
-    if (file) {
-      this.showDownloadbtn = true;
-      this.fileID = file.id;
-      this.name = file.name;
-      this.size = file.size;
-      this.contentType = file.contentType;
-      this.createdOn = file.createdOn;
-      this.fullStoragePath = file.fullStoragePath;
-    }
+    this.showDownloadbtn = true;
+    //console.log(file,file.id)
+    this.fileID = file.id;
+    //console.log(this.fileID)
+    this.name = file.name;
+    this.size = file.size;
+    this.contentType = file.contentType;
+    this.createdOn = file.createdOn;
+    this.fullStoragePath = file.fullStoragePath;
   }
 
+  deleteFiles() {
+    this.fileManagerService
+      .DeleteFileFloder(this.fileID)
+      .subscribe((data: any) => {
+        this.allFiles(5, 0);
+      });
+  }
   openRenameDialog(ref: TemplateRef<any>, file): void {
     // if (file.isFile == true) {
     //   this.fileType = 'File';
@@ -129,24 +137,22 @@ export class AllFilesComponent implements OnInit {
     this.dialogService.openDialog(ref);
   }
 
-  openpopupDialog(ref: TemplateRef<any>): void {
-    this.dialogService.openDialog(ref);
-  }
   createFolder(ref) {
     let storagePath = '';
-    this.bread.forEach((item) => (storagePath += '\\' + item.name));
+    this.bread.forEach((item) => (storagePath += '/' + item.name));
     let formData = new FormData();
     formData.append('Name', this.filesCreateFolderFromgroup.value.name);
     formData.append('StoragePath', 'Files' + storagePath);
     formData.append('isFile', this.filesCreateFolderFromgroup.value.isFile);
     this.fileManagerService.Createfolder(formData).subscribe(
       (data: any) => {
-        console.log(data);
-        this.allFiles(5, 0);
+        //console.log(data);
+        // this.allFiles(5, 0);
+       this.getByIdFile(this.FolderIDs);
         ref.close();
       },
       (error) => {
-        console.log(error);
+        //console.log(error);
       }
     );
   }
@@ -155,6 +161,10 @@ export class AllFilesComponent implements OnInit {
   }
   get f() {
     return this.filesFormgroup.controls;
+  }
+
+  openUploadFileDialog(ref: TemplateRef<any>): void {
+    this.dialogService.openDialog(ref);
   }
 
   onUploadOutput(output: UploadOutput): void {
@@ -168,14 +178,31 @@ export class AllFilesComponent implements OnInit {
             this.fileSize = false;
             // this.submitted = false;
           }
-          // this.native_file = output.file.nativeFile;
-          // this.native_file_name = output.file.nativeFile.name;
+          this.native_file = output.file.nativeFile;
+          this.native_file_name = output.file.nativeFile.name;
           // this.show_upload = false;
         }
         break;
     }
   }
-
+  UploadFile(ref) {
+    let storagePath = '';
+    this.bread.forEach((item) => (storagePath += '/' + item.name));
+    let formData = new FormData();
+       formData.append('Files', this.native_file, this.native_file_name);
+    formData.append('StoragePath', 'Files' + storagePath);
+    // formData.append('isFile', this.filesCreateFolderFromgroup.value.isFile);
+    this.fileManagerService.Createfolder(formData).subscribe(
+      (data: any) => {
+        //console.log(data);
+        this.allFiles(5, 0);
+        ref.close();
+      },
+      (error) => {
+        //console.log(error);
+      }
+    );
+  }
   cancelUpload(id: string): void {
     this.uploadInput.emit({ type: 'cancel', id: id });
   }
@@ -207,9 +234,13 @@ export class AllFilesComponent implements OnInit {
     for (let abc in this.bread) {
       if (+abc > i) {
         this.bread.splice(+abc, this.bread.length - i);
+        this.getByIdFile(this.bread[+abc].id);
+
       }
     }
   }
+
+ 
 
   onClickUp() {
     if (this.bread.length > 1) {
@@ -245,6 +276,7 @@ export class AllFilesComponent implements OnInit {
     if (files && files.isFile == false) {
       this.floderName = files.name;
       this.bread.push(files);
+      this.FolderIDs = files.id
       this.getByIdFile(files.id);
     }
   }

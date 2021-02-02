@@ -25,7 +25,7 @@
                 <div class="col-md-4 col-lg-4">
                     <button class="btnIcon btnFolder" (click)="openCreateFolderDialog(createfolderdialog)"><img
                             src="../../../../assets/images/folder-icon.png" />New Folder</button>
-                    <button class="btnIcon btnUpload" (click)="openpopupDialog(uploaddialog)"><img
+                    <button class="btnIcon btnUpload" (click)="openUploadFileDialog(uploaddialog)"><img
                             src="../../../../assets/images/upload-icon.png" />Upload</button>
                     <button class="btnIcon btnFolder" (click)="allFiles(5,0)"><img
                             src="../../../../assets/images/fresh-icon.png" />Refresh</button>
@@ -33,7 +33,7 @@
 
                 </div>
                 <div class="col-md-4 col-lg-4 text-center" *ngIf="showDownloadbtn">
-                    <button class="btnIconBlue btn btn-primary">Delete</button>
+                    <button class="btnIconBlue btn btn-primary" (click)="deleteFiles()">Delete</button>
                     <button class="btnIconBlue btn btn-primary" (click)="openRenameDialog(dialog)">Rename</button>
                     <button class="btnIconBlue btn btn-primary">Move</button>
                 </div>
@@ -282,7 +282,11 @@
                     <span class="or-file">OR</span>
                 </div>
                 <label class="upload-button">
-                    <input type="file" class="btn-files custom-file-input"><span>Browse</span>
+                   
+                    <input type="file" class="btn-files custom-file-input" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
+                        [uploadInput]="uploadInput" multiple>
+                    
+                    <span>Browse</span>
                 </label>
             </div>
 
@@ -298,7 +302,7 @@
         </nb-card-body>
         <nb-card-footer>
             <!-- [disabled]="isDeleted" (click)="del_agent(ref)" -->
-            <button class="btn btn-primary btnNoMargn" [disabled]="isSubmitted">Upload</button>
+            <button class="btn btn-primary btnNoMargn"  (click)="UploadFile(ref)">Upload</button>
             <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
                 Cancel
             </button>
