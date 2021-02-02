@@ -58,14 +58,21 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
-        public PaginatedList<PersonEmail> Get(
+        public async Task<IActionResult> Get(
             [FromRoute] string personId,
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0)
         {
-            return base.GetMany(personId);
+            try
+            {
+                return Ok(base.GetMany(personId));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -87,7 +94,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Get(string id)
         {
-            return await base.GetEntity(id);
+            try
+            {
+                return await base.GetEntity(id);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -110,8 +124,15 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Post(string personId, [FromBody] PersonEmail value)
         {
-            value.PersonId = new Guid(personId);
-            return await base.PostEntity(value);
+            try
+            {
+                value.PersonId = new Guid(personId);
+                return await base.PostEntity(value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -135,8 +156,15 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Put(string personId, string id, [FromBody] PersonEmail value)
         {
-            value.PersonId = new Guid(personId);
-            return await base.PutEntity(id, value);
+            try
+            {
+                value.PersonId = new Guid(personId);
+                return await base.PutEntity(id, value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -154,7 +182,15 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Delete(string id)
         {
-            return await base.DeleteEntity(id);
+            try
+            {
+                return await base.DeleteEntity(id);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
 
         /// <summary>
@@ -175,7 +211,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id, [FromBody]JsonPatchDocument<PersonEmail> value)
         {
-            return await base.PatchEntity(id, value);
+            try
+            {
+                return await base.PatchEntity(id, value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

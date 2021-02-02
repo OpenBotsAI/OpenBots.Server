@@ -104,14 +104,21 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<Job> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -135,18 +142,25 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AllJobsViewModel> View(
+        public async Task<IActionResult> View(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            ODataHelper<AllJobsViewModel> oDataHelper = new ODataHelper<AllJobsViewModel>();
+            try
+            {
+                ODataHelper<AllJobsViewModel> oDataHelper = new ODataHelper<AllJobsViewModel>();
 
-            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
+                var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            return jobManager.GetJobAgentsandAutomations(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
+                return Ok(jobManager.GetJobAgentsandAutomations(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -167,10 +181,17 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public int? Count(
+        public async Task<IActionResult> Count(
             [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                return Ok(base.Count());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -191,20 +212,27 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public Dictionary<string, int> CountByStatus(
+        public async Task<IActionResult> CountByStatus(
             [FromQuery(Name = "$filter")] string filter = "")
         {
-            var result =  base.GetMany();
-            var grouping = result.Items.GroupBy(job => job.JobStatus);
-            Dictionary<string, int> count = new Dictionary<string, int>();
-
-            count["Total Jobs"] = result.Items.Count();
-
-            foreach (var status in grouping)
+            try
             {
-                count[status.Key.ToString()] = status.Count();
+                var result = base.GetMany();
+                var grouping = result.Items.GroupBy(job => job.JobStatus);
+                Dictionary<string, int> count = new Dictionary<string, int>();
+
+                count["Total Jobs"] = result.Items.Count();
+
+                foreach (var status in grouping)
+                {
+                    count[status.Key.ToString()] = status.Count();
+                }
+                return Ok(count);
             }
-            return count;
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -224,9 +252,16 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public JobsLookupViewModel GetJobAgentsLookup()
+        public async Task<IActionResult> GetJobAgentsLookup()
         {
-            return jobManager.GetJobAgentsLookup();
+            try
+            {
+                return Ok(jobManager.GetJobAgentsLookup());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -578,8 +613,7 @@ namespace OpenBots.Server.Web
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Job", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -663,8 +697,7 @@ namespace OpenBots.Server.Web
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Job", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -849,20 +882,27 @@ namespace OpenBots.Server.Web
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            Job job = repository.GetOne(new Guid(jobId));
-            if (job == null)
+            try
             {
-                return NotFound("The Job ID provided does not match any existing Jobs");
+                Job job = repository.GetOne(new Guid(jobId));
+                if (job == null)
+                {
+                    return NotFound("The Job ID provided does not match any existing Jobs");
+                }
+
+                ODataHelper<JobCheckpoint> oDataHelper = new ODataHelper<JobCheckpoint>();
+
+                Guid parentguid = Guid.Empty;
+
+                var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
+
+                return Ok(jobCheckpointRepo.Find(parentguid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip,
+                    oData.Top).Items.Where(c => c.JobId == new Guid(jobId)));
             }
-
-            ODataHelper<JobCheckpoint> oDataHelper = new ODataHelper<JobCheckpoint>();
-
-            Guid parentguid = Guid.Empty;
-
-            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
-
-            return Ok(jobCheckpointRepo.Find(parentguid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip,
-                oData.Top).Items.Where(c=> c.JobId == new Guid(jobId)));
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

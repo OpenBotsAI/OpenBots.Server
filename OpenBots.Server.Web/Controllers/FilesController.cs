@@ -98,8 +98,7 @@ namespace OpenBots.Server.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Get files / folders", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -131,8 +130,7 @@ namespace OpenBots.Server.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("File Count", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -164,8 +162,7 @@ namespace OpenBots.Server.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Folder Count", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -203,11 +200,6 @@ namespace OpenBots.Server.Web.Controllers
                 list.TotalCount = 1;
 
                 return Ok(list);
-            }
-            catch (EntityDoesNotExistException ex)
-            {
-                ModelState.AddModelError("Get File or Folder", ex.Message);
-                return NotFound(ModelState);
             }
             catch (Exception ex)
             {

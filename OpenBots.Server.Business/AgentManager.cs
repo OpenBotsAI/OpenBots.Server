@@ -1,5 +1,7 @@
-﻿using OpenBots.Server.DataAccess.Repositories;
+﻿using OpenBots.Server.DataAccess.Exceptions;
+using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
+using OpenBots.Server.Model.Core;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.ViewModel.AgentViewModels;
 using System;
@@ -86,17 +88,17 @@ namespace OpenBots.Server.Business
             {
                 if (agent.IPAddresses != requestIp)
                 {
-                    throw new UnauthorizedAccessException("The IP address provided does not match this Agent's IP address");
+                    throw new UnauthorizedOperationException("The IP address provided does not match this Agent's IP address", EntityOperationType.Update);
                 }
                 if (agent.MacAddresses != request.MacAddresses)
                 {
-                    throw new UnauthorizedAccessException("The MAC address provided does not match this Agent's MAC address");
+                    throw new UnauthorizedOperationException("The MAC address provided does not match this Agent's MAC address", EntityOperationType.Update);
                 }
             }
 
             if (agent.MachineName != request.MachineName)
             {
-                throw new UnauthorizedAccessException("The machine name provided does not match this Agent's machine name");
+                throw new UnauthorizedOperationException("The machine name provided does not match this Agent's machine name", EntityOperationType.Update);
             }
 
             return agent;

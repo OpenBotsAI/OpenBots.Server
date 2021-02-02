@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Identity;
@@ -56,13 +57,20 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
-        public PaginatedList<Person> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0)
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -84,7 +92,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Get(string id)
         {
-            return await base.GetEntity(id);
+            try
+            {
+                return Ok(await base.GetEntity(id));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -106,7 +121,15 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Post([FromBody] Person value)
         {
-            return await base.PostEntity(value);
+            try
+            {
+                return await base.PostEntity(value);
+
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -129,21 +152,28 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Put(string id, [FromBody] Person value)
         {
-            //use logged in user context
-            if (applicationUser == null)
+            try
             {
-                return Unauthorized();
+                //use logged in user context
+                if (applicationUser == null)
+                {
+                    return Unauthorized();
+                }
+
+                var existingPerson = repository.GetOne(applicationUser.PersonId);
+                if (existingPerson == null) return NotFound();
+
+                existingPerson.Name = value.Name;
+
+                applicationUser.Name = value.Name;
+                await userManager.UpdateAsync(applicationUser).ConfigureAwait(false);
+
+                return await base.PutEntity(id, existingPerson).ConfigureAwait(false);
             }
-
-            var existingPerson = repository.GetOne(applicationUser.PersonId);
-            if (existingPerson == null) return NotFound();
-            
-            existingPerson.Name = value.Name;
-
-            applicationUser.Name = value.Name;
-            await userManager.UpdateAsync(applicationUser).ConfigureAwait(false);           
-
-            return await base.PutEntity(id, existingPerson).ConfigureAwait(false);
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }   
 
         /// <summary>
@@ -161,7 +191,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Delete(string id)
         {
-            return await base.DeleteEntity(id);
+            try
+            {
+                return await base.DeleteEntity(id);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -182,7 +219,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id, [FromBody]JsonPatchDocument<Person> value)
         {
-            return await base.PatchEntity(id, value);
+            try
+            {
+                return await base.PatchEntity(id, value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

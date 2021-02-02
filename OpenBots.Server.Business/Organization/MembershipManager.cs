@@ -430,7 +430,7 @@ namespace OpenBots.Server.Business
             }
             else
             {
-                throw new UnauthorizedAccessException("User is not an Administrator of this Organization");
+                throw new UnauthorizedOperationException("User is not an Administrator of this Organization", EntityOperationType.Update);
             }
 
         }
@@ -538,7 +538,7 @@ namespace OpenBots.Server.Business
 
             if (!currentOrgMember.IsAdministrator ?? false || currentOrgMember.OrganizationId != Guid.Parse(organizationId))
             {
-                throw new UnauthorizedAccessException();
+                throw new UnauthorizedOperationException("Only Admins of this organization can update existing users", EntityOperationType.Update);
             }
 
             var userToUpdate = _aspNetUsersRepository.Find(null, u => u.PersonId == Guid.Parse(personId)).Items?.FirstOrDefault();

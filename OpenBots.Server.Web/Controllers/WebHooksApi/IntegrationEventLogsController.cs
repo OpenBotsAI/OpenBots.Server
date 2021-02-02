@@ -66,14 +66,21 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<IntegrationEventLog> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -101,7 +108,6 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             try
             {
                 return await base.GetEntity(id);
-
             }
             catch (Exception ex)
             {
@@ -181,11 +187,9 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
                 var jsonFile = File(new System.Text.UTF8Encoding().GetBytes(eventLog.PayloadJSON), "text/json", "Payload.JSON");
 
                 return jsonFile;
-
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Export", ex.Message);
                 return ex.GetActionResult();
             }
         }

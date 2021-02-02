@@ -75,10 +75,17 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<BinaryObjectViewModel> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.GetMany<BinaryObjectViewModel>();
+            try
+            {
+                return Ok(base.GetMany<BinaryObjectViewModel>());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -98,10 +105,17 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<int?> GetCount(
+        public async Task<IActionResult> GetCount(
         [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                return Ok(base.Count());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -234,8 +248,7 @@ namespace OpenBots.Server.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("BinaryObject", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -334,8 +347,7 @@ namespace OpenBots.Server.Web.Controllers
             }
             catch (Exception ex)     
             {
-                ModelState.AddModelError("BinaryObject", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }  
         }
 
@@ -438,17 +450,29 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string id)
         {
-            Guid entityId = Guid.Parse(id);
-            var existingBinaryObject = repository.GetOne(entityId);
-            if (existingBinaryObject == null) return NotFound();
-            await webhookPublisher.PublishAsync("Files.FileDeleted", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
+            try
+            {
+                Guid entityId = Guid.Parse(id);
+                var existingBinaryObject = repository.GetOne(entityId);
+                if (existingBinaryObject == null) return NotFound();
+                await webhookPublisher.PublishAsync("Files.FileDeleted", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
 
-            if (string.IsNullOrEmpty(existingBinaryObject.CorrelationEntity) || existingBinaryObject.CorrelationEntity == "BinaryObjectAPI")
-                    return await base.DeleteEntity(id);
+                if (string.IsNullOrEmpty(existingBinaryObject.CorrelationEntity) || existingBinaryObject.CorrelationEntity == "BinaryObjectAPI")
+                {
+                    return Ok(base.DeleteEntity(id));
+                }
+                else
+                {
+                    Exception ex = new Exception();
+                    ModelState.AddModelError("BinaryObject", ex.Message);
+                    return BadRequest(ModelState);
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
 
-                Exception ex = new Exception();
-                ModelState.AddModelError("BinaryObject", ex.Message);
-                return BadRequest(ModelState);
         }
 
         /// <summary>
@@ -470,12 +494,19 @@ namespace OpenBots.Server.Web.Controllers
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<BinaryObject> request)
         {
-            Guid entityId = Guid.Parse(id);
-            var existingBinaryObject = repository.GetOne(entityId);
-            if (existingBinaryObject == null) return NotFound();
+            try
+            {
+                Guid entityId = Guid.Parse(id);
+                var existingBinaryObject = repository.GetOne(entityId);
+                if (existingBinaryObject == null) return NotFound();
 
-            await webhookPublisher.PublishAsync("Files.FileUpdated", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
-            return await base.PatchEntity(id, request);
+                await webhookPublisher.PublishAsync("Files.FileUpdated", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
+                return await base.PatchEntity(id, request);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }
