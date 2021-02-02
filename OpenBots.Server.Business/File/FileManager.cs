@@ -125,6 +125,20 @@ namespace OpenBots.Server.Business.File
             return response;
         }
 
+        public void DeleteFileFolder(string id, string driveName = null)
+        {
+            string adapter = Configuration["Files:Adapter"];
+            if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
+                localFileStorageAdapter.DeleteFileFolder(id, driveName);
+            //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
+            //    azureBlobStorageAdapter.SaveFile(request);
+            //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
+            //    amazonEC2StorageAdapter.SaveFile(request);
+            //else if (adapter.Equals("GoogleBlobStorageAdapter") && storageProvider.Equals("FileSystem.Google"))
+            //    googleBlobStorageAdapter.SaveFile(request);
+            else throw new EntityOperationException("Configuration is not set up for local file storage");
+        }
+
         public enum AdapterType
         {
             LocalFileStorageAdapter,

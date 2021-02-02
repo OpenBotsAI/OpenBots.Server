@@ -1406,6 +1406,17 @@
             <response code="422">Unprocessable entity</response>
             <returns>Binary object file converted back to original file format</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Delete(System.String,System.String)">
+            <summary>
+            Deletes a file or empty folder with a specified id from the database
+            </summary>
+            <param name="id">File or empty folder id to be deleted - throws bad request if null or empty Guid</param>
+            <param name="driveName"></param>
+            <response code="200">Ok, when file or empty folder is soft deleted, (isDeleted flag is set to true in database)</response>
+            <response code="400">Bad request, if binary object id is null or empty Guid</response>
+            <response code="403">Forbidden</response>
+            <returns>Ok response</returns>
+        </member>
         <member name="T:OpenBots.Server.Web.Controllers.Queue.QueueItemAttachmentsController">
             <summary>
             Controller for queue item attachments

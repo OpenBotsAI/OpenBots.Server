@@ -234,11 +234,6 @@ namespace OpenBots.Server.Web.Controllers
                 var drive = manager.GetDrive(driveName);
                 return Ok(drive);
             }
-            catch (EntityDoesNotExistException ex)
-            {
-                ModelState.AddModelError("Get Drive", ex.Message);
-                return NotFound(ModelState);
-            }
             catch (Exception ex)
             {
                 return ex.GetActionResult();
@@ -271,16 +266,6 @@ namespace OpenBots.Server.Web.Controllers
                     request.IsFile = true;
                 var response = manager.AddFileFolder(request, driveName);
                 return Ok(response);
-            }
-            catch (EntityAlreadyExistsException ex)
-            {
-                ModelState.AddModelError("Get File or Folder", ex.Message);
-                return UnprocessableEntity(ModelState);
-            }
-            catch (EntityOperationException ex)
-            {
-                ModelState.AddModelError("Add File or Folder", ex.Message);
-                return BadRequest(ModelState);
             }
             catch (Exception ex)
             {
@@ -316,15 +301,33 @@ namespace OpenBots.Server.Web.Controllers
                 var response = manager.ExportFileFolder(id, driveName);
                 return File(response?.Result?.Content, response?.Result?.ContentType, response?.Result?.Name);
             }
-            catch (EntityDoesNotExistException ex)
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Export File", ex.Message);
-                return NotFound(ModelState);
+                return ex.GetActionResult();
             }
-            catch (EntityOperationException ex)
+        }
+
+        /// <summary>
+        /// Deletes a file or empty folder with a specified id from the database
+        /// </summary>
+        /// <param name="id">File or empty folder id to be deleted - throws bad request if null or empty Guid</param>
+        /// <param name="driveName"></param>
+        /// <response code="200">Ok, when file or empty folder is soft deleted, (isDeleted flag is set to true in database)</response>
+        /// <response code="400">Bad request, if binary object id is null or empty Guid</response>
+        /// <response code="403">Forbidden</response>
+        /// <returns>Ok response</returns>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> Delete(string id, string driveName = null)
+        {
+            try
             {
-                ModelState.AddModelError("Export File", ex.Message);
-                return BadRequest(ModelState);
+                manager.DeleteFileFolder(id, driveName);
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -332,13 +335,12 @@ namespace OpenBots.Server.Web.Controllers
             }
         }
 
-        //TODO: update size of folder and all parent folders when file/folder is added, updated, or deleted
+        //TODO: update size of folder and all parent folders when file/folder is updated
         //TODO additional api calls:
-            //update file/folder details in server drive (rename, move, copy)
-            //add additional server drive?
-            //update server drive details?
-            //delete server drive?
-            //delete file/folder in server drive
-            //get file attributes for a file
+        //update file/folder details in server drive (rename, move, copy)
+        //add additional server drive?
+        //update server drive details?
+        //delete server drive?
+        //get file attributes for a file
     }
 }
