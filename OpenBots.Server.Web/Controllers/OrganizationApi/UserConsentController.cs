@@ -218,7 +218,7 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
             {
                 if (value == null && string.IsNullOrEmpty(id))
                 {
-                    ModelState.AddModelError("Update", "user consent details not passed");
+                    ModelState.AddModelError("Update", "User consent details not passed");
                     return BadRequest(ModelState);
                 }
                 Guid entityId = new Guid(id);

@@ -270,7 +270,7 @@ namespace OpenBots.Server.Web.Controllers.Core
             }
             catch (Exception ex)
             {
-                return await base.DeleteEntity(id);
+                return ex.GetActionResult();
             }
         }
     }

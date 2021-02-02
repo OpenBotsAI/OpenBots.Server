@@ -220,7 +220,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Approves the specified acess request by an organization administrator.
+        /// Approves the specified access request by an organization administrator
         /// </summary>
         /// <param name="organizationId">Organization identifier</param>
         /// <param name="id">Access request identifier</param>
@@ -239,7 +239,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         {
             if ( string.IsNullOrEmpty(id) || string.IsNullOrEmpty(organizationId))
             {
-                ModelState.AddModelError("Approve", "Access or Organization Id not passed");
+                ModelState.AddModelError("Approve", "Access or organization Id not passed");
                 return BadRequest(ModelState);
             }
             Guid entityId = new Guid(id);

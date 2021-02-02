@@ -553,20 +553,20 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         [Route("ChangePassword")]
         public async Task<IActionResult> ChangePassword(ChangePasswordBindingModel model)
         {
+            if (applicationUser == null)
+                return Unauthorized();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!IsPasswordValid(model.NewPassword))
+            {
+                ModelState.AddModelError("Password", PasswordRequirementMessage(model.NewPassword));
+                return BadRequest(ModelState);
+            }
+
             try
             {
-                if (applicationUser == null)
-                    return Unauthorized();
-
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
-
-                if (!IsPasswordValid(model.NewPassword))
-                {
-                    ModelState.AddModelError("Password", PasswordRequirementMessage(model.NewPassword));
-                    return BadRequest(ModelState);
-                }
-
                 applicationUser.ForcedPasswordChange = false;
                 IdentityResult result = await userManager.ChangePasswordAsync(applicationUser, model.OldPassword, model.NewPassword).ConfigureAwait(false);
 
