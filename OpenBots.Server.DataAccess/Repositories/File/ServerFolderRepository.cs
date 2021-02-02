@@ -52,7 +52,7 @@ namespace OpenBots.Server.DataAccess.Repositories.File
                                  join b in dbContext.ServerFolders on a.ParentFolderId equals b.Id into table1
                                  from b in table1.DefaultIfEmpty()
                                  join c in dbContext.ServerFolders on a.Id equals c.ParentFolderId into table2
-                                 from c in table2.DefaultIfEmpty()
+                                 from c in table1.DefaultIfEmpty()
                                  join d in dbContext.ServerDrives on a.StorageDriveId equals d.Id into table3
                                  from d in table3.DefaultIfEmpty()
                                  select new FileFolderViewModel
@@ -63,7 +63,7 @@ namespace OpenBots.Server.DataAccess.Repositories.File
                                      CreatedBy = a?.CreatedBy,
                                      CreatedOn = a?.CreatedOn,
                                      FullStoragePath = a?.StoragePath,
-                                     HasChild =  c?.ParentFolderId != null ? true : false,
+                                     HasChild = c?.ParentFolderId != null ? true : false,
                                      IsFile = false,
                                      ParentId = a?.ParentFolderId,
                                      StoragePath = b?.StoragePath != null ? b?.StoragePath : d?.Name,
