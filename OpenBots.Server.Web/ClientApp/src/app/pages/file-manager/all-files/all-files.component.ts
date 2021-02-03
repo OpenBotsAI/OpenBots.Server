@@ -64,7 +64,7 @@ export class AllFilesComponent implements OnInit {
   filterOrderBy: string;
 
   constructor(
-    // protected fileManagerService: FileManagerService,
+    protected fileManagerService: FileManagerService,
     private _FileSaverService: FileSaverService,
     private toastrService: NbToastrService,
     private formBuilder: FormBuilder,
@@ -86,16 +86,13 @@ export class AllFilesComponent implements OnInit {
 
   gotodetail(file) {
     if (file) {
-       this.showDownloadbtn = true;
+      this.showDownloadbtn = true;
       if (file.isFile == true) {
         this.Downloadbtn = true;
-       
-      }
-      else if (file.isFile == false ){
+      } else if (file.isFile == false) {
         this.Downloadbtn = false;
-       
       }
-       this.fileID = file.id;
+      this.fileID = file.id;
       this.name = file.name;
       this.size = file.size;
       this.contentType = file.contentType;
@@ -244,11 +241,11 @@ export class AllFilesComponent implements OnInit {
 
   onDown() {
     let fileName: string;
-    // this.fileManagerService
-    //   .getFiledownload(this.fileID)
-    let downloadurl = `/files/${this.fileID}/download?driveName=Files`;
-    this.httpService
-      .get(`/files/${this.fileID}/download?driveName=Files`)
+    this.fileManagerService
+      .getFiledownload(this.fileID)
+          // let downloadurl = `/files/${this.fileID}/download?driveName=Files`;
+          // this.httpService
+          //   .get(`/files/${this.fileID}/download?driveName=Files`)
       .subscribe((data: HttpResponse<Blob>) => {
         fileName = data.headers
           .get('content-disposition')
@@ -311,7 +308,6 @@ export class AllFilesComponent implements OnInit {
       this.FolderIDs = files.id;
       this.getByIdFile(files.id);
     }
-   
   }
   onSortClick(event, param: string): void {
     let target = event.currentTarget,
@@ -378,6 +374,7 @@ export class AllFilesComponent implements OnInit {
     if (!item) return null;
     return index;
   }
+}
 
   // allFiles(top, skip) {
   //   this.get_perPage = false;
@@ -481,4 +478,3 @@ export class AllFilesComponent implements OnInit {
   //       });
   //   }
   // }
-}
