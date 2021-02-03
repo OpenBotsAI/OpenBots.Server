@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
@@ -161,6 +162,24 @@ namespace OpenBots.Server.Business
             }
 
             return sum / sameAutomationJobs.Count; 
+        }
+
+        public void DeleteJobChildTables(Guid jobId)
+        {
+            var existingJob = repo.GetOne(jobId);
+
+            if (existingJob == null)
+            {
+                throw new EntityDoesNotExistException("Job cannot be found or does not exist.");
+            }
+
+            if (existingJob.JobStatus == JobStatusType.InProgress)
+            {
+                throw new UnauthorizedOperationException("In-Progress jobs cannot be deleted. Please wait for the job to be completed ", EntityOperationType.Delete);
+            }
+
+            DeleteExistingParameters(jobId);
+            DeleteExistingCheckpoints(jobId);
         }
     }
 }

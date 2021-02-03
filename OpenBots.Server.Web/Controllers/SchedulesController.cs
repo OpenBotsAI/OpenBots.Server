@@ -90,17 +90,23 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AllSchedulesViewModel> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0)
         {
-            ODataHelper<AllSchedulesViewModel> oDataHelper = new ODataHelper<AllSchedulesViewModel>();
+            try
+            {
+                ODataHelper<AllSchedulesViewModel> oDataHelper = new ODataHelper<AllSchedulesViewModel>();
+                var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
-
-            return manager.GetScheduleAgentsandAutomations(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
+                return Ok(manager.GetScheduleAgentsandAutomations(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -120,10 +126,17 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<int?> GetCount(
+        public async Task<IActionResult> GetCount(
         [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                return Ok(base.Count());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -385,8 +398,7 @@ namespace OpenBots.Server.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Schedule", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -421,8 +433,7 @@ namespace OpenBots.Server.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Schedule", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -444,7 +455,14 @@ namespace OpenBots.Server.Web.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id, [FromBody] JsonPatchDocument<Schedule> request)
         {
-            return await base.PatchEntity(id, request);
+            try
+            {
+                return await base.PatchEntity(id, request);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -495,8 +513,7 @@ namespace OpenBots.Server.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("RunNow", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
     }

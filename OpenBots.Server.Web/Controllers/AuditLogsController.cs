@@ -73,14 +73,21 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AuditLogViewModel> Get(
+        public async Task<IActionResult> Get(
         [FromQuery(Name = "$filter")] string filter = "",
         [FromQuery(Name = "$orderby")] string orderBy = "",
         [FromQuery(Name = "$top")] int top = 100,
         [FromQuery(Name = "$skip")] int skip = 0
         )
         {
-            return base.GetMany<AuditLogViewModel>();
+            try
+            {
+                return Ok(base.GetMany<AuditLogViewModel>());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -104,18 +111,25 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AuditLogViewModel> GetView(
+        public async Task<IActionResult> GetView(
         [FromQuery(Name = "$filter")] string filter = "",
         [FromQuery(Name = "$orderby")] string orderBy = "",
         [FromQuery(Name = "$top")] int top = 100,
         [FromQuery(Name = "$skip")] int skip = 0
         )
         {
-            ODataHelper<AuditLogViewModel> oDataHelper = new ODataHelper<AuditLogViewModel>();
+            try
+            {
+                ODataHelper<AuditLogViewModel> oDataHelper = new ODataHelper<AuditLogViewModel>();
 
-            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
+                var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            return manager.GetAuditLogsView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
+                return Ok(manager.GetAuditLogsView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -135,10 +149,17 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<int?> GetCount(
+        public async Task<IActionResult> GetCount(
         [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                return Ok(base.Count());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -233,24 +254,31 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public AuditLogsLookupViewModel AllAuditLogs()
+        public async Task<IActionResult> AllAuditLogs()
         {
-            var response = repository.Find(null, x => x.IsDeleted == false);
-            AuditLogsLookupViewModel auditLogsList = new AuditLogsLookupViewModel();
-
-            if (response != null)
+            try
             {
-                auditLogsList.ServiceNameList = new List<string>();       
-                foreach (AuditLog item in response.Items)
-                {
-                    string serviceName = item.ServiceName;
-                    string name = repository.GetServiceName(item);
+                var response = repository.Find(null, x => x.IsDeleted == false);
+                AuditLogsLookupViewModel auditLogsList = new AuditLogsLookupViewModel();
 
-                    if (!auditLogsList.ServiceNameList.Contains(name))
-                        auditLogsList.ServiceNameList.Add(name);
+                if (response != null)
+                {
+                    auditLogsList.ServiceNameList = new List<string>();
+                    foreach (AuditLog item in response.Items)
+                    {
+                        string serviceName = item.ServiceName;
+                        string name = repository.GetServiceName(item);
+
+                        if (!auditLogsList.ServiceNameList.Contains(name))
+                            auditLogsList.ServiceNameList.Add(name);
+                    }
                 }
+                return Ok(auditLogsList);
             }
-            return auditLogsList;
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -274,7 +302,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<object> Export(
+        public async Task<IActionResult> Export(
         [FromQuery(Name = "$filter")] string filter = "",
         [FromQuery(Name = "$orderby")] string orderBy = "",
         [FromQuery(Name = "$top")] int top = 0,
@@ -312,13 +340,12 @@ namespace OpenBots.Server.Web.Controllers
                         return zipFile;
 
                     case "json":
-                        return auditLogsJson;
+                        return Ok(auditLogsJson);
                 }
                 return csvFile;
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Export", ex.Message);
                 return ex.GetActionResult();
             }
         }

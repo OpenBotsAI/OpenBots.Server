@@ -90,14 +90,21 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<Automation> Get(
+        public async Task<IActionResult> Get(
         [FromQuery(Name = "$filter")] string filter = "",
         [FromQuery(Name = "$orderby")] string orderBy = "",
         [FromQuery(Name = "$top")] int top = 100,
         [FromQuery(Name = "$skip")] int skip = 0
         )
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -121,18 +128,24 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AllAutomationsViewModel> View(
+        public async Task<IActionResult> View(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            ODataHelper<AllAutomationsViewModel> oDataHelper = new ODataHelper<AllAutomationsViewModel>();
+            try
+            {
+                ODataHelper<AllAutomationsViewModel> oDataHelper = new ODataHelper<AllAutomationsViewModel>();
+                var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
-
-            return manager.GetAutomationsAndAutomationVersions(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
+                return Ok(manager.GetAutomationsAndAutomationVersions(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -152,10 +165,17 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<int?> GetCount(
+        public async Task<IActionResult> GetCount(
         [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                return Ok(base.Count());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -336,8 +356,7 @@ namespace OpenBots.Server.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -484,8 +503,7 @@ namespace OpenBots.Server.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Automation", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -616,20 +634,27 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public List<JobAutomationLookup> GetLookup()
+        public async Task<IActionResult> GetLookup()
         {
-            var automationList = repository.Find(null, x => x.IsDeleted == false);
-            var automationLookup = from p in automationList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
-                                join v in dbContext.AutomationVersions on p.Id equals v.AutomationId into table1
-                                from v in table1.DefaultIfEmpty()
-                                select new JobAutomationLookup
-                                {
-                                    AutomationId = (p == null || p.Id == null) ? Guid.Empty : p.Id.Value,
-                                    AutomationName = p?.Name,
-                                    AutomationNameWithVersion = string.Format("{0} (v{1})", p?.Name.Trim(), v?.VersionNumber) 
-                                };
+            try
+            {
+                var automationList = repository.Find(null, x => x.IsDeleted == false);
+                var automationLookup = from p in automationList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
+                                       join v in dbContext.AutomationVersions on p.Id equals v.AutomationId into table1
+                                       from v in table1.DefaultIfEmpty()
+                                       select new JobAutomationLookup
+                                       {
+                                           AutomationId = (p == null || p.Id == null) ? Guid.Empty : p.Id.Value,
+                                           AutomationName = p?.Name,
+                                           AutomationNameWithVersion = string.Format("{0} (v{1})", p?.Name.Trim(), v?.VersionNumber)
+                                       };
 
-            return automationLookup.ToList();
+                return Ok(automationLookup.ToList());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

@@ -67,14 +67,21 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<EmailAccountViewModel> Get(
+        public async Task<IActionResult> Get(
         [FromQuery(Name = "$filter")] string filter = "",
         [FromQuery(Name = "$orderby")] string orderBy = "",
         [FromQuery(Name = "$top")] int top = 100,
         [FromQuery(Name = "$skip")] int skip = 0
         )
         {
-            return base.GetMany<EmailAccountViewModel>();
+            try
+            {
+                return Ok(base.GetMany<EmailAccountViewModel>());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -94,10 +101,17 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<int?> GetCount(
+        public async Task<IActionResult> GetCount(
         [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                return Ok(base.Count());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -238,8 +252,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Email Account", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -300,17 +313,24 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public List<EmailAccountLookup> GetLookup()
+        public async Task<IActionResult> GetLookup()
         {
-            var accountList = repository.Find(null, x => x.IsDeleted == false);
-            var accountLookup = from a in accountList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
-                                   select new EmailAccountLookup
-                                   {
-                                       EmailAccountId = (a == null || a.Id == null) ? Guid.Empty : a.Id.Value,
-                                       EmailAccountName = a?.Name
-                                   };
+            try
+            {
+                var accountList = repository.Find(null, x => x.IsDeleted == false);
+                var accountLookup = from a in accountList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
+                                    select new EmailAccountLookup
+                                    {
+                                        EmailAccountId = (a == null || a.Id == null) ? Guid.Empty : a.Id.Value,
+                                        EmailAccountName = a?.Name
+                                    };
 
-            return accountLookup.ToList();
+                return Ok(accountLookup.ToList());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

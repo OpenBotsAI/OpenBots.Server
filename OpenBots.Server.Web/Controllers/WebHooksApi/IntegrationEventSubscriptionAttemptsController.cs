@@ -68,13 +68,20 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<IntegrationEventSubscriptionAttempt> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0)
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -98,17 +105,23 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<SubscriptionAttemptViewModel> View(
+        public async Task<IActionResult> View(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0)
         {
-            ODataHelper<SubscriptionAttemptViewModel> oDataHelper = new ODataHelper<SubscriptionAttemptViewModel>();
+            try
+            {
+                ODataHelper<SubscriptionAttemptViewModel> oDataHelper = new ODataHelper<SubscriptionAttemptViewModel>();
+                var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
-
-            return repository.FindAllView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
+                return Ok(repository.FindAllView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
