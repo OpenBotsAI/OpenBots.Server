@@ -21,6 +21,7 @@ import {
 })
 export class AllFilesComponent implements OnInit {
   FolderIDs: any = [];
+  ChildFolderFlag :boolean;
   //// file upload declartion ////
   options: UploaderOptions;
   files: UploadFile[];
@@ -113,14 +114,10 @@ export class AllFilesComponent implements OnInit {
       });
   }
   openRenameDialog(ref: TemplateRef<any>, file): void {
-    // if (file.isFile == true) {
-    //   this.fileType = 'File';
-    // } else {
-    //   this.fileType = 'Folder';
-    // }
+    
 
     this.filesFormgroup = this.formBuilder.group({
-      // , [Validators.pattern('/^[w.-]+$/')]
+     
       name: [''],
     });
     this.filesFormgroup.patchValue({ name: this.name });
@@ -133,7 +130,6 @@ export class AllFilesComponent implements OnInit {
       StoragePath: [''],
       isFile: [false],
     });
-    // this.filesFormgroup.patchValue({ name: this.name });
     this.dialogService.openDialog(ref);
   }
 
@@ -146,13 +142,17 @@ export class AllFilesComponent implements OnInit {
     formData.append('isFile', this.filesCreateFolderFromgroup.value.isFile);
     this.fileManagerService.Createfolder(formData).subscribe(
       (data: any) => {
-        //console.log(data);
-        // this.allFiles(5, 0);
-        this.getByIdFile(this.FolderIDs);
+         if (this.ChildFolderFlag == true){
+               this.getByIdFile(this.FolderIDs);
+         }
+         else if (this.ChildFolderFlag == false) {
+           this.allFiles(5, 0);
+         }
+           // var n = email.match("/shareprocessemail");
+           //console.log(data);
+           // this.allFiles(5, 0);
+          //  this.getByIdFile(this.FolderIDs);
         ref.close();
-      },
-      (error) => {
-        //console.log(error);
       }
     );
   }
@@ -195,7 +195,12 @@ export class AllFilesComponent implements OnInit {
     this.fileManagerService.Createfolder(formData).subscribe(
       (data: any) => {
         //console.log(data);
-        this.allFiles(5, 0);
+       
+        if (this.ChildFolderFlag == true) {
+          this.getByIdFile(this.FolderIDs);
+        } else if (this.ChildFolderFlag == false) {
+          this.allFiles(5, 0);
+        }
         ref.close();
       },
       (error) => {
@@ -248,7 +253,9 @@ export class AllFilesComponent implements OnInit {
       this.getByIdFile(id);
     } else {
       this.bread.splice(this.bread.length, 1);
-      this.allFiles(5, 0);
+      // this.allFiles(5, 0);
+      this.pagination(5,0)
+      this.ChildFolderFlag = false
     }
   }
 
@@ -256,22 +263,25 @@ export class AllFilesComponent implements OnInit {
     this.fileManagerService
       .getFileFloder(`ParentId+eq+guid'${id}'`)
       .subscribe((data: any) => {
+        // this.page={}
         this.fileManger = data.items;
-        this.page.totalCount = data.totalCount;
+        // this.page.totalCount = data.totalCount;
+        console.log(this.page.totalCount);
 
-        this.showpage = data;
+        // this.showpage = data;
         // this.bread = [];
         // this.gotodetail(this.fileManger[0]);// commented just 2 api calls
-        if (data.totalCount == 0) {
-          this.get_perPage = false;
-        } else if (data.totalCount != 0) {
-          this.get_perPage = true;
-        }
+        // if (data.totalCount == 0) {
+        //   this.get_perPage = false;
+        // } else if (data.totalCount != 0) {
+        //   this.get_perPage = true;
+        // }
       });
   }
 
   fileFolder(files) {
     if (files && files.isFile == false) {
+      this.ChildFolderFlag = true;
       this.floderName = files.name;
       this.bread.push(files);
       this.FolderIDs = files.id;
@@ -342,7 +352,8 @@ export class AllFilesComponent implements OnInit {
       const skip = (pageNumber - 1) * pageSize;
       if (this.feild_name.length == 0) {
         this.allFiles(top, skip);
-      } else if (this.feild_name.lenght != 0) {
+        console.log('usman');
+      } else if (this.feild_name.length != 0) {
         this.fileManagerService
           .getAllFilesOrder(top, skip, this.feild_name)
           .subscribe((data: any) => {
@@ -363,7 +374,7 @@ export class AllFilesComponent implements OnInit {
         });
     }
   }
-
+ 
   trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
