@@ -27,7 +27,7 @@
                             src="../../../../assets/images/folder-icon.png" />New Folder</button>
                     <button class="btnIcon btnUpload" (click)="openUploadFileDialog(uploaddialog)"><img
                             src="../../../../assets/images/upload-icon.png" />Upload</button>
-                    <button class="btnIcon btnFolder" (click)="allFiles(5,0)"><img
+                    <button class="btnIcon btnFolder" (click)="this.pagination(page.pageNumber, page.pageSize)"><img
                             src="../../../../assets/images/fresh-icon.png" />Refresh</button>
 
 
@@ -47,7 +47,8 @@
 
                 <li><a [routerLink]="" (click)="onClickUp()"><img src="../../../../assets/images/upload-icon.png" /></a>
                 </li>
-                <li class="lendhand"> <a [routerLink]="" (click)="allFiles(5,0)">Files</a> </li>
+                <li class="lendhand"> <a [routerLink]="" (click)="pagination(page.pageNumber, page.pageSize)">Files</a>
+                </li>
                 <li *ngFor="let breadcrumb of bread;index as i">
                     <a [routerLink]="" *ngIf="breadcrumb.name !== floderName " (click)="getFileId(breadcrumb,i)"><span
                             class="bbSlach">/</span> {{ breadcrumb?.name }} </a>
@@ -89,16 +90,13 @@
                       totalItems: page.totalCount
                     };trackBy: trackByFn ; index as i " (click)="ClickedRow(i)" [class.active]="i == HighlightRow">
                                 <td scope="row" (click)="gotodetail(files)">
-                                    <a class="lendhand" *ngIf="files.isFile == false " (dblclick)="fileFolder(files,i)">
-                                        <img 
-                                            src="../../../../assets/images/folder-icon.png" />
-                                       
+                                    <a class="lendhand" *ngIf="!files.isFile" (dblclick)="fileFolder(files)">
+                                        <img src="../../../../assets/images/folder-icon.png" />
+
                                         {{files?.name}}
                                     </a>
-                                    <a class="lendhand" *ngIf="files.isFile == true ">
-                                       
-                                        <img 
-                                            src="../../../../assets/images/file-icon.png" />
+                                    <a class="lendhand" *ngIf="files.isFile">
+                                        <img src="../../../../assets/images/file-icon.png" />
                                         {{files?.name}}
                                     </a>
                                 </td>
@@ -172,12 +170,13 @@
                     directionLinks="true" autoHide="true" screenReaderPaginationLabel="Pagination"
                     screenReaderPageLabel="page" screenReaderCurrentLabel="You're on page"></pagination-controls>
             </div>
-            <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
+            <!--  *ngIf="get_perPage" -->
+            <div class="col-md-4 col-lg-4 text-right no-right-padding">
                 <label class="label">Total {{ page.totalCount}} /</label>
 
-                <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
-                    <option *ngFor="let item of itemsPerPage" [value]="item.id">
-                        {{ item.name }}
+                <select class="custom-select per-page-drop" (change)="selectChange($event.target.value)">
+                    <option *ngFor="let item of itemsPerPage" [value]="item?.id">
+                        {{ item?.name }}
                     </option>
                 </select>
             </div>
@@ -287,10 +286,10 @@
                     <span class="or-file">OR</span>
                 </div>
                 <label class="upload-button">
-                   
-                    <input type="file" class="btn-files custom-file-input" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
-                        [uploadInput]="uploadInput" multiple>
-                    
+
+                    <input type="file" class="btn-files custom-file-input" ngFileSelect [options]="options"
+                        (uploadOutput)="onUploadOutput($event)" [uploadInput]="uploadInput" multiple>
+
                     <span>Browse</span>
                 </label>
             </div>
@@ -307,7 +306,7 @@
         </nb-card-body>
         <nb-card-footer>
             <!-- [disabled]="isDeleted" (click)="del_agent(ref)" -->
-            <button class="btn btn-primary btnNoMargn"  (click)="UploadFile(ref)">Upload</button>
+            <button class="btn btn-primary btnNoMargn" (click)="UploadFile(ref)">Upload</button>
             <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
                 Cancel
             </button>
