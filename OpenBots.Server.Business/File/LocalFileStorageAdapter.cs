@@ -659,5 +659,11 @@ namespace OpenBots.Server.Business.File
             else 
                 throw new EntityDoesNotExistException($"File with id {id} could not be found");
         }
+
+        public FileFolderViewModel RenameFileFolder(string id, string name, string driveName = null)
+        {
+            var fileFolder = new FileFolderViewModel();
+            return fileFolder;
+        }
     }
 }

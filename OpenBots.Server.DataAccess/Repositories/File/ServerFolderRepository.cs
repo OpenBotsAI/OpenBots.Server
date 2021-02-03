@@ -175,6 +175,24 @@ namespace OpenBots.Server.DataAccess.Repositories.File
                     paginatedList.Started = fileItemsList.Started;
                     paginatedList.TotalCount = filterRecord?.Count;
                 }
+                else
+                {
+                    List<FileFolderViewModel> filterRecord = null;
+                    if (predicate != null)
+                        filterRecord = folderItemRecord.ToList().FindAll(predicate);
+                    else
+                        filterRecord = folderItemRecord.ToList();
+
+                    paginatedList.Items = filterRecord.Skip(skip).Take(take).ToList();
+
+                    paginatedList.Completed = folderItemsList.Completed;
+                    paginatedList.Impediments = folderItemsList.Impediments;
+                    paginatedList.PageNumber = folderItemsList.PageNumber;
+                    paginatedList.PageSize = folderItemsList.PageSize;
+                    paginatedList.ParentId = folderItemsList.ParentId;
+                    paginatedList.Started = folderItemsList.Started;
+                    paginatedList.TotalCount = filterRecord?.Count;
+                }
             }
 
             return paginatedList;
