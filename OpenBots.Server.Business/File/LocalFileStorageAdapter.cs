@@ -77,12 +77,16 @@ namespace OpenBots.Server.Business.File
             }
             else
             {
+                var foldersCount = serverFolderRepository.Find(null).Items.Where(q => q.StorageDriveId == driveId).Count();
                 //gets all files and folders with filters
                 filesFolders = serverFolderRepository.FindAllView(driveId, predicate, sortColumn, direction, skip, take);
                 int count = filesFolders.Items.Count;
                 if (count < take)
                 {
                     take -= count;
+                    if (count > 0)
+                        skip = 0;
+                    else skip -= foldersCount;
                     files = serverFileRepository.FindAllView(driveId, predicate, sortColumn, direction, skip, take).Items;
                     if (files != null)
                     {
@@ -94,7 +98,6 @@ namespace OpenBots.Server.Business.File
                 if (predicate == null)
                 {
                     var filesCount = serverFileRepository.Find(null).Items.Where(q => q.ServerDriveId == driveId).Count();
-                    var foldersCount = serverFolderRepository.Find(null).Items.Where(q => q.StorageDriveId == driveId).Count();
                     filesFolders.TotalCount = filesCount + foldersCount;
                 }
                 else
