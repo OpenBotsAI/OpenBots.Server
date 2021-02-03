@@ -158,6 +158,7 @@
   <ItemGroup>
     <Folder Include="BinaryObjects\" />
     <Folder Include="Files\" />
+    <Folder Include="Files\LocalTestFolder\" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptTarget>ES2020</TypeScriptTarget>
