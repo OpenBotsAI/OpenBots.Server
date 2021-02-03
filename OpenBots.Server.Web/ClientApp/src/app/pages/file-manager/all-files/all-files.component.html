@@ -32,13 +32,19 @@
 
 
                 </div>
-                <div class="col-md-4 col-lg-4 text-center" *ngIf="showDownloadbtn">
-                    <button class="btnIconBlue btn btn-primary" (click)="deleteFiles()">Delete</button>
-                    <button class="btnIconBlue btn btn-primary" (click)="openRenameDialog(dialog)">Rename</button>
-                    <button class="btnIconBlue btn btn-primary">Move</button>
+                <div class="col-md-4 col-lg-4" *ngIf="showDownloadbtn">
+                     <button class="btnIcon btnRename" (click)="openRenameDialog(dialog)"> <img
+                            src="../../../../assets/images/rename.png" />Rename</button>
+                    <button class="btnIcon btnMove"> <img
+                            src="../../../../assets/images/move.png" />Move</button>
+                    <!-- *ngIf="showDeletebtn" -->
+                    <button class="btnIcon btnDelete"   (click)="deleteFiles()"><img
+                            src="../../../../assets/images/delete_icon.png" />Delete</button>
+                   
                 </div>
-                <div *ngIf="showDownloadbtn" class="col-md-4 col-lg-4 download-btn text-right">
-                    <button type="button" class="btn btn-primary" (click)="onDown()">Download</button>
+                <div *ngIf="Downloadbtn" class="col-md-4 col-lg-4 download-btn text-right">
+                    <button type="button" class="btnIcon btnDownload" (click)="onDown()"><img
+                            src="../../../../assets/images/download.png" />Download</button>
                 </div>
             </div>
 

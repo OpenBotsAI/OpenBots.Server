@@ -57,6 +57,7 @@ export class AllFilesComponent implements OnInit {
   per_page_num: any = [];
   itemsPerPage: ItemsPerPage[] = [];
   showDownloadbtn: boolean = false;
+  Downloadbtn: boolean = false;
   //// select row ///
   HighlightRow: number;
   ClickedRow: any;
@@ -85,8 +86,16 @@ export class AllFilesComponent implements OnInit {
 
   gotodetail(file) {
     if (file) {
-      this.showDownloadbtn = true;
-      this.fileID = file.id;
+       this.showDownloadbtn = true;
+      if (file.isFile == true) {
+        this.Downloadbtn = true;
+       
+      }
+      else if (file.isFile == false ){
+        this.Downloadbtn = false;
+       
+      }
+       this.fileID = file.id;
       this.name = file.name;
       this.size = file.size;
       this.contentType = file.contentType;
@@ -302,6 +311,7 @@ export class AllFilesComponent implements OnInit {
       this.FolderIDs = files.id;
       this.getByIdFile(files.id);
     }
+   
   }
   onSortClick(event, param: string): void {
     let target = event.currentTarget,
