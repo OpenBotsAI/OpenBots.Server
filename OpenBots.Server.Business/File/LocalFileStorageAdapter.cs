@@ -67,38 +67,18 @@ namespace OpenBots.Server.Business.File
 
             if (isFile.Equals(true))
             {
-                //get all files with filters
+                //get all files
                 filesFolders = serverFileRepository.FindAllView(driveId, predicate, sortColumn, direction, skip, take);
             }
             else if (isFile.Equals(false))
             {
-                //get all folders with filters
+                //get all folders
                 filesFolders = serverFolderRepository.FindAllView(driveId, predicate, sortColumn, direction, skip, take);
             }
             else
             {
-                //gets all files and folders with filters
-                filesFolders = serverFolderRepository.FindAllView(driveId, predicate, sortColumn, direction, skip, take);
-                int count = filesFolders.Items.Count;
-                if (count < take)
-                {
-                    take -= count;
-                    files = serverFileRepository.FindAllView(driveId, predicate, sortColumn, direction, skip, take).Items;
-                    if (files != null)
-                    {
-                        foreach (var file in files)
-                            filesFolders.Add(file);
-                    }
-                }
-
-                if (predicate == null)
-                {
-                    var filesCount = serverFileRepository.Find(null).Items.Where(q => q.ServerDriveId == driveId).Count();
-                    var foldersCount = serverFolderRepository.Find(null).Items.Where(q => q.StorageDriveId == driveId).Count();
-                    filesFolders.TotalCount = filesCount + foldersCount;
-                }
-                else
-                    filesFolders.TotalCount += files.Count;
+                //get all folders and files
+                filesFolders = serverFolderRepository.FindAllFilesFoldersView(driveId, predicate, sortColumn, direction, skip, take);
             }
 
             return filesFolders;
@@ -148,7 +128,7 @@ namespace OpenBots.Server.Business.File
                 var parentId = GetFolderId(shortPath, driveName);
                 var id = Guid.NewGuid();
 
-                var folder = serverFolderRepository.Find(null).Items?.Where(q => q.StoragePath == request.FullStoragePath).FirstOrDefault();
+                var folder = serverFolderRepository.Find(null).Items?.Where(q => q.StoragePath == request.FullStoragePath && q.IsDeleted == false).FirstOrDefault();
                 if (folder != null)
                     throw new EntityAlreadyExistsException($"Folder with name {request.Name} already exists at path {request.StoragePath}");
 
@@ -678,6 +658,12 @@ namespace OpenBots.Server.Business.File
             }
             else 
                 throw new EntityDoesNotExistException($"File with id {id} could not be found");
+        }
+
+        public FileFolderViewModel RenameFileFolder(string id, string name, string driveName = null)
+        {
+            var fileFolder = new FileFolderViewModel();
+            return fileFolder;
         }
     }
 }
