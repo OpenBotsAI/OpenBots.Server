@@ -100,7 +100,11 @@
 
                                         {{files?.name}}
                                     </a>
-                                    <a class="lendhand" *ngIf="files.isFile">
+                                    <!-- <a class="lendhand" *ngIf="files.isFile && files.contentType == 'image/png' ">
+                                        <img src="../../../../assets/images/img-icon.png" />
+                                        {{files?.name}}
+                                    </a> -->
+                                    <a class="lendhand" *ngIf="files.isFile ">
                                         <img src="../../../../assets/images/file-icon.png" />
                                         {{files?.name}}
                                     </a>
