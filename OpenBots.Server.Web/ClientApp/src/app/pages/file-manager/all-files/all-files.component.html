@@ -89,10 +89,15 @@
                       totalItems: page.totalCount
                     };trackBy: trackByFn ; index as i " (click)="ClickedRow(i)" [class.active]="i == HighlightRow">
                                 <td scope="row" (click)="gotodetail(files)">
-                                    <a class="lendhand" (dblclick)="fileFolder(files,i)">
-                                        <img *ngIf="files.isFile == false "
+                                    <a class="lendhand" *ngIf="files.isFile == false " (dblclick)="fileFolder(files,i)">
+                                        <img 
                                             src="../../../../assets/images/folder-icon.png" />
-                                        <img *ngIf="files.isFile == true "
+                                       
+                                        {{files?.name}}
+                                    </a>
+                                    <a class="lendhand" *ngIf="files.isFile == true ">
+                                       
+                                        <img 
                                             src="../../../../assets/images/file-icon.png" />
                                         {{files?.name}}
                                     </a>
