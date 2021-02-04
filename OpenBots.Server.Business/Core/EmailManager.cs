@@ -210,22 +210,25 @@ namespace OpenBots.Server.Business
         public Task SendEmailAsync(EmailMessage emailMessage, string accountName = null, string id = null, string direction = null)
         {
             Email emailObject = new Email();
+            Guid? emailId = Guid.NewGuid();
+
             if (!string.IsNullOrEmpty(id))
             {
-                emailObject = emailRepository.Find(null, q => q.Id == Guid.Parse(id))?.Items?.FirstOrDefault();
+                    emailId = Guid.Parse(id);
+                    emailObject = emailRepository.Find(null, q => q.Id == emailId)?.Items?.FirstOrDefault();
                 if (emailObject == null)
                 {
                     emailObject = new Email()
                     {
-                        Id = Guid.Parse(id),
+                        Id = emailId,
                         Status = StatusType.Unknown.ToString()
                     };
                 }
             }
 
             Email email = new Email();
-            if (id != null || Guid.Parse(id) != Guid.Empty)
-                email.Id = Guid.Parse(id);
+            if (!string.IsNullOrEmpty(id))
+                email.Id = emailId;
 
             //find email settings and determine is email is enabled/disabled
             var organizationId = Guid.Parse(organizationManager.GetDefaultOrganization().Id.ToString());
@@ -501,7 +504,7 @@ namespace OpenBots.Server.Business
                 email.CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name;
                 emailRepository.Add(email);
             }
-            else if (email.Id != null && email.Id != Guid.Parse(id))
+            else if (email.Id != null && email.Id != emailId)
             {
                 email.CreatedOn = DateTime.UtcNow;
                 email.CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name;

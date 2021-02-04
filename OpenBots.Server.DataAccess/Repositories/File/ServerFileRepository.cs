@@ -28,25 +28,6 @@ namespace OpenBots.Server.DataAccess.Repositories.File
 
             if (itemsList != null && itemsList.Items != null && itemsList.Items.Count > 0)
             {
-                List<Guid?> parentIds = new List<Guid?>();
-                string path = string.Empty;
-
-                //foreach (var item in itemsList.Items)
-                //{
-                    //var itemArray = item.StoragePath.Split("\\");
-                    //foreach (var folderName in itemArray)
-                    //{
-                    //    var folder = serverFolderRepository.Find(null).Items?.Where(q => q.Name.ToLower() == folderName.ToLower()).FirstOrDefault();
-                    //    if (folder != null)
-                    //        parentIds.Add(folder.Id);
-                    //    if (folderName == "Files")
-                    //    {
-                    //        Guid? id = serverDriveRepository.Find(null).Items?.FirstOrDefault().Id;
-                    //        parentIds.Add(id);
-                    //    }
-                    //}
-                //}
-
                 var itemRecord = from a in itemsList.Items
                                  join b in dbContext.ServerFolders on a.StorageFolderId equals b.Id into table1
                                  from b in table1.DefaultIfEmpty()
