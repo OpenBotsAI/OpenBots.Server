@@ -23,14 +23,14 @@
         <div class="toolPnl">
             <div class="row">
                 <div class="col-md-4 col-lg-4">
-                    <button class="btnIcon btnFolder" (click)="openCreateFolderDialog(createfolderdialog)"><img
-                            src="../../../../assets/images/folder-icon.png" />New Folder</button>
-                    <button class="btnIcon btnUpload" (click)="openUploadFileDialog(uploaddialog)"><img
-                            src="../../../../assets/images/upload-icon.png" />Upload</button>
-                    <button class="btnIcon btnFolder" (click)="this.pagination(page.pageNumber, page.pageSize)"><img
-                            src="../../../../assets/images/fresh-icon.png" />Refresh</button>
-
-
+                    <span *ngIf="isHidden">
+                        <button class="btnIcon btnFolder" (click)="openCreateFolderDialog(createfolderdialog)"><img
+                                src="../../../../assets/images/folder-icon.png" />New Folder</button>
+                        <button class="btnIcon btnUpload" (click)="openUploadFileDialog(uploaddialog)"><img
+                                src="../../../../assets/images/upload-icon.png" />Upload</button>
+                        <button class="btnIcon btnFolder" (click)="this.pagination(page.pageNumber, page.pageSize)"><img
+                                src="../../../../assets/images/fresh-icon.png" />Refresh</button>
+                    </span>
                 </div>
                 <div class="col-md-4 col-lg-4" *ngIf="showDownloadbtn">
                     <button class="btnIcon btnRename" (click)="openRenameDialog(dialog)"> <img
@@ -49,8 +49,8 @@
 
             <hr>
             <ul class='breadcrumb'>
-
-                <li><a [routerLink]="" (click)="onClickUp()"><img src="../../../../assets/images/upload-icon.png" /></a>
+                <li *ngIf="bread.length"><a [routerLink]="" (click)="onClickUp()"><img
+                            src="../../../../assets/images/upload-icon.png" /></a>
                 </li>
                 <li class="lendhand"> <a [routerLink]="" (click)="onClickFiles()">{{driveName}}</a>
                 </li>
@@ -65,7 +65,7 @@
 
         <div class="row">
             <div class="col-md-8 col-lg-8 noRightPadding">
-                <div style="overflow-x:auto;">
+                <div class="heightQual" style="overflow-x:auto;">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
@@ -86,7 +86,8 @@
                         <tbody>
                             <tr *ngFor="let files of fileManger | paginate : { 
                             itemsPerPage: page.pageSize, currentPage: page.pageNumber,
-                            totalItems: page.totalCount } ">
+                            totalItems: page.totalCount };;trackBy: trackByFn; index as i " (click)="ClickedRow(i)"
+                                [class.active]="i == HighlightRow">
                                 <!-- <tr *ngFor="let files of fileManger | paginate: {id: '1',
                       itemsPerPage: page.pageSize,currentPage: page.pageNumber,totalItems: page.totalCount
                     };trackBy: trackByFn"> -->
@@ -175,8 +176,7 @@
     <nb-card-body class="noTopPadding">
         <div class="row pagerow">
             <div class="col-md-8 col-lg-8 no-left-padding">
-
-                <pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
+                <pagination-controls (pageChange)="pageChanged($event)" autoHide="true"></pagination-controls>
                 <!-- <pagination-controls id="foo" class="paginateDiv" previousLabel="Prev" nextLabel="Next"
                     responsive="true" (pageChange)="pageChanged($event,true)"
                     (pageBoundsCorrection)="pageChanged($event, true)" directionLinks="true" autoHide="true"
@@ -191,7 +191,7 @@
             <div class="col-md-4 col-lg-4 text-right no-right-padding">
                 <label class="label">Total {{ page.totalCount}} /</label>
 
-                <select class="custom-select per-page-drop" (change)="selectChange($event.target.value)">
+                <select class="custom-select per-page-drop" (change)="selectChange($event)">
                     <option *ngFor="let item of itemsPerPage" [value]="item?.id">
                         {{ item?.name }}
                     </option>
@@ -298,7 +298,9 @@
         <nb-card-body>
 
             <div class="upload-files uploadTempFiles">
-                <div class="drop-container" [ngClass]="{ 'is-drop-over': dragOver }">
+                <!-- <div class="drop-container" [ngClass]="{ 'is-drop-over': dragOver }"> -->
+                <div class="drop-container" ngFileDrop [options]="options" (uploadOutput)="onUploadOutput($event)"
+                    [uploadInput]="uploadInput" [ngClass]="{ 'is-drop-over': dragOver }">
                     <p>Drag and Drop <span>your file here</span></p>
                     <span class="or-file">OR</span>
                 </div>
@@ -306,7 +308,6 @@
 
                     <input type="file" class="btn-files custom-file-input" ngFileSelect [options]="options"
                         (uploadOutput)="onUploadOutput($event)" [uploadInput]="uploadInput" multiple>
-
                     <span>Browse</span>
                 </label>
             </div>
@@ -324,7 +325,7 @@
         <nb-card-footer>
             <!-- [disabled]="isDeleted" (click)="del_agent(ref)" -->
             <button class="btn btn-primary btnNoMargn" (click)="UploadFile(ref)">Upload</button>
-            <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
+            <button class="btn btn-light" style="margin-left: 11px" (click)="closeFileUploadPopup(ref)">
                 Cancel
             </button>
 

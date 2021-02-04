@@ -104,14 +104,28 @@
   cursor: pointer;
 }
  .table-bordered{
+  border: none;
+}
+.heightQual{
+  min-height: 272px;
+  border: 1px solid #dee2e6;
   border-top: none;
+}
+.table-bordered th, .table-bordered td{
+  border: none;
+  border-bottom: 1px solid #dee2e6;
 }
 .square {
   border: 2px solid #ececec;
-  min-height: 283px;
+  min-height: 272px;
   border-left: none;
   border-top: none;
   padding: 15px;
+}
+.square h2{
+  font-size: 20px !important;
+  line-height: 1.2;
+  margin-bottom: 6px;
 }
 .file-info{
     width: 100%;
