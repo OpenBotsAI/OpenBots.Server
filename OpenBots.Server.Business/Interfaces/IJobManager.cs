@@ -22,5 +22,6 @@ namespace OpenBots.Server.Business
         string GetCsv(Job[] jobs);
         MemoryStream ZipCsv(FileContentResult csvFile);
         void UpdateAutomationAverages(Guid? updatedJobId);
+        void DeleteJobChildTables(Guid jobId);
     }
 }

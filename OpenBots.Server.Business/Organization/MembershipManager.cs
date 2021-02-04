@@ -430,7 +430,7 @@ namespace OpenBots.Server.Business
             }
             else
             {
-                throw new UnauthorizedAccessException("User is not an Administrator of this Organization");
+                throw new UnauthorizedOperationException("User is not an administrator of this organization", EntityOperationType.Update);
             }
 
         }
@@ -538,7 +538,7 @@ namespace OpenBots.Server.Business
 
             if (!currentOrgMember.IsAdministrator ?? false || currentOrgMember.OrganizationId != Guid.Parse(organizationId))
             {
-                throw new UnauthorizedAccessException();
+                throw new UnauthorizedOperationException("Only admins of this organization can update existing users", EntityOperationType.Update);
             }
 
             var userToUpdate = _aspNetUsersRepository.Find(null, u => u.PersonId == Guid.Parse(personId)).Items?.FirstOrDefault();
@@ -564,7 +564,7 @@ namespace OpenBots.Server.Business
 
                     if (existingEmailUser != null)
                     {
-                        throw new Exception("A User already exists for the provided email address");
+                        throw new Exception("A user already exists for the provided email address");
                     }
 
                     var personEmailToUpdate = _personEmailRepository.Find(null, p => p.PersonId == Guid.Parse(personId)).Items?.FirstOrDefault();

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business;
+using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
@@ -83,7 +84,7 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<IPFencing> Get(
+        public async Task<IActionResult> Get(
             string organizationId,
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
@@ -91,7 +92,15 @@ namespace OpenBots.Server.Web
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            return base.GetMany(organizationId);
+            try
+            {
+                return Ok(base.GetMany(organizationId));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+
+            }
         }
 
         /// <summary>
@@ -155,7 +164,7 @@ namespace OpenBots.Server.Web
             }
             catch (Exception ex)
             {
-                return NotFound(ex.Message);
+                return ex.GetActionResult();
             }
         }
 
@@ -185,8 +194,7 @@ namespace OpenBots.Server.Web
                 var ipCheck = iPFencingOptions.IPFencingCheck;
                 if (ipCheck.Equals("Disabled"))
                 {
-                    ModelState.AddModelError("Post", "IPFencing rule could not be added because IPFencingCheck is disabled");
-                    return NotFound(ModelState);
+                    throw new UnauthorizedOperationException("IPFencing rule could not be added because IPFencingCheck is disabled", EntityOperationType.Add);
                 }
 
                 IPFencing iPFencing = request.Map(request);
@@ -225,36 +233,41 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> Put(string organizationId, string id, [FromBody] IPFencing request)
         {
-            var ipCheck = iPFencingOptions.IPFencingCheck;
-            if (ipCheck.Equals("Disabled"))
+            try
             {
-                ModelState.AddModelError("Post", "IPFencing rule could not be updated because IPFencingCheck is disabled");
-                return BadRequest(ModelState);
-            }
+                var ipCheck = iPFencingOptions.IPFencingCheck;
+                if (ipCheck.Equals("Disabled"))
+                {
+                    throw new UnauthorizedOperationException("IPFencing rule could not be added because IPFencingCheck is disabled", EntityOperationType.Update);
+                }
 
-            Guid entityId = new Guid(id);
-            var iPFencing = repository.GetOne(entityId);
-            if (iPFencing == null)
+                Guid entityId = new Guid(id);
+                var iPFencing = repository.GetOne(entityId);
+                if (iPFencing == null)
+                {
+                    throw new EntityDoesNotExistException("No IPFencing was found for the specified ID");
+                }
+
+                if (iPFencing.OrganizationId != Guid.Parse(organizationId))
+                {
+                    ModelState.AddModelError("Update", "The provided organization id does not match this IPFencing's current " +
+                        "organization");
+                    return BadRequest(ModelState);
+                }
+
+                iPFencing.Usage = request.Usage;
+                iPFencing.Rule = request.Rule;
+                iPFencing.IPAddress = request.IPAddress;
+                iPFencing.IPRange = request.IPRange;
+                iPFencing.HeaderName = request.HeaderName;
+                iPFencing.HeaderValue = request.HeaderValue;
+
+                return await base.PutEntity(id, iPFencing);
+            }
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Update", "No IPFencing was found for the specified ID");
-                return NotFound(ModelState);
+                return ex.GetActionResult();
             }
-
-            if (iPFencing.OrganizationId != Guid.Parse(organizationId))
-            {
-                ModelState.AddModelError("Update", "The provided organization id does not match this IPFencing's current " +
-                    "organization");
-                return BadRequest(ModelState);
-            }
-
-            iPFencing.Usage = request.Usage;
-            iPFencing.Rule = request.Rule;
-            iPFencing.IPAddress = request.IPAddress;
-            iPFencing.IPRange = request.IPRange;
-            iPFencing.HeaderName = request.HeaderName;
-            iPFencing.HeaderValue = request.HeaderValue;
-
-            return await base.PutEntity(id, iPFencing);
         }
 
         /// <summary>
@@ -280,43 +293,48 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> AllowAll(string organizationId)
         {
-            IPAddress userIp = _accessor.HttpContext.Connection.RemoteIpAddress;
-            var ipCheck = iPFencingOptions.IPFencingCheck;
-            if (ipCheck.Equals("Disabled"))
+            try
             {
-                ModelState.AddModelError("AllowAll", "IP Fencing Mode could not be updated because IPFencingCheck is disabled");
-                return BadRequest(ModelState);
-            }
+                IPAddress userIp = _accessor.HttpContext.Connection.RemoteIpAddress;
+                var ipCheck = iPFencingOptions.IPFencingCheck;
+                if (ipCheck.Equals("Disabled"))
+                {
+                    throw new UnauthorizedOperationException("IPFencing rule could not be updated because IPFencingCheck is disabled", EntityOperationType.Update);
+                }
 
-            //get the organization's settings
-            organizationSettingRepository.ForceIgnoreSecurity();
-            var existingOrganizationSettings = organizationSettingRepository.Find(0, 1).Items.
-                Where(s => s.OrganizationId == Guid.Parse(organizationId)).FirstOrDefault();          
+                //get the organization's settings
+                organizationSettingRepository.ForceIgnoreSecurity();
+                var existingOrganizationSettings = organizationSettingRepository.Find(0, 1).Items.
+                    Where(s => s.OrganizationId == Guid.Parse(organizationId)).FirstOrDefault();
 
-            if (existingOrganizationSettings == null)
-            {
-                ModelState.AddModelError("AllowAll", "No OrganizationSettings exist for this Organization");
-                return NotFound(ModelState);
-            }
+                if (existingOrganizationSettings == null)
+                {
+                    throw new EntityDoesNotExistException("No OrganizationSettings exist for this Organization");
+                }
 
-            if(existingOrganizationSettings.IPFencingMode == IPFencingMode.AllowMode)
-            {
-                return Ok("IPFencing Mode is already set to AllowAll");
-            }
+                if (existingOrganizationSettings.IPFencingMode == IPFencingMode.AllowMode)
+                {
+                    return Ok("IPFencing Mode is already set to AllowAll");
+                }
 
-            //check if user will be able to make requests under the new IP fencing
-            if (iPFencingManager.IsRequestAllowed(userIp, IPFencingMode.AllowMode))
-            {
-                existingOrganizationSettings.IPFencingMode = IPFencingMode.AllowMode;
-                organizationSettingRepository.Update(existingOrganizationSettings);
-                organizationSettingRepository.ForceSecurity();
-                return Ok("IPFencingMode has been set AllowAll");
+                //check if user will be able to make requests under the new IP fencing
+                if (iPFencingManager.IsRequestAllowed(userIp, IPFencingMode.AllowMode))
+                {
+                    existingOrganizationSettings.IPFencingMode = IPFencingMode.AllowMode;
+                    organizationSettingRepository.Update(existingOrganizationSettings);
+                    organizationSettingRepository.ForceSecurity();
+                    return Ok("IPFencingMode has been set AllowAll");
+                }
+                else
+                {
+                    organizationSettingRepository.ForceSecurity();
+                    return Conflict("This action would prevent you from making further requests to the server. Try updating the Fencing rules");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                organizationSettingRepository.ForceSecurity();
-                return Conflict("This action would prevent you from making further requests to the server. Try updating the Fencing rules");
-            }    
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -342,42 +360,47 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> DenyAll(string organizationId)
         {
-            IPAddress userIp = _accessor.HttpContext.Connection.RemoteIpAddress;
-            var ipCheck = iPFencingOptions.IPFencingCheck;
-            if (ipCheck.Equals("Disabled"))
+            try
             {
-                ModelState.AddModelError("DenyAll", "IP Fencing Mode could not be updated because IPFencingCheck is disabled");
-                return BadRequest(ModelState);
+                IPAddress userIp = _accessor.HttpContext.Connection.RemoteIpAddress;
+                var ipCheck = iPFencingOptions.IPFencingCheck;
+                if (ipCheck.Equals("Disabled"))
+                {
+                    throw new UnauthorizedOperationException("IPFencing rule could not be updated because IPFencingCheck is disabled", EntityOperationType.Update);
+                }
+
+                //get the organization's settings
+                organizationSettingRepository.ForceIgnoreSecurity();
+                var existingOrganizationSettings = organizationSettingRepository.Find(0, 1).Items.
+                    Where(s => s.OrganizationId == Guid.Parse(organizationId)).FirstOrDefault();
+
+                if (existingOrganizationSettings == null)
+                {
+                    throw new EntityDoesNotExistException("No OrganizationSettings exist for this Organization");
+                }
+
+                if (existingOrganizationSettings.IPFencingMode == IPFencingMode.DenyMode)
+                {
+                    return Ok("IP Fencing Mode is already set to DenyAll");
+                }
+
+                //check if user will be able to make requests under the new IP fencing
+                if (iPFencingManager.IsRequestAllowed(userIp, IPFencingMode.DenyMode))
+                {
+                    existingOrganizationSettings.IPFencingMode = IPFencingMode.DenyMode;
+                    organizationSettingRepository.Update(existingOrganizationSettings);
+                    organizationSettingRepository.ForceSecurity();
+                    return Ok("IPFencingMode has been set DenyAll");
+                }
+                else
+                {
+                    organizationSettingRepository.ForceSecurity();
+                    return Conflict("This action would prevent you from making further requests to the server. Try updating the Fencing rules");
+                }
             }
-
-            //get the organization's settings
-            organizationSettingRepository.ForceIgnoreSecurity();
-            var existingOrganizationSettings = organizationSettingRepository.Find(0, 1).Items.
-                Where(s => s.OrganizationId == Guid.Parse(organizationId)).FirstOrDefault();
-
-            if (existingOrganizationSettings == null)
+            catch (Exception ex)
             {
-                ModelState.AddModelError("DenyAll", "No OrganizationSettings exist for this Organization");
-                return NotFound(ModelState);
-            }
-
-            if (existingOrganizationSettings.IPFencingMode == IPFencingMode.DenyMode)
-            {
-                return Ok("IP Fencing Mode is already set to DenyAll");
-            }      
-
-            //check if user will be able to make requests under the new IP fencing
-            if (iPFencingManager.IsRequestAllowed(userIp,IPFencingMode.DenyMode))
-            {
-                existingOrganizationSettings.IPFencingMode = IPFencingMode.DenyMode;
-                organizationSettingRepository.Update(existingOrganizationSettings);
-                organizationSettingRepository.ForceSecurity();
-                return Ok("IPFencingMode has been set DenyAll");
-            }
-            else
-            {
-                organizationSettingRepository.ForceSecurity();
-                return Conflict("This action would prevent you from making further requests to the server. Try updating the Fencing rules");
+                return ex.GetActionResult();
             }
         }
 
@@ -397,30 +420,35 @@ namespace OpenBots.Server.Web
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string organizationId, string id)
         {
-            var ipCheck = iPFencingOptions.IPFencingCheck;
-            if (ipCheck.Equals("Disabled"))
+            try
             {
-                ModelState.AddModelError("Post", "IPFencing rule could not be deleted because IPFencingCheck is disabled");
-                return BadRequest(ModelState);
+                var ipCheck = iPFencingOptions.IPFencingCheck;
+                if (ipCheck.Equals("Disabled"))
+                {
+                    throw new UnauthorizedOperationException("IPFencing rule could not be deleted because IPFencingCheck is disabled", EntityOperationType.Delete);
+                }
+
+                Guid entityId = new Guid(id);
+                var iPFencing = repository.GetOne(entityId, Guid.Parse(organizationId));
+
+                if (iPFencing == null)
+                {
+                    throw new EntityDoesNotExistException("No IPFencing was found for the specified ID");
+                }
+
+                if (iPFencing.OrganizationId != Guid.Parse(organizationId))
+                {
+                    ModelState.AddModelError("Delete", "The provided organization id does not match this IPFencing's current " +
+                        "organization");
+                    return BadRequest(ModelState);
+                }
+
+                return await base.DeleteEntity(id);
             }
-
-            Guid entityId = new Guid(id);
-            var iPFencing = repository.GetOne(entityId, Guid.Parse(organizationId));
-
-            if (iPFencing == null)
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Delete", "No IPFencing was found for the specified ID");
-                return NotFound(ModelState);
+                return ex.GetActionResult();
             }
-
-            if (iPFencing.OrganizationId != Guid.Parse(organizationId))
-            {
-                ModelState.AddModelError("Delete", "The provided organization id does not match this IPFencing's current " +
-                    "organization");
-                return BadRequest(ModelState);
-            }
-
-            return await base.DeleteEntity(id);
         }
 
         /// <summary>
@@ -441,30 +469,35 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string organizationId, string id, [FromBody] JsonPatchDocument<IPFencing> value)
         {
-            var ipCheck = iPFencingOptions.IPFencingCheck;
-            if (ipCheck.Equals("Disabled"))
+            try
             {
-                ModelState.AddModelError("Post", "IPFencing rule could not be updated because IPFencingCheck is disabled");
-                return BadRequest(ModelState);
+                var ipCheck = iPFencingOptions.IPFencingCheck;
+                if (ipCheck.Equals("Disabled"))
+                {
+                    throw new UnauthorizedOperationException("IPFencing rule could not be deleted because IPFencingCheck is disabled", EntityOperationType.Update);
+                }
+
+                Guid entityId = new Guid(id);
+                var iPFencing = repository.GetOne(entityId);
+
+                if (iPFencing == null)
+                {
+                    throw new EntityDoesNotExistException("No IPFencing was found for the specified ID");
+                }
+
+                if (iPFencing.OrganizationId != Guid.Parse(organizationId))
+                {
+                    ModelState.AddModelError("Patch", "The provided organization id does not match this IPFencing's current " +
+                        "organization");
+                    return BadRequest(ModelState);
+                }
+
+                return await base.PatchEntity(id, value);
             }
-
-            Guid entityId = new Guid(id);
-            var iPFencing = repository.GetOne(entityId);
-
-            if (iPFencing == null)
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Patch", "No IPFencing was found for the specified ID");
-                return NotFound(ModelState);
+                return ex.GetActionResult();
             }
-
-            if (iPFencing.OrganizationId != Guid.Parse(organizationId))
-            {
-                ModelState.AddModelError("Patch", "The provided organization id does not match this IPFencing's current " +
-                    "organization");
-                return BadRequest(ModelState);
-            }
-
-            return await base.PatchEntity(id, value);
         }
     }
 }

@@ -84,8 +84,15 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Get()
         {
-            var response = await termsConditionsManager.GetUserAgreement().ConfigureAwait(false);
-            return Ok(response);
+            try
+            {
+                var response = await termsConditionsManager.GetUserAgreement().ConfigureAwait(false);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -108,9 +115,16 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Get(string id)
         {
-            Guid entityId = new Guid(id);
-            var response = await termsConditionsManager.IsAccepted(entityId, SecurityContext.PersonId).ConfigureAwait(false);
-            return Ok(response);
+            try
+            {
+                Guid entityId = new Guid(id);
+                var response = await termsConditionsManager.IsAccepted(entityId, SecurityContext.PersonId).ConfigureAwait(false);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

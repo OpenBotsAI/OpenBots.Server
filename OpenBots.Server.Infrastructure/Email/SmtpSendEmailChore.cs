@@ -29,7 +29,7 @@ namespace OpenBots.Server.Infrastructure.Email
                 client.Port = _smtpSetting.Port; //use Port 25 if 587 is blocked
                 client.Host = _smtpSetting.Host;
                 client.DeliveryMethod = SmtpDeliveryMethod.Network;
-                client.EnableSsl = true;
+                client.EnableSsl = _smtpSetting.IsSslEnabled;
                 client.Send(mail);
             }
             catch(Exception ex)

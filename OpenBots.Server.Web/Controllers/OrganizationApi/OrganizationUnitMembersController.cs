@@ -62,7 +62,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<OrganizationUnitMember> Get(
+        public async Task<IActionResult> Get(
             [FromRoute] string organizationId,
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
@@ -70,7 +70,14 @@ namespace OpenBots.Server.WebAPI.Controllers
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            return base.GetMany(organizationId);
+            try
+            {
+                return Ok(base.GetMany(organizationId));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -94,7 +101,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Get(string id)
         {
-            return await base.GetEntity(id);
+            try
+            {
+                return await base.GetEntity(id);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -118,8 +132,15 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Post(string organizationId, [FromBody] OrganizationUnitMember value)
         {
-            value.OrganizationId = new Guid(organizationId);
-            return await base.PostEntity(value);
+            try
+            {
+                value.OrganizationId = new Guid(organizationId);
+                return await base.PostEntity(value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -144,8 +165,15 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Put(string organizationId, string id, [FromBody] OrganizationUnitMember value)
         {
-            value.OrganizationId = new Guid(organizationId);
-            return await base.PutEntity(id, value);
+            try
+            {
+                value.OrganizationId = new Guid(organizationId);
+                return await base.PutEntity(id, value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -166,7 +194,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string id)
         {
-            return await base.DeleteEntity(id);
+            try
+            {
+                return await base.DeleteEntity(id);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -187,7 +222,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id,[FromBody] JsonPatchDocument<OrganizationUnitMember> value)
         {
-            return await base.PatchEntity(id, value);
+            try
+            {
+                return await base.PatchEntity(id, value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

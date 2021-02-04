@@ -62,14 +62,21 @@ namespace OpenBots.Server.WebAPI.Controllers.Core
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<LookupValue> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -181,8 +188,14 @@ namespace OpenBots.Server.WebAPI.Controllers.Core
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Put(string id, [FromBody] LookupValue value)
         {
-            return await base.PutEntity(id, value);
-
+            try
+            {
+                return await base.PutEntity(id, value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -201,7 +214,14 @@ namespace OpenBots.Server.WebAPI.Controllers.Core
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string id)
         {
-            return await base.DeleteEntity(id);
+            try
+            {
+                return await base.DeleteEntity(id);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -221,7 +241,14 @@ namespace OpenBots.Server.WebAPI.Controllers.Core
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<LookupValue> value)
         {
-            return await base.PatchEntity(id, value);
+            try
+            {
+                return await base.PatchEntity(id, value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

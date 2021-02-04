@@ -145,14 +145,21 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
         [Produces("application/json")]
-        public PaginatedList<OrganizationMember> Get(
+        public async Task<IActionResult> Get(
             [FromRoute] string organizationId,
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0)
         {
-            return base.GetMany(organizationId);
+            try
+            {
+                return Ok(base.GetMany(organizationId));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -172,9 +179,16 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
-        public async Task<AspNetUsers> GetUser(string personId)
+        public async Task<IActionResult> GetUser(string personId)
         {
-            return await membershipManager.GetAspUser(personId);
+            try
+            {
+                return Ok(await membershipManager.GetAspUser(personId));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -199,7 +213,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Get(string organizationMemberId)
         {
-            return await base.GetEntity(organizationMemberId);
+            try
+            {
+                return await base.GetEntity(organizationMemberId);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -223,8 +244,15 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Post(string organizationId, [FromBody] OrganizationMember value)
         {
-            value.OrganizationId = new Guid(organizationId);
-            return await base.PostEntity(value);
+            try
+            {
+                value.OrganizationId = new Guid(organizationId);
+                return await base.PostEntity(value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -252,8 +280,15 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Put(string organizationId, string organizationMemberId, [FromBody] OrganizationMember value)
         {
-            value.OrganizationId = new Guid(organizationId);
-            return await base.PutEntity(organizationMemberId, value);
+            try
+            {
+                value.OrganizationId = new Guid(organizationId);
+                return await base.PutEntity(organizationMemberId, value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -414,7 +449,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                throw ex;
+                return ex.GetActionResult();
             }
         }
 
@@ -437,25 +472,33 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Delete(string organizationId, string organizationMemberId)
         {
-            //check if the logged in user is member of the organization, do not allow self deletion from organization
-            var orgId = new Guid(organizationId);
-            var orgMemberId = new Guid(organizationMemberId);
-
-            var orgmem = membershipManager.GetOrganizationMember(orgId, SecurityContext.PersonId)?.Items?.FirstOrDefault();
-            if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
+            try
             {
-                ModelState.AddModelError("Delete", "Remove from organization failed, administrator of an organization can only remove members");
-                return BadRequest(ModelState);
-            }
+                //check if the logged in user is member of the organization, do not allow self deletion from organization
+                var orgId = new Guid(organizationId);
+                var orgMemberId = new Guid(organizationMemberId);
 
-            var orgMem = repository.Find(null, p => p.OrganizationId == orgId && p.Id == orgMemberId)?.Items?.FirstOrDefault();
-            
-            //if member is the logged in user, do not delete
-            if (orgMem != null && orgMem.PersonId == SecurityContext.PersonId) {
-                ModelState.AddModelError("Delete", "cannot remove from the organization");
-                return BadRequest(ModelState);
+                var orgmem = membershipManager.GetOrganizationMember(orgId, SecurityContext.PersonId)?.Items?.FirstOrDefault();
+                if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
+                {
+                    ModelState.AddModelError("Delete", "Remove from organization failed, administrator of an organization can only remove members");
+                    return BadRequest(ModelState);
+                }
+
+                var orgMem = repository.Find(null, p => p.OrganizationId == orgId && p.Id == orgMemberId)?.Items?.FirstOrDefault();
+
+                //if member is the logged in user, do not delete
+                if (orgMem != null && orgMem.PersonId == SecurityContext.PersonId)
+                {
+                    ModelState.AddModelError("Delete", "cannot remove from the organization");
+                    return BadRequest(ModelState);
+                }
+                return await base.DeleteEntity(organizationMemberId);
             }
-            return await base.DeleteEntity(organizationMemberId);
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -476,7 +519,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string organizationMemberId, [FromBody]JsonPatchDocument<OrganizationMember> value)
         {
-            return await base.PatchEntity(organizationMemberId, value);
+            try
+            {
+                return await base.PatchEntity(organizationMemberId, value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -502,13 +552,9 @@ namespace OpenBots.Server.WebAPI.Controllers
            {
                 return await membershipManager.UpdateOrganizationMember(request, personId, organizationId);
             }
-            catch (UnauthorizedAccessException unauthorized)
-            {
-                return Unauthorized("Only Admins of this organization can update existing users");
-            }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return ex.GetActionResult();
             }
         }
 

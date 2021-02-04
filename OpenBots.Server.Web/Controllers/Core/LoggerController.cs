@@ -12,6 +12,7 @@ using Serilog.Parsing;
 using Serilog.Sinks.MSSqlServer.Sinks.MSSqlServer.Options;
 using Serilog.Sinks.MSSqlServer;
 using OpenBots.Server.Model.Attributes;
+using OpenBots.Server.WebAPI.Controllers;
 
 namespace OpenBots.Server.Web.Controllers
 {
@@ -135,8 +136,7 @@ namespace OpenBots.Server.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Logger", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
     }
