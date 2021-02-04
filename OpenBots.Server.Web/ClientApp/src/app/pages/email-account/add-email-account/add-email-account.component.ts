@@ -8,11 +8,13 @@ import { EmailAccountsService } from '../email-accounts.service';
 @Component({
   selector: 'ngx-add-email-account',
   templateUrl: './add-email-account.component.html',
-  styleUrls: ['./add-email-account.component.scss']
+  styleUrls: ['./add-email-account.component.scss'],
 })
 export class AddEmailAccountComponent implements OnInit {
   min: Date;
   max: Date;
+  isSslEnabled = false;
+  checked = false;
   emailId: any = [];
   submitted = false;
   showEmail: any = [];
@@ -22,24 +24,39 @@ export class AddEmailAccountComponent implements OnInit {
   show_createdon: any = [];
 
   constructor(
-    private toastrService: NbToastrService, private dateService: NbDateService<Date>,
+    private toastrService: NbToastrService,
+    private dateService: NbDateService<Date>,
     protected emailService: EmailAccountsService,
-    private formBuilder: FormBuilder, protected router: Router,
-  ) {
-
-  }
+    private formBuilder: FormBuilder,
+    protected router: Router
+  ) {}
 
   ngOnInit(): void {
-
     this.emailform = this.formBuilder.group({
-      fromEmailAddress: ['', [Validators.required, Validators.pattern('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,4}$')]],
+      fromEmailAddress: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[a-z]{2,4}$'),
+        ],
+      ],
       fromName: [''],
       host: [''],
-      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100), Validators.pattern('^[A-Za-z0-9_.-]{3,100}$')]],
+      name: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(100),
+          Validators.pattern('^[A-Za-z0-9_.-]{3,100}$'),
+        ],
+      ],
       encryptedPassword: [''],
       port: [''],
       provider: ['', [Validators.required]],
       username: [''],
+      isDefault: [''],
+      isSslEnabled: [''],
     });
     this.min = new Date();
     this.max = new Date();
@@ -47,29 +64,36 @@ export class AddEmailAccountComponent implements OnInit {
     this.max = this.dateService.addMonth(this.dateService.today(), 1);
   }
 
-
   get f() {
     return this.emailform.controls;
   }
 
-
-
-
-
-  gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'email', id: this.showEmail.id } })
+  check(checked: boolean) {
+    this.checked = checked;
   }
 
-
+  isSSl(checkSSL:boolean)     
+       {
+    this.isSslEnabled = checkSSL;
+  }
+  gotoaudit() {
+    this.router.navigate(['/pages/change-log/list'], {
+      queryParams: { PageName: 'email', id: this.showEmail.id },
+    });
+  }
 
   onSubmit() {
     this.submitted = true;
-    this.emailService
-      .addEmail(this.emailform.value)
-      .subscribe(() => {
-        this.toastrService.success('Email account created successfully', 'Success');
+    this.emailService.addEmail(this.emailform.value).subscribe(
+      () => {
+        this.toastrService.success(
+          'Email account created successfully',
+          'Success'
+        );
         this.router.navigate(['pages/emailaccount/list']);
-        this.submitted = false
-      }, () => this.submitted = false);
+        this.submitted = false;
+      },
+      () => (this.submitted = false)
+    );
   }
 }

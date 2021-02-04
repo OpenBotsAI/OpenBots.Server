@@ -36,9 +36,9 @@ export class AllEmailAccountComponent implements OnInit {
     private helperService: HelperService,
     private toastrService: NbToastrService
   ) {
-    this.emailService.getConfigValue().subscribe((data: any) => {
-      console.log(data);
-    });
+    // this.emailService.getConfigValue().subscribe((data: any) => {
+    //   console.log(data);
+    // });
   }
 
   ngOnInit(): void {
