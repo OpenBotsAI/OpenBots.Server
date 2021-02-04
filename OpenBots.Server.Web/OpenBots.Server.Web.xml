@@ -3766,7 +3766,7 @@
         </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.AccessRequestsController.Approve(System.String,System.String)">
             <summary>
-            Approves the specified acess request by an organization administrator.
+            Approves the specified access request by an organization administrator
             </summary>
             <param name="organizationId">Organization identifier</param>
             <param name="id">Access request identifier</param>
