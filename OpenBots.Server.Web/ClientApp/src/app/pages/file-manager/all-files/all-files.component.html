@@ -52,10 +52,10 @@
 
                 <li><a [routerLink]="" (click)="onClickUp()"><img src="../../../../assets/images/upload-icon.png" /></a>
                 </li>
-                <li class="lendhand"> <a [routerLink]="" (click)="onClickFiles()">Files</a>
+                <li class="lendhand"> <a [routerLink]="" (click)="onClickFiles()">{{driveName}}</a>
                 </li>
-                <li *ngFor="let breadcrumb of bread;index as i">
-                    <a [routerLink]="" *ngIf="breadcrumb.name !== floderName " (click)="getFileId(breadcrumb,i)"><span
+                <li *ngFor="let breadcrumb of bread; index as i">
+                    <a [routerLink]="" *ngIf="breadcrumb.name !== floderName " (click)="getFileId(i)"><span
                             class="bbSlach">/</span> {{ breadcrumb?.name }} </a>
                     <a *ngIf="breadcrumb.name == floderName"><span class="bbSlach">/</span>{{ breadcrumb?.name }}
                     </a>
@@ -83,33 +83,34 @@
 
                             </tr>
                         </thead>
-
-
-
                         <tbody>
-                            <tr *ngFor=" let files of fileManger | paginate
-                  : {
-                      id: '1',
-                      itemsPerPage: page.pageSize,
-                      currentPage: page.pageNumber,
-                      totalItems: page.totalCount
-                    };trackBy: trackByFn ; index as i " (click)="ClickedRow(i)" [class.active]="i == HighlightRow">
+                            <tr *ngFor="let files of fileManger | paginate : { 
+                            itemsPerPage: page.pageSize, currentPage: page.pageNumber,
+                            totalItems: page.totalCount } ">
+                                <!-- <tr *ngFor="let files of fileManger | paginate: {id: '1',
+                      itemsPerPage: page.pageSize,currentPage: page.pageNumber,totalItems: page.totalCount
+                    };trackBy: trackByFn"> -->
+                                <!-- };trackBy: trackByFn; index as i" (click)="ClickedRow(i)" [class.active]="i == HighlightRow"> -->
+                                <!-- <td scope="row" (click)="gotodetail(files)">
+                                    <a class="lendhand" *ngIf="!files.isFile" (dblclick)="fileFolder(files)">
+                                        <img src="../../../../assets/images/folder-icon.png" />
+                                        {{files?.name}}
+                                    </a>
+                                    <a class="lendhand" *ngIf="files.isFile">
+                                        <img src="../../../../assets/images/file-icon.png" />
+                                        {{files?.name}}
+                                    </a>
+                                </td> -->
                                 <td scope="row" (click)="gotodetail(files)">
                                     <a class="lendhand" *ngIf="!files.isFile" (dblclick)="fileFolder(files)">
                                         <img src="../../../../assets/images/folder-icon.png" />
-
                                         {{files?.name}}
                                     </a>
-                                    <!-- <a class="lendhand" *ngIf="files.isFile && files.contentType == 'image/png' ">
-                                        <img src="../../../../assets/images/img-icon.png" />
-                                        {{files?.name}}
-                                    </a> -->
-                                    <a class="lendhand" *ngIf="files.isFile ">
+                                    <a class="lendhand" *ngIf="files.isFile">
                                         <img src="../../../../assets/images/file-icon.png" />
                                         {{files?.name}}
                                     </a>
                                 </td>
-
                                 <td scope="row">
                                     {{files?.contentType}}
                                 </td>
@@ -174,10 +175,17 @@
     <nb-card-body class="noTopPadding">
         <div class="row pagerow">
             <div class="col-md-8 col-lg-8 no-left-padding">
-                <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+
+                <pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
+                <!-- <pagination-controls id="foo" class="paginateDiv" previousLabel="Prev" nextLabel="Next"
+                    responsive="true" (pageChange)="pageChanged($event,true)"
+                    (pageBoundsCorrection)="pageChanged($event, true)" directionLinks="true" autoHide="true"
+                    screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
+                    screenReaderCurrentLabel="You're on page"></pagination-controls> -->
+                <!-- <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
                     (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)"
                     directionLinks="true" autoHide="true" screenReaderPaginationLabel="Pagination"
-                    screenReaderPageLabel="page" screenReaderCurrentLabel="You're on page"></pagination-controls>
+                    screenReaderPageLabel="page" screenReaderCurrentLabel="You're on page"></pagination-controls> -->
             </div>
             <!--  *ngIf="get_perPage" -->
             <div class="col-md-4 col-lg-4 text-right no-right-padding">

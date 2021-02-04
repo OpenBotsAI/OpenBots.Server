@@ -36,7 +36,7 @@ export class AllFilesComponent implements OnInit {
   ///// end declartion////
   filesFormgroup: FormGroup;
   filesCreateFolderFromgroup: FormGroup;
-  fileManger: any = [];
+  fileManger: FileManager[] = [];
   fileID: any = [];
   name: any = [];
   size: any = [];
@@ -62,6 +62,10 @@ export class AllFilesComponent implements OnInit {
   HighlightRow: number;
   ClickedRow: any;
   filterOrderBy: string;
+  driveName: string;
+  driveId: string;
+  currentParentId: string;
+  isSingleClick: Boolean = true;
 
   constructor(
     protected fileManagerService: FileManagerService,
@@ -80,8 +84,54 @@ export class AllFilesComponent implements OnInit {
   ngOnInit(): void {
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
-    this.pagination(this.page.pageNumber, this.page.pageSize);
+    // this.pagination(this.page.pageNumber, this.page.pageSize);
+    this.getdriveName();
     this.itemsPerPage = this.helperService.getItemsPerPage();
+  }
+
+  getdriveName(): void {
+    this.httpService
+      .get(`files/drive?driveName=Files`, { observe: 'response' })
+      .subscribe((response) => {
+        if (response && response.status === 200) {
+          this.driveName = response.body.name;
+          this.driveId = response.body.id;
+          this.currentParentId = response.body.id;
+          this.getFilterPagination(
+            this.page.pageNumber,
+            this.page.pageSize,
+            this.driveId
+          );
+        }
+        console.log('data', response);
+      });
+  }
+
+  // this function get pagination using parent-id
+  getFilterPagination(
+    pageNumber: number,
+    pageSize: number,
+    id: string,
+    orderBy?: string
+  ): void {
+    const top = pageSize;
+    this.page.pageSize = pageSize;
+    const skip = (pageNumber - 1) * pageSize;
+    let url: string;
+    if (orderBy)
+      url = `files?driveName=Files&$orderby=${orderBy}}&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
+    else
+      url = `files?driveName=Files&$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
+
+    this.httpService.get(url).subscribe((response) => {
+      console.log('data', response);
+      this.page.totalCount = response.totalCount;
+      if (response && response.items && response.items.length) {
+        // this.bread = [];
+        this.fileManger = [];
+        this.fileManger = [...response.items];
+      } else this.fileManger = [];
+    });
   }
 
   gotodetail(file): void {
@@ -105,17 +155,24 @@ export class AllFilesComponent implements OnInit {
     this.bread = [];
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
-    this.pagination(this.page.pageNumber, this.page.pageSize);
+    // this.pagination(this.page.pageNumber, this.page.pageSize);
+    this.getFilterPagination(1, this.page.pageSize, this.driveId);
   }
 
   deleteFiles(): void {
     // let filesurl = `/files/${id}?driveName=Files`;
     // this.fileManagerService.DeleteFileFloder(this.fileID)
     this.httpService
-      .delete(`/files/${this.fileID}?driveName=Files`)
+      .delete(`files/${this.fileID}?driveName=Files`)
       .subscribe(() => {
         // this.allFiles(5, 0);
-        this.getByIdFile(this.bread[this.bread.length - 1].id);
+        if (this.bread && !this.bread.length)
+          // this.pagination(1, this.page.pageSize);
+          this.getFilterPagination(1, this.page.pageSize, this.driveId);
+        else {
+          this.getByIdFile(this.bread[this.bread.length - 1].id);
+        }
+        // this.getByIdFile(this.bread[this.bread.length - 1].id);
       });
   }
   openRenameDialog(ref: TemplateRef<any>, file): void {
@@ -140,10 +197,10 @@ export class AllFilesComponent implements OnInit {
     this.bread.forEach((item) => (storagePath += '/' + item.name));
     let formData = new FormData();
     formData.append('Name', this.filesCreateFolderFromgroup.value.name);
-    formData.append('StoragePath', 'Files' + storagePath);
+    formData.append('StoragePath', `${this.driveName}` + storagePath);
     formData.append('isFile', this.filesCreateFolderFromgroup.value.isFile);
     this.httpService
-      .post(`/files?driveName=Files`, formData, { observe: 'response' })
+      .post(`files?driveName=Files`, formData, { observe: 'response' })
       .subscribe((data) => {
         if (data && data.status === 200) {
           // if (this.filterOrderBy)
@@ -156,8 +213,13 @@ export class AllFilesComponent implements OnInit {
           // console.log('length', this.bread.length);
           // console.log('bread', this.bread);
           // console.log('id', this.bread[this.bread.length]['id']);
+          // this.pagination(1, this.page.pageSize);
           if (this.bread && !this.bread.length)
-            this.pagination(1, this.page.pageSize);
+            this.getFilterPagination(
+              1,
+              this.page.pageSize,
+              this.currentParentId
+            );
           else {
             this.getByIdFile(this.bread[this.bread.length - 1].id);
           }
@@ -263,7 +325,8 @@ export class AllFilesComponent implements OnInit {
       });
   }
 
-  getFileId(val, i) {
+  getFileId(i: number) {
+    console.log('index', 1);
     for (let abc in this.bread) {
       if (+abc > i) {
         this.bread.splice(+abc, this.bread.length - i);
@@ -281,20 +344,30 @@ export class AllFilesComponent implements OnInit {
     } else {
       this.bread.splice(this.bread.length - 1, 1);
       // this.allFiles(5, 0);
-      this.pagination(this.page.pageNumber, this.page.pageSize);
+      this.getFilterPagination(
+        this.page.pageNumber,
+        this.page.pageSize,
+        this.bread[this.bread.length - 1].id
+      );
       // this.ChildFolderFlag = false;
     }
   }
 
-  getByIdFile(id) {
+  getByIdFile(id: string): void {
     // let filesurl = `/files?driveName=Files&$filter=${parentId}`;
     // this.fileManagerService
     //   .getFileFloder(`ParentId+eq+guid'${id}'`)
+    // `files?driveName=Files&$orderby=${orderBy}}&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
     this.httpService
       .get(`files?driveName=Files&$filter=ParentId+eq+guid'${id}'`)
-      .subscribe((data: any) => {
-        if (data && data.items) this.fileManger = [...data.items];
-        this.page.totalCount = data.totalCount;
+      .subscribe((response) => {
+        if (response && response.items) {
+          console.log('response', response);
+          this.fileManger = [];
+          this.fileManger = [...response.items];
+        }
+        this.page.totalCount = response.totalCount;
+        console.log('count', this.page.totalCount);
 
         // this.showpage = data;
         // this.bread = [];
@@ -306,14 +379,33 @@ export class AllFilesComponent implements OnInit {
         // }
       });
   }
+  // method1CallForClick(files) {
+  //   this.isSingleClick = true;
+  //   setTimeout(() => {
+  //     if (this.isSingleClick) {
+  //       this.gotodetail(files);
+  //     }
+  //   }, 250);
+  // }
+  // method2CallForDblClick(files) {
+  //   this.isSingleClick = false;
+  //   this.fileFolder(files);
+  // }
 
   fileFolder(files) {
     if (files && files.isFile == false) {
-      this.ChildFolderFlag = true;
+      // this.ChildFolderFlag = true;
       this.floderName = files.name;
       this.bread.push(files);
       this.FolderIDs = files.id;
-      this.getByIdFile(files.id);
+      // this.getByIdFile(files.id);
+      this.page.pageNumber = 1;
+      this.currentParentId = files.id;
+      this.getFilterPagination(
+        this.page.pageNumber,
+        this.page.pageSize,
+        files.id
+      );
     }
   }
   onSortClick(event, param: string): void {
@@ -337,10 +429,24 @@ export class AllFilesComponent implements OnInit {
   }
 
   pageChanged(event): void {
+    debugger;
+    // if (bool) {
     this.page.pageNumber = event;
-    if (this.filterOrderBy)
-      this.pagination(event, this.page.pageSize, `${this.filterOrderBy}`);
-    else this.pagination(event, this.page.pageSize);
+    if (this.filterOrderBy) {
+      this.getFilterPagination(
+        event,
+        this.page.pageSize,
+        this.currentParentId,
+        `${this.filterOrderBy}`
+      );
+    } else {
+      this.getFilterPagination(event, this.page.pageSize, this.currentParentId);
+    }
+    // }
+
+    // if (this.filterOrderBy)
+    //   this.pagination(event, this.page.pageSize, `${this.filterOrderBy}`);
+    // else this.pagination(event, this.page.pageSize);
   }
 
   selectChange(event): void {
@@ -370,8 +476,8 @@ export class AllFilesComponent implements OnInit {
     else
       url = `files?driveName=Files&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
     this.httpService.get(url).subscribe((response) => {
-      if (response && response.items.length) {
-        this.bread = [];
+      if (response && response.items) {
+        // this.bread = [];
         this.fileManger = [...response.items];
         this.page.totalCount = response.totalCount;
       } else this.fileManger = [];
