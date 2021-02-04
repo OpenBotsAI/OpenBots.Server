@@ -49,7 +49,16 @@ namespace OpenBots.Server.Web.Hubs
         public void ScheduleNewJob(string scheduleSerializeObject)
         {
             var scheduleObj = JsonSerializer.Deserialize<Schedule>(scheduleSerializeObject);
-            recurringJobManager.AddOrUpdate(scheduleObj.Id.Value.ToString(), () => CreateJob(scheduleSerializeObject, Enumerable.Empty<ParametersViewModel>()), scheduleObj.CRONExpression);
+
+            if (string.IsNullOrWhiteSpace(scheduleObj.CRONExpression))
+            {
+                CreateJob(scheduleSerializeObject, Enumerable.Empty<ParametersViewModel>());
+            }
+            else
+            {
+                recurringJobManager.AddOrUpdate(scheduleObj.Id.Value.ToString(), () => CreateJob(scheduleSerializeObject, Enumerable.Empty<ParametersViewModel>()), scheduleObj.CRONExpression);
+
+            }
         }
 
         public void ExecuteJob(string scheduleSerializeObject, IEnumerable<ParametersViewModel>? parameters)
@@ -68,7 +77,7 @@ namespace OpenBots.Server.Web.Hubs
 
             var automationVersion = automationVersionRepository.Find(null, a => a.AutomationId == schedule.AutomationId).Items?.FirstOrDefault();
 
-            //if this is a scheduled job get the schedule parameters
+            //if this is not a "RunNow" job, then use the schedule parameters
             if (schedule.StartingType.Equals("RunNow") == false)
             {
                 List<ParametersViewModel> parametersList = new List<ParametersViewModel>();

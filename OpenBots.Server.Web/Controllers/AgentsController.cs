@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business;
+using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
@@ -250,68 +251,13 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                //name must be unique
-                Agent namedAgent = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
-                if (namedAgent != null)
-                {
-                    ModelState.AddModelError("Agent", "Agent Name Already Exists");
-                    return BadRequest(ModelState);
-                }
+                agentManager.CreateAgentUserAccountAsync(request);
 
-                Guid entityId = Guid.NewGuid();
-                if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
-                    request.Id = entityId;
-
-                //create agent app user
-                var user = new ApplicationUser()
-                {
-                    Name = request.Name,
-                    UserName = request.UserName
-                };
-
-                var loginResult = await userManager.CreateAsync(user, request.Password).ConfigureAwait(false);
-                var errors = loginResult.Errors;
-
-                if (errors.Any())
-                {
-                    foreach (var error in errors)
-                    {
-                        if (error.Code == "DuplicateUserName")
-                        {
-                            ModelState.AddModelError("Agent", "Username Already Exists");
-                            return BadRequest(ModelState);
-                        }
-                    }
-
-                    ModelState.AddModelError("Agent", "Failed to Create Agent User");
-                    return BadRequest(ModelState);
-                }
-                else
-                {
-                    Person newPerson = new Person()
-                    {
-                        Name = request.Name,
-                        IsAgent = true
-                    };
-                    var person = personRepo.Add(newPerson);
-
-                   
-                    if (person == null)
-                    {
-                        ModelState.AddModelError("Agent", "Failed to Create Agent User");
-                        return BadRequest(ModelState);
-                    }
-
-                    //update the user 
-                    var registeredUser = userManager.FindByNameAsync(user.UserName).Result;
-                    registeredUser.PersonId = (Guid)person.Id;
-                    await userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
-
-                    //post agent entity
-                    Agent newAgent = request.Map(request);
-                    await webhookPublisher.PublishAsync("Agents.NewAgentCreated", newAgent.Id.ToString(), newAgent.Name).ConfigureAwait(false);
-                    return await base.PostEntity(newAgent);
-                }
+                //post agent entity
+                Agent newAgent = request.Map(request);
+                await webhookPublisher.PublishAsync("Agents.NewAgentCreated", newAgent.Id.ToString(), newAgent.Name).ConfigureAwait(false);
+                return await base.PostEntity(newAgent);
+                
             }
             catch (Exception ex)
             {
@@ -419,50 +365,12 @@ namespace OpenBots.Server.Web.Controllers
                 Agent agent = agentRepo.GetOne(new Guid(id));
                 if (agent == null)
                 {
-                    ModelState.AddModelError("Delete Agent", "No Agent was found with the specified Agent ID");
-                    return NotFound(ModelState);
+                    throw new EntityDoesNotExistException("No agent was found with the specified agent id");
                 }
 
-                bool childExists = agentManager.CheckReferentialIntegrity(id);
-                if (childExists)
-                {
-                    ModelState.AddModelError("Delete Agent", "Referential Integrity in Schedule or Job table, please remove those before deleting this agent.");
-                    return BadRequest(ModelState);
-                }
+                agentManager.DeleteAgentDependenciesAsync(agent);
 
-                personRepo.ForceIgnoreSecurity();
-                Person person = personRepo.Find(0, 1).Items?.Where(p => p.IsAgent && p.Name == agent.Name && !(p.IsDeleted ?? false))?.FirstOrDefault();
-                if (person == null)
-                {
-                    ModelState.AddModelError("Delete Agent", "Something went wrong, could not find Agent Person");
-                    return BadRequest(ModelState);
-                }
-                else
-                {
-                    personRepo.SoftDelete((Guid)person.Id);
-                }
-                personRepo.ForceSecurity();
-
-                var aspUser = usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
-
-                if (aspUser == null)
-                {
-                    ModelState.AddModelError("Delete Agent", "Something went wrong, could not find Agent User");
-                    return BadRequest(ModelState);
-                }
-
-                var user = await userManager.FindByIdAsync(aspUser.Id);
-                var deleteResult = await userManager.DeleteAsync(user);
-
-                if (!deleteResult.Succeeded)
-                {
-                    ModelState.AddModelError("Delete Agent", "Something went wrong, unable to Delete Agent User");
-                    return BadRequest(ModelState);
-                }
-
-                agentManager.DeleteExistingHeartbeats(agent.Id ?? Guid.Empty);
-
-                await webhookPublisher.PublishAsync("Agents.AgentDeleted", agent.Id.ToString(), agent.Name).ConfigureAwait(false);
+                await webhookPublisher.PublishAsync("Agents.AgentDeleted", id, agent.Name).ConfigureAwait(false);
                 return await base.DeleteEntity(id);
             }
             catch (Exception ex)
