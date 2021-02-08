@@ -76,6 +76,7 @@ namespace XUnitTests
             var processLogger = Mock.Of<ILogger<Automation>>();
             var jobParameterLogger = Mock.Of<ILogger<JobParameter>>();
             var jobCheckpointLogger = Mock.Of<ILogger<JobCheckpoint>>();
+            var automationVersionLogger = Mock.Of<ILogger<AutomationVersion>>();
 
             //context accessor
             var httpContextAccessor = new Mock<IHttpContextAccessor>();
@@ -87,9 +88,10 @@ namespace XUnitTests
             var automationRepo = new AutomationRepository(context, processLogger, httpContextAccessor.Object);
             var jobParameterRepo = new JobParameterRepository(context, jobParameterLogger, httpContextAccessor.Object);
             var jobCheckpointRepo = new JobCheckpointRepository(context, jobCheckpointLogger, httpContextAccessor.Object);
+            var automationVersionRepo = new AutomationVersionRepository(context, automationVersionLogger, httpContextAccessor.Object);
 
             //manager to be tested
-            manager = new JobManager(jobRepository, agentRepo, automationRepo, jobParameterRepo, jobCheckpointRepo);
+            manager = new JobManager(jobRepository, agentRepo, automationRepo, jobParameterRepo, jobCheckpointRepo, automationVersionRepo);
         }
 
         //gets the next job that has not been picked up for the specified agent id

@@ -23,31 +23,39 @@
         <div class="toolPnl">
             <div class="row">
                 <div class="col-md-4 col-lg-4">
-                    <button class="btnIcon btnFolder" (click)="openCreateFolderDialog(createfolderdialog)"><img
-                            src="../../../../assets/images/folder-icon.png" />New Folder</button>
-                    <button class="btnIcon btnUpload" (click)="openpopupDialog(uploaddialog)"><img
-                            src="../../../../assets/images/upload-icon.png" />Upload</button>
-                    <button class="btnIcon btnFolder" (click)="allFiles(5,0)"><img
-                            src="../../../../assets/images/fresh-icon.png" />Refresh</button>
+                    <span *ngIf="isHidden">
+                        <button class="btnIcon btnFolder" (click)="openCreateFolderDialog(createfolderdialog)"><img
+                                src="../../../../assets/images/folder-icon.png" />New Folder</button>
+                        <button class="btnIcon btnUpload" (click)="openUploadFileDialog(uploaddialog)"><img
+                                src="../../../../assets/images/upload-icon.png" />Upload</button>
+                        <button class="btnIcon btnFolder" (click)="this.pagination(page.pageNumber, page.pageSize)"><img
+                                src="../../../../assets/images/fresh-icon.png" />Refresh</button>
+                    </span>
                 </div>
-                <div class="col-md-4 col-lg-4 text-center" *ngIf="showDownloadbtn">
-                    <button class="btnIconBlue btn btn-primary">Delete</button>
-                    <button class="btnIconBlue btn btn-primary" (click)="openRenameDialog(dialog)">Rename</button>
-                    <button class="btnIconBlue btn btn-primary">Move</button>
+                <div class="col-md-4 col-lg-4" *ngIf="showDownloadbtn">
+                    <button class="btnIcon btnRename" (click)="openRenameDialog(dialog)"> <img
+                            src="../../../../assets/images/rename-icon.png" />Rename</button>
+                    <button class="btnIcon btnMove"> <img src="../../../../assets/images/move.png" />Move</button>
+                    <!-- *ngIf="showDeletebtn" -->
+                    <button class="btnIcon btnDelete" (click)="deleteFiles()"><img
+                            src="../../../../assets/images/delete-icon.png" />Delete</button>
+
                 </div>
-                <div *ngIf="showDownloadbtn" class="col-md-4 col-lg-4 download-btn text-right">
-                    <button type="button" class="btn btn-primary" (click)="onDown()">Download</button>
+                <div *ngIf="Downloadbtn" class="col-md-4 col-lg-4 download-btn text-right">
+                    <button type="button" class="btnIcon btnDownload" (click)="onDown()"><img
+                            src="../../../../assets/images/download-icon.png" />Download</button>
                 </div>
             </div>
 
             <hr>
             <ul class='breadcrumb'>
-
-                <li><a [routerLink]="" (click)="onClickUp()"><img src="../../../../assets/images/upload-icon.png" /></a>
+                <li *ngIf="bread.length"><a [routerLink]="" (click)="onClickUp()"><img
+                            src="../../../../assets/images/upload-icon.png" /></a>
                 </li>
-                <li class="lendhand"> <a [routerLink]="" (click)="allFiles(5,0)">Files</a> </li>
-                <li *ngFor="let breadcrumb of bread;">
-                    <a [routerLink]="" *ngIf="breadcrumb.name !== floderName " (click)="getFileId(breadcrumb)"><span
+                <li class="lendhand"> <a [routerLink]="" (click)="onClickFiles()">{{driveName}}</a>
+                </li>
+                <li *ngFor="let breadcrumb of bread; index as i">
+                    <a [routerLink]="" *ngIf="breadcrumb.name !== floderName " (click)="getFileId(i)"><span
                             class="bbSlach">/</span> {{ breadcrumb?.name }} </a>
                     <a *ngIf="breadcrumb.name == floderName"><span class="bbSlach">/</span>{{ breadcrumb?.name }}
                     </a>
@@ -57,7 +65,7 @@
 
         <div class="row">
             <div class="col-md-8 col-lg-8 noRightPadding">
-                <div style="overflow-x:auto;">
+                <div class="heightQual" style="overflow-x:auto;">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
@@ -75,27 +83,35 @@
 
                             </tr>
                         </thead>
-
-
-
                         <tbody>
-                            <tr *ngFor=" let files of fileManger | paginate
-                  : {
-                      id: '1',
-                      itemsPerPage: page.pageSize,
-                      currentPage: page.pageNumber,
-                      totalItems: page.totalCount
-                    };trackBy: trackByFn ; index as i " (click)="ClickedRow(i)" [class.active]="i == HighlightRow">
-                                <td scope="row">
-                                    <a class="lendhand" (click)="gotodetail(files)" (dblclick)="fileFolder(files,i)">
-                                        <img *ngIf="files.isFile == false "
-                                            src="../../../../assets/images/folder-icon.png" />
-                                        <img *ngIf="files.isFile == true "
-                                            src="../../../../assets/images/file-icon.png" />
+                            <tr *ngFor="let files of fileManger | paginate : { 
+                            itemsPerPage: page.pageSize, currentPage: page.pageNumber,
+                            totalItems: page.totalCount };;trackBy: trackByFn; index as i " (click)="ClickedRow(i)"
+                                [class.active]="i == HighlightRow">
+                                <!-- <tr *ngFor="let files of fileManger | paginate: {id: '1',
+                      itemsPerPage: page.pageSize,currentPage: page.pageNumber,totalItems: page.totalCount
+                    };trackBy: trackByFn"> -->
+                                <!-- };trackBy: trackByFn; index as i" (click)="ClickedRow(i)" [class.active]="i == HighlightRow"> -->
+                                <!-- <td scope="row" (click)="gotodetail(files)">
+                                    <a class="lendhand" *ngIf="!files.isFile" (dblclick)="fileFolder(files)">
+                                        <img src="../../../../assets/images/folder-icon.png" />
+                                        {{files?.name}}
+                                    </a>
+                                    <a class="lendhand" *ngIf="files.isFile">
+                                        <img src="../../../../assets/images/file-icon.png" />
+                                        {{files?.name}}
+                                    </a>
+                                </td> -->
+                                <td scope="row" (click)="gotodetail(files)">
+                                    <a class="lendhand" *ngIf="!files.isFile" (dblclick)="fileFolder(files)">
+                                        <img src="../../../../assets/images/folder-icon.png" />
+                                        {{files?.name}}
+                                    </a>
+                                    <a class="lendhand" *ngIf="files.isFile">
+                                        <img src="../../../../assets/images/file-icon.png" />
                                         {{files?.name}}
                                     </a>
                                 </td>
-
                                 <td scope="row">
                                     {{files?.contentType}}
                                 </td>
@@ -160,17 +176,24 @@
     <nb-card-body class="noTopPadding">
         <div class="row pagerow">
             <div class="col-md-8 col-lg-8 no-left-padding">
-                <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+                <pagination-controls (pageChange)="pageChanged($event)" autoHide="true"></pagination-controls>
+                <!-- <pagination-controls id="foo" class="paginateDiv" previousLabel="Prev" nextLabel="Next"
+                    responsive="true" (pageChange)="pageChanged($event,true)"
+                    (pageBoundsCorrection)="pageChanged($event, true)" directionLinks="true" autoHide="true"
+                    screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
+                    screenReaderCurrentLabel="You're on page"></pagination-controls> -->
+                <!-- <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
                     (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)"
                     directionLinks="true" autoHide="true" screenReaderPaginationLabel="Pagination"
-                    screenReaderPageLabel="page" screenReaderCurrentLabel="You're on page"></pagination-controls>
+                    screenReaderPageLabel="page" screenReaderCurrentLabel="You're on page"></pagination-controls> -->
             </div>
-            <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
+            <!--  *ngIf="get_perPage" -->
+            <div class="col-md-4 col-lg-4 text-right no-right-padding">
                 <label class="label">Total {{ page.totalCount}} /</label>
 
-                <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
-                    <option *ngFor="let item of itemsPerPage" [value]="item.id">
-                        {{ item.name }}
+                <select class="custom-select per-page-drop" (change)="selectChange($event)">
+                    <option *ngFor="let item of itemsPerPage" [value]="item?.id">
+                        {{ item?.name }}
                     </option>
                 </select>
             </div>
@@ -209,7 +232,7 @@
             <nb-card-footer>
                 <!-- [disabled]="isDeleted" (click)="del_agent(ref)" -->
                 <button class="btn btn-primary" [disabled]="isSubmitted || !filesCreateFolderFromgroup.valid"
-                    (click)="createFolder()">Save</button>
+                    (click)="createFolder(ref)">Save</button>
                 <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
                     Cancel
                 </button>
@@ -275,12 +298,17 @@
         <nb-card-body>
 
             <div class="upload-files uploadTempFiles">
-                <div class="drop-container" [ngClass]="{ 'is-drop-over': dragOver }">
+                <!-- <div class="drop-container" [ngClass]="{ 'is-drop-over': dragOver }"> -->
+                <div class="drop-container" ngFileDrop [options]="options" (uploadOutput)="onUploadOutput($event)"
+                    [uploadInput]="uploadInput" [ngClass]="{ 'is-drop-over': dragOver }">
                     <p>Drag and Drop <span>your file here</span></p>
                     <span class="or-file">OR</span>
                 </div>
                 <label class="upload-button">
-                    <input type="file" class="btn-files custom-file-input"><span>Browse</span>
+
+                    <input type="file" class="btn-files custom-file-input" ngFileSelect [options]="options"
+                        (uploadOutput)="onUploadOutput($event)" [uploadInput]="uploadInput" multiple>
+                    <span>Browse</span>
                 </label>
             </div>
 
@@ -296,8 +324,8 @@
         </nb-card-body>
         <nb-card-footer>
             <!-- [disabled]="isDeleted" (click)="del_agent(ref)" -->
-            <button class="btn btn-primary btnNoMargn" [disabled]="isSubmitted">Upload</button>
-            <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
+            <button class="btn btn-primary btnNoMargn" (click)="UploadFile(ref)">Upload</button>
+            <button class="btn btn-light" style="margin-left: 11px" (click)="closeFileUploadPopup(ref)">
                 Cancel
             </button>
 

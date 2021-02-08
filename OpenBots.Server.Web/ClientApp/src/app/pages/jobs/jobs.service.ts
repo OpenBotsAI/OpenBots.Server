@@ -62,4 +62,9 @@ export class JobsService {
     };
     return this.http.get(`${this.apiUrl}` + getJobstUrl, options);
   }
+
+  delJobbyID(id) {
+    let getjobUrlbyId = `/${JobsApiUrl.jobs}/${id}`;
+    return this.http.delete(`${this.apiUrl}` + getjobUrlbyId);
+  }
 }

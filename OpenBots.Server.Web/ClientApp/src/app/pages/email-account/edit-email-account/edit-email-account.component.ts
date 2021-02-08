@@ -10,10 +10,12 @@ import { EmailAccountsService } from '../email-accounts.service';
 @Component({
   selector: 'ngx-edit-email-account',
   templateUrl: './edit-email-account.component.html',
-  styleUrls: ['./edit-email-account.component.scss']
+  styleUrls: ['./edit-email-account.component.scss'],
 })
 export class EditEmailAccountComponent implements OnInit {
   emailId: any = [];
+  checked = false;
+  isSslEnabled= false;
   submitted = false;
   showEmail: any = [];
   emailform: FormGroup;
@@ -22,22 +24,38 @@ export class EditEmailAccountComponent implements OnInit {
   show_createdon: any = [];
   etag;
   constructor(
-    private acroute: ActivatedRoute, private toastrService: NbToastrService,
+    private acroute: ActivatedRoute,
+    private toastrService: NbToastrService,
     protected emailService: EmailAccountsService,
-    private formBuilder: FormBuilder, protected router: Router,
+    private formBuilder: FormBuilder,
+    protected router: Router
   ) {
     this.acroute.queryParams.subscribe((params) => {
-      this.emailId = params.id
+      this.emailId = params.id;
       this.getallemail(params.id);
     });
   }
 
   ngOnInit(): void {
     this.emailform = this.formBuilder.group({
-      fromEmailAddress: ['', [Validators.required, Validators.pattern('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,4}$')]],
+      fromEmailAddress: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[a-z]{2,4}$'),
+        ],
+      ],
       fromName: [''],
       host: [''],
-      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100), Validators.pattern('^[A-Za-z0-9_.-]{3,100}$')]],
+      name: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(100),
+          Validators.pattern('^[A-Za-z0-9_.-]{3,100}$'),
+        ],
+      ],
       passwordHash: [''],
       port: [''],
       provider: ['', [Validators.required]],
@@ -58,54 +76,61 @@ export class EditEmailAccountComponent implements OnInit {
       timestamp: [''],
       updatedBy: [''],
       updatedOn: [''],
-
     });
   }
-
-
-
 
   get f() {
     return this.emailform.controls;
   }
 
+  check(checked: boolean) {
+    this.checked = checked;
+  }
+  isSSl(checkSSL: boolean) {
+    this.isSslEnabled = checkSSL;
+  }
   getallemail(id) {
     this.emailService.getEmailbyId(id).subscribe((data: HttpResponse<any>) => {
       this.showEmail = data.body;
-      this.etag = data.headers.get('ETag').replace(/\"/g, '')
+      this.etag = data.headers.get('ETag').replace(/\"/g, '');
       const filterPipe = new TimeDatePipe();
       const fiteredArr = filterPipe.transform(this.showEmail.createdOn, 'lll');
-      this.showEmail.createdOn = filterPipe.transform(this.showEmail.createdOn, 'lll');
+      this.showEmail.createdOn = filterPipe.transform(
+        this.showEmail.createdOn,
+        'lll'
+      );
 
       this.emailform.patchValue(this.showEmail);
-
     });
   }
 
-
-
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'email', id: this.showEmail.id } })
+    this.router.navigate(['/pages/change-log/list'], {
+      queryParams: { PageName: 'email', id: this.showEmail.id },
+    });
   }
-
-
 
   onSubmit() {
     this.submitted = true;
     this.emailService
       .editEmail(this.emailId, this.emailform.value, this.etag)
-      .subscribe(() => {
-        this.toastrService.success('Email Details Update Successfully', 'Success');
-        this.router.navigate(['pages/emailaccount/list']);
-      }, (error) => {
-        console.log(error.status, error)
-        if (error.error.status === 409) {
-          this.toastrService.danger(error.error.serviceErrors, 'error')
-          this.getallemail(this.emailId)
-        }
-      });
+      .subscribe(
+        () => {
+          this.toastrService.success(
+            'Email Details Update Successfully',
+            'Success'
+          );
+          this.router.navigate(['pages/emailaccount/list']);
+        },
+          (error) => {
+            console.log(error.status, error);
+            if (error.error.status === 409) {
+              this.toastrService.danger(error.error.serviceErrors, 'error');
+              this.getallemail(this.emailId);
+            }
+          }
+      );
 
     this.submitted = false;
-
   }
 }
