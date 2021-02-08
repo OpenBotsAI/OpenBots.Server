@@ -21,12 +21,12 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
     [Authorize]
     public class UserAgreementController : ReadOnlyEntityController<UserAgreement>
     {
-        readonly IUserAgreementRepository repository;
-        readonly IMembershipManager membershipManager;
-        readonly IPersonRepository personRepository;
-        readonly IPersonEmailRepository personEmailRepository;
-        readonly IEmailVerificationRepository emailVerificationRepository;
-        readonly ITermsConditionsManager termsConditionsManager;
+        private readonly IUserAgreementRepository _repository;
+        private readonly IMembershipManager _membershipManager;
+        private readonly IPersonRepository _personRepository;
+        private readonly IPersonEmailRepository _personEmailRepository;
+        private readonly IEmailVerificationRepository _emailVerificationRepository;
+        private readonly ITermsConditionsManager _termsConditionsManager;
 
         /// <summary>
         /// UserAgreementController constructor
@@ -51,19 +51,19 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
             ITermsConditionsManager termsConditionsManager,
             IConfiguration configuration) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.repository = repository;
-            this.membershipManager = membershipManager;
-            this.personRepository = personRepository;
-            this.personEmailRepository = personEmailRepository;
-            this.emailVerificationRepository = emailVerificationRepository;
-            this.termsConditionsManager = termsConditionsManager;
+            _repository = repository;
+            _membershipManager = membershipManager;
+            _personRepository = personRepository;
+            _personEmailRepository = personEmailRepository;
+            _emailVerificationRepository = emailVerificationRepository;
+            _termsConditionsManager = termsConditionsManager;
 
-            this.repository.SetContext(SecurityContext);
-            this.membershipManager.SetContext(SecurityContext);
-            this.personRepository.SetContext(SecurityContext);
-            this.personEmailRepository.SetContext(SecurityContext);
-            this.emailVerificationRepository.SetContext(SecurityContext);
-            this.termsConditionsManager.SetContext(SecurityContext);
+            _repository.SetContext(SecurityContext);
+            _membershipManager.SetContext(SecurityContext);
+            _personRepository.SetContext(SecurityContext);
+            _personEmailRepository.SetContext(SecurityContext);
+            _emailVerificationRepository.SetContext(SecurityContext);
+            _termsConditionsManager.SetContext(SecurityContext);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
         {
             try
             {
-                var response = await termsConditionsManager.GetUserAgreement().ConfigureAwait(false);
+                var response = await _termsConditionsManager.GetUserAgreement().ConfigureAwait(false);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -118,7 +118,7 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
             try
             {
                 Guid entityId = new Guid(id);
-                var response = await termsConditionsManager.IsAccepted(entityId, SecurityContext.PersonId).ConfigureAwait(false);
+                var response = await _termsConditionsManager.IsAccepted(entityId, SecurityContext.PersonId).ConfigureAwait(false);
                 return Ok(response);
             }
             catch (Exception ex)

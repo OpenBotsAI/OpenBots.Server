@@ -26,7 +26,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
     [Authorize]
     public class IntegrationEventLogsController : ReadOnlyEntityController<IntegrationEventLog>
     {
-        private readonly IIntegrationEventLogRepository repository;
+        private readonly IIntegrationEventLogRepository _repository;
 
         /// <summary>
         /// IntegrationEventLogsController constructor
@@ -43,7 +43,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.repository = repository;
+            _repository = repository;
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         [ProducesDefaultResponseType]
         public IntegrationEventLogLookupViewModel AllIntegrationEventLogs()
         {
-            var response = repository.Find(null, x => x.IsDeleted == false);
+            var response = _repository.Find(null, x => x.IsDeleted == false);
             IntegrationEventLogLookupViewModel eventLogList = new IntegrationEventLogLookupViewModel();
 
             if (response != null)
@@ -176,7 +176,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             try
             {
                 Guid entityID = new Guid(id);
-                IntegrationEventLog eventLog = repository.GetOne(entityID);
+                IntegrationEventLog eventLog = _repository.GetOne(entityID);
 
                 if (eventLog == null)
                 {

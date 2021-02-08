@@ -29,11 +29,11 @@ namespace OpenBots.Server.Web.Controllers.Queue
     [Authorize]
     public class QueueItemAttachmentsController : EntityController<QueueItemAttachment>
     {
-        private readonly IBinaryObjectManager binaryObjectManager;
-        private readonly IBinaryObjectRepository binaryObjectRepository;
-        private readonly IQueueItemRepository queueItemRepository;
-        private readonly IQueueItemManager manager;
-        private readonly IWebhookPublisher webhookPublisher;
+        private readonly IBinaryObjectManager _binaryObjectManager;
+        private readonly IBinaryObjectRepository _binaryObjectRepository;
+        private readonly IQueueItemRepository _queueItemRepository;
+        private readonly IQueueItemManager _manager;
+        private readonly IWebhookPublisher _webhookPublisher;
 
         /// <summary>
         /// QueueItemAttachmentsController constructor
@@ -60,11 +60,11 @@ namespace OpenBots.Server.Web.Controllers.Queue
             IQueueItemManager manager,
             IWebhookPublisher webhookPublisher) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.binaryObjectRepository = binaryObjectRepository;
-            this.binaryObjectManager = binaryObjectManager;
-            this.queueItemRepository = queueItemRepository;
-            this.manager = manager;
-            this.webhookPublisher = webhookPublisher;
+            _binaryObjectRepository = binaryObjectRepository;
+            _binaryObjectManager = binaryObjectManager;
+            _queueItemRepository = queueItemRepository;
+            _manager = manager;
+            _webhookPublisher = webhookPublisher;
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace OpenBots.Server.Web.Controllers.Queue
                 ODataHelper<AllQueueItemAttachmentsViewModel> oDataHelper = new ODataHelper<AllQueueItemAttachmentsViewModel>();
                 var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-                return Ok(manager.GetQueueItemAttachmentsAndNames(Guid.Parse(queueItemId), oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+                return Ok(_manager.GetQueueItemAttachmentsAndNames(Guid.Parse(queueItemId), oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
             }
             catch (Exception ex)
             {
@@ -238,7 +238,7 @@ namespace OpenBots.Server.Web.Controllers.Queue
             try
             {
                 var entityId = new Guid(queueItemId);
-                var queueItem = queueItemRepository.Find(0, 1).Items?.Where(q => q.Id.ToString() == queueItemId).FirstOrDefault();
+                var queueItem = _queueItemRepository.Find(0, 1).Items?.Where(q => q.Id.ToString() == queueItemId).FirstOrDefault();
                 long? payload = 0;
 
                 if (requests.Length == 0 || requests == null)
@@ -249,7 +249,7 @@ namespace OpenBots.Server.Web.Controllers.Queue
 
                 foreach (var request in requests)
                 {
-                    var binaryObject = binaryObjectRepository.Find(null, q => q.Id == Guid.Parse(request))?.Items?.FirstOrDefault();
+                    var binaryObject = _binaryObjectRepository.Find(null, q => q.Id == Guid.Parse(request))?.Items?.FirstOrDefault();
                     if (binaryObject == null)
                     {
                         ModelState.AddModelError("Save", "No file attached");
@@ -278,8 +278,8 @@ namespace OpenBots.Server.Web.Controllers.Queue
 
                 //update queue item payload
                 queueItem.PayloadSizeInBytes += (long)payload;
-                queueItemRepository.Update(queueItem);
-                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
+                _queueItemRepository.Update(queueItem);
+                await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
 
                 var queueItemAttachments = repository.Find(null).Items?.Where(q => q.QueueItemId == entityId);
                 return Ok(queueItemAttachments);
@@ -314,12 +314,12 @@ namespace OpenBots.Server.Web.Controllers.Queue
             try
             {
                 Guid entityId = new Guid(queueItemId);
-                var queueItem = queueItemRepository.Find(0, 1).Items?.Where(q => q.Id == entityId).FirstOrDefault();
+                var queueItem = _queueItemRepository.Find(0, 1).Items?.Where(q => q.Id == entityId).FirstOrDefault();
 
-                var binaryObjects = manager.AttachFiles(files.ToList(), entityId, queueItem);
+                var binaryObjects = _manager.AttachFiles(files.ToList(), entityId, queueItem);
                 foreach (var binaryObject in binaryObjects)
-                    await webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
-                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
+                    await _webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
 
                 var queueItemAttachments = repository.Find(null).Items?.Where(q => q.QueueItemId == entityId);
                 return Ok(queueItemAttachments);
@@ -358,18 +358,18 @@ namespace OpenBots.Server.Web.Controllers.Queue
             {
                 Guid entityId = new Guid(id);
                 Guid queueItemEntityId = new Guid(queueItemId);
-                var queueItem = queueItemRepository.GetOne(queueItemEntityId);
+                var queueItem = _queueItemRepository.GetOne(queueItemEntityId);
                 var existingAttachment = repository.GetOne(entityId);
                 if (existingAttachment == null) return NotFound();
 
                 queueItem.PayloadSizeInBytes -= existingAttachment.SizeInBytes;
 
                 string binaryObjectId = existingAttachment.BinaryObjectId.ToString();
-                var binaryObject = binaryObjectRepository.GetOne(Guid.Parse(binaryObjectId));
+                var binaryObject = _binaryObjectRepository.GetOne(Guid.Parse(binaryObjectId));
 
                 string organizationId = binaryObject.OrganizationId.ToString();
                 if (!string.IsNullOrEmpty(organizationId))
-                    organizationId = binaryObjectManager.GetOrganizationId().ToString();
+                    organizationId = _binaryObjectManager.GetOrganizationId().ToString();
 
                 if (file == null)
                 {
@@ -392,14 +392,14 @@ namespace OpenBots.Server.Web.Controllers.Queue
                     {
                         //update attachment file in OpenBots.Server.Web using relative directory
                         string apiComponent = "QueueItemAPI";
-                        binaryObjectManager.Update(file, organizationId, apiComponent, Guid.Parse(binaryObjectId));
-                        await webhookPublisher.PublishAsync("Files.FileUpdated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
+                        _binaryObjectManager.Update(file, organizationId, apiComponent, Guid.Parse(binaryObjectId));
+                        await _webhookPublisher.PublishAsync("Files.FileUpdated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
                     }
 
                     //update queue item payload
                     queueItem.PayloadSizeInBytes += file.Length;
-                    queueItemRepository.Update(queueItem);
-                    await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
+                    _queueItemRepository.Update(queueItem);
+                    await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
 
                     //update attachment entity
                     await base.PutEntity(id, existingAttachment);
@@ -473,18 +473,18 @@ namespace OpenBots.Server.Web.Controllers.Queue
                         var otherAttachment = repository.Find(0, 1).Items?.Where(q => q.IsDeleted == false && q.BinaryObjectId == attachment.BinaryObjectId).FirstOrDefault();
                         if (otherAttachment == null)
                         {
-                            var binaryObject = binaryObjectRepository.GetOne(attachment.BinaryObjectId);
-                            binaryObjectRepository.SoftDelete(attachment.BinaryObjectId);
-                            await webhookPublisher.PublishAsync("Files.FileDeleted", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
+                            var binaryObject = _binaryObjectRepository.GetOne(attachment.BinaryObjectId);
+                            _binaryObjectRepository.SoftDelete(attachment.BinaryObjectId);
+                            await _webhookPublisher.PublishAsync("Files.FileDeleted", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
                         }
                     }
                 }
 
                 //update queue item payload
-                var queueItem = queueItemRepository.Find(0, 1).Items?.Where(q => q.Id == entityId).FirstOrDefault();
+                var queueItem = _queueItemRepository.Find(0, 1).Items?.Where(q => q.Id == entityId).FirstOrDefault();
                 queueItem.PayloadSizeInBytes = 0;
-                queueItemRepository.Update(queueItem);
-                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
+                _queueItemRepository.Update(queueItem);
+                await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
 
                 return Ok();
             }
@@ -521,9 +521,9 @@ namespace OpenBots.Server.Web.Controllers.Queue
                     var otherAttachment = repository.Find(0, 1).Items?.Where(q => q.IsDeleted == false && q.BinaryObjectId == attachment.BinaryObjectId).FirstOrDefault();
                     if (otherAttachment == null)
                     {
-                        var binaryObject = binaryObjectRepository.GetOne(attachment.BinaryObjectId);
-                        binaryObjectRepository.SoftDelete(attachment.BinaryObjectId);
-                        await webhookPublisher.PublishAsync("Files.FileDeleted", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
+                        var binaryObject = _binaryObjectRepository.GetOne(attachment.BinaryObjectId);
+                        _binaryObjectRepository.SoftDelete(attachment.BinaryObjectId);
+                        await _webhookPublisher.PublishAsync("Files.FileDeleted", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
                     }
                 }
                 else
@@ -533,10 +533,10 @@ namespace OpenBots.Server.Web.Controllers.Queue
                 }
 
                 //update queue item payload
-                var queueItem = queueItemRepository.Find(0, 1).Items?.Where(q => q.Id == attachment.QueueItemId).FirstOrDefault();
+                var queueItem = _queueItemRepository.Find(0, 1).Items?.Where(q => q.Id == attachment.QueueItemId).FirstOrDefault();
                 queueItem.PayloadSizeInBytes -= attachment.SizeInBytes;
-                queueItemRepository.Update(queueItem);
-                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
+                _queueItemRepository.Update(queueItem);
+                await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
 
                 return Ok();
             }

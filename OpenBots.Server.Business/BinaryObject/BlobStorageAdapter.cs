@@ -11,10 +11,10 @@ namespace OpenBots.Server.Business
 {
     public class BlobStorageAdapter : IBlobStorageAdapter
     {
-        private readonly IBinaryObjectRepository repo;
+        private readonly IBinaryObjectRepository _repo;
         public BlobStorageAdapter(IBinaryObjectRepository repo)
         {
-            this.repo = repo;
+            _repo = repo;
         }
 
         public async void SaveEntity(IFormFile file, string filePath, BinaryObject binaryObject, string apiComponent, string organizationId, string storageProvider, string hash)
@@ -32,7 +32,7 @@ namespace OpenBots.Server.Business
         {
             FileObjectViewModel file = new FileObjectViewModel();
 
-            var binaryObject = repo.GetOne(Guid.Parse(binaryObjectId));
+            var binaryObject = _repo.GetOne(Guid.Parse(binaryObjectId));
 
             if (binaryObject != null)
             {
@@ -48,7 +48,7 @@ namespace OpenBots.Server.Business
         public async Task<string> UpdateEntity(IFormFile file, string filePath, string binaryObjectId, string apiComponent, string folder, string name, string hash)
         {
             //update binary object entity properties in data table
-            await repo.UpdateEntity(file, filePath, binaryObjectId, apiComponent, folder, name, hash);
+            await _repo.UpdateEntity(file, filePath, binaryObjectId, apiComponent, folder, name, hash);
             return "Success";
         }
     }

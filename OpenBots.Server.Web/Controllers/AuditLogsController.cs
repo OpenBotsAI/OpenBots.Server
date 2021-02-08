@@ -26,9 +26,9 @@ namespace OpenBots.Server.Web.Controllers
     [Authorize]
     public class AuditLogsController : EntityController<AuditLog>
     {
-        private readonly IAuditLogManager manager;
-        private IConfiguration config { get; }
-        private readonly IAuditLogRepository repository;
+        private readonly IAuditLogManager _manager;
+        private IConfiguration Config { get; }
+        private readonly IAuditLogRepository _repository;
 
         /// <summary>
         /// AuditLogController constructor
@@ -47,9 +47,9 @@ namespace OpenBots.Server.Web.Controllers
             IConfiguration configuration,
             IAuditLogManager manager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.manager = manager;
-            config = configuration;
-            this.repository = repository;
+            _manager = manager;
+            Config = configuration;
+            _repository = repository;
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-                return Ok(manager.GetAuditLogsView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+                return Ok(_manager.GetAuditLogsView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
             }
             catch (Exception ex)
             {
@@ -218,9 +218,9 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                var log = repository.GetOne(id);
+                var log = _repository.GetOne(id);
 
-                string name = repository.GetServiceName(log);
+                string name = _repository.GetServiceName(log);
 
                 var logView = new AuditLogDetailsViewModel();
                 logView = logView.Map(log);
@@ -258,7 +258,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                var response = repository.Find(null, x => x.IsDeleted == false);
+                var response = _repository.Find(null, x => x.IsDeleted == false);
                 AuditLogsLookupViewModel auditLogsList = new AuditLogsLookupViewModel();
 
                 if (response != null)
@@ -267,7 +267,7 @@ namespace OpenBots.Server.Web.Controllers
                     foreach (AuditLog item in response.Items)
                     {
                         string serviceName = item.ServiceName;
-                        string name = repository.GetServiceName(item);
+                        string name = _repository.GetServiceName(item);
 
                         if (!auditLogsList.ServiceNameList.Contains(name))
                             auditLogsList.ServiceNameList.Add(name);
@@ -311,7 +311,7 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 //determine top value
-                int maxExport = int.Parse(config["App:MaxExportRecords"]);
+                int maxExport = int.Parse(Config["App:MaxExportRecords"]);
                 top = top > maxExport | top == 0 ? maxExport : top; //if $top is greater than max or equal to 0 use max export value
                 ODataHelper<AuditLog> oData = new ODataHelper<AuditLog>();
                 string queryString = HttpContext.Request.QueryString.Value;
@@ -320,7 +320,7 @@ namespace OpenBots.Server.Web.Controllers
                 oData.Top = top;
 
                 var auditLogsJson = base.GetMany(oData: oData);
-                string csvString = manager.GetAuditLogs(auditLogsJson.Items.ToArray());
+                string csvString = _manager.GetAuditLogs(auditLogsJson.Items.ToArray());
                 var csvFile = File(new System.Text.UTF8Encoding().GetBytes(csvString), "text/csv", "AuditLogs.csv");
 
                 switch (fileType.ToLower())
@@ -329,7 +329,7 @@ namespace OpenBots.Server.Web.Controllers
                         return csvFile;
 
                     case "zip":
-                        var zippedFile = manager.ZipCsv(csvFile);
+                        var zippedFile = _manager.ZipCsv(csvFile);
                         const string contentType = "application/zip";
                         HttpContext.Response.ContentType = contentType;
                         var zipFile = new FileContentResult(zippedFile.ToArray(), contentType)

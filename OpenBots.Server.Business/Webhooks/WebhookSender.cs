@@ -15,20 +15,20 @@ namespace OpenBots.Server.Web.Webhooks
     /// </summary>
     public class WebhookSender : IWebhookSender
     {
-        private readonly IIntegrationEventSubscriptionAttemptManager attemptManager;
-        private readonly IIntegrationEventSubscriptionAttemptRepository attemptRepository;
+        private readonly IIntegrationEventSubscriptionAttemptManager _attemptManager;
+        private readonly IIntegrationEventSubscriptionAttemptRepository _attemptRepository;
 
         public WebhookSender(IIntegrationEventSubscriptionAttemptManager eventSubscriptionAttemptManager,
             IIntegrationEventSubscriptionAttemptRepository attemptRepository)
         {
-            this.attemptManager = eventSubscriptionAttemptManager;
-            this.attemptRepository = attemptRepository;
+            _attemptManager = eventSubscriptionAttemptManager;
+            _attemptRepository = attemptRepository;
         }
 
         public async Task SendWebhook(IntegrationEventSubscription eventSubscription, WebhookPayload payload,
             IntegrationEventSubscriptionAttempt subscriptionAttempt)
         {
-            var attemptCount = attemptManager.SaveAndGetAttemptCount(subscriptionAttempt, eventSubscription.Max_RetryCount);
+            var attemptCount = _attemptManager.SaveAndGetAttemptCount(subscriptionAttempt, eventSubscription.Max_RetryCount);
             payload.AttemptCount = attemptCount;
 
             bool isSuccessful;
@@ -45,9 +45,9 @@ namespace OpenBots.Server.Web.Webhooks
             {
                 if (attemptCount > eventSubscription.Max_RetryCount)
                 {
-                    var previousAttempt = attemptManager.GetLastAttempt(subscriptionAttempt);
+                    var previousAttempt = _attemptManager.GetLastAttempt(subscriptionAttempt);
                     previousAttempt.Status = "FailedFatally";
-                    attemptRepository.Update(previousAttempt);
+                    _attemptRepository.Update(previousAttempt);
                 }
                 else
                 {
@@ -56,9 +56,9 @@ namespace OpenBots.Server.Web.Webhooks
             }
             else
             {
-                var previousAttempt = attemptManager.GetLastAttempt(subscriptionAttempt);
+                var previousAttempt = _attemptManager.GetLastAttempt(subscriptionAttempt);
                 previousAttempt.Status = "Completed";
-                attemptRepository.Update(previousAttempt);
+                _attemptRepository.Update(previousAttempt);
             }
 
             return;

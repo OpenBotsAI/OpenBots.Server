@@ -6,16 +6,16 @@ namespace OpenBots.Server.Business
 {
     public class EFConfigurationSource : IConfigurationSource
     {
-        private readonly Action<DbContextOptionsBuilder> optionsAction;
+        private readonly Action<DbContextOptionsBuilder> _optionsAction;
 
         public EFConfigurationSource(Action<DbContextOptionsBuilder> options)
         {
-            optionsAction = options;
+            _optionsAction = options;
         }
 
         public IConfigurationProvider Build(IConfigurationBuilder builder)
         {
-            return new EFConfigurationProvider(optionsAction);
+            return new EFConfigurationProvider(_optionsAction);
         }
     }
 }

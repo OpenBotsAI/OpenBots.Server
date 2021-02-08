@@ -30,9 +30,9 @@ namespace OpenBots.Server.Web
     [Authorize]
     public class IPFencingController : EntityController<IPFencing>
     {
-        private readonly IOrganizationSettingRepository organizationSettingRepository;
-        private readonly IIPFencingManager iPFencingManager;
-        private readonly IPFencingOptions iPFencingOptions;
+        private readonly IOrganizationSettingRepository _organizationSettingRepository;
+        private readonly IIPFencingManager _iPFencingManager;
+        private readonly IPFencingOptions _iPFencingOptions;
         private readonly IHttpContextAccessor _accessor;
 
 
@@ -56,10 +56,10 @@ namespace OpenBots.Server.Web
             IIPFencingManager iPFencingManager) : base(repository, userManager, httpContextAccessor,
                 membershipManager, configuration)
         {
-            this.organizationSettingRepository = organizationSettingRepository;
-            this.iPFencingManager = iPFencingManager;
+            _organizationSettingRepository = organizationSettingRepository;
+            _iPFencingManager = iPFencingManager;
             _accessor = httpContextAccessor;
-            iPFencingOptions = configuration.GetSection(IPFencingOptions.IPFencing).Get<IPFencingOptions>();
+            _iPFencingOptions = configuration.GetSection(IPFencingOptions.IPFencing).Get<IPFencingOptions>();
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace OpenBots.Server.Web
             try
             {
                 Guid orgID = Guid.Parse(organizationId);
-                var fencingMode = iPFencingManager.GetIPFencingMode(orgID).ToString();
+                var fencingMode = _iPFencingManager.GetIPFencingMode(orgID).ToString();
                 return Ok(fencingMode);
             }
             catch (Exception ex)
@@ -191,7 +191,7 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                var ipCheck = iPFencingOptions.IPFencingCheck;
+                var ipCheck = _iPFencingOptions.IPFencingCheck;
                 if (ipCheck.Equals("Disabled"))
                 {
                     throw new UnauthorizedOperationException("IPFencing rule could not be added because IPFencingCheck is disabled", EntityOperationType.Add);
@@ -235,7 +235,7 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                var ipCheck = iPFencingOptions.IPFencingCheck;
+                var ipCheck = _iPFencingOptions.IPFencingCheck;
                 if (ipCheck.Equals("Disabled"))
                 {
                     throw new UnauthorizedOperationException("IPFencing rule could not be added because IPFencingCheck is disabled", EntityOperationType.Update);
@@ -296,15 +296,15 @@ namespace OpenBots.Server.Web
             try
             {
                 IPAddress userIp = _accessor.HttpContext.Connection.RemoteIpAddress;
-                var ipCheck = iPFencingOptions.IPFencingCheck;
+                var ipCheck = _iPFencingOptions.IPFencingCheck;
                 if (ipCheck.Equals("Disabled"))
                 {
                     throw new UnauthorizedOperationException("IPFencing rule could not be updated because IPFencingCheck is disabled", EntityOperationType.Update);
                 }
 
                 //get the organization's settings
-                organizationSettingRepository.ForceIgnoreSecurity();
-                var existingOrganizationSettings = organizationSettingRepository.Find(0, 1).Items.
+                _organizationSettingRepository.ForceIgnoreSecurity();
+                var existingOrganizationSettings = _organizationSettingRepository.Find(0, 1).Items.
                     Where(s => s.OrganizationId == Guid.Parse(organizationId)).FirstOrDefault();
 
                 if (existingOrganizationSettings == null)
@@ -318,16 +318,16 @@ namespace OpenBots.Server.Web
                 }
 
                 //check if user will be able to make requests under the new IP fencing
-                if (iPFencingManager.IsRequestAllowed(userIp, IPFencingMode.AllowMode))
+                if (_iPFencingManager.IsRequestAllowed(userIp, IPFencingMode.AllowMode))
                 {
                     existingOrganizationSettings.IPFencingMode = IPFencingMode.AllowMode;
-                    organizationSettingRepository.Update(existingOrganizationSettings);
-                    organizationSettingRepository.ForceSecurity();
+                    _organizationSettingRepository.Update(existingOrganizationSettings);
+                    _organizationSettingRepository.ForceSecurity();
                     return Ok("IPFencingMode has been set AllowAll");
                 }
                 else
                 {
-                    organizationSettingRepository.ForceSecurity();
+                    _organizationSettingRepository.ForceSecurity();
                     return Conflict("This action would prevent you from making further requests to the server. Try updating the Fencing rules");
                 }
             }
@@ -363,15 +363,15 @@ namespace OpenBots.Server.Web
             try
             {
                 IPAddress userIp = _accessor.HttpContext.Connection.RemoteIpAddress;
-                var ipCheck = iPFencingOptions.IPFencingCheck;
+                var ipCheck = _iPFencingOptions.IPFencingCheck;
                 if (ipCheck.Equals("Disabled"))
                 {
                     throw new UnauthorizedOperationException("IPFencing rule could not be updated because IPFencingCheck is disabled", EntityOperationType.Update);
                 }
 
                 //get the organization's settings
-                organizationSettingRepository.ForceIgnoreSecurity();
-                var existingOrganizationSettings = organizationSettingRepository.Find(0, 1).Items.
+                _organizationSettingRepository.ForceIgnoreSecurity();
+                var existingOrganizationSettings = _organizationSettingRepository.Find(0, 1).Items.
                     Where(s => s.OrganizationId == Guid.Parse(organizationId)).FirstOrDefault();
 
                 if (existingOrganizationSettings == null)
@@ -385,16 +385,16 @@ namespace OpenBots.Server.Web
                 }
 
                 //check if user will be able to make requests under the new IP fencing
-                if (iPFencingManager.IsRequestAllowed(userIp, IPFencingMode.DenyMode))
+                if (_iPFencingManager.IsRequestAllowed(userIp, IPFencingMode.DenyMode))
                 {
                     existingOrganizationSettings.IPFencingMode = IPFencingMode.DenyMode;
-                    organizationSettingRepository.Update(existingOrganizationSettings);
-                    organizationSettingRepository.ForceSecurity();
+                    _organizationSettingRepository.Update(existingOrganizationSettings);
+                    _organizationSettingRepository.ForceSecurity();
                     return Ok("IPFencingMode has been set DenyAll");
                 }
                 else
                 {
-                    organizationSettingRepository.ForceSecurity();
+                    _organizationSettingRepository.ForceSecurity();
                     return Conflict("This action would prevent you from making further requests to the server. Try updating the Fencing rules");
                 }
             }
@@ -422,7 +422,7 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                var ipCheck = iPFencingOptions.IPFencingCheck;
+                var ipCheck = _iPFencingOptions.IPFencingCheck;
                 if (ipCheck.Equals("Disabled"))
                 {
                     throw new UnauthorizedOperationException("IPFencing rule could not be deleted because IPFencingCheck is disabled", EntityOperationType.Delete);
@@ -471,7 +471,7 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                var ipCheck = iPFencingOptions.IPFencingCheck;
+                var ipCheck = _iPFencingOptions.IPFencingCheck;
                 if (ipCheck.Equals("Disabled"))
                 {
                     throw new UnauthorizedOperationException("IPFencing rule could not be deleted because IPFencingCheck is disabled", EntityOperationType.Update);

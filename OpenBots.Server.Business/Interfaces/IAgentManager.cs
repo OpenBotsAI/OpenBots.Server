@@ -14,7 +14,7 @@ namespace OpenBots.Server.Business
 
         Agent UpdateAgentAsync(string id, Agent request);
 
-        void UpdateAgentName(string oldName, string newName)
+        void UpdateAgentName(string oldName, string newName);
 
         AgentViewModel GetAgentDetails(AgentViewModel agentView);
         

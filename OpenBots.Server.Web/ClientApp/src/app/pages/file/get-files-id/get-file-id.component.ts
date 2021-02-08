@@ -117,7 +117,7 @@ export class GetFileIdComponent implements OnInit {
           .split(';')[1]
           .split('=')[1]
           .replace(/\"/g, '');
-        this._FileSaverService.save(res.body, fileName);
+        _FileSaverService.save(res.body, fileName);
       });
   }
 

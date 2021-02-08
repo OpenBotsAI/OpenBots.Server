@@ -25,8 +25,8 @@ namespace OpenBots.Server.WebAPI.Controllers
     [Authorize]
     public class AccessRequestsController : EntityController<AccessRequest>
     {
-        IMembershipManager _manager;
-        IAccessRequestsManager accessRequestManager;
+        private readonly IMembershipManager _manager;
+        private readonly IAccessRequestsManager _accessRequestManager;
 
         /// <summary>
         /// AccessRequestsController constructor
@@ -46,10 +46,10 @@ namespace OpenBots.Server.WebAPI.Controllers
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, manager, configuration)
         {
             _manager = manager;
-            this.accessRequestManager = accessRequestManager;
+            _accessRequestManager = accessRequestManager;
 
             _manager.SetContext(base.SecurityContext); ;
-            this.accessRequestManager.SetContext(base.SecurityContext);
+            _accessRequestManager.SetContext(base.SecurityContext);
 
         }
 
@@ -82,7 +82,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0)
         {
-            return accessRequestManager.GetAccessRequests(organizationId);//base.GetMany(organizationId);
+            return _accessRequestManager.GetAccessRequests(organizationId);//base.GetMany(organizationId);
         }
 
         /// <summary>

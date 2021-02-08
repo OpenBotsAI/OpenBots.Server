@@ -29,9 +29,9 @@ namespace OpenBots.Server.Web.Controllers.Email
     [Authorize]
     public class EmailAttachmentsController : EntityController<EmailAttachment>
     {
-        private readonly IBinaryObjectManager binaryObjectManager;
-        private readonly IBinaryObjectRepository binaryObjectRepository;
-        private readonly IEmailManager manager;
+        private readonly IBinaryObjectManager _binaryObjectManager;
+        private readonly IBinaryObjectRepository _binaryObjectRepository;
+        private readonly IEmailManager _manager;
 
         /// <summary>
         /// EmailAttachmentsController constuctor
@@ -54,9 +54,9 @@ namespace OpenBots.Server.Web.Controllers.Email
             IBinaryObjectManager binaryObjectManager,
             IEmailManager manager) : base (repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.binaryObjectRepository = binaryObjectRepository;
-            this.binaryObjectManager = binaryObjectManager;
-            this.manager = manager;
+            _binaryObjectRepository = binaryObjectRepository;
+            _binaryObjectManager = binaryObjectManager;
+            _manager = manager;
         }
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace OpenBots.Server.Web.Controllers.Email
                 ODataHelper<AllEmailAttachmentsViewModel> oDataHelper = new ODataHelper<AllEmailAttachmentsViewModel>();
                 var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-                return Ok(manager.GetEmailAttachmentsAndNames(Guid.Parse(emailId), oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+                return Ok(_manager.GetEmailAttachmentsAndNames(Guid.Parse(emailId), oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
             }
             catch (Exception ex)
             {
@@ -240,7 +240,7 @@ namespace OpenBots.Server.Web.Controllers.Email
                 foreach (var request in requests)
                 {
 
-                    var binaryObject = binaryObjectRepository.Find(null, q => q.Id == Guid.Parse(request))?.Items?.FirstOrDefault();
+                    var binaryObject = _binaryObjectRepository.Find(null, q => q.Id == Guid.Parse(request))?.Items?.FirstOrDefault();
                     if (binaryObject == null)
                     {
                         ModelState.AddModelError("Save", "No file attached");
@@ -323,7 +323,7 @@ namespace OpenBots.Server.Web.Controllers.Email
                         return BadRequest(ModelState);
                     }
 
-                    string organizationId = binaryObjectManager.GetOrganizationId();
+                    string organizationId = _binaryObjectManager.GetOrganizationId();
                     string apiComponent = "EmailAPI";
 
                     //add file to binary objects (create entity and put file in EmailAPI folder in Server)
@@ -338,9 +338,9 @@ namespace OpenBots.Server.Web.Controllers.Email
 
                     string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
                     //upload file to Server
-                    binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                    binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                    binaryObjectRepository.Add(binaryObject);
+                    _binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
+                    _binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
+                    _binaryObjectRepository.Add(binaryObject);
 
                     //create email attachment
                     EmailAttachment emailAttachment = new EmailAttachment()
@@ -436,11 +436,11 @@ namespace OpenBots.Server.Web.Controllers.Email
                 if (existingAttachment == null) return NotFound();
 
                 string binaryObjectId = existingAttachment.BinaryObjectId.ToString();
-                var binaryObject = binaryObjectRepository.GetOne(Guid.Parse(binaryObjectId));
+                var binaryObject = _binaryObjectRepository.GetOne(Guid.Parse(binaryObjectId));
 
                 string organizationId = binaryObject.OrganizationId.ToString();
                 if (!string.IsNullOrEmpty(organizationId))
-                    organizationId = binaryObjectManager.GetOrganizationId().ToString();
+                    organizationId = _binaryObjectManager.GetOrganizationId().ToString();
 
                 if (request.file == null)
                 {
@@ -465,7 +465,7 @@ namespace OpenBots.Server.Web.Controllers.Email
                 {
                     //update attachment file in OpenBots.Server.Web using relative directory
                     string apiComponent = "EmailAPI";
-                    binaryObjectManager.Update(request.file, organizationId, apiComponent, Guid.Parse(binaryObjectId));
+                    _binaryObjectManager.Update(request.file, organizationId, apiComponent, Guid.Parse(binaryObjectId));
                 }
 
                 //update attachment entity
@@ -530,7 +530,7 @@ namespace OpenBots.Server.Web.Controllers.Email
                     foreach (var attachment in attachments)
                     {
                         repository.SoftDelete((Guid)attachment.Id);
-                        binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
+                        _binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
                     }
                 }
                 return Ok();
@@ -563,7 +563,7 @@ namespace OpenBots.Server.Web.Controllers.Email
                 if (attachment != null)
                 {
                     await base.DeleteEntity(id);
-                    binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
+                    _binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
                 }
                 else
                 {

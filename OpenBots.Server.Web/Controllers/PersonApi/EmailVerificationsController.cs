@@ -27,7 +27,7 @@ namespace OpenBots.Server.WebAPI.Controllers
     [Authorize]
     public class EmailVerificationsController : EntityController<EmailVerification>
     {
-        private readonly IEmailManager emailSender;
+        private readonly IEmailManager _emailSender;
 
         /// <summary>
         /// EmailVerificationsController constructor
@@ -46,7 +46,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             IConfiguration configuration,
             IEmailManager emailSender) : base(repository,  userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.emailSender = emailSender;
+            _emailSender = emailSender;
         }
 
         /// <summary>
@@ -186,7 +186,7 @@ namespace OpenBots.Server.WebAPI.Controllers
 
                 var subject = "Confirm your email address at " + Constants.PRODUCT;
 
-                bool isEmailAllowed = emailSender.IsEmailAllowed();
+                bool isEmailAllowed = _emailSender.IsEmailAllowed();
                 if (isEmailAllowed)
                 {
                     EmailMessage emailMessage = new EmailMessage();
@@ -194,7 +194,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                     emailMessage.To.Add(address);
                     emailMessage.Body = emailBody;
                     emailMessage.Subject = subject;
-                    await emailSender.SendEmailAsync(emailMessage, null, null, "Outgoing").ConfigureAwait(false);
+                    await _emailSender.SendEmailAsync(emailMessage, null, null, "Outgoing").ConfigureAwait(false);
 
                     value.IsVerificationEmailSent = true;
                 }

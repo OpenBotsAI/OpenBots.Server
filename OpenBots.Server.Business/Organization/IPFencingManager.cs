@@ -13,12 +13,12 @@ namespace OpenBots.Server.Business
 {
     public class IPFencingManager : BaseManager, IIPFencingManager
     {
-        private readonly IIPFencingRepository repo;
-        private readonly IOrganizationSettingRepository organizationSettingRepo;
-        private readonly IOrganizationManager organizationManager;
+        private readonly IIPFencingRepository _repo;
+        private readonly IOrganizationSettingRepository _organizationSettingRepo;
+        private readonly IOrganizationManager _organizationManager;
         private readonly IHttpContextAccessor _accessor;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IIPFencingRepository iPFencingRepository;
+        private readonly IIPFencingRepository _iPFencingRepository;
 
         public IPFencingManager(IIPFencingRepository repository,
             IOrganizationSettingRepository organizationSettingRepository,
@@ -26,12 +26,12 @@ namespace OpenBots.Server.Business
             IHttpContextAccessor accessor,
             UserManager<ApplicationUser> userManager)
         {
-            repo = repository;
+            _repo = repository;
             _accessor = accessor;
             _userManager = userManager;
-            organizationSettingRepo = organizationSettingRepository;
-            this.organizationManager = organizationManager;
-            this.iPFencingRepository = iPFencingRepository;
+            _organizationSettingRepo = organizationSettingRepository;
+            _organizationManager = organizationManager;
+            _iPFencingRepository = _iPFencingRepository;
         }
 
         /// <summary>
@@ -169,14 +169,14 @@ namespace OpenBots.Server.Business
             var requestHeaders = _accessor.HttpContext.Request.Headers;
             Guid userId = Guid.Empty;
 
-            var defaultOrg = organizationManager.GetDefaultOrganization();
+            var defaultOrg = _organizationManager.GetDefaultOrganization();
             if (defaultOrg != null)
             {
                 organizationId = defaultOrg.Id;
 
-                organizationSettingRepo.ForceIgnoreSecurity();
-                var orgSettings = organizationSettingRepo.Find(0, 1).Items?.Where(q => q.OrganizationId == organizationId).FirstOrDefault();
-                organizationSettingRepo.ForceSecurity();
+                _organizationSettingRepo.ForceIgnoreSecurity();
+                var orgSettings = _organizationSettingRepo.Find(0, 1).Items?.Where(q => q.OrganizationId == organizationId).FirstOrDefault();
+                _organizationSettingRepo.ForceSecurity();
 
                 if (orgSettings == null)
                 {
@@ -194,7 +194,7 @@ namespace OpenBots.Server.Business
                     //if there is no user or organization, then use default IP fencing rules
                     if (organizationId == null || organizationId == Guid.Empty)
                     {
-                        ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == null)?.ToList();
+                        ipFencingRules = _repo.Find(0, 1).Items?.Where(i => i.OrganizationId == null)?.ToList();
                         //if no organization, user, or rules exist, allow user to access the site
                         //this means the user is accessing the server application for the first time
                         if (ipFencingRules.Count == 0)
@@ -215,7 +215,7 @@ namespace OpenBots.Server.Business
 
             if (fencingMode == IPFencingMode.AllowMode)
             {
-                ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == organizationId
+                ipFencingRules = _repo.Find(0, 1).Items?.Where(i => i.OrganizationId == organizationId
                     && i.Usage == UsageType.Deny)?.ToList();
 
                 //if mode is allow, then any matched rules will be forbidden
@@ -223,7 +223,7 @@ namespace OpenBots.Server.Business
             }
             else
             {
-                ipFencingRules = repo.Find(0, 1).Items?.Where(i => i.OrganizationId == organizationId
+                ipFencingRules = _repo.Find(0, 1).Items?.Where(i => i.OrganizationId == organizationId
                     && i.Usage == UsageType.Allow)?.ToList();
 
                 //if mode is deny, then any matched rules will be allowed
@@ -234,10 +234,10 @@ namespace OpenBots.Server.Business
         public IPFencingMode? GetIPFencingMode(Guid organizationId)
         {
             //get organization settings
-            organizationSettingRepo.ForceIgnoreSecurity();
-            var orgSettings = organizationSettingRepo.Find(0, 1).Items?.
+            _organizationSettingRepo.ForceIgnoreSecurity();
+            var orgSettings = _organizationSettingRepo.Find(0, 1).Items?.
                 Where(s => s.OrganizationId == organizationId)?.FirstOrDefault();
-            organizationSettingRepo.ForceSecurity();
+            _organizationSettingRepo.ForceSecurity();
 
             if (orgSettings == null)
             {

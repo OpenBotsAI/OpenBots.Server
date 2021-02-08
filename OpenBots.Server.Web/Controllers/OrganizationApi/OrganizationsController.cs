@@ -24,8 +24,8 @@ namespace OpenBots.Server.WebAPI.Controllers
     [Authorize]
     public class OrganizationsController : EntityController<Organization>
     {
-        IMembershipManager membershipManager;
-        IOrganizationManager organizationManager;
+        private readonly IMembershipManager _membershipManager;
+        private readonly IOrganizationManager _organizationManager;
 
         /// <summary>
         /// OrganizationsController constructor
@@ -44,10 +44,10 @@ namespace OpenBots.Server.WebAPI.Controllers
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.membershipManager = membershipManager;
-            this.organizationManager = organizationManager;
-            this.membershipManager.SetContext(base.SecurityContext);
-            this.organizationManager.SetContext(base.SecurityContext);
+            _membershipManager = membershipManager;
+            _organizationManager = organizationManager;
+            _membershipManager.SetContext(base.SecurityContext);
+            _organizationManager.SetContext(base.SecurityContext);
 
         }
 
@@ -143,7 +143,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         {
             try
             {
-                var orgmem = membershipManager.GetOrganizationMember(Guid.Parse(id), SecurityContext.PersonId)?.Items?.FirstOrDefault();
+                var orgmem = _membershipManager.GetOrganizationMember(Guid.Parse(id), SecurityContext.PersonId)?.Items?.FirstOrDefault();
 
                 if (orgmem == null)
                 {
@@ -215,7 +215,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var newOrganization = organizationManager.AddNewOrganization(value);
+                var newOrganization = _organizationManager.AddNewOrganization(value);
                 return Ok(newOrganization);
             }
             catch (Exception ex)
@@ -263,7 +263,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var orgmem = membershipManager.GetOrganizationMember(Guid.Parse(id), SecurityContext.PersonId)?.Items?.FirstOrDefault();
+                var orgmem = _membershipManager.GetOrganizationMember(Guid.Parse(id), SecurityContext.PersonId)?.Items?.FirstOrDefault();
                 if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
                 {
                     ModelState.AddModelError("Update", "Update failed, administrator of an organization can only update");
@@ -313,7 +313,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var orgmem = membershipManager.GetOrganizationMember(Guid.Parse(id), SecurityContext.PersonId)?.Items?.FirstOrDefault();
+                var orgmem = _membershipManager.GetOrganizationMember(Guid.Parse(id), SecurityContext.PersonId)?.Items?.FirstOrDefault();
                 if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
                 {
                     ModelState.AddModelError("Update", "Delete failed, administrator of an organization can only delete");
@@ -355,7 +355,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var orgmem = membershipManager.GetOrganizationMember(Guid.Parse(id), SecurityContext.PersonId)?.Items?.FirstOrDefault();
+                var orgmem = _membershipManager.GetOrganizationMember(Guid.Parse(id), SecurityContext.PersonId)?.Items?.FirstOrDefault();
                 if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
                 {
                     ModelState.AddModelError("Update", "Update failed, administrator of an organization can only update");

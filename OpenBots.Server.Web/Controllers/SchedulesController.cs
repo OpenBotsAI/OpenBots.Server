@@ -31,11 +31,11 @@ namespace OpenBots.Server.Web.Controllers
     [Authorize]
     public class SchedulesController : EntityController<Schedule>
     {
-        private IScheduleManager manager;
-        private IHubManager hubManager;
-        private readonly IRecurringJobManager recurringJobManager;
-        private readonly IBackgroundJobClient backgroundJobClient;
-        private readonly IScheduleParameterRepository scheduleParameterRepository;
+        private readonly IScheduleManager _manager;
+        private readonly IHubManager _hubManager;
+        private readonly IRecurringJobManager _recurringJobManager;
+        private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly IScheduleParameterRepository _scheduleParameterRepository;
 
         /// <summary>
         /// SchedulesController constructor
@@ -61,12 +61,12 @@ namespace OpenBots.Server.Web.Controllers
             IRecurringJobManager recurringJobManager,
             IScheduleParameterRepository scheduleParameterRepository) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.manager = manager;
-            this.manager.SetContext(SecurityContext);
-            this.backgroundJobClient = backgroundJobClient;
-            this.hubManager = hubManager;
-            this.recurringJobManager = recurringJobManager;
-            this.scheduleParameterRepository = scheduleParameterRepository;
+            _manager = manager;
+            _manager.SetContext(SecurityContext);
+            _backgroundJobClient = backgroundJobClient;
+            _hubManager = hubManager;
+            _recurringJobManager = recurringJobManager;
+            _scheduleParameterRepository = scheduleParameterRepository;
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace OpenBots.Server.Web.Controllers
                 ODataHelper<AllSchedulesViewModel> oDataHelper = new ODataHelper<AllSchedulesViewModel>();
                 var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-                return Ok(manager.GetScheduleAgentsandAutomations(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+                return Ok(_manager.GetScheduleAgentsandAutomations(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
             }
             catch (Exception ex)
             {
@@ -201,7 +201,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (okResult != null)
                 {
                     ScheduleViewModel view = okResult.Value as ScheduleViewModel;
-                    view = manager.GetScheduleViewModel(view);
+                    view = _manager.GetScheduleViewModel(view);
                 }
 
                 return actionResult;
@@ -275,18 +275,18 @@ namespace OpenBots.Server.Web.Controllers
                         CreatedOn = DateTime.UtcNow,
                         Id = Guid.NewGuid()
                     };
-                    scheduleParameterRepository.Add(scheduleParameter);
+                    _scheduleParameterRepository.Add(scheduleParameter);
                 }
 
                 var response = await base.PostEntity(requestObj);
 
-                recurringJobManager.RemoveIfExists(requestObj.Id?.ToString());
+                _recurringJobManager.RemoveIfExists(requestObj.Id?.ToString());
 
                 if (request.IsDisabled == false && !request.StartingType.ToLower().Equals("manual"))
                 {
                     var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(requestObj);
 
-                    backgroundJobClient.Schedule(() => hubManager.ScheduleNewJob(jsonScheduleObj),
+                    _backgroundJobClient.Schedule(() => _hubManager.ScheduleNewJob(jsonScheduleObj),
                             new DateTimeOffset(requestObj.StartDate.Value));
                 }
 
@@ -359,7 +359,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 var response = await base.PutEntity(id, existingSchedule);
 
-                manager.DeleteExistingParameters(entityId);
+                _manager.DeleteExistingParameters(entityId);
 
                 var set = new HashSet<string>();
                 foreach (var parameter in request.Parameters ?? Enumerable.Empty<ParametersViewModel>())
@@ -381,16 +381,16 @@ namespace OpenBots.Server.Web.Controllers
                         CreatedOn = DateTime.UtcNow,
                         Id = Guid.NewGuid()
                     };
-                    scheduleParameterRepository.Add(scheduleParameter);
+                    _scheduleParameterRepository.Add(scheduleParameter);
                 }
 
-                recurringJobManager.RemoveIfExists(existingSchedule.Id?.ToString());
+                _recurringJobManager.RemoveIfExists(existingSchedule.Id?.ToString());
                     
                 if (request.IsDisabled == false && !request.StartingType.ToLower().Equals("manual"))
                 {
                     var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(existingSchedule);
 
-                    backgroundJobClient.Schedule(() => hubManager.ScheduleNewJob(jsonScheduleObj),
+                    _backgroundJobClient.Schedule(() => _hubManager.ScheduleNewJob(jsonScheduleObj),
                             new DateTimeOffset(existingSchedule.StartDate.Value));
                 }
 
@@ -425,8 +425,8 @@ namespace OpenBots.Server.Web.Controllers
                 var existingSchedule = repository.GetOne(entityId);
                 if (existingSchedule == null) return NotFound();
 
-                recurringJobManager.RemoveIfExists(existingSchedule.Id.Value.ToString());
-                manager.DeleteExistingParameters(entityId);
+                _recurringJobManager.RemoveIfExists(existingSchedule.Id.Value.ToString());
+                _manager.DeleteExistingParameters(entityId);
 
                 return await base.DeleteEntity(id);
 
@@ -507,7 +507,7 @@ namespace OpenBots.Server.Web.Controllers
                 schedule.CreatedBy = applicationUser?.UserName;
 
                 var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(schedule); 
-                var jobId = BackgroundJob.Enqueue(() => hubManager.ExecuteJob(jsonScheduleObj, request.JobParameters));
+                var jobId = BackgroundJob.Enqueue(() => _hubManager.ExecuteJob(jsonScheduleObj, request.JobParameters));
 
                 return Ok();
             }

@@ -35,16 +35,16 @@ namespace OpenBots.Server.Web.Controllers
     [Authorize]
     public class QueueItemsController : EntityController<QueueItem>
     {
-        readonly IQueueItemManager manager;
-        readonly IQueueRepository queueRepository;
-        private IHubContext<NotificationHub> _hub;
-        private IHubManager hubManager;
-        readonly IScheduleRepository scheduleRepo;
+        private readonly IQueueItemManager _manager;
+        private readonly IQueueRepository _queueRepository;
+        private readonly IHubContext<NotificationHub> _hub;
+        private readonly IHubManager _hubManager;
+        private readonly IScheduleRepository _scheduleRepo;
         public IConfiguration Configuration { get; }
-        private readonly IBinaryObjectRepository binaryObjectRepository;
-        private readonly IQueueItemAttachmentRepository queueItemAttachmentRepository;
-        private readonly IWebhookPublisher webhookPublisher;
-        private readonly IOrganizationSettingManager organizationSettingManager;
+        private readonly IBinaryObjectRepository _binaryObjectRepository;
+        private readonly IQueueItemAttachmentRepository _queueItemAttachmentRepository;
+        private readonly IWebhookPublisher _webhookPublisher;
+        private readonly IOrganizationSettingManager _organizationSettingManager;
 
         /// <summary>
         /// QueueItemsController constructor
@@ -78,16 +78,16 @@ namespace OpenBots.Server.Web.Controllers
             IWebhookPublisher webhookPublisher,
             IOrganizationSettingManager organizationSettingManager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.manager = manager;
+            _manager = manager;
             _hub = hub;
-            this.queueRepository = queueRepository;
-            this.hubManager = hubManager;
-            scheduleRepo = scheduleRepository;
+            _queueRepository = queueRepository;
+            _hubManager = hubManager;
+            _scheduleRepo = scheduleRepository;
             Configuration = configuration;
-            this.binaryObjectRepository = binaryObjectRepository;
-            this.queueItemAttachmentRepository = queueItemAttachmentRepository;
-            this.webhookPublisher = webhookPublisher;
-            this.organizationSettingManager = organizationSettingManager;
+            _binaryObjectRepository = binaryObjectRepository;
+            _queueItemAttachmentRepository = queueItemAttachmentRepository;
+            _webhookPublisher = webhookPublisher;
+            _organizationSettingManager = organizationSettingManager;
         }
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace OpenBots.Server.Web.Controllers
                 ODataHelper<AllQueueItemsViewModel> oDataHelper = new ODataHelper<AllQueueItemsViewModel>();
                 var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-                return Ok(manager.GetQueueItemsAndBinaryObjectIds(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+                return Ok(_manager.GetQueueItemsAndBinaryObjectIds(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
 
             }
             catch (Exception ex)
@@ -227,7 +227,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (okResult != null)
                 {
                     QueueItemViewModel view = okResult.Value as QueueItemViewModel;
-                    view = manager.GetQueueItemView(view, id);
+                    view = _manager.GetQueueItemView(view, id);
                 }
 
                 return actionResult;
@@ -299,22 +299,22 @@ namespace OpenBots.Server.Web.Controllers
                     return BadRequest(ModelState);
                 }
 
-                await webhookPublisher.PublishAsync("QueueItems.QueueItemDeleted", existingQueueItem.Id.ToString(), existingQueueItem.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("QueueItems.QueueItemDeleted", existingQueueItem.Id.ToString(), existingQueueItem.Name).ConfigureAwait(false);
                 var response = await base.DeleteEntity(id);
                 _hub.Clients.All.SendAsync("sendnotification", "QueueItem deleted.");
 
                 //soft delete each queue item attachment entity and binary object entity that correlates to the queue item
-                var attachmentsList = queueItemAttachmentRepository.Find(null, q => q.QueueItemId == existingQueueItem.Id)?.Items;
+                var attachmentsList = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == existingQueueItem.Id)?.Items;
                 foreach (var attachment in attachmentsList)
                 {
-                    queueItemAttachmentRepository.SoftDelete((Guid)attachment.Id);
+                    _queueItemAttachmentRepository.SoftDelete((Guid)attachment.Id);
 
-                    var existingBinary = binaryObjectRepository.GetOne(attachment.BinaryObjectId);
+                    var existingBinary = _binaryObjectRepository.GetOne(attachment.BinaryObjectId);
                     if (existingBinary != null)
                     {
-                        await webhookPublisher.PublishAsync("Files.FileDeleted", existingBinary.Id.ToString(), existingBinary.Name).ConfigureAwait(false);
+                        await _webhookPublisher.PublishAsync("Files.FileDeleted", existingBinary.Id.ToString(), existingBinary.Name).ConfigureAwait(false);
                     }
-                    binaryObjectRepository.SoftDelete(attachment.BinaryObjectId);
+                    _binaryObjectRepository.SoftDelete(attachment.BinaryObjectId);
                 }
 
                 return response;
@@ -353,7 +353,7 @@ namespace OpenBots.Server.Web.Controllers
                     ModelState.AddModelError("QueueItem", "QueueItem cannot be found or does not exist.");
                 }
 
-                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", existingQueueItem.Id.ToString(), existingQueueItem.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", existingQueueItem.Id.ToString(), existingQueueItem.Name).ConfigureAwait(false);
                 return await base.PatchEntity(id, request);
             }
             catch (Exception ex)
@@ -379,15 +379,15 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                if (organizationSettingManager.HasDisallowedExecution())
+                if (_organizationSettingManager.HasDisallowedExecution())
                 {
                     return StatusCode(StatusCodes.Status405MethodNotAllowed, "Organization is set to DisallowExecution");
                 }
 
-                var response = await manager.Enqueue(request);
+                var response = await _manager.Enqueue(request);
 
                 //check if a queue arrival schedule exists for this queue
-                Schedule existingSchedule = scheduleRepo.Find(0, 1).Items?.Where(s => s.QueueId == response.QueueId)?.FirstOrDefault();
+                Schedule existingSchedule = _scheduleRepo.Find(0, 1).Items?.Where(s => s.QueueId == response.QueueId)?.FirstOrDefault();
                 if (existingSchedule != null && existingSchedule.IsDisabled == false && existingSchedule.StartingType.ToLower().Equals("queuearrival"))
                 {
                     Schedule schedule = new Schedule();
@@ -405,7 +405,7 @@ namespace OpenBots.Server.Web.Controllers
 
                     var jsonScheduleObj = System.Text.Json.JsonSerializer.Serialize(schedule);
                     //call GetScheduleParameters()
-                    var jobId = BackgroundJob.Enqueue(() => hubManager.ExecuteJob(jsonScheduleObj, Enumerable.Empty<ParametersViewModel>()));
+                    var jobId = BackgroundJob.Enqueue(() => _hubManager.ExecuteJob(jsonScheduleObj, Enumerable.Empty<ParametersViewModel>()));
                 }
 
                 QueueItem queueItem = new QueueItem()
@@ -431,7 +431,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 //create queue item
                 IActionResult actionResult = await base.PostEntity(queueItem);
-                await webhookPublisher.PublishAsync("QueueItems.NewQueueItemCreated", response.Id.ToString(), response.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("QueueItems.NewQueueItemCreated", response.Id.ToString(), response.Name).ConfigureAwait(false);
 
                 //send SignalR notification to all connected clients
                 await _hub.Clients.All.SendAsync("sendnotification", "New queue item added.");
@@ -439,7 +439,7 @@ namespace OpenBots.Server.Web.Controllers
                 QueueItemViewModel queueItemViewModel = new QueueItemViewModel();
                 queueItemViewModel = queueItemViewModel.Map(queueItem);
                 string id = response.Id.ToString();
-                queueItemViewModel = manager.GetQueueItemView(queueItemViewModel, id);
+                queueItemViewModel = _manager.GetQueueItemView(queueItemViewModel, id);
 
                 return Ok(queueItemViewModel);
             }
@@ -467,7 +467,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                var response = await manager.Dequeue(agentId, queueId);
+                var response = await _manager.Dequeue(agentId, queueId);
 
                 if (response == null)
                 {
@@ -481,9 +481,9 @@ namespace OpenBots.Server.Web.Controllers
                 QueueItemViewModel queueItemViewModel = new QueueItemViewModel();
                 queueItemViewModel = queueItemViewModel.Map(response);
                 string id = response.Id.ToString();
-                queueItemViewModel = manager.GetQueueItemView(queueItemViewModel, id);
+                queueItemViewModel = _manager.GetQueueItemView(queueItemViewModel, id);
 
-                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItemViewModel.Id.ToString(), queueItemViewModel.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItemViewModel.Id.ToString(), queueItemViewModel.Name).ConfigureAwait(false);
                 return Ok(queueItemViewModel);
             }
             catch (Exception ex)
@@ -510,7 +510,7 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 Guid transactionKeyId = Guid.Parse(transactionKey);
-                QueueItem queueItem = await manager.GetQueueItem(transactionKeyId);
+                QueueItem queueItem = await _manager.GetQueueItem(transactionKeyId);
 
                 if (queueItem == null)
                 {
@@ -520,13 +520,13 @@ namespace OpenBots.Server.Web.Controllers
 
                 Guid queueItemId = (Guid)queueItem.Id;
 
-                var item = await manager.Commit(queueItemId, transactionKeyId, resultJSON);
+                var item = await _manager.Commit(queueItemId, transactionKeyId, resultJSON);
                 if (item.State == "New")
                 {
                     ModelState.AddModelError("Commit", "Queue item lock time has expired.  Adding back to queue and trying again.");
                     return BadRequest(ModelState);
                 }
-                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
                 return Ok(item);
             }
             catch (Exception ex)
@@ -556,7 +556,7 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 Guid transactionKeyId = Guid.Parse(transactionKey);
-                QueueItem queueItem = await manager.GetQueueItem(transactionKeyId);
+                QueueItem queueItem = await _manager.GetQueueItem(transactionKeyId);
 
                 if (queueItem == null)
                 {
@@ -566,20 +566,20 @@ namespace OpenBots.Server.Web.Controllers
 
                 Guid queueItemId = (Guid)queueItem.Id;
                 Guid queueId = queueItem.QueueId;
-                QueueModel queue = queueRepository.GetOne(queueId);
+                QueueModel queue = _queueRepository.GetOne(queueId);
                 int retryLimit = queue.MaxRetryCount;
 
                 if (retryLimit == null || retryLimit == 0)
                 {
                     retryLimit = int.Parse(Configuration["Queue.Global:DefaultMaxRetryCount"]);
                 }
-                var item = await manager.Rollback(queueItemId, transactionKeyId, retryLimit, errorCode, errorMessage, isFatal);
+                var item = await _manager.Rollback(queueItemId, transactionKeyId, retryLimit, errorCode, errorMessage, isFatal);
                 if (item.State == "Failed")
                 {
                     ModelState.AddModelError("Rollback", item.StateMessage);
                     return BadRequest(ModelState);
                 }
-                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
                 return Ok(item);
             }
             catch (Exception ex)
@@ -606,7 +606,7 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 Guid transactionKeyId = Guid.Parse(transactionKey);
-                QueueItem queueItem = await manager.GetQueueItem(transactionKeyId);
+                QueueItem queueItem = await _manager.GetQueueItem(transactionKeyId);
 
                 if (queueItem == null)
                 {
@@ -615,7 +615,7 @@ namespace OpenBots.Server.Web.Controllers
                 }
 
                 Guid queueItemId = (Guid)queueItem.Id;
-                var item = await manager.Extend(queueItemId, transactionKeyId);
+                var item = await _manager.Extend(queueItemId, transactionKeyId);
 
                 if (item.State == "New")
                 {
@@ -623,7 +623,7 @@ namespace OpenBots.Server.Web.Controllers
                     return BadRequest(ModelState);
                 }
 
-                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
                 return Ok(item);
             }
             catch (Exception ex)
@@ -654,7 +654,7 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 Guid transactionKeyId = Guid.Parse(transactionKey);
-                QueueItem queueItem = await manager.GetQueueItem(transactionKeyId);
+                QueueItem queueItem = await _manager.GetQueueItem(transactionKeyId);
 
                 if (queueItem == null)
                 {
@@ -664,14 +664,14 @@ namespace OpenBots.Server.Web.Controllers
 
                 Guid queueItemId = (Guid)queueItem.Id;
 
-                var item = await manager.UpdateState(queueItemId, transactionKeyId, state, stateMessage, errorCode, errorMessage);
+                var item = await _manager.UpdateState(queueItemId, transactionKeyId, state, stateMessage, errorCode, errorMessage);
                 if (item.State == "New")
                 {
                     ModelState.AddModelError("Extend", "Queue item state was not able to be updated.  Locked until time has passed.  Adding back to queue and trying again.");
                     return BadRequest(ModelState);
                 }
 
-                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
                 return Ok(item);
             }
             catch (Exception ex)
@@ -716,12 +716,12 @@ namespace OpenBots.Server.Web.Controllers
                     queueItem.StateMessage = null;
                     queueItem.RetryCount = 0;
                 }
-                await webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
 
                 //attach new files
-                var binaryObjects = manager.UpdateAttachedFiles(request, queueItem);
+                var binaryObjects = _manager.UpdateAttachedFiles(request, queueItem);
                 foreach (var binaryObject in binaryObjects)
-                    await webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
+                    await _webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
 
                 QueueItemViewModel response = new QueueItemViewModel();
                 response = response.Map(queueItem);

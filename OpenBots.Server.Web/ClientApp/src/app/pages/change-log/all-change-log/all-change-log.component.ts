@@ -81,7 +81,7 @@ export class AllChangeLogComponent implements OnInit {
           .split(';')[1]
           .split('=')[1]
           .replace(/\"/g, '');
-        this._FileSaverService.save(data.body, fileName);
+        _FileSaverService.save(data.body, fileName);
       });
   }
 

@@ -14,12 +14,12 @@ namespace OpenBots.Server.Business
 {
     public class BinaryObjectManager : BaseManager, IBinaryObjectManager
     {
-        private readonly IBlobStorageAdapter blobStorageAdapter;
-        private readonly IFileSystemAdapter fileSystemAdapter;
-        private readonly IOrganizationMemberRepository organizationMemberRepository;
-        private readonly IOrganizationManager organizationManager;
+        private readonly IBlobStorageAdapter _blobStorageAdapter;
+        private readonly IFileSystemAdapter _fileSystemAdapter;
+        private readonly IOrganizationMemberRepository _organizationMemberRepository;
+        private readonly IOrganizationManager _organizationManager;
         private readonly ClaimsPrincipal _caller;
-        private readonly IAspNetUsersRepository usersRepository;
+        private readonly IAspNetUsersRepository _usersRepository;
         public IConfiguration Configuration { get; }
 
         public BinaryObjectManager(
@@ -31,11 +31,11 @@ namespace OpenBots.Server.Business
             IConfiguration configuration,
             IAspNetUsersRepository usersRepository)
         {
-            this.blobStorageAdapter = blobStorageAdapter;
-            this.fileSystemAdapter = fileSystemAdapter;
-            this.organizationMemberRepository = organizationMemberRepository;
-            this.organizationManager = organizationManager;
-            this.usersRepository = usersRepository;
+            _blobStorageAdapter = blobStorageAdapter;
+            _fileSystemAdapter = fileSystemAdapter;
+            _organizationMemberRepository = organizationMemberRepository;
+            _organizationManager = organizationManager;
+            _usersRepository = usersRepository;
             Configuration = configuration;
             _caller = ((httpContextAccessor.HttpContext != null) ? httpContextAccessor.HttpContext.User : new ClaimsPrincipal());
         }
@@ -46,7 +46,7 @@ namespace OpenBots.Server.Business
             if (adapter.Equals("FileSystemAdapter"))
             {
                 string path = Configuration["BinaryObjects:Path"];
-                string binaryObjId = fileSystemAdapter.SaveFile(file, path, organizationId, apiComponent, binaryObjectId);
+                string binaryObjId = _fileSystemAdapter.SaveFile(file, path, organizationId, apiComponent, binaryObjectId);
                 return binaryObjId;
             }
             return "Configuration for Azure Blob Storage is not set up yet.";
@@ -66,7 +66,7 @@ namespace OpenBots.Server.Business
                 hash = GetHash(sha256Hash, bytes);
             }
 
-            blobStorageAdapter.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId, storageProvider, hash);
+            _blobStorageAdapter.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId, storageProvider, hash);
         }
 
         public string GetHash(HashAlgorithm hashAlgorithm, byte[] input)
@@ -84,7 +84,7 @@ namespace OpenBots.Server.Business
 
         public async Task<FileObjectViewModel> Download(string binaryObjectId)
         {
-            return await blobStorageAdapter.FetchFile(binaryObjectId);
+            return await _blobStorageAdapter.FetchFile(binaryObjectId);
         }
 
         public void Update(IFormFile file, string organizationId, string apiComponent, Guid binaryObjectId)
@@ -93,7 +93,7 @@ namespace OpenBots.Server.Business
             if (adapter.Equals("FileSystemAdapter"))
             {
                 string path = Configuration["BinaryObjects:Path"];
-                fileSystemAdapter.UpdateFile(file, path, organizationId, apiComponent, binaryObjectId);
+                _fileSystemAdapter.UpdateFile(file, path, organizationId, apiComponent, binaryObjectId);
             }
         }
 
@@ -106,19 +106,19 @@ namespace OpenBots.Server.Business
                 hash = GetHash(sha256Hash, bytes);
             }
 
-            await blobStorageAdapter.UpdateEntity(file, filePath, binaryObjectId, apiComponent, folder, name, hash);
+            await _blobStorageAdapter.UpdateEntity(file, filePath, binaryObjectId, apiComponent, folder, name, hash);
             return "Success";
         }
 
         public string GetOrganizationId()
         {
             string identity = _caller.Identity.Name;
-            var user = usersRepository.Find(null, u => u.UserName == identity).Items?.FirstOrDefault();
-            organizationMemberRepository.ForceIgnoreSecurity();
-            var orgMember = organizationMemberRepository.Find(null, om => om.PersonId.Equals(user.PersonId))?.Items?.FirstOrDefault();
+            var user = _usersRepository.Find(null, u => u.UserName == identity).Items?.FirstOrDefault();
+            _organizationMemberRepository.ForceIgnoreSecurity();
+            var orgMember = _organizationMemberRepository.Find(null, om => om.PersonId.Equals(user.PersonId))?.Items?.FirstOrDefault();
             string organizationId;
             if (orgMember == null)
-                organizationId = organizationManager.GetDefaultOrganization().Id.ToString();
+                organizationId = _organizationManager.GetDefaultOrganization().Id.ToString();
             else organizationId = orgMember.OrganizationId.ToString();
 
             return organizationId;

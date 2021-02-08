@@ -6,11 +6,11 @@ namespace OpenBots.Server.Business
 {
     public class FileSystemAdapter : IFileSystemAdapter
     {
-        private readonly IDirectoryManager directoryManager;
+        private readonly IDirectoryManager _directoryManager;
 
         public FileSystemAdapter(IDirectoryManager directoryManager)
         {
-            this.directoryManager = directoryManager;
+            _directoryManager = directoryManager;
         }
 
         public string SaveFile(IFormFile file, string path, string organizationId, string apiComponent, string binaryObjectId)
@@ -19,9 +19,9 @@ namespace OpenBots.Server.Business
             apiComponent = apiComponent ?? string.Empty;
             var target = Path.Combine(path, organizationId, apiComponent);
 
-            if (!directoryManager.Exists(target))
+            if (!_directoryManager.Exists(target))
             {
-                directoryManager.CreateDirectory(target);
+                _directoryManager.CreateDirectory(target);
             }
 
             var filePath = Path.Combine(target, binaryObjectId);
@@ -51,9 +51,9 @@ namespace OpenBots.Server.Business
             apiComponent = apiComponent ?? string.Empty;
             var target = Path.Combine(path, organizationId, apiComponent);
 
-            if (!directoryManager.Exists(target))
+            if (!_directoryManager.Exists(target))
             {
-                directoryManager.CreateDirectory(target);
+                _directoryManager.CreateDirectory(target);
             }
 
             var filePath = Path.Combine(target, binaryObjectId.ToString());

@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
+using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
+using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -14,26 +16,85 @@ namespace OpenBots.Server.Business
 {
     public class JobManager : BaseManager, IJobManager
     {
-        private readonly IJobRepository repo;
-        private readonly IAgentRepository agentRepo;
-        private readonly IAutomationRepository automationRepo;
-        private readonly IJobParameterRepository jobParameterRepo;
-        private readonly IJobCheckpointRepository jobCheckpointRepo;
+        private readonly IJobRepository _repo;
+        private readonly IAgentRepository _agentRepo;
+        private readonly IAutomationRepository _automationRepo;
+        private readonly IJobParameterRepository _jobParameterRepo;
+        private readonly IJobCheckpointRepository _jobCheckpointRepo;
+        private readonly IAutomationVersionRepository _automationVersionRepo;
 
-        public JobManager(IJobRepository repo, IAgentRepository agentRepo, IAutomationRepository automationRepo,
-            IJobParameterRepository jobParameterRepository, IJobCheckpointRepository jobCheckpointRepository)
+        public JobManager(IJobRepository jobRepository, 
+            IAgentRepository agentRepository,
+            IAutomationRepository automationRepository,
+            IJobParameterRepository jobParameterRepository,
+            IJobCheckpointRepository jobCheckpointRepository,
+            IAutomationVersionRepository automationVersionRepository)
         {
-            this.repo = repo;
-            this.agentRepo = agentRepo;
-            this.automationRepo = automationRepo;
-            this.jobParameterRepo = jobParameterRepository;
-            this.jobCheckpointRepo = jobCheckpointRepository;
+            _repo = jobRepository;
+            _agentRepo = agentRepository;
+            _automationRepo = automationRepository;
+            _jobParameterRepo = jobParameterRepository;
+            _jobCheckpointRepo = jobCheckpointRepository;
+            _automationVersionRepo = automationVersionRepository;
+        }
+
+        public Job UpdateJob(string id, CreateJobViewModel request, ApplicationUser applicationUser)
+        {
+            Guid entityId = new Guid(id);
+
+            var existingJob = _repo.GetOne(entityId);
+            if (existingJob == null) throw new EntityDoesNotExistException("Unable to find a Job for the specified ID");
+
+            Automation automation = _automationRepo.GetOne(existingJob.AutomationId ?? Guid.Empty);
+            if (automation == null) //no automation was found
+            {
+                throw new EntityDoesNotExistException("No automation was found for the specified automation ID"); 
+            }
+
+            AutomationVersion automationVersion = _automationVersionRepo.Find(null, q => q.AutomationId == automation.Id).Items?.FirstOrDefault();
+            existingJob.AutomationVersion = automationVersion.VersionNumber;
+            existingJob.AutomationVersionId = automationVersion.Id;
+
+            existingJob.AgentId = request.AgentId;
+            existingJob.StartTime = request.StartTime;
+            existingJob.EndTime = request.EndTime;
+            existingJob.ExecutionTimeInMinutes = (existingJob.EndTime.Value - existingJob.StartTime).Value.TotalMinutes;
+            existingJob.DequeueTime = request.DequeueTime;
+            existingJob.AutomationId = request.AutomationId;
+            existingJob.JobStatus = request.JobStatus;
+            existingJob.Message = request.Message;
+            existingJob.IsSuccessful = request.IsSuccessful;
+
+            
+
+            DeleteExistingParameters(entityId);
+
+            var set = new HashSet<string>();
+            foreach (var parameter in request.JobParameters ?? Enumerable.Empty<JobParameter>())
+            {
+                if (!set.Add(parameter.Name))
+                {
+                    throw new Exception("JobParameter Name Already Exists");
+                }
+                parameter.JobId = entityId;
+                parameter.CreatedBy = applicationUser?.UserName;
+                parameter.CreatedOn = DateTime.UtcNow;
+                parameter.Id = Guid.NewGuid();
+                _jobParameterRepo.Add(parameter);
+            }
+
+            if (request.EndTime != null)
+            {
+                UpdateAutomationAverages(existingJob.Id);
+            }
+
+            return existingJob;
         }
 
         public JobViewModel GetJobView(JobViewModel jobView)
         {
-            jobView.AgentName = agentRepo.GetOne(jobView.AgentId ?? Guid.Empty)?.Name;
-            jobView.AutomationName = automationRepo.GetOne(jobView.AutomationId ?? Guid.Empty)?.Name;
+            jobView.AgentName = _agentRepo.GetOne(jobView.AgentId ?? Guid.Empty)?.Name;
+            jobView.AutomationName = _automationRepo.GetOne(jobView.AutomationId ?? Guid.Empty)?.Name;
             jobView.JobParameters = GetJobParameters(jobView.Id ?? Guid.Empty);
 
             return jobView;
@@ -41,18 +102,18 @@ namespace OpenBots.Server.Business
 
         public JobsLookupViewModel GetJobAgentsLookup()
         {
-            return repo.GetJobAgentsLookup();
+            return _repo.GetJobAgentsLookup();
         }
 
         public PaginatedList<AllJobsViewModel> GetJobAgentsandAutomations(Predicate<AllJobsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
-            return repo.FindAllView(predicate, sortColumn, direction, skip, take);
+            return _repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
 
         //gets the next available job for the given agent id
         public NextJobViewModel GetNextJob(Guid agentId)
         {
-            Job job = repo.Find(0, 1).Items
+            Job job = _repo.Find(0, 1).Items
               .Where(j => j.AgentId == agentId && j.JobStatus == JobStatusType.New)
               .OrderBy(j => j.CreatedOn)
               .FirstOrDefault();
@@ -71,13 +132,13 @@ namespace OpenBots.Server.Business
 
         public IEnumerable<JobParameter> GetJobParameters(Guid jobId)
         {
-            var jobParameters = jobParameterRepo.Find(0, 1)?.Items?.Where(p => p.JobId == jobId);
+            var jobParameters = _jobParameterRepo.Find(0, 1)?.Items?.Where(p => p.JobId == jobId);
             return jobParameters;
         }
 
         public IEnumerable<JobCheckpoint> GetJobCheckpoints(Guid jobId)
         {
-            var jobCheckPoints = jobCheckpointRepo.Find(0, 1)?.Items?.Where(p => p.JobId == jobId);
+            var jobCheckPoints = _jobCheckpointRepo.Find(0, 1)?.Items?.Where(p => p.JobId == jobId);
             return jobCheckPoints;
         }
 
@@ -86,7 +147,7 @@ namespace OpenBots.Server.Business
             var jobParameters = GetJobParameters(jobId);
             foreach (var parmeter in jobParameters)
             {
-                jobParameterRepo.SoftDelete(parmeter.Id ?? Guid.Empty);
+                _jobParameterRepo.SoftDelete(parmeter.Id ?? Guid.Empty);
             }
         }
 
@@ -95,7 +156,7 @@ namespace OpenBots.Server.Business
             var jobCheckpoints = GetJobCheckpoints(jobId);
             foreach (var checkpoint in jobCheckpoints)
             {
-                jobCheckpointRepo.SoftDelete(checkpoint.Id ?? Guid.Empty);
+                _jobCheckpointRepo.SoftDelete(checkpoint.Id ?? Guid.Empty);
             }
         }
 
@@ -132,23 +193,23 @@ namespace OpenBots.Server.Business
         //updates the automation averages for the specified job's automation
         public void UpdateAutomationAverages(Guid? updatedJobId)
         {
-            Job updatedJob = repo.GetOne(updatedJobId ?? Guid.Empty);
-            Automation automation = automationRepo.Find(null, a => a.Id == updatedJob.AutomationId).Items.FirstOrDefault();
+            Job updatedJob = _repo.GetOne(updatedJobId ?? Guid.Empty);
+            Automation automation = _automationRepo.Find(null, a => a.Id == updatedJob.AutomationId).Items.FirstOrDefault();
             List<Job> sameAutomationJobs;
 
 
             if (updatedJob.IsSuccessful ?? false)
             {
-                sameAutomationJobs = repo.Find(null, j => j.AutomationId == automation.Id && j.IsSuccessful == true).Items;
+                sameAutomationJobs = _repo.Find(null, j => j.AutomationId == automation.Id && j.IsSuccessful == true).Items;
                 automation.AverageSuccessfulExecutionInMinutes = GetAverageExecutionTime(sameAutomationJobs);
             }
             else
             {
-                sameAutomationJobs = repo.Find(null, j => j.AutomationId == automation.Id && j.IsSuccessful == false).Items;
+                sameAutomationJobs = _repo.Find(null, j => j.AutomationId == automation.Id && j.IsSuccessful == false).Items;
                 automation.AverageUnSuccessfulExecutionInMinutes = GetAverageExecutionTime(sameAutomationJobs);
             }
 
-            automationRepo.Update(automation);
+            _automationRepo.Update(automation);
         }
 
         //gets the average execution time for the provided jobs
@@ -166,7 +227,7 @@ namespace OpenBots.Server.Business
 
         public void DeleteJobChildTables(Guid jobId)
         {
-            var existingJob = repo.GetOne(jobId);
+            var existingJob = _repo.GetOne(jobId);
 
             if (existingJob == null)
             {

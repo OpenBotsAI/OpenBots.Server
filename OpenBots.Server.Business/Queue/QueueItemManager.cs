@@ -19,12 +19,12 @@ namespace OpenBots.Server.Business
 {
     public class QueueItemManager : BaseManager, IQueueItemManager
     {
-        private readonly IQueueItemRepository repo;
-        private readonly IQueueRepository queueRepository;
-        private readonly IQueueItemAttachmentRepository queueItemAttachmentRepository;
-        private readonly IBinaryObjectManager binaryObjectManager;
-        private readonly IBinaryObjectRepository binaryObjectRepository;
-        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IQueueItemRepository _repo;
+        private readonly IQueueRepository _queueRepository;
+        private readonly IQueueItemAttachmentRepository _queueItemAttachmentRepository;
+        private readonly IBinaryObjectManager _binaryObjectManager;
+        private readonly IBinaryObjectRepository _binaryObjectRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public QueueItemManager(
             IQueueItemRepository repo,
@@ -34,12 +34,12 @@ namespace OpenBots.Server.Business
             IHttpContextAccessor httpContextAccessor,
             IBinaryObjectRepository binaryObjectRepository)
         {
-            this.repo = repo;
-            this.queueRepository = queueRepository;
-            this.queueItemAttachmentRepository = queueItemAttachmentRepository;
-            this.binaryObjectManager = binaryObjectManager;
-            this.httpContextAccessor = httpContextAccessor;
-            this.binaryObjectRepository = binaryObjectRepository;
+            _repo = repo;
+            _queueRepository = queueRepository;
+            _queueItemAttachmentRepository = queueItemAttachmentRepository;
+            _binaryObjectManager = binaryObjectManager;
+            _httpContextAccessor = httpContextAccessor;
+            _binaryObjectRepository = binaryObjectRepository;
         }
 
         public async Task<QueueItem> Enqueue(QueueItem item)
@@ -62,7 +62,7 @@ namespace OpenBots.Server.Business
             while (expiredItem != null)
             {
                 SetExpiredState(expiredItem);
-                repo.Update(expiredItem);
+                _repo.Update(expiredItem);
 
                 expiredItem = FindExpiredQueueItem(newState, inProgressState, queueId);
                 if (expiredItem == null)
@@ -79,14 +79,14 @@ namespace OpenBots.Server.Business
                 item.StateMessage = null;
                 item.LockedBy = Guid.Parse(agentId);
                 item.LockTransactionKey = Guid.NewGuid();
-                repo.Update(item);
+                _repo.Update(item);
             }
             return item;
         }
 
         public QueueItem FindQueueItem(string state, string queueId)
         {
-            var item = repo.Find(0, 1).Items
+            var item = _repo.Find(0, 1).Items
                 .Where(q => q.QueueId.ToString() == queueId)
                 .Where(q => q.State == state)
                 .Where(q => !q.IsLocked)
@@ -101,7 +101,7 @@ namespace OpenBots.Server.Business
 
         public QueueItem FindExpiredQueueItem(string newState, string inProgressState, string queueId)
         {
-            var item = repo.Find(0, 1).Items
+            var item = _repo.Find(0, 1).Items
                 .Where(q => q.QueueId.ToString() == queueId)
                 .Where(q => q.State == newState || q.State == inProgressState)
                 .Where(q => !q.IsLocked)
@@ -114,11 +114,11 @@ namespace OpenBots.Server.Business
 
         public async Task<QueueItem> Commit(Guid queueItemId, Guid transactionKey, string resultJSON)
         {
-            var item = repo.GetOne(queueItemId);
+            var item = _repo.GetOne(queueItemId);
             if (item.LockedUntilUTC <= DateTime.UtcNow)
             {
                 SetNewState(item);
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else if (item?.IsLocked == true && item?.LockTransactionKey == transactionKey && item?.LockedUntilUTC >= DateTime.UtcNow)
@@ -132,7 +132,7 @@ namespace OpenBots.Server.Business
                 item.State = QueueItemStateType.Success.ToString();
                 item.StateMessage = "Queue item transaction has been completed successfully";
 
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else
@@ -141,7 +141,7 @@ namespace OpenBots.Server.Business
 
         public async Task<QueueItem> Rollback(Guid queueItemId, Guid transactionKey, int retryLimit, string errorCode = null, string errorMessage = null, bool isFatal = false)
         {
-            var item = repo.GetOne(queueItemId);
+            var item = _repo.GetOne(queueItemId);
             if (item?.LockedUntilUTC < DateTime.UtcNow)
             {
                 SetNewState(item);
@@ -152,7 +152,7 @@ namespace OpenBots.Server.Business
                     error.Add(errorCode, errorMessage);
                 item.ErrorSerialized = JsonConvert.SerializeObject(error);
 
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else if (item?.IsLocked == true && item?.LockedUntilUTC >= DateTime.UtcNow && item?.LockTransactionKey == transactionKey)
@@ -189,7 +189,7 @@ namespace OpenBots.Server.Business
                         item.StateMessage = $"Queue item transaction {item.Name} failed fatally and was unable to be automated {retryLimit} times.";
                     }
                 }
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else
@@ -200,18 +200,18 @@ namespace OpenBots.Server.Business
 
         public async Task<QueueItem> Extend(Guid queueItemId, Guid transactionKey, int extendByMinutes = 60)
         {
-            var item = repo.GetOne(queueItemId);
+            var item = _repo.GetOne(queueItemId);
 
             if (item?.LockedUntilUTC <= DateTime.UtcNow)
             {
                 SetNewState(item);
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else if (item?.IsLocked == true && item?.LockTransactionKey == transactionKey && item?.LockedUntilUTC >= DateTime.UtcNow)
             {
                 item.LockedUntilUTC = ((DateTime)item.LockedUntilUTC).AddMinutes(extendByMinutes);
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else
@@ -220,12 +220,12 @@ namespace OpenBots.Server.Business
 
         public async Task<QueueItem> UpdateState(Guid queueItemId, Guid transactionKey, string state = null, string stateMessage = null, string errorCode = null, string errorMessage = null)
         {
-            var item = repo.GetOne(queueItemId);
+            var item = _repo.GetOne(queueItemId);
 
             if (item?.LockedUntilUTC <= DateTime.UtcNow)
             {
                 SetNewState(item);
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else if (item?.IsLocked == true && item?.LockTransactionKey == transactionKey && item?.LockedUntilUTC >= DateTime.UtcNow)
@@ -240,7 +240,7 @@ namespace OpenBots.Server.Business
                 if (!string.IsNullOrEmpty(errorCode))
                     error.Add(errorCode, errorMessage);
                 item.ErrorSerialized = JsonConvert.SerializeObject(error);
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else
@@ -249,7 +249,7 @@ namespace OpenBots.Server.Business
 
         public async Task<QueueItem> GetQueueItem(Guid transactionKeyId)
         {
-            QueueItem queueItem = repo.Find(0, 1).Items
+            QueueItem queueItem = _repo.Find(0, 1).Items
                 .Where(q => q.LockTransactionKey == transactionKeyId)
                 .FirstOrDefault();
 
@@ -269,7 +269,7 @@ namespace OpenBots.Server.Business
         {
             item.RetryCount += 1;
             Guid queueId = item.QueueId;
-            Queue queue = queueRepository.GetOne(queueId);
+            Queue queue = _queueRepository.GetOne(queueId);
             int retryLimit = queue.MaxRetryCount;
 
             if (item.RetryCount < retryLimit)
@@ -302,17 +302,17 @@ namespace OpenBots.Server.Business
 
         public PaginatedList<AllQueueItemsViewModel> GetQueueItemsAndBinaryObjectIds(Predicate<AllQueueItemsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
-            return repo.FindAllView(predicate, sortColumn, direction, skip, take);
+            return _repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
 
         public PaginatedList<AllQueueItemAttachmentsViewModel> GetQueueItemAttachmentsAndNames(Guid queueItemId, Predicate<AllQueueItemAttachmentsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
-            return queueItemAttachmentRepository.FindAllView(queueItemId, predicate, sortColumn, direction, skip, take);
+            return _queueItemAttachmentRepository.FindAllView(queueItemId, predicate, sortColumn, direction, skip, take);
         }
 
         public QueueItemViewModel GetQueueItemView(QueueItemViewModel queueItemView, string id)
         {
-            var attachmentsList = queueItemAttachmentRepository.Find(null, q => q.QueueItemId == Guid.Parse(id))?.Items;
+            var attachmentsList = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == Guid.Parse(id))?.Items;
             if (attachmentsList != null)
             {
                 List<Guid?> binaryObjectIds = new List<Guid?>();
@@ -347,7 +347,7 @@ namespace OpenBots.Server.Business
                         throw new InvalidDataException($"File size of file {file.FileName} cannot be 0");
                     }
 
-                    string organizationId = binaryObjectManager.GetOrganizationId();
+                    string organizationId = _binaryObjectManager.GetOrganizationId();
                     string apiComponent = "QueueItemAPI";
 
                     //create binary object
@@ -356,46 +356,46 @@ namespace OpenBots.Server.Business
                         Name = file.FileName,
                         Folder = apiComponent,
                         CreatedOn = DateTime.UtcNow,
-                        CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name,
+                        CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
                         CorrelationEntityId = queueItemId
                     };
 
                     string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
 
                     //upload file to the Server
-                    binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                    binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                    binaryObjectRepository.Add(binaryObject);
+                    _binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
+                    _binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
+                    _binaryObjectRepository.Add(binaryObject);
 
                     //create queue item attachment
                     QueueItemAttachment attachment = new QueueItemAttachment()
                     {
                         BinaryObjectId = (Guid)binaryObject.Id,
                         QueueItemId = queueItemId,
-                        CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name,
+                        CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
                         CreatedOn = DateTime.UtcNow,
                         SizeInBytes = file.Length
                     };
-                    queueItemAttachmentRepository.Add(attachment);
+                    _queueItemAttachmentRepository.Add(attachment);
                     binaryObjects.Add(binaryObject);
                     payload += attachment.SizeInBytes;
                 }
             }
             //update queue item payload
             queueItem.PayloadSizeInBytes += payload;
-            repo.Update(queueItem);
+            _repo.Update(queueItem);
 
             return binaryObjects;
         }
 
         public List<BinaryObject> UpdateAttachedFiles(UpdateQueueItemViewModel request, QueueItem queueItem)
         {
-            var attachments = queueItemAttachmentRepository.Find(null, q => q.QueueItemId == request.Id)?.Items;
+            var attachments = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == request.Id)?.Items;
             var files = request.Files.ToList();
 
             foreach (var attachment in attachments)
             {
-                var binaryObject = binaryObjectRepository.GetOne(attachment.BinaryObjectId);
+                var binaryObject = _binaryObjectRepository.GetOne(attachment.BinaryObjectId);
 
                 //check if file with same hash and queue item id already exists
                 foreach (var file in request.Files)
@@ -410,7 +410,7 @@ namespace OpenBots.Server.Business
                     string hash = string.Empty;
                     using (SHA256 sha256Hash = SHA256.Create())
                     {
-                        hash = binaryObjectManager.GetHash(sha256Hash, bytes);
+                        hash = _binaryObjectManager.GetHash(sha256Hash, bytes);
                     }
 
                     if (binaryObject.HashCode == hash && binaryObject.CorrelationEntityId == request.Id)

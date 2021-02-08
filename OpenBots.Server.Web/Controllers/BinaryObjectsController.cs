@@ -31,8 +31,8 @@ namespace OpenBots.Server.Web.Controllers
     [FeatureGate(MyFeatureFlags.Files)]
     public class BinaryObjectsController : EntityController<BinaryObject>
     {
-        private readonly IBinaryObjectManager binaryObjectManager;
-        private readonly IWebhookPublisher webhookPublisher;
+        private readonly IBinaryObjectManager _binaryObjectManager;
+        private readonly IWebhookPublisher _webhookPublisher;
 
         /// <summary>
         /// BinaryObjectsController constructor
@@ -52,9 +52,9 @@ namespace OpenBots.Server.Web.Controllers
             IConfiguration configuration,
             IWebhookPublisher webhookPublisher) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.binaryObjectManager = binaryObjectManager;
-            this.binaryObjectManager.SetContext(SecurityContext);
-            this.webhookPublisher = webhookPublisher;
+            _binaryObjectManager = binaryObjectManager;
+            _binaryObjectManager.SetContext(SecurityContext);
+            _webhookPublisher = webhookPublisher;
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 var response = await base.PostEntity(request);
-                await webhookPublisher.PublishAsync("Files.NewFileCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Files.NewFileCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
                 return response;
             }
             catch (Exception ex)
@@ -220,7 +220,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 var existingBinaryObject = repository.GetOne(Guid.Parse(id));
                 if (existingBinaryObject == null) return NotFound();
-                string organizationId = binaryObjectManager.GetOrganizationId();
+                string organizationId = _binaryObjectManager.GetOrganizationId();
                 string apiComponent = "BinaryObjectAPI";
 
                 if (string.IsNullOrEmpty(existingBinaryObject.Folder))
@@ -238,12 +238,12 @@ namespace OpenBots.Server.Web.Controllers
                     }
                     else
                     {
-                        binaryObjectManager.Upload(file, organizationId, apiComponent, existingBinaryObject.Id.ToString());
-                        binaryObjectManager.SaveEntity(file, filePath, existingBinaryObject, apiComponent, organizationId);
+                        _binaryObjectManager.Upload(file, organizationId, apiComponent, existingBinaryObject.Id.ToString());
+                        _binaryObjectManager.SaveEntity(file, filePath, existingBinaryObject, apiComponent, organizationId);
                         repository.Update(existingBinaryObject);
                     }
                 }
-                await webhookPublisher.PublishAsync("Files.FileUpdated", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Files.FileUpdated", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
                 return Ok(existingBinaryObject);
             }
             catch (Exception ex)
@@ -287,7 +287,7 @@ namespace OpenBots.Server.Web.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var fileObject = binaryObjectManager.Download(binaryObjectId.ToString());
+                var fileObject = _binaryObjectManager.Download(binaryObjectId.ToString());
 
                 return File(fileObject?.Result?.BlobStream, fileObject?.Result?.ContentType, fileObject?.Result?.Name);
             }
@@ -341,7 +341,7 @@ namespace OpenBots.Server.Web.Controllers
                 existingBinaryObject.Name = request.Name ?? existingBinaryObject.Name;
                 existingBinaryObject.Folder = request.Folder;
 
-                await webhookPublisher.PublishAsync("Files.FileUpdated", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Files.FileUpdated", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingBinaryObject);
                                      
             }
@@ -390,7 +390,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 string organizationId = existingBinaryObject.OrganizationId.ToString();
                 if (!string.IsNullOrEmpty(organizationId))
-                    organizationId = binaryObjectManager.GetOrganizationId().ToString();
+                    organizationId = _binaryObjectManager.GetOrganizationId().ToString();
 
                 string apiComponent = existingBinaryObject.CorrelationEntity;
 
@@ -415,8 +415,8 @@ namespace OpenBots.Server.Web.Controllers
                     existingBinaryObject.Folder = request.Folder;
 
                     //update file in OpenBots.Server.Web using relative directory
-                    binaryObjectManager.Update(request.File, organizationId, apiComponent, Guid.Parse(id));
-                    await binaryObjectManager.UpdateEntity(request.File, existingBinaryObject.StoragePath, existingBinaryObject.Id.ToString(), apiComponent, existingBinaryObject.Folder, existingBinaryObject.Name);
+                    _binaryObjectManager.Update(request.File, organizationId, apiComponent, Guid.Parse(id));
+                    await _binaryObjectManager.UpdateEntity(request.File, existingBinaryObject.StoragePath, existingBinaryObject.Id.ToString(), apiComponent, existingBinaryObject.Folder, existingBinaryObject.Name);
                 }
                 else
                 {
@@ -425,7 +425,7 @@ namespace OpenBots.Server.Web.Controllers
                     await base.PutEntity(id, existingBinaryObject);
                 }
 
-                await webhookPublisher.PublishAsync("Files.FileUpdated", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Files.FileUpdated", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
                 return Ok(existingBinaryObject);
             }
             catch (Exception ex)
@@ -455,7 +455,7 @@ namespace OpenBots.Server.Web.Controllers
                 Guid entityId = Guid.Parse(id);
                 var existingBinaryObject = repository.GetOne(entityId);
                 if (existingBinaryObject == null) return NotFound();
-                await webhookPublisher.PublishAsync("Files.FileDeleted", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Files.FileDeleted", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(existingBinaryObject.CorrelationEntity) || existingBinaryObject.CorrelationEntity == "BinaryObjectAPI")
                 {
@@ -500,7 +500,7 @@ namespace OpenBots.Server.Web.Controllers
                 var existingBinaryObject = repository.GetOne(entityId);
                 if (existingBinaryObject == null) return NotFound();
 
-                await webhookPublisher.PublishAsync("Files.FileUpdated", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Files.FileUpdated", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
                 return await base.PatchEntity(id, request);
             }
             catch (Exception ex)
