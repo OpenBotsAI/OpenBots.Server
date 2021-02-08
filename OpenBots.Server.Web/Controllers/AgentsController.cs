@@ -291,51 +291,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                Guid entityId = new Guid(id);
-                
-                var existingAgent = repository.GetOne(entityId);
-                if (existingAgent == null) return NotFound();
-
-                var namedAgent = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
-                if (namedAgent != null && namedAgent.Id != entityId)
-                {
-                    ModelState.AddModelError("Agent", "Agent Name Already Exists");
-                    return BadRequest(ModelState);
-                }
-
-                if (existingAgent.Name != request.Name)
-                {
-                    personRepo.ForceIgnoreSecurity();
-                    Person person = personRepo.Find(0,1).Items?.Where(p => p.Name == existingAgent.Name && p.IsAgent && p.IsDeleted == false)?.FirstOrDefault();
-                    if (person != null)
-                    {
-                        person.UpdatedBy = string.IsNullOrWhiteSpace(applicationUser?.Name) ? person.UpdatedBy : applicationUser?.Name;
-                        person.Name = request.Name;
-                        personRepo.Update(person);
-
-                        usersRepo.ForceIgnoreSecurity();
-                        var aspUser = usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
-                        if (aspUser != null)
-                        {
-                            var existingUser = await userManager.FindByIdAsync(aspUser.Id).ConfigureAwait(false);
-                            existingUser.Name = request.Name;
-                            var result = await userManager.UpdateAsync(existingUser).ConfigureAwait(true);
-                        }
-                        usersRepo.ForceSecurity();
-                    }
-                    personRepo.ForceSecurity();
-                }
-
-                existingAgent.Name = request.Name;
-                existingAgent.MachineName = request.MachineName;
-                existingAgent.MacAddresses = request.MacAddresses;
-                existingAgent.IPAddresses = request.IPAddresses;
-                existingAgent.IsEnabled = request.IsEnabled;
-                existingAgent.CredentialId = request.CredentialId;
-                existingAgent.IPOption = request.IPOption;
-                existingAgent.IsEnhancedSecurity = request.IsEnhancedSecurity;
-
-                await webhookPublisher.PublishAsync("Agents.AgentUpdated", existingAgent.Id.ToString(), existingAgent.Name).ConfigureAwait(false);
+                var existingAgent = agentManager.UpdateAgentAsync(id, request);
                 return await base.PutEntity(id, existingAgent);
             }
             catch (Exception ex)
@@ -409,17 +365,7 @@ namespace OpenBots.Server.Web.Controllers
                 {
                     if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")
                     {
-                        var agent = repository.Find(null, d => d.Name.ToLower(null) == request.Operations[i].value.ToString().ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
-                        if (agent != null)
-                        {
-                            ModelState.AddModelError("Agent", "Agent Name Already Exists");
-                            return BadRequest(ModelState);
-                        }
-
-                        Person person = personRepo.Find(0, 1).Items?.Where(p => p.Name == existingAgent.Name && p.IsAgent && !(p.IsDeleted ?? false))?.FirstOrDefault();
-                        person.UpdatedBy = string.IsNullOrWhiteSpace(applicationUser?.Name) ? person.UpdatedBy : applicationUser?.Name;
-                        person.Name = request.Operations[i].value.ToString();
-                        personRepo.Update(person);
+                        agentManager.UpdateAgentName(existingAgent.Name, request.Operations[i].value.ToString().ToLower());
                     }
                 }
 

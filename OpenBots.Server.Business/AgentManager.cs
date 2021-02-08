@@ -146,6 +146,79 @@ namespace OpenBots.Server.Business
         }
 
         /// <summary>
+        /// Updates an Agent's user account and returns the updated Agent
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public Agent UpdateAgentAsync(string id, Agent request)
+        {
+            Guid entityId = new Guid(id);
+
+            var existingAgent = agentRepo.GetOne(entityId);
+            if (existingAgent == null)
+            {
+                throw new EntityDoesNotExistException("No agent exists for the specified agent id");
+            }
+
+            var namedAgent = agentRepo.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
+            if (namedAgent != null && namedAgent.Id != entityId)
+            {
+                throw new EntityAlreadyExistsException("Agent Name Already Exists");
+            }
+
+            if (existingAgent.Name != request.Name)
+            {
+                UpdateAgentName(existingAgent.Name, request.Name);
+            }
+
+            existingAgent.Name = request.Name;
+            existingAgent.MachineName = request.MachineName;
+            existingAgent.MacAddresses = request.MacAddresses;
+            existingAgent.IPAddresses = request.IPAddresses;
+            existingAgent.IsEnabled = request.IsEnabled;
+            existingAgent.CredentialId = request.CredentialId;
+            existingAgent.IPOption = request.IPOption;
+            existingAgent.IsEnhancedSecurity = request.IsEnhancedSecurity;
+
+            return existingAgent;
+        }
+
+        /// <summary>
+        /// Updates an Agent's name in it's corresponding user tables
+        /// </summary>
+        /// <param name="oldName"></param>
+        /// <param name="newName"></param>
+        public void UpdateAgentName(string oldName, string newName)
+        {
+            personRepo.ForceIgnoreSecurity();
+            Person person = personRepo.Find(0, 1).Items?.Where(p => p.Name == oldName && p.IsAgent && p.IsDeleted == false)?.FirstOrDefault();
+            if (person != null)
+            {
+                person.Name = newName;
+                personRepo.Update(person);
+
+                usersRepo.ForceIgnoreSecurity();
+                var aspUser = usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
+                if (aspUser != null)
+                {
+                    var existingUser = userManager.FindByIdAsync(aspUser.Id).Result;
+                    existingUser.Name = newName;
+                    var result = userManager.UpdateAsync(existingUser).Result;
+                }
+                else
+                {
+                    throw new EntityDoesNotExistException("Could not find the corresponding asp user entity to update");
+                }
+                usersRepo.ForceSecurity();
+            }
+            else
+            {
+                throw new EntityDoesNotExistException("Could not find the corresponding person entity to update");
+            }
+        }
+
+        /// <summary>
         /// Gets additional details for the provided agent viewmodel
         /// </summary>
         /// <param name="agentView"></param>

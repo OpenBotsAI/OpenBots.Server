@@ -12,6 +12,10 @@ namespace OpenBots.Server.Business
 
         void DeleteAgentDependenciesAsync(Agent agent);
 
+        Agent UpdateAgentAsync(string id, Agent request);
+
+        void UpdateAgentName(string oldName, string newName)
+
         AgentViewModel GetAgentDetails(AgentViewModel agentView);
         
         bool CheckReferentialIntegrity(string id);
