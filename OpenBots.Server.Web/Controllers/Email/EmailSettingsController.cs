@@ -25,7 +25,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
     [Authorize]
     public class EmailSettingsController : EntityController<EmailSettings>
     {
-        private readonly IOrganizationManager organizationManager;
+        private readonly IOrganizationManager _organizationManager;
 
         /// <summary>
         /// EmailSettingsController constructor
@@ -44,7 +44,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
             IHttpContextAccessor httpContextAccessor,
             IOrganizationManager organizationManager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.organizationManager = organizationManager;
+            _organizationManager = organizationManager;
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
                 {
                     var settings = new EmailSettings();
                     settings.IsEmailDisabled = true;
-                    settings.OrganizationId = (Guid)organizationManager.GetDefaultOrganization().Id;
+                    settings.OrganizationId = (Guid)_organizationManager.GetDefaultOrganization().Id;
                     repository.Add(settings);
                     response = base.GetMany();
                 }

@@ -27,7 +27,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
     [Authorize]
     public class EmailAccountsController : EntityController<EmailAccount>
     {
-        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         
         /// <summary>
         /// EmailLogsController constructor
@@ -44,7 +44,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.httpContextAccessor = httpContextAccessor;    
+            _httpContextAccessor = httpContextAccessor;    
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
                     return BadRequest(ModelState);
                 }
 
-                applicationUser = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
+                applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
                 if (request.EncryptedPassword != null && applicationUser != null)
                     request.PasswordHash = userManager.PasswordHasher.HashPassword(applicationUser, request.EncryptedPassword);
 
@@ -244,7 +244,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
                 existingEmailAccount.StartOnUTC = request.StartOnUTC;
                 existingEmailAccount.EndOnUTC = request.EndOnUTC;
 
-                applicationUser = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
+                applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
                 if (request.EncryptedPassword != null && applicationUser != null)
                     existingEmailAccount.PasswordHash = userManager.PasswordHasher.HashPassword(applicationUser, request.EncryptedPassword);
 

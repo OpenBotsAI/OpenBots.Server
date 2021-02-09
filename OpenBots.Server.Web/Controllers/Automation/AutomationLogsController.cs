@@ -23,7 +23,7 @@ namespace OpenBots.Server.Web
     [Authorize]
     public class AutomationLogsController : EntityController<AutomationLog>
     {
-        IAutomationLogManager automationLogManager;
+        private readonly IAutomationLogManager _automationLogManager;
 
         /// <summary>
         /// AutomationLogsController constructor
@@ -42,8 +42,8 @@ namespace OpenBots.Server.Web
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.automationLogManager = automationLogManager;
-            this.automationLogManager.SetContext(SecurityContext);
+            _automationLogManager = automationLogManager;
+            _automationLogManager.SetContext(SecurityContext);
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace OpenBots.Server.Web
                 oData.Top = top;
 
                 var automationLogsJson = base.GetMany(oData : oData);
-                string csvString = automationLogManager.GetJobLogs(automationLogsJson.Items.ToArray());
+                string csvString = _automationLogManager.GetJobLogs(automationLogsJson.Items.ToArray());
                 var csvFile = File(new System.Text.UTF8Encoding().GetBytes(csvString), "text/csv", "Logs.csv");
 
                 switch (fileType.ToLower())
@@ -189,7 +189,7 @@ namespace OpenBots.Server.Web
                         return csvFile;
 
                     case "zip":
-                        var zippedFile = automationLogManager.ZipCsv(csvFile);
+                        var zippedFile = _automationLogManager.ZipCsv(csvFile);
                         const string contentType = "application/zip";
                         HttpContext.Response.ContentType = contentType;
                         var zipFile = new FileContentResult(zippedFile.ToArray(), contentType)

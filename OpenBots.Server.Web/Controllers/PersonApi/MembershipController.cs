@@ -25,8 +25,8 @@ namespace OpenBots.Server.WebAPI.Controllers.PersonApi
     [Authorize]
     public class MembershipController : EntityController<Organization>
     {
-        IOrganizationMemberRepository orgMemberRepository;
-        IMembershipManager membershipManager;
+        private readonly IOrganizationMemberRepository _orgMemberRepository;
+        private readonly IMembershipManager _membershipManager;
 
         /// <summary>
         /// MembershipController constructor
@@ -45,10 +45,10 @@ namespace OpenBots.Server.WebAPI.Controllers.PersonApi
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor) : base(repository,  userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.membershipManager = membershipManager;
-            this.orgMemberRepository = orgMemberRepository;
-            this.membershipManager.SetContext(base.SecurityContext);
-            this.orgMemberRepository.SetContext(base.SecurityContext);
+            _membershipManager = membershipManager;
+            _orgMemberRepository = orgMemberRepository;
+            _membershipManager.SetContext(base.SecurityContext);
+            _orgMemberRepository.SetContext(base.SecurityContext);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace OpenBots.Server.WebAPI.Controllers.PersonApi
 
             try
             {
-                var listOfOrg = membershipManager.Suggestions(personGuid);
+                var listOfOrg = _membershipManager.Suggestions(personGuid);
                 return Ok(listOfOrg);
             }
             catch(Exception ex)
@@ -112,7 +112,7 @@ namespace OpenBots.Server.WebAPI.Controllers.PersonApi
             try
             {
                 Guid personGuid = SecurityContext.PersonId;
-                return Ok(membershipManager.MyOrganizations(personGuid, true));
+                return Ok(_membershipManager.MyOrganizations(personGuid, true));
             }
             catch (Exception ex)
             {
@@ -148,7 +148,7 @@ namespace OpenBots.Server.WebAPI.Controllers.PersonApi
             try
             {
                 Guid personGuid = SecurityContext.PersonId;
-                return Ok(membershipManager.Search(personGuid, startsWith, skip, take, false));
+                return Ok(_membershipManager.Search(personGuid, startsWith, skip, take, false));
             }
             catch (Exception ex)
             {
@@ -190,7 +190,7 @@ namespace OpenBots.Server.WebAPI.Controllers.PersonApi
                     return BadRequest(ModelState);
                 }
 
-                var accessRequest =  membershipManager.JoinOrganization(personGuid, orgGuid);
+                var accessRequest =  _membershipManager.JoinOrganization(personGuid, orgGuid);
                 if (accessRequest == null)
                 {
                     ModelState.AddModelError("JoinOrganization", "Organization request pending");
@@ -236,7 +236,7 @@ namespace OpenBots.Server.WebAPI.Controllers.PersonApi
 
             try
             {
-                var orgMember = membershipManager.RevokeAdminPermisson(orgGuid, personGuid, SecurityContext);
+                var orgMember = _membershipManager.RevokeAdminPermisson(orgGuid, personGuid, SecurityContext);
                 return Ok(orgMember);
             }
             catch (Exception ex)
@@ -281,7 +281,7 @@ namespace OpenBots.Server.WebAPI.Controllers.PersonApi
 
                 if (IsOrgAdmin)
                 {
-                    var orgMember = membershipManager.GrantAdminPermission(orgGuid, personGuid);
+                    var orgMember = _membershipManager.GrantAdminPermission(orgGuid, personGuid);
                     return Ok(orgMember);
                 }
                 else {
@@ -323,7 +323,7 @@ namespace OpenBots.Server.WebAPI.Controllers.PersonApi
                 return BadRequest(ModelState);
             }
 
-            var OrgMembers = orgMemberRepository.Find(null, a => a.OrganizationId == orgGuid)?.Items;
+            var OrgMembers = _orgMemberRepository.Find(null, a => a.OrganizationId == orgGuid)?.Items;
             var OrgMemberCount = OrgMembers?.Count;
             var OrgAdminCount = OrgMembers?.Where(a => a.IsAdministrator == true)?.Count();
 
@@ -346,7 +346,7 @@ namespace OpenBots.Server.WebAPI.Controllers.PersonApi
             try
             {
                 if (member != null && member.Id.HasValue)
-                    orgMemberRepository.Delete(member.Id.Value);
+                    _orgMemberRepository.Delete(member.Id.Value);
                 else
                     throw new UnauthorizedAccessException();
 

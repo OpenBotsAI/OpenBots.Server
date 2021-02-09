@@ -8,30 +8,30 @@ namespace OpenBots.Server.Business
 {
     public class AccessRequestsManager : BaseManager, IAccessRequestsManager
     {
-        private readonly IAccessRequestRepository accessRequestRepo;
-        private readonly IPersonRepository personRepo;
+        private readonly IAccessRequestRepository _accessRequestRepo;
+        private readonly IPersonRepository _personRepo;
 
         public AccessRequestsManager(IAccessRequestRepository accessRequestRepo, IPersonRepository personRepo)
         {
-            this.accessRequestRepo = accessRequestRepo;
-            this.personRepo = personRepo;
+            _accessRequestRepo = accessRequestRepo;
+            _personRepo = personRepo;
            
         }
 
         public override void SetContext(UserSecurityContext userSecurityContext)
         {
-            this.accessRequestRepo.SetContext(userSecurityContext);
-            this.personRepo.SetContext(userSecurityContext);
+            _accessRequestRepo.SetContext(userSecurityContext);
+            _personRepo.SetContext(userSecurityContext);
             base.SetContext(userSecurityContext);
         }
 
         public PaginatedList<AccessRequest> GetAccessRequests(string organizationId)
         {
-            var accessRequests = accessRequestRepo.Find(Guid.Parse(organizationId));
+            var accessRequests = _accessRequestRepo.Find(Guid.Parse(organizationId));
 
             foreach (AccessRequest accReqItem in accessRequests.Items)
             {
-                var person = personRepo.GetOne(accReqItem.PersonId.GetValueOrDefault());
+                var person = _personRepo.GetOne(accReqItem.PersonId.GetValueOrDefault());
                 accReqItem.Person = person;
             }
             return accessRequests;
@@ -39,15 +39,15 @@ namespace OpenBots.Server.Business
 
         public AccessRequest AddAccessRequest(AccessRequest accessRequest)
         {
-            var orgAccessRequest = accessRequestRepo.Add(accessRequest);
+            var orgAccessRequest = _accessRequestRepo.Add(accessRequest);
             return orgAccessRequest;
         }
 
         public AccessRequest AddAnonymousAccessRequest(AccessRequest accessRequest)
         {
-            accessRequestRepo.ForceIgnoreSecurity();
-            var orgAccessRequest = accessRequestRepo.Add(accessRequest);
-            accessRequestRepo.ForceSecurity();
+            _accessRequestRepo.ForceIgnoreSecurity();
+            var orgAccessRequest = _accessRequestRepo.Add(accessRequest);
+            _accessRequestRepo.ForceSecurity();
             return orgAccessRequest;
         }
     }

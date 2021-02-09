@@ -9,10 +9,10 @@ namespace OpenBots.Server.Business
 {
     public class AutomationLogManager : BaseManager, IAutomationLogManager
     {
-        private readonly IAutomationLogRepository repo;
+        private readonly IAutomationLogRepository _repo;
         public AutomationLogManager(IAutomationLogRepository repo)
         {
-            this.repo = repo;
+            _repo = repo;
         }
 
         public string GetJobLogs(AutomationLog[] automationLogs)

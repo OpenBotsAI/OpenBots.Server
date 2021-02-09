@@ -33,14 +33,14 @@ namespace OpenBots.Server.Web
     [Authorize]
     public class JobsController : EntityController<Job>
     {
-        readonly IJobManager jobManager;
-        readonly IJobParameterRepository jobParameterRepo;
-        readonly IAutomationRepository automationRepo;
-        readonly IJobCheckpointRepository jobCheckpointRepo;
-        private IHubContext<NotificationHub> _hub;
-        private IAutomationVersionRepository automationVersionRepo;
-        private readonly IWebhookPublisher webhookPublisher;
-        private readonly IJobRepository repository;
+        private readonly IJobManager _jobManager;
+        private readonly IJobParameterRepository _jobParameterRepo;
+        private readonly IAutomationRepository _automationRepo;
+        private readonly IJobCheckpointRepository _jobCheckpointRepo;
+        private readonly IHubContext<NotificationHub> _hub;
+        private readonly IAutomationVersionRepository _automationVersionRepo;
+        private readonly IWebhookPublisher _webhookPublisher;
+        private readonly IJobRepository _repository;
 
         /// <summary>
         /// JobsController constructor
@@ -72,15 +72,15 @@ namespace OpenBots.Server.Web
             IWebhookPublisher webhookPublisher) : base(repository, userManager, httpContextAccessor,
                 membershipManager, configuration)
         {
-            this.jobManager = jobManager;
-            this.jobParameterRepo = jobParameterRepository;
-            this.automationRepo = automationRepository;
-            this.jobCheckpointRepo = jobCheckpointRepository;
-            this.jobManager.SetContext(base.SecurityContext);
-            this.repository = repository;
+            _jobManager = jobManager;
+            _jobParameterRepo = jobParameterRepository;
+            _automationRepo = automationRepository;
+            _jobCheckpointRepo = jobCheckpointRepository;
+            _jobManager.SetContext(base.SecurityContext);
+            _repository = repository;
             _hub = hub;
-            this.automationVersionRepo = automationVersionRepo;
-            this.webhookPublisher = webhookPublisher;
+            _automationVersionRepo = automationVersionRepo;
+            _webhookPublisher = webhookPublisher;
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace OpenBots.Server.Web
 
                 var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-                return Ok(jobManager.GetJobAgentsandAutomations(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+                return Ok(_jobManager.GetJobAgentsandAutomations(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
             }
             catch (Exception ex)
             {
@@ -256,7 +256,7 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                return Ok(jobManager.GetJobAgentsLookup());
+                return Ok(_jobManager.GetJobAgentsLookup());
             }
             catch (Exception ex)
             {
@@ -326,7 +326,7 @@ namespace OpenBots.Server.Web
                 if (okResult != null)
                 {
                     JobViewModel view = okResult.Value as JobViewModel;
-                    view = jobManager.GetJobView(view);
+                    view = _jobManager.GetJobView(view);
                 }
                 
                 return actionResult;
@@ -378,7 +378,7 @@ namespace OpenBots.Server.Web
                 statusPatch.Replace(j => j.JobStatus, JobStatusType.Assigned);
                 statusPatch.Replace(j => j.DequeueTime, DateTime.UtcNow);
 
-                NextJobViewModel nextJob = jobManager.GetNextJob(agentGuid);
+                NextJobViewModel nextJob = _jobManager.GetNextJob(agentGuid);
 
                 return Ok(nextJob);
             }
@@ -428,7 +428,7 @@ namespace OpenBots.Server.Web
                 oData.Top = top;
 
                 var jobsJson = base.GetMany(oData: oData);
-                string csvString = jobManager.GetCsv(jobsJson.Items.ToArray());
+                string csvString = _jobManager.GetCsv(jobsJson.Items.ToArray());
                 var csvFile = File(new System.Text.UTF8Encoding().GetBytes(csvString), "text/csv", "Jobs.csv");
 
                 switch (fileType.ToLower())
@@ -437,7 +437,7 @@ namespace OpenBots.Server.Web
                         return csvFile;
 
                     case "zip":
-                        var zippedFile = jobManager.ZipCsv(csvFile);
+                        var zippedFile = _jobManager.ZipCsv(csvFile);
                         const string contentType = "application/zip";
                         HttpContext.Response.ContentType = contentType;
                         var zipFile = new FileContentResult(zippedFile.ToArray(), contentType)
@@ -494,14 +494,14 @@ namespace OpenBots.Server.Web
             try
             {
                 Job job = request.Map(request); //assign request to job entity
-                Automation automation = automationRepo.GetOne(job.AutomationId ?? Guid.Empty);
+                Automation automation = _automationRepo.GetOne(job.AutomationId ?? Guid.Empty);
                 
                 if (automation == null) //no automation was found
                 {
                     ModelState.AddModelError("Save", "No automation was found for the specified automation id");
                     return NotFound(ModelState);
                 }
-                AutomationVersion automationVersion = automationVersionRepo.Find(null, q => q.AutomationId == automation.Id).Items?.FirstOrDefault();
+                AutomationVersion automationVersion = _automationVersionRepo.Find(null, q => q.AutomationId == automation.Id).Items?.FirstOrDefault();
 
                 job.AutomationVersion = automationVersion.VersionNumber;
                 job.AutomationVersionId = automationVersion.Id;
@@ -512,14 +512,14 @@ namespace OpenBots.Server.Web
                     parameter.CreatedBy = applicationUser?.UserName;
                     parameter.CreatedOn = DateTime.UtcNow;
                     parameter.Id = Guid.NewGuid();
-                    jobParameterRepo.Add(parameter);
+                    _jobParameterRepo.Add(parameter);
                 }
 
                 //send SignalR notification to all connected clients 
                 await _hub.Clients.All.SendAsync("botnewjobnotification", request.AgentId.ToString());
                 await _hub.Clients.All.SendAsync("sendjobnotification", "New Job added.");
                 await _hub.Clients.All.SendAsync("broadcastnewjobs", Tuple.Create(request.Id,request.AgentId,request.AutomationId));
-                await webhookPublisher.PublishAsync("Jobs.NewJobCreated", job.Id.ToString()).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Jobs.NewJobCreated", job.Id.ToString()).ConfigureAwait(false);
 
 
                 return await base.PostEntity(job);
@@ -555,61 +555,15 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                Guid entityId = new Guid(id);
+                Job updatedJob = _jobManager.UpdateJob(id, request, applicationUser);
+                
+                var result = await base.PutEntity(id, updatedJob);
 
-                var existingJob = repository.GetOne(entityId);
-                if (existingJob == null) return NotFound("Unable to find a Job for the specified ID");
+                //send SignalR notification to all connected client and update IntegrationEvents
+                await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", updatedJob.Id));
+                await _webhookPublisher.PublishAsync("Jobs.JobUpdated", updatedJob.Id.ToString()).ConfigureAwait(false);
 
-                Automation automation = automationRepo.GetOne(existingJob.AutomationId ?? Guid.Empty);
-                if (automation == null) //no automation was found
-                {
-                    ModelState.AddModelError("Save", "No automation was found for the specified automation ID");
-                    return NotFound(ModelState);
-                }
-
-                AutomationVersion automationVersion = automationVersionRepo.Find(null, q => q.AutomationId == automation.Id).Items?.FirstOrDefault();
-                existingJob.AutomationVersion = automationVersion.VersionNumber;
-                existingJob.AutomationVersionId = automationVersion.Id;
-
-                existingJob.AgentId = request.AgentId;
-                existingJob.StartTime = request.StartTime;
-                existingJob.EndTime = request.EndTime;
-                existingJob.ExecutionTimeInMinutes = (existingJob.EndTime.Value - existingJob.StartTime).Value.TotalMinutes;
-                existingJob.DequeueTime = request.DequeueTime;
-                existingJob.AutomationId = request.AutomationId;
-                existingJob.JobStatus = request.JobStatus;
-                existingJob.Message = request.Message;
-                existingJob.IsSuccessful = request.IsSuccessful;
-
-                var response = await base.PutEntity(id, existingJob);
-
-                jobManager.DeleteExistingParameters(entityId);
-
-                var set = new HashSet<string>();
-                foreach (var parameter in request.JobParameters ?? Enumerable.Empty<JobParameter>())
-                {
-                    if (!set.Add(parameter.Name)) 
-                    {
-                        ModelState.AddModelError("JobParameter", "JobParameter Name Already Exists");
-                        return BadRequest(ModelState);
-                    }
-                    parameter.JobId = entityId;
-                    parameter.CreatedBy = applicationUser?.UserName;
-                    parameter.CreatedOn = DateTime.UtcNow;
-                    parameter.Id = Guid.NewGuid();
-                    jobParameterRepo.Add(parameter);
-                }
-
-                if (request.EndTime != null)
-                {
-                    jobManager.UpdateAutomationAverages(existingJob.Id);
-                }
-
-                //send SignalR notification to all connected clients 
-                await webhookPublisher.PublishAsync("Jobs.JobUpdated", existingJob.Id.ToString()).ConfigureAwait(false);
-                await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", existingJob.Id));
-
-                return response;
+                return result;
             }
             catch (Exception ex)
             {
@@ -665,7 +619,7 @@ namespace OpenBots.Server.Web
 
                 Guid entityId = new Guid(id);
 
-                var existingJob = repository.GetOne(entityId);
+                var existingJob = _repository.GetOne(entityId);
                 if (existingJob == null) return NotFound("Unable to find a Job for the specified ID");
 
                 if (existingJob.AgentId.ToString() != agentId)
@@ -691,7 +645,7 @@ namespace OpenBots.Server.Web
                 var response = await base.PutEntity(id, existingJob);
                 //send SignalR notification to all connected clients 
                 await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", existingJob.Id));
-                await webhookPublisher.PublishAsync("Jobs.JobUpdated", existingJob.Id.ToString()).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Jobs.JobUpdated", existingJob.Id.ToString()).ConfigureAwait(false);
 
                 return response;
             }
@@ -722,12 +676,12 @@ namespace OpenBots.Server.Web
 
                 Guid jobId = new Guid(id);
 
-                jobManager.DeleteJobChildTables(jobId);
+                _jobManager.DeleteJobChildTables(jobId);
                 var response = await base.DeleteEntity(id);
 
                 //send SignalR notification to all connected clients 
                 await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} deleted.", id));
-                await webhookPublisher.PublishAsync("Jobs.JobDeleted", id).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Jobs.JobDeleted", id).ConfigureAwait(false);
 
                 return response;
             }
@@ -760,7 +714,7 @@ namespace OpenBots.Server.Web
             {
                 Guid jobId = new Guid(id);
                 bool endTimeReported = false;
-                var existingJob = repository.GetOne(jobId);
+                var existingJob = _repository.GetOne(jobId);
 
                 if (existingJob == null)
                 {
@@ -782,12 +736,12 @@ namespace OpenBots.Server.Web
 
                 if (endTimeReported)
                 {
-                    jobManager.UpdateAutomationAverages(existingJob.Id);
+                    _jobManager.UpdateAutomationAverages(existingJob.Id);
                 }
 
                 //send SignalR notification to all connected clients 
                 await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", id));
-                await webhookPublisher.PublishAsync("Jobs.JobUpdated", existingJob.Id.ToString()).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Jobs.JobUpdated", existingJob.Id.ToString()).ConfigureAwait(false);
 
                 return response;
             }
@@ -832,7 +786,7 @@ namespace OpenBots.Server.Web
             if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
                 request.Id = entityId;
 
-            Job job = repository.GetOne(new Guid(jobId));
+            Job job = _repository.GetOne(new Guid(jobId));
             if (job == null)
             {
                 return NotFound("The Job ID provided does not match any existing Jobs");
@@ -843,7 +797,7 @@ namespace OpenBots.Server.Web
                 request.JobId = new Guid(jobId);
                 request.CreatedBy = applicationUser?.UserName;
                 request.CreatedOn = DateTime.UtcNow;
-                jobCheckpointRepo.Add(request);
+                _jobCheckpointRepo.Add(request);
                 var resultRoute = "GetJobCheckpoint";
 
                 return CreatedAtRoute(resultRoute, new { id = request.Id.Value.ToString("b") }, request);
@@ -884,7 +838,7 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                Job job = repository.GetOne(new Guid(jobId));
+                Job job = _repository.GetOne(new Guid(jobId));
                 if (job == null)
                 {
                     return NotFound("The Job ID provided does not match any existing Jobs");
@@ -896,7 +850,7 @@ namespace OpenBots.Server.Web
 
                 var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-                return Ok(jobCheckpointRepo.Find(parentguid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip,
+                return Ok(_jobCheckpointRepo.Find(parentguid, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip,
                     oData.Top).Items.Where(c => c.JobId == new Guid(jobId)));
             }
             catch (Exception ex)

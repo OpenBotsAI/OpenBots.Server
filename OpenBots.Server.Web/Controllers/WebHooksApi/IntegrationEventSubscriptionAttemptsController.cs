@@ -24,8 +24,8 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
     [Authorize]
     public class IntegrationEventSubscriptionAttemptsController : ReadOnlyEntityController<IntegrationEventSubscriptionAttempt>
     {
-        private readonly IIntegrationEventSubscriptionAttemptRepository repository;
-        private readonly IIntegrationEventSubscriptionAttemptManager attemptManager;
+        private readonly IIntegrationEventSubscriptionAttemptRepository _repository;
+        private readonly IIntegrationEventSubscriptionAttemptManager _attemptManager;
 
         /// <summary>
         /// IntegrationEventSubscriptionAttemptsController costructor
@@ -44,8 +44,8 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.repository = repository;
-            this.attemptManager = attemptManager;
+            _repository = repository;
+            _attemptManager = attemptManager;
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
                 ODataHelper<SubscriptionAttemptViewModel> oDataHelper = new ODataHelper<SubscriptionAttemptViewModel>();
                 var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-                return Ok(repository.FindAllView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+                return Ok(_repository.FindAllView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
             }
             catch (Exception ex)
             {
@@ -187,7 +187,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
                 if (okResult != null)
                 {
                     SubscriptionAttemptViewModel view = okResult.Value as SubscriptionAttemptViewModel;
-                    view = attemptManager.GetAttemptView(view);
+                    view = _attemptManager.GetAttemptView(view);
                 }
 
                 return actionResult;

@@ -29,6 +29,7 @@ using OpenBots.Server.Model.Options;
 using OpenBots.Server.Web.Extensions;
 using OpenBots.Server.ViewModel.Email;
 using OpenBots.Server.Model.Membership;
+using OpenBots.Server.DataAccess.Exceptions;
 
 namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
 {
@@ -188,6 +189,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     }
 
                     Person person = personRepository.Find(null, p => p.Id == user.PersonId)?.Items.FirstOrDefault();
+                    if (person == null) throw new EntityDoesNotExistException("No person entity exists for these credentials");
+                    
                     string authenticationToken = GetToken(user);
                     VerifyUserEmailAsync(user);
 

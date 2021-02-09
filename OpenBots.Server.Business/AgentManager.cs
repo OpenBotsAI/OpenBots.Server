@@ -14,16 +14,16 @@ namespace OpenBots.Server.Business
 {
     public class AgentManager : BaseManager, IAgentManager
     {
-        private readonly IAgentRepository agentRepo;
-        private readonly IScheduleRepository scheduleRepo;
-        private readonly IJobRepository jobRepo;
-        private readonly IAspNetUsersRepository usersRepo;
-        private readonly ICredentialRepository credentialRepo;
-        private readonly IAgentHeartbeatRepository agentHeartbeatRepo;
-        private readonly ApplicationIdentityUserManager userManager;
-        private readonly IPersonRepository personRepo;
+        private readonly IAgentRepository _agentRepo;
+        private readonly IScheduleRepository _scheduleRepo;
+        private readonly IJobRepository _jobRepo;
+        private readonly IAspNetUsersRepository _usersRepo;
+        private readonly ICredentialRepository _credentialRepo;
+        private readonly IAgentHeartbeatRepository _agentHeartbeatRepo;
+        private readonly ApplicationIdentityUserManager _userManager;
+        private readonly IPersonRepository _personRepo;
 
-        public AgentManager(IAgentRepository agentRepository, 
+        public AgentManager(IAgentRepository agentRepository,
             IScheduleRepository scheduleRepository,
             IJobRepository jobRepository,
             IAspNetUsersRepository usersRepository,
@@ -32,24 +32,24 @@ namespace OpenBots.Server.Business
             ApplicationIdentityUserManager userManager,
             IPersonRepository personRepository)
         {
-            agentRepo = agentRepository;
-            scheduleRepo = scheduleRepository;
-            jobRepo = jobRepository;
-            usersRepo = usersRepository;
-            credentialRepo = credentialRepository;
-            agentHeartbeatRepo = agentHeartbeatRepository;
-            this.userManager = userManager;
-            personRepo = personRepository;
+            _agentRepo = agentRepository;
+            _scheduleRepo = scheduleRepository;
+            _jobRepo = jobRepository;
+            _usersRepo = usersRepository;
+            _credentialRepo = credentialRepository;
+            _agentHeartbeatRepo = agentHeartbeatRepository;
+            _userManager = userManager;
+            _personRepo = personRepository;
         }
 
         /// <summary>
         /// Creates necessary user tables for the provided request
         /// </summary>
         /// <param name="request"></param>
-        public async void CreateAgentUserAccountAsync(CreateAgentViewModel request)
+        public void CreateAgentUserAccount(CreateAgentViewModel request)
         {
             //name must be unique
-            Agent namedAgent = agentRepo.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
+            Agent namedAgent = _agentRepo.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
             if (namedAgent != null)
             {
                 throw new EntityAlreadyExistsException("Agent name already exists");
@@ -59,18 +59,32 @@ namespace OpenBots.Server.Business
             if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
                 request.Id = entityId;
 
+            //create IsAgent person
+            Person newPerson = new Person()
+            {
+                Name = request.Name,
+                IsAgent = true
+            };
+
+            if (newPerson == null)
+            {
+                throw new EntityOperationException("Failed to create agent user");
+            }
+
             //create agent app user
             var user = new ApplicationUser()
             {
                 Name = request.Name,
-                UserName = request.UserName
+                UserName = request.UserName,
+                PersonId = newPerson.Id ?? Guid.Empty
             };
 
-            var loginResult = await userManager.CreateAsync(user, request.Password).ConfigureAwait(false);
+            var loginResult = _userManager.CreateAsync(user, request.Password).Result;
             var errors = loginResult.Errors;
 
             if (errors.Any())
             {
+
                 foreach (var error in errors)
                 {
                     if (error.Code == "DuplicateUserName")
@@ -83,31 +97,15 @@ namespace OpenBots.Server.Business
             }
             else
             {
-                Person newPerson = new Person()
-                {
-                    Name = request.Name,
-                    IsAgent = true
-                };
-                var person = personRepo.Add(newPerson);
-
-
-                if (person == null)
-                {
-                    throw new EntityOperationException("Failed to create agent user");
-                }
-
-                //update the user 
-                var registeredUser = userManager.FindByNameAsync(user.UserName).Result;
-                registeredUser.PersonId = (Guid)person.Id;
-                await userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
+                _personRepo.Add(newPerson);
             }
-        } 
+        }
 
         /// <summary>
         /// Deletes all dependencies for the specified agent
         /// </summary>
         /// <param name="agentId"></param>
-        public async void DeleteAgentDependenciesAsync(Agent agent)
+        public void DeleteAgentDependencies(Agent agent)
         {
             bool childExists = CheckReferentialIntegrity(agent.Id.ToString());
             if (childExists)
@@ -115,34 +113,101 @@ namespace OpenBots.Server.Business
                 throw new EntityOperationException("Referential Integrity in Schedule or job table, please remove those before deleting this agent");
             }
 
-            personRepo.ForceIgnoreSecurity();
-            Person person = personRepo.Find(0, 1).Items?.Where(p => p.IsAgent && p.Name == agent.Name && !(p.IsDeleted ?? false))?.FirstOrDefault();
-            if (person == null)
+            _personRepo.ForceIgnoreSecurity();
+            Person person = _personRepo.Find(0, 1).Items?.Where(p => p.IsAgent && p.Name == agent.Name && !(p.IsDeleted ?? false))?.FirstOrDefault();
+            if (person != null)
             {
-                throw new EntityOperationException("Something went wrong, could not find agent person record");
+                _personRepo.SoftDelete((Guid)person.Id);
             }
-            else
+            _personRepo.ForceSecurity();
+
+            var aspUser = _usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
+
+            if (aspUser != null)
             {
-                personRepo.SoftDelete((Guid)person.Id);
-            }
-            personRepo.ForceSecurity();
+                var user = _userManager.FindByIdAsync(aspUser.Id).Result;
+                var deleteResult = _userManager.DeleteAsync(user).Result;
 
-            var aspUser = usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
-
-            if (aspUser == null)
-            {
-                throw new EntityOperationException("Something went wrong, could not find agent user");
-            }
-
-            var user = await userManager.FindByIdAsync(aspUser.Id);
-            var deleteResult = await userManager.DeleteAsync(user);
-
-            if (!deleteResult.Succeeded)
-            {
-                throw new EntityOperationException("Something went wrong, unable to delete agent user");
+                if (!deleteResult.Succeeded)
+                {
+                    throw new EntityOperationException("Something went wrong, unable to delete agent user");
+                }
             }
 
             DeleteExistingHeartbeats(agent.Id ?? Guid.Empty);
+        }
+
+        /// <summary>
+        /// Updates an Agent's user account and returns the updated Agent
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public Agent UpdateAgent(string id, Agent request)
+        {
+            Guid entityId = new Guid(id);
+
+            var existingAgent = _agentRepo.GetOne(entityId);
+            if (existingAgent == null)
+            {
+                throw new EntityDoesNotExistException("No agent exists for the specified agent id");
+            }
+
+            var namedAgent = _agentRepo.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
+            if (namedAgent != null && namedAgent.Id != entityId)
+            {
+                throw new EntityAlreadyExistsException("Agent Name Already Exists");
+            }
+
+            if (existingAgent.Name != request.Name)
+            {
+                UpdateAgentName(existingAgent.Name, request.Name);
+            }
+
+            existingAgent.Name = request.Name;
+            existingAgent.MachineName = request.MachineName;
+            existingAgent.MacAddresses = request.MacAddresses;
+            existingAgent.IPAddresses = request.IPAddresses;
+            existingAgent.IsEnabled = request.IsEnabled;
+            existingAgent.CredentialId = request.CredentialId;
+            existingAgent.IPOption = request.IPOption;
+            existingAgent.IsEnhancedSecurity = request.IsEnhancedSecurity;
+
+            return existingAgent;
+        }
+
+        /// <summary>
+        /// Updates an Agent's name in it's corresponding user tables
+        /// </summary>
+        /// <param name="oldName"></param>
+        /// <param name="newName"></param>
+        public void UpdateAgentName(string oldName, string newName)
+        {
+            _personRepo.ForceIgnoreSecurity();
+            Person person = _personRepo.Find(0, 1).Items?.Where(p => p.Name == oldName && p.IsAgent && p.IsDeleted == false)?.FirstOrDefault();
+            if (person != null)
+            {
+                person.Name = newName;
+                _personRepo.Update(person);
+
+                _usersRepo.ForceIgnoreSecurity();
+                var aspUser = _usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
+                if (aspUser != null)
+                {
+                    var existingUser = _userManager.FindByIdAsync(aspUser.Id).Result;
+                    existingUser.Name = newName;
+                    var result = _userManager.UpdateAsync(existingUser).Result;
+                }
+                else
+                {
+                    throw new EntityDoesNotExistException("Could not find the corresponding asp user entity to update");
+                }
+                _usersRepo.ForceSecurity();
+            }
+            else
+            {
+                throw new EntityDoesNotExistException("Could not find the corresponding person entity to update");
+            }
         }
 
         /// <summary>
@@ -152,10 +217,10 @@ namespace OpenBots.Server.Business
         /// <returns></returns>
         public AgentViewModel GetAgentDetails(AgentViewModel agentView)
         {
-            agentView.UserName = usersRepo.Find(null, u => u.Name == agentView.Name).Items?.FirstOrDefault()?.UserName;
-            agentView.CredentialName = credentialRepo.GetOne(agentView.CredentialId ?? Guid.Empty)?.Name;
+            agentView.UserName = _usersRepo.Find(null, u => u.Name == agentView.Name).Items?.FirstOrDefault()?.UserName;
+            agentView.CredentialName = _credentialRepo.GetOne(agentView.CredentialId ?? Guid.Empty)?.Name;
 
-            AgentHeartbeat agentHeartBeat = agentHeartbeatRepo.Find(0, 1).Items?.Where(a => a.AgentId == agentView.Id).OrderByDescending(a => a.CreatedOn).FirstOrDefault();
+            AgentHeartbeat agentHeartBeat = _agentHeartbeatRepo.Find(0, 1).Items?.Where(a => a.AgentId == agentView.Id).OrderByDescending(a => a.CreatedOn).FirstOrDefault();
 
             if (agentHeartBeat != null)
             {
@@ -178,10 +243,10 @@ namespace OpenBots.Server.Business
         {
             Guid agentId = new Guid(id);
 
-            var scheduleWithAgent = scheduleRepo.Find(0, 1).Items?
+            var scheduleWithAgent = _scheduleRepo.Find(0, 1).Items?
               .Where(s => s.AgentId == agentId);
 
-            var jobWithAgent = jobRepo.Find(0, 1).Items?
+            var jobWithAgent = _jobRepo.Find(0, 1).Items?
               .Where(j => j.AgentId == agentId && j.JobStatus == JobStatusType.Assigned
               | j.JobStatus == JobStatusType.New
               | j.JobStatus == JobStatusType.InProgress);
@@ -196,7 +261,7 @@ namespace OpenBots.Server.Business
         /// <returns></returns>
         private IEnumerable<AgentHeartbeat> GetAgentHeartbeats(Guid agentId)
         {
-            var agentHeartbeats = agentHeartbeatRepo.Find(0, 1)?.Items?.Where(p => p.AgentId == agentId);
+            var agentHeartbeats = _agentHeartbeatRepo.Find(0, 1)?.Items?.Where(p => p.AgentId == agentId);
             return agentHeartbeats;
         }
 
@@ -209,7 +274,7 @@ namespace OpenBots.Server.Business
             var agentHeartbeats = GetAgentHeartbeats(agentId);
             foreach (var heartbeat in agentHeartbeats)
             {
-                agentHeartbeatRepo.SoftDelete(heartbeat.AgentId);
+                _agentHeartbeatRepo.SoftDelete(heartbeat.AgentId);
             }
         }
 
@@ -222,7 +287,7 @@ namespace OpenBots.Server.Business
         /// <returns></returns>
         public Agent GetConnectAgent(string agentId, string requestIp, ConnectAgentViewModel request)
         {
-            Agent agent = agentRepo.GetOne(Guid.Parse(agentId));
+            Agent agent = _agentRepo.GetOne(Guid.Parse(agentId));
             if (agent == null) return agent;
 
             if (agent.IsEnhancedSecurity == true)

@@ -14,12 +14,12 @@ namespace OpenBots.Server.Business
 {
     public class AutomationManager : BaseManager, IAutomationManager
     {
-        private readonly IAutomationRepository repo;
-        private readonly IBinaryObjectRepository binaryObjectRepository;
-        private readonly IBinaryObjectManager binaryObjectManager;
-        private readonly IBlobStorageAdapter blobStorageAdapter;
-        private readonly IAutomationVersionRepository automationVersionRepository;
-        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IAutomationRepository _repo;
+        private readonly IBinaryObjectRepository _binaryObjectRepository;
+        private readonly IBinaryObjectManager _binaryObjectManager;
+        private readonly IBlobStorageAdapter _blobStorageAdapter;
+        private readonly IAutomationVersionRepository _automationVersionRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AutomationManager(
             IAutomationRepository repo,
@@ -29,35 +29,35 @@ namespace OpenBots.Server.Business
             IAutomationVersionRepository automationVersionRepository,
             IHttpContextAccessor httpContextAccessor)
         {
-            this.repo = repo;
-            this.binaryObjectManager = binaryObjectManager;
-            this.binaryObjectRepository = binaryObjectRepository;
-            this.blobStorageAdapter = blobStorageAdapter;
-            this.automationVersionRepository = automationVersionRepository;
-            this.httpContextAccessor = httpContextAccessor;
+            _repo = repo;
+            _binaryObjectManager = binaryObjectManager;
+            _binaryObjectRepository = binaryObjectRepository;
+            _blobStorageAdapter = blobStorageAdapter;
+            _automationVersionRepository = automationVersionRepository;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<FileObjectViewModel> Export(string binaryObjectId)
         {
-            return await blobStorageAdapter.FetchFile(binaryObjectId);
+            return await _blobStorageAdapter.FetchFile(binaryObjectId);
         }
 
         public bool DeleteAutomation(Guid automationId)
         {
-            var automation = repo.GetOne(automationId);
+            var automation = _repo.GetOne(automationId);
 
             //remove automation version entity associated with automation
-            var automationVersion = automationVersionRepository.Find(null, q => q.AutomationId == automationId).Items?.FirstOrDefault();
+            var automationVersion = _automationVersionRepository.Find(null, q => q.AutomationId == automationId).Items?.FirstOrDefault();
             Guid automationVersionId = (Guid)automationVersion.Id;
-            automationVersionRepository.SoftDelete(automationVersionId);
+            _automationVersionRepository.SoftDelete(automationVersionId);
             
             bool isDeleted = false;
 
             if (automation != null)
             {
                 //remove binary object entity associated with automation
-                binaryObjectRepository.SoftDelete(automation.BinaryObjectId);
-                repo.SoftDelete(automation.Id.Value);
+                _binaryObjectRepository.SoftDelete(automation.BinaryObjectId);
+                _repo.SoftDelete(automation.Id.Value);
 
                 isDeleted = true;
             }
@@ -71,14 +71,14 @@ namespace OpenBots.Server.Business
             {
                 Id = request.Id,
                 Name = request.Name,
-                CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name,
+                CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
                 CreatedOn = DateTime.UtcNow,
                 BinaryObjectId = (Guid)request.BinaryObjectId,
                 OriginalPackageName = request.File.FileName,
                 AutomationEngine = request.AutomationEngine
             };
 
-            repo.Add(automation);
+            _repo.Add(automation);
             AddAutomationVersion(request);
 
             return automation;
@@ -87,25 +87,25 @@ namespace OpenBots.Server.Business
         public async Task<string> Update(Guid binaryObjectId, IFormFile file, string organizationId = "", string apiComponent = "", string name = "")
         {
             //update file in OpenBots.Server.Web using relative directory
-            binaryObjectManager.Update(file, organizationId, apiComponent, binaryObjectId);
+            _binaryObjectManager.Update(file, organizationId, apiComponent, binaryObjectId);
 
             //find relative directory where binary object is being saved
             string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObjectId.ToString());
 
-            await binaryObjectManager.UpdateEntity(file, filePath, binaryObjectId.ToString(), apiComponent, apiComponent, name);
+            await _binaryObjectManager.UpdateEntity(file, filePath, binaryObjectId.ToString(), apiComponent, apiComponent, name);
 
             return "Success";
         }
 
         public string GetOrganizationId()
         {
-            return binaryObjectManager.GetOrganizationId();
+            return _binaryObjectManager.GetOrganizationId();
         }
 
         public void AddAutomationVersion(AutomationViewModel automationViewModel)
         {
             AutomationVersion automationVersion = new AutomationVersion();
-            automationVersion.CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name;
+            automationVersion.CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name;
             automationVersion.CreatedOn = DateTime.UtcNow;
             automationVersion.AutomationId = (Guid)automationViewModel.Id;
 
@@ -116,7 +116,7 @@ namespace OpenBots.Server.Business
 
             if (automationVersion.Status.Equals("Published"))
             {
-                automationVersion.PublishedBy = httpContextAccessor.HttpContext.User.Identity.Name;
+                automationVersion.PublishedBy = _httpContextAccessor.HttpContext.User.Identity.Name;
                 automationVersion.PublishedOnUTC = DateTime.UtcNow;
             }
             else
@@ -127,12 +127,12 @@ namespace OpenBots.Server.Business
 
             int automationVersionNumber = 0;
             automationVersion.VersionNumber = automationVersionNumber;
-            List<Automation> automations = repo.Find(null, x => x.Name?.Trim().ToLower() == automationViewModel.Name?.Trim().ToLower())?.Items;
+            List<Automation> automations = _repo.Find(null, x => x.Name?.Trim().ToLower() == automationViewModel.Name?.Trim().ToLower())?.Items;
 
             if (automations != null)
                 foreach (Automation automation in automations)
                 {
-                    var automationVersionEntity = automationVersionRepository.Find(null, q => q?.AutomationId == automation?.Id).Items?.FirstOrDefault();
+                    var automationVersionEntity = _automationVersionRepository.Find(null, q => q?.AutomationId == automation?.Id).Items?.FirstOrDefault();
                     if (automationVersionEntity != null && automationVersionNumber < automationVersionEntity.VersionNumber)
                     {
                         automationVersionNumber = automationVersionEntity.VersionNumber;
@@ -141,17 +141,17 @@ namespace OpenBots.Server.Business
 
             automationVersion.VersionNumber = automationVersionNumber + 1;
 
-            automationVersionRepository.Add(automationVersion);
+            _automationVersionRepository.Add(automationVersion);
         }
 
         public PaginatedList<AllAutomationsViewModel> GetAutomationsAndAutomationVersions(Predicate<AllAutomationsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
-            return repo.FindAllView(predicate, sortColumn, direction, skip, take);
+            return _repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
 
         public AutomationViewModel GetAutomationView(AutomationViewModel automationView, string id)
         {
-            var automationVersion = automationVersionRepository.Find(null, q => q.AutomationId == Guid.Parse(id))?.Items?.FirstOrDefault();
+            var automationVersion = _automationVersionRepository.Find(null, q => q.AutomationId == Guid.Parse(id))?.Items?.FirstOrDefault();
             if (automationVersion != null)
             {
                 automationView.VersionId = (Guid)automationVersion.Id;

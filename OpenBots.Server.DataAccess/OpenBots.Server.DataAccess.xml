@@ -179,7 +179,7 @@
             The database context
             </summary>
         </member>
-        <member name="F:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.userContext">
+        <member name="F:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1._userContext">
             <summary>
             The user context
             </summary>

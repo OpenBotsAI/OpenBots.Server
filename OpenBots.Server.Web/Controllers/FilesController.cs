@@ -29,7 +29,7 @@ namespace OpenBots.Server.Web.Controllers
     [FeatureGate(MyFeatureFlags.Files)]
     public class FilesController : EntityController<ServerFile>
     {
-        private readonly IFileManager manager;
+        private readonly IFileManager _manager;
 
         //TODO: add folder / file (google/amazon/azure)
         //TODO: upload / download a file (google/amazon/azure)
@@ -51,7 +51,7 @@ namespace OpenBots.Server.Web.Controllers
             IMembershipManager membershipManager,
             IConfiguration configuration) : base(serverFileRepository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.manager = manager;
+            _manager = manager;
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace OpenBots.Server.Web.Controllers
                 bool? isFile = Convert.ToBoolean(file);
                 if (file == null)
                     isFile = null;
-                var filesFolders = manager.GetFilesFolders(isFile, driveName, oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
+                var filesFolders = _manager.GetFilesFolders(isFile, driveName, oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
 
                 return Ok(filesFolders); //return all files/folders
             }
@@ -124,7 +124,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                int? count = manager.GetFileCount(driveName);
+                int? count = _manager.GetFileCount(driveName);
                 return Ok(count);
             }
             catch (Exception ex)
@@ -156,7 +156,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                int? count = manager.GetFolderCount(driveName);
+                int? count = _manager.GetFolderCount(driveName);
                 return Ok(count);
             }
             catch (Exception ex)
@@ -190,7 +190,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                var fileFolder = manager.GetFileFolder(id, driveName);
+                var fileFolder = _manager.GetFileFolder(id, driveName);
 
                 var list = new PaginatedList<FileFolderViewModel>();
                 list.Add(fileFolder);
@@ -230,7 +230,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                var drive = manager.GetDrive(driveName);
+                var drive = _manager.GetDrive(driveName);
                 return Ok(drive);
             }
             catch (Exception ex)
@@ -263,7 +263,7 @@ namespace OpenBots.Server.Web.Controllers
             {
                 if (request.IsFile == null)
                     request.IsFile = true;
-                var response = manager.AddFileFolder(request, driveName);
+                var response = _manager.AddFileFolder(request, driveName);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -297,7 +297,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                var response = manager.ExportFileFolder(id, driveName);
+                var response = _manager.ExportFileFolder(id, driveName);
                 return File(response?.Result?.Content, response?.Result?.ContentType, response?.Result?.Name);
             }
             catch (Exception ex)
@@ -325,7 +325,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                manager.DeleteFileFolder(id, driveName);
+                _manager.DeleteFileFolder(id, driveName);
                 return Ok();
             }
             catch (Exception ex)
@@ -367,7 +367,7 @@ namespace OpenBots.Server.Web.Controllers
                     return BadRequest(ModelState);
                 }
                 string name = request.Name;
-                var response = manager.RenameFileFolder(id, name, driveName);
+                var response = _manager.RenameFileFolder(id, name, driveName);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -403,7 +403,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                var response = manager.MoveFileFolder(id, parentId, driveName);
+                var response = _manager.MoveFileFolder(id, parentId, driveName);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -439,7 +439,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                var response = manager.CopyFileFolder(id, parentId, driveName);
+                var response = _manager.CopyFileFolder(id, parentId, driveName);
                 return Ok(response);
             }
             catch (Exception ex)

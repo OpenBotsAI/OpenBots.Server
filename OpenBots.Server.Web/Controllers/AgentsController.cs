@@ -9,7 +9,6 @@ using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
-using OpenBots.Server.Model.Identity;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.ViewModel.AgentViewModels;
@@ -31,13 +30,11 @@ namespace OpenBots.Server.Web.Controllers
     [Authorize]
     public class AgentsController : EntityController<Agent>
     {
-        IAgentManager agentManager;
-        IWebhookPublisher webhookPublisher;
-        IAgentRepository agentRepo;
-        IPersonRepository personRepo;
-        IAspNetUsersRepository usersRepo;
-        IAgentHeartbeatRepository agentHeartbeatRepo;
-        private IHttpContextAccessor _accessor;
+        private readonly IAgentManager _agentManager;
+        private readonly IWebhookPublisher _webhookPublisher;
+        private readonly IAgentRepository _agentRepo;
+        private readonly IAgentHeartbeatRepository _agentHeartbeatRepo;
+        private readonly IHttpContextAccessor _accessor;
 
         /// <summary>
         /// AgentsController constructor
@@ -53,8 +50,6 @@ namespace OpenBots.Server.Web.Controllers
         /// <param name="webhookPublisher"></param>
         public AgentsController(
             IAgentRepository agentRepository,
-            IPersonRepository personRepository,
-            IAspNetUsersRepository usersRepository,
             IAgentHeartbeatRepository agentHeartbeatRepository,
             IMembershipManager membershipManager,
             IWebhookPublisher webhookPublisher,
@@ -63,13 +58,11 @@ namespace OpenBots.Server.Web.Controllers
             IHttpContextAccessor accessor,
             IConfiguration configuration) : base(agentRepository, userManager, accessor, membershipManager, configuration)
         {
-            agentRepo = agentRepository;
-            personRepo = personRepository;
-            usersRepo = usersRepository;
-            agentHeartbeatRepo = agentHeartbeatRepository;
-            this.agentManager = agentManager;
-            this.agentManager.SetContext(SecurityContext);
-            this.webhookPublisher = webhookPublisher;
+            _agentRepo = agentRepository;
+            _agentHeartbeatRepo = agentHeartbeatRepository;
+            _agentManager = agentManager;
+            _agentManager.SetContext(SecurityContext);
+            _webhookPublisher = webhookPublisher;
             _accessor = accessor;
         }
 
@@ -146,7 +139,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-                return Ok(agentRepo.FindAllView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+                return Ok(_agentRepo.FindAllView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
             }
             catch (Exception ex)
             {
@@ -215,7 +208,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (okResult != null)
                 {
                     AgentViewModel view = okResult.Value as AgentViewModel;
-                    view = agentManager.GetAgentDetails(view);
+                    view = _agentManager.GetAgentDetails(view);
                 }
 
                 return actionResult;
@@ -251,11 +244,11 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                agentManager.CreateAgentUserAccountAsync(request);
+                _agentManager.CreateAgentUserAccount(request);
 
                 //post agent entity
                 Agent newAgent = request.Map(request);
-                await webhookPublisher.PublishAsync("Agents.NewAgentCreated", newAgent.Id.ToString(), newAgent.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Agents.NewAgentCreated", newAgent.Id.ToString(), newAgent.Name).ConfigureAwait(false);
                 return await base.PostEntity(newAgent);
                 
             }
@@ -291,51 +284,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                Guid entityId = new Guid(id);
-                
-                var existingAgent = repository.GetOne(entityId);
-                if (existingAgent == null) return NotFound();
-
-                var namedAgent = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
-                if (namedAgent != null && namedAgent.Id != entityId)
-                {
-                    ModelState.AddModelError("Agent", "Agent Name Already Exists");
-                    return BadRequest(ModelState);
-                }
-
-                if (existingAgent.Name != request.Name)
-                {
-                    personRepo.ForceIgnoreSecurity();
-                    Person person = personRepo.Find(0,1).Items?.Where(p => p.Name == existingAgent.Name && p.IsAgent && p.IsDeleted == false)?.FirstOrDefault();
-                    if (person != null)
-                    {
-                        person.UpdatedBy = string.IsNullOrWhiteSpace(applicationUser?.Name) ? person.UpdatedBy : applicationUser?.Name;
-                        person.Name = request.Name;
-                        personRepo.Update(person);
-
-                        usersRepo.ForceIgnoreSecurity();
-                        var aspUser = usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
-                        if (aspUser != null)
-                        {
-                            var existingUser = await userManager.FindByIdAsync(aspUser.Id).ConfigureAwait(false);
-                            existingUser.Name = request.Name;
-                            var result = await userManager.UpdateAsync(existingUser).ConfigureAwait(true);
-                        }
-                        usersRepo.ForceSecurity();
-                    }
-                    personRepo.ForceSecurity();
-                }
-
-                existingAgent.Name = request.Name;
-                existingAgent.MachineName = request.MachineName;
-                existingAgent.MacAddresses = request.MacAddresses;
-                existingAgent.IPAddresses = request.IPAddresses;
-                existingAgent.IsEnabled = request.IsEnabled;
-                existingAgent.CredentialId = request.CredentialId;
-                existingAgent.IPOption = request.IPOption;
-                existingAgent.IsEnhancedSecurity = request.IsEnhancedSecurity;
-
-                await webhookPublisher.PublishAsync("Agents.AgentUpdated", existingAgent.Id.ToString(), existingAgent.Name).ConfigureAwait(false);
+                var existingAgent = _agentManager.UpdateAgent(id, request);
                 return await base.PutEntity(id, existingAgent);
             }
             catch (Exception ex)
@@ -362,15 +311,15 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                Agent agent = agentRepo.GetOne(new Guid(id));
+                Agent agent = _agentRepo.GetOne(new Guid(id));
                 if (agent == null)
                 {
                     throw new EntityDoesNotExistException("No agent was found with the specified agent id");
                 }
 
-                agentManager.DeleteAgentDependenciesAsync(agent);
+                _agentManager.DeleteAgentDependencies(agent);
 
-                await webhookPublisher.PublishAsync("Agents.AgentDeleted", id, agent.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Agents.AgentDeleted", id, agent.Name).ConfigureAwait(false);
                 return await base.DeleteEntity(id);
             }
             catch (Exception ex)
@@ -409,17 +358,7 @@ namespace OpenBots.Server.Web.Controllers
                 {
                     if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")
                     {
-                        var agent = repository.Find(null, d => d.Name.ToLower(null) == request.Operations[i].value.ToString().ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
-                        if (agent != null)
-                        {
-                            ModelState.AddModelError("Agent", "Agent Name Already Exists");
-                            return BadRequest(ModelState);
-                        }
-
-                        Person person = personRepo.Find(0, 1).Items?.Where(p => p.Name == existingAgent.Name && p.IsAgent && !(p.IsDeleted ?? false))?.FirstOrDefault();
-                        person.UpdatedBy = string.IsNullOrWhiteSpace(applicationUser?.Name) ? person.UpdatedBy : applicationUser?.Name;
-                        person.Name = request.Operations[i].value.ToString();
-                        personRepo.Update(person);
+                        _agentManager.UpdateAgentName(existingAgent.Name, request.Operations[i].value.ToString().ToLower());
                     }
                 }
 
@@ -456,7 +395,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 ConnectedViewModel connectedViewModel = new ConnectedViewModel();
                 var requestIp = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
-                var agent = agentManager.GetConnectAgent(agentID, requestIp, request);
+                var agent = _agentManager.GetConnectAgent(agentID, requestIp, request);
 
                 if (agent == null)
                 {
@@ -502,7 +441,7 @@ namespace OpenBots.Server.Web.Controllers
             {
                 Guid? agentGuid = new Guid(agentID);
                 var requestIp = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
-                var agent = agentManager.GetConnectAgent(agentID, requestIp, request);
+                var agent = _agentManager.GetConnectAgent(agentID, requestIp, request);
 
                 if (agent == null)
                 {
@@ -556,7 +495,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
                     request.Id = entityId;
 
-                Agent agent = agentRepo.GetOne(new Guid(agentId));
+                Agent agent = _agentRepo.GetOne(new Guid(agentId));
                 if (agent == null)
                 {
                     return NotFound("The Agent ID provided does not match any existing Agents");
@@ -570,7 +509,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 if (request.IsHealthy == false)
                 {
-                    await webhookPublisher.PublishAsync("Agents.UnhealthyReported", agent.Id.ToString(), agent.Name).ConfigureAwait(false);
+                    await _webhookPublisher.PublishAsync("Agents.UnhealthyReported", agent.Id.ToString(), agent.Name).ConfigureAwait(false);
                 }
 
                 //Add HeartBeat Values
@@ -578,7 +517,7 @@ namespace OpenBots.Server.Web.Controllers
                 request.CreatedBy = applicationUser?.UserName;
                 request.CreatedOn = DateTime.UtcNow;
                 request.LastReportedOn = request.LastReportedOn ?? DateTime.UtcNow;
-                agentHeartbeatRepo.Add(request);
+                _agentHeartbeatRepo.Add(request);
                 var resultRoute = "GetAgentHeartbeat";
 
                 return CreatedAtRoute(resultRoute, new { id = request.Id.Value.ToString("b") }, request);
@@ -619,7 +558,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                Agent agent = agentRepo.GetOne(new Guid(agentId));
+                Agent agent = _agentRepo.GetOne(new Guid(agentId));
                 if (agent == null)
                 {
                     return NotFound("The Agent ID provided does not match any existing Agents");
@@ -631,7 +570,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-                var result = agentHeartbeatRepo.FindAllHeartbeats(parentguid, oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
+                var result = _agentHeartbeatRepo.FindAllHeartbeats(parentguid, oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
 
                 return Ok(result);
             }

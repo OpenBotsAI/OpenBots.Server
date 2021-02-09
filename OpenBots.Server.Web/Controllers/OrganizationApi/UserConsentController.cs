@@ -24,11 +24,11 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
     [Authorize]
     public class UserConsentController : EntityController<UserConsent>
     {
-        readonly IUserConsentRepository repository;
-        readonly IMembershipManager membershipManager;
-        readonly IPersonRepository personRepository;
-        readonly IPersonEmailRepository personEmailRepository;
-        readonly IEmailVerificationRepository emailVerificationRepository;
+        private readonly IUserConsentRepository _repository;
+        private readonly IMembershipManager _membershipManager;
+        private readonly IPersonRepository _personRepository;
+        private readonly IPersonEmailRepository _personEmailRepository;
+        private readonly IEmailVerificationRepository _emailVerificationRepository;
 
         /// <summary>
         /// UserConsentController constructor
@@ -51,16 +51,16 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
             IEmailVerificationRepository emailVerificationRepository,
             IConfiguration configuration) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.repository = repository;
-            this.membershipManager = membershipManager;
-            this.personRepository = personRepository;
-            this.personEmailRepository = personEmailRepository;
-            this.emailVerificationRepository = emailVerificationRepository;
-            this.repository.SetContext(SecurityContext);
-            this.membershipManager.SetContext(SecurityContext);
-            this.personRepository.SetContext(SecurityContext);           
-            this.personEmailRepository.SetContext(SecurityContext);
-            this.emailVerificationRepository.SetContext(SecurityContext);
+            _repository = repository;
+            _membershipManager = membershipManager;
+            _personRepository = personRepository;
+            _personEmailRepository = personEmailRepository;
+            _emailVerificationRepository = emailVerificationRepository;
+            _repository.SetContext(SecurityContext);
+            _membershipManager.SetContext(SecurityContext);
+            _personRepository.SetContext(SecurityContext);           
+            _personEmailRepository.SetContext(SecurityContext);
+            _emailVerificationRepository.SetContext(SecurityContext);
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
            
             try
             {
-                var userConsent = repository.Find(null, p => p.PersonId == SecurityContext.PersonId && p.UserAgreementID == value.UserAgreementID)?.Items?.FirstOrDefault();
+                var userConsent = _repository.Find(null, p => p.PersonId == SecurityContext.PersonId && p.UserAgreementID == value.UserAgreementID)?.Items?.FirstOrDefault();
                 if (userConsent != null)
                 {
                     userConsent.IsAccepted = value.IsAccepted;

@@ -415,7 +415,7 @@ export class AllJobsComponent implements OnInit, OnDestroy {
             .split(';')[1]
             .split('=')[1]
             .replace(/\"/g, '');
-          this._FileSaverService.save(data.body, fileName);
+          _FileSaverService.save(data.body, fileName);
         });
     } else if (
       this.abc_filter == '' ||
@@ -429,7 +429,7 @@ export class AllJobsComponent implements OnInit, OnDestroy {
           .split(';')[1]
           .split('=')[1]
           .replace(/\"/g, '');
-        this._FileSaverService.save(data.body, fileName);
+        _FileSaverService.save(data.body, fileName);
       });
     }
   }

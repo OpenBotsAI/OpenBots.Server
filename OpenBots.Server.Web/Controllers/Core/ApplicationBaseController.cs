@@ -19,9 +19,9 @@ namespace OpenBots.Server.WebAPI.Controllers
     {
         protected UserSecurityContext SecurityContext { get; private set; }
         protected ApplicationUser applicationUser { get; set; }
-        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         protected readonly ApplicationIdentityUserManager userManager;
-        private readonly IMembershipManager membershipManager;
+        private readonly IMembershipManager _membershipManager;
 
         /// <summary>
         /// ApplicationBaseController constructor
@@ -34,9 +34,9 @@ namespace OpenBots.Server.WebAPI.Controllers
             ApplicationIdentityUserManager userManager,
             IMembershipManager membershipManager)
         {
-            this.httpContextAccessor = httpContextAccessor;
+            _httpContextAccessor = httpContextAccessor;
             this.userManager = userManager;
-            this.membershipManager = membershipManager;
+            _membershipManager = membershipManager;
             //Initialize user security context  
             InitializeUserSecurityContext();
         }
@@ -48,11 +48,11 @@ namespace OpenBots.Server.WebAPI.Controllers
 
         private void InitializeUserSecurityContext()
         {
-            var userId = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId != null)
             {
                 //get logged in user 
-                applicationUser = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
+                applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
                 if (applicationUser != null)
                 {
                     SecurityContext = new UserSecurityContext();
@@ -65,7 +65,7 @@ namespace OpenBots.Server.WebAPI.Controllers
 
         private Guid[] GetUserOrganization()
         {
-            var personOrgs = membershipManager.MyOrganizations(applicationUser.PersonId);
+            var personOrgs = _membershipManager.MyOrganizations(applicationUser.PersonId);
 
             var userOrganization = personOrgs?.Items?.Select(p=>p.Id)?.ToArray();
             return userOrganization;

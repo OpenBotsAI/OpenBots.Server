@@ -8,9 +8,13 @@ namespace OpenBots.Server.Business
 {
     public interface IAgentManager : IManager
     {
-        void CreateAgentUserAccountAsync(CreateAgentViewModel request);
+        void CreateAgentUserAccount(CreateAgentViewModel request);
 
-        void DeleteAgentDependenciesAsync(Agent agent);
+        void DeleteAgentDependencies(Agent agent);
+
+        Agent UpdateAgent(string id, Agent request);
+
+        void UpdateAgentName(string oldName, string newName);
 
         AgentViewModel GetAgentDetails(AgentViewModel agentView);
         

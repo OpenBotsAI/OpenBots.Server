@@ -59,30 +59,30 @@ export class GetAssetIdComponent implements OnInit {
     if (this.show_allagents.type == 'Text') {
       let type = 'txt';
       const fileName = `${this.show_allagents.name}.${type}`;
-      const fileType = this._FileSaverService.genType(fileName);
+      const fileType = _FileSaverService.genType(fileName);
       const txtBlob = new Blob([this.addagent.value.textValue], { type: fileType });
-      this._FileSaverService.save(txtBlob, fileName);
+      _FileSaverService.save(txtBlob, fileName);
     }
     else if (this.show_allagents.type == 'Json') {
       let type = 'json';
       const fileName = `${this.show_allagents.name}.${type}`;
-      const fileType = this._FileSaverService.genType(fileName);
+      const fileType = _FileSaverService.genType(fileName);
       const txtBlob = new Blob([this.addagent.value.jsonValue], { type: fileType });
-      this._FileSaverService.save(txtBlob, fileName);
+      _FileSaverService.save(txtBlob, fileName);
     }
     else if (this.show_allagents.type == 'Number') {
       let type = 'txt';
       const fileName = `${this.show_allagents.name}.${type}`;
-      const fileType = this._FileSaverService.genType(fileName);
+      const fileType = _FileSaverService.genType(fileName);
       const txtBlob = new Blob([this.addagent.value.numberValue], { type: fileType });
-      this._FileSaverService.save(txtBlob, fileName);
+      _FileSaverService.save(txtBlob, fileName);
     }
     else if (this.show_allagents.type == 'File') {
       let fileName: string;
       this.assetService.assetFileExport(this.show_allagents.id).subscribe((data: HttpResponse<Blob>) => {
         fileName = data.headers.get('content-disposition').split(';')[1].split('=')[1].replace(/\"/g, '')
         console.log(fileName)
-        this._FileSaverService.save(data.body, fileName);
+        _FileSaverService.save(data.body, fileName);
       });
     }
 

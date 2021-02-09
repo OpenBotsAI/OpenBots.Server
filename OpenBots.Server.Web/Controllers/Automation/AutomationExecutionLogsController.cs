@@ -26,8 +26,8 @@ namespace OpenBots.Server.Web
     [Authorize]
     public class AutomationExecutionLogsController : EntityController<AutomationExecutionLog>
     {
-        readonly IAgentRepository agentRepository;
-        IAutomationExecutionLogManager automationExecutionLogManager;
+        private readonly IAgentRepository _agentRepository;
+        private readonly IAutomationExecutionLogManager _automationExecutionLogManager;
 
         /// <summary>
         /// AutomationExecutionLogsController constructor
@@ -48,9 +48,9 @@ namespace OpenBots.Server.Web
             IHttpContextAccessor httpContextAccessor,
             IConfiguration configuration) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.automationExecutionLogManager = automationExecutionLogManager;
-            this.automationExecutionLogManager.SetContext(base.SecurityContext);
-            this.agentRepository = agentRepository;
+            _automationExecutionLogManager = automationExecutionLogManager;
+            _automationExecutionLogManager.SetContext(base.SecurityContext);
+            _agentRepository = agentRepository;
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace OpenBots.Server.Web
                 ODataHelper<AutomationExecutionViewModel> oDataHelper = new ODataHelper<AutomationExecutionViewModel>();
                 var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-                return Ok(automationExecutionLogManager.GetAutomationAndAgentNames(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+                return Ok(_automationExecutionLogManager.GetAutomationAndAgentNames(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
             }
             catch (Exception ex)
             {
@@ -213,7 +213,7 @@ namespace OpenBots.Server.Web
                 if (okResult != null)
                 {
                     AutomationExecutionViewModel view = okResult.Value as AutomationExecutionViewModel;
-                    view = automationExecutionLogManager.GetExecutionView(view);
+                    view = _automationExecutionLogManager.GetExecutionView(view);
                 }
 
                 return actionResult;
@@ -283,7 +283,7 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                var agent = agentRepository.Find(null, a=> a.Id == request.AgentID)?.Items?.FirstOrDefault();
+                var agent = _agentRepository.Find(null, a=> a.Id == request.AgentID)?.Items?.FirstOrDefault();
 
                 if (agent == null)
                 {
@@ -379,7 +379,7 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                var agent = agentRepository.Find(null, a => a.Id == request.AgentID)?.Items?.FirstOrDefault();
+                var agent = _agentRepository.Find(null, a => a.Id == request.AgentID)?.Items?.FirstOrDefault();
 
                 if (agent == null)
                 {

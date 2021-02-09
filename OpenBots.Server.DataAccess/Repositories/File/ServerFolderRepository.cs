@@ -13,11 +13,11 @@ namespace OpenBots.Server.DataAccess.Repositories.File
 {
     public class ServerFolderRepository : EntityRepository<ServerFolder>, IServerFolderRepository
     {
-        private readonly IServerFileRepository serverFileRepository;
+        private readonly IServerFileRepository _serverFileRepository;
 
         public ServerFolderRepository(StorageContext context, ILogger<ServerFolder> logger, IHttpContextAccessor httpContextAccessor, IServerFileRepository serverFileRepository) : base(context, logger, httpContextAccessor)
         {
-            this.serverFileRepository = serverFileRepository;
+            this._serverFileRepository = serverFileRepository;
         }
 
         protected override DbSet<ServerFolder> DbTable()
@@ -119,7 +119,7 @@ namespace OpenBots.Server.DataAccess.Repositories.File
                     else if (direction == OrderByDirectionType.Descending)
                         folderItemRecord = folderItemRecord.OrderByDescending(j => j.GetType().GetProperty(sortColumn).GetValue(j)).ToList();
 
-                var fileItemsList = serverFileRepository.Find(null, j => j.IsDeleted == false && j.ServerDriveId == driveId);
+                var fileItemsList = _serverFileRepository.Find(null, j => j.IsDeleted == false && j.ServerDriveId == driveId);
 
                 if (fileItemsList != null && fileItemsList.Items != null && fileItemsList.Items.Count > 0)
                 {
