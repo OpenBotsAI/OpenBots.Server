@@ -79,40 +79,52 @@ export class GetChangelogIdComponent implements OnInit {
 
   goto() {
     // this.show_allaudit.serviceName 
-    if (this.show_allaudit.serviceName == 'AgentModel') {
-      this.router.navigate(['/pages/agents/get-agents-id'], { queryParams: { id: this.show_allaudit.objectId } })
-    }
-    else if (this.show_allaudit.serviceName == 'Schedule') {
-      this.router.navigate([`/pages/schedules/view/${this.show_allaudit.objectId}`])
-    }
-    else if (this.show_allaudit.serviceName == 'Asset') {
-      this.router.navigate(['/pages/asset/get-asset-id'], { queryParams: { id: this.show_allaudit.objectId } })
-    }
-    else if (this.show_allaudit.serviceName == 'Automation') {
+    if (this.show_allaudit.serviceName == 'Agent') {
+      this.router.navigate(['/pages/agents/get-agents-id'], {
+        queryParams: { id: this.show_allaudit.objectId },
+      });
+    } else if (this.show_allaudit.serviceName == 'Schedule') {
+      this.router.navigate([
+        `/pages/schedules/view/${this.show_allaudit.objectId}`,
+      ]);
+    } else if (this.show_allaudit.serviceName == 'Asset') {
+      this.router.navigate(['/pages/asset/get-asset-id'], {
+        queryParams: { id: this.show_allaudit.objectId },
+      });
+    } else if (this.show_allaudit.serviceName == 'Automation') {
       this.router.navigate(['/pages/automation/get-automation-id'], {
         queryParams: { id: this.show_allaudit.objectId },
       });
-    }
-    else if (this.show_allaudit.serviceName == 'Job') {
-      this.router.navigate(['/pages/job/get-jobs-id'], { queryParams: { id: this.show_allaudit.objectId } })
-    }
-    else if (this.show_allaudit.serviceName == 'QueueItem') {
-      this.router.navigate([`/pages/queueitems/view/${this.show_allaudit.objectId}`])
-    }
-    else if (this.show_allaudit.serviceName == 'Credential') {
-      this.router.navigate([`/pages/credentials/view/${this.show_allaudit.objectId}`])
-    }
-    else if (this.show_allaudit.serviceName == 'Files') {
-      this.router.navigate([`/pages/file/get-file-id/${this.show_allaudit.objectId}`])
-    }
-    else if (this.show_allaudit.serviceName == 'Configuration.ConfigurationValue') {
-      this.router.navigate(['/pages/config/get-config-id'], { queryParams: { id: this.show_allaudit.objectId } })
-    }
-    else if (this.show_allaudit.serviceName == 'Configuration.EmailAccount') {
-      this.router.navigate(['/pages/emailaccount/get-email-id'], { queryParams: { id: this.show_allaudit.objectId } })
-    }
-    else if (this.show_allaudit.serviceName == 'Configuration.Email') {
-      this.router.navigate(['/pages/emaillog/get-emaillog-id'], { queryParams: { id: this.show_allaudit.objectId } })
+    } else if (this.show_allaudit.serviceName == 'Job') {
+      this.router.navigate(['/pages/job/get-jobs-id'], {
+        queryParams: { id: this.show_allaudit.objectId },
+      });
+    } else if (this.show_allaudit.serviceName == 'QueueItem') {
+      this.router.navigate([
+        `/pages/queueitems/view/${this.show_allaudit.objectId}`,
+      ]);
+    } else if (this.show_allaudit.serviceName == 'Credential') {
+      this.router.navigate([
+        `/pages/credentials/view/${this.show_allaudit.objectId}`,
+      ]);
+    } else if (this.show_allaudit.serviceName == 'Files') {
+      this.router.navigate([
+        `/pages/file/get-file-id/${this.show_allaudit.objectId}`,
+      ]);
+    } else if (
+      this.show_allaudit.serviceName == 'Configuration.ConfigurationValue'
+    ) {
+      this.router.navigate(['/pages/config/get-config-id'], {
+        queryParams: { id: this.show_allaudit.objectId },
+      });
+    } else if (this.show_allaudit.serviceName == 'Configuration.EmailAccount') {
+      this.router.navigate(['/pages/emailaccount/get-email-id'], {
+        queryParams: { id: this.show_allaudit.objectId },
+      });
+    } else if (this.show_allaudit.serviceName == 'Configuration.Email') {
+      this.router.navigate(['/pages/emaillog/get-emaillog-id'], {
+        queryParams: { id: this.show_allaudit.objectId },
+      });
     }
 
 
