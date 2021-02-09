@@ -244,7 +244,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                _agentManager.CreateAgentUserAccountAsync(request);
+                _agentManager.CreateAgentUserAccount(request);
 
                 //post agent entity
                 Agent newAgent = request.Map(request);
@@ -284,7 +284,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                var existingAgent = _agentManager.UpdateAgentAsync(id, request);
+                var existingAgent = _agentManager.UpdateAgent(id, request);
                 return await base.PutEntity(id, existingAgent);
             }
             catch (Exception ex)
@@ -317,7 +317,7 @@ namespace OpenBots.Server.Web.Controllers
                     throw new EntityDoesNotExistException("No agent was found with the specified agent id");
                 }
 
-                _agentManager.DeleteAgentDependenciesAsync(agent);
+                _agentManager.DeleteAgentDependencies(agent);
 
                 await _webhookPublisher.PublishAsync("Agents.AgentDeleted", id, agent.Name).ConfigureAwait(false);
                 return await base.DeleteEntity(id);

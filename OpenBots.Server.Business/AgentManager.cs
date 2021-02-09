@@ -23,7 +23,7 @@ namespace OpenBots.Server.Business
         private readonly ApplicationIdentityUserManager _userManager;
         private readonly IPersonRepository _personRepo;
 
-        public AgentManager(IAgentRepository agentRepository, 
+        public AgentManager(IAgentRepository agentRepository,
             IScheduleRepository scheduleRepository,
             IJobRepository jobRepository,
             IAspNetUsersRepository usersRepository,
@@ -46,7 +46,7 @@ namespace OpenBots.Server.Business
         /// Creates necessary user tables for the provided request
         /// </summary>
         /// <param name="request"></param>
-        public async void CreateAgentUserAccountAsync(CreateAgentViewModel request)
+        public void CreateAgentUserAccount(CreateAgentViewModel request)
         {
             //name must be unique
             Agent namedAgent = _agentRepo.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
@@ -59,18 +59,32 @@ namespace OpenBots.Server.Business
             if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
                 request.Id = entityId;
 
+            //create IsAgent person
+            Person newPerson = new Person()
+            {
+                Name = request.Name,
+                IsAgent = true
+            };
+
+            if (newPerson == null)
+            {
+                throw new EntityOperationException("Failed to create agent user");
+            }
+
             //create agent app user
             var user = new ApplicationUser()
             {
                 Name = request.Name,
-                UserName = request.UserName
+                UserName = request.UserName,
+                PersonId = newPerson.Id ?? Guid.Empty
             };
 
-            var loginResult = await _userManager.CreateAsync(user, request.Password).ConfigureAwait(false);
+            var loginResult = _userManager.CreateAsync(user, request.Password).Result;
             var errors = loginResult.Errors;
 
             if (errors.Any())
             {
+
                 foreach (var error in errors)
                 {
                     if (error.Code == "DuplicateUserName")
@@ -83,31 +97,15 @@ namespace OpenBots.Server.Business
             }
             else
             {
-                Person newPerson = new Person()
-                {
-                    Name = request.Name,
-                    IsAgent = true
-                };
-                var person = _personRepo.Add(newPerson);
-
-
-                if (person == null)
-                {
-                    throw new EntityOperationException("Failed to create agent user");
-                }
-
-                //update the user 
-                var registeredUser = _userManager.FindByNameAsync(user.UserName).Result;
-                registeredUser.PersonId = (Guid)person.Id;
-                await _userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
+                _personRepo.Add(newPerson);
             }
-        } 
+        }
 
         /// <summary>
         /// Deletes all dependencies for the specified agent
         /// </summary>
         /// <param name="agentId"></param>
-        public async void DeleteAgentDependenciesAsync(Agent agent)
+        public void DeleteAgentDependencies(Agent agent)
         {
             bool childExists = CheckReferentialIntegrity(agent.Id.ToString());
             if (childExists)
@@ -117,11 +115,7 @@ namespace OpenBots.Server.Business
 
             _personRepo.ForceIgnoreSecurity();
             Person person = _personRepo.Find(0, 1).Items?.Where(p => p.IsAgent && p.Name == agent.Name && !(p.IsDeleted ?? false))?.FirstOrDefault();
-            if (person == null)
-            {
-                throw new EntityOperationException("Something went wrong, could not find agent person record");
-            }
-            else
+            if (person != null)
             {
                 _personRepo.SoftDelete((Guid)person.Id);
             }
@@ -129,17 +123,15 @@ namespace OpenBots.Server.Business
 
             var aspUser = _usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
 
-            if (aspUser == null)
+            if (aspUser != null)
             {
-                throw new EntityOperationException("Something went wrong, could not find agent user");
-            }
+                var user = _userManager.FindByIdAsync(aspUser.Id).Result;
+                var deleteResult = _userManager.DeleteAsync(user).Result;
 
-            var user = await _userManager.FindByIdAsync(aspUser.Id);
-            var deleteResult = await _userManager.DeleteAsync(user);
-
-            if (!deleteResult.Succeeded)
-            {
-                throw new EntityOperationException("Something went wrong, unable to delete agent user");
+                if (!deleteResult.Succeeded)
+                {
+                    throw new EntityOperationException("Something went wrong, unable to delete agent user");
+                }
             }
 
             DeleteExistingHeartbeats(agent.Id ?? Guid.Empty);
@@ -151,7 +143,7 @@ namespace OpenBots.Server.Business
         /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns></returns>
-        public Agent UpdateAgentAsync(string id, Agent request)
+        public Agent UpdateAgent(string id, Agent request)
         {
             Guid entityId = new Guid(id);
 
