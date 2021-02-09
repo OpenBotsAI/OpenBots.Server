@@ -43,12 +43,12 @@ namespace OpenBots.Server.Business
             Guid entityId = new Guid(id);
 
             var existingJob = _repo.GetOne(entityId);
-            if (existingJob == null) throw new EntityDoesNotExistException("Unable to find a Job for the specified ID");
+            if (existingJob == null) throw new EntityDoesNotExistException("Unable to find a job for the specified id");
 
             Automation automation = _automationRepo.GetOne(existingJob.AutomationId ?? Guid.Empty);
             if (automation == null) //no automation was found
             {
-                throw new EntityDoesNotExistException("No automation was found for the specified automation ID"); 
+                throw new EntityDoesNotExistException("No automation was found for the specified automation id"); 
             }
 
             AutomationVersion automationVersion = _automationVersionRepo.Find(null, q => q.AutomationId == automation.Id).Items?.FirstOrDefault();
@@ -65,8 +65,6 @@ namespace OpenBots.Server.Business
             existingJob.Message = request.Message;
             existingJob.IsSuccessful = request.IsSuccessful;
 
-            
-
             DeleteExistingParameters(entityId);
 
             var set = new HashSet<string>();
@@ -74,7 +72,7 @@ namespace OpenBots.Server.Business
             {
                 if (!set.Add(parameter.Name))
                 {
-                    throw new Exception("JobParameter Name Already Exists");
+                    throw new Exception("Job parameter name already exists");
                 }
                 parameter.JobId = entityId;
                 parameter.CreatedBy = applicationUser?.UserName;
