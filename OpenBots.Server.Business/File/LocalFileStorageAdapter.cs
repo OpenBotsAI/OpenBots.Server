@@ -104,6 +104,7 @@ namespace OpenBots.Server.Business.File
 
                     //add file
                     request.FullStoragePath = Path.Combine(request.StoragePath, file.FileName);
+                    request.ContentType = file.ContentType;
                     newFileFolder = SaveFile(request, file, drive);
                     fileFolderList.Add(newFileFolder);
                 }
@@ -114,7 +115,7 @@ namespace OpenBots.Server.Business.File
                     request.Size += file.Length;
                 long? filesSizeInBytes = request.Size;
                 string path = request.StoragePath;
-                AddBytesToServerFolder(path, filesSizeInBytes);
+                AddBytesToParentFolders(path, filesSizeInBytes);
 
                 //add size in bytes to server drive
                 AddBytesToServerDrive(drive, filesSizeInBytes);
@@ -127,11 +128,7 @@ namespace OpenBots.Server.Business.File
                 request.FullStoragePath = path;
                 var parentId = GetFolderId(shortPath, driveName);
                 var id = Guid.NewGuid();
-
-                var folder = serverFolderRepository.Find(null).Items?.Where(q => q.StoragePath == request.FullStoragePath && q.IsDeleted == false).FirstOrDefault();
-                if (folder != null)
-                    throw new EntityAlreadyExistsException($"Folder with name {request.Name} already exists at path {request.StoragePath}");
-
+                ExistingFolderCheck(path);
                 Guid? organizationId = organizationManager.GetDefaultOrganization().Id;
 
                 ServerFolder serverFolder = new ServerFolder()
@@ -173,7 +170,7 @@ namespace OpenBots.Server.Business.File
             webhookPublisher.PublishAsync("Files.DriveUpdated", serverDrive.Id.ToString(), serverDrive.Name);
         }
 
-        public void AddBytesToServerFolder(string path, long? size)
+        public void AddBytesToParentFolders(string path, long? size)
         {
             var pathArray = path.Split(Path.DirectorySeparatorChar);
             List<Guid?> parentIds = GetParentIds(pathArray);
@@ -184,6 +181,7 @@ namespace OpenBots.Server.Business.File
                 {
                     folder.SizeInBytes += size;
                     serverFolderRepository.Update(folder);
+                    webhookPublisher.PublishAsync("Files.FolderUpdated", folder.Id.ToString(), folder.Name);
                 }
             }
         }
@@ -194,10 +192,7 @@ namespace OpenBots.Server.Business.File
             string shortPath = request.StoragePath;
             string path = request.FullStoragePath;
             Guid? organizationId = organizationManager.GetDefaultOrganization().Id;
-
-            var checkFile = serverFileRepository.Find(null)?.Items?.Where(q => q.StoragePath == path).FirstOrDefault();
-            if (checkFile != null)
-                throw new EntityAlreadyExistsException($"File with name {request.Name} already exists at path {request.StoragePath}");
+            ExistingFileCheck(path);
 
             //upload file to local server
             bool directoryExists = CheckDirectoryExists(shortPath);
@@ -215,16 +210,13 @@ namespace OpenBots.Server.Business.File
 
             Guid? folderId = GetFolderId(shortPath, drive.Name);
             var hash = GetHash(path);
-            Guid? driveId;
-            if (drive != null)
-                driveId = drive.Id;
-            else throw new EntityDoesNotExistException("Drive could not be found");
+            Guid? driveId = drive.Id;
 
             //add file properties to server file entity
             var serverFile = new ServerFile()
             {
                 Id = id,
-                ContentType = file.ContentType,
+                ContentType = request.ContentType != null ? request.ContentType : file.ContentType,
                 CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name,
                 CreatedOn = DateTime.UtcNow,
                 HashCode = hash,
@@ -270,75 +262,75 @@ namespace OpenBots.Server.Business.File
             return viewModel;
         }
 
-        public void UpdateFile(UpdateServerFileViewModel request)
-        {
-            Guid entityId = (Guid)request.Id;
-            var file = request.File;
-            string path = request.StoragePath;
-            Guid? organizationId = organizationManager.GetDefaultOrganization().Id;
-            var serverFile = serverFileRepository.GetOne(entityId);
-            if (serverFile == null) throw new EntityDoesNotExistException("Server file could not be found");
-            long? size = serverFile.SizeInBytes;
-            var hash = GetHash(path);
+        //public void UpdateFile(UpdateServerFileViewModel request)
+        //{
+        //    Guid entityId = (Guid)request.Id;
+        //    var file = request.File;
+        //    string path = request.StoragePath;
+        //    Guid? organizationId = organizationManager.GetDefaultOrganization().Id;
+        //    var serverFile = serverFileRepository.GetOne(entityId);
+        //    if (serverFile == null) throw new EntityDoesNotExistException("Server file could not be found");
+        //    long? size = serverFile.SizeInBytes;
+        //    var hash = GetHash(path);
 
-            //update file attribute entities
-            List<FileAttribute> fileAttributes = new List<FileAttribute>();
-            var attributes = fileAttributeRepository.Find(null).Items?.Where(q => q.ServerFileId == entityId);
-            if (attributes != null)
-            {
-                if (hash != serverFile.HashCode)
-                {
-                    foreach (var attribute in attributes)
-                    {
-                        if (attribute.Name == FileAttributes.AppendCount.ToString() || attribute.Name == FileAttributes.StorageCount.ToString())
-                        {
-                            attribute.AttributeValue += 1;
+        //    //update file attribute entities
+        //    List<FileAttribute> fileAttributes = new List<FileAttribute>();
+        //    var attributes = fileAttributeRepository.Find(null).Items?.Where(q => q.ServerFileId == entityId);
+        //    if (attributes != null)
+        //    {
+        //        if (hash != serverFile.HashCode)
+        //        {
+        //            foreach (var attribute in attributes)
+        //            {
+        //                if (attribute.Name == FileAttributes.AppendCount.ToString() || attribute.Name == FileAttributes.StorageCount.ToString())
+        //                {
+        //                    attribute.AttributeValue += 1;
 
-                            fileAttributeRepository.Update(attribute);
-                        }
-                        fileAttributes.Add(attribute);
-                    }
-                }
-            }
-            else throw new EntityDoesNotExistException("File attribute entities could not be found for this file");
+        //                    fileAttributeRepository.Update(attribute);
+        //                }
+        //                fileAttributes.Add(attribute);
+        //            }
+        //        }
+        //    }
+        //    else throw new EntityDoesNotExistException("File attribute entities could not be found for this file");
 
-            //update server file entity properties
-            serverFile.ContentType = file.ContentType;
-            serverFile.HashCode = hash;
-            serverFile.Name = file.FileName;
-            serverFile.OrganizationId = organizationId;
-            serverFile.SizeInBytes = file.Length;
-            serverFile.StorageFolderId = request.StorageFolderId;
-            serverFile.StoragePath = request.StoragePath;
-            serverFile.StorageProvider = request.StorageProvider;
-            serverFile.FileAttributes = fileAttributes;
+        //    //update server file entity properties
+        //    serverFile.ContentType = file.ContentType;
+        //    serverFile.HashCode = hash;
+        //    serverFile.Name = file.FileName;
+        //    serverFile.OrganizationId = organizationId;
+        //    serverFile.SizeInBytes = file.Length;
+        //    serverFile.StorageFolderId = request.StorageFolderId;
+        //    serverFile.StoragePath = request.StoragePath;
+        //    serverFile.StorageProvider = request.StorageProvider;
+        //    serverFile.FileAttributes = fileAttributes;
 
-            serverFileRepository.Update(serverFile);
-            webhookPublisher.PublishAsync("Files.FileUpdated", serverFile.Id.ToString(), serverFile.Name);
+        //    serverFileRepository.Update(serverFile);
+        //    webhookPublisher.PublishAsync("Files.FileUpdated", serverFile.Id.ToString(), serverFile.Name);
 
-            //update file stored in server
-            bool directoryExists = CheckDirectoryExists(path);
-            if (!directoryExists)
-                throw new DirectoryNotFoundException("Storage path could not be found");
+        //    //update file stored in server
+        //    bool directoryExists = CheckDirectoryExists(path);
+        //    if (!directoryExists)
+        //        throw new DirectoryNotFoundException("Storage path could not be found");
 
-            path = Path.Combine(path, request.Id.ToString());
+        //    path = Path.Combine(path, request.Id.ToString());
 
-            if (file.Length > 0 && hash != serverFile.HashCode)
-            {
-                IOFile.Delete(path);
-                using (var stream = new FileStream(path, FileMode.Create, FileAccess.Write))
-                {
-                    file.CopyTo(stream);
-                }
+        //    if (file.Length > 0 && hash != serverFile.HashCode)
+        //    {
+        //        IOFile.Delete(path);
+        //        using (var stream = new FileStream(path, FileMode.Create, FileAccess.Write))
+        //        {
+        //            file.CopyTo(stream);
+        //        }
 
-                ConvertToBinaryObject(path);
-            }
+        //        ConvertToBinaryObject(path);
+        //    }
 
-            //update size in bytes in server drive
-            var drive = GetDriveById(serverFile.ServerDriveId);
-            size = request.SizeInBytes - size;
-            AddBytesToServerDrive(drive, size);
-        }
+        //    //update size in bytes in server drive
+        //    var drive = GetDriveById(serverFile.ServerDriveId);
+        //    size = request.SizeInBytes - size;
+        //    AddBytesToServerDrive(drive, size);
+        //}
 
         public void DeleteFile(ServerFile serverFile)
         {
@@ -359,7 +351,7 @@ namespace OpenBots.Server.Business.File
 
             //update size in bytes in folder
             var size = -serverFile.SizeInBytes;
-            AddBytesToServerFolder(serverFile.StoragePath, size);
+            AddBytesToParentFolders(serverFile.StoragePath, size);
 
             //update size in bytes in server drive
             var drive = GetDriveById(serverFile.ServerDriveId);
@@ -445,7 +437,7 @@ namespace OpenBots.Server.Business.File
                 if (folder == null)
                     throw new EntityDoesNotExistException($"File or folder does not exist");
 
-                var pathArray = folder.StoragePath.Split("\\");
+                var pathArray = folder.StoragePath.Split(Path.DirectorySeparatorChar);
                 var shortPathArray = new string[pathArray.Length - 1];
                 for (int i = 0; i < pathArray.Length - 1; i++)
                 {
@@ -458,7 +450,7 @@ namespace OpenBots.Server.Business.File
                 fileFolder.Id = folder.Id;
                 fileFolder.Name = folder.Name;
                 fileFolder.ContentType = "Folder";
-                fileFolder.StoragePath = string.Join("\\", shortPathArray);
+                fileFolder.StoragePath = string.Join(Path.DirectorySeparatorChar, shortPathArray);
                 fileFolder.CreatedBy = folder.CreatedBy;
                 fileFolder.CreatedOn = folder.CreatedOn;
                 fileFolder.FullStoragePath = folder.StoragePath;
@@ -510,16 +502,16 @@ namespace OpenBots.Server.Business.File
         public Guid? GetFolderId(string path, string driveName)
         {
             string[] pathArray = path.Split(Path.DirectorySeparatorChar);
-                string folderName = pathArray[pathArray.Length - 1];
-                var folder = GetFolder(folderName);
-                Guid? folderId = folder?.Id;
-                if (folderId == null)
-                {
-                    var serverDrive = GetDriveByName(driveName);
-                    if (serverDrive != null)
-                        folderId = serverDrive.Id;
-                    else throw new EntityDoesNotExistException("Drive could not be found");
-                }
+            string folderName = pathArray[pathArray.Length - 1];
+            var folder = GetFolder(folderName);
+            Guid? folderId = folder?.Id;
+            if (folderId == null)
+            {
+                var serverDrive = GetDriveByName(driveName);
+                if (serverDrive != null)
+                    folderId = serverDrive.Id;
+                else throw new EntityDoesNotExistException("Drive could not be found");
+            }
 
             return folderId;
         }
@@ -527,16 +519,16 @@ namespace OpenBots.Server.Business.File
         public ServerDrive GetDriveById(Guid? id)
         {
             var serverDrive = serverDriveRepository.Find(null).Items?.Where(q => q.Id == id).FirstOrDefault();
-
             if (serverDrive == null)
                 throw new EntityDoesNotExistException("Server drive could not be found");
-
             return serverDrive;
         }
 
         public ServerDrive GetDriveByName(string name)
         {
             var serverDrive = serverDriveRepository.Find(null).Items?.Where(q => q.Name == name).FirstOrDefault();
+            if (serverDrive == null)
+                throw new EntityDoesNotExistException("Server drive could not be found");
             return serverDrive;
         }
 
@@ -628,8 +620,9 @@ namespace OpenBots.Server.Business.File
         public bool CheckFolderHasChild(Guid? id)
         {
             bool hasChild = true;
-            var children = serverFolderRepository.Find(null).Items?.Where(q => q.ParentFolderId == id);
-           if (!children.Any())
+            var folderChildren = serverFolderRepository.Find(null).Items?.Where(q => q.ParentFolderId == id);
+            var fileChildren = serverFileRepository.Find(null).Items.Where(q => q.StorageFolderId == id);
+            if (!folderChildren.Any() && !fileChildren.Any())
                 hasChild = false;
 
             return hasChild;
@@ -637,27 +630,413 @@ namespace OpenBots.Server.Business.File
 
         public void DeleteFileFolder(string id, string driveName = null)
         {
-            var drive = GetDriveByName(driveName);
-            Guid? driveId = Guid.Empty;
-            if (drive != null)
-                driveId = drive.Id;
-            else
-                throw new EntityDoesNotExistException("Drive could not be found");
-
+            Guid? driveId = GetDriveId(driveName);
             var serverFile = serverFileRepository.Find(null).Items?.Where(q => q.Id.ToString() == id && q.ServerDriveId == driveId).FirstOrDefault();
             var serverFolder = new ServerFolder();
             if (serverFile != null)
+            {
                 DeleteFile(serverFile);
+            }
             else if (serverFile == null)
             {
                 serverFolder = serverFolderRepository.Find(null).Items?.Where(q => q.Id.ToString() == id && q.StorageDriveId == driveId).FirstOrDefault();
                 if (serverFolder != null)
+                {
+                    bool hasChild = CheckFolderHasChild(serverFolder.Id);
+                    if (serverFolder.SizeInBytes != 0)
+                        throw new EntityOperationException("Folder cannot be deleted because it has files inside");
+                    else if (hasChild)
+                        throw new EntityOperationException("Folder cannot be deleted because it has folders inside");
                     DeleteFolder(serverFolder);
+                }
                 else
-                    throw new EntityDoesNotExistException($"Folder with id {id} could not be found");
+                    throw new EntityDoesNotExistException($"Folder with id '{id}' could not be found");
             }
-            else 
-                throw new EntityDoesNotExistException($"File with id {id} could not be found");
+            else
+                throw new EntityDoesNotExistException($"File with id '{id}' could not be found");
+        }
+
+        public FileFolderViewModel RenameFileFolder(string id, string name, string driveName = null)
+        {
+            Guid? entityId = Guid.Parse(id);
+            var fileFolder = new FileFolderViewModel();
+            Guid? driveId = GetDriveId(driveName);
+            var serverFile = serverFileRepository.Find(null).Items?.Where(q => q.Id == entityId && q.ServerDriveId == driveId).FirstOrDefault();
+            var serverFolder = new ServerFolder();
+
+            if (serverFile != null)
+            {
+                //rename file
+                string oldPath = serverFile.StoragePath;
+                var newNameArray = serverFile.Name.Split(".");
+                var contentType = newNameArray[newNameArray.Length - 1];
+                string newName = name + "." + contentType;
+                string newPath = GetNewPath(serverFile.StoragePath, serverFile.Name, newName);
+                ExistingFileCheck(newPath);
+                var newPathArray = newPath.Split(Path.DirectorySeparatorChar);
+                var shortPathArray = new string[newPathArray.Length - 1];
+                for (int i = 0; i < newPathArray.Length - 1; i++)
+                {
+                    string folderName = newPathArray[i];
+                    shortPathArray.SetValue(folderName, i);
+                }
+                string shortPath = string.Join(Path.DirectorySeparatorChar, shortPathArray);
+
+                serverFile.Name = newName;
+                serverFile.StoragePath = newPath;
+                serverFileRepository.Update(serverFile);
+
+                IOFile.Move(oldPath, newPath);
+                webhookPublisher.PublishAsync("Files.FileUpdated", id, serverFile.Name);
+
+                fileFolder = fileFolder.Map(serverFile, shortPath);
+
+                //update append file attribute
+                var appendAttribute = fileAttributeRepository.Find(null).Items?.Where(q => q.Name == FileAttributes.AppendCount.ToString() && q.ServerFileId == serverFile.Id).FirstOrDefault();
+                if (appendAttribute != null)
+                    appendAttribute.AttributeValue += 1;
+                fileAttributeRepository.Update(appendAttribute);
+            }
+            else if (serverFile == null)
+            {
+                serverFolder = serverFolderRepository.Find(null).Items?.Where(q => q.Id == entityId && q.StorageDriveId == driveId).FirstOrDefault(); 
+                if (serverFolder != null)
+                {
+                    //rename folder
+                    bool hasChild = CheckFolderHasChild(entityId);
+                    string oldPath = serverFolder.StoragePath;
+                    string oldName = serverFolder.Name;
+                    string newPath = GetNewPath(serverFolder.StoragePath, oldName, name);
+                    ExistingFolderCheck(newPath);
+                    var newPathArray = newPath.Split(Path.DirectorySeparatorChar);
+                    string shortPath = GetShortPath(newPath);
+
+                    //move folder to new directory path
+                    directoryManager.Move(oldPath, newPath);
+                    serverFolder.Name = name;
+                    serverFolder.StoragePath = newPath;
+                    serverFolderRepository.Update(serverFolder);
+                    webhookPublisher.PublishAsync("Files.FolderUpdated", id, serverFolder.Name);
+
+                    //rename all files and folders underneath it
+                    if (hasChild)
+                        RenameChildFilesFolders(entityId, oldName, name);
+                    fileFolder = fileFolder.Map(serverFolder, shortPath, hasChild);
+                }
+                else
+                    throw new EntityDoesNotExistException($"Folder or file with id '{id}' could not be found");
+            }
+
+            return fileFolder;
+        }
+
+        public void RenameChildFilesFolders(Guid? entityId, string oldPath, string newPath)
+        {
+            var childFiles = serverFileRepository.Find(null).Items?.Where(q => q.StorageFolderId == entityId);
+            if (childFiles.Any())
+            {
+                foreach (var file in childFiles)
+                {
+                    string oldFilePath = file.StoragePath;
+                    string newFilePath = GetNewPath(file.StoragePath, oldPath, newPath);
+                    file.StoragePath = newFilePath;
+                    serverFileRepository.Update(file);
+                    if (IOFile.Exists(oldPath))
+                        IOFile.Move(oldFilePath, newFilePath);
+                    webhookPublisher.PublishAsync("Files.FileUpdated", file.Id.ToString(), file.Name);
+                }
+            }
+            var childFolders = serverFolderRepository.Find(null).Items?.Where(q => q.ParentFolderId == entityId);
+            if (childFolders.Any())
+            {
+                foreach (var folder in childFolders)
+                {
+                    bool hasChild = CheckFolderHasChild(folder.Id);
+                    string oldFolderPath = folder.StoragePath;
+                    string newFolderPath = GetNewPath(folder.StoragePath, oldPath, newPath);
+                    folder.StoragePath = newFolderPath;
+                    serverFolderRepository.Update(folder);
+                    if (directoryManager.Exists(oldPath))
+                        directoryManager.Move(oldFolderPath, newFolderPath);
+                    webhookPublisher.PublishAsync("Files.FolderUpdated", folder.Id.ToString(), folder.Name);
+                    if (hasChild)
+                        RenameChildFilesFolders(folder.Id, oldPath, newPath);
+                }
+            }
+        }
+
+        public string GetNewPath(string path, string oldPath, string newPath)
+        {
+            path = path.Replace(oldPath, newPath);
+            return path;
+        }
+
+        public FileFolderViewModel MoveFileFolder(string fileFolderId, string parentFolderId, string driveName = null)
+        {
+            Guid? entityId = Guid.Parse(fileFolderId);
+            Guid? parentId = Guid.Parse(parentFolderId);
+            var fileFolder = new FileFolderViewModel();
+            Guid? driveId = GetDriveId(driveName);
+            var newParentFolder = serverFolderRepository.GetOne((Guid)parentId);
+            string parentFolderPath = newParentFolder.StoragePath;
+
+            var serverFile = serverFileRepository.Find(null).Items?.Where(q => q.Id == entityId && q.ServerDriveId == driveId).FirstOrDefault();
+            var serverFolder = new ServerFolder();
+
+            if (serverFile != null)
+            {
+                //move file
+                Guid? oldParentFolderId = serverFile.StorageFolderId;
+                string oldPath = serverFile.StoragePath;
+                string newPath = Path.Combine(parentFolderPath, serverFile.Name);
+                ExistingFileCheck(newPath);
+
+                serverFile.StoragePath = newPath;
+                serverFile.StorageFolderId = parentId;
+                serverFileRepository.Update(serverFile);
+
+                IOFile.Move(oldPath, newPath);
+                webhookPublisher.PublishAsync("Files.FileUpdated", fileFolderId, serverFile.Name);
+
+                fileFolder = fileFolder.Map(serverFile, parentFolderPath);
+
+                //update append file attribute
+                var appendAttribute = fileAttributeRepository.Find(null).Items?.Where(q => q.Name == FileAttributes.AppendCount.ToString() && q.ServerFileId == serverFile.Id).FirstOrDefault();
+                if (appendAttribute != null)
+                    appendAttribute.AttributeValue += 1;
+                fileAttributeRepository.Update(appendAttribute);
+
+                //update new and old parent folder sizes
+                UpdateFolderSize(oldParentFolderId, newParentFolder, serverFile);
+            }
+            else if (serverFile == null)
+            {
+                serverFolder = serverFolderRepository.Find(null).Items?.Where(q => q.Id == entityId && q.StorageDriveId == driveId).FirstOrDefault();           //else 
+                if (serverFolder != null)
+                {
+                    //move folder
+                    bool hasChild = CheckFolderHasChild(entityId);
+                    Guid? oldParentFolderId = serverFolder.ParentFolderId;
+                    string oldPath = serverFolder.StoragePath;
+                    string newPath = Path.Combine(parentFolderPath, serverFolder.Name);
+                    ExistingFolderCheck(newPath);
+
+                    serverFolder.StoragePath = newPath;
+                    serverFolder.ParentFolderId = parentId;
+                    serverFolderRepository.Update(serverFolder);
+                    webhookPublisher.PublishAsync("Files.FolderUpdated", serverFolder.Id.ToString(), serverFolder.Name);
+
+                    //move folder to new directory path
+                    directoryManager.Move(oldPath, newPath);
+                    webhookPublisher.PublishAsync("Files.FolderUpdated", fileFolderId, serverFolder.Name);
+
+                    //rename all files and folders underneath it
+                    if (hasChild)
+                        RenameChildFilesFolders(entityId, oldPath, newPath);
+                    fileFolder = fileFolder.Map(serverFolder, parentFolderPath, hasChild);
+
+                    //update new and old parent folder sizes
+                    UpdateFolderSize(oldParentFolderId, newParentFolder, null, serverFolder);
+                }
+                else
+                    throw new EntityDoesNotExistException($"Folder or file with id '{fileFolderId}' could not be found");
+            }
+
+            return fileFolder;
+        }
+
+        public string GetShortPath(string path)
+        {
+            var newPathArray = path.Split(Path.DirectorySeparatorChar);
+            var shortPathArray = new string[newPathArray.Length - 1];
+            for (int i = 0; i < newPathArray.Length - 1; i++)
+            {
+                string folderName = newPathArray[i];
+                shortPathArray.SetValue(folderName, i);
+            }
+            string shortPath = string.Join(Path.DirectorySeparatorChar, shortPathArray);
+            return shortPath;
+        }
+
+        public FileFolderViewModel CopyFileFolder(string fileFolderId, string parentFolderId, string driveName = null)
+        {
+            Guid? entityId = Guid.Parse(fileFolderId);
+            Guid? parentId = Guid.Parse(parentFolderId);
+            var fileFolder = new FileFolderViewModel();
+            var drive = GetDriveByName(driveName);
+            Guid? driveId = drive.Id;
+            var parentFolder = serverFolderRepository.GetOne((Guid)parentId);
+            string parentFolderPath = parentFolder.StoragePath;
+
+            var serverFile = serverFileRepository.Find(null).Items?.Where(q => q.Id == entityId && q.ServerDriveId == driveId).FirstOrDefault();
+            var serverFolder = new ServerFolder();
+
+            if (serverFile != null)
+            {
+                //copy file
+                string oldPath = serverFile.StoragePath;
+                string newPath = Path.Combine(parentFolderPath, serverFile.Name);
+
+                using (var stream = IOFile.OpenRead(oldPath))
+                {
+                    IFormFile file = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
+
+                    fileFolder = fileFolder.Map(serverFile, parentFolderPath);
+                    fileFolder.StoragePath = parentFolderPath;
+                    fileFolder.FullStoragePath = newPath;
+                    fileFolder.UpdatedOn = null;
+                    fileFolder.ParentId = parentId;
+                    fileFolder.CreatedBy = null;
+                    fileFolder.CreatedOn = null;
+                    //create new file and file attributes in database
+                    //create new file in server drive
+                    fileFolder = SaveFile(fileFolder, file, drive);
+                    var newFile = serverFileRepository.GetOne((Guid)fileFolder.Id);
+
+                    //add size in bytes of file to new parent folders and server drive
+                    UpdateFolderSize(serverFile.StorageFolderId, parentFolder, newFile);
+
+                    drive.StorageSizeInBytes += file.Length;
+                    serverDriveRepository.Update(drive);
+                }
+            }
+            else if (serverFile == null)
+            {
+                serverFolder = serverFolderRepository.Find(null).Items?.Where(q => q.Id == entityId && q.StorageDriveId == driveId).FirstOrDefault();           //else 
+                if (serverFolder != null)
+                {
+                    string oldPath = serverFolder.StoragePath;
+                    string newPath = Path.Combine(parentFolderPath, serverFolder.Name);
+                    ExistingFolderCheck(newPath);
+
+                    //create folder entity in database
+                    serverFolder.ParentFolderId = parentId;
+                    serverFolder.Id = Guid.NewGuid();
+                    serverFolder.StoragePath = newPath;
+                    serverFolder.CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name;
+                    serverFolder.CreatedOn = DateTime.UtcNow;
+                    serverFolder.Id = Guid.NewGuid();
+                    serverFolder.UpdatedBy = null;
+                    serverFolder.UpdatedOn = null;
+                    serverFolderRepository.Add(serverFolder);
+
+                    //map server folder to file folder view model
+                    bool hasChild = CheckFolderHasChild(entityId);
+                    fileFolder.Map(serverFolder, parentFolderPath, hasChild);
+
+                    //create subdirectory structure in destination    
+                    foreach (string dir in Directory.GetDirectories(oldPath, "*", SearchOption.AllDirectories))
+                    {
+                        //create copied folders with the same name
+                        var folder = serverFolderRepository.Find(null).Items?.Where( q => q.StoragePath == dir).FirstOrDefault();
+                        string shortPath = GetNewPath(folder.StoragePath, folder.StoragePath, serverFolder.StoragePath);
+                        CheckDirectoryExists(shortPath);
+                        string newFolderPath = Path.Combine(shortPath, folder.Name);
+                        directoryManager.CreateDirectory(newFolderPath);
+
+                        //add new folder entity in repository
+                        var parentFolderEntity = serverFolderRepository.Find(null).Items?.Where(q => q.StoragePath == shortPath).FirstOrDefault();
+                        folder.ParentFolderId = parentFolderEntity.Id;
+                        folder.Id = Guid.NewGuid();
+                        folder.StoragePath = Path.Combine(shortPath, folder.Name);
+                        folder.CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name;
+                        folder.CreatedOn = DateTime.UtcNow;
+                        folder.Id = Guid.NewGuid();
+                        folder.UpdatedBy = null;
+                        folder.UpdatedOn = null;
+                        serverFolderRepository.Add(folder);
+                    }
+
+                    foreach (string filePath in Directory.GetFiles(oldPath, "*", SearchOption.AllDirectories))
+                    {
+                        //copy all files to new directory
+                        var file = serverFileRepository.Find(null).Items?.Where(q => q.StoragePath == filePath).FirstOrDefault();
+                        //string newFilePath = GetNewPath(file.StoragePath, file.StoragePath, serverFolder.StoragePath);
+                        string oldFilePath = file.StoragePath;
+                        string newFilePath = GetNewPath(oldFilePath, oldPath, newPath);
+
+                        //add new file entity in repository
+                        string shortPath = GetShortPath(newFilePath);
+
+                        using (var stream = IOFile.OpenRead(file.StoragePath))
+                        {
+                            IFormFile formFile = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
+
+                            var parentFolderEntity = serverFolderRepository.Find(null).Items?.Where(q => q.StoragePath == shortPath).FirstOrDefault();
+                            var newFile = new FileFolderViewModel();
+                            newFile = newFile.Map(file, shortPath);
+                            newFile.StoragePath = shortPath;
+                            newFile.FullStoragePath = newFilePath;
+                            newFile.UpdatedOn = null;
+                            newFile.ParentId = parentFolderEntity.Id;
+                            newFile.CreatedBy = null;
+                            newFile.CreatedOn = null;
+                            //create new file and file attributes in database
+                            //create new file in server drive
+                            newFile = SaveFile(newFile, formFile, drive);
+                        }
+                    }
+                    //add size in bytes of each folder to new parent folder and server drive
+                    long? size = serverFolder.SizeInBytes;
+                    AddBytesToParentFolders(parentFolderPath, size);
+
+                    drive.StorageSizeInBytes += size;
+                    serverDriveRepository.Update(drive);
+                }
+                else
+                    throw new EntityDoesNotExistException($"Folder or file with id '{fileFolderId}' could not be found");
+            }
+
+            return fileFolder;
+        }
+
+        public void ExistingFolderCheck(string path)
+        {
+            var folder = serverFolderRepository.Find(null).Items?.Where(q => q.StoragePath == path && q.IsDeleted == false).FirstOrDefault();
+            if (folder != null)
+                throw new EntityAlreadyExistsException($"Folder with path {path} already exists in current folder");
+        }
+
+        public void ExistingFileCheck(string path)
+        {
+            var file = serverFileRepository.Find(null).Items?.Where(q => q.StoragePath == path && q.IsDeleted == false).FirstOrDefault();
+            if (file != null)
+                throw new EntityAlreadyExistsException($"File with path {path} already exists in current folder");
+        }
+
+        public void UpdateFolderSize(Guid? oldParentFolderId, ServerFolder newParentFolder, ServerFile serverFile = null, ServerFolder serverFolder = null)
+        {
+            var oldParentFolder = serverFolderRepository.GetOne((Guid)oldParentFolderId);
+            long? size;
+            if (serverFile != null)
+                size = serverFile.SizeInBytes;
+            else
+                size = serverFolder.SizeInBytes;
+
+            var oldParentPathArray = oldParentFolder.StoragePath.Split(Path.DirectorySeparatorChar);
+            var newParentPathArray = newParentFolder.StoragePath.Split(Path.DirectorySeparatorChar);
+            var oldParentPathList = new List<string>();
+            var newParentPathList = new List<string>();
+
+            foreach (var folder in oldParentPathArray)
+            {
+                if (!newParentPathArray.Contains(folder))
+                    oldParentPathList.Add(folder);
+            }
+            foreach (var folder in newParentPathArray)
+            {
+                if (!oldParentPathArray.Contains(folder))
+                    newParentPathList.Add(folder);
+            }
+
+            string oldParentPath = string.Join(Path.DirectorySeparatorChar, oldParentPathList);
+            string newParentPath = string.Join(Path.DirectorySeparatorChar, newParentPathList);
+
+            //remove size in bytes in old parent foders (only those that do not overlap in new parent folders list)
+            AddBytesToParentFolders(oldParentPath, -size);
+
+            //add size in bytes of new parent folders (only those that do not overlap in old parent folders list)
+            AddBytesToParentFolders(newParentPath, size);
         }
 
         public FileFolderViewModel RenameFileFolder(string id, string name, string driveName = null)

@@ -15,8 +15,14 @@ namespace OpenBots.Server.Business.Interfaces
 
         public FileFolderViewModel SaveFile(FileFolderViewModel viewModel, IFormFile file, ServerDrive drive);
 
-        public void UpdateFile(UpdateServerFileViewModel request);
+        //public void UpdateFile(UpdateServerFileViewModel request);
 
         public void DeleteFileFolder(string id, string driveName = null);
+
+        public FileFolderViewModel RenameFileFolder(string id, string name, string driveName = null);
+
+        public FileFolderViewModel MoveFileFolder(string fileFolderId, string parentFolderId, string driveName = null);
+
+        public FileFolderViewModel CopyFileFolder(string fileFolderId, string parentFolderId, string driveName = null);
     }
 }

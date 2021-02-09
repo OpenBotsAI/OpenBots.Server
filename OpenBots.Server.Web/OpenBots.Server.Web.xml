@@ -1417,6 +1417,57 @@
             <response code="403">Forbidden</response>
             <returns>Ok response</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Rename(System.String,OpenBots.Server.ViewModel.File.FileFolderViewModel,System.String)">
+            <summary>
+            Renames a folder or file 
+            </summary>
+            <remarks>
+            Provides an action to rename a folder or file, when the id and the new name are given
+            </remarks>
+            <param name="id">Folder or file id, produces bad request if id is null or ids don't match</param>
+            <param name="request">Name to be updated</param>
+            <param name="driveName"></param>
+            <response code="200">Ok, if the name for the given id has been updated</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Ok response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Move(System.String,System.String,System.String)">
+            <summary>
+            Moves a folder or file 
+            </summary>
+            <remarks>
+            Provides an action to move a folder or file, when the id and the parent folder id are given
+            </remarks>
+            <param name="id">Folder or file id, produces bad request if id is null or ids don't match</param>
+            <param name="parentId">Parent folder id to be moved to</param>
+            <param name="driveName"></param>
+            <response code="200">Ok, if the file or folder for the given id has been updated</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Ok response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Copy(System.String,System.String,System.String)">
+            <summary>
+            Copies a folder or file 
+            </summary>
+            <remarks>
+            Provides an action to copy a folder or file, when the id and the parent folder id are given
+            </remarks>
+            <param name="id">Folder or file id, produces bad request if id is null or ids don't match</param>
+            <param name="parentId">Parent folder id to be copied to</param>
+            <param name="driveName"></param>
+            <response code="200">Ok, if the file or folder for the given id has been copied</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Ok response with the copied file or folder value</returns>
+        </member>
         <member name="T:OpenBots.Server.Web.Controllers.Queue.QueueItemAttachmentsController">
             <summary>
             Controller for queue item attachments
