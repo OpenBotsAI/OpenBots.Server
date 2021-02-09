@@ -16,11 +16,11 @@ namespace XUnitTests
 {
     public class JobManagerTests
     {
-        private readonly JobManager manager;
-        private readonly JobParameter jobParameter;
-        private readonly Guid newJobAgentId;
-        private readonly Guid completedJobAgentId;
-        private readonly Guid newJobId;
+        private readonly JobManager _manager;
+        private readonly JobParameter _jobParameter;
+        private readonly Guid _newJobAgentId;
+        private readonly Guid _completedJobAgentId;
+        private readonly Guid _newJobId;
 
         public JobManagerTests()
         {
@@ -30,16 +30,16 @@ namespace XUnitTests
                 .Options;
             StorageContext context = new StorageContext(options);
 
-            newJobAgentId = Guid.NewGuid();
-            completedJobAgentId = Guid.NewGuid();
-            newJobId = Guid.NewGuid();
+            _newJobAgentId = Guid.NewGuid();
+            _completedJobAgentId = Guid.NewGuid();
+            _newJobId = Guid.NewGuid();
             
             //job with status of new
             Job newDummyJob = new Job 
             {
                 Id = Guid.NewGuid(),
                 JobStatus = JobStatusType.New,
-                AgentId = newJobAgentId,
+                AgentId = _newJobAgentId,
                 CreatedOn = DateTime.UtcNow
             };
 
@@ -48,17 +48,17 @@ namespace XUnitTests
             {
                 Id = Guid.NewGuid(),
                 JobStatus = JobStatusType.Completed,
-                AgentId = completedJobAgentId,
+                AgentId = _completedJobAgentId,
                 CreatedOn = DateTime.UtcNow
             };
 
             //job Parameter to be removed
-            jobParameter = new JobParameter
+            _jobParameter = new JobParameter
             {
                 Id = Guid.NewGuid(),
                 DataType = "text",
                 Value = "Sample Value",
-                JobId = newJobId
+                JobId = _newJobId
             };
 
             Job[] jobsToAdd = new[]
@@ -68,7 +68,7 @@ namespace XUnitTests
             };
 
             //populate in memory database
-            Seed(context, jobsToAdd, jobParameter);
+            Seed(context, jobsToAdd, _jobParameter);
 
             //create loggers
             var jobLogger = Mock.Of<ILogger<Job>>();
@@ -91,7 +91,7 @@ namespace XUnitTests
             var automationVersionRepo = new AutomationVersionRepository(context, automationVersionLogger, httpContextAccessor.Object);
 
             //manager to be tested
-            manager = new JobManager(jobRepository, agentRepo, automationRepo, jobParameterRepo, jobCheckpointRepo, automationVersionRepo);
+            _manager = new JobManager(jobRepository, agentRepo, automationRepo, jobParameterRepo, jobCheckpointRepo, automationVersionRepo);
         }
 
         //gets the next job that has not been picked up for the specified agent id
@@ -99,8 +99,8 @@ namespace XUnitTests
         public async Task GetNextJob()
         {
             //act
-            var jobsAvailable = manager.GetNextJob(newJobAgentId);
-            var jobsCompleted  = manager.GetNextJob(completedJobAgentId);
+            var jobsAvailable = _manager.GetNextJob(_newJobAgentId);
+            var jobsCompleted  = _manager.GetNextJob(_completedJobAgentId);
 
             //assert
             Assert.True(jobsAvailable.IsJobAvailable); //agent id with a new job
@@ -112,10 +112,10 @@ namespace XUnitTests
         public async Task GetJobParameters()
         {
             //act
-            var jobParameters = manager.GetJobParameters(newJobId);
+            var jobParameters = _manager.GetJobParameters(_newJobId);
 
             //assert
-            Assert.Equal(jobParameter,jobParameters.First());
+            Assert.Equal(_jobParameter,jobParameters.First());
         }
 
         //delete job parameters for the specified job id
@@ -123,8 +123,8 @@ namespace XUnitTests
         public async Task DeleteExistingParameters()
         {
             //act
-            manager.DeleteExistingParameters(newJobId);
-            var jobParameters = manager.GetJobParameters(newJobId);
+            _manager.DeleteExistingParameters(_newJobId);
+            var jobParameters = _manager.GetJobParameters(_newJobId);
 
             //assert
             Assert.Empty(jobParameters);
