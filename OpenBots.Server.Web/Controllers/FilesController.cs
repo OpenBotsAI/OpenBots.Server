@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.FeatureManagement.Mvc;
 using OpenBots.Server.Business;
 using OpenBots.Server.Business.Interfaces;
-using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
@@ -44,7 +43,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <param name="httpContextAccessor"></param>
         /// <param name="membershipManager"></param>
         /// <param name="userManager"></param>
-        public FilesController (
+        public FilesController(
             IFileManager manager,
             IServerFileRepository serverFileRepository,
             ApplicationIdentityUserManager userManager,
@@ -335,12 +334,124 @@ namespace OpenBots.Server.Web.Controllers
             }
         }
 
-        //TODO: update size of folder and all parent folders when file/folder is updated
-        //TODO additional api calls:
-        //update file/folder details in server drive (rename, move, copy)
-        //add additional server drive?
-        //update server drive details?
-        //delete server drive?
-        //get file attributes for a file
+        /// <summary>
+        /// Renames a folder or file 
+        /// </summary>
+        /// <remarks>
+        /// Provides an action to rename a folder or file, when the id and the new name are given
+        /// </remarks>
+        /// <param name="id">Folder or file id, produces bad request if id is null or ids don't match</param>
+        /// <param name="request">Name to be updated</param>
+        /// <param name="driveName"></param>
+        /// <response code="200">Ok, if the name for the given id has been updated</response>
+        /// <response code="400">Bad request, if the id is null or ids don't match</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="409">Conflict</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Ok response with the updated value</returns>
+        [HttpPut("{id}/rename")]
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> Rename(string id, [FromBody] FileFolderViewModel request, string driveName = null)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(request.Name))
+                {
+                    ModelState.AddModelError("Rename", "No name given in request");
+                    return BadRequest(ModelState);
+                }
+                string name = request.Name;
+                var response = _manager.RenameFileFolder(id, name, driveName);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Moves a folder or file 
+        /// </summary>
+        /// <remarks>
+        /// Provides an action to move a folder or file, when the id and the parent folder id are given
+        /// </remarks>
+        /// <param name="id">Folder or file id, produces bad request if id is null or ids don't match</param>
+        /// <param name="parentId">Parent folder id to be moved to</param>
+        /// <param name="driveName"></param>
+        /// <response code="200">Ok, if the file or folder for the given id has been updated</response>
+        /// <response code="400">Bad request, if the id is null or ids don't match</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="409">Conflict</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Ok response with the updated value</returns>
+        [HttpPut("{id}/move/{parentId}")]
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> Move(string id, string parentId, string driveName = null)
+        {
+            try
+            {
+                var response = _manager.MoveFileFolder(id, parentId, driveName);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Copies a folder or file 
+        /// </summary>
+        /// <remarks>
+        /// Provides an action to copy a folder or file, when the id and the parent folder id are given
+        /// </remarks>
+        /// <param name="id">Folder or file id, produces bad request if id is null or ids don't match</param>
+        /// <param name="parentId">Parent folder id to be copied to</param>
+        /// <param name="driveName"></param>
+        /// <response code="200">Ok, if the file or folder for the given id has been copied</response>
+        /// <response code="400">Bad request, if the id is null or ids don't match</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="409">Conflict</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Ok response with the copied file or folder value</returns>
+        [HttpPost("{id}/copy/{parentId}")]
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> Copy(string id, string parentId, string driveName = null)
+        {
+            try
+            {
+                var response = _manager.CopyFileFolder(id, parentId, driveName);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
     }
 }
+
+//TODO additional api calls:
+//add additional server drive?
+//update server drive details?
+//delete server drive?
+//get file attributes for a file?

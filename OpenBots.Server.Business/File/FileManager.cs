@@ -139,6 +139,57 @@ namespace OpenBots.Server.Business.File
             else throw new EntityOperationException("Configuration is not set up for local file storage");
         }
 
+        public FileFolderViewModel RenameFileFolder(string id, string name, string driveName = null)
+        {
+            var response = new FileFolderViewModel();
+            string adapter = Configuration["Files:Adapter"];
+            if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
+                response = _localFileStorageAdapter.RenameFileFolder(id, name, driveName);
+            //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
+            //    azureBlobStorageAdapter.SaveFile(request);
+            //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
+            //    amazonEC2StorageAdapter.SaveFile(request);
+            //else if (adapter.Equals("GoogleBlobStorageAdapter") && storageProvider.Equals("FileSystem.Google"))
+            //    googleBlobStorageAdapter.SaveFile(request);
+            else throw new EntityOperationException("Configuration is not set up for local file storage");
+
+            return response;
+        }
+
+        public FileFolderViewModel MoveFileFolder(string fileFolderId, string parentFolderId, string driveName = null)
+        {
+            var response = new FileFolderViewModel();
+            string adapter = Configuration["Files:Adapter"];
+            if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
+                response = _localFileStorageAdapter.MoveFileFolder(fileFolderId, parentFolderId, driveName);
+            //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
+            //    azureBlobStorageAdapter.SaveFile(request);
+            //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
+            //    amazonEC2StorageAdapter.SaveFile(request);
+            //else if (adapter.Equals("GoogleBlobStorageAdapter") && storageProvider.Equals("FileSystem.Google"))
+            //    googleBlobStorageAdapter.SaveFile(request);
+            else throw new EntityOperationException("Configuration is not set up for local file storage");
+
+            return response;
+        }
+
+        public FileFolderViewModel CopyFileFolder(string fileFolderId, string parentFolderId, string driveName = null)
+        {
+            var response = new FileFolderViewModel();
+            string adapter = Configuration["Files:Adapter"];
+            if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
+                response = _localFileStorageAdapter.CopyFileFolder(fileFolderId, parentFolderId, driveName);
+            //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
+            //    azureBlobStorageAdapter.SaveFile(request);
+            //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
+            //    amazonEC2StorageAdapter.SaveFile(request);
+            //else if (adapter.Equals("GoogleBlobStorageAdapter") && storageProvider.Equals("FileSystem.Google"))
+            //    googleBlobStorageAdapter.SaveFile(request);
+            else throw new EntityOperationException("Configuration is not set up for local file storage");
+
+            return response;
+        }
+
         public enum AdapterType
         {
             LocalFileStorageAdapter,

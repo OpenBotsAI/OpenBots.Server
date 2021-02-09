@@ -112,7 +112,7 @@ export class ViewAutomationLogsComponent implements OnInit {
     this.router.navigate(['/pages/change-log/list'], {
       queryParams: {
         // PageName: 'ExecutionLog',
-        pageName: 'AutomationLog',
+        PageName: 'AutomationExecutionLog',
         id: this.processLogId,
       },
     });

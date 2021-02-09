@@ -18,7 +18,6 @@ namespace OpenBots.Server.Business
         private readonly IOrganizationManager _organizationManager;
         private readonly IHttpContextAccessor _accessor;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IIPFencingRepository _iPFencingRepository;
 
         public IPFencingManager(IIPFencingRepository repository,
             IOrganizationSettingRepository organizationSettingRepository,
@@ -31,7 +30,6 @@ namespace OpenBots.Server.Business
             _userManager = userManager;
             _organizationSettingRepo = organizationSettingRepository;
             _organizationManager = organizationManager;
-            _iPFencingRepository = _iPFencingRepository;
         }
 
         /// <summary>

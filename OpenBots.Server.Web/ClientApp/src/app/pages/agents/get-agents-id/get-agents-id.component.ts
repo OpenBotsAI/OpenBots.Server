@@ -114,7 +114,7 @@ export class GetAgentsIdComponent implements OnInit {
 
   gotoaudit() {
     this.router.navigate(['/pages/change-log/list'], {
-      queryParams: { PageName: 'AgentModel', id: this.show_allagents.id },
+      queryParams: { PageName: 'Agent', id: this.show_allagents.id },
     });
   }
 
