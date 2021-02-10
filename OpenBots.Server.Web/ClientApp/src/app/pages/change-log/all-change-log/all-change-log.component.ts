@@ -42,7 +42,7 @@ export class AllChangeLogComponent implements OnInit {
     protected router: Router,
     private acroute: ActivatedRoute,
     private helperService: HelperService,
-    private _FileSaverService: FileSaverService,
+    private FileSaverService: FileSaverService,
     protected changelogService: ChangelogService,
     private formBuilder: FormBuilder
   ) {
@@ -81,7 +81,7 @@ export class AllChangeLogComponent implements OnInit {
           .split(';')[1]
           .split('=')[1]
           .replace(/\"/g, '');
-        _FileSaverService.save(data.body, fileName);
+        this.FileSaverService.save(data.body, fileName);
       });
   }
 

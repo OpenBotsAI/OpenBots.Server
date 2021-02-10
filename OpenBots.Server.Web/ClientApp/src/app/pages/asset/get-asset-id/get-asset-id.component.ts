@@ -27,7 +27,9 @@ export class GetAssetIdComponent implements OnInit {
   constructor(
     private acroute: ActivatedRoute,
     protected assetService: AssetService,
-    private formBuilder: FormBuilder, private _FileSaverService: FileSaverService, protected router: Router,
+    private formBuilder: FormBuilder,
+    private FileSaverService: FileSaverService,
+    protected router: Router
   ) {
     this.acroute.queryParams.subscribe((params) => {
       this.get_allagent(params.id);
@@ -54,48 +56,59 @@ export class GetAssetIdComponent implements OnInit {
     });
   }
 
-
   onDown() {
     if (this.show_allagents.type == 'Text') {
       let type = 'txt';
       const fileName = `${this.show_allagents.name}.${type}`;
-      const fileType = _FileSaverService.genType(fileName);
-      const txtBlob = new Blob([this.addagent.value.textValue], { type: fileType });
-      _FileSaverService.save(txtBlob, fileName);
-    }
-    else if (this.show_allagents.type == 'Json') {
+      const fileType = this.FileSaverService.genType(fileName);
+      const txtBlob = new Blob([this.addagent.value.textValue], {
+        type: fileType,
+      });
+      this.FileSaverService.save(txtBlob, fileName);
+    } else if (this.show_allagents.type == 'Json') {
       let type = 'json';
       const fileName = `${this.show_allagents.name}.${type}`;
-      const fileType = _FileSaverService.genType(fileName);
-      const txtBlob = new Blob([this.addagent.value.jsonValue], { type: fileType });
-      _FileSaverService.save(txtBlob, fileName);
-    }
-    else if (this.show_allagents.type == 'Number') {
+      const fileType = this.FileSaverService.genType(fileName);
+      const txtBlob = new Blob([this.addagent.value.jsonValue], {
+        type: fileType,
+      });
+      this.FileSaverService.save(txtBlob, fileName);
+    } else if (this.show_allagents.type == 'Number') {
       let type = 'txt';
       const fileName = `${this.show_allagents.name}.${type}`;
-      const fileType = _FileSaverService.genType(fileName);
-      const txtBlob = new Blob([this.addagent.value.numberValue], { type: fileType });
-      _FileSaverService.save(txtBlob, fileName);
-    }
-    else if (this.show_allagents.type == 'File') {
-      let fileName: string;
-      this.assetService.assetFileExport(this.show_allagents.id).subscribe((data: HttpResponse<Blob>) => {
-        fileName = data.headers.get('content-disposition').split(';')[1].split('=')[1].replace(/\"/g, '')
-        console.log(fileName)
-        _FileSaverService.save(data.body, fileName);
+      const fileType = this.FileSaverService.genType(fileName);
+      const txtBlob = new Blob([this.addagent.value.numberValue], {
+        type: fileType,
       });
+      this.FileSaverService.save(txtBlob, fileName);
+    } else if (this.show_allagents.type == 'File') {
+      let fileName: string;
+      this.assetService
+        .assetFileExport(this.show_allagents.id)
+        .subscribe((data: HttpResponse<Blob>) => {
+          fileName = data.headers
+            .get('content-disposition')
+            .split(';')[1]
+            .split('=')[1]
+            .replace(/\"/g, '');
+          console.log(fileName);
+          this.FileSaverService.save(data.body, fileName);
+        });
     }
-
   }
-
-
 
   get_allagent(id) {
     this.assetService.getAssetbyId(id).subscribe((data: HttpResponse<any>) => {
       this.show_allagents = data.body;
       const filterPipe = new TimeDatePipe();
-      const fiteredArr = filterPipe.transform(this.show_allagents.createdOn, 'lll');
-      this.show_allagents.createdOn = filterPipe.transform(this.show_allagents.createdOn, 'lll');
+      const fiteredArr = filterPipe.transform(
+        this.show_allagents.createdOn,
+        'lll'
+      );
+      this.show_allagents.createdOn = filterPipe.transform(
+        this.show_allagents.createdOn,
+        'lll'
+      );
       if (this.show_allagents.jsonValue) {
         this.jsonValue = this.show_allagents.jsonValue;
         this.jsonValue = JSON.parse(this.jsonValue);
@@ -105,6 +118,8 @@ export class GetAssetIdComponent implements OnInit {
     });
   }
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'Asset', id: this.show_allagents.id } })
+    this.router.navigate(['/pages/change-log/list'], {
+      queryParams: { PageName: 'Asset', id: this.show_allagents.id },
+    });
   }
 }
