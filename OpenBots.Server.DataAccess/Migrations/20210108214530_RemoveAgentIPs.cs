@@ -6,9 +6,9 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            /*migrationBuilder.DropColumn(
                 name: "IPAddresses",
-                table: "Agents");
+                table: "Agents");*/
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

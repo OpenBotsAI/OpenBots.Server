@@ -6,7 +6,7 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
+          /*  migrationBuilder.AddColumn<string>(
                 name: "IPOption",
                 table: "Agents",
                 type: "nvarchar(max)",
@@ -17,7 +17,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                 table: "Agents",
                 type: "bit",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: false);*/
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

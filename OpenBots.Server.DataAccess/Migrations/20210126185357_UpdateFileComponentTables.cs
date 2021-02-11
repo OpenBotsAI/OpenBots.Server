@@ -7,7 +7,7 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
+           /* migrationBuilder.DropColumn(
                 name: "CorrelationEntity",
                 table: "ServerFiles");
 
@@ -29,7 +29,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                 type: "bigint",
                 nullable: true,
                 oldClrType: typeof(long),
-                oldType: "bigint");
+                oldType: "bigint");*/
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -2355,7 +2355,7 @@
         </member>
         <member name="M:OpenBots.Server.Web.AssetsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
-            Provides a list of all assets
+            Provides a list of all Assets
             </summary>
             <param name="top"></param>
             <param name="skip"></param>
@@ -2366,7 +2366,7 @@
             <response code="403">Forbidden,unauthorized access</response> 
             <response code="404">Not found</response>
             <response code="422">Unprocessable entity</response>
-            <returns>Paginated list of all assets</returns>
+            <returns>Paginated list of all Assets</returns>
         </member>
         <member name="M:OpenBots.Server.Web.AssetsController.Count(System.String)">
             <summary>
@@ -2393,7 +2393,24 @@
             <response code="422">Unprocessable entity</response>
             <returns>Asset details for the given id</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.AssetsController.Post(OpenBots.Server.Model.Asset)">
+        <member name="M:OpenBots.Server.Web.AssetsController.GetAssetByName(System.String,System.String)">
+            <summary>
+            Provides an asset's details for a particular asset name
+            </summary>
+            <remarks>
+            If the requesting user is an Agent with an existing Asset, then that value will be returned
+            </remarks>
+            <param name="assetName">Asset name</param>
+            /// <param name="assetName">Asset name</param>
+            <response code="200">Ok, if an Asset exists with the given name</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no Asset exists for the given Asset name</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Asset details for the given name</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AssetsController.Post(OpenBots.Server.ViewModel.GlobalAssetViewModel)">
              <summary>
              Create a new asset entity
              </summary>
@@ -2417,6 +2434,18 @@
             <response code="409">Conflict, concurrency error</response> 
             <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
             <returns>Newly updated asset details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AssetsController.AddAgentAsset(OpenBots.Server.ViewModel.ViewModels.AgentAssetViewModel)">
+            <summary>
+            Adds a new AgentAsset if a glboal assets exists for the given name
+            </summary>
+            <param name="request">New file to update Asset</param>
+            <response code="200">Ok, asset created and returned</response>
+            <response code="400">Bad request, when the asset value is not in proper format</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+            <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+            <returns>Newly created Asset details</returns>
         </member>
         <member name="M:OpenBots.Server.Web.AssetsController.ExportAsset(System.String)">
             <summary>

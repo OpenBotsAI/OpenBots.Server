@@ -7,7 +7,7 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
+           /* migrationBuilder.CreateTable(
                 name: "ScheduleParameters",
                 columns: table => new
                 {
@@ -28,7 +28,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ScheduleParameters", x => x.Id);
-                });
+                });*/
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

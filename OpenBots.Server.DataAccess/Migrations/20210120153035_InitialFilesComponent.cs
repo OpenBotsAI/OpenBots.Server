@@ -7,7 +7,7 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
+            /*migrationBuilder.CreateTable(
                 name: "ServerDrives",
                 columns: table => new
                 {
@@ -117,7 +117,7 @@ namespace OpenBots.Server.DataAccess.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_FileAttributes_ServerFileId",
                 table: "FileAttributes",
-                column: "ServerFileId");
+                column: "ServerFileId");*/
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

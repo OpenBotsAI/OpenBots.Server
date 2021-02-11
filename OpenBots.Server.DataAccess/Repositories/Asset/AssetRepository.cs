@@ -2,6 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OpenBots.Server.Model;
+using OpenBots.Server.Model.Core;
+using System;
+using System.Linq;
 
 namespace OpenBots.Server.DataAccess.Repositories
 {
@@ -14,6 +17,6 @@ namespace OpenBots.Server.DataAccess.Repositories
         protected override DbSet<Asset> DbTable()
         {
             return dbContext.Assets;
-        }
+        }  
     }
 }

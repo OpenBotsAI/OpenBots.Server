@@ -7,7 +7,7 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<Guid>(
+           /* migrationBuilder.AddColumn<Guid>(
                 name: "ServerDriveId",
                 table: "ServerFolders",
                 type: "uniqueidentifier",
@@ -29,7 +29,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                 name: "ServerDriveId",
                 table: "FileAttributes",
                 type: "uniqueidentifier",
-                nullable: true);
+                nullable: true);*/
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

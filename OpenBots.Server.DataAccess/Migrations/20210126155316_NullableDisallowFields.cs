@@ -6,7 +6,7 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
+           /* migrationBuilder.AlterColumn<string>(
                 name: "DisallowAllExecutionsReason",
                 table: "OrganizationSettings",
                 type: "nvarchar(max)",
@@ -20,7 +20,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                 type: "nvarchar(max)",
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
+                oldType: "nvarchar(max)");*/
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

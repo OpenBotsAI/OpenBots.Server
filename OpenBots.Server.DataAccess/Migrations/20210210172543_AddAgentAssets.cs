@@ -1,22 +1,23 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace OpenBots.Server.DataAccess.Migrations
 {
-    public partial class AddAssetPropertySizeInBytes : Migration
+    public partial class AddAgentAssets : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            /*migrationBuilder.AddColumn<long>(
-                name: "SizeInBytes",
+           /* migrationBuilder.AddColumn<Guid>(
+                name: "AgentId",
                 table: "Assets",
-                type: "bigint",
+                type: "uniqueidentifier",
                 nullable: true);*/
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "SizeInBytes",
+                name: "AgentId",
                 table: "Assets");
         }
     }

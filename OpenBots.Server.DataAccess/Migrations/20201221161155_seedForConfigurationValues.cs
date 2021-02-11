@@ -6,7 +6,7 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.InsertData(
+            /*migrationBuilder.InsertData(
                 table: "ConfigurationValues",
                 columns: new[] { "Name", "Value" },
                 values: new object[,]
@@ -18,7 +18,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                     { "App:MaxExportRecords", "100" },
                     { "App:MaxReturnRecords", "100" },
                     { "App:EnableSwagger", "true" }
-                });
+                });*/
 
         }
 

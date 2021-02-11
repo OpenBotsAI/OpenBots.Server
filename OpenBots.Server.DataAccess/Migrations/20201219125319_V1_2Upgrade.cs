@@ -7,7 +7,7 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("DELETE FROM [ConfigurationValues]", true);
+           /* migrationBuilder.Sql("DELETE FROM [ConfigurationValues]", true);
 
             migrationBuilder.DropTable(
                 name: "EmailLogs");
@@ -644,7 +644,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                     { new Guid("b00eeecd-5729-4f82-9cd2-dcfafd946965"), "", null, null, "", "A Queue has been deleted", "Queue", false, true, "Queues.QueueDeleted", null, null, null },
                     { new Guid("32d63e9d-aa6e-481f-b928-541ddf979bdf"), "", null, null, "", "A File has been deleted", "File", false, true, "Files.FileDeleted", null, null, null },
                     { new Guid("6ce0bb0e-cda1-49fa-a9e4-b67d904f826e"), "", null, null, "", "An Agent has been deleted", "Agent", false, true, "Agents.AgentDeleted", null, null, null }
-                });
+                });*/
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
