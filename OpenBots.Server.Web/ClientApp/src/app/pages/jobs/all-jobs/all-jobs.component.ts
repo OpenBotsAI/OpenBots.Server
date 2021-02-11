@@ -51,7 +51,7 @@ export class AllJobsComponent implements OnInit, OnDestroy {
   ];
   constructor(
     protected router: Router,
-    private _FileSaverService: FileSaverService,
+    private FileSaverService: FileSaverService,
     private formBuilder: FormBuilder,
     protected jobService: JobsService,
     private acroute: ActivatedRoute,
@@ -415,7 +415,7 @@ export class AllJobsComponent implements OnInit, OnDestroy {
             .split(';')[1]
             .split('=')[1]
             .replace(/\"/g, '');
-          _FileSaverService.save(data.body, fileName);
+          this.FileSaverService.save(data.body, fileName);
         });
     } else if (
       this.abc_filter == '' ||
@@ -429,7 +429,7 @@ export class AllJobsComponent implements OnInit, OnDestroy {
           .split(';')[1]
           .split('=')[1]
           .replace(/\"/g, '');
-        _FileSaverService.save(data.body, fileName);
+        this.FileSaverService.save(data.body, fileName);
       });
     }
   }

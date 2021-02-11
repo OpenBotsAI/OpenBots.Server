@@ -70,7 +70,7 @@ export class AllFilesComponent implements OnInit {
 
   constructor(
     protected fileManagerService: FileManagerService,
-    private _FileSaverService: FileSaverService,
+    private FileSaverService: FileSaverService,
     private toastrService: NbToastrService,
     private formBuilder: FormBuilder,
     private dialogService: DialogService,
@@ -343,7 +343,7 @@ export class AllFilesComponent implements OnInit {
           .split(';')[1]
           .split('=')[1]
           .replace(/\"/g, '');
-        _FileSaverService.save(data.body, fileName);
+        this.FileSaverService.save(data.body, fileName);
       });
   }
 
