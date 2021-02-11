@@ -24,11 +24,11 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
     [Authorize]
     public class UserConsentController : EntityController<UserConsent>
     {
-        readonly IUserConsentRepository repository;
-        readonly IMembershipManager membershipManager;
-        readonly IPersonRepository personRepository;
-        readonly IPersonEmailRepository personEmailRepository;
-        readonly IEmailVerificationRepository emailVerificationRepository;
+        private readonly IUserConsentRepository _repository;
+        private readonly IMembershipManager _membershipManager;
+        private readonly IPersonRepository _personRepository;
+        private readonly IPersonEmailRepository _personEmailRepository;
+        private readonly IEmailVerificationRepository _emailVerificationRepository;
 
         /// <summary>
         /// UserConsentController constructor
@@ -51,16 +51,16 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
             IEmailVerificationRepository emailVerificationRepository,
             IConfiguration configuration) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.repository = repository;
-            this.membershipManager = membershipManager;
-            this.personRepository = personRepository;
-            this.personEmailRepository = personEmailRepository;
-            this.emailVerificationRepository = emailVerificationRepository;
-            this.repository.SetContext(SecurityContext);
-            this.membershipManager.SetContext(SecurityContext);
-            this.personRepository.SetContext(SecurityContext);           
-            this.personEmailRepository.SetContext(SecurityContext);
-            this.emailVerificationRepository.SetContext(SecurityContext);
+            _repository = repository;
+            _membershipManager = membershipManager;
+            _personRepository = personRepository;
+            _personEmailRepository = personEmailRepository;
+            _emailVerificationRepository = emailVerificationRepository;
+            _repository.SetContext(SecurityContext);
+            _membershipManager.SetContext(SecurityContext);
+            _personRepository.SetContext(SecurityContext);           
+            _personEmailRepository.SetContext(SecurityContext);
+            _emailVerificationRepository.SetContext(SecurityContext);
         }
 
         /// <summary>
@@ -83,14 +83,21 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<UserConsent> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -157,7 +164,7 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
            
             try
             {
-                var userConsent = repository.Find(null, p => p.PersonId == SecurityContext.PersonId && p.UserAgreementID == value.UserAgreementID)?.Items?.FirstOrDefault();
+                var userConsent = _repository.Find(null, p => p.PersonId == SecurityContext.PersonId && p.UserAgreementID == value.UserAgreementID)?.Items?.FirstOrDefault();
                 if (userConsent != null)
                 {
                     userConsent.IsAccepted = value.IsAccepted;
@@ -207,14 +214,21 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Put(string id, [FromBody] UserConsent value)
         {
-            if (value == null && string.IsNullOrEmpty(id))
+            try
             {
-                ModelState.AddModelError("Update", "user consent details not passed");
-                return BadRequest(ModelState);
+                if (value == null && string.IsNullOrEmpty(id))
+                {
+                    ModelState.AddModelError("Update", "User consent details not passed");
+                    return BadRequest(ModelState);
+                }
+                Guid entityId = new Guid(id);
+                value.Id = entityId;
+                return await base.PutEntity(id, value).ConfigureAwait(false);
             }
-            Guid entityId = new Guid(id);
-            value.Id = entityId;
-            return await base.PutEntity(id, value).ConfigureAwait(false);
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -233,13 +247,20 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string id)
         {
-            if (string.IsNullOrEmpty(id))
+            try
             {
-                ModelState.AddModelError("Delete", "UserConsent Id not passed");
-                return BadRequest(ModelState);
-            }
+                if (string.IsNullOrEmpty(id))
+                {
+                    ModelState.AddModelError("Delete", "UserConsent Id not passed");
+                    return BadRequest(ModelState);
+                }
 
-            return await base.DeleteEntity(id);
+                return await base.DeleteEntity(id);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -261,12 +282,19 @@ namespace OpenBots.Server.WebAPI.Controllers.OrganizationApi
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<UserConsent> value)
         {
-            if (value == null && string.IsNullOrEmpty(id))
+            try
             {
-                ModelState.AddModelError("Update", "User consent details not passed");
-                return BadRequest(ModelState);
+                if (value == null && string.IsNullOrEmpty(id))
+                {
+                    ModelState.AddModelError("Update", "User consent details not passed");
+                    return BadRequest(ModelState);
+                }
+                return await base.PatchEntity(id, value);
             }
-            return await base.PatchEntity(id, value);
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

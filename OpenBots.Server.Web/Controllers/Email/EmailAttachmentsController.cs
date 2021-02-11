@@ -29,9 +29,9 @@ namespace OpenBots.Server.Web.Controllers.Email
     [Authorize]
     public class EmailAttachmentsController : EntityController<EmailAttachment>
     {
-        private readonly IBinaryObjectManager binaryObjectManager;
-        private readonly IBinaryObjectRepository binaryObjectRepository;
-        private readonly IEmailManager manager;
+        private readonly IBinaryObjectManager _binaryObjectManager;
+        private readonly IBinaryObjectRepository _binaryObjectRepository;
+        private readonly IEmailManager _manager;
 
         /// <summary>
         /// EmailAttachmentsController constuctor
@@ -54,9 +54,9 @@ namespace OpenBots.Server.Web.Controllers.Email
             IBinaryObjectManager binaryObjectManager,
             IEmailManager manager) : base (repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.binaryObjectRepository = binaryObjectRepository;
-            this.binaryObjectManager = binaryObjectManager;
-            this.manager = manager;
+            _binaryObjectRepository = binaryObjectRepository;
+            _binaryObjectManager = binaryObjectManager;
+            _manager = manager;
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace OpenBots.Server.Web.Controllers.Email
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public IActionResult Get(string emailId,
+        public async Task<IActionResult> Get(string emailId,
         [FromQuery(Name = "$filter")] string filter = "",
         [FromQuery(Name = "$orderby")] string orderBy = "",
         [FromQuery(Name = "$top")] int top = 100,
@@ -94,8 +94,7 @@ namespace OpenBots.Server.Web.Controllers.Email
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Email Attachments", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -185,17 +184,23 @@ namespace OpenBots.Server.Web.Controllers.Email
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AllEmailAttachmentsViewModel> GetView(string emailId,
+        public async Task<IActionResult> GetView(string emailId,
         [FromQuery(Name = "$filter")] string filter = "",
         [FromQuery(Name = "$orderby")] string orderBy = "",
         [FromQuery(Name = "$top")] int top = 100,
         [FromQuery(Name = "$skip")] int skip = 0)
         {
-            ODataHelper<AllEmailAttachmentsViewModel> oDataHelper = new ODataHelper<AllEmailAttachmentsViewModel>();
+            try
+            {
+                ODataHelper<AllEmailAttachmentsViewModel> oDataHelper = new ODataHelper<AllEmailAttachmentsViewModel>();
+                var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
-
-            return manager.GetEmailAttachmentsAndNames(Guid.Parse(emailId), oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
+                return Ok(_manager.GetEmailAttachmentsAndNames(Guid.Parse(emailId), oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -235,7 +240,7 @@ namespace OpenBots.Server.Web.Controllers.Email
                 foreach (var request in requests)
                 {
 
-                    var binaryObject = binaryObjectRepository.Find(null, q => q.Id == Guid.Parse(request))?.Items?.FirstOrDefault();
+                    var binaryObject = _binaryObjectRepository.Find(null, q => q.Id == Guid.Parse(request))?.Items?.FirstOrDefault();
                     if (binaryObject == null)
                     {
                         ModelState.AddModelError("Save", "No file attached");
@@ -268,8 +273,7 @@ namespace OpenBots.Server.Web.Controllers.Email
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Attach", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -319,7 +323,7 @@ namespace OpenBots.Server.Web.Controllers.Email
                         return BadRequest(ModelState);
                     }
 
-                    string organizationId = binaryObjectManager.GetOrganizationId();
+                    string organizationId = _binaryObjectManager.GetOrganizationId();
                     string apiComponent = "EmailAPI";
 
                     //add file to binary objects (create entity and put file in EmailAPI folder in Server)
@@ -334,9 +338,9 @@ namespace OpenBots.Server.Web.Controllers.Email
 
                     string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
                     //upload file to Server
-                    binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                    binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                    binaryObjectRepository.Add(binaryObject);
+                    _binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
+                    _binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
+                    _binaryObjectRepository.Add(binaryObject);
 
                     //create email attachment
                     EmailAttachment emailAttachment = new EmailAttachment()
@@ -357,8 +361,7 @@ namespace OpenBots.Server.Web.Controllers.Email
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Attach", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -399,8 +402,7 @@ namespace OpenBots.Server.Web.Controllers.Email
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Email Attachment", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -434,11 +436,11 @@ namespace OpenBots.Server.Web.Controllers.Email
                 if (existingAttachment == null) return NotFound();
 
                 string binaryObjectId = existingAttachment.BinaryObjectId.ToString();
-                var binaryObject = binaryObjectRepository.GetOne(Guid.Parse(binaryObjectId));
+                var binaryObject = _binaryObjectRepository.GetOne(Guid.Parse(binaryObjectId));
 
                 string organizationId = binaryObject.OrganizationId.ToString();
                 if (!string.IsNullOrEmpty(organizationId))
-                    organizationId = binaryObjectManager.GetOrganizationId().ToString();
+                    organizationId = _binaryObjectManager.GetOrganizationId().ToString();
 
                 if (request.file == null)
                 {
@@ -453,34 +455,26 @@ namespace OpenBots.Server.Web.Controllers.Email
                     return BadRequest(ModelState);
                 }
 
-                try
+                if (!string.IsNullOrEmpty(request.file.FileName))
+                    existingAttachment.Name = request.file.FileName;
+
+                existingAttachment.ContentType = request.file.ContentType;
+                existingAttachment.SizeInBytes = request.file.Length;
+
+                if (existingAttachment.BinaryObjectId != Guid.Empty && size > 0)
                 {
-                    if (!string.IsNullOrEmpty(request.file.FileName))
-                        existingAttachment.Name = request.file.FileName;
-
-                    existingAttachment.ContentType = request.file.ContentType;
-                    existingAttachment.SizeInBytes = request.file.Length;
-
-                    if (existingAttachment.BinaryObjectId != Guid.Empty && size > 0)
-                    {
-                        //update attachment file in OpenBots.Server.Web using relative directory
-                        string apiComponent = "EmailAPI";
-                        binaryObjectManager.Update(request.file, organizationId, apiComponent, Guid.Parse(binaryObjectId));
-                    }
-
-                    //update attachment entity
-                    await base.PutEntity(id, existingAttachment);
-                    return Ok(existingAttachment);
+                    //update attachment file in OpenBots.Server.Web using relative directory
+                    string apiComponent = "EmailAPI";
+                    _binaryObjectManager.Update(request.file, organizationId, apiComponent, Guid.Parse(binaryObjectId));
                 }
-                catch (Exception ex)
-                {
-                    return ex.GetActionResult();
-                }
+
+                //update attachment entity
+                await base.PutEntity(id, existingAttachment);
+                return Ok(existingAttachment);
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Email Attachment", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -502,7 +496,14 @@ namespace OpenBots.Server.Web.Controllers.Email
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id, [FromBody] JsonPatchDocument<EmailAttachment> request)
         {
-            return await base.PatchEntity(id, request);
+            try
+            {
+                return await base.PatchEntity(id, request);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -521,16 +522,23 @@ namespace OpenBots.Server.Web.Controllers.Email
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string emailId)
         {
-            var attachments = repository.Find(null, q => q.EmailId == Guid.Parse(emailId))?.Items;
-            if (attachments.Count != 0)
+            try
             {
-                foreach (var attachment in attachments)
+                var attachments = repository.Find(null, q => q.EmailId == Guid.Parse(emailId))?.Items;
+                if (attachments.Count != 0)
                 {
-                    repository.SoftDelete((Guid)attachment.Id);
-                    binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
+                    foreach (var attachment in attachments)
+                    {
+                        repository.SoftDelete((Guid)attachment.Id);
+                        _binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
+                    }
                 }
+                return Ok();
             }
-            return Ok();
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -549,18 +557,25 @@ namespace OpenBots.Server.Web.Controllers.Email
         [ProducesDefaultResponseType]
         public async Task<IActionResult> DeleteAttachment(string id)
         {
-            var attachment = repository.Find(null, q => q.Id == Guid.Parse(id))?.Items?.FirstOrDefault();
-            if (attachment != null)
+            try
             {
-                await base.DeleteEntity(id);
-                binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
+                var attachment = repository.Find(null, q => q.Id == Guid.Parse(id))?.Items?.FirstOrDefault();
+                if (attachment != null)
+                {
+                    await base.DeleteEntity(id);
+                    _binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
+                }
+                else
+                {
+                    ModelState.AddModelError("Delete Attachment", "Attachment could not be found");
+                    return BadRequest(ModelState);
+                }
+                return Ok();
             }
-            else
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Delete Attachment", "Attachment could not be found");
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
-            return Ok();
         }
     }
 }

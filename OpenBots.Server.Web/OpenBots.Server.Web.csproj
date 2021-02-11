@@ -29,6 +29,7 @@
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <Content Remove="$(SpaRoot)**" />
+    <Content Remove="Files\LocalTestFolder\LocalSubFolder\LocalParentFolder2\LocalChildFolder3.1.1\**" />
     <Content Remove="logs\**" />
     <None Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
@@ -36,11 +37,14 @@
 
 
   <ItemGroup>
+    <Compile Remove="Files\LocalTestFolder\LocalSubFolder\LocalParentFolder2\LocalChildFolder3.1.1\**" />
     <Compile Remove="logs\**" />
     <Compile Remove="Uploads\**" />
     <Content Remove="Uploads\**" />
+    <EmbeddedResource Remove="Files\LocalTestFolder\LocalSubFolder\LocalParentFolder2\LocalChildFolder3.1.1\**" />
     <EmbeddedResource Remove="logs\**" />
     <EmbeddedResource Remove="Uploads\**" />
+    <None Remove="Files\LocalTestFolder\LocalSubFolder\LocalParentFolder2\LocalChildFolder3.1.1\**" />
     <None Remove="logs\**" />
     <None Remove="Uploads\**" />
   </ItemGroup>
@@ -157,7 +161,14 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="BinaryObjects\" />
-    <Folder Include="Files\Folder1\" />
+    <Folder Include="Files\LocalTestFolder\LocalSubFolder\LocalParentFolder1\LocalChildFolder1.1\" />
+    <Folder Include="Files\LocalTestFolder\LocalSubFolder\LocalParentFolder1\LocalChildFolder1.2\" />
+    <Folder Include="Files\LocalTestFolder\LocalSubFolder\LocalParentFolder2\LocalChildFolder2.1\" />
+    <Folder Include="Files\LocalTestFolder\LocalSubFolder\LocalParentFolder2\LocalChildFolder2.2\" />
+    <Folder Include="Files\LocalTestFolder\LocalSubFolder\LocalParentFolder2\LocalChildFolder3.1\LocalChildFolder3.1.2\" />
+    <Folder Include="Files\LocalTestFolder\LocalSubFolder\LocalParentFolder3\LocalChildFolder3.1\LocalChildFolder3.1.1\" />
+    <Folder Include="Files\LocalTestFolder\LocalSubFolder\LocalParentFolder3\LocalChildFolder3.1\LocalChildFolder3.1.2\" />
+    <Folder Include="Files\LocalTestFolder\LocalSubFolder\LocalParentFolder3\LocalChildFolder3.2\" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptTarget>ES2020</TypeScriptTarget>

@@ -27,7 +27,7 @@ namespace OpenBots.Server.WebAPI.Controllers
     [Authorize]
     public class EmailVerificationsController : EntityController<EmailVerification>
     {
-        private readonly IEmailManager emailSender;
+        private readonly IEmailManager _emailSender;
 
         /// <summary>
         /// EmailVerificationsController constructor
@@ -46,7 +46,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             IConfiguration configuration,
             IEmailManager emailSender) : base(repository,  userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.emailSender = emailSender;
+            _emailSender = emailSender;
         }
 
         /// <summary>
@@ -72,14 +72,21 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<EmailVerification> Get(
+        public async Task<IActionResult> Get(
             [FromRoute] string personId,
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0)
         {
-            return base.GetMany(personId);
+            try
+            {
+                return Ok(base.GetMany(personId));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -104,7 +111,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Get(string id)
         {
-            return await base.GetEntity(id);
+            try
+            {
+                return await base.GetEntity(id);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -128,19 +142,20 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Post(string personId, [FromBody] EmailVerification value)
         {
-            value.PersonId = new Guid(personId);
-            //check the email address in verification email table
-            var emailVerification = repository.Find(null, p=> p.Address.Equals(value.Address, StringComparison.OrdinalIgnoreCase))?.Items?.FirstOrDefault();
-            
-            //if not null then email address already exists
-            if (emailVerification != null) {
-                ModelState.AddModelError("EmailAddress", "email address already in use");
-                return BadRequest(ModelState);
-            }
-
-            value.IsVerified = false;
             try
             {
+                value.PersonId = new Guid(personId);
+                //check the email address in verification email table
+                var emailVerification = repository.Find(null, p=> p.Address.Equals(value.Address, StringComparison.OrdinalIgnoreCase))?.Items?.FirstOrDefault();
+            
+                //if not null then email address already exists
+                if (emailVerification != null) {
+                    ModelState.AddModelError("EmailAddress", "email address already in use");
+                    return BadRequest(ModelState);
+                }
+
+                value.IsVerified = false;
+
                 //resending 
                 byte[] time = BitConverter.GetBytes(DateTime.UtcNow.ToBinary());
                 byte[] key = applicationUser.PersonId.ToByteArray();
@@ -171,7 +186,7 @@ namespace OpenBots.Server.WebAPI.Controllers
 
                 var subject = "Confirm your email address at " + Constants.PRODUCT;
 
-                bool isEmailAllowed = emailSender.IsEmailAllowed();
+                bool isEmailAllowed = _emailSender.IsEmailAllowed();
                 if (isEmailAllowed)
                 {
                     EmailMessage emailMessage = new EmailMessage();
@@ -179,18 +194,19 @@ namespace OpenBots.Server.WebAPI.Controllers
                     emailMessage.To.Add(address);
                     emailMessage.Body = emailBody;
                     emailMessage.Subject = subject;
-                    await emailSender.SendEmailAsync(emailMessage, null, null, "Outgoing").ConfigureAwait(false);
+                    await _emailSender.SendEmailAsync(emailMessage, null, null, "Outgoing").ConfigureAwait(false);
 
                     value.IsVerificationEmailSent = true;
                 }
                 else value.IsVerificationEmailSent = false;
+
+                var verificationEmail = await base.PostEntity(value).ConfigureAwait(false);
+                return verificationEmail;
             }
             catch (Exception ex)
             {
                 return ex.GetActionResult();
             }
-            var verificationEmail = await base.PostEntity(value).ConfigureAwait(false);
-            return verificationEmail;
         }
 
         /// <summary>
@@ -215,8 +231,15 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Put(string personId, string id, [FromBody] EmailVerification value)
         {
-            value.PersonId = new Guid(personId);
-            return await base.PutEntity(id, value);
+            try
+            {
+                value.PersonId = new Guid(personId);
+                return await base.PutEntity(id, value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -237,7 +260,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string id)
         {
-            return await base.DeleteEntity(id);
+            try
+            {
+                return await base.DeleteEntity(id);
+            }
+            catch (Exception ex) 
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -258,7 +288,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id, [FromBody]JsonPatchDocument<EmailVerification> value)
         {
-            return await base.PatchEntity(id, value);
+            try
+            {
+                return await base.PatchEntity(id, value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

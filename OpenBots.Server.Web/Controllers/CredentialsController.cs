@@ -27,10 +27,10 @@ namespace OpenBots.Server.Web
     [ApiController]
     [Authorize]
     public class CredentialsController : EntityController<Credential>
-    { 
-        ICredentialManager credentialManager;
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IWebhookPublisher webhookPublisher;
+    {
+        private readonly ICredentialManager _credentialManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IWebhookPublisher _webhookPublisher;
 
         /// <summary>
         /// CredentialsController constructor
@@ -51,10 +51,10 @@ namespace OpenBots.Server.Web
             IHttpContextAccessor httpContextAccessor,
             IWebhookPublisher webhookPublisher) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.httpContextAccessor = httpContextAccessor;
-            this.credentialManager = credentialManager;
-            this.credentialManager.SetContext(SecurityContext);
-            this.webhookPublisher = webhookPublisher;
+            _httpContextAccessor = httpContextAccessor;
+            _credentialManager = credentialManager;
+            _credentialManager.SetContext(SecurityContext);
+            _webhookPublisher = webhookPublisher;
         }
 
         /// <summary>
@@ -77,14 +77,21 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<Credential> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex) 
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -104,10 +111,17 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public int? Count(
+        public async Task<IActionResult> Count(
             [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                return Ok(base.Count());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -139,7 +153,7 @@ namespace OpenBots.Server.Web
                 var existingCredential = repository.GetOne(entityId);
                 if (existingCredential == null) return NotFound();
 
-                if (credentialManager.ValidateRetrievalDate(existingCredential))
+                if (_credentialManager.ValidateRetrievalDate(existingCredential))
                 {
                     return await base.GetEntity(id);
                 }
@@ -256,7 +270,7 @@ namespace OpenBots.Server.Web
 
             try
             {
-                applicationUser = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
+                applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
 
                 if (request.PasswordSecret != null && applicationUser != null)
                 {
@@ -270,14 +284,14 @@ namespace OpenBots.Server.Web
                     return BadRequest(ModelState);
                 }
 
-                if (!credentialManager.ValidateStartAndEndDates(request))
+                if (!_credentialManager.ValidateStartAndEndDates(request))
                 {
                     ModelState.AddModelError("Credential", "Start and End Date are not valid");
                     return BadRequest(ModelState);
                 }
 
                 var result = await base.PostEntity(request);
-                await webhookPublisher.PublishAsync("Credentials.NewCredentialCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Credentials.NewCredentialCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
                 return result;
             }
             catch (Exception ex)
@@ -327,7 +341,7 @@ namespace OpenBots.Server.Web
                     return BadRequest(ModelState);
                 }
 
-                if (!credentialManager.ValidateStartAndEndDates(request))
+                if (!_credentialManager.ValidateStartAndEndDates(request))
                 {
                     ModelState.AddModelError("Credential", "Start and End Date are not valid");
                     return BadRequest(ModelState);
@@ -343,20 +357,19 @@ namespace OpenBots.Server.Web
                 existingCredential.PasswordHash = request.PasswordHash;
                 existingCredential.Certificate = request.Certificate;
 
-                applicationUser = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
+                applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
 
                 if (request.PasswordSecret != null && applicationUser != null)
                 {
                     existingCredential.PasswordHash = userManager.PasswordHasher.HashPassword(applicationUser, request.PasswordSecret);
                 }
 
-                await webhookPublisher.PublishAsync("Credentials.CredentialUpdated", existingCredential.Id.ToString(), existingCredential.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Credentials.CredentialUpdated", existingCredential.Id.ToString(), existingCredential.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingCredential);
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Credential", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -376,15 +389,22 @@ namespace OpenBots.Server.Web
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string id)
         {
-            var existingCredential = repository.GetOne(Guid.Parse(id));
-            if (existingCredential == null)
+            try
             {
-                ModelState.AddModelError("Credential", "Credential cannot be found or does not exist.");
-                return NotFound(ModelState);
-            }
+                var existingCredential = repository.GetOne(Guid.Parse(id));
+                if (existingCredential == null)
+                {
+                    ModelState.AddModelError("Credential", "Credential cannot be found or does not exist.");
+                    return NotFound(ModelState);
+                }
 
-            await webhookPublisher.PublishAsync("Credentials.CredentialDeleted", existingCredential.Id.ToString(), existingCredential.Name).ConfigureAwait(false);
-            return await base.DeleteEntity(id);
+                await _webhookPublisher.PublishAsync("Credentials.CredentialDeleted", existingCredential.Id.ToString(), existingCredential.Name).ConfigureAwait(false);
+                return await base.DeleteEntity(id);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -406,58 +426,65 @@ namespace OpenBots.Server.Web
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<Credential> request)
         {
-            Guid entityId = new Guid(id);
-            var existingCredential = repository.GetOne(entityId);
-            if (existingCredential == null)
+            try
             {
-                ModelState.AddModelError("Credential", "Credential cannot be found or does not exist.");
-                return NotFound(ModelState);
-            }
+                Guid entityId = new Guid(id);
+                var existingCredential = repository.GetOne(entityId);
+                if (existingCredential == null)
+                {
+                    ModelState.AddModelError("Credential", "Credential cannot be found or does not exist.");
+                    return NotFound(ModelState);
+                }
 
-            for (int i = 0; i < request.Operations.Count; i++)
+                for (int i = 0; i < request.Operations.Count; i++)
+                {
+                    //verify that credential name is not taken
+                    if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")
+                    {
+                        var credential = repository.Find(null, d => d.Name.ToLower(null) == request.Operations[i].value.ToString().ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
+                        if (credential != null)
+                        {
+                            ModelState.AddModelError("Credential", "Credential Name Already Exists");
+                            return BadRequest(ModelState);
+                        }
+                    }
+
+                    //generate new password hash
+                    if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/passwordsecret")
+                    {
+                        applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
+
+                        var passwordHash = userManager.PasswordHasher.HashPassword(applicationUser, request.Operations[i].value.ToString());
+                        request.Replace(e => e.PasswordHash, passwordHash);
+                    }
+
+                    //verify start-end date range
+                    if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/startdate"
+                        | request.Operations[i].path.ToString().ToLower() == "/enddate")
+                    {
+                        if (request.Operations[i].path.ToString().ToLower() == "/startdate")
+                        {
+                            existingCredential.StartDate = Convert.ToDateTime(request.Operations[i].value.ToString());
+                        }
+                        else
+                        {
+                            existingCredential.EndDate = Convert.ToDateTime(request.Operations[i].value.ToString());
+                        }
+
+                        if (!_credentialManager.ValidateStartAndEndDates(existingCredential))
+                        {
+                            ModelState.AddModelError("Credential", "Start and End Date are not valid. End Date must be after the Start Date");
+                            return BadRequest(ModelState);
+                        }
+                    }
+                }
+                await _webhookPublisher.PublishAsync("Credentials.CredentialUpdated", existingCredential.Id.ToString(), existingCredential.Name).ConfigureAwait(false);
+                return await base.PatchEntity(id, request);
+            }
+            catch (Exception ex)
             {
-                //verify that credential name is not taken
-                if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")
-                {
-                    var credential = repository.Find(null, d => d.Name.ToLower(null) == request.Operations[i].value.ToString().ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
-                    if (credential != null)
-                    {
-                        ModelState.AddModelError("Credential", "Credential Name Already Exists");
-                        return BadRequest(ModelState);
-                    }
-                }
-                   
-                //generate new password hash
-                if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/passwordsecret" )
-                {
-                    applicationUser = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
-
-                    var passwordHash = userManager.PasswordHasher.HashPassword(applicationUser, request.Operations[i].value.ToString());
-                    request.Replace(e => e.PasswordHash, passwordHash);
-                }
-
-                //verify start-end date range
-                if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/startdate" 
-                    | request.Operations[i].path.ToString().ToLower() == "/enddate")
-                {
-                    if (request.Operations[i].path.ToString().ToLower() == "/startdate")
-                    {
-                        existingCredential.StartDate = Convert.ToDateTime(request.Operations[i].value.ToString());
-                    }
-                    else
-                    {
-                        existingCredential.EndDate = Convert.ToDateTime(request.Operations[i].value.ToString());
-                    }
-
-                    if (!credentialManager.ValidateStartAndEndDates(existingCredential))
-                    {
-                        ModelState.AddModelError("Credential", "Start and End Date are not valid. End Date must be after the Start Date");
-                        return BadRequest(ModelState);
-                    }
-                }
+                return ex.GetActionResult();
             }
-            await webhookPublisher.PublishAsync("Credentials.CredentialUpdated", existingCredential.Id.ToString(), existingCredential.Name).ConfigureAwait(false);
-            return await base.PatchEntity(id, request);
         }
 
         /// <summary>
@@ -477,17 +504,24 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public List<CredentialsLookup> GetLookup()
+        public async Task<IActionResult> GetLookup()
         {
-            var credentialList = repository.Find(null, x => x.IsDeleted == false && x.Provider == "AD"); //"AD" is to get all active directory credentials
-            var credentialLookup = from a in credentialList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
-                              select new CredentialsLookup
-                              {
-                                  CredentialId = (a == null || a.Id == null) ? Guid.Empty : a.Id.Value,
-                                  CredentialName = a?.Name
-                              };
+            try
+            {
+                var credentialList = repository.Find(null, x => x.IsDeleted == false && x.Provider == "AD"); //"AD" is to get all active directory credentials
+                var credentialLookup = from a in credentialList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
+                                       select new CredentialsLookup
+                                       {
+                                           CredentialId = (a == null || a.Id == null) ? Guid.Empty : a.Id.Value,
+                                           CredentialName = a?.Name
+                                       };
 
-            return credentialLookup.ToList();
+                return Ok(credentialLookup.ToList());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

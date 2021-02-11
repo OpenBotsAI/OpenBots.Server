@@ -27,7 +27,7 @@ export class GetAutomationIdComponent implements OnInit {
   constructor(
     private acroute: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private _FileSaverService: FileSaverService,
+    private FileSaverService: FileSaverService,
     protected automationService: AutomationService,
     protected router: Router
   ) {
@@ -79,7 +79,7 @@ export class GetAutomationIdComponent implements OnInit {
           .split(';')[1]
           .split('=')[1]
           .replace(/\"/g, '');
-        this._FileSaverService.save(data.body, fileName);
+        this.FileSaverService.save(data.body, fileName);
       });
   }
 

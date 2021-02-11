@@ -8,13 +8,17 @@ namespace OpenBots.Server.Business
 {
     public interface IAgentManager : IManager
     {
+        void CreateAgentUserAccount(CreateAgentViewModel request);
+
+        void DeleteAgentDependencies(Agent agent);
+
+        Agent UpdateAgent(string id, Agent request);
+
+        void UpdateAgentName(string oldName, string newName);
+
         AgentViewModel GetAgentDetails(AgentViewModel agentView);
         
         bool CheckReferentialIntegrity(string id);
-
-        IEnumerable<AgentHeartbeat> GetAgentHeartbeats(Guid agentId);
-
-        void DeleteExistingHeartbeats(Guid agentId);
 
         Agent GetConnectAgent(string agentId, string requestIp, ConnectAgentViewModel request);
     }

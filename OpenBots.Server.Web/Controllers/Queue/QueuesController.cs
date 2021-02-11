@@ -30,8 +30,8 @@ namespace OpenBots.Server.Web.Controllers
     [FeatureGate(MyFeatureFlags.Queues)]
     public class QueuesController : EntityController<QueueModel>
     {
-        private readonly IQueueManager queueManager;
-        private readonly IWebhookPublisher webhookPublisher;
+        private readonly IQueueManager _queueManager;
+        private readonly IWebhookPublisher _webhookPublisher;
         /// <summary>
         /// QueuesController constructor
         /// </summary>
@@ -51,8 +51,8 @@ namespace OpenBots.Server.Web.Controllers
             IConfiguration configuration, 
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration) 
         {
-            this.queueManager = queueManager;
-            this.webhookPublisher = webhookPublisher;
+            _queueManager = queueManager;
+            _webhookPublisher = webhookPublisher;
         }
 
         /// <summary>
@@ -72,14 +72,21 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<QueueModel> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -99,10 +106,17 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<int?> GetCount(
+        public async Task<IActionResult> GetCount(
         [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                return Ok(base.Count());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -173,7 +187,7 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 var result = await base.PostEntity(request);
-                await webhookPublisher.PublishAsync("Queues.NewQueueCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Queues.NewQueueCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
                 return result;
             }
             catch (Exception ex)
@@ -224,13 +238,12 @@ namespace OpenBots.Server.Web.Controllers
                 existingQueue.Name = request.Name;
                 existingQueue.MaxRetryCount = request.MaxRetryCount;
 
-                await webhookPublisher.PublishAsync("Queues.QueueUpdated", existingQueue.Id.ToString(), existingQueue.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Queues.QueueUpdated", existingQueue.Id.ToString(), existingQueue.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingQueue);
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Queue", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -250,18 +263,25 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Delete(string id)
         {
-            Guid entityId = new Guid(id);
-            var existingQueue = repository.GetOne(entityId);
-            if (existingQueue == null) return NotFound();
-
-            bool lockedChildExists = queueManager.CheckReferentialIntegrity(id);
-            if (lockedChildExists)
+            try
             {
-                ModelState.AddModelError("Delete Agent", "Referential Integrity in QueueItems table, please remove any locked items associated with this queue first");
-                return BadRequest(ModelState);
+                Guid entityId = new Guid(id);
+                var existingQueue = repository.GetOne(entityId);
+                if (existingQueue == null) return NotFound();
+
+                bool lockedChildExists = _queueManager.CheckReferentialIntegrity(id);
+                if (lockedChildExists)
+                {
+                    ModelState.AddModelError("Delete Agent", "Referential Integrity in QueueItems table, please remove any locked items associated with this queue first");
+                    return BadRequest(ModelState);
+                }
+                await _webhookPublisher.PublishAsync("Queues.QueueDeleted", existingQueue.Id.ToString(), existingQueue.Name).ConfigureAwait(false);
+                return await base.DeleteEntity(id);
             }
-            await webhookPublisher.PublishAsync("Queues.QueueDeleted", existingQueue.Id.ToString(), existingQueue.Name).ConfigureAwait(false);
-            return await base.DeleteEntity(id);
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -282,26 +302,33 @@ namespace OpenBots.Server.Web.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<QueueModel> request)
-        {           
-            Guid entityId = new Guid(id);
-
-            var existingQueue = repository.GetOne(entityId);
-            if (existingQueue == null) return NotFound();
-
-            for (int i = 0; i < request.Operations.Count; i++)
+        {
+            try
             {
-                if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")
+                Guid entityId = new Guid(id);
+
+                var existingQueue = repository.GetOne(entityId);
+                if (existingQueue == null) return NotFound();
+
+                for (int i = 0; i < request.Operations.Count; i++)
                 {
-                    var queue = repository.Find(null, d => d.Name.ToLower(null) == request.Operations[i].value.ToString().ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
-                    if (queue != null)
+                    if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")
                     {
-                        ModelState.AddModelError("Queue", "Queue Name Already Exists");
-                        return BadRequest(ModelState);
+                        var queue = repository.Find(null, d => d.Name.ToLower(null) == request.Operations[i].value.ToString().ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
+                        if (queue != null)
+                        {
+                            ModelState.AddModelError("Queue", "Queue Name Already Exists");
+                            return BadRequest(ModelState);
+                        }
                     }
                 }
+                await _webhookPublisher.PublishAsync("Queues.QueueUpdated", existingQueue.Id.ToString(), existingQueue.Name).ConfigureAwait(false);
+                return await base.PatchEntity(id, request);
             }
-            await webhookPublisher.PublishAsync("Queues.QueueUpdated", existingQueue.Id.ToString(), existingQueue.Name).ConfigureAwait(false);
-            return await base.PatchEntity(id, request);
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

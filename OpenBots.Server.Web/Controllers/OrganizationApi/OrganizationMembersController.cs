@@ -33,11 +33,11 @@ namespace OpenBots.Server.WebAPI.Controllers
     public class OrganizationMembersController : EntityController<OrganizationMember>
     {
 
-        IMembershipManager membershipManager;
-        readonly ApplicationIdentityUserManager userManager;
-        readonly IPersonRepository personRepository;
-        readonly IEmailManager emailSender;
-        readonly IAccessRequestsManager accessRequestManager;
+        private readonly IMembershipManager _membershipManager;
+        private readonly  ApplicationIdentityUserManager _userManager;
+        private readonly IPersonRepository _personRepository;
+        private readonly IEmailManager _emailSender;
+        private readonly IAccessRequestsManager _accessRequestManager;
 
         /// <summary>
         /// OrganizationMembersController constructor
@@ -60,14 +60,14 @@ namespace OpenBots.Server.WebAPI.Controllers
             IConfiguration configuration,
             IEmailManager emailSender) : base(repository,  userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.membershipManager = membershipManager;
-            this.userManager = userManager;
-            this.personRepository = personRepository;
-            this.emailSender = emailSender;
-            this.accessRequestManager = accessRequestManager;
-            this.membershipManager.SetContext(SecurityContext);
-            this.personRepository.SetContext(SecurityContext);
-            this.accessRequestManager.SetContext(SecurityContext);
+            _membershipManager = membershipManager;
+            _userManager = userManager;
+            _personRepository = personRepository;
+            _emailSender = emailSender;
+            _accessRequestManager = accessRequestManager;
+            _membershipManager.SetContext(SecurityContext);
+            _personRepository.SetContext(SecurityContext);
+            _accessRequestManager.SetContext(SecurityContext);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                     newNode = new OrderByNode<TeamMemberViewModel>();
 
                 Guid orgId = Guid.Parse(organizationId);
-                var result =  membershipManager.GetPeopleInOrganization(orgId, newNode.PropertyName, newNode.Direction, skip, top);                
+                var result =  _membershipManager.GetPeopleInOrganization(orgId, newNode.PropertyName, newNode.Direction, skip, top);                
 
                 return Ok(result);
             }
@@ -145,14 +145,21 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
         [Produces("application/json")]
-        public PaginatedList<OrganizationMember> Get(
+        public async Task<IActionResult> Get(
             [FromRoute] string organizationId,
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0)
         {
-            return base.GetMany(organizationId);
+            try
+            {
+                return Ok(base.GetMany(organizationId));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -172,9 +179,16 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
-        public async Task<AspNetUsers> GetUser(string personId)
+        public async Task<IActionResult> GetUser(string personId)
         {
-            return await membershipManager.GetAspUser(personId);
+            try
+            {
+                return Ok(await _membershipManager.GetAspUser(personId));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -199,7 +213,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Get(string organizationMemberId)
         {
-            return await base.GetEntity(organizationMemberId);
+            try
+            {
+                return await base.GetEntity(organizationMemberId);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -223,8 +244,15 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Post(string organizationId, [FromBody] OrganizationMember value)
         {
-            value.OrganizationId = new Guid(organizationId);
-            return await base.PostEntity(value);
+            try
+            {
+                value.OrganizationId = new Guid(organizationId);
+                return await base.PostEntity(value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -252,8 +280,15 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Put(string organizationId, string organizationMemberId, [FromBody] OrganizationMember value)
         {
-            value.OrganizationId = new Guid(organizationId);
-            return await base.PutEntity(organizationMemberId, value);
+            try
+            {
+                value.OrganizationId = new Guid(organizationId);
+                return await base.PutEntity(organizationMemberId, value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -292,7 +327,7 @@ namespace OpenBots.Server.WebAPI.Controllers
 
             try
             {
-                bool IsEmailAllowed = emailSender.IsEmailAllowed();
+                bool IsEmailAllowed = _emailSender.IsEmailAllowed();
 
                 var organizationMember = repository.Find(null, a => a.PersonId == SecurityContext.PersonId && a.OrganizationId == Guid.Parse(organizationId))?.Items.FirstOrDefault();
                 if (organizationMember == null)
@@ -301,7 +336,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                 }
 
                 //this is to check if the user is already in the system and where is part of the organization
-                teamMember = membershipManager.InviteUser(value, SecurityContext);
+                teamMember = _membershipManager.InviteUser(value, SecurityContext);
                 if (teamMember == null)
                 {
                     user.UserName = value.Email;
@@ -325,7 +360,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                         }
                     }
 
-                    var loginResult = await userManager.CreateAsync(user, passwordString).ConfigureAwait(false);
+                    var loginResult = await _userManager.CreateAsync(user, passwordString).ConfigureAwait(false);
 
                     if (!loginResult.Succeeded)
                     {
@@ -355,17 +390,17 @@ namespace OpenBots.Server.WebAPI.Controllers
                             Name = value.Name,
                             EmailVerifications = emailIds
                         };
-                        var person = personRepository.Add(newPerson);
+                        var person = _personRepository.Add(newPerson);
 
                         if (!value.SkipEmailVerification)
                         {
                             if (IsEmailAllowed)
                             {
-                                string code = await userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
+                                string code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
                                 EmailMessage emailMessage = new EmailMessage();
                                 emailMessage.Body = SendConfirmationEmail(code, user.Id, passwordString, "en");
                                 emailMessage.Subject = "Confirm your account at " + Constants.PRODUCT;
-                                await emailSender.SendEmailAsync(emailMessage, null, null, "Outgoing").ConfigureAwait(false);
+                                await _emailSender.SendEmailAsync(emailMessage, null, null, "Outgoing").ConfigureAwait(false);
                             }
                             else
                             {
@@ -377,10 +412,10 @@ namespace OpenBots.Server.WebAPI.Controllers
                         //update the user 
                         if (person != null)
                         {
-                            var registeredUser = userManager.FindByNameAsync(user.UserName).Result;
+                            var registeredUser = _userManager.FindByNameAsync(user.UserName).Result;
                             registeredUser.PersonId = person.Id.GetValueOrDefault();
                             registeredUser.ForcedPasswordChange = true;
-                            await userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
+                            await _userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
 
                             //add person to organization only if you are admin or add it to access request table
                             if (isRequestingUserAdministrator)
@@ -403,7 +438,7 @@ namespace OpenBots.Server.WebAPI.Controllers
                                     AccessRequestedOn = DateTime.UtcNow
                                 };
 
-                                accessRequestManager.AddAccessRequest(accessRequest);
+                                _accessRequestManager.AddAccessRequest(accessRequest);
                             }
                         }
                     }
@@ -414,7 +449,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                throw ex;
+                return ex.GetActionResult();
             }
         }
 
@@ -437,25 +472,33 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Delete(string organizationId, string organizationMemberId)
         {
-            //check if the logged in user is member of the organization, do not allow self deletion from organization
-            var orgId = new Guid(organizationId);
-            var orgMemberId = new Guid(organizationMemberId);
-
-            var orgmem = membershipManager.GetOrganizationMember(orgId, SecurityContext.PersonId)?.Items?.FirstOrDefault();
-            if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
+            try
             {
-                ModelState.AddModelError("Delete", "Remove from organization failed, administrator of an organization can only remove members");
-                return BadRequest(ModelState);
-            }
+                //check if the logged in user is member of the organization, do not allow self deletion from organization
+                var orgId = new Guid(organizationId);
+                var orgMemberId = new Guid(organizationMemberId);
 
-            var orgMem = repository.Find(null, p => p.OrganizationId == orgId && p.Id == orgMemberId)?.Items?.FirstOrDefault();
-            
-            //if member is the logged in user, do not delete
-            if (orgMem != null && orgMem.PersonId == SecurityContext.PersonId) {
-                ModelState.AddModelError("Delete", "cannot remove from the organization");
-                return BadRequest(ModelState);
+                var orgmem = _membershipManager.GetOrganizationMember(orgId, SecurityContext.PersonId)?.Items?.FirstOrDefault();
+                if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
+                {
+                    ModelState.AddModelError("Delete", "Remove from organization failed, administrator of an organization can only remove members");
+                    return BadRequest(ModelState);
+                }
+
+                var orgMem = repository.Find(null, p => p.OrganizationId == orgId && p.Id == orgMemberId)?.Items?.FirstOrDefault();
+
+                //if member is the logged in user, do not delete
+                if (orgMem != null && orgMem.PersonId == SecurityContext.PersonId)
+                {
+                    ModelState.AddModelError("Delete", "cannot remove from the organization");
+                    return BadRequest(ModelState);
+                }
+                return await base.DeleteEntity(organizationMemberId);
             }
-            return await base.DeleteEntity(organizationMemberId);
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -476,7 +519,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string organizationMemberId, [FromBody]JsonPatchDocument<OrganizationMember> value)
         {
-            return await base.PatchEntity(organizationMemberId, value);
+            try
+            {
+                return await base.PatchEntity(organizationMemberId, value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -500,15 +550,11 @@ namespace OpenBots.Server.WebAPI.Controllers
         {      
             try
            {
-                return await membershipManager.UpdateOrganizationMember(request, personId, organizationId);
-            }
-            catch (UnauthorizedAccessException unauthorized)
-            {
-                return Unauthorized("Only Admins of this organization can update existing users");
+                return await _membershipManager.UpdateOrganizationMember(request, personId, organizationId);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return ex.GetActionResult();
             }
         }
 
@@ -525,7 +571,7 @@ namespace OpenBots.Server.WebAPI.Controllers
 
             RandomPassword randomPass = new RandomPassword();
             string passwordString = randomPass.GenerateRandomPassword();
-            var loginResult = await userManager.CreateAsync(user, passwordString).ConfigureAwait(false);
+            var loginResult = await _userManager.CreateAsync(user, passwordString).ConfigureAwait(false);
 
             if (!loginResult.Succeeded)
             {
@@ -549,16 +595,16 @@ namespace OpenBots.Server.WebAPI.Controllers
                     Name = signupModel.Name,
                     EmailVerifications = emailIds
                 };
-                var person = personRepository.Add(newPerson);
+                var person = _personRepository.Add(newPerson);
 
-                bool isEmailAllowed = emailSender.IsEmailAllowed();
+                bool isEmailAllowed = _emailSender.IsEmailAllowed();
                 if (isEmailAllowed)
                 {
-                    string code = await userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
+                    string code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
                     EmailMessage emailMessage = new EmailMessage();
                     emailMessage.Body = SendConfirmationEmail(code, user.Id, passwordString, "en");
                     emailMessage.Subject = "Confirm your account at " + Constants.PRODUCT;
-                    await emailSender.SendEmailAsync(emailMessage, null, null, "Outgoing").ConfigureAwait(false);
+                    await _emailSender.SendEmailAsync(emailMessage, null, null, "Outgoing").ConfigureAwait(false);
                 }
                 else
                 {
@@ -569,10 +615,10 @@ namespace OpenBots.Server.WebAPI.Controllers
                 //Update the user 
                 if (person != null)
                 {
-                    var registeredUser = userManager.FindByNameAsync(user.UserName).Result;
+                    var registeredUser = _userManager.FindByNameAsync(user.UserName).Result;
                     registeredUser.PersonId = (Guid)person.Id;
                     registeredUser.ForcedPasswordChange = true;
-                    await userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
+                    await _userManager.UpdateAsync(registeredUser).ConfigureAwait(false);
                 }
                 result = Ok();
             }

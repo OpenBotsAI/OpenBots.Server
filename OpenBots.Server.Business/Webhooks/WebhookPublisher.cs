@@ -14,12 +14,12 @@ namespace OpenBots.Server.Web.Webhooks
 {
     public class WebhookPublisher : IWebhookPublisher
     {
-        private readonly IIntegrationEventRepository eventRepository;
-        private readonly IIntegrationEventLogRepository eventLogRepository;
-        private readonly IIntegrationEventSubscriptionRepository eventSubscriptionRepository;
-        private readonly IIntegrationEventSubscriptionAttemptRepository attemptRepository;
-        private readonly IBackgroundJobClient backgroundJobClient;
-        private readonly IQueueItemRepository queueItemRepository;
+        private readonly IIntegrationEventRepository _eventRepository;
+        private readonly IIntegrationEventLogRepository _eventLogRepository;
+        private readonly IIntegrationEventSubscriptionRepository _eventSubscriptionRepository;
+        private readonly IIntegrationEventSubscriptionAttemptRepository _attemptRepository;
+        private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly IQueueItemRepository _queueItemRepository;
         private IHubContext<NotificationHub> _hub;
 
         public WebhookPublisher(
@@ -31,12 +31,12 @@ namespace OpenBots.Server.Web.Webhooks
         IQueueItemRepository queueItemRepository,
         IHubContext<NotificationHub> hub)
         {
-            this.eventRepository = eventRepository;
-            this.eventLogRepository = eventLogRepository;
-            this.eventSubscriptionRepository = eventSubscriptionRepository;
-            this.backgroundJobClient = backgroundJobClient;
-            this.queueItemRepository = queueItemRepository;
-            attemptRepository = integrationEventSubscriptionAttemptRepository;
+            _eventRepository = eventRepository;
+            _eventLogRepository = eventLogRepository;
+            _eventSubscriptionRepository = eventSubscriptionRepository;
+            _backgroundJobClient = backgroundJobClient;
+            _queueItemRepository = queueItemRepository;
+            _attemptRepository = integrationEventSubscriptionAttemptRepository;
             _hub = hub;
         }
 
@@ -50,7 +50,7 @@ namespace OpenBots.Server.Web.Webhooks
         public async Task PublishAsync(string integrationEventName, string entityId = "", string entityName = "")
         {
             //get all subscriptions for the event
-            var eventSubscriptions = eventSubscriptionRepository.Find(0, 1).Items?.
+            var eventSubscriptions = _eventSubscriptionRepository.Find(0, 1).Items?.
                 Where(s => s.IntegrationEventName == integrationEventName || s.EntityID == Guid.Parse(entityId)); 
 
             if (eventSubscriptions == null)
@@ -59,7 +59,7 @@ namespace OpenBots.Server.Web.Webhooks
             }
 
             //get current integration event
-            var integrationEvent = eventRepository.Find(0, 1).Items?.Where(e => e.Name == integrationEventName).FirstOrDefault();
+            var integrationEvent = _eventRepository.Find(0, 1).Items?.Where(e => e.Name == integrationEventName).FirstOrDefault();
 
             if (integrationEvent == null) return;
             WebhookPayload payload = CreatePayload(integrationEvent, entityId, entityName);
@@ -77,7 +77,7 @@ namespace OpenBots.Server.Web.Webhooks
                 Status = "",
                 SHA256Hash = ""
             };
-            eventLog = eventLogRepository.Add(eventLog);
+            eventLog = _eventLogRepository.Add(eventLog);
 
 
             //get subscriptions that must receive webhook
@@ -105,7 +105,7 @@ namespace OpenBots.Server.Web.Webhooks
                 {
                     case TransportType.HTTPS:
                         //create a background job to send the webhook
-                        backgroundJobClient.Enqueue<WebhookSender>(x => x.SendWebhook(eventSubscription, payload, subscriptionAttempt));
+                        _backgroundJobClient.Enqueue<WebhookSender>(x => x.SendWebhook(eventSubscription, payload, subscriptionAttempt));
                         break;
                     case TransportType.Queue:
                         QueueItem queueItem = new QueueItem
@@ -122,14 +122,14 @@ namespace OpenBots.Server.Web.Webhooks
                             Event = integrationEvent.Description,
                             CreatedOn = DateTime.UtcNow,                        
                         };
-                        queueItemRepository.Add(queueItem);
+                        _queueItemRepository.Add(queueItem);
                         subscriptionAttempt.AttemptCounter = 1;
-                        attemptRepository.Add(subscriptionAttempt);
+                        _attemptRepository.Add(subscriptionAttempt);
                         break;
                     case TransportType.SignalR:
                         await _hub.Clients.All.SendAsync(integrationEventName, JsonConvert.SerializeObject(payload)).ConfigureAwait(false);
                         subscriptionAttempt.AttemptCounter = 1;
-                        attemptRepository.Add(subscriptionAttempt);
+                        _attemptRepository.Add(subscriptionAttempt);
                         break;
                 }
             }

@@ -29,11 +29,11 @@ namespace OpenBots.Server.Web
     [Authorize]
     public class AssetsController : EntityController<Asset>
     {
-        private readonly IAutomationManager automationManager;
-        private readonly IBinaryObjectRepository binaryObjectRepo;
-        private readonly IBinaryObjectManager binaryObjectManager;
-        private readonly IWebhookPublisher webhookPublisher;
-        private readonly IAssetManager manager;
+        private readonly IAutomationManager _automationManager;
+        private readonly IBinaryObjectRepository _binaryObjectRepo;
+        private readonly IBinaryObjectManager _binaryObjectManager;
+        private readonly IWebhookPublisher _webhookPublisher;
+        private readonly IAssetManager _manager;
 
         /// <summary>
         /// AssetsController constructor
@@ -60,11 +60,11 @@ namespace OpenBots.Server.Web
             IWebhookPublisher webhookPublisher,
             IAssetManager manager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.automationManager = automationManager;
-            this.binaryObjectRepo = binaryObjectRepo;
-            this.binaryObjectManager = binaryObjectManager;
-            this.webhookPublisher = webhookPublisher;
-            this.manager = manager;
+            _automationManager = automationManager;
+            _binaryObjectRepo = binaryObjectRepo;
+            _binaryObjectManager = binaryObjectManager;
+            _webhookPublisher = webhookPublisher;
+            _manager = manager;
         }
 
         /// <summary>
@@ -88,14 +88,21 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<Asset> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -116,10 +123,17 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public int? Count(
+        public async Task<IActionResult> Count(
             [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                return Ok(base.Count());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -183,10 +197,10 @@ namespace OpenBots.Server.Web
                     return BadRequest(ModelState);
                 }
 
-                request = manager.GetSizeInBytes(request);
+                request = _manager.GetSizeInBytes(request);
 
                 var response = await base.PostEntity(request);
-                await webhookPublisher.PublishAsync("Assets.NewAssetCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Assets.NewAssetCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
                 return response;
             }
             catch (Exception ex)
@@ -237,7 +251,7 @@ namespace OpenBots.Server.Web
                     ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
                     return NotFound(ModelState);
                 }
-                string organizationId = binaryObjectManager.GetOrganizationId();
+                string organizationId = _binaryObjectManager.GetOrganizationId();
                 string apiComponent = "AssetAPI";
 
                 BinaryObject binaryObject = new BinaryObject();
@@ -249,28 +263,27 @@ namespace OpenBots.Server.Web
 
                 string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
 
-                var existingbinary = binaryObjectRepo.Find(null, x => x.Folder?.ToLower(null) == binaryObject.Folder.ToLower(null) && x.Name.ToLower(null) == file?.FileName?.ToLower(null) && x.Id != binaryObject.Id)?.Items?.FirstOrDefault();
+                var existingbinary = _binaryObjectRepo.Find(null, x => x.Folder?.ToLower(null) == binaryObject.Folder.ToLower(null) && x.Name.ToLower(null) == file?.FileName?.ToLower(null) && x.Id != binaryObject.Id)?.Items?.FirstOrDefault();
                 if (existingbinary != null)
                 {
                     ModelState.AddModelError("BinaryObject", "Same file name already exists in the given folder");
                     return BadRequest(ModelState);
                 }
-                binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                binaryObjectRepo.Add(binaryObject);
+                _binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
+                _binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
+                _binaryObjectRepo.Add(binaryObject);
 
                 existingAsset.BinaryObjectID = binaryObject.Id;
                 existingAsset.SizeInBytes = file.Length;
                 repository.Update(existingAsset);
 
-                await webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
-                await webhookPublisher.PublishAsync("Assets.AssetUpdated", existingAsset.Id.ToString(), existingAsset.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", existingAsset.Id.ToString(), existingAsset.Name).ConfigureAwait(false);
                 return Ok(existingAsset);
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -309,7 +322,7 @@ namespace OpenBots.Server.Web
                     return NotFound(ModelState);
                 }
 
-                var fileObject = automationManager.Export(asset.BinaryObjectID.ToString());
+                var fileObject = _automationManager.Export(asset.BinaryObjectID.ToString());
                 var file = File(fileObject?.Result?.BlobStream, fileObject?.Result?.ContentType, fileObject?.Result?.Name);
                 return file;
             }
@@ -366,15 +379,14 @@ namespace OpenBots.Server.Web
                 existingAsset.TextValue = request.TextValue;
                 existingAsset.NumberValue = request.NumberValue;
                 existingAsset.JsonValue = request.JsonValue;
-                existingAsset = manager.GetSizeInBytes(existingAsset);
+                existingAsset = _manager.GetSizeInBytes(existingAsset);
 
-                await webhookPublisher.PublishAsync("Assets.AssetUpdated", existingAsset.Id.ToString(), existingAsset.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", existingAsset.Id.ToString(), existingAsset.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingAsset);
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -412,11 +424,11 @@ namespace OpenBots.Server.Web
                 }
 
                 string binaryObjectId = existingAsset.BinaryObjectID.ToString();
-                var binaryObject = binaryObjectRepo.GetOne(Guid.Parse(binaryObjectId));
+                var binaryObject = _binaryObjectRepo.GetOne(Guid.Parse(binaryObjectId));
 
                 string organizationId = binaryObject.OrganizationId.ToString();
                 if (!string.IsNullOrEmpty(organizationId))
-                    organizationId = automationManager.GetOrganizationId().ToString();
+                    organizationId = _automationManager.GetOrganizationId().ToString();
 
                 if (request.Name != null)
                 {
@@ -459,11 +471,11 @@ namespace OpenBots.Server.Web
                     {
                         //update asset file in OpenBots.Server.Web using relative directory
                         string apiComponent = "AssetAPI";
-                        await automationManager.Update(existingAsset.BinaryObjectID.Value, request.File, organizationId, apiComponent, request.File.FileName);
+                        await _automationManager.Update(existingAsset.BinaryObjectID.Value, request.File, organizationId, apiComponent, request.File.FileName);
                     }
 
                     //update asset entity
-                    await webhookPublisher.PublishAsync("Assets.AssetUpdated", existingAsset.Id.ToString(), existingAsset.Name).ConfigureAwait(false);
+                    await _webhookPublisher.PublishAsync("Assets.AssetUpdated", existingAsset.Id.ToString(), existingAsset.Name).ConfigureAwait(false);
                     await base.PutEntity(id, existingAsset);
 
                     return Ok(existingAsset);
@@ -475,8 +487,7 @@ namespace OpenBots.Server.Web
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -502,15 +513,15 @@ namespace OpenBots.Server.Web
                 if (asset != null)
                 {
                     Guid binaryObjectId = asset.BinaryObjectID??Guid.Empty;
-                    var existingBinaryObject = binaryObjectRepo.GetOne(binaryObjectId);
+                    var existingBinaryObject = _binaryObjectRepo.GetOne(binaryObjectId);
 
                     if (existingBinaryObject != null)
                     {
-                        await webhookPublisher.PublishAsync("Files.FileDeleted", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
-                        binaryObjectRepo.SoftDelete(binaryObjectId);
+                        await _webhookPublisher.PublishAsync("Files.FileDeleted", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
+                        _binaryObjectRepo.SoftDelete(binaryObjectId);
                     }
 
-                    await webhookPublisher.PublishAsync("Assets.AssetDeleted", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
+                    await _webhookPublisher.PublishAsync("Assets.AssetDeleted", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
                     return await base.DeleteEntity(id);
                 }
                 else
@@ -521,8 +532,7 @@ namespace OpenBots.Server.Web
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -545,28 +555,35 @@ namespace OpenBots.Server.Web
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<Asset> request)
         {
-            var asset = repository.GetOne(Guid.Parse(id));
-            if (asset == null)
+            try
             {
-                ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                return NotFound(ModelState);
-            }
-
-            Guid entityId = new Guid(id);
-            for (int i = 0; i < request.Operations.Count; i++)
-            {
-                if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")
+                var asset = repository.GetOne(Guid.Parse(id));
+                if (asset == null)
                 {
-                    var namedAsset = repository.Find(null, d => d.Name.ToLower(null) == request.Operations[i].value.ToString().ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
-                    if (namedAsset != null)
+                    ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
+                    return NotFound(ModelState);
+                }
+
+                Guid entityId = new Guid(id);
+                for (int i = 0; i < request.Operations.Count; i++)
+                {
+                    if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")
                     {
-                        ModelState.AddModelError("Asset", "Asset Name Already Exists");
-                        return BadRequest(ModelState);
+                        var namedAsset = repository.Find(null, d => d.Name.ToLower(null) == request.Operations[i].value.ToString().ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
+                        if (namedAsset != null)
+                        {
+                            ModelState.AddModelError("Asset", "Asset Name Already Exists");
+                            return BadRequest(ModelState);
+                        }
                     }
                 }
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
+                return await base.PatchEntity(id, request);
             }
-            await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
-            return await base.PatchEntity(id, request);
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -586,27 +603,34 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> Increment(string id)
         {
-            var asset = repository.GetOne(Guid.Parse(id));
-            if (asset == null)
+            try
             {
-                ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                return NotFound(ModelState);
+                var asset = repository.GetOne(Guid.Parse(id));
+                if (asset == null)
+                {
+                    ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
+                    return NotFound(ModelState);
+                }
+
+                Guid entityId = new Guid(id);
+                var request = repository.GetOne(entityId);
+                if (request == null) return NotFound();
+
+                if (request.Type.ToLower() != "number")
+                {
+                    ModelState.AddModelError("Asset", "Asset is not a Number type");
+                    return BadRequest(ModelState);
+                }
+
+                request.NumberValue = request.NumberValue + 1;
+                request = _manager.GetSizeInBytes(request);
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
+                return await base.PutEntity(id, request);
             }
-
-            Guid entityId = new Guid(id);
-            var request = repository.GetOne(entityId);
-            if (request == null) return NotFound();
-
-            if (request.Type.ToLower() != "number")
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", "Asset is not a Number type");
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
-
-            request.NumberValue = request.NumberValue + 1;
-            request = manager.GetSizeInBytes(request);
-            await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
-            return await base.PutEntity(id, request);
         }
 
         /// <summary>
@@ -626,27 +650,34 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> Decrement(string id)
         {
-            var asset = repository.GetOne(Guid.Parse(id));
-            if (asset == null)
+            try
             {
-                ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                return NotFound(ModelState);
-            }
+                var asset = repository.GetOne(Guid.Parse(id));
+                if (asset == null)
+                {
+                    ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
+                    return NotFound(ModelState);
+                }
 
-            Guid entityId = new Guid(id);
-            var request = repository.GetOne(entityId);
-            if (request == null) return NotFound();
-            
-            if (request.Type.ToLower() != "number")
+                Guid entityId = new Guid(id);
+                var request = repository.GetOne(entityId);
+                if (request == null) return NotFound();
+
+                if (request.Type.ToLower() != "number")
+                {
+                    ModelState.AddModelError("Asset", "Asset is not a Number type");
+                    return BadRequest(ModelState);
+                }
+
+                request.NumberValue = request.NumberValue - 1;
+                request = _manager.GetSizeInBytes(request);
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
+                return await base.PutEntity(id, request);
+            }
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", "Asset is not a Number type");
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
-
-            request.NumberValue = request.NumberValue - 1;
-            request = manager.GetSizeInBytes(request);
-            await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
-            return await base.PutEntity(id, request);
         }
 
         /// <summary>
@@ -667,27 +698,34 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> Add(string id, int value)
         {
-            var asset = repository.GetOne(Guid.Parse(id));
-            if (asset == null)
+            try
             {
-                ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                return NotFound(ModelState);
-            }
+                var asset = repository.GetOne(Guid.Parse(id));
+                if (asset == null)
+                {
+                    ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
+                    return NotFound(ModelState);
+                }
 
-            Guid entityId = new Guid(id);
-            var request = repository.GetOne(entityId);
-            if (request == null) return NotFound();
-            
-            if (request.Type.ToLower() != "number")
+                Guid entityId = new Guid(id);
+                var request = repository.GetOne(entityId);
+                if (request == null) return NotFound();
+
+                if (request.Type.ToLower() != "number")
+                {
+                    ModelState.AddModelError("Asset", "Asset is not a Number type");
+                    return BadRequest(ModelState);
+                }
+
+                request.NumberValue = request.NumberValue + value;
+                request = _manager.GetSizeInBytes(request);
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
+                return await base.PutEntity(id, request);
+            }
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", "Asset is not a Number type");
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
-
-            request.NumberValue = request.NumberValue + value;
-            request = manager.GetSizeInBytes(request);
-            await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
-            return await base.PutEntity(id, request);
         }
 
         /// <summary>
@@ -708,27 +746,34 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> Subtract(string id, int value)
         {
-            var asset = repository.GetOne(Guid.Parse(id));
-            if (asset == null)
+            try
             {
-                ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                return NotFound(ModelState);
-            }
+                var asset = repository.GetOne(Guid.Parse(id));
+                if (asset == null)
+                {
+                    ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
+                    return NotFound(ModelState);
+                }
 
-            Guid entityId = new Guid(id);
-            var request = repository.GetOne(entityId);
-            if (request == null) return NotFound();
-           
-            if (request.Type.ToLower() != "number")
+                Guid entityId = new Guid(id);
+                var request = repository.GetOne(entityId);
+                if (request == null) return NotFound();
+
+                if (request.Type.ToLower() != "number")
+                {
+                    ModelState.AddModelError("Asset", "Asset is not a Number type");
+                    return BadRequest(ModelState);
+                }
+
+                request.NumberValue = request.NumberValue - value;
+                request = _manager.GetSizeInBytes(request);
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
+                return await base.PutEntity(id, request);
+            }
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", "Asset is not a Number type");
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
-
-            request.NumberValue = request.NumberValue - value;
-            request = manager.GetSizeInBytes(request);
-            await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
-            return await base.PutEntity(id, request);
         }
 
         /// <summary>
@@ -749,27 +794,34 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> Append(string id, string value)
         {
-            var asset = repository.GetOne(Guid.Parse(id));
-            if (asset == null)
+            try
             {
-                ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                return NotFound(ModelState);
-            }
+                var asset = repository.GetOne(Guid.Parse(id));
+                if (asset == null)
+                {
+                    ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
+                    return NotFound(ModelState);
+                }
 
-            Guid entityId = new Guid(id);
-            var request = repository.GetOne(entityId);
-            if (request == null) return NotFound();
-            
-            if (request.Type.ToLower() != "text")
+                Guid entityId = new Guid(id);
+                var request = repository.GetOne(entityId);
+                if (request == null) return NotFound();
+
+                if (request.Type.ToLower() != "text")
+                {
+                    ModelState.AddModelError("Asset", "Asset is not a Text type");
+                    return BadRequest(ModelState);
+                }
+
+                request.TextValue = string.Concat(request.TextValue, " ", value);
+                request = _manager.GetSizeInBytes(request);
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
+                return await base.PutEntity(id, request);
+            }
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", "Asset is not a Text type");
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
-
-            request.TextValue = string.Concat(request.TextValue, " ", value);
-            request = manager.GetSizeInBytes(request);
-            await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
-            return await base.PutEntity(id, request);
         }
     }
 }

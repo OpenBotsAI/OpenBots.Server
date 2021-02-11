@@ -11,11 +11,11 @@ namespace OpenBots.Server.Business
 {
     public class AuditLogManager : BaseManager, IAuditLogManager
     {
-        private readonly IAuditLogRepository repo;
+        private readonly IAuditLogRepository _repo;
 
         public AuditLogManager(IAuditLogRepository repo)
         {
-            this.repo = repo;
+            _repo = repo;
         }
 
         public string GetAuditLogs(AuditLog[] auditLogs)
@@ -47,12 +47,11 @@ namespace OpenBots.Server.Business
                 }
             }
             return compressedFileStream;
-
         }
 
         public PaginatedList<AuditLogViewModel> GetAuditLogsView(Predicate<AuditLogViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
-            return repo.FindAllView(predicate, sortColumn, direction, skip, take);
+            return _repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
     }
 }

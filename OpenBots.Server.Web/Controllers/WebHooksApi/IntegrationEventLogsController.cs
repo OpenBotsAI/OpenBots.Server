@@ -26,7 +26,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
     [Authorize]
     public class IntegrationEventLogsController : ReadOnlyEntityController<IntegrationEventLog>
     {
-        private readonly IIntegrationEventLogRepository repository;
+        private readonly IIntegrationEventLogRepository _repository;
 
         /// <summary>
         /// IntegrationEventLogsController constructor
@@ -43,7 +43,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.repository = repository;
+            _repository = repository;
         }
 
         /// <summary>
@@ -66,14 +66,21 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<IntegrationEventLog> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -101,7 +108,6 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             try
             {
                 return await base.GetEntity(id);
-
             }
             catch (Exception ex)
             {
@@ -128,7 +134,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         [ProducesDefaultResponseType]
         public IntegrationEventLogLookupViewModel AllIntegrationEventLogs()
         {
-            var response = repository.Find(null, x => x.IsDeleted == false);
+            var response = _repository.Find(null, x => x.IsDeleted == false);
             IntegrationEventLogLookupViewModel eventLogList = new IntegrationEventLogLookupViewModel();
 
             if (response != null)
@@ -170,7 +176,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             try
             {
                 Guid entityID = new Guid(id);
-                IntegrationEventLog eventLog = repository.GetOne(entityID);
+                IntegrationEventLog eventLog = _repository.GetOne(entityID);
 
                 if (eventLog == null)
                 {
@@ -181,11 +187,9 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
                 var jsonFile = File(new System.Text.UTF8Encoding().GetBytes(eventLog.PayloadJSON), "text/json", "Payload.JSON");
 
                 return jsonFile;
-
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Export", ex.Message);
                 return ex.GetActionResult();
             }
         }

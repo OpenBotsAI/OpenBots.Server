@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
+using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace OpenBots.Server.Business
 {
     public interface IJobManager : IManager
     {
+        Job UpdateJob(string id, CreateJobViewModel request, ApplicationUser applicationUser);
         JobViewModel GetJobView(JobViewModel jobView);
         JobsLookupViewModel GetJobAgentsLookup();
         PaginatedList<AllJobsViewModel> GetJobAgentsandAutomations(Predicate<AllJobsViewModel> predicate = null,
@@ -22,5 +24,6 @@ namespace OpenBots.Server.Business
         string GetCsv(Job[] jobs);
         MemoryStream ZipCsv(FileContentResult csvFile);
         void UpdateAutomationAverages(Guid? updatedJobId);
+        void DeleteJobChildTables(Guid jobId);
     }
 }

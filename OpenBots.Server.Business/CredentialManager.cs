@@ -6,11 +6,11 @@ namespace OpenBots.Server.Business
 {
     public class CredentialManager : BaseManager, ICredentialManager
     {
-        private readonly ICredentialRepository repo;
+        private readonly ICredentialRepository _repo;
 
         public CredentialManager(ICredentialRepository repo)
         {
-            this.repo = repo;
+            _repo = repo;
         }
 
         public bool ValidateRetrievalDate(Credential credential) //ensure current date falls within start-end date range

@@ -31,12 +31,12 @@ namespace OpenBots.Server.Web.Controllers
     [Authorize]
     public class AutomationsController : EntityController<Automation>
     {
-        private readonly IAutomationManager manager;
-        private readonly IBinaryObjectManager binaryObjectManager;
-        private readonly IBinaryObjectRepository binaryObjectRepo;
-        private readonly IAutomationVersionRepository automationVersionRepo;
-        private readonly StorageContext dbContext;
-        IWebhookPublisher webhookPublisher;
+        private readonly IAutomationManager _manager;
+        private readonly IBinaryObjectManager _binaryObjectManager;
+        private readonly IBinaryObjectRepository _binaryObjectRepo;
+        private readonly IAutomationVersionRepository _automationVersionRepo;
+        private readonly StorageContext _dbContext;
+        private readonly IWebhookPublisher _webhookPublisher;
 
         /// <summary>
         /// Automation Controller constructor
@@ -65,12 +65,12 @@ namespace OpenBots.Server.Web.Controllers
             IAutomationVersionRepository automationVersionRepo,
             StorageContext dbContext) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.manager = manager;
-            this.binaryObjectRepo = binaryObjectRepo;
-            this.binaryObjectManager = binaryObjectManager;
-            this.webhookPublisher = webhookPublisher;
-            this.automationVersionRepo = automationVersionRepo;
-            this.dbContext = dbContext;
+            _manager = manager;
+            _binaryObjectRepo = binaryObjectRepo;
+            _binaryObjectManager = binaryObjectManager;
+            _webhookPublisher = webhookPublisher;
+            _automationVersionRepo = automationVersionRepo;
+            _dbContext = dbContext;
         }
 
         /// <summary>
@@ -90,14 +90,21 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<Automation> Get(
+        public async Task<IActionResult> Get(
         [FromQuery(Name = "$filter")] string filter = "",
         [FromQuery(Name = "$orderby")] string orderBy = "",
         [FromQuery(Name = "$top")] int top = 100,
         [FromQuery(Name = "$skip")] int skip = 0
         )
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -121,18 +128,24 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AllAutomationsViewModel> View(
+        public async Task<IActionResult> View(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            ODataHelper<AllAutomationsViewModel> oDataHelper = new ODataHelper<AllAutomationsViewModel>();
+            try
+            {
+                ODataHelper<AllAutomationsViewModel> oDataHelper = new ODataHelper<AllAutomationsViewModel>();
+                var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
-
-            return manager.GetAutomationsAndAutomationVersions(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
+                return Ok(_manager.GetAutomationsAndAutomationVersions(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -152,10 +165,17 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<int?> GetCount(
+        public async Task<IActionResult> GetCount(
         [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                return Ok(base.Count());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -220,7 +240,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (okResult != null)
                 {
                     AutomationViewModel view = okResult.Value as AutomationViewModel;
-                    view = manager.GetAutomationView(view, id);
+                    view = _manager.GetAutomationView(view, id);
                 }
 
                 return actionResult;
@@ -262,9 +282,9 @@ namespace OpenBots.Server.Web.Controllers
                 };
 
                 var response = await base.PostEntity(automation);
-                manager.AddAutomationVersion(request);
+                _manager.AddAutomationVersion(request);
 
-                await webhookPublisher.PublishAsync("Automations.NewAutomationCreated", automation.Id.ToString(), automation.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Automations.NewAutomationCreated", automation.Id.ToString(), automation.Name).ConfigureAwait(false);
                 return response;
             }
             catch (Exception ex)
@@ -310,7 +330,7 @@ namespace OpenBots.Server.Web.Controllers
                 }
 
                 var automation = repository.GetOne(Guid.Parse(id));
-                string organizationId = binaryObjectManager.GetOrganizationId();
+                string organizationId = _binaryObjectManager.GetOrganizationId();
                 string apiComponent = "AutomationAPI";
 
                 BinaryObject binaryObject = new BinaryObject();
@@ -322,22 +342,21 @@ namespace OpenBots.Server.Web.Controllers
 
                 string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
 
-                binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                binaryObjectRepo.Add(binaryObject);
+                _binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
+                _binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
+                _binaryObjectRepo.Add(binaryObject);
 
                 automation.BinaryObjectId = (Guid)binaryObject.Id;
                 automation.OriginalPackageName = file.FileName;
                 repository.Update(automation);
 
-                await webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
-                await webhookPublisher.PublishAsync("Automations.AutomationUpdated", automation.Id.ToString(), automation.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Automations.AutomationUpdated", automation.Id.ToString(), automation.Name).ConfigureAwait(false);
                 return Ok(automation);
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -383,11 +402,11 @@ namespace OpenBots.Server.Web.Controllers
             }
 
             string binaryObjectId = existingAutomation.BinaryObjectId.ToString();
-            var binaryObject = binaryObjectRepo.GetOne(Guid.Parse(binaryObjectId));
+            var binaryObject = _binaryObjectRepo.GetOne(Guid.Parse(binaryObjectId));
             string organizationId = binaryObject.OrganizationId.ToString();
 
             if (!string.IsNullOrEmpty(organizationId))
-                organizationId = manager.GetOrganizationId().ToString();
+                organizationId = _manager.GetOrganizationId().ToString();
 
             try
             {
@@ -403,15 +422,15 @@ namespace OpenBots.Server.Web.Controllers
                     newBinaryObject.CreatedBy = applicationUser?.UserName;
                     newBinaryObject.CreatedOn = DateTime.UtcNow;
                     newBinaryObject.CorrelationEntityId = request.Id;
-                    binaryObjectRepo.Add(newBinaryObject);
-                    binaryObjectManager.Upload(request.File, organizationId, apiComponent, newBinaryObject.Id.ToString());
-                    binaryObjectManager.SaveEntity(request.File, newBinaryObject.StoragePath, newBinaryObject, apiComponent, organizationId);
-                    binaryObjectRepo.Update(binaryObject);
+                    _binaryObjectRepo.Add(newBinaryObject);
+                    _binaryObjectManager.Upload(request.File, organizationId, apiComponent, newBinaryObject.Id.ToString());
+                    _binaryObjectManager.SaveEntity(request.File, newBinaryObject.StoragePath, newBinaryObject, apiComponent, organizationId);
+                    _binaryObjectRepo.Update(binaryObject);
                 }
 
                 //update automation (create new automation and automation version entities)
                 Automation response = existingAutomation;
-                AutomationVersion automationVersion = automationVersionRepo.Find(null, q => q.AutomationId == response.Id).Items?.FirstOrDefault();
+                AutomationVersion automationVersion = _automationVersionRepo.Find(null, q => q.AutomationId == response.Id).Items?.FirstOrDefault();
                 if (existingAutomation.Name.Trim().ToLower() != request.Name.Trim().ToLower() || automationVersion.Status.Trim().ToLower() != request.Status?.Trim().ToLower()) 
                 {
                     existingAutomation.OriginalPackageName = request.File.FileName;
@@ -421,11 +440,11 @@ namespace OpenBots.Server.Web.Controllers
                 else
                 {
                     request.BinaryObjectId = newBinaryObject.Id;
-                    response = manager.UpdateAutomation(existingAutomation, request);
+                    response = _manager.UpdateAutomation(existingAutomation, request);
                 }
 
-                await webhookPublisher.PublishAsync("Files.NewFileCreated", newBinaryObject.Id.ToString(), newBinaryObject.Name).ConfigureAwait(false);
-                await webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Files.NewFileCreated", newBinaryObject.Id.ToString(), newBinaryObject.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -467,7 +486,7 @@ namespace OpenBots.Server.Web.Controllers
                 existingAutomation.Name = value.Name;
                 existingAutomation.AutomationEngine = value.AutomationEngine;
 
-                var automationVersion = automationVersionRepo.Find(null, q => q.AutomationId == existingAutomation.Id).Items?.FirstOrDefault();
+                var automationVersion = _automationVersionRepo.Find(null, q => q.AutomationId == existingAutomation.Id).Items?.FirstOrDefault();
                 if (!string.IsNullOrEmpty(automationVersion.Status))
                 {
                     //determine a way to check if previous value was not published before setting published properties
@@ -477,15 +496,14 @@ namespace OpenBots.Server.Web.Controllers
                         automationVersion.PublishedBy = applicationUser?.Email;
                         automationVersion.PublishedOnUTC = DateTime.UtcNow;
                     }
-                    automationVersionRepo.Update(automationVersion);
+                    _automationVersionRepo.Update(automationVersion);
                 }
-                await webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingAutomation);
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Automation", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -511,7 +529,7 @@ namespace OpenBots.Server.Web.Controllers
             var existingAutomation = repository.GetOne(Guid.Parse(id));
             if (existingAutomation == null) return NotFound();
 
-            await webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
+            await _webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
             return await base.PatchEntity(id, request);
         }
 
@@ -550,7 +568,7 @@ namespace OpenBots.Server.Web.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var fileObject = manager.Export(automation.BinaryObjectId.ToString());
+                var fileObject = _manager.Export(automation.BinaryObjectId.ToString());
                 return File(fileObject?.Result?.BlobStream, fileObject?.Result?.ContentType, fileObject?.Result?.Name);
             }
             catch (Exception ex)
@@ -582,8 +600,8 @@ namespace OpenBots.Server.Web.Controllers
                 var existingAutomation = repository.GetOne(automationId);
                 if (existingAutomation == null) return NotFound();
 
-                await webhookPublisher.PublishAsync("Automations.AutomationDeleted", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
-                bool response = manager.DeleteAutomation(automationId);
+                await _webhookPublisher.PublishAsync("Automations.AutomationDeleted", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
+                bool response = _manager.DeleteAutomation(automationId);
 
                 if (response)
                     return Ok();
@@ -616,20 +634,27 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public List<JobAutomationLookup> GetLookup()
+        public async Task<IActionResult> GetLookup()
         {
-            var automationList = repository.Find(null, x => x.IsDeleted == false);
-            var automationLookup = from p in automationList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
-                                join v in dbContext.AutomationVersions on p.Id equals v.AutomationId into table1
-                                from v in table1.DefaultIfEmpty()
-                                select new JobAutomationLookup
-                                {
-                                    AutomationId = (p == null || p.Id == null) ? Guid.Empty : p.Id.Value,
-                                    AutomationName = p?.Name,
-                                    AutomationNameWithVersion = string.Format("{0} (v{1})", p?.Name.Trim(), v?.VersionNumber) 
-                                };
+            try
+            {
+                var automationList = repository.Find(null, x => x.IsDeleted == false);
+                var automationLookup = from p in automationList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
+                                       join v in _dbContext.AutomationVersions on p.Id equals v.AutomationId into table1
+                                       from v in table1.DefaultIfEmpty()
+                                       select new JobAutomationLookup
+                                       {
+                                           AutomationId = (p == null || p.Id == null) ? Guid.Empty : p.Id.Value,
+                                           AutomationName = p?.Name,
+                                           AutomationNameWithVersion = string.Format("{0} (v{1})", p?.Name.Trim(), v?.VersionNumber)
+                                       };
 
-            return automationLookup.ToList();
+                return Ok(automationLookup.ToList());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

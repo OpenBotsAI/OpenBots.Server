@@ -25,8 +25,8 @@ namespace OpenBots.Server.WebAPI.Controllers
     [Authorize]
     public class AccessRequestsController : EntityController<AccessRequest>
     {
-        IMembershipManager _manager;
-        IAccessRequestsManager accessRequestManager;
+        private readonly IMembershipManager _manager;
+        private readonly IAccessRequestsManager _accessRequestManager;
 
         /// <summary>
         /// AccessRequestsController constructor
@@ -46,10 +46,10 @@ namespace OpenBots.Server.WebAPI.Controllers
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, manager, configuration)
         {
             _manager = manager;
-            this.accessRequestManager = accessRequestManager;
+            _accessRequestManager = accessRequestManager;
 
             _manager.SetContext(base.SecurityContext); ;
-            this.accessRequestManager.SetContext(base.SecurityContext);
+            _accessRequestManager.SetContext(base.SecurityContext);
 
         }
 
@@ -82,7 +82,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0)
         {
-            return accessRequestManager.GetAccessRequests(organizationId);//base.GetMany(organizationId);
+            return _accessRequestManager.GetAccessRequests(organizationId);//base.GetMany(organizationId);
         }
 
         /// <summary>
@@ -141,7 +141,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Get(string id)
         {
-            return await base.GetEntity(id);
+            try
+            {
+                return await base.GetEntity(id);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -165,8 +172,15 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Post(string organizationId, [FromBody] AccessRequest value)
         {
-            value.OrganizationId = new Guid(organizationId);
-            return await base.PostEntity(value);
+            try
+            {
+                value.OrganizationId = new Guid(organizationId);
+                return await base.PostEntity(value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -194,12 +208,19 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Put(string organizationId, string id, [FromBody] AccessRequest value)
         {
-            value.OrganizationId = new Guid(organizationId);
-            return await base.PutEntity(id, value);
+            try
+            {
+                value.OrganizationId = new Guid(organizationId);
+                return await base.PutEntity(id, value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
-        /// Approves the specified acess request by an organization administrator.
+        /// Approves the specified access request by an organization administrator
         /// </summary>
         /// <param name="organizationId">Organization identifier</param>
         /// <param name="id">Access request identifier</param>
@@ -218,7 +239,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         {
             if ( string.IsNullOrEmpty(id) || string.IsNullOrEmpty(organizationId))
             {
-                ModelState.AddModelError("Approve", "Access or Organization Id not passed");
+                ModelState.AddModelError("Approve", "Access or organization Id not passed");
                 return BadRequest(ModelState);
             }
             Guid entityId = new Guid(id);
@@ -260,24 +281,24 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Reject(string organizationId, string id)
         {
-            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(organizationId))
-            {
-                ModelState.AddModelError("Approve", "Access or Organization Id not passed");
-                return BadRequest(ModelState);
-            }
-            Guid entityId = new Guid(id);
-
-            var orgmem = _manager.GetOrganizationMember(Guid.Parse(organizationId), SecurityContext.PersonId)?.Items?.FirstOrDefault();
-            if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
-            {
-                ModelState.AddModelError("Approve", "Approve failed, administrator of an organization can only Approve");
-                return BadRequest(ModelState);
-            }
-
-            Guid approvalRequestGuid = Guid.Parse(id);
-
             try
             {
+                if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(organizationId))
+                {
+                    ModelState.AddModelError("Approve", "Access or Organization Id not passed");
+                    return BadRequest(ModelState);
+                }
+                Guid entityId = new Guid(id);
+
+                var orgmem = _manager.GetOrganizationMember(Guid.Parse(organizationId), SecurityContext.PersonId)?.Items?.FirstOrDefault();
+                if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
+                {
+                    ModelState.AddModelError("Approve", "Approve failed, administrator of an organization can only Approve");
+                    return BadRequest(ModelState);
+                }
+
+                Guid approvalRequestGuid = Guid.Parse(id);
+
                 _manager.RejectAccessRequest(approvalRequestGuid, SecurityContext);
                 return Ok();
             }
@@ -305,7 +326,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Delete(string id)
         {
-            return await base.DeleteEntity(id);
+            try
+            {
+                return await base.DeleteEntity(id);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
 
@@ -327,7 +355,14 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id, [FromBody]JsonPatchDocument<AccessRequest> value)
         {
-            return await base.PatchEntity(id, value);
+            try
+            {
+                return await base.PatchEntity(id, value);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

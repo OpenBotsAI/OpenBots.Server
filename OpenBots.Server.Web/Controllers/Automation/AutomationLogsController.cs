@@ -23,7 +23,7 @@ namespace OpenBots.Server.Web
     [Authorize]
     public class AutomationLogsController : EntityController<AutomationLog>
     {
-        IAutomationLogManager automationLogManager;
+        private readonly IAutomationLogManager _automationLogManager;
 
         /// <summary>
         /// AutomationLogsController constructor
@@ -42,8 +42,8 @@ namespace OpenBots.Server.Web
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.automationLogManager = automationLogManager;
-            this.automationLogManager.SetContext(SecurityContext);
+            _automationLogManager = automationLogManager;
+            _automationLogManager.SetContext(SecurityContext);
         }
 
         /// <summary>
@@ -63,14 +63,21 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AutomationLog> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -90,10 +97,17 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public int? Count(
+        public async Task<IActionResult> Count(
             [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                return Ok(base.Count());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -166,7 +180,7 @@ namespace OpenBots.Server.Web
                 oData.Top = top;
 
                 var automationLogsJson = base.GetMany(oData : oData);
-                string csvString = automationLogManager.GetJobLogs(automationLogsJson.Items.ToArray());
+                string csvString = _automationLogManager.GetJobLogs(automationLogsJson.Items.ToArray());
                 var csvFile = File(new System.Text.UTF8Encoding().GetBytes(csvString), "text/csv", "Logs.csv");
 
                 switch (fileType.ToLower())
@@ -175,7 +189,7 @@ namespace OpenBots.Server.Web
                         return csvFile;
 
                     case "zip":
-                        var zippedFile = automationLogManager.ZipCsv(csvFile);
+                        var zippedFile = _automationLogManager.ZipCsv(csvFile);
                         const string contentType = "application/zip";
                         HttpContext.Response.ContentType = contentType;
                         var zipFile = new FileContentResult(zippedFile.ToArray(), contentType)
@@ -192,7 +206,6 @@ namespace OpenBots.Server.Web
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Export", ex.Message);
                 return ex.GetActionResult();
             }
         }

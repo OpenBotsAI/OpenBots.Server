@@ -48,7 +48,7 @@ export class AllIntegrationLogsComponent implements OnInit {
   ];
   constructor(
     protected router: Router,
-    private _FileSaverService: FileSaverService,
+    private FileSaverService: FileSaverService,
     private formBuilder: FormBuilder,
     protected jobService: IntegrationLogsService,
     private acroute: ActivatedRoute

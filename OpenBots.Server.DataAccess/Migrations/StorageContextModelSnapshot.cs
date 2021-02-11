@@ -1205,6 +1205,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<Guid?>("OrganizationId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("ServerDriveId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("ServerFileId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1262,6 +1265,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<Guid?>("OrganizationId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("StoragePath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long?>("StorageSizeInBytes")
                         .HasColumnType("bigint");
 
@@ -1318,6 +1324,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<Guid?>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ServerDriveId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<long?>("SizeInBytes")

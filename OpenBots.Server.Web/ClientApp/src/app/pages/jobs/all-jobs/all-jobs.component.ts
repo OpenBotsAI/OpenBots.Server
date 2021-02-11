@@ -6,6 +6,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
 import { FileSaverService } from 'ngx-filesaver';
 import { automationsApiUrl } from '../../../webApiUrls/automations';
+import { DialogService } from '../../../@core/dialogservices';
 
 @Component({
   selector: 'ngx-all-jobs',
@@ -14,6 +15,7 @@ import { automationsApiUrl } from '../../../webApiUrls/automations';
 })
 export class AllJobsComponent implements OnInit, OnDestroy {
   process_id: any = [];
+  isDeleted = false;
   agent_id: any = [];
   jobId: any = [];
   showjobs: FormGroup;
@@ -49,10 +51,11 @@ export class AllJobsComponent implements OnInit, OnDestroy {
   ];
   constructor(
     protected router: Router,
-    private _FileSaverService: FileSaverService,
+    private FileSaverService: FileSaverService,
     private formBuilder: FormBuilder,
     protected jobService: JobsService,
-    private acroute: ActivatedRoute
+    private acroute: ActivatedRoute,
+    private dialogService: DialogService
   ) {
     this.showjobs = this.formBuilder.group({
       automationId: [''],
@@ -69,6 +72,7 @@ export class AllJobsComponent implements OnInit, OnDestroy {
       this.show_filter_process = data;
     });
   }
+
   ngOnInit(): void {
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
@@ -200,6 +204,47 @@ export class AllJobsComponent implements OnInit, OnDestroy {
       const skip = (this.page.pageNumber - 1) * this.page.pageSize;
       this.get_AllJobs(this.page.pageSize, skip);
     }
+  }
+
+  open2(dialog: TemplateRef<any>, id: any) {
+    this.del_id = [];
+    this.view_dialog = dialog;
+    this.dialogService.openDialog(dialog);
+    this.del_id = id;
+  }
+
+  del_agent(ref) {
+    this.isDeleted = true;
+    const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+    this.jobService.delJobbyID(this.del_id).subscribe(
+      () => {
+        this.isDeleted = false;
+        // this.toastrService.success('Agent Delete Successfully', 'Success');
+        ref.close();
+        // this.get_allagent(this.page.pageSize, skip);
+        if (this.abc_filter) {
+          const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+          this.jobService
+            .JobsFilter(`${this.abc_filter}`, this.page.pageSize, skip)
+            .subscribe((data: any) => {
+              for (let ab of data.items) {
+                for (let status of this.jobStatus) {
+                  if (ab.jobStatus == status.id) {
+                    ab.jobStatus = status.name;
+                  }
+                }
+              }
+              this.show_alljobs = data.items;
+              this.showpage = data;
+              this.page.totalCount = data.totalCount;
+            });
+        } else {
+          const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+          this.get_AllJobs(this.page.pageSize, skip);
+        }
+      },
+      () => (this.isDeleted = false)
+    );
   }
 
   sort(filter_val, vale) {
@@ -370,7 +415,7 @@ export class AllJobsComponent implements OnInit, OnDestroy {
             .split(';')[1]
             .split('=')[1]
             .replace(/\"/g, '');
-          this._FileSaverService.save(data.body, fileName);
+          this.FileSaverService.save(data.body, fileName);
         });
     } else if (
       this.abc_filter == '' ||
@@ -384,7 +429,7 @@ export class AllJobsComponent implements OnInit, OnDestroy {
           .split(';')[1]
           .split('=')[1]
           .replace(/\"/g, '');
-        this._FileSaverService.save(data.body, fileName);
+        this.FileSaverService.save(data.body, fileName);
       });
     }
   }

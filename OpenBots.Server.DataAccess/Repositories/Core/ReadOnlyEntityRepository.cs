@@ -17,10 +17,10 @@ namespace OpenBots.Server.DataAccess.Repositories
         /// <summary>
         /// The user context
         /// </summary>
-        private UserSecurityContext userContext;
-        private readonly ILogger<T> logger;
+        private UserSecurityContext _userContext;
+        private readonly ILogger<T> _logger;
 
-        protected UserSecurityContext UserContext { get => userContext; set => userContext = value; }
+        protected UserSecurityContext UserContext { get => _userContext; set => _userContext = value; }
 
         protected StorageContext DbContext => dbContext;
 
@@ -37,7 +37,7 @@ namespace OpenBots.Server.DataAccess.Repositories
         public ReadOnlyEntityRepository(StorageContext context, ILogger<T> logger)
         {
             dbContext = context;
-            this.logger = logger;
+            this._logger = logger;
         }
 
         /// <summary>

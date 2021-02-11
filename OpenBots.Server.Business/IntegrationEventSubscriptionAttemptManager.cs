@@ -10,13 +10,13 @@ namespace OpenBots.Server.Business
 {
     public class IntegrationEventSubscriptionAttemptManager: BaseManager, IIntegrationEventSubscriptionAttemptManager
     {
-        private readonly IIntegrationEventSubscriptionAttemptRepository repo;
-        private readonly IIntegrationEventSubscriptionRepository subscriptionRepository;
+        private readonly IIntegrationEventSubscriptionAttemptRepository _repo;
+        private readonly IIntegrationEventSubscriptionRepository _subscriptionRepository;
         public IntegrationEventSubscriptionAttemptManager(IIntegrationEventSubscriptionAttemptRepository repo,
             IIntegrationEventSubscriptionRepository subscriptionRepository)
         {
-            this.repo = repo;
-            this.subscriptionRepository = subscriptionRepository;
+            _repo = repo;
+            _subscriptionRepository = subscriptionRepository;
         }
 
         public int? SaveAndGetAttemptCount(IntegrationEventSubscriptionAttempt currentAttempt, int? maxRetryCount)
@@ -34,18 +34,18 @@ namespace OpenBots.Server.Business
                 previousAttempt.Status = "Failed";
                 attemptCount = previousAttempt.AttemptCounter;
                 attemptCount++;
-                repo.Update(previousAttempt);
+                _repo.Update(previousAttempt);
             }
             currentAttempt.AttemptCounter = attemptCount;
             currentAttempt.CreatedOn = DateTime.UtcNow;
             currentAttempt.Id = Guid.NewGuid();
-            repo.Add(currentAttempt);
+            _repo.Add(currentAttempt);
             return attemptCount;
         }
 
         public IntegrationEventSubscriptionAttempt GetLastAttempt(IntegrationEventSubscriptionAttempt subscriptionAttempt)
         {
-            var result = repo.Find(0, 1).Items?
+            var result = _repo.Find(0, 1).Items?
                 .Where(a => a.EventLogID == subscriptionAttempt.EventLogID
            && a.IntegrationEventSubscriptionID == subscriptionAttempt.IntegrationEventSubscriptionID)?
                 .OrderByDescending(a => a.AttemptCounter)
@@ -55,7 +55,7 @@ namespace OpenBots.Server.Business
         }
             public SubscriptionAttemptViewModel GetAttemptView(SubscriptionAttemptViewModel subscriptionAttempt)
         {
-            subscriptionAttempt.TransportType = subscriptionRepository.GetOne(subscriptionAttempt.IntegrationEventSubscriptionID ?? Guid.Empty)?.TransportType.ToString();
+            subscriptionAttempt.TransportType = _subscriptionRepository.GetOne(subscriptionAttempt.IntegrationEventSubscriptionID ?? Guid.Empty)?.TransportType.ToString();
 
             return subscriptionAttempt;
         }

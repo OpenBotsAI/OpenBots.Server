@@ -13,50 +13,26 @@ namespace OpenBots.Server.DataAccess.Repositories.File
 {
     public class ServerFileRepository : EntityRepository<ServerFile>, IServerFileRepository
     {
-        private readonly IServerFolderRepository serverFolderRepository;
-        private readonly IServerDriveRepository serverDriveRepository;
-
-        public ServerFileRepository(StorageContext context, ILogger<ServerFile> logger, IHttpContextAccessor httpContextAccessor, IServerFolderRepository serverFolderRepository, IServerDriveRepository serverDriveRepository) : base(context, logger, httpContextAccessor)
-        {
-            this.serverFolderRepository = serverFolderRepository;
-            this.serverDriveRepository = serverDriveRepository;
-        }
+        public ServerFileRepository(StorageContext context, ILogger<ServerFile> logger, IHttpContextAccessor httpContextAccessor) : base(context, logger, httpContextAccessor)
+        { }
 
         protected override DbSet<ServerFile> DbTable()
         {
             return dbContext.ServerFiles;
         }
 
-        public PaginatedList<FileFolderViewModel> FindAllView(Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        public PaginatedList<FileFolderViewModel> FindAllView(Guid? driveId, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
             PaginatedList<FileFolderViewModel> paginatedList = new PaginatedList<FileFolderViewModel>();
-            var serverDriveName = serverDriveRepository.Find(null).Items?.FirstOrDefault().Name;
-            var itemsList = base.Find(null, j => j.IsDeleted == false);
+            var itemsList = base.Find(null, j => j.IsDeleted == false && j.ServerDriveId == driveId);
 
             if (itemsList != null && itemsList.Items != null && itemsList.Items.Count > 0)
             {
-                List<Guid?> parentIds = new List<Guid?>();
-                string path = string.Empty;
-
-                //foreach (var item in itemsList.Items)
-                //{
-                    //var itemArray = item.StoragePath.Split("\\");
-                    //foreach (var folderName in itemArray)
-                    //{
-                    //    var folder = serverFolderRepository.Find(null).Items?.Where(q => q.Name.ToLower() == folderName.ToLower()).FirstOrDefault();
-                    //    if (folder != null)
-                    //        parentIds.Add(folder.Id);
-                    //    if (folderName == "Files")
-                    //    {
-                    //        Guid? id = serverDriveRepository.Find(null).Items?.FirstOrDefault().Id;
-                    //        parentIds.Add(id);
-                    //    }
-                    //}
-                //}
-
                 var itemRecord = from a in itemsList.Items
                                  join b in dbContext.ServerFolders on a.StorageFolderId equals b.Id into table1
                                  from b in table1.DefaultIfEmpty()
+                                 join c in dbContext.ServerDrives on a.ServerDriveId equals c.Id into table2
+                                 from c in table2.DefaultIfEmpty()
                                  select new FileFolderViewModel
                                  {
                                      Name = a?.Name,
@@ -68,8 +44,9 @@ namespace OpenBots.Server.DataAccess.Repositories.File
                                      HasChild = false,
                                      IsFile = true,
                                      ParentId = a?.StorageFolderId,
-                                     StoragePath = b?.StoragePath != null ? b?.StoragePath : serverDriveName,
-                                     Size = a?.SizeInBytes
+                                     StoragePath = b?.StoragePath != null ? b?.StoragePath : c?.Name,
+                                     Size = a?.SizeInBytes,
+                                     StorageDriveId = a?.ServerDriveId
                                  };
 
                 if (!string.IsNullOrWhiteSpace(sortColumn))

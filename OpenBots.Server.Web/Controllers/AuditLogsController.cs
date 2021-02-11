@@ -26,9 +26,9 @@ namespace OpenBots.Server.Web.Controllers
     [Authorize]
     public class AuditLogsController : EntityController<AuditLog>
     {
-        private readonly IAuditLogManager manager;
-        private IConfiguration config { get; }
-        private readonly IAuditLogRepository repository;
+        private readonly IAuditLogManager _manager;
+        private IConfiguration Config { get; }
+        private readonly IAuditLogRepository _repository;
 
         /// <summary>
         /// AuditLogController constructor
@@ -47,9 +47,9 @@ namespace OpenBots.Server.Web.Controllers
             IConfiguration configuration,
             IAuditLogManager manager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.manager = manager;
-            config = configuration;
-            this.repository = repository;
+            _manager = manager;
+            Config = configuration;
+            _repository = repository;
         }
 
         /// <summary>
@@ -73,14 +73,21 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AuditLogViewModel> Get(
+        public async Task<IActionResult> Get(
         [FromQuery(Name = "$filter")] string filter = "",
         [FromQuery(Name = "$orderby")] string orderBy = "",
         [FromQuery(Name = "$top")] int top = 100,
         [FromQuery(Name = "$skip")] int skip = 0
         )
         {
-            return base.GetMany<AuditLogViewModel>();
+            try
+            {
+                return Ok(base.GetMany<AuditLogViewModel>());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -104,18 +111,25 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AuditLogViewModel> GetView(
+        public async Task<IActionResult> GetView(
         [FromQuery(Name = "$filter")] string filter = "",
         [FromQuery(Name = "$orderby")] string orderBy = "",
         [FromQuery(Name = "$top")] int top = 100,
         [FromQuery(Name = "$skip")] int skip = 0
         )
         {
-            ODataHelper<AuditLogViewModel> oDataHelper = new ODataHelper<AuditLogViewModel>();
+            try
+            {
+                ODataHelper<AuditLogViewModel> oDataHelper = new ODataHelper<AuditLogViewModel>();
 
-            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
+                var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            return manager.GetAuditLogsView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
+                return Ok(_manager.GetAuditLogsView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -135,10 +149,17 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<int?> GetCount(
+        public async Task<IActionResult> GetCount(
         [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                return Ok(base.Count());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -197,9 +218,9 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                var log = repository.GetOne(id);
+                var log = _repository.GetOne(id);
 
-                string name = repository.GetServiceName(log);
+                string name = _repository.GetServiceName(log);
 
                 var logView = new AuditLogDetailsViewModel();
                 logView = logView.Map(log);
@@ -233,24 +254,31 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public AuditLogsLookupViewModel AllAuditLogs()
+        public async Task<IActionResult> AllAuditLogs()
         {
-            var response = repository.Find(null, x => x.IsDeleted == false);
-            AuditLogsLookupViewModel auditLogsList = new AuditLogsLookupViewModel();
-
-            if (response != null)
+            try
             {
-                auditLogsList.ServiceNameList = new List<string>();       
-                foreach (AuditLog item in response.Items)
-                {
-                    string serviceName = item.ServiceName;
-                    string name = repository.GetServiceName(item);
+                var response = _repository.Find(null, x => x.IsDeleted == false);
+                AuditLogsLookupViewModel auditLogsList = new AuditLogsLookupViewModel();
 
-                    if (!auditLogsList.ServiceNameList.Contains(name))
-                        auditLogsList.ServiceNameList.Add(name);
+                if (response != null)
+                {
+                    auditLogsList.ServiceNameList = new List<string>();
+                    foreach (AuditLog item in response.Items)
+                    {
+                        string serviceName = item.ServiceName;
+                        string name = _repository.GetServiceName(item);
+
+                        if (!auditLogsList.ServiceNameList.Contains(name))
+                            auditLogsList.ServiceNameList.Add(name);
+                    }
                 }
+                return Ok(auditLogsList);
             }
-            return auditLogsList;
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -274,7 +302,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<object> Export(
+        public async Task<IActionResult> Export(
         [FromQuery(Name = "$filter")] string filter = "",
         [FromQuery(Name = "$orderby")] string orderBy = "",
         [FromQuery(Name = "$top")] int top = 0,
@@ -283,7 +311,7 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 //determine top value
-                int maxExport = int.Parse(config["App:MaxExportRecords"]);
+                int maxExport = int.Parse(Config["App:MaxExportRecords"]);
                 top = top > maxExport | top == 0 ? maxExport : top; //if $top is greater than max or equal to 0 use max export value
                 ODataHelper<AuditLog> oData = new ODataHelper<AuditLog>();
                 string queryString = HttpContext.Request.QueryString.Value;
@@ -292,7 +320,7 @@ namespace OpenBots.Server.Web.Controllers
                 oData.Top = top;
 
                 var auditLogsJson = base.GetMany(oData: oData);
-                string csvString = manager.GetAuditLogs(auditLogsJson.Items.ToArray());
+                string csvString = _manager.GetAuditLogs(auditLogsJson.Items.ToArray());
                 var csvFile = File(new System.Text.UTF8Encoding().GetBytes(csvString), "text/csv", "AuditLogs.csv");
 
                 switch (fileType.ToLower())
@@ -301,7 +329,7 @@ namespace OpenBots.Server.Web.Controllers
                         return csvFile;
 
                     case "zip":
-                        var zippedFile = manager.ZipCsv(csvFile);
+                        var zippedFile = _manager.ZipCsv(csvFile);
                         const string contentType = "application/zip";
                         HttpContext.Response.ContentType = contentType;
                         var zipFile = new FileContentResult(zippedFile.ToArray(), contentType)
@@ -312,13 +340,12 @@ namespace OpenBots.Server.Web.Controllers
                         return zipFile;
 
                     case "json":
-                        return auditLogsJson;
+                        return Ok(auditLogsJson);
                 }
                 return csvFile;
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Export", ex.Message);
                 return ex.GetActionResult();
             }
         }

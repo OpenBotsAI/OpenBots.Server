@@ -16,34 +16,30 @@ export class FileManagerService {
   constructor(private http: HttpClient, private helperService: HelperService) {}
 
   getAllFiles(tpage: any, spage: any) {
-    //   ?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}
-    let filesurl = `/files?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
+    let filesurl = `/files?driveName=Files&$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + filesurl);
   }
 
   getAllFilesOrder(tpage: any, spage: any, name) {
-    //   ?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}
-    let filesurl = `/files?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    let filesurl = `/files?driveName=Files&$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + filesurl);
   }
 
-  // getAllEmail(tpage: any, spage: any) {
-  //   let getagentUrl = `/EmailAccounts?$orderby=createdOn desc&$top=${tpage}&$skip=${spage}`;
-  //   return this.http.get(`${this.apiUrl}` + getagentUrl);
-  // }
-
-  // getAllEmailOrder(tpage: any, spage: any, name) {
-  //   let getagentUrl = `/EmailAccounts?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
-  //   return this.http.get(`${this.apiUrl}` + getagentUrl);
-  // }
+  Createfolder(obj) {
+    let createfile = `/files?driveName=Files`;
+    return this.http.post(`${this.apiUrl}` + createfile, obj);
+  }
 
   getFileFloder(parentId) {
-    let filesurl = `/files/${parentId}`;
+    let filesurl = `/files?driveName=Files&$filter=${parentId}`;
     return this.http.get(`${this.apiUrl}` + filesurl);
   }
-
+  DeleteFileFloder(id) {
+    let filesurl = `/files/${id}?driveName=Files`;
+    return this.http.delete(`${this.apiUrl}` + filesurl);
+  }
   getFiledownload(Id): Observable<any> {
-    let downloadurl = `/files/${Id}/download`;
+    let downloadurl = `/files/${Id}/download?driveName=Files`;
     let options = {};
     options = {
       responseType: 'blob',

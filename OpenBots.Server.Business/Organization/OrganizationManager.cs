@@ -7,27 +7,27 @@ namespace OpenBots.Server.Business
 {
     public class OrganizationManager : BaseManager, IOrganizationManager
     {
-        readonly IOrganizationRepository organizationRepository;
-        readonly IOrganizationUnitRepository organizationUnitRepository;
+        readonly IOrganizationRepository _organizationRepository;
+        readonly IOrganizationUnitRepository _organizationUnitRepository;
 
         public OrganizationManager(
              IOrganizationRepository organizationRepository,
              IOrganizationUnitRepository organizationUnitRepository)
         {
-            this.organizationRepository = organizationRepository;
-            this.organizationUnitRepository = organizationUnitRepository;
+            _organizationRepository = organizationRepository;
+            _organizationUnitRepository = organizationUnitRepository;
         }
 
         public override void SetContext(UserSecurityContext userSecurityContext)
         {
-            organizationRepository.SetContext(userSecurityContext);
-            organizationUnitRepository.SetContext(userSecurityContext);
+            _organizationRepository.SetContext(userSecurityContext);
+            _organizationUnitRepository.SetContext(userSecurityContext);
             base.SetContext(userSecurityContext);
         }
 
         public Organization AddNewOrganization(Organization value)
         {
-            var organization = organizationRepository.Add(value);
+            var organization = _organizationRepository.Add(value);
             if (organization != null)
             {
                 OrganizationUnit orgUnit = new OrganizationUnit()
@@ -37,8 +37,8 @@ namespace OpenBots.Server.Business
                     IsVisibleToAllOrganizationMembers = true,
                     CanDelete = false
                 };
-                organizationUnitRepository.ForceIgnoreSecurity();
-                organizationUnitRepository.Add(orgUnit);
+                _organizationUnitRepository.ForceIgnoreSecurity();
+                _organizationUnitRepository.Add(orgUnit);
             }
 
             return organization;
@@ -46,7 +46,7 @@ namespace OpenBots.Server.Business
 
         public Organization GetDefaultOrganization()
         {
-            var organization = organizationRepository.Find(null, o => true)?.Items?.FirstOrDefault();
+            var organization = _organizationRepository.Find(null, o => true)?.Items?.FirstOrDefault();
             
             return organization;
         }

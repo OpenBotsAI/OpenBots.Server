@@ -387,14 +387,14 @@ export class AddQueueItemsComponent implements OnInit {
         observe: 'response',
       })
       .subscribe((response) => {
-        this.fileSaverService.save(
-          response.body,
-          response.headers
-            .get('content-disposition')
-            .split(';')[1]
-            .split('=')[1]
-            .replace(/\"/g, '')
-        );
+         this.fileSaverService.save(
+           response.body,
+           response.headers
+             .get('content-disposition')
+             .split(';')[1]
+             .split('=')[1]
+             .replace(/\"/g, '')
+         );
       });
   }
 
