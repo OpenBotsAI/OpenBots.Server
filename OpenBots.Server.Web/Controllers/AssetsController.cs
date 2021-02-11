@@ -445,12 +445,17 @@ namespace OpenBots.Server.Web
                     return BadRequest(ModelState);
                 }
 
+                //do not update agent id if the asset is a global asset 
+                if (existingAsset.AgentId != null)
+                {
+                    existingAsset.AgentId = request.AgentId;
+                }
+
                 existingAsset.Name = request.Name;
                 existingAsset.Type = request.Type;
                 existingAsset.TextValue = request.TextValue;
                 existingAsset.NumberValue = request.NumberValue;
                 existingAsset.JsonValue = request.JsonValue;
-                existingAsset.AgentId = request.AgentId;
                 existingAsset = _manager.GetSizeInBytes(existingAsset);
 
                 _manager.AssetNameAvailability(existingAsset);
@@ -526,6 +531,12 @@ namespace OpenBots.Server.Web
                     if (!string.IsNullOrEmpty(request.Type))
                         existingAsset.Type = request.Type;
                     else existingAsset.Type = existingAsset.Type;
+
+                    //do not update agent id if the asset is a global asset 
+                    if (existingAsset.AgentId != null)
+                    {
+                        existingAsset.AgentId = request.AgentId;
+                    }
 
                     existingAsset.TextValue = request.TextValue;
                     existingAsset.NumberValue = request.NumberValue;
@@ -638,6 +649,14 @@ namespace OpenBots.Server.Web
                     {
                         existingAsset.Name = request.Operations[i].value.ToString();
                         _manager.AssetNameAvailability(existingAsset);
+                    }
+                    if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/agentid")
+                    {
+                        //only update if asset is not global
+                        if (existingAsset.AgentId != null)
+                        {
+                            existingAsset.AgentId = (Guid)request.Operations[i].value;
+                        }
                     }
                 }
 
