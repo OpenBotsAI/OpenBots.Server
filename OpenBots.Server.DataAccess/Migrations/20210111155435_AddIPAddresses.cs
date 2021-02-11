@@ -6,11 +6,11 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-           /* migrationBuilder.AddColumn<string>(
+            migrationBuilder.AddColumn<string>(
                 name: "IPAddresses",
                 table: "Agents",
                 type: "nvarchar(max)",
-                nullable: true);*/
+                nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -7,7 +7,7 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-           /* migrationBuilder.RenameColumn(
+            migrationBuilder.RenameColumn(
                 name: "HTTP_Max_RetryCount",
                 table: "IntegrationEventSubscriptions",
                 newName: "Max_RetryCount");
@@ -28,7 +28,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                 name: "AverageUnSuccessfulExecution",
                 table: "Automations",
                 type: "time",
-                nullable: true);*/
+                nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -6,11 +6,11 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            /*migrationBuilder.AddColumn<long>(
+            migrationBuilder.AddColumn<long>(
                 name: "SizeInBytes",
                 table: "Assets",
                 type: "bigint",
-                nullable: true);*/
+                nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

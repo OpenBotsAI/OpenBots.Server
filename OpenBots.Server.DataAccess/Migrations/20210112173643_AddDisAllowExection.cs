@@ -6,7 +6,7 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            /*migrationBuilder.AddColumn<bool>(
+            migrationBuilder.AddColumn<bool>(
                 name: "DisallowAllExecutions",
                 table: "OrganizationSettings",
                 type: "bit",
@@ -25,7 +25,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                 table: "OrganizationSettings",
                 type: "nvarchar(max)",
                 nullable: false,
-                defaultValue: "");*/
+                defaultValue: "");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

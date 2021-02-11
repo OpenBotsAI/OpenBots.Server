@@ -7,11 +7,11 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-           /* migrationBuilder.AddColumn<Guid>(
+            migrationBuilder.AddColumn<Guid>(
                 name: "AgentId",
                 table: "Assets",
                 type: "uniqueidentifier",
-                nullable: true);*/
+                nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -7,7 +7,7 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            /*migrationBuilder.CreateTable(
+            migrationBuilder.CreateTable(
                 name: "Agents",
                 columns: table => new
                 {
@@ -1063,7 +1063,7 @@ namespace OpenBots.Server.DataAccess.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_UserConsents_UserAgreementID",
                 table: "UserConsents",
-                column: "UserAgreementID");*/
+                column: "UserAgreementID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

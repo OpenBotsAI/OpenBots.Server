@@ -7,7 +7,7 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-           /* migrationBuilder.InsertData(
+            migrationBuilder.InsertData(
                 table: "IntegrationEvents",
                 columns: new[] { "Id", "CreatedBy", "CreatedOn", "DeleteOn", "DeletedBy", "Description", "EntityType", "IsDeleted", "IsSystem", "Name", "PayloadSchema", "UpdatedBy", "UpdatedOn" },
                 values: new object[,]
@@ -16,7 +16,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                     { new Guid("d10616c6-53c4-4137-8cd0-70a5c7409938"), "", null, null, "", "A Folder has been updated", "File", false, true, "Files.FolderUpdated", null, null, null },
                     { new Guid("e4a9ceaa-88e2-4c03-a203-7a419749c613"), "", null, null, "", "A Folder has been deleted", "File", false, true, "Files.FolderDeleted", null, null, null },
                     { new Guid("513bb79b-3f2e-4846-a804-2c5b9a6792d0"), "", null, null, "", "Local Drive has been updated", "File", false, true, "Files.DriveUpdated", null, null, null }
-                });*/
+                });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -7,9 +7,9 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            /*migrationBuilder.DropColumn(
+            migrationBuilder.DropColumn(
                 name: "ServerDriveId",
-                table: "ServerFolders");*/
+                table: "ServerFolders");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -7,7 +7,7 @@ namespace OpenBots.Server.DataAccess.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            /*migrationBuilder.DropColumn(
+            migrationBuilder.DropColumn(
                 name: "ExecutionTime",
                 table: "Jobs");
 
@@ -35,7 +35,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                 name: "AverageUnSuccessfulExecutionInMinutes",
                 table: "Automations",
                 type: "float",
-                nullable: true);*/
+                nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
