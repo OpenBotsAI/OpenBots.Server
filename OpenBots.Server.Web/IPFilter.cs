@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using OpenBots.Server.Business;
+using System;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -16,18 +18,26 @@ namespace OpenBots.Server.Web
         }
 
         public async Task Invoke(HttpContext context,
-            IIPFencingManager iPFencingManager)
+            IIPFencingManager iPFencingManager,
+            ILogger<IPFilter> logger)
         {
-            var ipAddress = context.Connection.RemoteIpAddress;
-            bool isAllowedRequest = iPFencingManager.IsRequestAllowed(ipAddress);
-
-            if (!isAllowedRequest)
+            try
             {
-                context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                context.Response.WriteAsync("Current IP Address is blocked.");
-                return;
+                var ipAddress = context.Connection.RemoteIpAddress;
+                bool isAllowedRequest = iPFencingManager.IsRequestAllowed(ipAddress);
+
+                if (!isAllowedRequest)
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    context.Response.WriteAsync("Current IP Address is blocked.");
+                    return;
+                }
+                await _next.Invoke(context);
             }
-            await _next.Invoke(context);
+            catch (Exception ex)
+            {
+                logger.LogError(ex,ex.Message);
+            }
         }
     }
 

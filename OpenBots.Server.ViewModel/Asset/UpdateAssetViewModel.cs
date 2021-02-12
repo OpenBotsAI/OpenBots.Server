@@ -13,5 +13,6 @@ namespace OpenBots.Server.ViewModel.ViewModels
         public string? JsonValue { get; set; }
         public Guid? BinaryObjectId { get; set; }
         public IFormFile? File { get; set; }
+        public Guid? AgentId { get; set; }
     }
 }
