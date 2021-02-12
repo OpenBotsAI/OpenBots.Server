@@ -30,9 +30,6 @@ export class AddAgentsComponent implements OnInit {
     private toastrService: NbToastrService
   ) {
     this.urlId = this.route.snapshot.params['id'];
-    
-   
-    
   }
 
   ngOnInit(): void {

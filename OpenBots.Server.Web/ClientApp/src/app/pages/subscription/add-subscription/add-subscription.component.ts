@@ -1,6 +1,7 @@
+import { HttpResponse } from '@angular/common/http';
 import { Component, EventEmitter, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NbToastrService } from '@nebular/theme';
 import { SubscriptionService } from '../subscription.service';
 
@@ -16,16 +17,26 @@ export class AddSubscriptionComponent implements OnInit {
   showQueues: any = [];
   subscriptionForm: FormGroup;
   submitted = false;
-  filterValue:any ;
-  EntityFilterValue :any =[]
+  filterValue: any;
+  EntityFilterValue: any = [];
   transportType: string[] = ['HTTPS', 'Queue'];
+  etag;
+  showAutomation: any = [];
+  title = 'Add';
+  urlId: string;
   constructor(
     private formBuilder: FormBuilder,
     private toastrService: NbToastrService,
     protected router: Router,
+    private route: ActivatedRoute,
     protected SubscriptionService: SubscriptionService
   ) {
-    this.getallEntity();
+    this.getQueueAndEntity();
+    this.urlId = this.route.snapshot.params['id'];
+    if (this.urlId) {
+      this.getSubscriptionbyID(this.urlId);
+      this.title = 'Update';
+    }
   }
 
   ngOnInit(): void {
@@ -50,14 +61,34 @@ export class AddSubscriptionComponent implements OnInit {
       Max_RetryCount: [''],
       queuE_QueueID: [''],
     });
-      //  this.subscriptionForm.get('state').reset();
-       this.subscriptionForm.get('integrationEventName').disable();
+    //  this.subscriptionForm.get('state').reset();
+    this.subscriptionForm.get('integrationEventName').disable();
   }
 
+  getSubscriptionbyID(id) {
+    this.SubscriptionService.getsubscribeID(id).subscribe(
+      (data: HttpResponse<any>) => {
+        this.etag = data.headers.get('ETag').replace(/\"/g, '');
+
+        if (data.body.queuE_QueueID == null) {
+          this.showTabview = true;
+        } else if (data.body.queuE_QueueID != null) {
+          this.showTabview = false;
+        }
+
+        if (data.body.transportType == 1) {
+          data.body.transportType = 'HTTPS';
+        } else if (data.body.transportType == 2) {
+          data.body.transportType = 'Queue';
+        }
+        this.subscriptionForm.patchValue(data.body);
+      }
+    );
+  }
   get f() {
     return this.subscriptionForm.controls;
   }
-  getallEntity() {
+  getQueueAndEntity() {
     this.SubscriptionService.get_EntityName().subscribe((data: any) => {
       this.show_filter_entity = data.integrationEntityTypeList;
       this.show_filter_event = data.integrationEventNameList;
@@ -67,20 +98,29 @@ export class AddSubscriptionComponent implements OnInit {
     });
   }
 
-  
-  getEntityName(e)  {
-     console.log(e.target.value); 
-     this.filterValue =e.target.value;
-     this.SubscriptionService.filterIntegrationEventName(
-       `entityType+eq+'${this.filterValue}'`
-     ).subscribe((data: any) => {
-       console.log(data.items);
-       
-       this.EntityFilterValue = data.items;
-       this.subscriptionForm.get('integrationEventName').enable();
-     });
+  getEntityName(e) {
+    console.log(e.target.value);
+    this.filterValue = e.target.value;
+    this.SubscriptionService.filterIntegrationEventName(
+      `entityType+eq+'${this.filterValue}'`
+    ).subscribe((data: any) => {
+      console.log(data.items);
+
+      this.EntityFilterValue = data.items;
+      this.subscriptionForm.get('integrationEventName').enable();
+    });
   }
-  onSubmit() {
+
+   onSubmit() {
+     if(this.urlId){
+       this.UpdateSubscription()
+     }
+     else {
+       this.AddSubscription();
+     }
+   }
+
+  AddSubscription() {
     this.submitted = true;
 
     this.SubscriptionService.addsubscription(
@@ -97,6 +137,24 @@ export class AddSubscriptionComponent implements OnInit {
     );
   }
 
+  UpdateSubscription() {
+    this.submitted = true;
+
+    this.SubscriptionService.updateSubscription(
+      this.subscriptionForm.value,
+      this.urlId,
+      this.etag
+    ).subscribe(
+      (data: any) => {
+        this.toastrService.success(
+          'Subscription Update  Successfully!',
+          'Success'
+        );
+        this.router.navigate(['/pages/subscription/list']);
+      },
+      () => (this.submitted = false)
+    );
+  }
   showHTTP(val) {
     if (val == 'HTTPS') {
       this.showTabview = true;

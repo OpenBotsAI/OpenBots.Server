@@ -52,9 +52,7 @@ export class AllEmailAccountComponent implements OnInit {
     this.router.navigate(['/pages/emailaccount/add']);
   }
   gotoedit(id) {
-    this.router.navigate(['/pages/emailaccount/edit'], {
-      queryParams: { id: id },
-    });
+    this.router.navigate([`/pages/emailaccount/edit/${id}`]);
   }
   gotodetail(id) {
     this.router.navigate(['/pages/emailaccount/get-email-id'], {

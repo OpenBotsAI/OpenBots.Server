@@ -19,8 +19,8 @@ const routes: Routes = [
     component: AddAutomationComponent,
   },
   {
-    path: 'edit',
-    component: EditAutomationComponent,
+    path: 'edit/:id',
+    component: AddAutomationComponent,
   },
 ];
 

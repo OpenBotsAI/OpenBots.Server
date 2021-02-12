@@ -67,9 +67,7 @@ export class AllEventSubscriptionsComponent implements OnInit {
     });
   }
   gotoedit(id) {
-    this.router.navigate(['/pages/subscription/edit'], {
-      queryParams: { id: id },
-    });
+    this.router.navigate([`/pages/subscription/edit/${id}`]);
   }
   gotoAdd() {
     this.router.navigate(['/pages/subscription/add']);

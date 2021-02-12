@@ -9,21 +9,21 @@ import { EditAssetComponent } from './edit-asset/edit-asset.component';
 
 const routes: Routes = [
   {
-    path:'list',
-    component:AllAssetComponent
+    path: 'list',
+    component: AllAssetComponent,
   },
   {
-    path:'add',
-    component:AddAssetComponent
+    path: 'add',
+    component: AddAssetComponent,
   },
   {
     path: 'get-asset-id',
-    component:GetAssetIdComponent
+    component: GetAssetIdComponent,
   },
   {
-    path: 'edit',
-    component:EditAssetComponent
-  }
+    path: 'edit/:id',
+    component: AddAssetComponent,
+  },
 ];
 
 @NgModule({

@@ -10,24 +10,24 @@ import { GetEmailIdComponent } from './get-email-id/get-email-id.component';
 const routes: Routes = [
   {
     path: 'list',
-    component: AllEmailAccountComponent
+    component: AllEmailAccountComponent,
   },
   {
     path: 'get-email-id',
-    component: GetEmailIdComponent
+    component: GetEmailIdComponent,
   },
   {
-    path: 'edit',
-    component: EditEmailAccountComponent
+    path: 'edit/:id',
+    component: AddEmailAccountComponent,
   },
   {
     path: 'add',
-    component: AddEmailAccountComponent
+    component: AddEmailAccountComponent,
   },
   {
     path: 'send-email',
-    component: EmailTestingAccountComponent
-  }
+    component: EmailTestingAccountComponent,
+  },
 ];
 
 @NgModule({

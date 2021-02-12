@@ -47,7 +47,7 @@ export class AllAssetComponent implements OnInit {
     this.router.navigate(['/pages/asset/add']);
   }
   gotoedit(id) {
-    this.router.navigate(['/pages/asset/edit'], { queryParams: { id: id } });
+    this.router.navigate([`/pages/asset/edit/${id}`]);
   }
   gotodetail(id) {
     this.router.navigate(['/pages/asset/get-asset-id'], {
