@@ -3,9 +3,6 @@ import { Routes, RouterModule } from '@angular/router';
 import { AllAssetComponent } from './all-asset/all-asset.component';
 import { AddAssetComponent } from './add-asset/add-asset.component';
 import { GetAssetIdComponent } from './get-asset-id/get-asset-id.component';
-import { EditAssetComponent } from './edit-asset/edit-asset.component';
-
-
 
 const routes: Routes = [
   {

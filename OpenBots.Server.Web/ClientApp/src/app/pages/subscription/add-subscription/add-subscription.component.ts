@@ -24,6 +24,7 @@ export class AddSubscriptionComponent implements OnInit {
   showAutomation: any = [];
   title = 'Add';
   urlId: string;
+  getSubscription:any =[];
   constructor(
     private formBuilder: FormBuilder,
     private toastrService: NbToastrService,
@@ -68,8 +69,9 @@ export class AddSubscriptionComponent implements OnInit {
   getSubscriptionbyID(id) {
     this.SubscriptionService.getsubscribeID(id).subscribe(
       (data: HttpResponse<any>) => {
+        this.getSubscription = data.body
         this.etag = data.headers.get('ETag').replace(/\"/g, '');
-
+        this.getEntityName(this.getSubscription.entityName);
         if (data.body.queuE_QueueID == null) {
           this.showTabview = true;
         } else if (data.body.queuE_QueueID != null) {
@@ -99,7 +101,33 @@ export class AddSubscriptionComponent implements OnInit {
   }
 
   getEntityName(e) {
-    console.log(e.target.value);
+    if(this.urlId){
+      if (e == this.getSubscription.entityName) {
+      console.log(e);
+       this.filterValue = e;
+       this.SubscriptionService.filterIntegrationEventName(
+         `entityType+eq+'${this.filterValue}'`
+       ).subscribe((data: any) => {
+         console.log(data.items);
+         this.EntityFilterValue = data.items;
+         this.subscriptionForm.get('integrationEventName').enable();
+       });
+      } else if (e !== this.getSubscription.entityName){
+         console.log(e.target.value);
+         this.filterValue = e.target.value;
+         this.SubscriptionService.filterIntegrationEventName(
+           `entityType+eq+'${this.filterValue}'`
+         ).subscribe((data: any) => {
+           console.log(data.items);
+
+           this.EntityFilterValue = data.items;
+           this.subscriptionForm.get('integrationEventName').enable();
+         });
+      }
+      
+    }
+    else {
+      console.log(e.target.value);
     this.filterValue = e.target.value;
     this.SubscriptionService.filterIntegrationEventName(
       `entityType+eq+'${this.filterValue}'`
@@ -109,6 +137,8 @@ export class AddSubscriptionComponent implements OnInit {
       this.EntityFilterValue = data.items;
       this.subscriptionForm.get('integrationEventName').enable();
     });
+    }
+    
   }
 
    onSubmit() {
