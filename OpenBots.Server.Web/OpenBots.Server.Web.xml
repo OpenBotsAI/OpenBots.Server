@@ -2437,7 +2437,7 @@
         </member>
         <member name="M:OpenBots.Server.Web.AssetsController.AddAgentAsset(OpenBots.Server.ViewModel.ViewModels.AgentAssetViewModel)">
             <summary>
-            Adds a new AgentAsset if a glboal assets exists for the given name
+            Adds a new AgentAsset if a global asset exists for the given name
             </summary>
             <param name="request">New file to update Asset</param>
             <response code="200">Ok, asset created and returned</response>
