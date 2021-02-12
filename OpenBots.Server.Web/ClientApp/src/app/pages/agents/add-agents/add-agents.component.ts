@@ -83,16 +83,16 @@ export class AddAgentsComponent implements OnInit {
       this.getagentID(this.urlId);
       //  this.submitted = true;
       // this.addagent.get('macAddresses').clearValidators();
-      //  this.addagent.get('macAddresses').updateValueAndValidity();
+      // this.addagent.get('macAddresses').updateValueAndValidity();
       // this.addagent.get('ipAddresses').clearValidators();
-      //  this.addagent.get('ipAddresses').updateValueAndValidity();
+      // this.addagent.get('ipAddresses').updateValueAndValidity();
       // this.addagent.get('ipOption').clearValidators();
-      //  this.addagent.get('ipOption').updateValueAndValidity();
-      // this.addagent.get('password').clearValidators();
-      //  this.addagent.get('password').updateValueAndValidity();
+      // this.addagent.get('ipOption').updateValueAndValidity();
+      this.addagent.get('password').clearValidators();
+      this.addagent.get('password').updateValueAndValidity();
       // this.addagent.get('isEnabled').clearValidators();
-      //  this.addagent.get('isEnabled').updateValueAndValidity();
-      
+      // this.addagent.get('isEnabled').updateValueAndValidity();
+
       this.title = 'Update';
     }
 
