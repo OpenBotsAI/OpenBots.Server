@@ -66,7 +66,8 @@ export class AllFilesComponent implements OnInit {
   driveId: string;
   currentParentId: string;
   uploadedFilesArr: any[] = [];
-  isHidden = false;
+  isHidden = true;
+  renameId: string;
 
   constructor(
     protected fileManagerService: FileManagerService,
@@ -181,7 +182,7 @@ export class AllFilesComponent implements OnInit {
         // this.getByIdFile(this.bread[this.bread.length - 1].id);
       });
   }
-  openRenameDialog(ref: TemplateRef<any>, file): void {
+  openRenameDialog(ref: TemplateRef<any>): void {
     this.filesFormgroup = this.formBuilder.group({
       name: [''],
     });
@@ -328,7 +329,16 @@ export class AllFilesComponent implements OnInit {
   removeAllFiles(): void {
     this.uploadInput.emit({ type: 'removeAll' });
   }
-  editFileName() {}
+  renameFileName() {
+    this.httpService
+      .put(
+        `files/${this.fileID}/rename?driveName=${this.driveName}`,
+        this.filesFormgroup.value
+      )
+      .subscribe((response) => {
+        console.log('res', response);
+      });
+  }
 
   onDown() {
     let fileName: string;
