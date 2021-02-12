@@ -326,7 +326,7 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Adds a new AgentAsset if a glboal assets exists for the given name
+        /// Adds a new AgentAsset if a global assets exists for the given name
         /// </summary>
         /// <param name="request">New file to update Asset</param>
         /// <response code="200">Ok, asset created and returned</response>
