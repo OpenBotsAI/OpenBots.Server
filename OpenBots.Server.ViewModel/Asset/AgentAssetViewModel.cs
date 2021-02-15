@@ -1,21 +1,20 @@
 ﻿using Microsoft.AspNetCore.Http;
+using OpenBots.Server.Model;
+using OpenBots.Server.Model.Core;
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace OpenBots.Server.ViewModel
+namespace OpenBots.Server.ViewModel.ViewModels
 {
-    public class AssetViewModel
+    public class AgentAssetViewModel
     {
-        public Guid? Id { get; set; }
         [Required]
         public string Name { get; set; }
-        [Required]
-        public string Type { get; set; }
         public string? TextValue { get; set; }
         public double? NumberValue { get; set; }
         public string? JsonValue { get; set; }
-        public Guid? BinaryObjectID { get; set; }
-        public IFormFile? file { get; set; }
-        public Guid? OrganizationId { get; set; }
+        public IFormFile? File { get; set; }
+        [Required]
+        public Guid? AgentId { get; set; }
     }
 }
