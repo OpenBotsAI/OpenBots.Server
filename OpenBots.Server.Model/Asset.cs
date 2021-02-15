@@ -13,5 +13,6 @@ namespace OpenBots.Server.Model
         public string? JsonValue { get; set; }
         public Guid? BinaryObjectID { get; set; }
         public long? SizeInBytes { get; set; }
+        public Guid? AgentId { get; set; }
     }
 }

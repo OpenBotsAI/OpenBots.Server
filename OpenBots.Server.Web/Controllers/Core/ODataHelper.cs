@@ -101,7 +101,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             }
         }
 
-        public ODataHelperViewModel<T> GetOData(HttpContext context, ODataHelper<T> oData)
+        public ODataHelperViewModel<T> GetOData(HttpContext context, ODataHelper<T> oData, int maxRecords = 100)
         {
             string queryString = string.Empty;
 
@@ -120,7 +120,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             Predicate<T> predicate = null;
             if (oData != null && oData.Filter != null)
                 predicate = new Predicate<T>(oData.Filter);
-            int take = (oData?.Top == null || oData?.Top == 0) ? 100 : oData.Top;
+            int take = (oData?.Top == null || oData?.Top == 0) ? maxRecords : oData.Top;
 
             ODataHelperViewModel<T> oDataHelperViewModel = new ODataHelperViewModel<T>()
             {
