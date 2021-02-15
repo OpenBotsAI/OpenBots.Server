@@ -56,10 +56,7 @@ export class AddAssetComponent implements OnInit {
     this.editorOptions = new JsonEditorOptions();
     this.editorOptions.modes = ['code', 'text', 'tree', 'view'];
     this.urlId = this.route.snapshot.params['id'];
-    if (this.urlId) {
-      this.getAssetById(this.urlId);
-      this.title = 'Update';
-    }
+   
   }
 
   ngOnInit(): void {
@@ -85,6 +82,11 @@ export class AddAssetComponent implements OnInit {
       ],
       type: ['', Validators.required],
     });
+     if (this.urlId) {
+       this.getAssetById(this.urlId);
+       this.title = 'Update';
+       this.addasset.get('type').disable();
+     }
   }
 
   getAssetById(id) {
@@ -263,6 +265,7 @@ export class AddAssetComponent implements OnInit {
   }
 
   UpdateAsset() {
+    console.log(this.addasset.getRawValue().type);
     this.submitted = true;
 
     if (this.showAssetbyID.type == 'File') {
@@ -350,7 +353,7 @@ export class AddAssetComponent implements OnInit {
     } else if (this.showAssetbyID.type == 'Text') {
       let textdata = {
         name: this.addasset.value.name,
-        type: this.addasset.value.type,
+        type: this.addasset.getRawValue().type,
         Organizationid: localStorage.getItem('ActiveOrganizationID'),
         textValue: this.addasset.value.TextValue,
       };
@@ -372,7 +375,7 @@ export class AddAssetComponent implements OnInit {
     } else if (this.showAssetbyID.type == 'Number') {
       let numberdata = {
         name: this.addasset.value.name,
-        type: this.addasset.value.type,
+        type: this.addasset.getRawValue().type,
         Organizationid: localStorage.getItem('ActiveOrganizationID'),
         numberValue: this.addasset.value.NumberValue,
       };
