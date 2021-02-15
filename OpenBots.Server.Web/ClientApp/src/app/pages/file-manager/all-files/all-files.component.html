@@ -86,7 +86,7 @@
                         <tbody>
                             <tr *ngFor="let files of fileManger | paginate : { 
                             itemsPerPage: page.pageSize, currentPage: page.pageNumber,
-                            totalItems: page.totalCount };;trackBy: trackByFn; index as i " (click)="ClickedRow(i)"
+                            totalItems: page.totalCount };trackBy: trackByFn; index as i " (click)="ClickedRow(i)"
                                 [class.active]="i == HighlightRow">
                                 <!-- <tr *ngFor="let files of fileManger | paginate: {id: '1',
                       itemsPerPage: page.pageSize,currentPage: page.pageNumber,totalItems: page.totalCount
@@ -273,7 +273,8 @@
             </nb-card-body>
             <nb-card-footer>
                 <!-- [disabled]="isDeleted" (click)="del_agent(ref)" -->
-                <button class="btn btn-primary" [disabled]="isSubmitted || !filesFormgroup.valid">Save</button>
+                <button class="btn btn-primary" [disabled]="isSubmitted || !filesFormgroup.valid"
+                    (click)="renameFileName()">Save</button>
                 <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
                     Cancel
                 </button>
