@@ -1,10 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NbToastrService } from '@nebular/theme';
-import { AgentsService } from '../agents.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IpVersion, RxwebValidators } from '@rxweb/reactive-form-validators';
-import { HttpResponse } from '@angular/common/http';
 import { HttpService } from '../../../@core/services/http.service';
 import { AgentApiUrl, CredentialsApiUrl } from '../../../webApiUrls';
 import { HelperService } from '../../../@core/services/helper.service';
@@ -27,10 +24,8 @@ export class AddAgentsComponent implements OnInit {
   show_allagents: any = [];
   constructor(
     private formBuilder: FormBuilder,
-    private agentService: AgentsService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastrService: NbToastrService,
     private httpService: HttpService,
     private helperService: HelperService
   ) {}
@@ -40,20 +35,9 @@ export class AddAgentsComponent implements OnInit {
     this.initializeAgentForm();
 
     if (this.urlId) {
-      this.getagentID(this.urlId);
-      //  this.submitted = true;
-      // this.addagent.get('macAddresses').clearValidators();
-      // this.addagent.get('macAddresses').updateValueAndValidity();
-      // this.addagent.get('ipAddresses').clearValidators();
-      // this.addagent.get('ipAddresses').updateValueAndValidity();
-      // this.addagent.get('ipOption').clearValidators();
-      // this.addagent.get('ipOption').updateValueAndValidity();
-      this.agentForm.get('password').clearValidators();
-      this.agentForm.get('password').updateValueAndValidity();
+      this.getAgentById();
       this.title = 'Update';
     }
-
-    // this.get_cred();
     this.getCredentials();
   }
 
@@ -75,7 +59,6 @@ export class AddAgentsComponent implements OnInit {
       CredentialId: ['', [Validators.required]],
       userName: this.urlId ? [''] : ['', [Validators.required]],
       password: this.urlId ? [''] : ['', [Validators.required]],
-      // ipOption: ['ipv4'],
       ipOption: [''],
       isEnhancedSecurity: false,
     });
@@ -89,20 +72,15 @@ export class AddAgentsComponent implements OnInit {
         else this.credentialArr = [];
       });
   }
-  // get_cred() {
-  //   this.agentService.getCred().subscribe((data: any) => {
-  //     console.log('data', data);
-  //     this.credentialArr = data;
-  //   });
-  // }
+
   get formControl() {
     return this.agentForm.controls;
   }
   check(checked: boolean) {
     this.checked = checked;
     if (checked) {
-      // this.agentForm.get('ipOption').setValidators([Validators.required]);
-      this.agentForm.get('ipOption').setValue(['ipv4']);
+      this.agentForm.get('ipOption').setValidators([Validators.required]);
+      this.agentForm.controls['ipOption'].setValue('ipv4');
       this.agentForm
         .get('ipAddresses')
         .setValidators([
@@ -115,11 +93,15 @@ export class AddAgentsComponent implements OnInit {
           Validators.required,
           Validators.pattern('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$'),
         ]);
-      this.agentForm.get('ipAddresses').setValidators([Validators.required]);
       this.agentForm.get('ipOption').updateValueAndValidity();
       this.agentForm.get('macAddresses').updateValueAndValidity();
       this.agentForm.get('ipAddresses').updateValueAndValidity();
     } else {
+      this.agentForm.get('ipOption').reset();
+      this.agentForm.get('ipAddresses').reset();
+      this.agentForm.get('macAddresses').reset();
+      this.agentForm.get('ipOption').clearValidators();
+      this.agentForm.get('ipOption').updateValueAndValidity();
       this.agentForm.get('ipAddresses').clearValidators();
       this.agentForm.get('ipAddresses').updateValueAndValidity();
       this.agentForm.get('macAddresses').clearValidators();
@@ -149,79 +131,35 @@ export class AddAgentsComponent implements OnInit {
         },
         () => (this.submitted = false)
       );
-    // this.agentService.addAgent(this.agentForm.value).subscribe(
-    //   () => {
-    //     this.toastrService.success('Agent added successfully', 'Success');
-    //     this.router.navigate(['pages/agents/list']);
-    //   },
-    //   () => {
-    //     this.submitted = false;
-    //   }
-    // );
   }
 
   updateAgent(): void {
     this.submitted = true;
     const headers = this.helperService.getETagHeaders(this.etag);
     this.httpService
-      .put(
-        `${AgentApiUrl.Agents}/${this.urlId}`,
-        this.agentForm.value,
-        this.etag
-      )
+      .put(`${AgentApiUrl.Agents}/${this.urlId}`, this.agentForm.value, headers)
       .subscribe(
         () => {
-          this.toastrService.success('Updated successfully', 'Success');
+          this.httpService.success('Updated successfully');
           this.router.navigate(['pages/agents/list']);
         },
         (error) => {
           if (error.error.status === 409) {
-            this.toastrService.danger(error.error.serviceErrors, 'error');
-            this.getagentID(this.urlId);
+            this.httpService.error(error.error.serviceErrors);
+            this.getAgentById();
             this.submitted = false;
           }
           if (error.error.status === 429) {
-            this.toastrService.danger(error.error.serviceErrors, 'error');
-            // this.get_allagent(this.agent_id)
+            this.httpService.error(error.error.serviceErrors);
             this.submitted = false;
           }
         }
       );
-    // this.agentService
-    //   .editAgent(this.urlId, this.agentForm.value, this.etag)
-    //   .subscribe(
-    //     () => {
-    //       this.toastrService.success('Updated successfully', 'Success');
-    //       this.router.navigate(['pages/agents/list']);
-    //     },
-    //     (error) => {
-    //       if (error.error.status === 409) {
-    //         this.toastrService.danger(error.error.serviceErrors, 'error');
-    //         this.getagentID(this.urlId);
-    //         this.submitted = false;
-    //       }
-    //       if (error.error.status === 429) {
-    //         this.toastrService.danger(error.error.serviceErrors, 'error');
-    //         // this.get_allagent(this.agent_id)
-    //         this.submitted = false;
-    //       }
-    //     }
-    //   );
   }
 
   onReset() {
     this.submitted = false;
     this.agentForm.reset();
-  }
-
-  keyPressAlphaNumericWithCharacters(event) {
-    var inp = String.fromCharCode(event.keyCode);
-    if (/[a-zA-Z0-9-/. ]/.test(inp)) {
-      return true;
-    } else {
-      event.preventDefault();
-      return false;
-    }
   }
 
   handleInput(event) {
@@ -256,34 +194,37 @@ export class AddAgentsComponent implements OnInit {
     }
   }
 
-  getagentID(id) {
-    this.agentService.getAgentbyID(id).subscribe((data: HttpResponse<any>) => {
-      if (data && data.body) {
-        this.show_allagents = data.body;
-        if (data.body.ipOption === 'ipv6') {
-          this.agentForm
-            .get('ipAddresses')
-            .setValidators([
-              Validators.required,
-              RxwebValidators.ip({ version: IpVersion.V6 }),
-            ]);
-          this.agentForm.get('ipAddresses').updateValueAndValidity();
-          this.ipVersion = 'V6';
-        } else if (data.body.ipOption === 'ipv4') {
-          this.agentForm
-            .get('ipAddresses')
-            .setValidators([
-              Validators.required,
-              RxwebValidators.ip({ version: IpVersion.V4 }),
-            ]);
-          this.agentForm.get('ipAddresses').updateValueAndValidity();
+  getAgentById(): void {
+    this.httpService
+      .get(`${AgentApiUrl.Agents}/${this.urlId}`, { observe: 'response' })
+      .subscribe((data) => {
+        console.log('data', data);
+        if (data && data.body) {
+          this.show_allagents = data.body;
+          if (data.body.ipOption === 'ipv6') {
+            this.agentForm
+              .get('ipAddresses')
+              .setValidators([
+                Validators.required,
+                RxwebValidators.ip({ version: IpVersion.V6 }),
+              ]);
+            this.agentForm.get('ipAddresses').updateValueAndValidity();
+            this.ipVersion = 'V6';
+          } else if (data.body.ipOption === 'ipv4') {
+            this.agentForm
+              .get('ipAddresses')
+              .setValidators([
+                Validators.required,
+                RxwebValidators.ip({ version: IpVersion.V4 }),
+              ]);
+            this.agentForm.get('ipAddresses').updateValueAndValidity();
+          }
+          this.etag = data.headers.get('ETag').replace(/\"/g, '');
+          this.agentForm.patchValue(this.show_allagents);
+          this.agentForm.patchValue({
+            CredentialId: this.show_allagents.credentialId,
+          });
         }
-        this.etag = data.headers.get('ETag').replace(/\"/g, '');
-        this.agentForm.patchValue(this.show_allagents);
-        this.agentForm.patchValue({
-          CredentialId: this.show_allagents.credentialId,
-        });
-      }
-    });
+      });
   }
 }
