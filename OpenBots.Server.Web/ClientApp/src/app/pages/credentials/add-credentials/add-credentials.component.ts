@@ -5,7 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { NbDateService } from '@nebular/theme';
 import { HelperService } from '../../../@core/services/helper.service';
 import { CredentialsApiUrl } from '../../../webApiUrls';
-import { domainNameRegex } from '../../../@auth/components';
+
 
 @Component({
   selector: 'ngx-add-credentials',
