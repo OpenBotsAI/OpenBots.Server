@@ -215,7 +215,8 @@ namespace OpenBots.Server.WebAPI.Controllers
         {
             try
             {
-                return await base.GetEntity(organizationMemberId);
+               var result = await base.GetEntity(organizationMemberId);
+                return result;
             }
             catch (Exception ex)
             {

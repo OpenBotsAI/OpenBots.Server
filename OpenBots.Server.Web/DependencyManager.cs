@@ -50,9 +50,6 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IQueueItemRepository), typeof(QueueItemRepository));
             services.AddTransient(typeof(IQueueItemManager), typeof(QueueItemManager));
             services.AddTransient(typeof(IBinaryObjectRepository), typeof(BinaryObjectRepository));
-            services.AddTransient(typeof(IAgentHeartbeatRepository), typeof(AgentHeartbeatRepository));
-            services.AddTransient(typeof(IAgentRepository), typeof(AgentRepository));
-            services.AddTransient(typeof(IAgentManager), typeof(AgentManager));
             services.AddTransient(typeof(IAssetRepository), typeof(AssetRepository));
             services.AddTransient(typeof(IAssetManager), typeof(AssetManager));
 
@@ -80,6 +77,14 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IIPFencingManager), typeof(IPFencingManager));
             services.AddTransient(typeof(IQueueItemAttachmentRepository), typeof(QueueItemAttachmentRepository));
 
+            //agents
+            services.AddTransient(typeof(IAgentHeartbeatRepository), typeof(AgentHeartbeatRepository));
+            services.AddTransient(typeof(IAgentRepository), typeof(AgentRepository));
+            services.AddTransient(typeof(IAgentManager), typeof(AgentManager));
+            services.AddTransient(typeof(IAgentGroupRepository), typeof(AgentGroupRepository));
+            services.AddTransient(typeof(IAgentGroupManager), typeof(AgentGroupManager));
+            services.AddTransient(typeof(IAgentGroupMemberRepository), typeof(AgentGroupMemberRepository));
+            
             //webHooks
             services.AddTransient(typeof(IIntegrationEventRepository), typeof(IntegrationEventRepository));
             services.AddTransient(typeof(IIntegrationEventLogRepository), typeof(IntegrationEventLogRepository));

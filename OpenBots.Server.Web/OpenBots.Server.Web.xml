@@ -4,6 +4,112 @@
         <name>OpenBots.Server.Web</name>
     </assembly>
     <members>
+        <member name="T:OpenBots.Server.Web.Controllers.AgentGroupsController">
+            <summary>
+            Controller for AgentGroups
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAgentGroupRepository,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.Business.Interfaces.IAgentGroupManager)">
+            <summary>
+            AgentGroupsController constructor
+            </summary>
+            <param name="membershipManager"></param>
+            <param name="userManager"></param>
+            <param name="accessor"></param>
+            <param name="configuration"></param>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all AgentGroups
+            </summary>
+            <param name="filter"></param>
+            <param name="orderBy"></param>
+            <param name="skip"></param>
+            <param name="top"></param>
+            <response code="200">OK,a paginated list of all AgentGroups</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden, unauthorized access</response>  
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all AgentGroups</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.GetAllGroupMembers(System.String)">
+            <summary>
+            Provides a list of all AgentGroupMembers in the AgentGroup
+            </summary>
+            <param name="agentGroupId"> Specifies the id of the AgentGroup</param>
+            <response code="200">OK,a paginated list of all AgentGroupMembers</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden, unauthorized access</response>  
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all AgentGroupMembers in the AgentGroup</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.Count(System.String)">
+            <summary>
+            Provides a count of AgentGroups 
+            </summary>
+            <param name="filter"></param>
+            <response code="200">Ok, total count of AgentGroups</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Count of all AgentGroups</returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:OpenBots.Server.Web.Controllers.AgentGroupsController.Get(System.String)" -->
+        <!-- Badly formed XML comment ignored for member "M:OpenBots.Server.Web.Controllers.AgentGroupsController.Post(OpenBots.Server.Model.AgentGroup)" -->
+        <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.AddAgentToGroup(System.String,System.String)">
+            <summary>
+            Adds a new AgentGroupMember with the specified AgentGroupId and AgentId
+            </summary>
+            <param name="agentGroupId"></param>
+            <param name="agentId"></param>
+            <response code="200">Ok, new AgentGroup created and returned</response>
+            <response code="400">Bad request, when the AgentGroup value is not in proper format</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+            <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+            <returns>Newly created AgentGroupMember</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.Put(System.String,OpenBots.Server.Model.AgentGroup)">
+            <summary>
+            Updates an AgentGroup 
+            </summary>
+            <remarks>
+            Provides an action to update an AgentGroup, when AgentGroup id and the new details of AgentGroup are given
+            </remarks>
+            <param name="id">AgentGroup id, produces bad request if id is null or ids don't match</param>
+            <param name="request">AgentGroup details to be updated</param>
+            <response code="200">Ok, if the AgentGroup details for the given AgentGroup id have been updated</response>
+            <response code="400">Bad request, if the AgentGroup id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict</response>
+            <response code="422">Unprocessabl entity</response>
+            <returns>Ok response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.Delete(System.String)">
+            <summary>
+            Deletes an AgentGroup with a specified id
+            </summary>
+            <param name="id">AgentGroup id to be deleted - throws bad request if null or empty Guid</param>
+            <response code="200">Ok, when AgentGroup is soft deleted, (isDeleted flag is set to true in database)</response>
+            <response code="400">Bad request, if AgentGroup id is null or empty Guid</response>
+            <response code="403">Forbidden</response>
+            <returns>Ok response</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.AgentGroup})">
+            <summary>
+            Updates partial details of an AgentGroup
+            </summary>
+            <param name="id">AgentGroup identifier</param>
+            <param name="request">Value of the AgentGroup to be updated</param>
+            <response code="200">Ok, if update of AgentGroup is successful</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity, validation error</response>
+            <returns>Ok response, if the partial AgentGroup values have been updated</returns>
+        </member>
         <member name="T:OpenBots.Server.Web.Controllers.AgentsController">
             <summary>
             Controller for agents
