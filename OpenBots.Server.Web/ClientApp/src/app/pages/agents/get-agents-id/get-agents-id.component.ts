@@ -112,6 +112,10 @@ export class GetAgentsIdComponent implements OnInit {
     );
   }
 
+  refreshData() {
+    this.getAgentHeartBeatID(this.ParmasAgentId, 5, 0);
+  }
+
   gotoaudit() {
     this.router.navigate(['/pages/change-log/list'], {
       queryParams: { PageName: 'Agent', id: this.show_allagents.id },
