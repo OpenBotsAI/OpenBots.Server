@@ -329,14 +329,33 @@ export class AllFilesComponent implements OnInit {
   removeAllFiles(): void {
     this.uploadInput.emit({ type: 'removeAll' });
   }
-  renameFileName() {
+  renameFileName(ref) {
     this.httpService
       .put(
         `files/${this.fileID}/rename?driveName=${this.driveName}`,
-        this.filesFormgroup.value
+        this.filesFormgroup.value,
+        { observe: 'response' }
       )
       .subscribe((response) => {
-        console.log('res', response);
+        // this.fileID
+        if (response && response.status === 200) {
+          ref.close();
+          // if (this.bread.length) {
+          //   this.getFilterPagination(
+          //     this.page.pageNumber,
+          //     this.page.pageSize,
+          //     // this.currentParentId
+          //     this.fileID
+          //   );
+          // } else {
+          this.getFilterPagination(
+            this.page.pageNumber,
+            this.page.pageSize,
+            this.currentParentId
+          );
+          // }
+          console.log('res', response);
+        }
       });
   }
 
