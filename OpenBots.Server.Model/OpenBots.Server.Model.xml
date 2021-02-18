@@ -154,9 +154,9 @@
             Automation model (inherits NamedEntity model)
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.Automation.BinaryObjectId">
+        <member name="P:OpenBots.Server.Model.Automation.FileId">
             <summary>
-            Id linked to Binary Object data table
+            Id linked to Files data table
             </summary>
         </member>
         <member name="P:OpenBots.Server.Model.Automation.OriginalPackageName">

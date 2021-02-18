@@ -4,18 +4,14 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business;
-using OpenBots.Server.DataAccess.Repositories;
+using OpenBots.Server.Business.Interfaces;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
-using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel.Email;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Web.Controllers.Email
@@ -29,8 +25,7 @@ namespace OpenBots.Server.Web.Controllers.Email
     [Authorize]
     public class EmailAttachmentsController : EntityController<EmailAttachment>
     {
-        private readonly IBinaryObjectManager _binaryObjectManager;
-        private readonly IBinaryObjectRepository _binaryObjectRepository;
+        private readonly IFileManager _fileManager;
         private readonly IEmailManager _manager;
 
         /// <summary>
@@ -41,8 +36,6 @@ namespace OpenBots.Server.Web.Controllers.Email
         /// <param name="userManager"></param>
         /// <param name="membershipManager"></param>
         /// <param name="configuration"></param>
-        /// <param name="binaryObjectRepository"></param>
-        /// <param name="binaryObjectManager"></param>
         /// <param name="manager"></param>
         public EmailAttachmentsController(
             IEmailAttachmentRepository repository,
@@ -50,12 +43,10 @@ namespace OpenBots.Server.Web.Controllers.Email
             ApplicationIdentityUserManager userManager,
             IMembershipManager membershipManager,
             IConfiguration configuration,
-            IBinaryObjectRepository binaryObjectRepository,
-            IBinaryObjectManager binaryObjectManager,
+            IFileManager fileManager,
             IEmailManager manager) : base (repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            _binaryObjectRepository = binaryObjectRepository;
-            _binaryObjectManager = binaryObjectManager;
+            _fileManager = fileManager;
             _manager = manager;
         }
 
@@ -204,20 +195,21 @@ namespace OpenBots.Server.Web.Controllers.Email
         }
 
         /// <summary>
-        /// Adds email attachments using existing binary objects to the existing email attachments
+        /// Adds email attachments using existing files to the existing email attachments
         /// </summary>
         /// <remarks>
         /// Adds the email attachments with unique email attachment ids to the existing email attachments
         /// </remarks>
         /// <param name="emailId"></param>
         /// <param name="requests"></param>
+        /// <param name="driveName"></param>
         /// <response code="200">Ok, new email attachments created and returned</response>
         /// <response code="400">Bad request, when the email attachment values are not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
         /// <response code="422">Unprocessabile entity</response>
         /// <returns> Newly created unique email attachments</returns>
-        [HttpPost("binaryObjects")]
+        [HttpPost("files")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -225,50 +217,11 @@ namespace OpenBots.Server.Web.Controllers.Email
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Post(string emailId, [FromBody] string[] requests)
+        public async Task<IActionResult> Post(string emailId, [FromBody] string[] requests, string driveName = null)
         {
             try
             {
-                if (requests.Length == 0 || requests == null)
-                {
-                    ModelState.AddModelError("Attach", "No files uploaded to attach");
-                    return BadRequest(ModelState);
-                }
-
-                var emailAttachments = new List<EmailAttachment>();
-
-                foreach (var request in requests)
-                {
-
-                    var binaryObject = _binaryObjectRepository.Find(null, q => q.Id == Guid.Parse(request))?.Items?.FirstOrDefault();
-                    if (binaryObject == null)
-                    {
-                        ModelState.AddModelError("Save", "No file attached");
-                        return BadRequest(ModelState);
-                    }
-
-                    long? size = binaryObject.SizeInBytes;
-                    if (size <= 0)
-                    {
-                        ModelState.AddModelError("File attachment", $"File size of file {binaryObject.Name} cannot be 0");
-                        return BadRequest(ModelState);
-                    }
-
-                    //create email attachment
-                    EmailAttachment emailAttachment = new EmailAttachment()
-                    {
-                        Name = binaryObject.Name,
-                        BinaryObjectId = binaryObject.Id,
-                        ContentType = binaryObject.ContentType,
-                        ContentStorageAddress = binaryObject.StoragePath,
-                        SizeInBytes = binaryObject.SizeInBytes,
-                        EmailId = Guid.Parse(emailId),
-                        CreatedBy = applicationUser?.UserName,
-                        CreatedOn = DateTime.UtcNow
-                    };
-                    repository.Add(emailAttachment);
-                    emailAttachments.Add(emailAttachment);
-                }
+                var emailAttachments = _manager.AddFileAttachments(emailId, requests, driveName);
                 return Ok(emailAttachments);
             }
             catch (Exception ex)
@@ -282,12 +235,13 @@ namespace OpenBots.Server.Web.Controllers.Email
         /// </summary>
         /// <param name="emailId"></param>
         /// <param name="files"></param>
+        /// <param name="driveName"></param>
         /// <response code="200">Ok, new binary object created and returned</response>
         /// <response code="400">Bad request, when the binary object value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
         /// <response code="422">Unprocessabile entity</response>
-        /// <returns> Newly created unique binary object</returns>
+        /// <returns> Newly created unique file</returns>
         [HttpPost]
         [ProducesResponseType(typeof(EmailAttachment), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -296,67 +250,11 @@ namespace OpenBots.Server.Web.Controllers.Email
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Attach(string emailId, [FromForm] IFormFile[] files)
+        public async Task<IActionResult> Attach(string emailId, [FromForm] IFormFile[] files, string driveName = null)
         {
             try
             {
-                if (files.Length == 0 || files == null)
-                {
-                    ModelState.AddModelError("Attach", "No files uploaded to attach");
-                    return BadRequest(ModelState);
-                }
-
-                var emailAttachments = new List<EmailAttachment>();
-
-                foreach (var file in files)
-                {
-                    if (file == null)
-                    {
-                        ModelState.AddModelError("Save", "No file attached");
-                        return BadRequest(ModelState);
-                    }
-
-                    long size = file.Length;
-                    if (size <= 0)
-                    {
-                        ModelState.AddModelError("File attachment", $"File size of file {file.FileName} cannot be 0");
-                        return BadRequest(ModelState);
-                    }
-
-                    string organizationId = _binaryObjectManager.GetOrganizationId();
-                    string apiComponent = "EmailAPI";
-
-                    //add file to binary objects (create entity and put file in EmailAPI folder in Server)
-                    BinaryObject binaryObject = new BinaryObject()
-                    {
-                        Name = file.FileName,
-                        Folder = apiComponent,
-                        CreatedBy = applicationUser?.UserName,
-                        CreatedOn = DateTime.UtcNow,
-                        CorrelationEntityId = Guid.Parse(emailId)
-                    };
-
-                    string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
-                    //upload file to Server
-                    _binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                    _binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                    _binaryObjectRepository.Add(binaryObject);
-
-                    //create email attachment
-                    EmailAttachment emailAttachment = new EmailAttachment()
-                    {
-                        Name = binaryObject.Name,
-                        BinaryObjectId = binaryObject.Id,
-                        ContentType = binaryObject.ContentType,
-                        ContentStorageAddress = binaryObject.StoragePath,
-                        SizeInBytes = binaryObject.SizeInBytes,
-                        EmailId = Guid.Parse(emailId),
-                        CreatedOn = DateTime.UtcNow,
-                        CreatedBy = applicationUser?.UserName
-                    };
-                    repository.Add(emailAttachment);
-                    emailAttachments.Add(emailAttachment);
-                }
+                var emailAttachments = _manager.AddNewAttachments(emailId, files, driveName);
                 return Ok(emailAttachments);
             }
             catch (Exception ex)
@@ -373,6 +271,7 @@ namespace OpenBots.Server.Web.Controllers.Email
         /// </remarks>
         /// <param name="id">Email attachment id, produces bad request if id is null or ids don't match</param>
         /// <param name="request">Email attachment details to be updated</param>
+        /// <param name="driveName"></param>
         /// <response code="200">Ok, if the email attachment details for the given email attachment id have been updated</response>
         /// <response code="400">Bad request, if the email attachment id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
@@ -387,7 +286,7 @@ namespace OpenBots.Server.Web.Controllers.Email
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Put(string id, [FromBody] EmailAttachment request)
+        public async Task<IActionResult> Put(string id, [FromBody] EmailAttachment request, string driveName = null)
         {
             try
             {
@@ -431,44 +330,7 @@ namespace OpenBots.Server.Web.Controllers.Email
         {
             try
             {
-                Guid entityId = new Guid(id);
-                var existingAttachment = repository.GetOne(entityId);
-                if (existingAttachment == null) return NotFound();
-
-                string binaryObjectId = existingAttachment.BinaryObjectId.ToString();
-                var binaryObject = _binaryObjectRepository.GetOne(Guid.Parse(binaryObjectId));
-
-                string organizationId = binaryObject.OrganizationId.ToString();
-                if (!string.IsNullOrEmpty(organizationId))
-                    organizationId = _binaryObjectManager.GetOrganizationId().ToString();
-
-                if (request.file == null)
-                {
-                    ModelState.AddModelError("Save", "No attachment uploaded");
-                    return BadRequest(ModelState);
-                }
-
-                long size = request.file == null ? 0 : request.file.Length;
-                if (size <= 0)
-                {
-                    ModelState.AddModelError("File Upload", $"File size of attachment {request.file.FileName} cannot be 0");
-                    return BadRequest(ModelState);
-                }
-
-                if (!string.IsNullOrEmpty(request.file.FileName))
-                    existingAttachment.Name = request.file.FileName;
-
-                existingAttachment.ContentType = request.file.ContentType;
-                existingAttachment.SizeInBytes = request.file.Length;
-
-                if (existingAttachment.BinaryObjectId != Guid.Empty && size > 0)
-                {
-                    //update attachment file in OpenBots.Server.Web using relative directory
-                    string apiComponent = "EmailAPI";
-                    _binaryObjectManager.Update(request.file, organizationId, apiComponent, Guid.Parse(binaryObjectId));
-                }
-
-                //update attachment entity
+                var existingAttachment = _manager.UpdateAttachment(id, request);
                 await base.PutEntity(id, existingAttachment);
                 return Ok(existingAttachment);
             }
@@ -509,7 +371,8 @@ namespace OpenBots.Server.Web.Controllers.Email
         /// <summary>
         /// Delete all email attachments with a specified email id from list of email attachments
         /// </summary>
-        /// <param name="emailId">Email id to delete all email attachments from - throws bad request if null or empty Guid/</param>
+        /// <param name="emailId">Email id to delete all email attachments from - throws bad request if null or empty Guid</param>
+        /// <param name="driveName"></param>
         /// <response code="200">Ok, when email attachments are soft deleted, (isDeleted flag is set to true in database)</response>
         /// <response code="400">Bad request, if email id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>
@@ -520,19 +383,11 @@ namespace OpenBots.Server.Web.Controllers.Email
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Delete(string emailId)
+        public async Task<IActionResult> Delete(string emailId, string driveName = null)
         {
             try
             {
-                var attachments = repository.Find(null, q => q.EmailId == Guid.Parse(emailId))?.Items;
-                if (attachments.Count != 0)
-                {
-                    foreach (var attachment in attachments)
-                    {
-                        repository.SoftDelete((Guid)attachment.Id);
-                        _binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
-                    }
-                }
+                _manager.DeleteAll(emailId, driveName);
                 return Ok();
             }
             catch (Exception ex)
@@ -545,6 +400,7 @@ namespace OpenBots.Server.Web.Controllers.Email
         /// Delete specific email attachment from list of email attachments
         /// </summary>
         /// <param name="id">Email attachment id to be deleted - throws bad request if null or empty Guid/</param>
+        /// <param name="driveName"></param>
         /// <response code="200">Ok, when email attachment is soft deleted, (isDeleted flag is set to true in database)</response>
         /// <response code="400">Bad request, if email attachment id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>
@@ -555,21 +411,12 @@ namespace OpenBots.Server.Web.Controllers.Email
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> DeleteAttachment(string id)
+        public async Task<IActionResult> DeleteAttachment(string id, string driveName = null)
         {
             try
             {
-                var attachment = repository.Find(null, q => q.Id == Guid.Parse(id))?.Items?.FirstOrDefault();
-                if (attachment != null)
-                {
-                    await base.DeleteEntity(id);
-                    _binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
-                }
-                else
-                {
-                    ModelState.AddModelError("Delete Attachment", "Attachment could not be found");
-                    return BadRequest(ModelState);
-                }
+                _manager.DeleteOne(id, driveName);
+                await base.DeleteEntity(id);
                 return Ok();
             }
             catch (Exception ex)

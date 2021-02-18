@@ -14,6 +14,7 @@ using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel.File;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -325,7 +326,9 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                _manager.DeleteFileFolder(id, driveName);
+                var fileFolder = _manager.DeleteFileFolder(id, driveName);
+                if (fileFolder.Size > 0 && fileFolder.IsFile == true)
+                    _manager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileFolder });
                 return Ok();
             }
             catch (Exception ex)
