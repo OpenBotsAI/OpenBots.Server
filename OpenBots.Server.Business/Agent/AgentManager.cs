@@ -22,6 +22,7 @@ namespace OpenBots.Server.Business
         private readonly IAgentHeartbeatRepository _agentHeartbeatRepo;
         private readonly ApplicationIdentityUserManager _userManager;
         private readonly IPersonRepository _personRepo;
+        private readonly IAgentGroupMemberRepository _agentGroupMemberRepository;
 
         public AgentManager(IAgentRepository agentRepository,
             IScheduleRepository scheduleRepository,
@@ -30,7 +31,8 @@ namespace OpenBots.Server.Business
             ICredentialRepository credentialRepository,
             IAgentHeartbeatRepository agentHeartbeatRepository,
             ApplicationIdentityUserManager userManager,
-            IPersonRepository personRepository)
+            IPersonRepository personRepository,
+            IAgentGroupMemberRepository agentGroupMemberRepository)
         {
             _agentRepo = agentRepository;
             _scheduleRepo = scheduleRepository;
@@ -40,6 +42,7 @@ namespace OpenBots.Server.Business
             _agentHeartbeatRepo = agentHeartbeatRepository;
             _userManager = userManager;
             _personRepo = personRepository;
+            _agentGroupMemberRepository = agentGroupMemberRepository;
         }
 
         /// <summary>
@@ -308,6 +311,19 @@ namespace OpenBots.Server.Business
             }
 
             return agent;
+        }
+
+        /// <summary>
+        /// Gets a list of all GroupMembers ifor the specified Agent
+        /// </summary>
+        /// <param name="agentId"></param>
+        /// <returns></returns>
+        public PaginatedList<AgentGroupMember> GetAllMembersInGroup(string agentId)
+        {
+            var entityId = Guid.Parse(agentId);
+            var groupMemberList = _agentGroupMemberRepository.Find(null, a => a.AgentId == entityId);
+
+            return groupMemberList;
         }
     }
 }

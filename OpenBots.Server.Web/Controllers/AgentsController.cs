@@ -148,6 +148,37 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
+        /// Provides a list of all AgentGroupMembers for the specified Agent 
+        /// </summary>
+        /// <param name="agentGroupId"> Specifies the id of the Agent</param>
+        /// <response code="200">OK,a paginated list of GroupMembers</response>
+        /// <response code="400">BadRequest</response>
+        /// <response code="403">Forbidden, unauthorized access</response>  
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Paginated list of all AgentGroupMembers </returns>for the Agent
+        [HttpGet("{AgentId}/GetAllGroupMembers")]
+        [ProducesResponseType(typeof(PaginatedList<AgentGroupMember>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> GetAllGroupMembers(string agentId)
+        {
+            try
+            {
+                var result = _agentManager.GetAllMembersInGroup(agentId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
         /// Provides a count of agents 
         /// </summary>
         /// <param name="filter"></param>

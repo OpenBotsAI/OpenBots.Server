@@ -488,11 +488,13 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                Guid AutomationID = request.AutomationId;
-                Guid AgentID = request.AgentId;
+                Guid AutomationId = request.AutomationId;
+                Guid AgentId = request.AgentId;
+                Guid AgentGroupId = request.AgentGroupId;
 
                 Schedule schedule = new Schedule();
-                schedule.AgentId = AgentID;
+                schedule.AgentId = AgentId;
+                schedule.AgentGroupId = AgentGroupId;
                 schedule.CRONExpression = "";
                 schedule.LastExecution = DateTime.UtcNow;
                 schedule.NextExecution = DateTime.UtcNow;
@@ -502,7 +504,7 @@ namespace OpenBots.Server.Web.Controllers
                 schedule.Status = "New";
                 schedule.ExpiryDate = DateTime.UtcNow.AddDays(1);
                 schedule.StartDate = DateTime.UtcNow;
-                schedule.AutomationId = AutomationID;
+                schedule.AutomationId = AutomationId;
                 schedule.CreatedOn = DateTime.UtcNow;
                 schedule.CreatedBy = applicationUser?.UserName;
 

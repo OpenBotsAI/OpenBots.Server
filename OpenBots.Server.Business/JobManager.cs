@@ -22,13 +22,15 @@ namespace OpenBots.Server.Business
         private readonly IJobParameterRepository _jobParameterRepo;
         private readonly IJobCheckpointRepository _jobCheckpointRepo;
         private readonly IAutomationVersionRepository _automationVersionRepo;
+        private readonly IAgentManager _agentManager;
 
         public JobManager(IJobRepository jobRepository, 
             IAgentRepository agentRepository,
             IAutomationRepository automationRepository,
             IJobParameterRepository jobParameterRepository,
             IJobCheckpointRepository jobCheckpointRepository,
-            IAutomationVersionRepository automationVersionRepository)
+            IAutomationVersionRepository automationVersionRepository,
+            IAgentManager agentManager)
         {
             _repo = jobRepository;
             _agentRepo = agentRepository;
@@ -36,6 +38,7 @@ namespace OpenBots.Server.Business
             _jobParameterRepo = jobParameterRepository;
             _jobCheckpointRepo = jobCheckpointRepository;
             _automationVersionRepo = automationVersionRepository;
+            _agentManager = agentManager;
         }
 
         public Job UpdateJob(string id, CreateJobViewModel request, ApplicationUser applicationUser)
@@ -111,10 +114,19 @@ namespace OpenBots.Server.Business
         //gets the next available job for the given agent id
         public NextJobViewModel GetNextJob(Guid agentId)
         {
-            Job job = _repo.Find(0, 1).Items
-              .Where(j => j.AgentId == agentId && j.JobStatus == JobStatusType.New)
-              .OrderBy(j => j.CreatedOn)
-              .FirstOrDefault();
+            //get all new jobs of the agent group
+            List<Job> agentGroupJobs = new List<Job>();
+            var agentGroupsMembers = _agentManager.GetAllMembersInGroup(agentId.ToString()).Items;
+            foreach (var member in agentGroupsMembers)
+            {
+                var memberGroupJobs = _repo.Find(null, j => j.AgentGroupId == member.AgentGroupId && j.JobStatus == JobStatusType.New).Items;
+                agentGroupJobs = agentGroupJobs.Concat(memberGroupJobs).ToList();
+            }
+
+            var agentJobs = _repo.Find(null, j => j.AgentId == agentId && j.JobStatus == JobStatusType.New).Items;
+            var allAgentJobs = agentGroupJobs.Concat(agentJobs).ToList();
+
+            Job job = allAgentJobs.OrderBy(j => j.CreatedOn).FirstOrDefault();
 
             var jobParameters = GetJobParameters(job?.Id ?? Guid.Empty);
 

@@ -159,6 +159,18 @@
             <response code="422">Unprocessable entity</response>
             <returns>Paginated list of all Agents</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.GetAllGroupMembers(System.String)">
+            <summary>
+            Provides a list of all AgentGroupMembers for the specified Agent 
+            </summary>
+            <param name="agentGroupId"> Specifies the id of the Agent</param>
+            <response code="200">OK,a paginated list of GroupMembers</response>
+            <response code="400">BadRequest</response>
+            <response code="403">Forbidden, unauthorized access</response>  
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all AgentGroupMembers </returns>for the Agent
+        </member>
         <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Count(System.String)">
             <summary>
             Provides a count of agents 

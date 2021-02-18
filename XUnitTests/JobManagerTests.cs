@@ -91,8 +91,8 @@ namespace XUnitTests
             var automationVersionRepo = new AutomationVersionRepository(context, automationVersionLogger, httpContextAccessor.Object);
 
             //manager to be tested
-            _manager = new JobManager(jobRepository, agentRepo, automationRepo, jobParameterRepo, jobCheckpointRepo, automationVersionRepo);
-        }
+/*            _manager = new JobManager(jobRepository, agentRepo, automationRepo, jobParameterRepo, jobCheckpointRepo, automationVersionRepo);
+*/        }
 
         //gets the next job that has not been picked up for the specified agent id
         [Fact]

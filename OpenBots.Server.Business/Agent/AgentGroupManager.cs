@@ -132,7 +132,7 @@ namespace OpenBots.Server.Business
         }
 
         /// <summary>
-        /// Gets a list of all Agents in the specified AgentGroup
+        /// Gets a list of all GroupMembers in the specified AgentGroup
         /// </summary>
         /// <param name="agentGroupId"></param>
         /// <returns></returns>
