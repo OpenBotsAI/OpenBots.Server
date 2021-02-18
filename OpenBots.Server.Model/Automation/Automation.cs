@@ -9,9 +9,9 @@ namespace OpenBots.Server.Model
     public class Automation : NamedEntity
     {
         /// <summary>
-        /// Id linked to Binary Object data table
+        /// Id linked to Files data table
         /// </summary>
-        public Guid BinaryObjectId { get; set; }
+        public Guid? FileId { get; set; }
         /// <summary>
         /// Original name of file
         /// </summary>

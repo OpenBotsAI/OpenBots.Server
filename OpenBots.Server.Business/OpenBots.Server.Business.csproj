@@ -24,6 +24,7 @@
     <PackageReference Include="Hangfire" Version="1.7.17" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.7.17" />
     <PackageReference Include="Hangfire.Core" Version="1.7.17" />
+    <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="5.0.0" />
     <PackageReference Include="System.CodeDom" Version="5.0.0" />
   </ItemGroup>
 

@@ -11,7 +11,7 @@ namespace OpenBots.Server.Model.Core
         public string? ContentType { get; set; }
         public long? SizeInBytes { get; set; }
         public string? ContentStorageAddress { get; set; }
-        public Guid? BinaryObjectId { get; set; }
+        public Guid? FileId { get; set; }
         public Guid EmailId { get; set; }
     }
 }

@@ -11,7 +11,6 @@ using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business;
 using OpenBots.Server.DataAccess;
 using OpenBots.Server.DataAccess.Repositories;
-using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
@@ -32,9 +31,6 @@ namespace OpenBots.Server.Web.Controllers
     public class AutomationsController : EntityController<Automation>
     {
         private readonly IAutomationManager _manager;
-        private readonly IBinaryObjectManager _binaryObjectManager;
-        private readonly IBinaryObjectRepository _binaryObjectRepo;
-        private readonly IAutomationVersionRepository _automationVersionRepo;
         private readonly StorageContext _dbContext;
         private readonly IWebhookPublisher _webhookPublisher;
 
@@ -46,11 +42,8 @@ namespace OpenBots.Server.Web.Controllers
         /// <param name="manager"></param>
         /// <param name="userManager"></param>
         /// <param name="httpContextAccessor"></param>
-        /// <param name="binaryObjectManager"></param>
-        /// <param name="binaryObjectRepo"></param>
         /// <param name="configuration"></param>
         /// <param name="webhookPublisher"></param>
-        /// <param name="automationVersionRepo"></param>
         /// <param name="dbContext"></param>
         public AutomationsController(
             IAutomationRepository repository,
@@ -58,18 +51,12 @@ namespace OpenBots.Server.Web.Controllers
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
             IHttpContextAccessor httpContextAccessor,
-            IBinaryObjectRepository binaryObjectRepo,
-            IBinaryObjectManager binaryObjectManager,
             IConfiguration configuration,
             IWebhookPublisher webhookPublisher,
-            IAutomationVersionRepository automationVersionRepo,
             StorageContext dbContext) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             _manager = manager;
-            _binaryObjectRepo = binaryObjectRepo;
-            _binaryObjectManager = binaryObjectManager;
             _webhookPublisher = webhookPublisher;
-            _automationVersionRepo = automationVersionRepo;
             _dbContext = dbContext;
         }
 
@@ -252,10 +239,10 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Create a new automation entity
+        /// Create a new automation entity and file
         /// </summary>
         /// <param name="request"></param>
-        /// <response code="200">Ok, new automation created and returned</response>
+        /// <response code="200">Ok, new automation entity created and returned</response>
         /// <response code="400">Bad request, when the automation value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
@@ -269,90 +256,15 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Post([FromBody] AutomationViewModel request)
+        public async Task<IActionResult> Post([FromForm] AutomationViewModel request)
         {
             try
             {
-                Guid versionId = Guid.NewGuid();
-                var automation = new Automation()
-                {
-                    Name = request.Name,
-                    AutomationEngine = request.AutomationEngine,
-                    Id = request.Id
-                };
-
+                var automation = _manager.AddAutomation(request);
                 var response = await base.PostEntity(automation);
-                _manager.AddAutomationVersion(request);
 
                 await _webhookPublisher.PublishAsync("Automations.NewAutomationCreated", automation.Id.ToString(), automation.Name).ConfigureAwait(false);
                 return response;
-            }
-            catch (Exception ex)
-            {
-                return ex.GetActionResult();
-            }
-        }
-
-        /// <summary>
-        /// Create a new binary object and upload automation file
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="file"></param>
-        /// <response code="200">Ok, automation updated and returned</response>
-        /// <response code="400">Bad request, when the automation value is not in proper format</response>
-        /// <response code="403">Forbidden, unauthorized access</response>
-        /// <response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
-        /// <returns>Newly updated automation details</returns>
-        [HttpPost("{id}/upload")]
-        [ProducesResponseType(typeof(Automation), StatusCodes.Status200OK)]
-        [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        [ProducesDefaultResponseType]
-        public async Task<IActionResult> Post(string id, [FromForm] IFormFile file)
-        {
-            try
-            {
-                if (file == null)
-                {
-                    ModelState.AddModelError("Save", "No automation uploaded");
-                    return BadRequest(ModelState);
-                }
-
-                long size = file.Length;
-                if (size <= 0)
-                {
-                    ModelState.AddModelError("Automation Upload", $"File size of automation {file.FileName} cannot be 0");
-                    return BadRequest(ModelState);
-                }
-
-                var automation = repository.GetOne(Guid.Parse(id));
-                string organizationId = _binaryObjectManager.GetOrganizationId();
-                string apiComponent = "AutomationAPI";
-
-                BinaryObject binaryObject = new BinaryObject();
-                binaryObject.Name = file.FileName;
-                binaryObject.Folder = apiComponent;
-                binaryObject.CreatedOn = DateTime.UtcNow;
-                binaryObject.CreatedBy = applicationUser?.UserName;
-                binaryObject.CorrelationEntityId = automation.Id;
-
-                string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
-
-                _binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                _binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                _binaryObjectRepo.Add(binaryObject);
-
-                automation.BinaryObjectId = (Guid)binaryObject.Id;
-                automation.OriginalPackageName = file.FileName;
-                repository.Update(automation);
-
-                await _webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
-                await _webhookPublisher.PublishAsync("Automations.AutomationUpdated", automation.Id.ToString(), automation.Name).ConfigureAwait(false);
-                return Ok(automation);
             }
             catch (Exception ex)
             {
@@ -384,67 +296,11 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Update(string id, [FromForm] AutomationViewModel request)
         {
-            Guid entityId = new Guid(id);
-            var existingAutomation = repository.GetOne(entityId);
-            if (existingAutomation == null) return NotFound();
-
-            if (request.File == null)
-            {
-                ModelState.AddModelError("Save", "No data passed");
-                return BadRequest(ModelState);
-            }
-
-            long size = request.File.Length;
-            if (size <= 0)
-            {
-                ModelState.AddModelError("Automation Upload", $"File size of automation {request.File.FileName} cannot be 0");
-                return BadRequest(ModelState);
-            }
-
-            string binaryObjectId = existingAutomation.BinaryObjectId.ToString();
-            var binaryObject = _binaryObjectRepo.GetOne(Guid.Parse(binaryObjectId));
-            string organizationId = binaryObject.OrganizationId.ToString();
-
-            if (!string.IsNullOrEmpty(organizationId))
-                organizationId = _manager.GetOrganizationId().ToString();
-
             try
             {
-                BinaryObject newBinaryObject = new BinaryObject();
-                if (existingAutomation.BinaryObjectId != Guid.Empty && size > 0)
-                {
-                    string apiComponent = "AutomationAPI";
-                    //update file in OpenBots.Server.Web using relative directory
-                    newBinaryObject.Id = Guid.NewGuid();
-                    newBinaryObject.Name = request.File.FileName;
-                    newBinaryObject.Folder = apiComponent;
-                    newBinaryObject.StoragePath = Path.Combine("BinaryObjects", organizationId, apiComponent, newBinaryObject.Id.ToString());
-                    newBinaryObject.CreatedBy = applicationUser?.UserName;
-                    newBinaryObject.CreatedOn = DateTime.UtcNow;
-                    newBinaryObject.CorrelationEntityId = request.Id;
-                    _binaryObjectRepo.Add(newBinaryObject);
-                    _binaryObjectManager.Upload(request.File, organizationId, apiComponent, newBinaryObject.Id.ToString());
-                    _binaryObjectManager.SaveEntity(request.File, newBinaryObject.StoragePath, newBinaryObject, apiComponent, organizationId);
-                    _binaryObjectRepo.Update(binaryObject);
-                }
-
-                //update automation (create new automation and automation version entities)
-                Automation response = existingAutomation;
-                AutomationVersion automationVersion = _automationVersionRepo.Find(null, q => q.AutomationId == response.Id).Items?.FirstOrDefault();
-                if (existingAutomation.Name.Trim().ToLower() != request.Name.Trim().ToLower() || automationVersion.Status.Trim().ToLower() != request.Status?.Trim().ToLower()) 
-                {
-                    existingAutomation.OriginalPackageName = request.File.FileName;
-                    existingAutomation.AutomationEngine = request.AutomationEngine;
-                    automationVersion.Status = request.Status;
-                }
-                else
-                {
-                    request.BinaryObjectId = newBinaryObject.Id;
-                    response = _manager.UpdateAutomation(existingAutomation, request);
-                }
-
-                await _webhookPublisher.PublishAsync("Files.NewFileCreated", newBinaryObject.Id.ToString(), newBinaryObject.Name).ConfigureAwait(false);
-                await _webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
+                var automation = _manager.UpdateAutomationFile(id, request);
+                var response = await base.PostEntity(automation);
+                await _webhookPublisher.PublishAsync("Automations.NewAutomationCreated", automation.Id.ToString(), automation.Name).ConfigureAwait(false);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -454,10 +310,10 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Update an Automation 
+        /// Update automation entity
         /// </summary>
         /// <remarks>
-        /// Provides an action to update a automation, when automation id and the new details of automation are given
+        /// Provides an action to update an automation, when automation id and the new details of automation are given
         /// </remarks>
         /// <param name="id">Automation id, produces bad request if id is null or ids don't match</param>
         /// <param name="value">Automation details to be updated</param>
@@ -474,30 +330,11 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Put(string id, [FromBody] AutomationViewModel value)
+        public async Task<IActionResult> Put(string id, [FromBody] AutomationViewModel request)
         {
             try
             {
-                Guid entityId = new Guid(id);
-
-                var existingAutomation = repository.GetOne(entityId);
-                if (existingAutomation == null) return NotFound();
-
-                existingAutomation.Name = value.Name;
-                existingAutomation.AutomationEngine = value.AutomationEngine;
-
-                var automationVersion = _automationVersionRepo.Find(null, q => q.AutomationId == existingAutomation.Id).Items?.FirstOrDefault();
-                if (!string.IsNullOrEmpty(automationVersion.Status))
-                {
-                    //determine a way to check if previous value was not published before setting published properties
-                    automationVersion.Status = value.Status;
-                    if (automationVersion.Status == "Published")
-                    {
-                        automationVersion.PublishedBy = applicationUser?.Email;
-                        automationVersion.PublishedOnUTC = DateTime.UtcNow;
-                    }
-                    _automationVersionRepo.Update(automationVersion);
-                }
+                var existingAutomation = _manager.UpdateAutomation(id, request);
                 await _webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingAutomation);
             }
@@ -526,17 +363,25 @@ namespace OpenBots.Server.Web.Controllers
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<Automation> request)
         {
-            var existingAutomation = repository.GetOne(Guid.Parse(id));
-            if (existingAutomation == null) return NotFound();
+            try
+            {
+                var existingAutomation = repository.GetOne(Guid.Parse(id));
+                if (existingAutomation == null) return NotFound();
 
-            await _webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
-            return await base.PatchEntity(id, request);
+                await _webhookPublisher.PublishAsync("Automations.AutomationUpdated", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
+                return await base.PatchEntity(id, request);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
         /// Export/download an automation
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="driveName"></param>
         /// <response code="200">Ok, if a automation exists with the given id</response>
         /// <response code="304">Not modified</response>
         /// <response code="400">Bad request, if automation id is not in proper format or a proper Guid</response>
@@ -553,23 +398,12 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Export(string id)
+        public async Task<IActionResult> Export(string id, string driveName = null)
         {
             try
             {
-                Guid automationId;
-                Guid.TryParse(id, out automationId);
-
-                Automation automation = repository.GetOne(automationId);
-               
-                if (automation == null || automation.BinaryObjectId == null || automation.BinaryObjectId == Guid.Empty)
-                {
-                    ModelState.AddModelError("Automation Export", "No automation or automation file found");
-                    return BadRequest(ModelState);
-                }
-
-                var fileObject = _manager.Export(automation.BinaryObjectId.ToString());
-                return File(fileObject?.Result?.BlobStream, fileObject?.Result?.ContentType, fileObject?.Result?.Name);
+                var fileObject = _manager.Export(id, driveName);
+                return File(fileObject.Result?.Content, fileObject.Result?.ContentType, fileObject.Result?.Name);
             }
             catch (Exception ex)
             {
@@ -581,6 +415,7 @@ namespace OpenBots.Server.Web.Controllers
         /// Delete automation with a specified id from list of automationes
         /// </summary>
         /// <param name="id">Automation id to be deleted - throws bad request if null or empty Guid</param>
+        /// <param name="driveName"></param>
         /// <response code="200">Ok, when automation is soft deleted, (isDeleted flag is set to true in database)</response>
         /// <response code="400">Bad request, if automation id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>
@@ -591,7 +426,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(string id, string driveName)
         {
             try
             {
@@ -601,15 +436,8 @@ namespace OpenBots.Server.Web.Controllers
                 if (existingAutomation == null) return NotFound();
 
                 await _webhookPublisher.PublishAsync("Automations.AutomationDeleted", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
-                bool response = _manager.DeleteAutomation(automationId);
-
-                if (response)
-                    return Ok();
-                else
-                {
-                    ModelState.AddModelError("Automation Delete", "An error occured while deleting an automation");
-                    return BadRequest(ModelState);
-                }
+                _manager.DeleteAutomation(existingAutomation, driveName);
+                return Ok();
             }
             catch (Exception ex)
             {

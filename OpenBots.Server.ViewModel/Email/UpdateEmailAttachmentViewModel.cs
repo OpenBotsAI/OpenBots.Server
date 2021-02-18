@@ -9,7 +9,8 @@ namespace OpenBots.Server.ViewModel.Email
         public string Name { get; set; }
         public string ContentType { get; set; }
         public long SizeInBytes { get; set; }
-        public Guid? BinaryObjectId { get; set; }
-        public IFormFile? file { get; set; }
+        public Guid? FileId { get; set; }
+        public IFormFile? File { get; set; }
+        public string? DriveName { get; set; }
     }
 }

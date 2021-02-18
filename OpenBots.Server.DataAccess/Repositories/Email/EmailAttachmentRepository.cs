@@ -30,11 +30,11 @@ namespace OpenBots.Server.DataAccess.Repositories
             if (itemsList != null && itemsList.Items != null && itemsList.Items.Count > 0)
             {
                 var itemRecord = from a in itemsList.Items
-                                 join b in dbContext.BinaryObjects on a.BinaryObjectId equals b.Id into table1
+                                 join b in dbContext.ServerFiles on a.FileId equals b.Id into table1
                                  from b in table1.DefaultIfEmpty()
                                  select new AllEmailAttachmentsViewModel
                                  {
-                                     BinaryObjectId = (Guid)(a?.BinaryObjectId),
+                                     FileId = (Guid)(a?.FileId),
                                      SizeInBytes = (long)(a?.SizeInBytes),
                                      EmailId = (Guid)(a?.EmailId),
                                      Name = b?.Name

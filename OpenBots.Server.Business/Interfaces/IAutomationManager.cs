@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using OpenBots.Server.Model;
+﻿using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.ViewModel;
+using OpenBots.Server.ViewModel.File;
 using System;
 using System.Threading.Tasks;
 
@@ -9,11 +9,11 @@ namespace OpenBots.Server.Business
 {
     public interface IAutomationManager : IManager
     {
-        Task<FileObjectViewModel> Export(string binaryObjectId);
-        bool DeleteAutomation(Guid automationId);
-        Automation UpdateAutomation(Automation existingAutomation, AutomationViewModel request);
-        Task<string> Update(Guid binaryObjectId, IFormFile file, string organizationId = "", string apiComponent = "", string name = "");
-        string GetOrganizationId();
+        Automation AddAutomation(AutomationViewModel automationViewModel);
+        Automation UpdateAutomationFile(string id, AutomationViewModel request);
+        Automation UpdateAutomation(string id, AutomationViewModel request);
+        Task<FileFolderViewModel> Export(string fileId, string driveName = null);
+        void DeleteAutomation(Automation automation, string driveName = null);
         void AddAutomationVersion(AutomationViewModel automation);
         PaginatedList<AllAutomationsViewModel> GetAutomationsAndAutomationVersions(Predicate<AllAutomationsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
         AutomationViewModel GetAutomationView(AutomationViewModel automationView, string id);

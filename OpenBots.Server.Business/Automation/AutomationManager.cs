@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
+using OpenBots.Server.Business.Interfaces;
+using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.ViewModel;
+using OpenBots.Server.ViewModel.File;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,91 +18,112 @@ namespace OpenBots.Server.Business
     public class AutomationManager : BaseManager, IAutomationManager
     {
         private readonly IAutomationRepository _repo;
-        private readonly IBinaryObjectRepository _binaryObjectRepository;
-        private readonly IBinaryObjectManager _binaryObjectManager;
-        private readonly IBlobStorageAdapter _blobStorageAdapter;
+        private readonly IFileManager _fileManager;
         private readonly IAutomationVersionRepository _automationVersionRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AutomationManager(
             IAutomationRepository repo,
-            IBinaryObjectManager binaryObjectManager,
-            IBinaryObjectRepository binaryObjectRepository,
-            IBlobStorageAdapter blobStorageAdapter,
+            IFileManager fileManager,
             IAutomationVersionRepository automationVersionRepository,
             IHttpContextAccessor httpContextAccessor)
         {
             _repo = repo;
-            _binaryObjectManager = binaryObjectManager;
-            _binaryObjectRepository = binaryObjectRepository;
-            _blobStorageAdapter = blobStorageAdapter;
+            _fileManager = fileManager;
             _automationVersionRepository = automationVersionRepository;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<FileObjectViewModel> Export(string binaryObjectId)
+        public Automation AddAutomation(AutomationViewModel request)
         {
-            return await _blobStorageAdapter.FetchFile(binaryObjectId);
-        }
+            IFormFile[] fileArray = { request.File };
 
-        public bool DeleteAutomation(Guid automationId)
-        {
-            var automation = _repo.GetOne(automationId);
-
-            //remove automation version entity associated with automation
-            var automationVersion = _automationVersionRepository.Find(null, q => q.AutomationId == automationId).Items?.FirstOrDefault();
-            Guid automationVersionId = (Guid)automationVersion.Id;
-            _automationVersionRepository.SoftDelete(automationVersionId);
-            
-            bool isDeleted = false;
-
-            if (automation != null)
+            var fileViewModel = new FileFolderViewModel()
             {
-                //remove binary object entity associated with automation
-                _binaryObjectRepository.SoftDelete(automation.BinaryObjectId);
-                _repo.SoftDelete(automation.Id.Value);
-
-                isDeleted = true;
-            }
-
-            return isDeleted;
-        }
-
-        public Automation UpdateAutomation(Automation existingAutomation, AutomationViewModel request)
-        {
-            Automation automation = new Automation()
-            {
-                Id = request.Id,
-                Name = request.Name,
-                CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
-                CreatedOn = DateTime.UtcNow,
-                BinaryObjectId = (Guid)request.BinaryObjectId,
-                OriginalPackageName = request.File.FileName,
-                AutomationEngine = request.AutomationEngine
+                Files = fileArray,
+                StoragePath = Path.Combine(request.DriveName, "Automations"),
+                ContentType = fileArray[0].ContentType,
+                IsFile = true
             };
 
-            _repo.Add(automation);
+            var file = _fileManager.AddFileFolder(fileViewModel, request.DriveName)[0];
+
+            var automation = new Automation()
+            {
+                Name = request.Name,
+                AutomationEngine = request.AutomationEngine,
+                Id = request.Id,
+                FileId = file.Id,
+                OriginalPackageName = request.File.FileName
+            };
+
             AddAutomationVersion(request);
 
             return automation;
         }
 
-        public async Task<string> Update(Guid binaryObjectId, IFormFile file, string organizationId = "", string apiComponent = "", string name = "")
+        public Automation UpdateAutomationFile(string id, AutomationViewModel request)
         {
-            //update file in OpenBots.Server.Web using relative directory
-            _binaryObjectManager.Update(file, organizationId, apiComponent, binaryObjectId);
+             Guid entityId = new Guid(id);
+             var existingAutomation = _repo.GetOne(entityId);
+             if (existingAutomation == null) throw new EntityDoesNotExistException($"Automation with id {id} could not be found");
 
-            //find relative directory where binary object is being saved
-            string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObjectId.ToString());
+             string fileId = existingAutomation.FileId.ToString();
+             var file = _fileManager.GetFileFolder(fileId, request.DriveName);
+             if (file == null) throw new EntityDoesNotExistException($"Automation file with id {fileId} could not be found");
 
-            await _binaryObjectManager.UpdateEntity(file, filePath, binaryObjectId.ToString(), apiComponent, apiComponent, name);
-
-            return "Success";
+             var response = AddAutomation(request);
+             return response;
         }
 
-        public string GetOrganizationId()
+        public Automation UpdateAutomation(string id, AutomationViewModel request)
         {
-            return _binaryObjectManager.GetOrganizationId();
+            Guid entityId = new Guid(id);
+            var existingAutomation = _repo.GetOne(entityId);
+            if (existingAutomation == null) throw new EntityDoesNotExistException($"Automation with id {id} could not be found");
+
+            existingAutomation.Name = request.Name;
+            existingAutomation.AutomationEngine = request.AutomationEngine;
+
+            var automationVersion = _automationVersionRepository.Find(null, q => q.AutomationId == existingAutomation.Id).Items?.FirstOrDefault();
+            if (!string.IsNullOrEmpty(automationVersion.Status))
+            {
+                //check if previous value was not published before setting published properties
+                automationVersion.Status = request.Status;
+                if (automationVersion.Status == "Published")
+                {
+                    automationVersion.PublishedBy = _httpContextAccessor.HttpContext.User.Identity.Name;
+                    automationVersion.PublishedOnUTC = DateTime.UtcNow;
+                }
+                _automationVersionRepository.Update(automationVersion);
+            }
+            return existingAutomation;
+        }
+
+        public async Task<FileFolderViewModel> Export(string id, string driveName)
+        {
+            Guid automationId;
+            Guid.TryParse(id, out automationId);
+
+            Automation automation = _repo.GetOne(automationId);
+
+            if (automation == null || automation.FileId == null || automation.FileId == Guid.Empty)
+                throw new EntityDoesNotExistException($"Automation with id {id} could not be found");
+
+            var response = await _fileManager.ExportFileFolder(automation.FileId.ToString(), driveName);
+            return response;
+        }
+
+        public void DeleteAutomation(Automation automation, string driveName)
+        {
+            //remove file associated with automation
+            var file = _fileManager.DeleteFileFolder(automation.FileId.ToString(), driveName);
+            _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { file });
+            _repo.SoftDelete(automation.Id.Value);
+
+            //remove automation version entity associated with automation
+            var automationVersion = _automationVersionRepository.Find(null, q => q.AutomationId == automation.Id).Items?.FirstOrDefault();
+            _automationVersionRepository.SoftDelete(automationVersion.Id.Value);
         }
 
         public void AddAutomationVersion(AutomationViewModel automationViewModel)

@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using OpenBots.Server.Model;
-using OpenBots.Server.Model.Core;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -13,7 +11,9 @@ namespace OpenBots.Server.ViewModel.ViewModels
         public string? TextValue { get; set; }
         public double? NumberValue { get; set; }
         public string? JsonValue { get; set; }
+        public Guid? FileId { get; set; }
         public IFormFile? File { get; set; }
+        public string? DriveName { get; set; }
         [Required]
         public Guid? AgentId { get; set; }
     }
