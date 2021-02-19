@@ -299,7 +299,9 @@ namespace OpenBots.Server.Web.Controllers
                     ModelState.AddModelError("AgentGroup", "AgentGroup cannot be found or does not exist.");
                     return NotFound(ModelState);
                 }
-                return await base.DeleteEntity(id);
+                var result = await base.DeleteEntity(id);
+                _agentGroupsManager.DeleteGroupMembers(id);
+                return result;
             }
             catch (Exception ex)
             {

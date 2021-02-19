@@ -137,6 +137,13 @@ namespace OpenBots.Server.Business
                 }
             }
 
+            //delete all group members with this agent id
+            var allAgentMembers = GetAllMembersInGroup(agent.Id.ToString()).Items;
+            foreach (var member in allAgentMembers)
+            {
+                _agentGroupMemberRepository.SoftDelete(member.Id ?? Guid.Empty);
+            }
+
             DeleteExistingHeartbeats(agent.Id ?? Guid.Empty);
         }
 

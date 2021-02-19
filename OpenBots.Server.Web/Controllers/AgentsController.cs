@@ -350,8 +350,9 @@ namespace OpenBots.Server.Web.Controllers
 
                 _agentManager.DeleteAgentDependencies(agent);
 
+                var result = await base.DeleteEntity(id);
                 await _webhookPublisher.PublishAsync("Agents.AgentDeleted", id, agent.Name).ConfigureAwait(false);
-                return await base.DeleteEntity(id);
+                return result;
             }
             catch (Exception ex)
             {

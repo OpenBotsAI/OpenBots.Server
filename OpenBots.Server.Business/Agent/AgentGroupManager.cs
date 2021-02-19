@@ -143,5 +143,15 @@ namespace OpenBots.Server.Business
 
             return groupMemberList;
         }
+
+        public void DeleteGroupMembers(string agentGroupId)
+        {
+            //delete all group members with this agent group id
+            var allAgentGroupMembers = GetAllMembersInGroup(agentGroupId).Items;
+            foreach (var member in allAgentGroupMembers)
+            {
+                _agentGroupMemberRepository.SoftDelete(member.Id ?? Guid.Empty);
+            }
+        }
     }
 }
