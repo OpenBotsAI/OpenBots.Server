@@ -14,7 +14,7 @@ import { TimeDatePipe } from '../../../@core/pipe';
 export class AddEmailAccountComponent implements OnInit {
   min: Date;
   max: Date;
-  isSslEnabled = false;
+  isSslEnabled = true;
   checked = false;
   submitted = false;
   showEmail: any = [];
@@ -108,7 +108,7 @@ export class AddEmailAccountComponent implements OnInit {
 
 
   onSubmit() {
-    if(this.urlId){
+    if (this.urlId) {
       this.UpdateEmailAccount();
     }
     else {
