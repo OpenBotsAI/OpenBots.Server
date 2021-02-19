@@ -169,7 +169,7 @@
             <response code="403">Forbidden, unauthorized access</response>  
             <response code="404">Not found</response>
             <response code="422">Unprocessable entity</response>
-            <returns>Paginated list of all AgentGroupMembers </returns>for the Agent
+            <returns>Paginated list of all AgentGroupMembers with the specified Agent id</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Count(System.String)">
             <summary>
