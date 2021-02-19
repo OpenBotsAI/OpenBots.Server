@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using static OpenBots.Server.Business.File.FileManager;
 
 namespace OpenBots.Server.Business
 {
@@ -38,8 +37,8 @@ namespace OpenBots.Server.Business
                     : dbContext.ConfigurationValues.ToDictionary(c => c.Name, c => c.Value);
 
                 //create server drive
-                ServerDrive drive = dbContext.ServerDrives.FirstOrDefault();
-                if (drive == null)
+                var drive = dbContext.ServerDrives.Any();
+                if (!drive)
                 {
                     Organization organization = dbContext.Organizations.FirstOrDefault();
 
@@ -57,8 +56,17 @@ namespace OpenBots.Server.Business
                         dbContext.ServerFolders.Add(new ServerFolder { Id = new Guid("e5981bba-dbbf-469f-b2de-5f30f8a3e517"), Name = queueItemAttachments, OrganizationId = organizationId, ParentFolderId = driveId, SizeInBytes = 0, StorageDriveId = driveId, StoragePath = Path.Combine(storagePath, queueItemAttachments) });
                         dbContext.ServerFolders.Add(new ServerFolder { Id = new Guid("7b21c237-f374-4f67-8051-aae101527611"), Name = assets, OrganizationId = organizationId, ParentFolderId = driveId, SizeInBytes = 0, StorageDriveId = driveId, StoragePath = Path.Combine(storagePath, assets) });
                         dbContext.ServerFolders.Add(new ServerFolder { Id = new Guid("5ecd59f0-d2d2-43de-a441-b019432469a6"), Name = automations, OrganizationId = organizationId, ParentFolderId = driveId, SizeInBytes = 0, StorageDriveId = driveId, StoragePath = Path.Combine(storagePath, automations) });
-                    }
 
+                        //add default server drive
+                        Directory.CreateDirectory(storagePath);
+
+                        //add component folders
+                        List<string> componentList = new List<string>() { emailAttachments, queueItemAttachments, automations, assets };
+                        foreach (var component in componentList)
+                        {
+                            Directory.CreateDirectory(Path.Combine(storagePath, component));
+                        }
+                    }
                 }
                 dbContext.SaveChanges();
             }
