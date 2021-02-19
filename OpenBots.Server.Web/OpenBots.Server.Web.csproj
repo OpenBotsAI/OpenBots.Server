@@ -159,6 +159,11 @@
     <Folder Include="Files\Email Attachments\" />
     <Folder Include="Files\Automations\" />
     <Folder Include="Files\Queue Item Attachments\" />
+    <Folder Include="New Files\Assets\" />
+    <Folder Include="New Files\Assets\a37b784c-dc8b-4c48-90cb-9940b005984a\" />
+    <Folder Include="New Files\Automations\" />
+    <Folder Include="New Files\Email Attachments\" />
+    <Folder Include="New Files\Queue Item Attachments\" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptTarget>ES2020</TypeScriptTarget>

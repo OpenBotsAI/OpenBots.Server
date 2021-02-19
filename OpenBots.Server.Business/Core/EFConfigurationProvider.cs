@@ -46,17 +46,17 @@ namespace OpenBots.Server.Business
                     if (organization != null)
                     {
                         Guid? organizationId = organization.Id;
-                        Guid serverId = new Guid("37a01356-7514-47a2-96ce-986faadd628e");
+                        Guid driveId = new Guid("37a01356-7514-47a2-96ce-986faadd628e");
                         string storagePath = "Files";
                         string emailAttachments = "Email Attachments";
                         string queueItemAttachments = "Queue Item Attachments";
                         string automations = "Automations";
                         string assets = "Assets";
-                        dbContext.ServerDrives.Add(new ServerDrive { Id = serverId, FileStorageAdapterType = AdapterType.LocalFileStorageAdapter.ToString(), Name = storagePath, OrganizationId = organizationId, StorageSizeInBytes = 0, IsDeleted = false, StoragePath = storagePath });
-                        dbContext.ServerFolders.Add(new ServerFolder { Id = new Guid("eea9B112-4eaf-4733-b67b-b71fea62ef06"), Name = emailAttachments, OrganizationId = organizationId, ParentFolderId = serverId, SizeInBytes = 0, StorageDriveId = serverId, StoragePath = Path.Combine(storagePath, emailAttachments) });
-                        dbContext.ServerFolders.Add(new ServerFolder { Id = new Guid("e5981bba-dbbf-469f-b2de-5f30f8a3e517"), Name = queueItemAttachments, OrganizationId = organizationId, ParentFolderId = serverId, SizeInBytes = 0, StorageDriveId = serverId, StoragePath = Path.Combine(storagePath, queueItemAttachments) });
-                        dbContext.ServerFolders.Add(new ServerFolder { Id = new Guid("7b21c237-f374-4f67-8051-aae101527611"), Name = assets, OrganizationId = organizationId, ParentFolderId = serverId, SizeInBytes = 0, StorageDriveId = serverId, StoragePath = Path.Combine(storagePath, assets) });
-                        dbContext.ServerFolders.Add(new ServerFolder { Id = new Guid("5ecd59f0-d2d2-43de-a441-b019432469a6"), Name = automations, OrganizationId = organizationId, ParentFolderId = serverId, SizeInBytes = 0, StorageDriveId = serverId, StoragePath = Path.Combine(storagePath, automations) });
+                        dbContext.ServerDrives.Add(new ServerDrive { Id = driveId, FileStorageAdapterType = "LocalFileStorage", Name = storagePath, OrganizationId = organizationId, StorageSizeInBytes = 0, IsDeleted = false, StoragePath = storagePath });
+                        dbContext.ServerFolders.Add(new ServerFolder { Id = new Guid("eea9B112-4eaf-4733-b67b-b71fea62ef06"), Name = emailAttachments, OrganizationId = organizationId, ParentFolderId = driveId, SizeInBytes = 0, StorageDriveId = driveId, StoragePath = Path.Combine(storagePath, emailAttachments) });
+                        dbContext.ServerFolders.Add(new ServerFolder { Id = new Guid("e5981bba-dbbf-469f-b2de-5f30f8a3e517"), Name = queueItemAttachments, OrganizationId = organizationId, ParentFolderId = driveId, SizeInBytes = 0, StorageDriveId = driveId, StoragePath = Path.Combine(storagePath, queueItemAttachments) });
+                        dbContext.ServerFolders.Add(new ServerFolder { Id = new Guid("7b21c237-f374-4f67-8051-aae101527611"), Name = assets, OrganizationId = organizationId, ParentFolderId = driveId, SizeInBytes = 0, StorageDriveId = driveId, StoragePath = Path.Combine(storagePath, assets) });
+                        dbContext.ServerFolders.Add(new ServerFolder { Id = new Guid("5ecd59f0-d2d2-43de-a441-b019432469a6"), Name = automations, OrganizationId = organizationId, ParentFolderId = driveId, SizeInBytes = 0, StorageDriveId = driveId, StoragePath = Path.Combine(storagePath, automations) });
                     }
 
                 }

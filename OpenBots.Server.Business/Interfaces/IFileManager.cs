@@ -36,5 +36,7 @@ namespace OpenBots.Server.Business.Interfaces
         FileFolderViewModel CopyFileFolder(string fileFolderId, string parentFolderId, string driveName = null);
 
         FileFolderViewModel GetFileFolderByStoragePath(string storagePath, string driveName = null);
+
+        ServerDrive AddServerDrive(string driveName);
     }
 }

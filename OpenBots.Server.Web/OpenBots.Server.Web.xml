@@ -1316,6 +1316,18 @@
             <response code="422">Unprocessable entity</response>
             <returns>Ok response with the copied file or folder value</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.PostDrive(System.String)">
+            <summary>
+            Creates new server drive
+            </summary>
+            <param name="driveName"></param>
+            <response code="200">Ok, new server drive entity created and returned</response>
+            <response code="400">Bad request, when the server drive values are not in proper format</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+            <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+            <returns>Newly created server drive details</returns>
+        </member>
         <member name="T:OpenBots.Server.Web.Controllers.Queue.QueueItemAttachmentsController">
             <summary>
             Controller for queue item attachments

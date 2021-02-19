@@ -311,9 +311,7 @@ namespace OpenBots.Server.Business.File
 
             if (file.Length > 0)
             {
-                if (!string.IsNullOrEmpty(oldPath) || oldPath == path)
-                    IOFile.Delete(path);
-                else IOFile.Delete(oldPath);
+                IOFile.Delete(oldPath);
 
                 var stream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite);
                 using (stream)
@@ -1101,6 +1099,39 @@ namespace OpenBots.Server.Business.File
                 fileView = fileView.Map(serverFile, storagePath);
 
             return fileView;
+        }
+
+        public ServerDrive AddServerDrive(string driveName)
+        {
+            Guid? organizationId = _organizationManager.GetDefaultOrganization().Id;
+
+            var serverDrive = new ServerDrive()
+            {
+                FileStorageAdapterType = Configuration["Files:StorageProvider"],
+                CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
+                CreatedOn = DateTime.UtcNow,
+                Name = driveName,
+                OrganizationId = organizationId,
+                StoragePath = driveName,
+                StorageSizeInBytes = 0
+            };
+            _serverDriveRepository.Add(serverDrive);
+            _directoryManager.CreateDirectory(driveName);
+
+            //add component folders
+            List<string> componentList = new List<string>() { "Assets", "Automations", "Email Attachments", "Queue Item Attachments"};
+            foreach (var component in componentList)
+            {
+                var folderView = new FileFolderViewModel()
+                {
+                    Name = component,
+                    StoragePath = driveName,
+                    IsFile = false
+                };
+                AddFileFolder(folderView, driveName);
+            }
+
+            return serverDrive;
         }
     }
 }

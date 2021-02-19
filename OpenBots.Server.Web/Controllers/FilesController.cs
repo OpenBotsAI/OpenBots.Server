@@ -251,7 +251,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
         /// <returns>Newly created file/folder details</returns>
         [HttpPost]
-        [ProducesResponseType(typeof(ServerFolder), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FileFolderViewModel), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -450,11 +450,41 @@ namespace OpenBots.Server.Web.Controllers
                 return ex.GetActionResult();
             }
         }
+
+        /// <summary>
+        /// Creates new server drive
+        /// </summary>
+        /// <param name="driveName"></param>
+        /// <response code="200">Ok, new server drive entity created and returned</response>
+        /// <response code="400">Bad request, when the server drive values are not in proper format</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="409">Conflict, concurrency error</response> 
+        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+        /// <returns>Newly created server drive details</returns>
+        [HttpPost("drive")]
+        [ProducesResponseType(typeof(ServerDrive), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> PostDrive([FromQuery] string driveName)
+        {
+            try
+            {
+                var response = _manager.AddServerDrive(driveName);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
     }
 }
 
 //TODO additional api calls:
-//add additional server drive?
-//update server drive details?
+//update server drive details/rename?
 //delete server drive?
 //get file attributes for a file?
