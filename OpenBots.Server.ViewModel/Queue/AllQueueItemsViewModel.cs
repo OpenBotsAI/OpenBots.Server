@@ -23,7 +23,7 @@ namespace OpenBots.Server.ViewModel
 		public string? Source { get; set; }
 		public string? Event { get; set; }
 		public string? ResultJSON { get; set; }
-		public List<Guid>? BinaryObjectIds { get; set; }
+		public List<Guid>? FileIds { get; set; }
 		public Guid? QueueId { get; set; }
 		public DateTime? CreatedOn { get; set; }
 		public long? PayloadSizeInBytes { get; set; }

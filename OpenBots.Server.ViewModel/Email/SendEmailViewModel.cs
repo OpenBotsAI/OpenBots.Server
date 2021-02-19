@@ -6,5 +6,6 @@ namespace OpenBots.Server.ViewModel.Email
     {
         public string? EmailMessageJson { get; set; }
         public IFormFile[]? Files { get; set; }
+        public string? DriveName { get; set; }
     }
 }

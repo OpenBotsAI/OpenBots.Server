@@ -259,9 +259,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<Guid?>("AgentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("BinaryObjectID")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -275,6 +272,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<string>("DeletedBy")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("FileId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
@@ -395,9 +395,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<double?>("AverageUnSuccessfulExecutionInMinutes")
                         .HasColumnType("float");
 
-                    b.Property<Guid>("BinaryObjectId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -411,6 +408,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<string>("DeletedBy")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("FileId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
@@ -1083,9 +1083,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("BinaryObjectId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("ContentStorageAddress")
                         .HasColumnType("nvarchar(max)");
 
@@ -1107,6 +1104,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<Guid>("EmailId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FileId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool?>("IsDeleted")
@@ -2855,9 +2855,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("BinaryObjectId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -2871,6 +2868,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<string>("DeletedBy")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("FileId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");

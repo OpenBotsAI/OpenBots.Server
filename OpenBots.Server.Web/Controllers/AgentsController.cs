@@ -156,7 +156,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="403">Forbidden, unauthorized access</response>  
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Paginated list of all AgentGroupMembers </returns>for the Agent
+        /// <returns>Paginated list of all AgentGroupMembers with the specified Agent id</returns>
         [HttpGet("{AgentId}/GetAllGroupMembers")]
         [ProducesResponseType(typeof(PaginatedList<AgentGroupMember>), StatusCodes.Status200OK)]
         [Produces("application/json")]

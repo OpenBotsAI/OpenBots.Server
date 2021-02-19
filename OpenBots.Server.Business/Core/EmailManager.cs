@@ -14,26 +14,29 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using OpenBots.Server.ViewModel.Email;
-using OpenBots.Server.Model;
 using System.IO;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using System.Security.Cryptography;
+using OpenBots.Server.DataAccess.Exceptions;
+using OpenBots.Server.Business.Interfaces;
+using OpenBots.Server.ViewModel.File;
+using IOFile = System.IO.File;
+using System.Text;
 
 namespace OpenBots.Server.Business
 {
     public class EmailManager : BaseManager, IEmailManager
     {
-        protected IPersonRepository personRepo;
-        protected IPersonEmailRepository personEmailRepository;
-        protected IEmailAccountRepository emailAccountRepository;
-        protected IEmailRepository emailRepository;
-        protected IEmailSettingsRepository emailSettingsRepository;
-        protected ApplicationUser applicationUser { get; set; }
-        protected IOrganizationManager organizationManager;
-        protected IHttpContextAccessor httpContextAccessor;
-        protected IBinaryObjectManager binaryObjectManager;
-        protected IBinaryObjectRepository binaryObjectRepository;
-        protected IEmailAttachmentRepository emailAttachmentRepository;
+        private readonly IPersonRepository _personRepo;
+        private readonly IPersonEmailRepository _personEmailRepository;
+        private readonly IEmailAccountRepository _emailAccountRepository;
+        private readonly IEmailRepository _emailRepository;
+        private readonly IEmailSettingsRepository _emailSettingsRepository;
+        private readonly IOrganizationManager _organizationManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IEmailAttachmentRepository _emailAttachmentRepository;
+        private readonly IFileManager _fileManager;
+        private ApplicationUser _applicationUser { get; set; }
 
         public EmailManager(
             IPersonRepository personRepo,
@@ -43,29 +46,27 @@ namespace OpenBots.Server.Business
             IEmailSettingsRepository emailSettingsRepository,
             IOrganizationManager organizationManager,
             IHttpContextAccessor httpContextAccessor,
-            IBinaryObjectManager binaryObjectManager,
-            IBinaryObjectRepository binaryObjectRepository,
-            IEmailAttachmentRepository emailAttachmentRepository)
+            IEmailAttachmentRepository emailAttachmentRepository,
+            IFileManager fileManager)
         {
-            this.personRepo = personRepo;
-            this.personEmailRepository = personEmailRepository;
-            this.emailAccountRepository = emailAccountRepository;
-            this.emailRepository = emailRepository;
-            this.emailSettingsRepository = emailSettingsRepository;
-            this.organizationManager = organizationManager;
-            this.httpContextAccessor = httpContextAccessor;
-            this.binaryObjectManager = binaryObjectManager;
-            this.binaryObjectRepository = binaryObjectRepository;
-            this.emailAttachmentRepository = emailAttachmentRepository;
+            _personRepo = personRepo;
+            _personEmailRepository = personEmailRepository;
+            _emailAccountRepository = emailAccountRepository;
+            _emailRepository = emailRepository;
+            _emailSettingsRepository = emailSettingsRepository;
+            _organizationManager = organizationManager;
+            _httpContextAccessor = httpContextAccessor;
+            _emailAttachmentRepository = emailAttachmentRepository;
+            _fileManager = fileManager;
         }
 
         public override void SetContext(UserSecurityContext userSecurityContext)
         {
-            personRepo.SetContext(userSecurityContext);
-            personEmailRepository.SetContext(userSecurityContext);
-            emailAccountRepository.SetContext(userSecurityContext);
-            emailRepository.SetContext(userSecurityContext);
-            emailSettingsRepository.SetContext(userSecurityContext);
+            _personRepo.SetContext(userSecurityContext);
+            _personEmailRepository.SetContext(userSecurityContext);
+            _emailAccountRepository.SetContext(userSecurityContext);
+            _emailRepository.SetContext(userSecurityContext);
+            _emailSettingsRepository.SetContext(userSecurityContext);
             base.SetContext(userSecurityContext);
         }
 
@@ -75,7 +76,7 @@ namespace OpenBots.Server.Business
             {
                 EmailAccountId = request.EmailAccountId,
                 SenderUserId = request.SenderUserId,
-                CreatedBy = applicationUser?.Name,
+                CreatedBy = _applicationUser?.Name,
                 CreatedOn = DateTime.UtcNow,
                 Status = StatusType.Draft.ToString(),
                 EmailObjectJson = request.EmailObjectJson,
@@ -93,92 +94,83 @@ namespace OpenBots.Server.Business
             return emailViewModel;
         }
 
-        public List<EmailAttachment> AddAttachments(IFormFile[] files, Guid id, string hash = null)
+        public List<EmailAttachment> AddAttachments(IFormFile[] files, Guid id, string driveName)
         {
             var attachments = new List<EmailAttachment>();
             if (files?.Length != 0 && files != null)
             {
-                foreach (var file in files)
+                var fileView = new FileFolderViewModel()
                 {
-                    if (hash == null || hash == string.Empty)
-                        hash = GetHash(hash, file);
-                    var binaryObject = binaryObjectRepository.Find(null, q => q.HashCode == hash && q.CorrelationEntityId == id && q.Name == file.FileName)?.Items?.FirstOrDefault();
-                    if (binaryObject == null)
+                    StoragePath = Path.Combine(driveName, "Email Attachments"),
+                    Files = files,
+                    IsFile = true
+                };
+
+                var fileViewList = _fileManager.AddFileFolder(fileView, driveName);
+
+                foreach (var file in fileViewList)
+                {
+                    //create email attachment
+                    EmailAttachment emailAttachment = new EmailAttachment()
                     {
-                        if (file == null)
-                        {
-                            throw new Exception("No file attached");
-                        }
-
-                        long size = file.Length;
-                        if (size <= 0)
-                        {
-                            throw new Exception($"File size of file {file.FileName} cannot be 0");
-                        }
-
-                        string organizationId = binaryObjectManager.GetOrganizationId();
-                        string apiComponent = "EmailAPI";
-
-                        //add file to binary objects (create entity and put file in EmailAPI folder in server)
-                        binaryObject = new BinaryObject()
-                        {
-                            Name = file.FileName,
-                            Folder = apiComponent,
-                            CreatedBy = applicationUser?.UserName,
-                            CreatedOn = DateTime.UtcNow,
-                            CorrelationEntityId = id
-                        };
-
-                        string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
-                        //upload file to server
-                        binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                        binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                        binaryObjectRepository.Add(binaryObject);
-
-                        //create email attachment
-                        EmailAttachment emailAttachment = new EmailAttachment()
-                        {
-                            Name = binaryObject.Name,
-                            BinaryObjectId = binaryObject.Id,
-                            ContentType = binaryObject.ContentType,
-                            ContentStorageAddress = binaryObject.StoragePath,
-                            SizeInBytes = binaryObject.SizeInBytes,
-                            EmailId = id,
-                            CreatedOn = DateTime.UtcNow,
-                            CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name
-                        };
-                        emailAttachmentRepository.Add(emailAttachment);
-                        attachments.Add(emailAttachment);
-                    }
+                        Name = file.Name,
+                        FileId = file.Id,
+                        ContentType = file.ContentType,
+                        ContentStorageAddress = file.FullStoragePath,
+                        SizeInBytes = file.Size,
+                        EmailId = id,
+                        CreatedOn = DateTime.UtcNow,
+                        CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name
+                    };
+                    _emailAttachmentRepository.Add(emailAttachment);
+                    attachments.Add(emailAttachment);
                 }
             }
             return attachments;
         }
 
-        public IFormFile[] CheckFiles(IFormFile[] files, Guid id, string hash, List<EmailAttachment> attachments)
+        public IFormFile[] CheckFiles(IFormFile[] files, string hash, List<EmailAttachment> attachments, string driveName)
         {
             if (files != null)
             {
                 var filesList = files.ToList();
                 foreach (var attachment in attachments)
                 {
-                    var binaryObject = binaryObjectRepository.GetOne((Guid)attachment.BinaryObjectId);
+                    var fileView = _fileManager.ExportFileFolder(attachment.FileId.ToString(), driveName).Result;
                     //check if file with same hash and email id already exists
                     foreach (var file in files)
                     {
                         hash = GetHash(hash, file);
+                        var originalHash = string.Empty;
+                        var stream = IOFile.OpenRead(fileView.StoragePath);
+                        using (stream)
+                        {
+                            IFormFile originalFile = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
+                            originalHash = GetHash(hash, originalFile);
+                            stream.FlushAsync();
+                            stream.DisposeAsync();
+                            stream.Close();
+                        }
 
                         //if email attachment already exists and hash is the same: remove from files list
-                        if (binaryObject.ContentType == file.ContentType && binaryObject.CorrelationEntityId == id && binaryObject.Name == file.FileName && binaryObject.HashCode == hash)
-                        {
+                        if (fileView.ContentType == file.ContentType && originalHash == hash && fileView.Size == file.Length)
                             filesList.Remove(file);
-                        }
+
                         //if email attachment exists but the hash is not the same: update the attachment and file, remove from files list
-                        else if (binaryObject.ContentType == file.ContentType && binaryObject.CorrelationEntityId == id && binaryObject.Name == file.Name)
+                        else if (fileView.ContentType == file.ContentType && fileView.Name == file.FileName)
                         {
-                            emailAttachmentRepository.Update(attachment);
-                            var organizationId = binaryObjectManager.GetOrganizationId();
-                            binaryObjectManager.Update(file, organizationId, "EmailAPI", (Guid)binaryObject.Id);
+                            fileView = new FileFolderViewModel()
+                            {
+                                ContentType = file.ContentType,
+                                Files = new IFormFile[] { file },
+                                IsFile = true,
+                                StoragePath = fileView.StoragePath,
+                                Name = file.FileName,
+                                Id = fileView.Id
+                            };
+                            attachment.SizeInBytes = file.Length;
+                            _emailAttachmentRepository.Update(attachment);
+                            _fileManager.UpdateFile(fileView);
                             filesList.Remove(file);
                         }
                     }
@@ -202,7 +194,12 @@ namespace OpenBots.Server.Business
 
             using (SHA256 sha256Hash = SHA256.Create())
             {
-                hash = binaryObjectManager.GetHash(sha256Hash, bytes);
+                HashAlgorithm hashAlgorithm = sha256Hash;
+                byte[] data = hashAlgorithm.ComputeHash(bytes);
+                var sBuilder = new StringBuilder();
+                for (int i = 0; i < data.Length; i++)
+                    sBuilder.Append(data[i].ToString("x2"));
+                hash = sBuilder.ToString();
             }
             return hash;
         }
@@ -214,8 +211,8 @@ namespace OpenBots.Server.Business
 
             if (!string.IsNullOrEmpty(id))
             {
-                    emailId = Guid.Parse(id);
-                    emailObject = emailRepository.Find(null, q => q.Id == emailId)?.Items?.FirstOrDefault();
+                emailId = Guid.Parse(id);
+                emailObject = _emailRepository.Find(null, q => q.Id == emailId)?.Items?.FirstOrDefault();
                 if (emailObject == null)
                 {
                     emailObject = new Email()
@@ -231,12 +228,12 @@ namespace OpenBots.Server.Business
                 email.Id = emailId;
 
             //find email settings and determine is email is enabled/disabled
-            var organizationId = Guid.Parse(organizationManager.GetDefaultOrganization().Id.ToString());
-            var emailSettings = emailSettingsRepository.Find(null, s => s.OrganizationId == organizationId).Items.FirstOrDefault();
+            var organizationId = Guid.Parse(_organizationManager.GetDefaultOrganization().Id.ToString());
+            var emailSettings = _emailSettingsRepository.Find(null, s => s.OrganizationId == organizationId).Items.FirstOrDefault();
             //check if accountName exists
-            var existingAccount = emailAccountRepository.Find(null, d => d.Name.ToLower(null) == accountName?.ToLower(null))?.Items?.FirstOrDefault();
+            var existingAccount = _emailAccountRepository.Find(null, d => d.Name.ToLower(null) == accountName?.ToLower(null))?.Items?.FirstOrDefault();
             if (existingAccount == null)
-                existingAccount = emailAccountRepository.Find(null, d => d.IsDefault && !d.IsDisabled).Items.FirstOrDefault();
+                existingAccount = _emailAccountRepository.Find(null, d => d.IsDefault && !d.IsDisabled).Items.FirstOrDefault();
 
             //if there are no records in the email settings table for that organization, email should be disabled
             if (emailSettings == null)
@@ -254,7 +251,7 @@ namespace OpenBots.Server.Business
             {
                 if (existingAccount == null && emailSettings != null)
                 {
-                    existingAccount = emailAccountRepository.Find(null, a => a.IsDefault == true && a.IsDisabled == false)?.Items?.FirstOrDefault();
+                    existingAccount = _emailAccountRepository.Find(null, a => a.IsDefault == true && a.IsDisabled == false)?.Items?.FirstOrDefault();
                     if (existingAccount == null)
                     {
                         email.Status = StatusType.Failed.ToString();
@@ -488,7 +485,7 @@ namespace OpenBots.Server.Business
             }
             email.SenderName = JsonConvert.SerializeObject(nameList);
             email.SenderAddress = JsonConvert.SerializeObject(emailList);
-            email.SenderUserId = applicationUser?.PersonId;
+            email.SenderUserId = _applicationUser?.PersonId;
             if (string.IsNullOrEmpty(direction))
                 email.Direction = Direction.Unknown.ToString();
             else email.Direction = direction;
@@ -501,14 +498,14 @@ namespace OpenBots.Server.Business
             {
                 email.Id = emailObject.Id;
                 email.CreatedOn = DateTime.UtcNow;
-                email.CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name;
-                emailRepository.Add(email);
+                email.CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name;
+                _emailRepository.Add(email);
             }
             else if (email.Id != null && email.Id != emailId)
             {
                 email.CreatedOn = DateTime.UtcNow;
-                email.CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name;
-                emailRepository.Add(email);
+                email.CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name;
+                _emailRepository.Add(email);
             }
             else
             {
@@ -523,16 +520,16 @@ namespace OpenBots.Server.Business
                 emailObject.ReplyToEmailId = email.ReplyToEmailId;
                 emailObject.Status = email.Status;
                 emailObject.Reason = email.Reason;
-                emailRepository.Update(emailObject);
+                _emailRepository.Update(emailObject);
             }
             return Task.CompletedTask;
         }
 
         public bool IsEmailAllowed()
         {
-            var organizationId = Guid.Parse(organizationManager.GetDefaultOrganization()?.Id?.ToString());
-            var emailSettings = emailSettingsRepository.Find(null, s => s.OrganizationId == organizationId).Items.FirstOrDefault();
-            var existingAccount = emailAccountRepository.Find(null, s => s.IsDefault)?.Items?.FirstOrDefault();
+            var organizationId = Guid.Parse(_organizationManager.GetDefaultOrganization()?.Id?.ToString());
+            var emailSettings = _emailSettingsRepository.Find(null, s => s.OrganizationId == organizationId).Items.FirstOrDefault();
+            var existingAccount = _emailAccountRepository.Find(null, s => s.IsDefault)?.Items?.FirstOrDefault();
 
             if (emailSettings == null || existingAccount == null)
                 return false;
@@ -545,7 +542,251 @@ namespace OpenBots.Server.Business
 
         public PaginatedList<AllEmailAttachmentsViewModel> GetEmailAttachmentsAndNames(Guid emailId, Predicate<AllEmailAttachmentsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
-            return emailAttachmentRepository.FindAllView(emailId, predicate, sortColumn, direction, skip, take);
+            return _emailAttachmentRepository.FindAllView(emailId, predicate, sortColumn, direction, skip, take);
+        }
+
+        public List<EmailAttachment> AddFileAttachments(string emailId, string[] requests, string driveName = null)
+        {
+            if (requests.Length == 0 || requests == null) throw new EntityOperationException("No files found to attach");
+
+            var emailAttachments = new List<EmailAttachment>();
+
+            foreach (var request in requests)
+            {
+                var file = _fileManager.GetFileFolder(request, driveName);
+                if (file == null) throw new EntityDoesNotExistException($"File could not be found");
+
+                long? size = file.Size;
+                if (size <= 0) throw new EntityOperationException($"File size of file {file.Name} cannot be 0");
+
+                //create email attachment
+                EmailAttachment emailAttachment = new EmailAttachment()
+                {
+                    Name = file.Name,
+                    FileId = file.Id,
+                    ContentType = file.ContentType,
+                    ContentStorageAddress = file.FullStoragePath,
+                    SizeInBytes = file.Size,
+                    EmailId = Guid.Parse(emailId),
+                    CreatedBy = _applicationUser?.UserName,
+                    CreatedOn = DateTime.UtcNow
+                };
+                _emailAttachmentRepository.Add(emailAttachment);
+                emailAttachments.Add(emailAttachment);
+            }
+
+            return emailAttachments;
+        }
+
+        public List<EmailAttachment> AddNewAttachments(string emailId, IFormFile[] files, string driveName = null)
+        {
+            if (files.Length == 0 || files == null) throw new EntityOperationException("No files found to attach");
+
+            //add files to drive
+            var fileView = new FileFolderViewModel()
+            {
+                StoragePath = Path.Combine(driveName, "Email Attachments"),
+                Files = files,
+                IsFile = true
+            };
+            List<FileFolderViewModel> fileViewList = _fileManager.AddFileFolder(fileView, driveName);
+
+            var emailAttachments = new List<EmailAttachment>();
+
+            foreach (var file in fileViewList)
+            {
+                //create email attachment
+                EmailAttachment emailAttachment = new EmailAttachment()
+                {
+                    Name = file.Name,
+                    FileId = file.Id,
+                    ContentType = file.ContentType,
+                    ContentStorageAddress = file.FullStoragePath,
+                    SizeInBytes = file.Size,
+                    EmailId = Guid.Parse(emailId),
+                    CreatedOn = DateTime.UtcNow,
+                    CreatedBy = _applicationUser?.UserName
+                };
+                _emailAttachmentRepository.Add(emailAttachment);
+                emailAttachments.Add(emailAttachment);
+            }
+
+            return emailAttachments;
+        }
+
+        public EmailAttachment UpdateAttachment(string id, UpdateEmailAttachmentViewModel request)
+        {
+            Guid entityId = new Guid(id);
+            var existingAttachment = _emailAttachmentRepository.GetOne(entityId);
+            if (existingAttachment == null) throw new EntityOperationException("No file found to update");
+
+            var file = _fileManager.GetFileFolder(existingAttachment.FileId.ToString(), request.DriveName);
+
+            if (file == null) throw new EntityDoesNotExistException($"File could not be found");
+
+            long? size = file.Size;
+            if (size <= 0) throw new EntityOperationException($"File size of file {file.Name} cannot be 0");
+
+            //update email attachment entity
+            var formFile = request.File;
+            string storagePath = Path.Combine(request.DriveName, "Email Attachments", formFile.FileName);
+            if (!string.IsNullOrEmpty(formFile.FileName))
+                existingAttachment.Name = formFile.FileName;
+
+            existingAttachment.ContentType = formFile.ContentType;
+            existingAttachment.SizeInBytes = formFile.Length;
+            existingAttachment.ContentStorageAddress = storagePath;
+            _emailAttachmentRepository.Update(existingAttachment);
+
+            //update file entity and file
+            file.Files = new IFormFile[] { formFile };
+            file.StoragePath = storagePath;
+            var fileView = _fileManager.GetFileFolder(existingAttachment.FileId.ToString(), request.DriveName);
+            file.FullStoragePath = fileView.FullStoragePath;
+            _fileManager.UpdateFile(file);
+
+            return existingAttachment;
+        }
+
+        public void DeleteAll(string emailId, string driveName)
+        {
+            var attachments = _emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(emailId))?.Items;
+            if (attachments.Count != 0)
+            {
+                var fileList = new List<FileFolderViewModel>();
+                foreach (var attachment in attachments)
+                {
+                    var fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
+                    fileList.Add(fileView);
+                    _emailAttachmentRepository.SoftDelete(attachment.Id.Value);
+                }
+                _fileManager.AddBytesToFoldersAndDrive(fileList);
+            }
+            else throw new EntityDoesNotExistException("No attachments found to delete");
+        }
+
+        public void DeleteOne(string id, string driveName)
+        {
+            var attachment = _emailAttachmentRepository.Find(null, q => q.Id == Guid.Parse(id))?.Items?.FirstOrDefault();
+            if (attachment != null)
+            {
+                var fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
+                _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileView });
+            }
+            else throw new EntityDoesNotExistException("Attachment could not be found");
+        }
+
+        public EmailViewModel SendDraftEmail(string id, SendEmailViewModel request, string emailAccountName)
+        {
+            EmailMessage emailMessage = JsonConvert.DeserializeObject<EmailMessage>(request.EmailMessageJson);
+
+            Guid emailId = Guid.Parse(id);
+            var email = _emailRepository.GetOne(emailId);
+
+            var emailAttachments = new List<EmailAttachment>();
+            var attachments = _emailAttachmentRepository.Find(null, q => q.EmailId == emailId)?.Items;
+
+            if (email.Status.Equals("Draft"))
+            {
+                //if file doesn't exist in files: add file entity, upload file, and add email attachment entity
+                string hash = string.Empty;
+                if (request.Files == null || request.Files.Length == 0)
+                    emailMessage.Attachments = attachments;
+                else
+                {
+                    IFormFile[] filesArray = CheckFiles(request.Files, hash, attachments, request.DriveName);
+                    emailAttachments = AddAttachments(filesArray, emailId, hash);
+                    emailMessage.Attachments = emailAttachments;
+                }
+
+                //email account name is nullable, so it needs to be used as a query parameter instead of in the put url
+                //if no email account is chosen, the default organization account will be used
+                SendEmailAsync(emailMessage, emailAccountName, id, "Outgoing");
+
+                email = _emailRepository.Find(null, q => q.Id == emailId)?.Items?.FirstOrDefault();
+                EmailViewModel emailViewModel = GetEmailViewModel(email, attachments);
+                if (attachments.Count == 0 || attachments == null)
+                    emailViewModel.Attachments = emailAttachments;
+                return emailViewModel;
+            }
+            else throw new EntityOperationException("Email was not sent because it is not a draft");
+        }
+
+        public EmailViewModel SendNewEmail(SendEmailViewModel request, string emailAccountName)
+        {
+            EmailMessage emailMessage = JsonConvert.DeserializeObject<EmailMessage>(request.EmailMessageJson);
+
+            //create email attachment entities for each file attached
+            Guid id = Guid.NewGuid();
+            var attachments = AddAttachments(request.Files, id, request.DriveName);
+
+            //add attachment entities to email message
+            emailMessage.Attachments = attachments;
+            SendEmailAsync(emailMessage, emailAccountName, id.ToString(), "Outgoing");
+
+            Email email = _emailRepository.Find(null, q => q.Id == id)?.Items?.FirstOrDefault();
+            EmailViewModel emailViewModel = GetEmailViewModel(email, attachments);
+            return emailViewModel;
+        }
+
+        public EmailViewModel UpdateFiles(string id, UpdateEmailViewModel request)
+        {
+            var email = _emailRepository.GetOne(Guid.Parse(id));
+            if (email == null) throw new EntityDoesNotExistException("Email could not be found or does not exist");
+
+            email.ConversationId = request.ConversationId;
+            email.Direction = request.Direction;
+            email.EmailObjectJson = request.EmailObjectJson;
+            email.SenderAddress = request.SenderAddress;
+            email.SenderName = request.SenderName;
+            email.SenderUserId = _applicationUser?.PersonId;
+            email.Status = request.Status;
+            email.EmailAccountId = request.EmailAccountId;
+            email.ReplyToEmailId = request.ReplyToEmailId;
+            email.Reason = request.Reason;
+            email.SentOnUTC = request.SentOnUTC;
+
+            //if files don't exist in file manager: add file entity, upload file, and add email attachment attachment entity
+            var attachments = _emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(id))?.Items;
+            string hash = string.Empty;
+            IFormFile[] filesArray = CheckFiles(request.Files, hash, attachments, request.DriveName);
+            var emailAttachments = AddAttachments(filesArray, email.Id.Value, request.DriveName);
+
+            //update email
+            _emailRepository.Update(email);
+
+            attachments = _emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(id))?.Items;
+            EmailViewModel response = GetEmailViewModel(email, attachments);
+            if (attachments.Count == 0 || attachments == null)
+                response.Attachments = emailAttachments;
+
+            return response;
+        }
+
+        public void DeleteEmailAttachments(string id, string driveName)
+        {
+            var attachments = _emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(id))?.Items;
+            if (attachments.Count != 0)
+            {
+                var fileList = new List<FileFolderViewModel>();
+                foreach (var attachment in attachments)
+                {
+                    var file = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
+                    fileList.Add(file);
+                    _emailAttachmentRepository.SoftDelete(attachment.Id.Value);
+                }
+                _fileManager.AddBytesToFoldersAndDrive(fileList);
+            }
+        }
+
+        public EmailViewModel GetEmailView(EmailViewModel emailViewModel)
+        {
+            var attachmentsList = _emailAttachmentRepository.Find(null, q => q.EmailId == emailViewModel.Id)?.Items;
+            if (attachmentsList != null)
+                emailViewModel.Attachments = attachmentsList;
+            else emailViewModel.Attachments = null;
+
+            return emailViewModel;
         }
 
         public enum StatusType : int

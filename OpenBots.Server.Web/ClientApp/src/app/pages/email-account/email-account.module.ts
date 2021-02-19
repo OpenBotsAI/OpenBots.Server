@@ -6,27 +6,24 @@ import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
 import { SharedModule } from '../../@core/shared/shared.module';
 import { EmailAccountsService } from './email-accounts.service';
 import { GetEmailIdComponent } from './get-email-id/get-email-id.component';
-import { EditEmailAccountComponent } from './edit-email-account/edit-email-account.component';
 import { AddEmailAccountComponent } from './add-email-account/add-email-account.component';
 import { EmailTestingAccountComponent } from './email-testing-account/email-testing-account.component';
 import { CKEditorModule } from 'ng2-ckeditor';
  
 
 @NgModule({
-  declarations: [AllEmailAccountComponent, GetEmailIdComponent, EditEmailAccountComponent, AddEmailAccountComponent, EmailTestingAccountComponent
-
+  declarations: [
+    AllEmailAccountComponent,
+    GetEmailIdComponent,
+    AddEmailAccountComponent,
+    EmailTestingAccountComponent,
   ],
   imports: [
-
     EmailAccountRoutingModule,
     SharedModule,
     NgxPaginationModule,
     CKEditorModule,
-
-  
-
   ],
   providers: [EmailAccountsService],
-
 })
-export class EmailAccountModule { }
+export class EmailAccountModule {}

@@ -48,9 +48,7 @@ export class AllAutomationComponent implements OnInit {
     });
   }
   gotoedit(id) {
-    this.router.navigate(['/pages/automation/edit'], {
-      queryParams: { id: id },
-    });
+    this.router.navigate([`/pages/automation/edit/${id}`]);
   }
 
   goto_jobs(id) {

@@ -314,7 +314,7 @@ namespace OpenBots.Server.Business
         }
 
         /// <summary>
-        /// Gets a list of all GroupMembers ifor the specified Agent
+        /// Gets a list of all GroupMembers for the specified Agent
         /// </summary>
         /// <param name="agentId"></param>
         /// <returns></returns>

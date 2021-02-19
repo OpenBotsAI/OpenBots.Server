@@ -35,7 +35,7 @@
                 <div class="col-md-4 col-lg-4" *ngIf="showDownloadbtn">
                     <button class="btnIcon btnRename" (click)="openRenameDialog(dialog)"> <img
                             src="../../../../assets/images/rename-icon.png" />Rename</button>
-                    <button class="btnIcon btnMove"> <img src="../../../../assets/images/move.png" />Move</button>
+                    <!-- <button class="btnIcon btnMove"> <img src="../../../../assets/images/move.png" />Move</button> -->
                     <!-- *ngIf="showDeletebtn" -->
                     <button class="btnIcon btnDelete" (click)="deleteFiles()"><img
                             src="../../../../assets/images/delete-icon.png" />Delete</button>
@@ -86,7 +86,7 @@
                         <tbody>
                             <tr *ngFor="let files of fileManger | paginate : { 
                             itemsPerPage: page.pageSize, currentPage: page.pageNumber,
-                            totalItems: page.totalCount };;trackBy: trackByFn; index as i " (click)="ClickedRow(i)"
+                            totalItems: page.totalCount };trackBy: trackByFn; index as i " (click)="ClickedRow(i)"
                                 [class.active]="i == HighlightRow">
                                 <!-- <tr *ngFor="let files of fileManger | paginate: {id: '1',
                       itemsPerPage: page.pageSize,currentPage: page.pageNumber,totalItems: page.totalCount
@@ -273,7 +273,8 @@
             </nb-card-body>
             <nb-card-footer>
                 <!-- [disabled]="isDeleted" (click)="del_agent(ref)" -->
-                <button class="btn btn-primary" [disabled]="isSubmitted || !filesFormgroup.valid">Save</button>
+                <button class="btn btn-primary" [disabled]="isSubmitted || !filesFormgroup.valid"
+                    (click)="renameFileName(ref)">Save</button>
                 <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
                     Cancel
                 </button>

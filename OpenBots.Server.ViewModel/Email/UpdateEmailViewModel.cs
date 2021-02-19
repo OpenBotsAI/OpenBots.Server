@@ -19,6 +19,7 @@ namespace OpenBots.Server.ViewModel.Email
         public Guid? ReplyToEmailId { get; set; }
         public Guid? EmailAccountId { get; set; }
         public IFormFile[]? Files { get; set; }
+        public string? DriveName { get; set; }
 
         public UpdateEmailViewModel Map(Model.Configuration.Email entity)
         {
@@ -34,7 +35,7 @@ namespace OpenBots.Server.ViewModel.Email
                 Reason = entity.Reason,
                 SenderAddress = entity.SenderAddress,
                 SenderName = entity.SenderName,
-                Status = entity.Status,
+                Status = entity.Status
             };
 
             return emailViewModel;

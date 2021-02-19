@@ -6,6 +6,7 @@ import { NbDateService } from '@nebular/theme';
 import { HelperService } from '../../../@core/services/helper.service';
 import { CredentialsApiUrl } from '../../../webApiUrls';
 
+
 @Component({
   selector: 'ngx-add-credentials',
   templateUrl: './add-credentials.component.html',
@@ -24,6 +25,7 @@ export class AddCredentialsComponent implements OnInit {
     { id: 'AD', name: 'Active Directory' },
     { id: 'A', name: 'Application' },
   ];
+  domainNamePttern = `[^([a-z0-9]{1,63}+(-[a-z0-9]{1,63}+)*.)+[a-z]{3}$]`;
   constructor(
     private fb: FormBuilder,
     private httpService: HttpService,
@@ -57,7 +59,16 @@ export class AddCredentialsComponent implements OnInit {
         ],
       ],
       provider: ['', [Validators.required]],
-      domain: ['', [Validators.minLength(3), Validators.maxLength(100)]],
+      domain: [
+        '',
+        [
+          Validators.minLength(3),
+          Validators.maxLength(67),
+          Validators.pattern(
+            '^([a-z0-9]{1,63}(-[a-z0-9]{1,63})*\\.)+[a-z]{3}$'
+          ),
+        ],
+      ],
       userName: [
         '',
         [

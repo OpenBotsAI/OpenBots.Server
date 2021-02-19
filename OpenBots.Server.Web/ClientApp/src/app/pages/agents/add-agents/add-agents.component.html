@@ -2,25 +2,27 @@
   <div class="col-md-12">
     <nb-card>
       <nb-card-header>
-        <h2>Add Agent</h2>
+        <h2> {{ title }} Agent</h2>
       </nb-card-header>
       <nb-card-body>
-        <form [formGroup]="addagent">
+        <form [formGroup]="agentForm">
           <div class="row">
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
                 <label for="agentname" class="label">Agent Name *</label>
                 <input type="input" nbInput fullWidth id="agentname" formControlName="name" class="form-control"
                   (keyup)="handleInput($event)" placeholder="Please enter agent name">
-                <div *ngIf="(f.name.touched || f.name.dirty)  && f.name.invalid" class="invalid-feedback-frm">
-                  <div *ngIf="f.name.errors && f.name.errors.required"> Agent Name is required.</div>
-                  <div *ngIf="f.name.errors.minlength">
+                <div *ngIf="(formControl.name.touched || formControl.name.dirty)  && formControl.name.invalid"
+                  class="invalid-feedback-frm">
+                  <div *ngIf="formControl.name.errors && formControl.name.errors.required"> Agent Name is required.
+                  </div>
+                  <div *ngIf="formControl.name.errors.minlength">
                     Agent Name at least 3 characters long.
                   </div>
-                  <div *ngIf="f.name.errors.maxlength">
+                  <div *ngIf="formControl.name.errors.maxlength">
                     Agent Name at least 100 characters long.
                   </div>
-                  <div *ngIf=" f.name.errors.pattern">
+                  <div *ngIf=" formControl.name.errors.pattern">
                     Please enter valid agent name .
                   </div>
                 </div>
@@ -31,16 +33,18 @@
                 <label for="machinename" class="label">Machine Name *</label>
                 <input type="input" nbInput fullWidth id="machineName" formControlName="machineName"
                   class="form-control" placeholder="Please enter machine name" />
-                <div *ngIf="(f.machineName.touched || f.machineName.dirty) && f.machineName.invalid"
+                <div
+                  *ngIf="(formControl.machineName.touched || formControl.machineName.dirty) && formControl.machineName.invalid"
                   class="invalid-feedback-frm">
-                  <div *ngIf="f.machineName.errors && f.machineName.errors.required"> Machine Name is required.</div>
-                  <div *ngIf="f.machineName.errors.minlength">
+                  <div *ngIf="formControl.machineName.errors && formControl.machineName.errors.required"> Machine Name
+                    is required.</div>
+                  <div *ngIf="formControl.machineName.errors.minlength">
                     Machine Name at least 3 characters long.
                   </div>
-                  <div *ngIf="f.machineName.errors.maxlength">
+                  <div *ngIf="formControl.machineName.errors.maxlength">
                     Machine Name at least 100 characters long.
                   </div>
-                  <div *ngIf="f.machineName.errors.pattern">
+                  <div *ngIf="formControl.machineName.errors.pattern">
                     Please enter valid machine name .
                   </div>
                 </div>
@@ -52,23 +56,26 @@
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
                 <label for="email" class="label"> Enhanced Security</label>
-                 <label class="upload-button"><nb-checkbox  (checkedChange)="check($event)" formControlName="isEnhancedSecurity"> Enhanced Security
-                </nb-checkbox></label>
-                
+                <label class="upload-button">
+                  <nb-checkbox (checkedChange)="check($event)" formControlName="isEnhancedSecurity"> Enhanced Security
+                  </nb-checkbox>
+                </label>
+
               </div>
             </div>
-            <div *ngIf="addagent.value.isEnhancedSecurity" class="col-md-6 col-sm-6 col-xxxl-6">
+            <div *ngIf="agentForm.value.isEnhancedSecurity" class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
                 <label for="macaddress" class="label">Mac Addresses *</label>
                 <input type="input" nbInput fullWidth id="macAddresses" formControlName="macAddresses"
                   (keyup)="handleInput($event)" class="form-control" placeholder="Please enter macaddress">
-                <div *ngIf="f.macAddresses.touched && f.macAddresses.invalid" class="invalid-feedback-frm">
-                  <div *ngIf="f.macAddresses.errors && f.macAddresses.errors.required">
+                <div *ngIf="formControl.macAddresses.touched && formControl.macAddresses.invalid"
+                  class="invalid-feedback-frm">
+                  <div *ngIf="formControl.macAddresses.errors && formControl.macAddresses.errors.required">
                     Mac Address is required.</div>
-                  <!-- <div *ngIf="f.macAddresses.errors?.mac">
+                  <!-- <div *ngIf="formControl.macAddresses.errors?.mac">
                     Please enter valid mac address.
                   </div> -->
-                  <div *ngIf="f.macAddresses.errors?.pattern">
+                  <div *ngIf="formControl.macAddresses.errors?.pattern">
                     Please enter valid mac address.
                   </div>
                 </div>
@@ -76,7 +83,7 @@
             </div>
           </div>
 
-          <div class="row" *ngIf="addagent.value.isEnhancedSecurity">
+          <div class="row" *ngIf="agentForm.value.isEnhancedSecurity">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label class="label" style="display: block;">Please select IP version *</label>
               <nb-radio-group formControlName="ipOption">
@@ -95,10 +102,12 @@
                 <input type="input" nbInput fullWidth id="ipAddresses" formControlName="ipAddresses"
                   (keyup)="handleInput($event)" class="form-control" placeholder="Please enter IP Address"
                   disallow-spaces>
-                <div *ngIf="(f.ipAddresses.touched || f.ipAddresses.dirty) && f.ipAddresses.invalid"
+                <div
+                  *ngIf="(formControl.ipAddresses.touched || formControl.ipAddresses.dirty) && formControl.ipAddresses.invalid"
                   class="invalid-feedback-frm">
-                  <div *ngIf="f.ipAddresses.errors && f.ipAddresses.errors.required"> IP Address is required.</div>
-                  <div *ngIf="f.ipAddresses.errors?.ip">
+                  <div *ngIf="formControl.ipAddresses.errors && formControl.ipAddresses.errors.required"> IP Address is
+                    required.</div>
+                  <div *ngIf="formControl.ipAddresses.errors?.ip">
                     Please enter valid Ip.
                   </div>
                 </div>
@@ -112,10 +121,13 @@
                 <label for="queueitemtype" class="label"> OS Logon Credentials * </label>
                 <select class="custom-select" formControlName="CredentialId">
                   <option value='' selected> </option>
-                  <option *ngFor="let item of cred_value" [value]="item.credentialId">{{item.credentialName}}</option>
+                  <option *ngFor="let item of credentialArr" [value]="item.credentialId">{{item.credentialName}}
+                  </option>
                 </select>
-                <div *ngIf="f.CredentialId.touched && f.CredentialId.invalid" class="invalid-feedback-frm">
-                  <div *ngIf="f.CredentialId.errors && f.CredentialId.errors.required"> Credential is required.</div>
+                <div *ngIf="formControl.CredentialId.touched && formControl.CredentialId.invalid"
+                  class="invalid-feedback-frm">
+                  <div *ngIf="formControl.CredentialId.errors && formControl.CredentialId.errors.required"> Credential
+                    is required.</div>
                 </div>
               </div>
             </div>
@@ -131,14 +143,15 @@
               </div>
             </div>
           </div>
-          <div class="row">
+          <div class="row" *ngIf="!urlId">
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
                 <label for="userName" class="label">User Name *</label>
                 <input type="input" nbInput fullWidth id="userName" formControlName="userName" class="form-control"
                   placeholder="Please enter user name" autocomplete="new-userName">
-                <div *ngIf="f.userName.touched && f.userName.invalid" class="invalid-feedback-frm">
-                  <div *ngIf="f.userName.errors && f.userName.errors.required"> User name is required.</div>
+                <div *ngIf="formControl.userName.touched && formControl.userName.invalid" class="invalid-feedback-frm">
+                  <div *ngIf="formControl.userName.errors && formControl.userName.errors.required"> User name is
+                    required.</div>
                 </div>
               </div>
             </div>
@@ -147,9 +160,11 @@
                 <label for="ipadd" class="label">Password *</label>
                 <input type="password" nbInput fullWidth id="password" formControlName="password" class="form-control"
                   placeholder="Please enter password" autocomplete="new-password">
-                <div *ngIf="(f.password.touched || f.password.dirty) && f.password.invalid"
+                <div
+                  *ngIf="(formControl.password.touched || formControl.password.dirty) && formControl.password.invalid"
                   class="invalid-feedback-frm">
-                  <div *ngIf="f.password.errors && f.password.errors.required"> Password is required.</div>
+                  <div *ngIf="formControl.password.errors && formControl.password.errors.required"> Password is
+                    required.</div>
                 </div>
               </div>
             </div>
@@ -157,8 +172,8 @@
           <div class="row">
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
-                <button type="submit" class="btn btn-primary" status="primary" [disabled]="submitted || !addagent.valid"
-                  (click)="onSubmit()">Save</button>
+                <button type="submit" class="btn btn-primary" status="primary"
+                  [disabled]="submitted || !agentForm.valid" (click)="onSubmit()">Save</button>
               </div>
             </div>
           </div>

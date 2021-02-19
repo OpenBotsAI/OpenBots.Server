@@ -9,28 +9,32 @@ namespace OpenBots.Server.Business.Interfaces
 {
     public interface IFileManager : IManager
     {
-        public List<FileFolderViewModel> AddFileFolder(FileFolderViewModel request, string driveName = null);
+        List<FileFolderViewModel> AddFileFolder(FileFolderViewModel request, string driveName = null);
 
-        //public void UpdateFile(UpdateServerFileViewModel request);
+        void UpdateFile(FileFolderViewModel request);
 
-        public void DeleteFileFolder(string id, string driveName = null);
+        FileFolderViewModel DeleteFileFolder(string id, string driveName = null);
 
-        public int? GetFileCount(string driveName = null);
+        void AddBytesToFoldersAndDrive(List<FileFolderViewModel> file);
 
-        public int? GetFolderCount(string driveName = null);
+        int? GetFileCount(string driveName = null);
 
-        public FileFolderViewModel GetFileFolder(string path, string driveName = null);
+        int? GetFolderCount(string driveName = null);
 
-        public ServerDrive GetDrive(string driveName = null);
+        FileFolderViewModel GetFileFolder(string id, string driveName = null);
 
-        public PaginatedList<FileFolderViewModel> GetFilesFolders(bool? isFile, string driveName = null, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
+        ServerDrive GetDrive(string driveName = null);
 
-        public Task<FileFolderViewModel> ExportFileFolder(string id, string driveName = null);
+        PaginatedList<FileFolderViewModel> GetFilesFolders(bool? isFile, string driveName = null, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
 
-        public FileFolderViewModel RenameFileFolder(string id, string name, string driveName = null);
+        Task<FileFolderViewModel> ExportFileFolder(string id, string driveName = null);
 
-        public FileFolderViewModel MoveFileFolder(string fileFolderId, string parentFolderId, string driveName = null);
+        FileFolderViewModel RenameFileFolder(string id, string name, string driveName = null);
 
-        public FileFolderViewModel CopyFileFolder(string fileFolderId, string parentFolderId, string driveName = null);
+        FileFolderViewModel MoveFileFolder(string fileFolderId, string parentFolderId, string driveName = null);
+
+        FileFolderViewModel CopyFileFolder(string fileFolderId, string parentFolderId, string driveName = null);
+
+        FileFolderViewModel GetFileFolderByStoragePath(string storagePath, string driveName = null);
     }
 }

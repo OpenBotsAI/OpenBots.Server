@@ -49,7 +49,8 @@ export class AllAgentsComponent implements OnInit {
     this.router.navigate(['/pages/agents/new']);
   }
   gotoedit(id) {
-    this.router.navigate(['/pages/agents/edit'], { queryParams: { id: id } });
+    // this.router.navigate(['/pages/agents/edit'], { queryParams: { id: id } });
+    this.router.navigate([`/pages/agents/edit/${id}`]);
   }
   gotojobs(id) {
     this.router.navigate(['/pages/job/list'], {

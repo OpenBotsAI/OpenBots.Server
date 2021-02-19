@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.FeatureManagement.Mvc;
 using OpenBots.Server.Business;
+using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
@@ -32,6 +33,7 @@ namespace OpenBots.Server.Web.Controllers
     {
         private readonly IQueueManager _queueManager;
         private readonly IWebhookPublisher _webhookPublisher;
+
         /// <summary>
         /// QueuesController constructor
         /// </summary>
@@ -171,21 +173,13 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Post([FromBody] QueueModel request)
         {
-            if (request == null)
-            {
-                ModelState.AddModelError("Save", "No data passed");
-                return BadRequest(ModelState);
-            }
-
-            var queue = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
-            if (queue != null)
-            {
-                ModelState.AddModelError("Queue", "Queue Name Already Exists");
-                return BadRequest(ModelState);
-            }
-            
+      
             try
             {
+                if (request == null) throw new EntityDoesNotExistException("No data passed");
+                var queue = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
+                if (queue != null) throw new EntityAlreadyExistsException("Queue name already exists");
+
                 var result = await base.PostEntity(request);
                 await _webhookPublisher.PublishAsync("Queues.NewQueueCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
                 return result;
@@ -222,21 +216,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                Guid entityId = new Guid(id);
-                
-                var existingQueue = repository.GetOne(entityId);
-                if (existingQueue == null) return NotFound();
-
-                var queue = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
-                if (queue != null && existingQueue.Id != entityId)
-                {
-                    ModelState.AddModelError("Queue", "Queue Name Already Exists");
-                    return BadRequest(ModelState);
-                }
-                               
-                existingQueue.Description = request.Description;
-                existingQueue.Name = request.Name;
-                existingQueue.MaxRetryCount = request.MaxRetryCount;
+                var existingQueue = _queueManager.UpdateQueue(id, request);
 
                 await _webhookPublisher.PublishAsync("Queues.QueueUpdated", existingQueue.Id.ToString(), existingQueue.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingQueue);
@@ -265,16 +245,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                Guid entityId = new Guid(id);
-                var existingQueue = repository.GetOne(entityId);
-                if (existingQueue == null) return NotFound();
-
-                bool lockedChildExists = _queueManager.CheckReferentialIntegrity(id);
-                if (lockedChildExists)
-                {
-                    ModelState.AddModelError("Delete Agent", "Referential Integrity in QueueItems table, please remove any locked items associated with this queue first");
-                    return BadRequest(ModelState);
-                }
+                var existingQueue = _queueManager.CheckReferentialIntegrity(id);
                 await _webhookPublisher.PublishAsync("Queues.QueueDeleted", existingQueue.Id.ToString(), existingQueue.Name).ConfigureAwait(false);
                 return await base.DeleteEntity(id);
             }
