@@ -164,7 +164,7 @@ namespace OpenBots.Server.Business
         /// </summary>
         /// <param name="id"></param>
         /// <param name="request"></param>
-        /// <returns></returns>
+        /// <returns>Updated Agent</returns>
         public Agent UpdateAgent(string id, Agent request)
         {
             Guid entityId = new Guid(id);
@@ -236,7 +236,7 @@ namespace OpenBots.Server.Business
         /// Gets additional details for the provided agent viewmodel
         /// </summary>
         /// <param name="agentView"></param>
-        /// <returns></returns>
+        /// <returns>Details for the specified Agent</returns>
         public AgentViewModel GetAgentDetails(AgentViewModel agentView)
         {
             agentView.UserName = _usersRepo.Find(null, u => u.Name == agentView.Name).Items?.FirstOrDefault()?.UserName;
@@ -260,7 +260,7 @@ namespace OpenBots.Server.Business
         /// Checks if there are any jobs that depend on the specified agent
         /// </summary>
         /// <param name="id"></param>
-        /// <returns></returns>
+        /// <returns>True if the Agent is referenced in dependant entities</returns>
         public bool CheckReferentialIntegrity(string id)
         {
             Guid agentId = new Guid(id);
@@ -306,7 +306,7 @@ namespace OpenBots.Server.Business
         /// <param name="agentId"></param>
         /// <param name="requestIp"></param>
         /// <param name="request"></param>
-        /// <returns></returns>
+        /// <returns>Specified Agent</returns>
         public Agent GetConnectAgent(string agentId, string requestIp, ConnectAgentViewModel request)
         {
             Agent agent = _agentRepo.GetOne(Guid.Parse(agentId));
@@ -336,7 +336,7 @@ namespace OpenBots.Server.Business
         /// Gets a list of all GroupMembers for the specified Agent
         /// </summary>
         /// <param name="agentId"></param>
-        /// <returns></returns>
+        /// <returns>All GroupMembers for the specified Agent</returns>
         public PaginatedList<AgentGroupMember> GetAllMembersInGroup(string agentId)
         {
             var entityId = Guid.Parse(agentId);
@@ -345,6 +345,12 @@ namespace OpenBots.Server.Business
             return groupMemberList;
         }
 
+        /// <summary>
+        /// Creates a new Heartbeat entity for the specified Agent id
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="agentId"></param>
+        /// <returns>Newly created Heartbeat</returns>
         public AgentHeartbeat PerformAgentHeartbeat(HeartbeatViewModel request, string agentId)
         {
             Agent agent = _agentRepo.GetOne(new Guid(agentId));
@@ -379,7 +385,7 @@ namespace OpenBots.Server.Business
         /// Gets the oldest available job for the specified Agent id
         /// </summary>
         /// <param name="agentId"></param>
-        /// <returns></returns>
+        /// <returns>Next available Job if one exists</returns>
         public NextJobViewModel GetNextJob(string agentId)
         {
             if (agentId == null)
