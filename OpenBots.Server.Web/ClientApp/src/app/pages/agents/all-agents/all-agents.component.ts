@@ -176,4 +176,20 @@ export class AllAgentsComponent implements OnInit {
     if (!item) return null;
     return index;
   }
+
+  searchValue(value) {
+    if (value.length) {
+      const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+      this.feild_name = value;
+      this.agentService
+        .getFilterAgent(this.page.pageSize, skip, this.feild_name)
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.show_allagents = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    } else {
+      this.pagination(this.page.pageNumber, this.page.pageSize);
+    }
+  }
 }
