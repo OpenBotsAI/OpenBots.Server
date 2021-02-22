@@ -20,6 +20,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using IOFile = System.IO.File;
 
 namespace OpenBots.Server.Business
 {
@@ -390,7 +391,7 @@ namespace OpenBots.Server.Business
             item.LockTransactionKey = null;
         }
 
-        public PaginatedList<AllQueueItemsViewModel> GetQueueItemsAndBinaryObjectIds(Predicate<AllQueueItemsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        public PaginatedList<AllQueueItemsViewModel> GetQueueItemsAndFileIds(Predicate<AllQueueItemsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
             return _repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
@@ -420,44 +421,44 @@ namespace OpenBots.Server.Business
             return queueItemViewModel;
         }
 
-        public List<FileFolderViewModel> AttachFiles(List<IFormFile> files, Guid queueItemId, QueueItem queueItem, string driveName)
-        {
-            long payload = 0;
-            var fileView = new FileFolderViewModel()
-            {
-                StoragePath = Path.Combine(driveName, "Queue Item Attachments"),
-                Files = files.ToArray()
-            };
-            var fileViewList = _fileManager.AddFileFolder(fileView, driveName);
+        //public List<FileFolderViewModel> AttachFiles(List<IFormFile> files, Guid queueItemId, QueueItem queueItem, string driveName)
+        //{
+        //    long payload = 0;
+        //    var fileView = new FileFolderViewModel()
+        //    {
+        //        StoragePath = Path.Combine(driveName, "Queue Item Attachments"),
+        //        Files = files.ToArray()
+        //    };
+        //    var fileViewList = _fileManager.AddFileFolder(fileView, driveName);
 
-            if (files.Count != 0 || files != null)
-            {
-                foreach (var file in fileViewList)
-                {
-                    if (file == null) throw new FileNotFoundException("No file attached");
+        //    if (files.Count != 0 || files != null)
+        //    {
+        //        foreach (var file in fileViewList)
+        //        {
+        //            if (file == null) throw new FileNotFoundException("No file attached");
 
-                    long size = file.Size.Value;
-                    if (size <= 0) throw new InvalidDataException($"File size of file {file.Name} cannot be 0");
+        //            long size = file.Size.Value;
+        //            if (size <= 0) throw new InvalidDataException($"File size of file {file.Name} cannot be 0");
 
-                    //create queue item attachment
-                    QueueItemAttachment attachment = new QueueItemAttachment()
-                    {
-                        FileId = file.Id.Value,
-                        QueueItemId = queueItemId,
-                        CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
-                        CreatedOn = DateTime.UtcNow,
-                        SizeInBytes = file.Size.Value
-                    };
-                    _queueItemAttachmentRepository.Add(attachment);
-                    payload += attachment.SizeInBytes;
-                }
-            }
-            //update queue item payload
-            queueItem.PayloadSizeInBytes += payload;
-            _repo.Update(queueItem);
+        //            //create queue item attachment
+        //            QueueItemAttachment attachment = new QueueItemAttachment()
+        //            {
+        //                FileId = file.Id.Value,
+        //                QueueItemId = queueItemId,
+        //                CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
+        //                CreatedOn = DateTime.UtcNow,
+        //                SizeInBytes = file.Size.Value
+        //            };
+        //            _queueItemAttachmentRepository.Add(attachment);
+        //            payload += attachment.SizeInBytes;
+        //        }
+        //    }
+        //    //update queue item payload
+        //    queueItem.PayloadSizeInBytes += payload;
+        //    _repo.Update(queueItem);
 
-            return fileViewList;
-        }
+        //    return fileViewList;
+        //}
 
         //public QueueItemViewModel UpdateAttachedFiles(QueueItem queueItem, UpdateQueueItemViewModel request)
         //{
@@ -549,9 +550,15 @@ namespace OpenBots.Server.Business
         public List<QueueItemAttachment> AddFileAttachments(QueueItem queueItem, string[] requests, string driveName)
         {
             if (requests.Length == 0 || requests == null) throw new EntityOperationException("No files found to attach");
-            
+
+            if (driveName != "Files" && !string.IsNullOrEmpty(driveName))
+                throw new EntityOperationException("Component files can only be saved in the Files drive");
+            else if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
+
             long? payload = 0;
             var queueItemAttachments = new List<QueueItemAttachment>();
+            var files = new List<FileFolderViewModel>();
 
             foreach (var request in requests)
             {
@@ -560,6 +567,19 @@ namespace OpenBots.Server.Business
 
                 long? size = file.Size;
                 if (size <= 0) throw new EntityOperationException($"File size of file {file.Name} cannot be 0");
+
+                //create queue item attachment file under queue item id folder
+                var path = Path.Combine(driveName, "Queue Item Attachments", queueItem.Id.ToString());
+                using (var stream = IOFile.OpenRead(file.FullStoragePath))
+                {
+                    file.Files = new IFormFile[] { new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name)) };
+                    file.StoragePath = path;
+                    file.FullStoragePath = path;
+
+                    CheckStoragePathExists(file, 0, queueItem.Id, "Files");
+                    file = _fileManager.AddFileFolder(file, "Files")[0];
+                    files.Add(file);
+                }
 
                 //create queue item attachment
                 QueueItemAttachment queueItemAttachment = new QueueItemAttachment()
@@ -575,6 +595,8 @@ namespace OpenBots.Server.Business
                 queueItemAttachments.Add(queueItemAttachment);
             }
 
+            _fileManager.AddBytesToFoldersAndDrive(files);
+
             //update queue item payload
             queueItem.PayloadSizeInBytes += payload.Value;
             _repo.Update(queueItem);
@@ -586,15 +608,27 @@ namespace OpenBots.Server.Business
         {
             if (files.Length == 0 || files == null) throw new EntityOperationException("No files found to attach");
 
+            if (driveName != "Files" && !string.IsNullOrEmpty(driveName))
+                throw new EntityOperationException("Component files can only be saved in the Files drive");
+            else if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
+
             //add files to drive
+            string storagePath = Path.Combine(driveName, "Queue Item Attachments", queueItem.Id.ToString());
             var fileView = new FileFolderViewModel()
             {
-                StoragePath = Path.Combine(driveName, "Queue Item Attachments"),
+                StoragePath = storagePath,
+                FullStoragePath = storagePath,
                 Files = files,
                 IsFile = true
             };
-            List<FileFolderViewModel> fileViewList = _fileManager.AddFileFolder(fileView, driveName);
 
+            long? size = 0;
+            foreach (var file in files)
+                size += file.Length;
+
+            CheckStoragePathExists(fileView, size, queueItem.Id, driveName);
+            var fileViewList = _fileManager.AddFileFolder(fileView, driveName);
             var queueItemAttachments = new List<QueueItemAttachment>();
 
             foreach (var file in fileViewList)
@@ -613,6 +647,21 @@ namespace OpenBots.Server.Business
             }
 
             return queueItemAttachments;
+        }
+
+        public FileFolderViewModel CheckStoragePathExists(FileFolderViewModel view, long? size, Guid? id, string driveName)
+        {
+            //check if storage path exists; if it doesn't exist, create folder
+            var folder = _fileManager.GetFileFolderByStoragePath(view.FullStoragePath, driveName);
+            if (folder.Name == null)
+            {
+                folder.Name = id.ToString();
+                folder.StoragePath = Path.Combine(driveName, "Queue Item Attachments");
+                folder.IsFile = false;
+                folder.Size = size;
+                folder = _fileManager.AddFileFolder(folder, driveName)[0];
+            }
+            return folder;
         }
 
         public QueueItemAttachment UpdateAttachment(QueueItem queueItem, string id, IFormFile file, string driveName)

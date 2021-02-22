@@ -215,6 +215,7 @@ namespace OpenBots.Server.Business.File
             else throw new EntityOperationException("Configuration is not set up for local file storage");
         }
 
+
         public FileFolderViewModel GetFileFolderByStoragePath(string storagePath, string driveName = null)
         {
             var response = new FileFolderViewModel();
@@ -224,6 +225,17 @@ namespace OpenBots.Server.Business.File
             else throw new EntityOperationException("Configuration is not set up for local file storage");
 
             return response;
+        }
+
+        public ServerDrive AddServerDrive(string driveName)
+        {
+            var serverDrive = new ServerDrive();
+            string adapter = Configuration["Files:Adapter"];
+            if (adapter.Equals(AdapterType.LocalFileStorageAdapter.ToString()))
+                serverDrive = _localFileStorageAdapter.AddServerDrive(driveName);
+            else throw new EntityOperationException("Configuration is not set up for local file storage");
+
+            return serverDrive;
         }
 
         public enum AdapterType

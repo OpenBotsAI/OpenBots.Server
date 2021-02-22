@@ -63,6 +63,8 @@ namespace OpenBots.Server.Business.File
         {
             var filesFolders = new PaginatedList<FileFolderViewModel>();
             var files = new List<FileFolderViewModel>();
+            if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
             Guid? driveId = GetDriveId(driveName);
 
             if (isFile.Equals(true))
@@ -89,6 +91,8 @@ namespace OpenBots.Server.Business.File
             var fileFolderList = new List<FileFolderViewModel>();
             var newFileFolder = new FileFolderViewModel();
 
+            if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
             ServerDrive drive = GetDriveByName(driveName);
 
             if ((bool)request.IsFile)
@@ -311,9 +315,7 @@ namespace OpenBots.Server.Business.File
 
             if (file.Length > 0)
             {
-                if (!string.IsNullOrEmpty(oldPath) || oldPath == path)
-                    IOFile.Delete(path);
-                else IOFile.Delete(oldPath);
+                IOFile.Delete(oldPath);
 
                 var stream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite);
                 using (stream)
@@ -411,7 +413,8 @@ namespace OpenBots.Server.Business.File
         {
             ServerFolder folder = new ServerFolder();
             var fileFolder = new FileFolderViewModel();
-
+            if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
             Guid? driveId = GetDriveId(driveName);
             var file = _serverFileRepository.Find(null).Items?.Where(q => q.Id.ToString() == id && q.ServerDriveId == driveId).FirstOrDefault();
 
@@ -478,17 +481,21 @@ namespace OpenBots.Server.Business.File
 
         public Guid? GetDriveId(string driveName)
         {
+            if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
             ServerDrive drive = GetDriveByName(driveName);
             Guid? driveId;
             if (drive != null)
                 driveId = drive.Id;
-            else throw new EntityDoesNotExistException($"Drive {driveName} does not exist");
+            else throw new EntityDoesNotExistException($"Drive {driveName} could not be found or does not exist");
 
             return driveId;
         }
 
         public int? GetFileCount(string driveName)
         {
+            if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
             Guid? driveId = GetDriveId(driveName);
             var files = _serverFileRepository.Find(null).Items?.Where(q => q.ServerDriveId == driveId);
             int? count = files.Count();
@@ -497,6 +504,8 @@ namespace OpenBots.Server.Business.File
 
         public int? GetFolderCount(string driveName)
         {
+            if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
             Guid? driveId = GetDriveId(driveName);
             var folders = _serverFolderRepository.Find(null).Items?.Where(q => q.StorageDriveId == driveId);
             int? count = folders.Count();
@@ -519,6 +528,8 @@ namespace OpenBots.Server.Business.File
             Guid? folderId = folder?.Id;
             if (folderId == null)
             {
+                if (string.IsNullOrEmpty(driveName))
+                    driveName = "Files";
                 var serverDrive = GetDriveByName(driveName);
                 if (serverDrive != null)
                     folderId = serverDrive.Id;
@@ -538,6 +549,8 @@ namespace OpenBots.Server.Business.File
 
         public ServerDrive GetDriveByName(string name)
         {
+            if (string.IsNullOrEmpty(name))
+                name = "Files";
             var serverDrive = _serverDriveRepository.Find(null).Items?.Where(q => q.Name == name).FirstOrDefault();
             if (serverDrive == null)
                 throw new EntityDoesNotExistException("Server drive could not be found");
@@ -577,6 +590,8 @@ namespace OpenBots.Server.Business.File
         public async Task<FileFolderViewModel> ExportFile(string id, string driveName)
         {
             Guid entityId = Guid.Parse(id);
+            if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
             Guid? driveId = GetDriveId(driveName);
             var file = _serverFileRepository.GetOne(entityId);
             var folder = _serverFolderRepository.GetOne(entityId);
@@ -619,9 +634,7 @@ namespace OpenBots.Server.Business.File
                 fileFolder.Id = file.Id;
                 fileFolder.Content = stream;
 
-                stream.FlushAsync();
-                stream.DisposeAsync();
-                stream.Close();
+                await stream.FlushAsync();
 
                 //update file attribute: retrieval count
                 var retrievalFileAttribute = _fileAttributeRepository.Find(null).Items?.Where(q => q.ServerFileId == file.Id && q.Name == FileAttributes.RetrievalCount.ToString()).FirstOrDefault();
@@ -651,6 +664,8 @@ namespace OpenBots.Server.Business.File
         public FileFolderViewModel DeleteFileFolder(string id, string driveName = null)
         {
             FileFolderViewModel fileFolder = new FileFolderViewModel();
+            if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
             Guid? driveId = GetDriveId(driveName);
             var serverFile = _serverFileRepository.Find(null).Items?.Where(q => q.Id.ToString() == id && q.ServerDriveId == driveId).FirstOrDefault();
             var serverFolder = new ServerFolder();
@@ -687,6 +702,8 @@ namespace OpenBots.Server.Business.File
         {
             Guid? entityId = Guid.Parse(id);
             var fileFolder = new FileFolderViewModel();
+            if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
             Guid? driveId = GetDriveId(driveName);
             var serverFile = _serverFileRepository.Find(null).Items?.Where(q => q.Id == entityId && q.ServerDriveId == driveId).FirstOrDefault();
             var serverFolder = new ServerFolder();
@@ -803,6 +820,8 @@ namespace OpenBots.Server.Business.File
             Guid? entityId = Guid.Parse(fileFolderId);
             Guid? parentId = Guid.Parse(parentFolderId);
             var fileFolder = new FileFolderViewModel();
+            if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
             Guid? driveId = GetDriveId(driveName);
             var newParentFolder = _serverFolderRepository.GetOne((Guid)parentId);
             string parentFolderPath = newParentFolder.StoragePath;
@@ -890,6 +909,8 @@ namespace OpenBots.Server.Business.File
             Guid? entityId = Guid.Parse(fileFolderId);
             Guid? parentId = Guid.Parse(parentFolderId);
             var fileFolder = new FileFolderViewModel();
+            if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
             var drive = GetDriveByName(driveName);
             Guid? driveId = drive.Id;
             var parentFolder = _serverFolderRepository.GetOne((Guid)parentId);
@@ -1085,6 +1106,8 @@ namespace OpenBots.Server.Business.File
         public FileFolderViewModel GetFileFolderByStoragePath(string storagePath, string driveName)
         {
             var fileView = new FileFolderViewModel();
+            if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
             var driveId = GetDriveId(driveName);
             var shortPath = GetShortPath(storagePath);
             var serverFile = _serverFileRepository.Find(null).Items?.Where(q => q.StoragePath == storagePath && q.ServerDriveId == driveId).FirstOrDefault();
@@ -1101,6 +1124,39 @@ namespace OpenBots.Server.Business.File
                 fileView = fileView.Map(serverFile, storagePath);
 
             return fileView;
+        }
+
+        public ServerDrive AddServerDrive(string driveName)
+        {
+            Guid? organizationId = _organizationManager.GetDefaultOrganization().Id;
+
+            var serverDrive = new ServerDrive()
+            {
+                FileStorageAdapterType = Configuration["Files:StorageProvider"],
+                CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
+                CreatedOn = DateTime.UtcNow,
+                Name = driveName,
+                OrganizationId = organizationId,
+                StoragePath = driveName,
+                StorageSizeInBytes = 0
+            };
+            _serverDriveRepository.Add(serverDrive);
+            _directoryManager.CreateDirectory(driveName);
+
+            ////add component folders
+            //List<string> componentList = new List<string>() { "Assets", "Automations", "Email Attachments", "Queue Item Attachments"};
+            //foreach (var component in componentList)
+            //{
+            //    var folderView = new FileFolderViewModel()
+            //    {
+            //        Name = component,
+            //        StoragePath = driveName,
+            //        IsFile = false
+            //    };
+            //    AddFileFolder(folderView, driveName);
+            //}
+
+            return serverDrive;
         }
     }
 }

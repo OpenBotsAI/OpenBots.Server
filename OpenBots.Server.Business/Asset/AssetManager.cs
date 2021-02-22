@@ -57,19 +57,34 @@ namespace OpenBots.Server.Business
             }
             else if (asset.Type == "File")
             {
-                IFormFile[] fileArray = { file };
+                if (driveName != "Files" && !string.IsNullOrEmpty(driveName))
+                    throw new EntityOperationException("Component files can only be saved in the Files drive");
+                else if (string.IsNullOrEmpty(driveName))
+                    driveName = "Files";
 
-                var fileView = new FileFolderViewModel()
+                if (file != null)
                 {
-                    ContentType = file.ContentType,
-                    Files = fileArray,
-                    StoragePath = Path.Combine(driveName, "Assets"),
-                    IsFile = true
-                };
+                    IFormFile[] fileArray = { file };
+                    asset.Id = Guid.NewGuid();
 
-                fileView = _fileManager.AddFileFolder(fileView, driveName)[0];
-                asset.FileId = fileView.Id;
-                asset.SizeInBytes = file.Length;
+                    var fileView = new FileFolderViewModel()
+                    {
+                        ContentType = file.ContentType,
+                        Files = fileArray,
+                        StoragePath = Path.Combine(driveName, "Assets", asset.Id.ToString()),
+                        FullStoragePath = Path.Combine(driveName, "Assets", asset.Id.ToString()),
+                        IsFile = true
+                    };
+
+                    var request = new AgentAssetViewModel();
+                    request = request.Map(asset, file, driveName);
+                    CheckStoragePathExists(fileView, request);
+
+                    fileView = _fileManager.AddFileFolder(fileView, driveName)[0];
+                    asset.FileId = fileView.Id;
+                    asset.SizeInBytes = file.Length;
+                }
+                else throw new EntityDoesNotExistException("File does not exist");
             }
 
             return asset;
@@ -118,6 +133,11 @@ namespace OpenBots.Server.Business
                     agentAsset = GetSizeInBytes(agentAsset);
                     break;
                 case "file":
+                    if (request.DriveName != "Files" && !string.IsNullOrEmpty(request.DriveName))
+                        throw new EntityOperationException("Component files can only be saved in the Files drive");
+                    else if (string.IsNullOrEmpty(request.DriveName))
+                        request.DriveName = "Files";
+
                     //if file is in request, use file; else, get file from global asset
                     IFormFile[] fileArray;
                     string agentIdStr = request.AgentId.ToString();
@@ -167,7 +187,7 @@ namespace OpenBots.Server.Business
                 folder.StoragePath = Path.Combine(request.DriveName, "Assets");
                 folder.IsFile = false;
                 folder.Size = request.File.Length;
-                _fileManager.AddFileFolder(folder, request.DriveName);
+                folder = _fileManager.AddFileFolder(folder, request.DriveName)[0];
             }
             return folder;
         }
@@ -229,11 +249,7 @@ namespace OpenBots.Server.Business
             var file = _fileManager.GetFileFolder(fileId, request.DriveName);
             if (file == null) throw new EntityDoesNotExistException($"Asset file with id {fileId} could not be found or doesn't exist");
 
-            //do not update agent id if the asset is a global asset 
-            if (existingAsset.AgentId != null)
-                file.StoragePath = Path.Combine(file.StoragePath, request.File.FileName);
-            else file.StoragePath = Path.Combine(request.DriveName, "Assets", request.File.FileName);
-
+            file.StoragePath = Path.Combine(file.StoragePath, request.File.FileName);
             file.ContentType = request.File.ContentType;
             file.Name = request.File.FileName;
             file.Size = request.File.Length;
