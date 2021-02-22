@@ -259,7 +259,7 @@
             <response code="422">Unprocessable entity</response>
             <returns>Ok response, if the isConnected field was updated</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.AddHeartbeat(OpenBots.Server.Model.AgentHeartbeat,System.String)">
+        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.AddHeartbeat(OpenBots.Server.ViewModel.AgentViewModels.HeartbeatViewModel,System.String)">
             <summary>
             Creates a new heartbeat for the specified AgentId
             </summary>
@@ -3128,19 +3128,6 @@
             <response code="404">Not found, when no job exists for the given job id</response>
             <response code="422">Unprocessable entity</response>
             <returns>Job view model details for the given id</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.JobsController.Next(System.String)">
-            <summary>
-            Gets the next available job for the provided agent id
-            </summary>
-            <param name="agentId">Agent id</param>
-            <response code="200">Ok, if ajJob exists for the given agent id</response>
-            <response code="304">Not modified</response>
-            <response code="400">Bad request</response>
-            <response code="403">Forbidden</response>
-            <response code="404">Not found</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Returns the oldest available job and sets its status to 'Assigned'</returns>
         </member>
         <member name="M:OpenBots.Server.Web.JobsController.Export(System.String,System.String,System.Int32,System.Int32,System.String)">
             <summary>

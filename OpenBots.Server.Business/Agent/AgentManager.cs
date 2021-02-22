@@ -1,4 +1,5 @@
-﻿using OpenBots.Server.DataAccess.Exceptions;
+﻿using Microsoft.AspNetCore.Http;
+using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
@@ -6,9 +7,11 @@ using OpenBots.Server.Model.Identity;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.ViewModel.AgentViewModels;
+using OpenBots.Server.Web.Webhooks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 
 namespace OpenBots.Server.Business
 {
@@ -23,6 +26,9 @@ namespace OpenBots.Server.Business
         private readonly ApplicationIdentityUserManager _userManager;
         private readonly IPersonRepository _personRepo;
         private readonly IAgentGroupMemberRepository _agentGroupMemberRepository;
+        private readonly IJobManager _jobManager;
+        private readonly IWebhookPublisher _webhookPublisher;
+        private readonly ClaimsPrincipal _caller;
 
         public AgentManager(IAgentRepository agentRepository,
             IScheduleRepository scheduleRepository,
@@ -32,7 +38,10 @@ namespace OpenBots.Server.Business
             IAgentHeartbeatRepository agentHeartbeatRepository,
             ApplicationIdentityUserManager userManager,
             IPersonRepository personRepository,
-            IAgentGroupMemberRepository agentGroupMemberRepository)
+            IAgentGroupMemberRepository agentGroupMemberRepository,
+            IJobManager jobManager,
+            IWebhookPublisher webhookPublisher,
+            IHttpContextAccessor httpContextAccessor)
         {
             _agentRepo = agentRepository;
             _scheduleRepo = scheduleRepository;
@@ -43,6 +52,9 @@ namespace OpenBots.Server.Business
             _userManager = userManager;
             _personRepo = personRepository;
             _agentGroupMemberRepository = agentGroupMemberRepository;
+            _jobManager = jobManager;
+            _webhookPublisher = webhookPublisher;
+            _caller = ((httpContextAccessor.HttpContext != null) ? httpContextAccessor.HttpContext.User : new ClaimsPrincipal());
         }
 
         /// <summary>
@@ -331,6 +343,87 @@ namespace OpenBots.Server.Business
             var groupMemberList = _agentGroupMemberRepository.Find(null, a => a.AgentId == entityId);
 
             return groupMemberList;
+        }
+
+        public AgentHeartbeat PerformAgentHeartbeat(HeartbeatViewModel request, string agentId)
+        {
+            Agent agent = _agentRepo.GetOne(new Guid(agentId));
+            if (agent == null)
+            {
+                throw new EntityDoesNotExistException("The Agent ID provided does not match any existing Agents");
+            }
+
+            if (agent.IsConnected == false)
+            {
+                throw new EntityOperationException("Agent is not connected. Please connect the agent and try again");
+            }
+
+            if (request.IsHealthy == false)
+            {
+                _webhookPublisher.PublishAsync("Agents.UnhealthyReported", agent.Id.ToString(), agent.Name).ConfigureAwait(false);
+            }
+
+            AgentHeartbeat agentHeartbeat = request.Map(request);
+
+            //Add HeartBeat Values
+            agentHeartbeat.AgentId = new Guid(agentId);
+            agentHeartbeat.CreatedBy = _caller?.Identity.Name;
+            agentHeartbeat.CreatedOn = DateTime.UtcNow;
+            agentHeartbeat.LastReportedOn = request.LastReportedOn ?? DateTime.UtcNow;
+            _agentHeartbeatRepo.Add(agentHeartbeat);
+
+            return agentHeartbeat;
+        }
+
+        /// <summary>
+        /// Gets the oldest available job for the specified Agent id
+        /// </summary>
+        /// <param name="agentId"></param>
+        /// <returns></returns>
+        public NextJobViewModel GetNextJob(string agentId)
+        {
+            if (agentId == null)
+            { 
+                throw new EntityOperationException("No Agent ID was passed");
+            }
+
+            bool isValid = Guid.TryParse(agentId, out Guid agentGuid);
+            if (!isValid)
+            {
+                throw new EntityOperationException("Agent ID is not a valid GUID ");
+            }
+
+            //get all new jobs of the agent group
+            List<Job> agentGroupJobs = new List<Job>();
+            var agentGroupsMembers = GetAllMembersInGroup(agentId.ToString()).Items;
+            foreach (var member in agentGroupsMembers)
+            {
+                var memberGroupJobs = _jobRepo.Find(null, j => j.AgentGroupId == member.AgentGroupId && j.JobStatus == JobStatusType.New).Items;
+                agentGroupJobs = agentGroupJobs.Concat(memberGroupJobs).ToList();
+            }
+
+            var agentJobs = _jobRepo.Find(null, j => j.AgentId == agentGuid && j.JobStatus == JobStatusType.New).Items;
+            var allAgentJobs = agentGroupJobs.Concat(agentJobs).ToList();
+            Job job = allAgentJobs.OrderBy(j => j.CreatedOn).FirstOrDefault();
+
+            //update job
+            if (job != null)
+            {
+                job.JobStatus = JobStatusType.Assigned;
+                job.DequeueTime = DateTime.UtcNow;
+                _jobRepo.Update(job);
+            }
+
+            var jobParameters = _jobManager.GetJobParameters(job?.Id ?? Guid.Empty);
+
+            NextJobViewModel nextJob = new NextJobViewModel()
+            {
+                IsJobAvailable = job == null ? false : true,
+                AssignedJob = job,
+                JobParameters = jobParameters
+            };
+
+            return nextJob;
         }
     }
 }

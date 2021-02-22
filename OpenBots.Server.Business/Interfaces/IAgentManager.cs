@@ -2,8 +2,6 @@
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.ViewModel.AgentViewModels;
-using System;
-using System.Collections.Generic;
 
 namespace OpenBots.Server.Business
 {
@@ -23,5 +21,7 @@ namespace OpenBots.Server.Business
 
         Agent GetConnectAgent(string agentId, string requestIp, ConnectAgentViewModel request);
         PaginatedList<AgentGroupMember> GetAllMembersInGroup(string agentId);
+        AgentHeartbeat PerformAgentHeartbeat(HeartbeatViewModel request, string agentId);
+        NextJobViewModel GetNextJob(string agentId);
     }
 }

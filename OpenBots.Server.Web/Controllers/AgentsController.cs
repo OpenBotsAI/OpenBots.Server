@@ -513,46 +513,22 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
-        public async Task<IActionResult> AddHeartbeat([FromBody] AgentHeartbeat request, string agentId)
+        public async Task<IActionResult> AddHeartbeat([FromBody] HeartbeatViewModel request, string agentId)
         {
             try
             {
-                if (request == null)
-                {
-                    ModelState.AddModelError("Save", "No data passed");
-                    return BadRequest(ModelState);
-                }
-
-                Guid entityId = Guid.NewGuid();
-                if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
-                    request.Id = entityId;
-
-                Agent agent = _agentRepo.GetOne(new Guid(agentId));
-                if (agent == null)
-                {
-                    return NotFound("The Agent ID provided does not match any existing Agents");
-                }
-
-                if (agent.IsConnected == false)
-                {
-                    ModelState.AddModelError("HeartBeat", "Agent is not connected");
-                    return BadRequest(ModelState);
-                }
-
-                if (request.IsHealthy == false)
-                {
-                    await _webhookPublisher.PublishAsync("Agents.UnhealthyReported", agent.Id.ToString(), agent.Name).ConfigureAwait(false);
-                }
-
-                //Add HeartBeat Values
-                request.AgentId = new Guid(agentId);
-                request.CreatedBy = applicationUser?.UserName;
-                request.CreatedOn = DateTime.UtcNow;
-                request.LastReportedOn = request.LastReportedOn ?? DateTime.UtcNow;
-                _agentHeartbeatRepo.Add(request);
+                var newHeartBeat = _agentManager.PerformAgentHeartbeat(request, agentId);
                 var resultRoute = "GetAgentHeartbeat";
 
-                return CreatedAtRoute(resultRoute, new { id = request.Id.Value.ToString("b") }, request);
+                CreatedAtRoute(resultRoute, new { id = newHeartBeat.Id.Value.ToString("b") }, newHeartBeat);
+
+                if (request.GetNextJob)
+                {
+                    var nextJob = _agentManager.GetNextJob(agentId);
+                    return Ok(nextJob);
+                }
+
+                return Ok();
             }
             catch (Exception ex)
             {
