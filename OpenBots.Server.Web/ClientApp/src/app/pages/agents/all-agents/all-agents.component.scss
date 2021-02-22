@@ -122,15 +122,14 @@ h4 {
   border: transparent !important;
 }
 
-
+.searchBottom{margin-bottom:15px;}
 
 .top-perpage {
   top: 10px
 }
 
 .paginateDiv {
-  width: 100%;
-  ;
+  width: 100%
 }
 
 .row.pagerow {
@@ -150,6 +149,13 @@ h4 {
   width: 141px;
   height: 37px;
 }
+.label-agt {
+   padding: 4px;
+ }
+  .row-fil {
+   padding-bottom: 11px;
+ }
+
 
 .no-right-padding {
   padding: 0px;

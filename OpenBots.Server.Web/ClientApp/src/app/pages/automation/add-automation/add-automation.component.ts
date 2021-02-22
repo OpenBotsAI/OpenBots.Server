@@ -126,30 +126,37 @@ export class AddAutomationComponent implements OnInit {
 
   addAutomation() {
     this.submitted = true;
-    let formData = new FormData();
+    
     if (this.native_file) {
-      formData.append('file', this.native_file, this.native_file_name);
+      let AutomationformData = new FormData();
+      AutomationformData.append('file', this.native_file, this.native_file_name);
+      AutomationformData.append('name', this.showprocess.value.name);
+      AutomationformData.append('status', this.showprocess.value.status);
+      AutomationformData.append(
+        'automationEngine',
+        this.showprocess.value.automationEngine
+      );
+      // let processobj = {
+      //   name: this.showprocess.value.name,
+      //   status: this.showprocess.value.status,
+      //   automationEngine: this.showprocess.value.automationEngine,
+      // };
 
-      let processobj = {
-        name: this.showprocess.value.name,
-        status: this.showprocess.value.status,
-        automationEngine: this.showprocess.value.automationEngine,
-      };
-
-      this.automationService.addProcess(processobj).subscribe(
+      this.automationService.addProcess(AutomationformData).subscribe(
         (data: any) => {
-          this.automationService.uploadProcessFile(data.id, formData).subscribe(
-            (filedata: any) => {
-              this.native_file_name = undefined;
-              this.native_file = undefined;
-              this.toastrService.success(
-                'Automation Add  Successfully!',
-                'Success'
-              );
-              this.router.navigate(['/pages/automation/list']);
-            },
-            () => (this.submitted = false)
+          this.native_file_name = undefined;
+          this.native_file = undefined;
+          this.toastrService.success(
+            'Automation Add  Successfully!',
+            'Success'
           );
+          this.router.navigate(['/pages/automation/list']);
+          // this.automationService.uploadProcessFile(data.id, formData).subscribe(
+          //   (filedata: any) => {
+              
+          //   },
+          //   () => (this.submitted = false)
+          // );
         },
         () => (this.submitted = false)
       );
