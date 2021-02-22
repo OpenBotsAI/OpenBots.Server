@@ -18,7 +18,6 @@ namespace OpenBots.Server.Business
         IFormFile[] CheckFiles(IFormFile[] files, string hash, List<EmailAttachment> attachments, string driveName = null);
         PaginatedList<AllEmailAttachmentsViewModel> GetEmailAttachmentsAndNames(Guid emailId, Predicate<AllEmailAttachmentsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
         List<EmailAttachment> AddFileAttachments(string emailId, string[] requests, string driveName = null);
-        List<EmailAttachment> AddNewAttachments(string emailId, IFormFile[] files, string driveName = null);
         EmailAttachment UpdateAttachment(string id, UpdateEmailAttachmentViewModel request);
         void DeleteAll(string emailId, string driveName = null);
         void DeleteOne(string id, string driveName = null);

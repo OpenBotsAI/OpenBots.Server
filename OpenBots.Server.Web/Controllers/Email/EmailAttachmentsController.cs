@@ -254,7 +254,7 @@ namespace OpenBots.Server.Web.Controllers.Email
         {
             try
             {
-                var emailAttachments = _manager.AddNewAttachments(emailId, files, driveName);
+                var emailAttachments = _manager.AddAttachments(files, Guid.Parse(emailId), driveName);
                 return Ok(emailAttachments);
             }
             catch (Exception ex)

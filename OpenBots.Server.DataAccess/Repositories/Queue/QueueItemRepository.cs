@@ -15,7 +15,7 @@ namespace OpenBots.Server.DataAccess.Repositories
         private readonly StorageContext _context;
         public QueueItemRepository(StorageContext context, ILogger<QueueItem> logger,IHttpContextAccessor httpContextAccessor) : base(context, logger, httpContextAccessor)
         {
-            this._context = context;
+            _context = context;
         }
 
         protected override DbSet<QueueItem> DbTable()

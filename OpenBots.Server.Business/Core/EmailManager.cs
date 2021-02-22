@@ -96,16 +96,29 @@ namespace OpenBots.Server.Business
 
         public List<EmailAttachment> AddAttachments(IFormFile[] files, Guid id, string driveName)
         {
+            if (driveName != "Files" && !string.IsNullOrEmpty(driveName))
+                throw new EntityOperationException("Component files can only be saved in the Files drive");
+            else if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
+
             var attachments = new List<EmailAttachment>();
             if (files?.Length != 0 && files != null)
             {
+                //add files to drive
+                string storagePath = Path.Combine(driveName, "Email Attachments", id.ToString());
                 var fileView = new FileFolderViewModel()
                 {
-                    StoragePath = Path.Combine(driveName, "Email Attachments"),
+                    StoragePath = storagePath,
+                    FullStoragePath = storagePath,
                     Files = files,
                     IsFile = true
                 };
 
+                long? size = 0;
+                foreach (var file in files)
+                    size += file.Length;
+
+                CheckStoragePathExists(fileView, size, id, driveName);
                 var fileViewList = _fileManager.AddFileFolder(fileView, driveName);
 
                 foreach (var file in fileViewList)
@@ -126,7 +139,24 @@ namespace OpenBots.Server.Business
                     attachments.Add(emailAttachment);
                 }
             }
+            else throw new EntityOperationException("No files found to attach");
+
             return attachments;
+        }
+
+        public FileFolderViewModel CheckStoragePathExists(FileFolderViewModel view, long? size, Guid? id, string driveName)
+        {
+            //check if storage path exists; if it doesn't exist, create folder
+            var folder = _fileManager.GetFileFolderByStoragePath(view.FullStoragePath, driveName);
+            if (folder.Name == null)
+            {
+                folder.Name = id.ToString();
+                folder.StoragePath = Path.Combine(driveName, "Email Attachments");
+                folder.IsFile = false;
+                folder.Size = size;
+                folder = _fileManager.AddFileFolder(folder, driveName)[0];
+            }
+            return folder;
         }
 
         public IFormFile[] CheckFiles(IFormFile[] files, string hash, List<EmailAttachment> attachments, string driveName)
@@ -549,15 +579,34 @@ namespace OpenBots.Server.Business
         {
             if (requests.Length == 0 || requests == null) throw new EntityOperationException("No files found to attach");
 
+            if (driveName != "Files" && !string.IsNullOrEmpty(driveName))
+                throw new EntityOperationException("Component files can only be saved in the Files drive");
+            else if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
+
             var emailAttachments = new List<EmailAttachment>();
+            var files = new List<FileFolderViewModel>();
 
             foreach (var request in requests)
             {
-                var file = _fileManager.GetFileFolder(request, driveName);
+                var file = _fileManager.ExportFileFolder(request, driveName).Result;
                 if (file == null) throw new EntityDoesNotExistException($"File could not be found");
 
                 long? size = file.Size;
                 if (size <= 0) throw new EntityOperationException($"File size of file {file.Name} cannot be 0");
+
+                //create email attachment file under email id folder
+                var path = Path.Combine(driveName, "Email Attachments", emailId);
+                using (var stream = IOFile.OpenRead(file.FullStoragePath))
+                {
+                    file.Files = new IFormFile[] { new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name)) };
+                };
+                file.StoragePath = path;
+                file.FullStoragePath = path;
+
+                CheckStoragePathExists(file, 0, Guid.Parse(emailId), "Files");
+                file = _fileManager.AddFileFolder(file, "Files")[0];
+                files.Add(file);
 
                 //create email attachment
                 EmailAttachment emailAttachment = new EmailAttachment()
@@ -575,42 +624,8 @@ namespace OpenBots.Server.Business
                 emailAttachments.Add(emailAttachment);
             }
 
-            return emailAttachments;
-        }
-
-        public List<EmailAttachment> AddNewAttachments(string emailId, IFormFile[] files, string driveName = null)
-        {
-            if (files.Length == 0 || files == null) throw new EntityOperationException("No files found to attach");
-
-            //add files to drive
-            var fileView = new FileFolderViewModel()
-            {
-                StoragePath = Path.Combine(driveName, "Email Attachments"),
-                Files = files,
-                IsFile = true
-            };
-            List<FileFolderViewModel> fileViewList = _fileManager.AddFileFolder(fileView, driveName);
-
-            var emailAttachments = new List<EmailAttachment>();
-
-            foreach (var file in fileViewList)
-            {
-                //create email attachment
-                EmailAttachment emailAttachment = new EmailAttachment()
-                {
-                    Name = file.Name,
-                    FileId = file.Id,
-                    ContentType = file.ContentType,
-                    ContentStorageAddress = file.FullStoragePath,
-                    SizeInBytes = file.Size,
-                    EmailId = Guid.Parse(emailId),
-                    CreatedOn = DateTime.UtcNow,
-                    CreatedBy = _applicationUser?.UserName
-                };
-                _emailAttachmentRepository.Add(emailAttachment);
-                emailAttachments.Add(emailAttachment);
-            }
-
+            _fileManager.AddBytesToFoldersAndDrive(files);
+            
             return emailAttachments;
         }
 
