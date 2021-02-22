@@ -36,24 +36,32 @@ namespace OpenBots.Server.Business
 
         public Automation AddAutomation(AutomationViewModel request)
         {
-            IFormFile[] fileArray = { request.File };
+            if (request.DriveName != "Files" && !string.IsNullOrEmpty(request.DriveName))
+                throw new EntityOperationException("Component files can only be saved in the Files drive");
+            else if (string.IsNullOrEmpty(request.DriveName))
+                request.DriveName = "Files";
 
-            var fileViewModel = new FileFolderViewModel()
+            IFormFile[] fileArray = { request.File };
+            string path = Path.Combine(request.DriveName, "Automations", request.Id.ToString());
+
+            var fileView = new FileFolderViewModel()
             {
                 Files = fileArray,
-                StoragePath = Path.Combine(request.DriveName, "Automations"),
+                StoragePath = path,
+                FullStoragePath = path,
                 ContentType = fileArray[0].ContentType,
                 IsFile = true
             };
 
-            var file = _fileManager.AddFileFolder(fileViewModel, request.DriveName)[0];
+            CheckStoragePathExists(fileView, request);
+            fileView = _fileManager.AddFileFolder(fileView, request.DriveName)[0];
 
             var automation = new Automation()
             {
                 Name = request.Name,
                 AutomationEngine = request.AutomationEngine,
                 Id = request.Id,
-                FileId = file.Id,
+                FileId = fileView.Id,
                 OriginalPackageName = request.File.FileName
             };
 
@@ -74,6 +82,21 @@ namespace OpenBots.Server.Business
 
              var response = AddAutomation(request);
              return response;
+        }
+
+        public FileFolderViewModel CheckStoragePathExists(FileFolderViewModel view, AutomationViewModel request)
+        {
+            //check if storage path exists; if it doesn't exist, create folder
+            var folder = _fileManager.GetFileFolderByStoragePath(view.FullStoragePath, request.DriveName);
+            if (folder.Name == null)
+            {
+                folder.Name = request.Id.ToString();
+                folder.StoragePath = Path.Combine(request.DriveName, "Automations");
+                folder.IsFile = false;
+                folder.Size = request.File.Length;
+                folder = _fileManager.AddFileFolder(folder, request.DriveName)[0];
+            }
+            return folder;
         }
 
         public Automation UpdateAutomation(string id, AutomationViewModel request)

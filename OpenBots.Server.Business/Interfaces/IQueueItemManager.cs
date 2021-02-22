@@ -14,30 +14,17 @@ namespace OpenBots.Server.Business
     public interface IQueueItemManager : IManager
     {
         QueueItem Enqueue(QueueItem item);
-
         Task<QueueItem> Dequeue(string agentId, string queueId);
-
         Task<QueueItem> Commit(Guid transactionKey, string resultJSON);
-
         Task<QueueItem> Rollback(Guid transactionKey, string errorCode = null, string errorMessage = null, bool isFatal = false);
-
         Task<QueueItem> Extend(Guid transactionKey, int extendByMinutes = 60);
-
         Task<QueueItem> UpdateState(Guid transactionKey, string state = null, string stateMessage = null, string errorCode = null, string errorMessage = null);
-
         Task<QueueItem> GetQueueItem(Guid transactionKeyId);
-
         enum QueueItemStateType : int { };
-
-        PaginatedList<AllQueueItemsViewModel> GetQueueItemsAndBinaryObjectIds(Predicate<AllQueueItemsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
-
+        PaginatedList<AllQueueItemsViewModel> GetQueueItemsAndFileIds(Predicate<AllQueueItemsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
         PaginatedList<AllQueueItemAttachmentsViewModel> GetQueueItemAttachmentsAndNames(Guid queueItemId, Predicate<AllQueueItemAttachmentsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
-        
         QueueItemViewModel GetQueueItemView(QueueItem queueItem);
-
-        List<FileFolderViewModel> AttachFiles(List<IFormFile> files, Guid queueItemId, QueueItem queueItem, string driveName);
-
-
+        //List<FileFolderViewModel> AttachFiles(List<IFormFile> files, Guid queueItemId, QueueItem queueItem, string driveName);
         //QueueItemViewModel UpdateAttachedFiles(QueueItem queueItem, UpdateQueueItemViewModel request);
         List<QueueItemAttachment> AddFileAttachments(QueueItem queueItem, string[] requests, string driveName = null);
         List<QueueItemAttachment> AddNewAttachments(QueueItem queueItem, IFormFile[] files, string driveName = null);

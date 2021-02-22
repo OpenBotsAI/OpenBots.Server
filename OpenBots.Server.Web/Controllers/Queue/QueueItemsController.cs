@@ -132,7 +132,7 @@ namespace OpenBots.Server.Web.Controllers
                 ODataHelper<AllQueueItemsViewModel> oDataHelper = new ODataHelper<AllQueueItemsViewModel>();
                 var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-                return Ok(_manager.GetQueueItemsAndBinaryObjectIds(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+                return Ok(_manager.GetQueueItemsAndFileIds(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
 
             }
             catch (Exception ex)
