@@ -43,10 +43,6 @@ export class AssetService {
     return this.http.post(`${this.apiUrl}` + addassetUrl, obj);
   }
 
-  // AssetFile(id, file) {
-  //   let editassetUrl = `/${AssetApiUrl.Assets}/${id}/upload`;
-  //   return this.http.post(`${this.apiUrl}` + editassetUrl, file);
-  // }
   editAssetbyUpload(id, obj, etag) {
     const headers = new HttpHeaders({ 'If-Match': etag });
     let editassetUrl = `/${AssetApiUrl.Assets}/${id}/update`;

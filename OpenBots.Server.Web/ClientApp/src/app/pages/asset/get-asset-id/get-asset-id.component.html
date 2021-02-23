@@ -15,7 +15,7 @@
         
         </nb-card-header>
         <nb-card-body>
-          <form [formGroup]="addagent"  >
+          <form [formGroup]="addAsset"  >
               <div class="row">
                 <div class="col-md-6">
                     <div class="form-group ">
@@ -37,7 +37,7 @@
 
             
 
-                 <div class="col-md-12" *ngIf="show_allagents.type == 'Number'" >
+                 <div class="col-md-12" *ngIf="AssetType.type == 'Number'" >
                   <div class="form-group ">
                     <label for="agentname" class="label  col-form-label">Number </label>
                 
@@ -50,7 +50,7 @@
 
 
 
-                  <div class="col-md-12" *ngIf="show_allagents.type == 'Text'" >
+                  <div class="col-md-12" *ngIf="AssetType.type == 'Text'" >
                     <div class="form-group ">
                       <label for="agentname" class="label  col-form-label">Text </label>
                      
@@ -63,7 +63,7 @@
                     </div>
 
 
-                  <div class="col-md-12" *ngIf="show_allagents.type == 'Json'" >
+                  <div class="col-md-12" *ngIf="AssetType.type == 'Json'" >
                     <div class="form-group ">
                       <label for="agentname" class="label  col-form-label">Value Json</label>
                       <p class="p-text">

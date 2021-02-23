@@ -26,11 +26,6 @@ export class AutomationService {
     return this.http.post(`${this.apiUrl}` + addassetUrl, obj);
   }
 
-  // uploadProcessFile(process_id, obj) {
-  //   let processUrl = `/${automationsApiUrl.automations}/${process_id}/upload`;
-  //   return this.http.post(`${this.apiUrl}` + processUrl, obj);
-  // }
-
   uploadUpdateProcessFile(obj, process_id, etag) {
     const headers = this.helperService.getETagHeaders(etag);
     let processUrl = `/${automationsApiUrl.automations}/${process_id}/update`;

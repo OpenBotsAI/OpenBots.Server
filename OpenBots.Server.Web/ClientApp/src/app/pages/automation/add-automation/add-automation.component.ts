@@ -136,12 +136,6 @@ export class AddAutomationComponent implements OnInit {
         'automationEngine',
         this.showprocess.value.automationEngine
       );
-      // let processobj = {
-      //   name: this.showprocess.value.name,
-      //   status: this.showprocess.value.status,
-      //   automationEngine: this.showprocess.value.automationEngine,
-      // };
-
       this.automationService.addProcess(AutomationformData).subscribe(
         (data: any) => {
           this.native_file_name = undefined;
@@ -151,12 +145,6 @@ export class AddAutomationComponent implements OnInit {
             'Success'
           );
           this.router.navigate(['/pages/automation/list']);
-          // this.automationService.uploadProcessFile(data.id, formData).subscribe(
-          //   (filedata: any) => {
-              
-          //   },
-          //   () => (this.submitted = false)
-          // );
         },
         () => (this.submitted = false)
       );
