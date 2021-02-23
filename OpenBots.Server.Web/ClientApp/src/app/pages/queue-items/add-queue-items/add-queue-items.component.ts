@@ -121,7 +121,6 @@ export class AddQueueItemsComponent implements OnInit {
   //     .subscribe((response) => {
   //       if (response && response.status === 200) {
   //         this.driveName = response.body.name;
-  //         console.log('driveName', this.driveName);
   //       }
   //     });
   // }
@@ -390,7 +389,6 @@ export class AddQueueItemsComponent implements OnInit {
         observe: 'response',
       })
       .subscribe((response) => {
-        console.log('response', response.headers.get('content-disposition'));
         this.fileSaverService.save(
           response.body,
           response.headers
