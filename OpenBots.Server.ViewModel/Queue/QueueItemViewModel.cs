@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,7 @@ namespace OpenBots.Server.ViewModel
 		public int RetryCount { get; set; }
 		public int Priority { get; set; }
 		public long? PayloadSizeInBytes { get; set; }
-		public List<Guid?> FileIds { get; set; }
+		public List<QueueItemAttachment> Attachments { get; set; }
 
 		public QueueItemViewModel Map(QueueItemModel entity)
 		{

@@ -14,7 +14,6 @@ using OpenBots.Server.ViewModel.Queue;
 using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 

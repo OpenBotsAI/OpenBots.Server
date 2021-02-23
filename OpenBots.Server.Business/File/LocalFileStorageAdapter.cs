@@ -315,7 +315,8 @@ namespace OpenBots.Server.Business.File
 
             if (file.Length > 0)
             {
-                IOFile.Delete(oldPath);
+                if (oldPath != null)
+                    IOFile.Delete(oldPath);
 
                 var stream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite);
                 using (stream)
@@ -444,6 +445,7 @@ namespace OpenBots.Server.Business.File
                 fileFolder.IsFile = true;
                 fileFolder.ParentId = file.StorageFolderId;
                 fileFolder.StorageDriveId = driveId;
+                fileFolder.Hash = file.HashCode;
             }
             else
             {
@@ -683,11 +685,13 @@ namespace OpenBots.Server.Business.File
                     string shortPath = GetShortPath(serverFolder.StoragePath);
                     bool hasChild = CheckFolderHasChild(serverFolder.Id);
                     fileFolder = fileFolder.Map(serverFolder, shortPath, hasChild);
-                    if (serverFolder.SizeInBytes != 0)
+                    if (serverFolder.StoragePath.Contains("Queue Item Attachments") && !hasChild)
+                        DeleteFolder(serverFolder);
+                    else if (serverFolder.SizeInBytes != 0)
                         throw new EntityOperationException("Folder cannot be deleted because it has files inside");
                     else if (hasChild)
                         throw new EntityOperationException("Folder cannot be deleted because it has folders inside");
-                    DeleteFolder(serverFolder);
+                    else DeleteFolder(serverFolder);
                 }
                 else
                     throw new EntityDoesNotExistException($"Folder with id '{id}' could not be found");
@@ -811,6 +815,7 @@ namespace OpenBots.Server.Business.File
 
         public string GetNewPath(string path, string oldPath, string newPath)
         {
+            //TODO: Change logic here
             path = path.Replace(oldPath, newPath);
             return path;
         }
@@ -1142,19 +1147,6 @@ namespace OpenBots.Server.Business.File
             };
             _serverDriveRepository.Add(serverDrive);
             _directoryManager.CreateDirectory(driveName);
-
-            ////add component folders
-            //List<string> componentList = new List<string>() { "Assets", "Automations", "Email Attachments", "Queue Item Attachments"};
-            //foreach (var component in componentList)
-            //{
-            //    var folderView = new FileFolderViewModel()
-            //    {
-            //        Name = component,
-            //        StoragePath = driveName,
-            //        IsFile = false
-            //    };
-            //    AddFileFolder(folderView, driveName);
-            //}
 
             return serverDrive;
         }
