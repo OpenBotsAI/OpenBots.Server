@@ -6,7 +6,6 @@ using OpenBots.Server.Model.File;
 using OpenBots.Server.ViewModel.File;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Business.File

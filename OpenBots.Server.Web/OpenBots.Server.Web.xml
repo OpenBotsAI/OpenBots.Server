@@ -1659,6 +1659,7 @@
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response</returns>
         </member>
+        <!-- Badly formed XML comment ignored for member "M:OpenBots.Server.Web.Controllers.QueueItemsController.UpdateFiles(System.String,OpenBots.Server.ViewModel.QueueItem.UpdateQueueItemViewModel)" -->
         <member name="T:OpenBots.Server.Web.Controllers.QueuesController">
             <summary>
             Controller for Queues

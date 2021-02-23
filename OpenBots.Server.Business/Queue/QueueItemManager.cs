@@ -11,6 +11,7 @@ using OpenBots.Server.Model.Core;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.ViewModel.File;
 using OpenBots.Server.ViewModel.Queue;
+using OpenBots.Server.ViewModel.QueueItem;
 using OpenBots.Server.Web.Hubs;
 using System;
 using System.Collections.Generic;
@@ -409,122 +410,96 @@ namespace OpenBots.Server.Business
             var attachmentsList = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == queueItem.Id)?.Items;
             if (attachmentsList != null)
             {
-                List<Guid?> fileIds = new List<Guid?>();
-                foreach (var item in attachmentsList)
-                {
-                    fileIds.Add(item.FileId);
-                }
-                queueItemViewModel.FileIds = fileIds;
+                queueItemViewModel.Attachments = attachmentsList;
             }
-            else queueItemViewModel.FileIds = null;
+            else queueItemViewModel.Attachments = null;
 
             return queueItemViewModel;
         }
 
-        //public List<FileFolderViewModel> AttachFiles(List<IFormFile> files, Guid queueItemId, QueueItem queueItem, string driveName)
-        //{
-        //    long payload = 0;
-        //    var fileView = new FileFolderViewModel()
-        //    {
-        //        StoragePath = Path.Combine(driveName, "Queue Item Attachments"),
-        //        Files = files.ToArray()
-        //    };
-        //    var fileViewList = _fileManager.AddFileFolder(fileView, driveName);
+        public QueueItemViewModel UpdateAttachedFiles(QueueItem queueItem, UpdateQueueItemViewModel request)
+        {
+            if (queueItem == null) throw new EntityDoesNotExistException("Queue item could not be found or does not exist");
 
-        //    if (files.Count != 0 || files != null)
-        //    {
-        //        foreach (var file in fileViewList)
-        //        {
-        //            if (file == null) throw new FileNotFoundException("No file attached");
+            queueItem.DataJson = request.DataJson;
+            queueItem.Event = request.Event;
+            queueItem.ExpireOnUTC = request.ExpireOnUTC;
+            queueItem.PostponeUntilUTC = request.PostponeUntilUTC;
+            queueItem.Name = request.Name;
+            queueItem.QueueId = request.QueueId.Value;
+            queueItem.Source = request.Source;
+            queueItem.Type = request.Type;
+            queueItem.State = request.State;
 
-        //            long size = file.Size.Value;
-        //            if (size <= 0) throw new InvalidDataException($"File size of file {file.Name} cannot be 0");
+            if (queueItem.State == "New")
+            {
+                queueItem.StateMessage = null;
+                queueItem.RetryCount = 0;
+            }
 
-        //            //create queue item attachment
-        //            QueueItemAttachment attachment = new QueueItemAttachment()
-        //            {
-        //                FileId = file.Id.Value,
-        //                QueueItemId = queueItemId,
-        //                CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
-        //                CreatedOn = DateTime.UtcNow,
-        //                SizeInBytes = file.Size.Value
-        //            };
-        //            _queueItemAttachmentRepository.Add(attachment);
-        //            payload += attachment.SizeInBytes;
-        //        }
-        //    }
-        //    //update queue item payload
-        //    queueItem.PayloadSizeInBytes += payload;
-        //    _repo.Update(queueItem);
+            //if files don't exist in file manager: add file entity, upload file, and add email attachment attachment entity
+            var attachments = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == queueItem.Id)?.Items;
+            string hash = string.Empty;
+            IFormFile[] filesArray = CheckFiles(request.Files, hash, attachments, request.DriveName);
+            var queueItemAttachments = new List<QueueItemAttachment>();
+            if (filesArray.Length > 0)
+                queueItemAttachments = AddNewAttachments(queueItem, filesArray, request.DriveName);
 
-        //    return fileViewList;
-        //}
+            _repo.Update(queueItem);
 
-        //public QueueItemViewModel UpdateAttachedFiles(QueueItem queueItem, UpdateQueueItemViewModel request)
-        //{
-        //    if (queueItem == null) throw new EntityDoesNotExistException("Queue item could not be found or does not exist");
+            //attach new files
+            QueueItemViewModel response = new QueueItemViewModel();
+            response = response.Map(queueItem);
+            foreach (var attachment in attachments)
+                queueItemAttachments.Add(attachment);
+            response.Attachments = queueItemAttachments;
 
-        //    queueItem.DataJson = request.DataJson;
-        //    queueItem.Event = request.Event;
-        //    queueItem.ExpireOnUTC = request.ExpireOnUTC;
-        //    queueItem.PostponeUntilUTC = request.PostponeUntilUTC;
-        //    queueItem.Name = request.Name;
-        //    queueItem.QueueId = request.QueueId.Value;
-        //    queueItem.Source = request.Source;
-        //    queueItem.Type = request.Type;
-        //    queueItem.State = request.State;
+            return response;
+        }
 
-        //    if (queueItem.State == "New")
-        //    {
-        //        queueItem.StateMessage = null;
-        //        queueItem.RetryCount = 0;
-        //    }
+        public IFormFile[] CheckFiles(IFormFile[] files, string hash, List<QueueItemAttachment> attachments, string driveName)
+        {
+            if (files != null)
+            {
+                var filesList = files.ToList();
+                foreach (var attachment in attachments)
+                {
+                    var fileView = _fileManager.GetFileFolder(attachment.FileId.ToString(), driveName);
+                    var originalHash = fileView.Hash;
+                    //check if file with same hash and email id already exists
+                    foreach (var file in files)
+                    {
+                        hash = GetHash(hash, file);
+                        //if email attachment already exists and hash is the same: remove from files list
+                        if (fileView.ContentType == file.ContentType && originalHash == hash && fileView.Size == file.Length)
+                            filesList.Remove(file);
 
-        //    var attachments = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == request.Id)?.Items;
-        //    var files = request.Files.ToList();
-
-        //    foreach (var attachment in attachments)
-        //    {
-        //        var fileView = _fileManager.GetFileFolder(attachment.FileId.ToString(), request.DriveName);
-
-        //        //check if file with same hash and queue item id already exists
-        //        foreach (var file in request.Files)
-        //        {
-        //            byte[] bytes = Array.Empty<byte>();
-        //            using (var ms = new MemoryStream())
-        //            {
-        //                file.CopyToAsync(ms);
-        //                bytes = ms.ToArray();
-        //            }
-
-        //            var hash = string.Empty;
-        //            hash = GetHash(hash, file);
-        //            var originalHash = string.Empty;
-        //            using (var stream = IOFile.OpenRead(fileView.FullStoragePath))
-        //            {
-        //                IFormFile originalFile = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
-        //                originalHash = GetHash(hash, originalFile);
-        //            }
-
-        //            if (originalHash == hash)
-        //            {
-        //                files.Remove(file);
-        //            }
-        //        }
-        //    }
-        //    //if file doesn't exist in list of files: add file entity, upload file, and add queue item attachment entity
-        //    var fileViewList = AttachFiles(files, queueItem.Id.Value, queueItem, request.DriveName);
-
-        //    //attach new files
-        //    QueueItemViewModel response = new QueueItemViewModel();
-        //    response = response.Map(queueItem);
-        //    var fileIds = new List<Guid?>();
-        //    foreach (var file in fileViewList)
-        //        fileIds.Add(file.Id);
-        //    response.FileIds = fileIds;
-
-        //    return response;
-        //}
+                        //if email attachment exists but the hash is not the same: update the attachment and file, remove from files list
+                        else if (fileView.ContentType == file.ContentType && fileView.Name == file.FileName)
+                        {
+                            fileView = new FileFolderViewModel()
+                            {
+                                ContentType = file.ContentType,
+                                Files = new IFormFile[] { file },
+                                IsFile = true,
+                                StoragePath = fileView.StoragePath,
+                                Name = file.FileName,
+                                Id = fileView.Id
+                            };
+                            attachment.SizeInBytes = file.Length;
+                            _queueItemAttachmentRepository.Update(attachment);
+                            _fileManager.UpdateFile(fileView);
+                            filesList.Remove(file);
+                        }
+                    }
+                }
+                //if file doesn't exist, keep it in files list and return files to be attached
+                var filesArray = filesList.ToArray();
+                return filesArray;
+            }
+            else
+                return Array.Empty<IFormFile>();
+        }
 
         public string GetHash(string hash, IFormFile file)
         {
@@ -703,13 +678,15 @@ namespace OpenBots.Server.Business
             if (existingQueueItem == null) throw new EntityDoesNotExistException("Queue item cannot be found or does not exist");
             if (existingQueueItem.IsLocked) throw new EntityOperationException("Queue item is locked at this time and cannot be deleted");
 
-            //soft delete each queue item attachment entity and binary object entity that correlates to the queue item
+            //soft delete each queue item attachment entity and file entity that correlates to the queue item
             var attachmentsList = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == existingQueueItem.Id)?.Items;
+            var fileView = new FileFolderViewModel();
             foreach (var attachment in attachmentsList)
             {
-                _fileManager.DeleteFileFolder(attachment.Id.ToString(), driveName);
+                 fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
                 _queueItemAttachmentRepository.SoftDelete(attachment.Id.Value);
             }
+            _fileManager.DeleteFileFolder(fileView.ParentId.ToString(), driveName);
         }
 
         public void DeleteAll(QueueItem queueItem, string driveName)

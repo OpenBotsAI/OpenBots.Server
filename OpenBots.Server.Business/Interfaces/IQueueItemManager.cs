@@ -24,8 +24,7 @@ namespace OpenBots.Server.Business
         PaginatedList<AllQueueItemsViewModel> GetQueueItemsAndFileIds(Predicate<AllQueueItemsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
         PaginatedList<AllQueueItemAttachmentsViewModel> GetQueueItemAttachmentsAndNames(Guid queueItemId, Predicate<AllQueueItemAttachmentsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
         QueueItemViewModel GetQueueItemView(QueueItem queueItem);
-        //List<FileFolderViewModel> AttachFiles(List<IFormFile> files, Guid queueItemId, QueueItem queueItem, string driveName);
-        //QueueItemViewModel UpdateAttachedFiles(QueueItem queueItem, UpdateQueueItemViewModel request);
+        QueueItemViewModel UpdateAttachedFiles(QueueItem queueItem, UpdateQueueItemViewModel request);
         List<QueueItemAttachment> AddFileAttachments(QueueItem queueItem, string[] requests, string driveName = null);
         List<QueueItemAttachment> AddNewAttachments(QueueItem queueItem, IFormFile[] files, string driveName = null);
         QueueItemAttachment UpdateAttachment(QueueItem queueItem, string id, IFormFile file, string driveName = null);

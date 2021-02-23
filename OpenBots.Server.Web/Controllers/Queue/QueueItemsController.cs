@@ -13,6 +13,7 @@ using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
+using OpenBots.Server.ViewModel.QueueItem;
 using OpenBots.Server.Web.Hubs;
 using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
@@ -501,32 +502,32 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         ///// <summary>
-        ///// Update the queue item with file attachments
-        ///// </summary>
-        ///// <param name="request"></param>
-        ///// <param name="id"></param>
-        ///// <response code="200">Ok response</response>
-        ///// <response code="403">Forbidden, unauthorized access</response>
-        ///// <response code="422">Unprocessable entity, validation error</response>
-        ///// <returns>Ok response</returns>
-        //[HttpPut("{id}")]
-        //[ProducesResponseType(typeof(QueueItemViewModel), StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status403Forbidden)]
-        //[ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        //[Produces("application/json")]
-        //public async Task<IActionResult> UpdateFiles(string id, [FromForm] UpdateQueueItemViewModel request)
-        //{
-        //    try
-        //    {
-        //        var queueItem = repository.GetOne(Guid.Parse(id));
-        //        var response = _manager.UpdateAttachedFiles(queueItem, request);
-        //        await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
-        //        return Ok(response);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ex.GetActionResult();
-        //    }
-        //}
+        /// Update the queue item with file attachments
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="id"></param>
+        /// <response code="200">Ok response</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="422">Unprocessable entity, validation error</response>
+        /// <returns>Ok response</returns>
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(QueueItemViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [Produces("application/json")]
+        public async Task<IActionResult> UpdateFiles(string id, [FromForm] UpdateQueueItemViewModel request)
+        {
+            try
+            {
+                var queueItem = repository.GetOne(Guid.Parse(id));
+                var response = _manager.UpdateAttachedFiles(queueItem, request);
+                await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
     }
 }
