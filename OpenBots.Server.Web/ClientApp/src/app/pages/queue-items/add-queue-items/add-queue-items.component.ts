@@ -248,6 +248,7 @@ export class AddQueueItemsComponent implements OnInit {
                 });
             } else {
               this.navigateToQueueItemsList();
+              this.httpService.success('Queue item created successfully');
               this.isSubmitted = false;
               this.queueItemForm.reset();
             }
