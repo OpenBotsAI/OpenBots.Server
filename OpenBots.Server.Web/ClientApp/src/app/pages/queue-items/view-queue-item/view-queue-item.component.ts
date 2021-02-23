@@ -30,7 +30,7 @@ export class ViewQueueItemComponent implements OnInit {
     private router: Router,
     private helperService: HelperService,
     private fileSaverService: FileSaverService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.queueItemId = this.route.snapshot.params['id'];
@@ -110,7 +110,8 @@ export class ViewQueueItemComponent implements OnInit {
           response.payloadSizeInBytes = this.helperService.getFileSize(
             +response.payloadSizeInBytes
           );
-          this.attachedFiles = response.binaryObjectIds;
+          // this.attachedFiles = response.binaryObjectIds;
+          // if (response.fileIds) this.attachedFiles = [...response.fileIds];
           this.showQueueItemForm.patchValue(response);
           this.showQueueItemForm.disable();
           this.getFilesById();
@@ -142,7 +143,7 @@ export class ViewQueueItemComponent implements OnInit {
 
   downloadFile(id: string): void {
     this.httpService
-      .get(`${FilesApiUrl.BinaryObjects}/${id}/${FilesApiUrl.download}`, {
+      .get(`${FilesApiUrl.files}/${id}/${FilesApiUrl.download}`, {
         responseType: 'blob',
         observe: 'response',
       })

@@ -3,8 +3,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IpVersion, RxwebValidators } from '@rxweb/reactive-form-validators';
 import { HttpService } from '../../../@core/services/http.service';
-import { AgentApiUrl, CredentialsApiUrl } from '../../../webApiUrls';
-import { HelperService } from '../../../@core/services/helper.service';
+import {  CredentialsApiUrl } from '../../../webApiUrls';
+import { AgentsService } from '../agents.service';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'ngx-add-agents',
@@ -27,7 +28,7 @@ export class AddAgentsComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private httpService: HttpService,
-    private helperService: HelperService
+    protected agentService: AgentsService
   ) {}
 
   ngOnInit(): void {
@@ -122,8 +123,8 @@ export class AddAgentsComponent implements OnInit {
     if (this.agentForm.invalid) {
       return;
     }
-    this.httpService
-      .post(`${AgentApiUrl.Agents}`, this.agentForm.value)
+    this.agentService
+      .addAgent( this.agentForm.value)
       .subscribe(
         () => {
           this.httpService.success('Agent added successfully');
@@ -135,9 +136,8 @@ export class AddAgentsComponent implements OnInit {
 
   updateAgent(): void {
     this.submitted = true;
-    const headers = this.helperService.getETagHeaders(this.etag);
-    this.httpService
-      .put(`${AgentApiUrl.Agents}/${this.urlId}`, this.agentForm.value, headers)
+    this.agentService
+      .editAgent(this.urlId, this.agentForm.value, this.etag)
       .subscribe(
         () => {
           this.httpService.success('Updated successfully');
@@ -195,9 +195,9 @@ export class AddAgentsComponent implements OnInit {
   }
 
   getAgentById(): void {
-    this.httpService
-      .get(`${AgentApiUrl.Agents}/${this.urlId}`, { observe: 'response' })
-      .subscribe((data) => {
+    this.agentService
+      .getAgentbyID(this.urlId)
+      .subscribe((data: HttpResponse<any>) => {
         console.log('data', data);
         if (data && data.body) {
           this.show_allagents = data.body;

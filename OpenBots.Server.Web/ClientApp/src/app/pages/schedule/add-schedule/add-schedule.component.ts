@@ -162,6 +162,7 @@ export class AddScheduleComponent implements OnInit {
           this.router.navigate(['/pages/schedules']);
         },
         (error) => {
+          this.isSubmitted = false;
           if (error && error.error && error.error.status === 409) {
             this.isSubmitted = false;
             this.httpService.error(error.error.serviceErrors);

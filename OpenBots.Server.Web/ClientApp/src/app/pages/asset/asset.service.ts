@@ -11,7 +11,7 @@ export class AssetService {
     return environment.apiUrl;
   }
 
-  constructor(private http: HttpClient, private helperService: HelperService) { }
+  constructor(private http: HttpClient, private helperService: HelperService) {}
 
   getAllAsset(tpage: any, spage: any) {
     let getagentUrl = `/${AssetApiUrl.Assets}?$orderby=createdOn desc&$top=${tpage}&$skip=${spage}`;
@@ -43,10 +43,10 @@ export class AssetService {
     return this.http.post(`${this.apiUrl}` + addassetUrl, obj);
   }
 
-  AssetFile(id, file) {
-    let editassetUrl = `/${AssetApiUrl.Assets}/${id}/upload`;
-    return this.http.post(`${this.apiUrl}` + editassetUrl, file);
-  }
+  // AssetFile(id, file) {
+  //   let editassetUrl = `/${AssetApiUrl.Assets}/${id}/upload`;
+  //   return this.http.post(`${this.apiUrl}` + editassetUrl, file);
+  // }
   editAssetbyUpload(id, obj, etag) {
     const headers = new HttpHeaders({ 'If-Match': etag });
     let editassetUrl = `/${AssetApiUrl.Assets}/${id}/update`;
@@ -55,7 +55,7 @@ export class AssetService {
     });
   }
   editAsset(id, obj, etag) {
-    const headers = this.helperService.getETagHeaders(etag)
+    const headers = this.helperService.getETagHeaders(etag);
     // const headers = new HttpHeaders({ 'If-Match': etag });
     let editassetUrl = `/${AssetApiUrl.Assets}/${id}`;
     return this.http.put(`${this.apiUrl}` + editassetUrl, obj, {

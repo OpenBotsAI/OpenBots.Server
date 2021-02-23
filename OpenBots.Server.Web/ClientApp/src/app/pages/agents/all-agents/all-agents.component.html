@@ -21,6 +21,17 @@
     </div>
   </nb-card-header>
   <nb-card-body>
+   
+    <div class="row row-fil">
+      <!-- <div class="col-md-1"><label class="label-agt">Search:</label></div> -->
+      
+        <div class="col-md-4 col-lg-4">
+          
+          <input type="text" icon="search" nbInput fullWidth placeholder="Search with Name"
+        (keyup)="searchValue($event.target.value)">
+        </div>
+      </div>
+
     <table class="table table-bordered">
       <thead>
         <tr>
