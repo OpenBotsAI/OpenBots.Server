@@ -13,9 +13,9 @@ import { AutomationService } from '../automation.service';
   styleUrls: ['./all-automation.component.scss'],
 })
 export class AllAutomationComponent implements OnInit {
-  show_allprocess: any = [];
-  process_id: any = [];
-  show_filter_process: any = [];
+  showAllprocess: any = [];
+  processId: any = [];
+  // show_filter_process: any = [];
   sortDir = 1;
   toggle: boolean;
   feild_name: any = [];
@@ -53,7 +53,6 @@ export class AllAutomationComponent implements OnInit {
 
   goto_jobs(id) {
     this.router.navigate(['/pages/job/list'], {
-      // queryParams: { ProcessID: id },
       queryParams: { AutomationID: id },
     });
   }
@@ -63,13 +62,13 @@ export class AllAutomationComponent implements OnInit {
   }
 
   openDialog(ref, id) {
-    this.process_id = id;
+    this.processId = id;
     this.dialogService.openDialog(ref);
   }
 
   deleteUser(ref) {
     this.isDeleted = true;
-    this.automationService.deleteProcess(this.process_id).subscribe(
+    this.automationService.deleteProcess(this.processId).subscribe(
       () => {
         ref.close();
         this.isDeleted = false;
@@ -86,7 +85,7 @@ export class AllAutomationComponent implements OnInit {
     this.automationService
       .getAllJobsOrder(this.page.pageSize, skip, this.feild_name)
       .subscribe((data: any) => {
-        this.show_allprocess = data.items;
+        this.showAllprocess = data.items;
         this.page.totalCount = data.totalCount;
       });
   }
@@ -99,7 +98,7 @@ export class AllAutomationComponent implements OnInit {
     this.automationService
       .getAllProcess(this.page.pageSize, skip)
       .subscribe((data: any) => {
-        this.show_allprocess = data.items;
+        this.showAllprocess = data.items;
         this.page.totalCount = data.totalCount;
       });
   }
@@ -107,7 +106,7 @@ export class AllAutomationComponent implements OnInit {
   get_AllJobs(top, skip) {
     this.feild_name = 'MachineName';
     this.automationService.getAllProcess(top, skip).subscribe((data: any) => {
-      this.show_allprocess = data.items;
+      this.showAllprocess = data.items;
       this.page.totalCount = data.totalCount;
     });
   }
@@ -158,7 +157,7 @@ export class AllAutomationComponent implements OnInit {
       this.automationService
         .getFilterProcess(this.page.pageSize, skip, this.feild_name)
         .subscribe((data: any) => {
-          this.show_allprocess = data.items;
+          this.showAllprocess = data.items;
           this.page.totalCount = data.totalCount;
         });
     } else {

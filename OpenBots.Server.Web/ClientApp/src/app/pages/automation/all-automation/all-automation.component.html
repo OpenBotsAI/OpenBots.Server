@@ -32,19 +32,19 @@
         <tr>
           <th scope="col">
             Automation Name
-            <i (click)="onSortClick($event, 'name')" [attr.class]="show_allprocess | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'name')" [attr.class]="showAllprocess | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Created On
-            <i (click)="onSortClick($event, 'createdOn')" [attr.class]="show_allprocess | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'createdOn')" [attr.class]="showAllprocess | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Created By
-            <i (click)="onSortClick($event, 'createdBy')" [attr.class]="show_allprocess | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'createdBy')" [attr.class]="showAllprocess | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Status
-            <i (click)="onSortClick($event, 'status')" [attr.class]="show_allprocess | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'status')" [attr.class]="showAllprocess | chevron: page.totalCount"></i>
           </th>
           <th scope="col">Jobs</th>
           <th scope="col">View</th>
@@ -54,7 +54,7 @@
       </thead>
       <tbody>
         <tr *ngFor="
-            let process of show_allprocess
+            let process of showAllprocess
               | paginate
                 : {
                     id: '1',
