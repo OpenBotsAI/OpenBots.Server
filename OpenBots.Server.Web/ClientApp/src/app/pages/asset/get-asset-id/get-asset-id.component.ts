@@ -18,7 +18,7 @@ export class GetAssetIdComponent implements OnInit {
   addAsset: FormGroup;
   pipe = new DatePipe('en-US');
   now = Date();
-  show_createdon: any = [];
+
 
   constructor(
     private acroute: ActivatedRoute,
@@ -97,10 +97,7 @@ export class GetAssetIdComponent implements OnInit {
     this.assetService.getAssetbyId(id).subscribe((data: HttpResponse<any>) => {
       this.AssetType = data.body;
       const filterPipe = new TimeDatePipe();
-      const fiteredArr = filterPipe.transform(
-        this.AssetType.createdOn,
-        'lll'
-      );
+      const fiteredArr = filterPipe.transform(this.AssetType.createdOn, 'lll');
       this.AssetType.createdOn = filterPipe.transform(
         this.AssetType.createdOn,
         'lll'

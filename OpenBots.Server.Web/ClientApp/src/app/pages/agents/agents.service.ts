@@ -47,7 +47,7 @@ export class AgentsService {
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
   }
 
-  getCred() {
+  getCredentail() {
     let getagentUrlbyId = `/${CredentialsApiUrl.credentials}/${CredentialsApiUrl.getLookUp}`;
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
   }

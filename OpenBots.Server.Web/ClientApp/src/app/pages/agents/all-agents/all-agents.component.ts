@@ -18,7 +18,7 @@ export class AllAgentsComponent implements OnInit {
   @BlockUI() blockUI: NgBlockUI;
   isDeleted = false;
   showpage: any = [];
-  show_allagents: any = [];
+  showAllAgents: any = [];
   sortDir = 1;
   view_dialog: any;
   del_id: any = [];
@@ -49,7 +49,6 @@ export class AllAgentsComponent implements OnInit {
     this.router.navigate(['/pages/agents/new']);
   }
   gotoedit(id) {
-    // this.router.navigate(['/pages/agents/edit'], { queryParams: { id: id } });
     this.router.navigate([`/pages/agents/edit/${id}`]);
   }
   gotojobs(id) {
@@ -88,7 +87,7 @@ export class AllAgentsComponent implements OnInit {
       .getAllAgentOrder(this.page.pageSize, skip, this.feild_name)
       .subscribe((data: any) => {
         this.showpage = data;
-        this.show_allagents = data.items;
+        this.showAllAgents = data.items;
       });
   }
 
@@ -114,7 +113,7 @@ export class AllAgentsComponent implements OnInit {
       .getAllAgent(this.page.pageSize, skip)
       .subscribe((data: any) => {
         this.showpage = data;
-        this.show_allagents = data.items;
+        this.showAllAgents = data.items;
         this.page.totalCount = data.totalCount;
         // this.blockUI.stop();
       });
@@ -147,7 +146,7 @@ export class AllAgentsComponent implements OnInit {
     this.agentService.getAllAgent(top, skip).subscribe(
       (data: any) => {
         this.showpage = data;
-        this.show_allagents = data.items;
+        this.showAllAgents = data.items;
         this.page.totalCount = data.totalCount;
         this.get_perPage = true;
         // this.blockUI.stop();
@@ -185,7 +184,7 @@ export class AllAgentsComponent implements OnInit {
         .getFilterAgent(this.page.pageSize, skip, this.feild_name)
         .subscribe((data: any) => {
           this.showpage = data;
-          this.show_allagents = data.items;
+          this.showAllAgents = data.items;
           this.page.totalCount = data.totalCount;
         });
     } else {

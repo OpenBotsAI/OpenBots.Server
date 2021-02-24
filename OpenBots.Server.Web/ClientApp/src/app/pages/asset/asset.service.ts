@@ -23,6 +23,11 @@ export class AssetService {
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
+  getFilterAsset(tpage: any, spage: any, filterName) {
+    let getagentUrl = `/${AssetApiUrl.Assets}?$filter=substringof(tolower('${filterName}'), tolower(name))&$top=${tpage}&$skip=${spage}`;
+    return this.http.get(`${this.apiUrl}` + getagentUrl);
+  }
+
   getAssetbyId(id) {
     let resoptions = {};
     resoptions = {
@@ -52,11 +57,8 @@ export class AssetService {
   }
   editAsset(id, obj, etag) {
     const headers = this.helperService.getETagHeaders(etag);
-    // const headers = new HttpHeaders({ 'If-Match': etag });
     let editassetUrl = `/${AssetApiUrl.Assets}/${id}`;
-    return this.http.put(`${this.apiUrl}` + editassetUrl, obj, {
-      headers,
-    });
+    return this.http.put(`${this.apiUrl}` + editassetUrl, obj, {  headers  });
   }
 
   assetFileExport(id) {

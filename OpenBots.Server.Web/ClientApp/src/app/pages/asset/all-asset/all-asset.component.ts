@@ -17,15 +17,15 @@ export class AllAssetComponent implements OnInit {
   showpage: any = [];
   showallassets: any = [];
   sortDir = 1;
-  view_dialog: any;
+  viewDialog: any;
   showData;
-  del_id: any = [];
+  delId: any = [];
   toggle: boolean;
-  feild_name: any = [];
+  feildName: any = [];
   page: Page = {};
-  get_perPage: boolean = false;
-  show_perpage_size: boolean = false;
-  per_page_num: any = [];
+  getPerPage: boolean = false;
+  showPerpageSize: boolean = false;
+  perPageNum: any = [];
   itemsPerPage: ItemsPerPage[] = [];
 
   constructor(
@@ -57,9 +57,9 @@ export class AllAssetComponent implements OnInit {
 
   sort(filter_val, vale) {
     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-    this.feild_name = filter_val + '+' + vale;
+    this.feildName = filter_val + '+' + vale;
     this.assestService
-      .getAllAssetOrder(this.page.pageSize, skip, this.feild_name)
+      .getAllAssetOrder(this.page.pageSize, skip, this.feildName)
       .subscribe((data: any) => {
         this.showpage = data;
         this.showallassets = data.items;
@@ -67,16 +67,16 @@ export class AllAssetComponent implements OnInit {
   }
 
   open2(dialog: TemplateRef<any>, id: any) {
-    this.del_id = [];
-    this.view_dialog = dialog;
+    this.delId = [];
+    this.viewDialog = dialog;
     this.dialogService.openDialog(dialog);
-    this.del_id = id;
+    this.delId = id;
   }
 
   del_agent(ref) {
     this.isDeleted = true;
     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-    this.assestService.delAssetbyID(this.del_id).subscribe(
+    this.assestService.delAssetbyID(this.delId).subscribe(
       () => {
         this.isDeleted = false;
         this.toastrService.success('Deleted Successfully');
@@ -88,7 +88,7 @@ export class AllAssetComponent implements OnInit {
   }
 
   get_allasset(top, skip) {
-    this.get_perPage = false;
+    this.getPerPage = false;
     this.assestService.getAllAsset(top, skip).subscribe((data: any) => {
       for (const item of data.items) {
         if (item.valueJson) {
@@ -100,7 +100,7 @@ export class AllAssetComponent implements OnInit {
       this.showallassets = data.items;
 
       this.page.totalCount = data.totalCount;
-      this.get_perPage = true;
+      this.getPerPage = true;
     });
   }
 
@@ -129,10 +129,10 @@ export class AllAssetComponent implements OnInit {
   }
 
   per_page(val) {
-    this.per_page_num = val;
+    this.perPageNum = val;
     this.page.pageSize = val;
-    const skip = (this.page.pageNumber - 1) * this.per_page_num;
-    if (this.feild_name.length == 0) {
+    const skip = (this.page.pageNumber - 1) * this.perPageNum;
+    if (this.feildName.length == 0) {
       this.assestService
         .getAllAsset(this.page.pageSize, skip)
         .subscribe((data: any) => {
@@ -140,10 +140,10 @@ export class AllAssetComponent implements OnInit {
           this.showallassets = data.items;
           this.page.totalCount = data.totalCount;
         });
-    } else if (this.feild_name.length != 0) {
-      this.show_perpage_size = true;
+    } else if (this.feildName.length != 0) {
+      this.showPerpageSize = true;
       this.assestService
-        .getAllAssetOrder(this.page.pageSize, skip, this.feild_name)
+        .getAllAssetOrder(this.page.pageSize, skip, this.feildName)
         .subscribe((data: any) => {
           this.showpage = data;
           this.showallassets = data.items;
@@ -158,25 +158,25 @@ export class AllAssetComponent implements OnInit {
   }
 
   pagination(pageNumber, pageSize?) {
-    if (this.show_perpage_size == false) {
+    if (this.showPerpageSize == false) {
       const top: number = pageSize;
       const skip = (pageNumber - 1) * pageSize;
-      if (this.feild_name.length == 0) {
+      if (this.feildName.length == 0) {
         this.get_allasset(top, skip);
-      } else if (this.feild_name.lenght != 0) {
+      } else if (this.feildName.lenght != 0) {
         this.assestService
-          .getAllAssetOrder(top, skip, this.feild_name)
+          .getAllAssetOrder(top, skip, this.feildName)
           .subscribe((data: any) => {
             this.showpage = data;
             this.showallassets = data.items;
             this.page.totalCount = data.totalCount;
           });
       }
-    } else if (this.show_perpage_size == true) {
-      const top: number = this.per_page_num;
-      const skip = (pageNumber - 1) * this.per_page_num;
+    } else if (this.showPerpageSize == true) {
+      const top: number = this.perPageNum;
+      const skip = (pageNumber - 1) * this.perPageNum;
       this.assestService
-        .getAllAssetOrder(top, skip, this.feild_name)
+        .getAllAssetOrder(top, skip, this.feildName)
         .subscribe((data: any) => {
           this.showpage = data;
           this.showallassets = data.items;
@@ -188,5 +188,20 @@ export class AllAssetComponent implements OnInit {
   trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
+  }
+  searchValue(value) {
+    if (value.length) {
+      const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+      this.feildName = value;
+      this.assestService
+        .getFilterAsset(this.page.pageSize, skip, this.feildName)
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showallassets = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    } else {
+      this.pagination(this.page.pageNumber, this.page.pageSize);
+    }
   }
 }

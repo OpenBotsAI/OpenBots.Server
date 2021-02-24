@@ -25,7 +25,10 @@ export class AutomationService {
     let addassetUrl = `/${automationsApiUrl.automations}`;
     return this.http.post(`${this.apiUrl}` + addassetUrl, obj);
   }
-
+  getFilterProcess(tpage: any, spage: any, filterName) {
+    let getagentUrl = `/${automationsApiUrl.automationsView}?$filter=substringof(tolower('${filterName}'), tolower(name))&$top=${tpage}&$skip=${spage}`;
+    return this.http.get(`${this.apiUrl}` + getagentUrl);
+  }
   uploadUpdateProcessFile(obj, process_id, etag) {
     const headers = this.helperService.getETagHeaders(etag);
     let processUrl = `/${automationsApiUrl.automations}/${process_id}/update`;
