@@ -127,7 +127,8 @@ namespace OpenBots.Server.Business.File
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
             {
                 fileFolder = _localFileStorageAdapter.DeleteFileFolder(id, driveName);
-                if (fileFolder.Size > 0 && fileFolder.IsFile == true)
+                if (fileFolder.Size > 0 && fileFolder.IsFile == true && !fileFolder.StoragePath.Contains("Queue Item Attachments")
+                    && !fileFolder.StoragePath.Contains("Email Attachments"))
                     AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileFolder });
             }
             //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
@@ -239,7 +240,7 @@ namespace OpenBots.Server.Business.File
         public Dictionary<Guid?, string> GetDriveNames(string adapterType)
         {
             var driveNames = new Dictionary<Guid?, string>();
-            string adapter =adapterType;
+            string adapter = adapterType;
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
                 driveNames = _localFileStorageAdapter.GetDriveNames(adapterType);
             else throw new EntityOperationException("Configuration is not set up for local file storage");

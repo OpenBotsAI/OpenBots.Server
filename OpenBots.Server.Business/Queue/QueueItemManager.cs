@@ -686,7 +686,8 @@ namespace OpenBots.Server.Business
                  fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
                 _queueItemAttachmentRepository.SoftDelete(attachment.Id.Value);
             }
-            _fileManager.DeleteFileFolder(fileView.ParentId.ToString(), driveName);
+            fileView = _fileManager.DeleteFileFolder(fileView.ParentId.ToString(), driveName);
+            _fileManager.AddBytesToFoldersAndDrive( new List<FileFolderViewModel> { fileView });
         }
 
         public void DeleteAll(QueueItem queueItem, string driveName)
