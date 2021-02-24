@@ -1328,6 +1328,18 @@
             <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
             <returns>Newly created server drive details</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetDriveNames(System.String)">
+            <summary>
+            Provides server drive names
+            </summary>
+            <response code="200">Ok, if the server drive names exist</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if server drive name is not in proper format</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no server drive names exist</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Server drive names</returns>
+        </member>
         <member name="T:OpenBots.Server.Web.Controllers.Queue.QueueItemAttachmentsController">
             <summary>
             Controller for queue item attachments

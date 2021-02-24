@@ -239,7 +239,7 @@ namespace OpenBots.Server.Business.File
                 SizeInBytes = file.Length,
                 StorageFolderId = folderId,
                 StoragePath = path,
-                StorageProvider = Configuration["Files:StorageProvider"],
+                StorageProvider = drive.FileStorageAdapterType,
                 OrganizationId = organizationId,
                 ServerDriveId = drive.Id
             };
@@ -336,7 +336,6 @@ namespace OpenBots.Server.Business.File
             serverFile.OrganizationId = organizationId;
             serverFile.SizeInBytes = file.Length;
             serverFile.StoragePath = request.StoragePath;
-            serverFile.StorageProvider = Configuration["Files:StorageProvider"];
             serverFile.FileAttributes = fileAttributes;
 
             _serverFileRepository.Update(serverFile);
@@ -514,9 +513,10 @@ namespace OpenBots.Server.Business.File
             return count;
         }
 
-        public ServerFolder GetFolder(string name)
+        public ServerFolder GetFolder(string path, string driveName)
         {
-            var serverFolder = _serverFolderRepository.Find(null).Items?.Where(q => q.Name.ToLower() == name.ToLower()).FirstOrDefault();
+            Guid? driveId = GetDriveId(driveName);
+            var serverFolder = _serverFolderRepository.Find(null).Items?.Where(q => q.StoragePath.ToLower() == path.ToLower() && q.StorageDriveId == driveId).FirstOrDefault();
             if (serverFolder == null)
                 return null;
             return serverFolder;
@@ -524,9 +524,7 @@ namespace OpenBots.Server.Business.File
 
         public Guid? GetFolderId(string path, string driveName)
         {
-            string[] pathArray = path.Split(Path.DirectorySeparatorChar);
-            string folderName = pathArray[pathArray.Length - 1];
-            var folder = GetFolder(folderName);
+            var folder = GetFolder(path, driveName);
             Guid? folderId = folder?.Id;
             if (folderId == null)
             {
@@ -719,7 +717,8 @@ namespace OpenBots.Server.Business.File
                 var newNameArray = serverFile.Name.Split(".");
                 var contentType = newNameArray[newNameArray.Length - 1];
                 string newName = name + "." + contentType;
-                string newPath = GetNewPath(serverFile.StoragePath, serverFile.Name, newName);
+                int index = oldPath.Split(Path.DirectorySeparatorChar).Length - 1;
+                string newPath = GetNewPath(serverFile.StoragePath, serverFile.Name, newName, index);
                 ExistingFileCheck(newPath);
                 var newPathArray = newPath.Split(Path.DirectorySeparatorChar);
                 var shortPathArray = new string[newPathArray.Length - 1];
@@ -754,7 +753,8 @@ namespace OpenBots.Server.Business.File
                     bool hasChild = CheckFolderHasChild(entityId);
                     string oldPath = serverFolder.StoragePath;
                     string oldName = serverFolder.Name;
-                    string newPath = GetNewPath(serverFolder.StoragePath, oldName, name);
+                    int index = oldPath.Split(Path.DirectorySeparatorChar).Length - 1;
+                    string newPath = GetNewPath(serverFolder.StoragePath, oldName, name, index);
                     ExistingFolderCheck(newPath);
                     var newPathArray = newPath.Split(Path.DirectorySeparatorChar);
                     string shortPath = GetShortPath(newPath);
@@ -768,7 +768,7 @@ namespace OpenBots.Server.Business.File
 
                     //rename all files and folders underneath it
                     if (hasChild)
-                        RenameChildFilesFolders(entityId, oldName, name);
+                        RenameChildFilesFolders(entityId, oldName, name, index);
                     fileFolder = fileFolder.Map(serverFolder, shortPath, hasChild);
                 }
                 else
@@ -778,7 +778,7 @@ namespace OpenBots.Server.Business.File
             return fileFolder;
         }
 
-        public void RenameChildFilesFolders(Guid? entityId, string oldPath, string newPath)
+        public void RenameChildFilesFolders(Guid? entityId, string oldPath, string newPath, int index)
         {
             var childFiles = _serverFileRepository.Find(null).Items?.Where(q => q.StorageFolderId == entityId);
             if (childFiles.Any())
@@ -786,7 +786,8 @@ namespace OpenBots.Server.Business.File
                 foreach (var file in childFiles)
                 {
                     string oldFilePath = file.StoragePath;
-                    string newFilePath = GetNewPath(file.StoragePath, oldPath, newPath);
+                    string[] pathArray = oldPath.Split(Path.DirectorySeparatorChar);
+                    string newFilePath = GetNewPath(file.StoragePath, oldPath, newPath, index);
                     file.StoragePath = newFilePath;
                     _serverFileRepository.Update(file);
                     if (IOFile.Exists(oldPath))
@@ -801,22 +802,27 @@ namespace OpenBots.Server.Business.File
                 {
                     bool hasChild = CheckFolderHasChild(folder.Id);
                     string oldFolderPath = folder.StoragePath;
-                    string newFolderPath = GetNewPath(folder.StoragePath, oldPath, newPath);
+                    string[] pathArray = oldPath.Split(Path.DirectorySeparatorChar);
+                    string newFolderPath = GetNewPath(folder.StoragePath, oldPath, newPath, index);
                     folder.StoragePath = newFolderPath;
                     _serverFolderRepository.Update(folder);
                     if (_directoryManager.Exists(oldPath))
                         _directoryManager.Move(oldFolderPath, newFolderPath);
                     _webhookPublisher.PublishAsync("Files.FolderUpdated", folder.Id.ToString(), folder.Name);
                     if (hasChild)
-                        RenameChildFilesFolders(folder.Id, oldPath, newPath);
+                        RenameChildFilesFolders(folder.Id, oldPath, newPath, index);
                 }
             }
         }
 
-        public string GetNewPath(string path, string oldPath, string newPath)
+        public string GetNewPath(string path, string oldPath, string newPath, int index)
         {
-            //TODO: Change logic here
-            path = path.Replace(oldPath, newPath);
+            string[] pathArray = path.Split(Path.DirectorySeparatorChar);
+            string segment = pathArray[index];
+            segment = segment.Replace(oldPath, newPath);
+            pathArray.SetValue(segment, index);
+            path = string.Join(Path.DirectorySeparatorChar, pathArray);
+            
             return path;
         }
 
@@ -870,6 +876,7 @@ namespace OpenBots.Server.Business.File
                     Guid? oldParentFolderId = serverFolder.ParentFolderId;
                     string oldPath = serverFolder.StoragePath;
                     string newPath = Path.Combine(parentFolderPath, serverFolder.Name);
+                    int index = oldPath.Split(Path.DirectorySeparatorChar).Length - 1;
                     ExistingFolderCheck(newPath);
 
                     serverFolder.StoragePath = newPath;
@@ -883,7 +890,7 @@ namespace OpenBots.Server.Business.File
 
                     //rename all files and folders underneath it
                     if (hasChild)
-                        RenameChildFilesFolders(entityId, oldPath, newPath);
+                        RenameChildFilesFolders(entityId, oldPath, newPath, index);
                     fileFolder = fileFolder.Map(serverFolder, parentFolderPath, hasChild);
 
                     //update new and old parent folder sizes
@@ -982,7 +989,7 @@ namespace OpenBots.Server.Business.File
                     {
                         //create copied folders with the same name
                         var folder = _serverFolderRepository.Find(null).Items?.Where( q => q.StoragePath == dir).FirstOrDefault();
-                        string shortPath = GetNewPath(folder.StoragePath, folder.StoragePath, serverFolder.StoragePath);
+                        string shortPath = folder.StoragePath.Replace(folder.StoragePath, serverFolder.StoragePath);
                         CheckDirectoryExists(shortPath);
                         string newFolderPath = Path.Combine(shortPath, folder.Name);
                         _directoryManager.CreateDirectory(newFolderPath);
@@ -1006,7 +1013,7 @@ namespace OpenBots.Server.Business.File
                         var file = _serverFileRepository.Find(null).Items?.Where(q => q.StoragePath == filePath).FirstOrDefault();
                         //string newFilePath = GetNewPath(file.StoragePath, file.StoragePath, serverFolder.StoragePath);
                         string oldFilePath = file.StoragePath;
-                        string newFilePath = GetNewPath(oldFilePath, oldPath, newPath);
+                        string newFilePath = oldFilePath.Replace(oldPath, newPath);
 
                         //add new file entity in repository
                         string shortPath = GetShortPath(newFilePath);
@@ -1137,7 +1144,7 @@ namespace OpenBots.Server.Business.File
 
             var serverDrive = new ServerDrive()
             {
-                FileStorageAdapterType = Configuration["Files:StorageProvider"],
+                FileStorageAdapterType = "LocalFileStorage",
                 CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
                 CreatedOn = DateTime.UtcNow,
                 Name = driveName,
@@ -1149,6 +1156,21 @@ namespace OpenBots.Server.Business.File
             _directoryManager.CreateDirectory(driveName);
 
             return serverDrive;
+        }
+
+        public Dictionary<Guid?, string> GetDriveNames(string adapterType)
+        {
+            var driveNames = new Dictionary<Guid?, string>();
+
+            var drives = _serverDriveRepository.Find(null).Items.Where(q => q.FileStorageAdapterType == adapterType);
+
+            if (drives == null)
+                throw new EntityDoesNotExistException("No drives could be found");
+
+            foreach (var drive in drives)
+                driveNames.Add(drive.Id, drive.Name);
+
+            return driveNames;
         }
     }
 }

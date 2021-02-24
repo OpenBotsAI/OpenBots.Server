@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.FeatureManagement.Mvc;
 using OpenBots.Server.Business;
 using OpenBots.Server.Business.Interfaces;
+using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
@@ -262,6 +263,10 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
+                if (request.StoragePath.Contains("Assets") || request.StoragePath.Contains("Automations") ||
+                    request.StoragePath.Contains("Email Attachments") || request.StoragePath.Contains("Queue Item Attachments"))
+                    throw new EntityOperationException("Component files and folders cannot be added or changed in File Manager");
+
                 if (request.IsFile == null)
                     request.IsFile = true;
                 var response = _manager.AddFileFolder(request, driveName);
@@ -298,6 +303,11 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
+                var file = _manager.GetFileFolder(id, driveName);
+                if (file.StoragePath.Contains("Assets") || file.StoragePath.Contains("Automations") ||
+                    file.StoragePath.Contains("Email Attachments") || file.StoragePath.Contains("Queue Item Attachments"))
+                    throw new EntityOperationException("Component files and folders cannot be added or changed in File Manager");
+
                 var response = _manager.ExportFileFolder(id, driveName);
                 return File(response?.Result?.Content, response?.Result?.ContentType, response?.Result?.Name);
             }
@@ -326,9 +336,12 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
+                var file = _manager.GetFileFolder(id, driveName);
+                if (file.StoragePath.Contains("Assets") || file.StoragePath.Contains("Automations") ||
+                    file.StoragePath.Contains("Email Attachments") || file.StoragePath.Contains("Queue Item Attachments"))
+                    throw new EntityOperationException("Component files and folders cannot be added or changed in File Manager");
+
                 var fileFolder = _manager.DeleteFileFolder(id, driveName);
-                if (fileFolder.Size > 0 && fileFolder.IsFile == true)
-                    _manager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileFolder });
                 return Ok();
             }
             catch (Exception ex)
@@ -364,6 +377,11 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
+                var file = _manager.GetFileFolder(id, driveName);
+                if (file.StoragePath.Contains("Assets") || file.StoragePath.Contains("Automations") ||
+                    file.StoragePath.Contains("Email Attachments") || file.StoragePath.Contains("Queue Item Attachments"))
+                    throw new EntityOperationException("Component files and folders cannot be added or changed in File Manager");
+
                 if (string.IsNullOrEmpty(request.Name))
                 {
                     ModelState.AddModelError("Rename", "No name given in request");
@@ -406,6 +424,11 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
+                var file = _manager.GetFileFolder(id, driveName);
+                if (file.StoragePath.Contains("Assets") || file.StoragePath.Contains("Automations") ||
+                    file.StoragePath.Contains("Email Attachments") || file.StoragePath.Contains("Queue Item Attachments"))
+                    throw new EntityOperationException("Component files and folders cannot be added or changed in File Manager");
+
                 var response = _manager.MoveFileFolder(id, parentId, driveName);
                 return Ok(response);
             }
@@ -442,6 +465,11 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
+                var file = _manager.GetFileFolder(id, driveName);
+                if (file.StoragePath.Contains("Assets") || file.StoragePath.Contains("Automations") ||
+                    file.StoragePath.Contains("Email Attachments") || file.StoragePath.Contains("Queue Item Attachments"))
+                    throw new EntityOperationException("Component files and folders cannot be added or changed in File Manager");
+
                 var response = _manager.CopyFileFolder(id, parentId, driveName);
                 return Ok(response);
             }
@@ -475,6 +503,38 @@ namespace OpenBots.Server.Web.Controllers
             {
                 var response = _manager.AddServerDrive(driveName);
                 return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Provides server drive names
+        /// </summary>
+        /// <response code="200">Ok, if the server drive names exist</response>
+        /// <response code="304">Not modified</response>
+        /// <response code="400">Bad request, if server drive name is not in proper format</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not found, when no server drive names exist</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Server drive names</returns>
+        [HttpGet("driveNames", Name = "GetDriveNames")]
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> GetDriveNames(string adapterType)
+        {
+            try
+            {
+                var driveNames = _manager.GetDriveNames(adapterType);
+                return Ok(driveNames);
             }
             catch (Exception ex)
             {
