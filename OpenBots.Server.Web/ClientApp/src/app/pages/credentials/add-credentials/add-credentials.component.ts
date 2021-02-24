@@ -64,8 +64,11 @@ export class AddCredentialsComponent implements OnInit {
           Validators.minLength(3),
           Validators.maxLength(67),
           Validators.pattern(
-            '^([A-Za-z0-9]{1,63}(-[A-Za-z0-9]{1,63})*\\.?)+([A-Za-z0-9]{3})?$'
+            '^([A-Za-z0-9]{1,63}(-[A-Za-z0-9]{1,63})*?(\\.[A-Za-z0-9]{2,3})?)$'
           ),
+          // Validators.pattern(
+          //   '^([A-Za-z0-9]{1,63}(-[A-Za-z0-9]{1,63})*\\.?)+([A-Za-z0-9]{3})?$'
+          // ),
         ],
       ],
       userName: [

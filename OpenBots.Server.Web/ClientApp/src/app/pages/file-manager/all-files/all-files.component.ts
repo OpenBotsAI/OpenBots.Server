@@ -160,7 +160,6 @@ export class AllFilesComponent implements OnInit {
     this.bread = [];
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
-    // this.pagination(this.page.pageNumber, this.page.pageSize);
     this.getdriveName();
     // this.getFilterPagination(1, this.page.pageSize, this.driveId);
   }
@@ -265,7 +264,6 @@ export class AllFilesComponent implements OnInit {
             this.fileSize = false;
             // this.submitted = false;
           }
-          console.log('files', output.file);
           this.uploadedFilesArr.push(output.file);
           // this.native_file = output.file.nativeFile;
           // this.native_file_name = output.file.nativeFile.name;
@@ -280,7 +278,6 @@ export class AllFilesComponent implements OnInit {
       this.bread.forEach((item) => (storagePath += `/${item.name}`));
     let formData = new FormData();
     for (let data of this.uploadedFilesArr) {
-      // console.log('data', data);
       formData.append('Files', data.nativeFile, data.nativeFile.name);
       formData.append('StoragePath', storagePath);
     }
@@ -293,6 +290,7 @@ export class AllFilesComponent implements OnInit {
       .post(`files?driveName=Files`, formData, { observe: 'response' })
       .subscribe((data: any) => {
         if (data && data.status === 200) {
+          this.uploadedFilesArr = [];
           if (this.bread.length) {
             this.getFilterPagination(
               this.page.pageNumber,
@@ -354,18 +352,17 @@ export class AllFilesComponent implements OnInit {
             this.currentParentId
           );
           // }
-          console.log('res', response);
         }
       });
   }
 
   onDown() {
     let fileName: string;
-    this.fileManagerService
-      .getFiledownload(this.fileID)
-      // let downloadurl = `/files/${this.fileID}/download?driveName=Files`;
-      // this.httpService
-      //   .get(`/files/${this.fileID}/download?driveName=Files`)
+    // this.fileManagerService
+    //   .getFiledownload(this.fileID)
+    // let downloadurl = `/files/${this.fileID}/download?driveName=Files`;
+    this.httpService
+      .get(`files/${this.fileID}/download?driveName=Files`)
       .subscribe((data: HttpResponse<Blob>) => {
         fileName = data.headers
           .get('content-disposition')
@@ -380,7 +377,6 @@ export class AllFilesComponent implements OnInit {
     for (let abc in this.bread) {
       if (+abc > i) {
         this.bread.splice(+abc, this.bread.length - i);
-        // this.getByIdFile(this.bread[i].id);
         this.getFilterPagination(1, this.page.pageSize, this.bread[i].id);
         this.floderName = this.bread[i].name;
       }
@@ -390,24 +386,19 @@ export class AllFilesComponent implements OnInit {
   onClickUp() {
     if (this.bread && this.bread.length > 1) {
       this.bread.splice(this.bread.length - 1, 1);
-      // const id = this.bread[this.bread.length - 1].id;
       this.floderName = this.bread[this.bread.length - 1].name;
-      // this.getByIdFile(id);
       this.getFilterPagination(
         this.page.pageNumber,
         this.page.pageSize,
         this.bread[this.bread.length - 1].id
       );
     } else {
-      // this.allFiles(5, 0);
       this.bread.splice(this.bread.length - 1, 1);
       this.getFilterPagination(
         this.page.pageNumber,
         this.page.pageSize,
         this.driveId
       );
-
-      // this.ChildFolderFlag = false;
     }
   }
 
@@ -420,46 +411,21 @@ export class AllFilesComponent implements OnInit {
       .get(`files?driveName=Files&$filter=ParentId+eq+guid'${id}'`)
       .subscribe((response) => {
         if (response && response.items) {
-          console.log('response', response);
           this.fileManger = [];
           this.fileManger = [...response.items];
         }
         this.page.totalCount = response.totalCount;
-        console.log('count', this.page.totalCount);
-
-        // this.showpage = data;
-        // this.bread = [];
-        // this.gotodetail(this.fileManger[0]);// commented just 2 api calls
-        // if (data.totalCount == 0) {
-        //   this.get_perPage = false;
-        // } else if (data.totalCount != 0) {
-        //   this.get_perPage = true;
-        // }
       });
   }
-  // method1CallForClick(files) {
-  //   this.isSingleClick = true;
-  //   setTimeout(() => {
-  //     if (this.isSingleClick) {
-  //       this.gotodetail(files);
-  //     }
-  //   }, 250);
-  // }
-  // method2CallForDblClick(files) {
-  //   this.isSingleClick = false;
-  //   this.fileFolder(files);
-  // }
 
   fileFolder(files) {
     this.HighlightRow = null;
     if (files && files.isFile == false) {
-      // this.ChildFolderFlag = true;
       if (this.floderName != files.name) {
         this.floderName = files.name;
         this.bread.push(files);
       }
       this.FolderIDs = files.id;
-      // this.getByIdFile(files.id);
       this.page.pageNumber = 1;
       this.currentParentId = files.id;
       this.getFilterPagination(
@@ -476,7 +442,6 @@ export class AllFilesComponent implements OnInit {
       classList.remove('fa-chevron-up');
       classList.add('fa-chevron-down');
       this.filterOrderBy = `${param}+asc`;
-      // this.pagination(this.page.pageNumber, this.page.pageSize, `${param}+asc`);
       this.getFilterPagination(
         this.page.pageNumber,
         this.page.pageSize,
@@ -487,11 +452,6 @@ export class AllFilesComponent implements OnInit {
       classList.remove('fa-chevron-down');
       classList.add('fa-chevron-up');
       this.filterOrderBy = `${param}+desc`;
-      // this.pagination(
-      //   this.page.pageNumber,
-      //   this.page.pageSize,
-      //   `${param}+desc`
-      // );
       this.getFilterPagination(
         this.page.pageNumber,
         this.page.pageSize,
@@ -575,106 +535,3 @@ export class AllFilesComponent implements OnInit {
     this.uploadedFilesArr = [];
   }
 }
-
-// allFiles(top, skip) {
-//   this.get_perPage = false;
-//   this.fileManagerService.getAllFiles(top, skip).subscribe((data: any) => {
-//     this.fileManger = data.items;
-//     this.page.totalCount = data.totalCount;
-//     this.showpage = data;
-//     this.bread = [];
-//     // this.gotodetail(this.fileManger[0]);
-//     if (data.totalCount == 0) {
-//       this.get_perPage = false;
-//     } else if (data.totalCount != 0) {
-//       this.get_perPage = true;
-//     }
-//   });
-// }
-
-// onSortClick(event, fil_val) {
-//   let target = event.currentTarget,
-//     classList = target.classList;
-//   if (classList.contains('fa-chevron-up')) {
-//     classList.remove('fa-chevron-up');
-//     classList.add('fa-chevron-down');
-//     let sort_set = 'desc';
-//     this.sort(fil_val, sort_set);
-//     this.sortDir = -1;
-//   } else {
-//     classList.add('fa-chevron-up');
-//     classList.remove('fa-chevron-down');
-//     let sort_set = 'asc';
-//     this.sort(fil_val, sort_set);
-//     this.sortDir = 1;
-//   }
-// }
-
-// sort(filter_val, vale) {
-//   const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-//   this.feild_name = filter_val + '+' + vale;
-//   this.fileManagerService
-//     .getAllFilesOrder(this.page.pageSize, skip, this.feild_name)
-//     .subscribe((data: any) => {
-//       this.showpage = data;
-//       this.fileManger = data.items;
-//     });
-// }
-
-// pageChanged(event) {
-//   this.page.pageNumber = event;
-//   this.pagination(event, this.page.pageSize);
-// }
-
-// pagination(pageNumber, pageSize?) {
-//   if (this.show_perpage_size == false) {
-//     const top: number = pageSize;
-//     const skip = (pageNumber - 1) * pageSize;
-//     if (this.feild_name.length == 0) {
-//       this.allFiles(top, skip);
-//       console.log('usman');
-//     } else if (this.feild_name.length != 0) {
-//       this.fileManagerService
-//         .getAllFilesOrder(top, skip, this.feild_name)
-//         .subscribe((data: any) => {
-//           this.showpage = data;
-//           this.fileManger = data.items;
-//           this.page.totalCount = data.totalCount;
-//         });
-//     }
-//   } else if (this.show_perpage_size == true) {
-//     const top: number = this.per_page_num;
-//     const skip = (pageNumber - 1) * this.per_page_num;
-//     this.fileManagerService
-//       .getAllFilesOrder(top, skip, this.feild_name)
-//       .subscribe((data: any) => {
-//         this.showpage = data;
-//         this.fileManger = data.items;
-//         this.page.totalCount = data.totalCount;
-//       });
-//   }
-// }
-// per_page(val) {
-//   // let filesurl = `/files?driveName=Files&$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
-//   this.per_page_num = val;
-//   this.page.pageSize = val;
-//   const skip = (this.page.pageNumber - 1) * this.per_page_num;
-//   if (this.feild_name.length == 0) {
-//     this.fileManagerService
-//       .getAllFiles(this.page.pageSize, skip)
-//       .subscribe((data: any) => {
-//         this.showpage = data;
-//         this.fileManger = data.items;
-//         this.page.totalCount = data.totalCount;
-//       });
-//   } else if (this.feild_name.length != 0) {
-//     this.show_perpage_size = true;
-//     this.fileManagerService
-//       .getAllFilesOrder(this.page.pageSize, skip, this.feild_name)
-//       .subscribe((data: any) => {
-//         this.showpage = data;
-//         this.fileManger = data.items;
-//         this.page.totalCount = data.totalCount;
-//       });
-//   }
-// }
