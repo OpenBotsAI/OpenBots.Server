@@ -1,10 +1,8 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, EventEmitter, OnInit, TemplateRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { NbToastrService } from '@nebular/theme';
 import { FileSaverService } from 'ngx-filesaver';
 import { DialogService } from '../../../@core/dialogservices';
-import { FileManagerService } from '../fileManager.service';
 import { HelperService } from '../../../@core/services/helper.service';
 import { Page } from '../../../interfaces/paginateInstance';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
@@ -16,6 +14,7 @@ import {
 } from 'ngx-uploader';
 import { HttpService } from '../../../@core/services/http.service';
 import { FileManager } from '../../../interfaces/fileManager';
+import { FileManagerApiUrl } from '../../../webApiUrls';
 @Component({
   selector: 'ngx-all-files',
   templateUrl: './all-files.component.html',
@@ -70,9 +69,7 @@ export class AllFilesComponent implements OnInit {
   renameId: string;
 
   constructor(
-    protected fileManagerService: FileManagerService,
     private FileSaverService: FileSaverService,
-    private toastrService: NbToastrService,
     private formBuilder: FormBuilder,
     private dialogService: DialogService,
     private helperService: HelperService,
@@ -86,7 +83,6 @@ export class AllFilesComponent implements OnInit {
   ngOnInit(): void {
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
-    // this.pagination(this.page.pageNumber, this.page.pageSize);
     this.getdriveName();
     this.itemsPerPage = this.helperService.getItemsPerPage();
   }
@@ -120,9 +116,9 @@ export class AllFilesComponent implements OnInit {
     const skip = (pageNumber - 1) * pageSize;
     let url: string;
     if (orderBy)
-      url = `files?driveName=Files&$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
+      url = `${FileManagerApiUrl.files}?driveName=Files&$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
     else
-      url = `files?driveName=Files&$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
+      url = `${FileManagerApiUrl.files}?driveName=Files&$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
 
     this.httpService.get(url).subscribe((response) => {
       this.page.totalCount = response.totalCount;
@@ -161,24 +157,17 @@ export class AllFilesComponent implements OnInit {
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
     this.getdriveName();
-    // this.getFilterPagination(1, this.page.pageSize, this.driveId);
   }
 
   deleteFiles(): void {
-    // let filesurl = `/files/${id}?driveName=Files`;
-    // this.fileManagerService.DeleteFileFloder(this.fileID)
     this.httpService
-      .delete(`files/${this.fileID}?driveName=Files`)
+      .delete(`${FileManagerApiUrl.files}/${this.fileID}?driveName=Files`)
       .subscribe(() => {
-        // this.allFiles(5, 0);
         if (!this.bread.length)
-          // this.pagination(1, this.page.pageSize);
           this.getFilterPagination(1, this.page.pageSize, this.driveId);
         else {
-          // this.getByIdFile(this.bread[this.bread.length - 1].id);
           this.getFilterPagination(1, this.page.pageSize, this.currentParentId);
         }
-        // this.getByIdFile(this.bread[this.bread.length - 1].id);
       });
   }
   openRenameDialog(ref: TemplateRef<any>): void {
@@ -206,17 +195,11 @@ export class AllFilesComponent implements OnInit {
     formData.append('StoragePath', `${this.driveName}` + storagePath);
     formData.append('isFile', this.filesCreateFolderFromgroup.value.isFile);
     this.httpService
-      .post(`files?driveName=Files`, formData, { observe: 'response' })
+      .post(`${FileManagerApiUrl.files}?driveName=Files`, formData, {
+        observe: 'response',
+      })
       .subscribe((data) => {
         if (data && data.status === 200) {
-          // if (this.filterOrderBy)
-          //   this.pagination(
-          //     this.page.pageNumber,
-          //     this.page.pageSize,
-          //     this.filterOrderBy
-          //   );
-          // else
-          // this.pagination(1, this.page.pageSize);
           if (this.bread && !this.bread.length)
             this.getFilterPagination(
               1,
@@ -226,20 +209,10 @@ export class AllFilesComponent implements OnInit {
           else {
             this.getByIdFile(this.bread[this.bread.length - 1].id);
           }
+          this.httpService.success('New folder created successfully');
           ref.close();
         }
       });
-    // this.fileManagerService.Createfolder(formData).subscribe((data: any) => {
-    //   if (this.ChildFolderFlag == true) {
-    //     this.getByIdFile(this.FolderIDs);
-    //   } else if (this.ChildFolderFlag == false) {
-    //     this.allFiles(5, 0);
-    //   }
-    //   // var n = email.match("/shareprocessemail");
-    //   // this.allFiles(5, 0);
-    //   //  this.getByIdFile(this.FolderIDs);
-    //   ref.close();
-    // });
   }
 
   get fc() {
@@ -259,15 +232,10 @@ export class AllFilesComponent implements OnInit {
         if (typeof output.file !== 'undefined') {
           if (!output.file.size) {
             this.fileSize = true;
-            // this.submitted = true;
           } else {
             this.fileSize = false;
-            // this.submitted = false;
           }
           this.uploadedFilesArr.push(output.file);
-          // this.native_file = output.file.nativeFile;
-          // this.native_file_name = output.file.nativeFile.name;
-          // this.show_upload = false;
         }
         break;
     }
@@ -281,13 +249,10 @@ export class AllFilesComponent implements OnInit {
       formData.append('Files', data.nativeFile, data.nativeFile.name);
       formData.append('StoragePath', storagePath);
     }
-    // formData.append('Files', this.native_file, this.native_file_name);
-    // formData.append('StoragePath', 'Files' + storagePath);
-    // formData.append('isFile', this.filesCreateFolderFromgroup.value.isFile);
-    // this.fileManagerService.Createfolder(formData)
-    // let createfile = `/files?driveName=Files`;
     this.httpService
-      .post(`files?driveName=Files`, formData, { observe: 'response' })
+      .post(`${FileManagerApiUrl.files}?driveName=Files`, formData, {
+        observe: 'response',
+      })
       .subscribe((data: any) => {
         if (data && data.status === 200) {
           this.uploadedFilesArr = [];
@@ -298,7 +263,6 @@ export class AllFilesComponent implements OnInit {
               this.currentParentId
             );
           } else {
-            // this.getdriveName();
             this.getFilterPagination(
               this.page.pageNumber,
               this.page.pageSize,
@@ -306,13 +270,6 @@ export class AllFilesComponent implements OnInit {
             );
           }
         }
-
-        // if (this.ChildFolderFlag == true) {
-        //   // this.getByIdFile(this.FolderIDs);
-        // } else if (this.ChildFolderFlag == false) {
-        //   // this.allFiles(5, 0);
-        //   this.pagination(this.page.pageNumber, this.page.pageSize);
-        // }
         ref.close();
       });
   }
@@ -330,39 +287,26 @@ export class AllFilesComponent implements OnInit {
   renameFileName(ref) {
     this.httpService
       .put(
-        `files/${this.fileID}/rename?driveName=${this.driveName}`,
+        `${FileManagerApiUrl.files}/${this.fileID}/rename?driveName=${this.driveName}`,
         this.filesFormgroup.value,
         { observe: 'response' }
       )
       .subscribe((response) => {
-        // this.fileID
         if (response && response.status === 200) {
           ref.close();
-          // if (this.bread.length) {
-          //   this.getFilterPagination(
-          //     this.page.pageNumber,
-          //     this.page.pageSize,
-          //     // this.currentParentId
-          //     this.fileID
-          //   );
-          // } else {
           this.getFilterPagination(
             this.page.pageNumber,
             this.page.pageSize,
             this.currentParentId
           );
-          // }
         }
       });
   }
 
   onDown() {
     let fileName: string;
-    // this.fileManagerService
-    //   .getFiledownload(this.fileID)
-    // let downloadurl = `/files/${this.fileID}/download?driveName=Files`;
     this.httpService
-      .get(`files/${this.fileID}/download?driveName=Files`)
+      .get(`${FileManagerApiUrl.files}/${this.fileID}/download?driveName=Files`)
       .subscribe((data: HttpResponse<Blob>) => {
         fileName = data.headers
           .get('content-disposition')
@@ -403,12 +347,10 @@ export class AllFilesComponent implements OnInit {
   }
 
   getByIdFile(id: string): void {
-    // let filesurl = `/files?driveName=Files&$filter=${parentId}`;
-    // this.fileManagerService
-    //   .getFileFloder(`ParentId+eq+guid'${id}'`)
-    // `files?driveName=Files&$orderby=${orderBy}}&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
     this.httpService
-      .get(`files?driveName=Files&$filter=ParentId+eq+guid'${id}'`)
+      .get(
+        `${FileManagerApiUrl.files}?driveName=Files&$filter=ParentId+eq+guid'${id}'`
+      )
       .subscribe((response) => {
         if (response && response.items) {
           this.fileManger = [];
@@ -473,21 +415,12 @@ export class AllFilesComponent implements OnInit {
     } else {
       this.getFilterPagination(event, this.page.pageSize, this.currentParentId);
     }
-
-    // if (this.filterOrderBy)
-    //   this.pagination(event, this.page.pageSize, `${this.filterOrderBy}`);
-    // else this.pagination(event, this.page.pageSize);
   }
 
   selectChange(event): void {
     this.page.pageSize = +event.target.value;
     this.page.pageNumber = 1;
     if (event.target.value && this.filterOrderBy) {
-      // this.pagination(
-      //   this.page.pageNumber,
-      //   this.page.pageSize,
-      //   `${this.filterOrderBy}`
-      // );
       this.getFilterPagination(
         this.page.pageNumber,
         this.page.pageSize,
@@ -500,7 +433,6 @@ export class AllFilesComponent implements OnInit {
         this.page.pageSize,
         this.currentParentId
       );
-    // this.pagination(this.page.pageNumber, this.page.pageSize);
   }
 
   pagination(pageNumber: number, pageSize: number, orderBy?: string): void {
@@ -511,15 +443,13 @@ export class AllFilesComponent implements OnInit {
   }
 
   getAllFilesAndFdlders(top: number, skip: number, orderBy?: string): void {
-    // let filesurl = `/files?driveName=Files&$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     let url: string;
     if (orderBy)
-      url = `files?driveName=Files&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+      url = `${FileManagerApiUrl.files}?driveName=Files&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
     else
-      url = `files?driveName=Files&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+      url = `${FileManagerApiUrl.files}?driveName=Files&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
     this.httpService.get(url).subscribe((response) => {
       if (response && response.items) {
-        // this.bread = [];
         this.fileManger = [...response.items];
         this.page.totalCount = response.totalCount;
       } else this.fileManger = [];

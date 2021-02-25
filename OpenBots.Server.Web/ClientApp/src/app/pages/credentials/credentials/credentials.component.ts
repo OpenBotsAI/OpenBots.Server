@@ -157,7 +157,6 @@ export class CredentialsComponent implements OnInit {
           `${CredentialsApiUrl.credentials}?$filter=substringof(tolower('${value}'), tolower(Name))`
         )
         .subscribe((response) => {
-          console.log('res', response);
           this.credentialsArr = response.items;
           this.page.totalCount = response.totalCount;
         });

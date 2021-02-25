@@ -10,11 +10,9 @@ import { ConfigValueService } from '../config-value.service';
 @Component({
   selector: 'ngx-get-config-value',
   templateUrl: './get-config-value.component.html',
-  styleUrls: ['./get-config-value.component.scss']
+  styleUrls: ['./get-config-value.component.scss'],
 })
 export class GetConfigValueComponent implements OnInit {
-
-
   showconfigValue: any = [];
   configform: FormGroup;
   pipe = new DatePipe('en-US');
@@ -26,10 +24,11 @@ export class GetConfigValueComponent implements OnInit {
     private acroute: ActivatedRoute,
     protected configService: ConfigValueService,
     private toastrService: NbToastrService,
-    private formBuilder: FormBuilder, protected router: Router,
+    private formBuilder: FormBuilder,
+    protected router: Router
   ) {
     this.acroute.queryParams.subscribe((params) => {
-      this.configId = params.id
+      this.configId = params.id;
       this.getConfigValueById(params.id);
     });
   }
@@ -53,34 +52,34 @@ export class GetConfigValueComponent implements OnInit {
     });
   }
 
-
-
-
-
   getConfigValueById(id) {
-    this.configService.getConfigValuebyId(id).subscribe((data: HttpResponse<any>) => {
-      this.showconfigValue = data.body;
-      this.etag = data.headers.get('ETag').replace(/\"/g, '')
-      console.log(this.etag)
-      const filterPipe = new TimeDatePipe();
-      this.showconfigValue.updatedOn = filterPipe.transform(this.showconfigValue.updatedOn, 'lll');
-      this.configform.patchValue(this.showconfigValue);
-      this.configform.disable();
-
-    }, (error) => {
-      console.log(error.status, error)
-      if (error.error.status === 409) {
-        this.toastrService.danger(error.error.serviceErrors, 'error')
-        this.getConfigValueById(this.configId)
+    this.configService.getConfigValuebyId(id).subscribe(
+      (data: HttpResponse<any>) => {
+        this.showconfigValue = data.body;
+        this.etag = data.headers.get('ETag').replace(/\"/g, '');
+        const filterPipe = new TimeDatePipe();
+        this.showconfigValue.updatedOn = filterPipe.transform(
+          this.showconfigValue.updatedOn,
+          'lll'
+        );
+        this.configform.patchValue(this.showconfigValue);
+        this.configform.disable();
+      },
+      (error) => {
+        if (error.error.status === 409) {
+          this.toastrService.danger(error.error.serviceErrors, 'error');
+          this.getConfigValueById(this.configId);
+        }
       }
-    });
+    );
   }
-
-
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'Configuration.ConfigurationValue', id: this.showconfigValue.id } })
+    this.router.navigate(['/pages/change-log/list'], {
+      queryParams: {
+        PageName: 'Configuration.ConfigurationValue',
+        id: this.showconfigValue.id,
+      },
+    });
   }
-
-
 }

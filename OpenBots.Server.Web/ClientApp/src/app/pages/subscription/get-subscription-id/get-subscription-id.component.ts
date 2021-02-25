@@ -63,7 +63,6 @@ export class GetSubscriptionIdComponent implements OnInit {
   getallEntity(id) {
     this.SubscriptionService.getsubscribeID(id).subscribe(
       (data: HttpResponse<any>) => {
-        console.log(data);
         if (data.body.queuE_QueueID == null) {
           this.showTabview = true;
         } else if (data.body.queuE_QueueID != null) {

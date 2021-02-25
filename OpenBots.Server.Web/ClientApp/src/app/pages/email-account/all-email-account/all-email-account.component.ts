@@ -37,7 +37,6 @@ export class AllEmailAccountComponent implements OnInit {
     private toastrService: NbToastrService
   ) {
     // this.emailService.getConfigValue().subscribe((data: any) => {
-    //   console.log(data);
     // });
   }
 

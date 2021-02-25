@@ -250,9 +250,7 @@ export class AddAssetComponent implements OnInit {
   }
 
   UpdateAsset() {
-    console.log(this.addasset.getRawValue().type);
     this.submitted = true;
-
     if (this.showAssetbyID.type == 'File') {
       if (this.native_file) {
         let FileUploadformData = new FormData();
@@ -277,7 +275,6 @@ export class AddAssetComponent implements OnInit {
             },
             (error) => {
               this.submitted = false;
-              console.log(error, error.status);
               if (error.error.status === 409) {
                 this.toastrService.danger(error.error.serviceErrors, 'error');
                 this.getAssetById(this.urlId);

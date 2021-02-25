@@ -10,12 +10,9 @@ export class PwaComponent implements OnInit {
   constructor() {
     // window.addEventListener('online', (internet) => {
     //   this.isConnectionAvailable = true;
-    //   console.log(internet);
     // });
-
     // window.addEventListener('offline', (internet) => {
     //   this.isConnectionAvailable = false;
-    //   console.log(internet);
     // });
   }
 

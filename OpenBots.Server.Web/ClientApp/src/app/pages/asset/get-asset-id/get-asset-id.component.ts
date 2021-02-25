@@ -19,7 +19,6 @@ export class GetAssetIdComponent implements OnInit {
   pipe = new DatePipe('en-US');
   now = Date();
 
-
   constructor(
     private acroute: ActivatedRoute,
     protected assetService: AssetService,
@@ -87,7 +86,6 @@ export class GetAssetIdComponent implements OnInit {
             .split(';')[1]
             .split('=')[1]
             .replace(/\"/g, '');
-          console.log(fileName);
           this.FileSaverService.save(data.body, fileName);
         });
     }

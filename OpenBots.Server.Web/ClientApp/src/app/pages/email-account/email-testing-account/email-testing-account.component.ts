@@ -100,13 +100,9 @@ export class EmailTestingAccountComponent implements OnInit {
       this.getEmail = data;
     });
   }
-  onChange($event: any): void {
-    console.log('onChange');
-  }
+  onChange($event: any): void {}
 
-  onPaste($event: any): void {
-    console.log('onPaste');
-  }
+  onPaste($event: any): void {}
 
   get f() {
     return this.emailform.controls;
@@ -122,7 +118,6 @@ export class EmailTestingAccountComponent implements OnInit {
   }
 
   onSubmit() {
-    console.log('email', this.emailform.value);
     this.submitted = true;
     const formData = new FormData();
     let obj = {

@@ -104,7 +104,6 @@ export class AllAgentsComponent implements OnInit {
 
   per_page(val) {
     // this.blockUI.start('Loading');
-    console.log(val);
     this.per_page_num = val;
     this.show_perpage_size = true;
     this.page.pageSize = val;

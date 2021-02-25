@@ -125,7 +125,6 @@ export class AddScheduleComponent implements OnInit {
   }
 
   onScheduleSubmit(): void {
-    console.log('value', this.scheduleForm.value);
     this.isSubmitted = true;
     if (this.scheduleForm.value.startDate) {
       this.scheduleForm.value.startDate = this.helperService.transformDate(

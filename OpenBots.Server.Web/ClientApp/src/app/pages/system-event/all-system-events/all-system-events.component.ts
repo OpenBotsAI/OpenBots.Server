@@ -202,18 +202,15 @@ export class AllSystemEventsComponent implements OnInit {
   onSortClick(event, filter_val) {
     let target = event.currentTarget,
       classList = target.classList;
-    console.log(target);
     if (classList.contains('fa-chevron-up')) {
       classList.remove('fa-chevron-up');
       classList.add('fa-chevron-down');
-      console.log(classList);
       let sort_set = 'desc';
       this.sort(filter_val, sort_set);
       this.sortDir = -1;
     } else {
       classList.add('fa-chevron-up');
       classList.remove('fa-chevron-down');
-      console.log(classList);
       let sort_set = 'asc';
       this.sort(filter_val, sort_set);
       this.sortDir = 1;

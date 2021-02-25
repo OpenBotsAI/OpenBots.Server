@@ -147,12 +147,11 @@ export class GetAgentsIdComponent implements OnInit {
         this.feild_name
       )
       .subscribe((data: any) => {
-          this.showAgentHeartBeat = data.items;
+        this.showAgentHeartBeat = data.items;
       });
   }
 
   perPage(val) {
-    console.log(val);
     this.perPageNum = val;
     this.showPerPageSize = true;
     this.page.pageSize = val;
@@ -160,7 +159,6 @@ export class GetAgentsIdComponent implements OnInit {
     this.agentService
       .getAgentbyHeartBeatID(this.ParmasAgentId, this.page.pageSize, skip)
       .subscribe((data: any) => {
-        
         this.showAgentHeartBeat = data.items;
         this.page.totalCount = data.totalCount;
       });

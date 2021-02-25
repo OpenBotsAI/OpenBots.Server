@@ -62,7 +62,6 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
     else
       url = `${QueueItemsApiUrl.QueueItems}/${QueueItemsApiUrl.view}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter= Queueid eq guid'${this.queueForm.value.id}'`;
     this.httpService.get(url).subscribe((response) => {
-      console.log('res', response);
       if (response && response.items.length) {
         this.page.totalCount = response.totalCount;
         this.allQueueItemData = [...response.items];

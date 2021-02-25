@@ -17,7 +17,7 @@ export class AddAgentsComponent implements OnInit {
   title = 'Add';
   checked = false;
   submitted = false;
-  credentialArr :any =[];
+  credentialArr: any = [];
   value = ['JSON', 'Number', 'Text'];
   ipVersion = 'V4';
   urlId: string;
@@ -64,7 +64,6 @@ export class AddAgentsComponent implements OnInit {
     });
   }
 
-  
   getCredentials(): void {
     this.agentService.getCredentail().subscribe((data) => {
       if (data) {
@@ -196,7 +195,6 @@ export class AddAgentsComponent implements OnInit {
     this.agentService
       .getAgentbyID(this.urlId)
       .subscribe((data: HttpResponse<any>) => {
-        console.log('data', data);
         if (data && data.body) {
           this.showAllAgents = data.body;
           if (data.body.ipOption === 'ipv6') {

@@ -24,7 +24,7 @@ export class AddSubscriptionComponent implements OnInit {
   showAutomation: any = [];
   title = 'Add';
   urlId: string;
-  getSubscription:any =[];
+  getSubscription: any = [];
   constructor(
     private formBuilder: FormBuilder,
     private toastrService: NbToastrService,
@@ -69,7 +69,7 @@ export class AddSubscriptionComponent implements OnInit {
   getSubscriptionbyID(id) {
     this.SubscriptionService.getsubscribeID(id).subscribe(
       (data: HttpResponse<any>) => {
-        this.getSubscription = data.body
+        this.getSubscription = data.body;
         this.etag = data.headers.get('ETag').replace(/\"/g, '');
         this.getEntityName(this.getSubscription.entityName);
         if (data.body.queuE_QueueID == null) {
@@ -101,54 +101,42 @@ export class AddSubscriptionComponent implements OnInit {
   }
 
   getEntityName(e) {
-    if(this.urlId){
+    if (this.urlId) {
       if (e == this.getSubscription.entityName) {
-      console.log(e);
-       this.filterValue = e;
-       this.SubscriptionService.filterIntegrationEventName(
-         `entityType+eq+'${this.filterValue}'`
-       ).subscribe((data: any) => {
-         console.log(data.items);
-         this.EntityFilterValue = data.items;
-         this.subscriptionForm.get('integrationEventName').enable();
-       });
-      } else if (e !== this.getSubscription.entityName){
-         console.log(e.target.value);
-         this.filterValue = e.target.value;
-         this.SubscriptionService.filterIntegrationEventName(
-           `entityType+eq+'${this.filterValue}'`
-         ).subscribe((data: any) => {
-           console.log(data.items);
-
-           this.EntityFilterValue = data.items;
-           this.subscriptionForm.get('integrationEventName').enable();
-         });
+        this.filterValue = e;
+        this.SubscriptionService.filterIntegrationEventName(
+          `entityType+eq+'${this.filterValue}'`
+        ).subscribe((data: any) => {
+          this.EntityFilterValue = data.items;
+          this.subscriptionForm.get('integrationEventName').enable();
+        });
+      } else if (e !== this.getSubscription.entityName) {
+        this.filterValue = e.target.value;
+        this.SubscriptionService.filterIntegrationEventName(
+          `entityType+eq+'${this.filterValue}'`
+        ).subscribe((data: any) => {
+          this.EntityFilterValue = data.items;
+          this.subscriptionForm.get('integrationEventName').enable();
+        });
       }
-      
+    } else {
+      this.filterValue = e.target.value;
+      this.SubscriptionService.filterIntegrationEventName(
+        `entityType+eq+'${this.filterValue}'`
+      ).subscribe((data: any) => {
+        this.EntityFilterValue = data.items;
+        this.subscriptionForm.get('integrationEventName').enable();
+      });
     }
-    else {
-      console.log(e.target.value);
-    this.filterValue = e.target.value;
-    this.SubscriptionService.filterIntegrationEventName(
-      `entityType+eq+'${this.filterValue}'`
-    ).subscribe((data: any) => {
-      console.log(data.items);
-
-      this.EntityFilterValue = data.items;
-      this.subscriptionForm.get('integrationEventName').enable();
-    });
-    }
-    
   }
 
-   onSubmit() {
-     if(this.urlId){
-       this.UpdateSubscription()
-     }
-     else {
-       this.AddSubscription();
-     }
-   }
+  onSubmit() {
+    if (this.urlId) {
+      this.UpdateSubscription();
+    } else {
+      this.AddSubscription();
+    }
+  }
 
   AddSubscription() {
     this.submitted = true;
