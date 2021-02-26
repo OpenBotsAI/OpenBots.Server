@@ -89,7 +89,9 @@ export class AllFilesComponent implements OnInit {
 
   getdriveName(): void {
     this.httpService
-      .get(`files/drive?driveName=Files`, { observe: 'response' })
+      .get(`${FileManagerApiUrl.files}/${FileManagerApiUrl.drive}`, {
+        observe: 'response',
+      })
       .subscribe((response) => {
         if (response && response.status === 200) {
           this.driveName = response.body.name;
@@ -115,11 +117,12 @@ export class AllFilesComponent implements OnInit {
     this.page.pageSize = pageSize;
     const skip = (pageNumber - 1) * pageSize;
     let url: string;
+    // url = `${FileManagerApiUrl.files}?driveName=${this.driveName}&$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
     if (orderBy)
-      url = `${FileManagerApiUrl.files}?driveName=Files&$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
+      url = `${FileManagerApiUrl.files}?&$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
     else
-      url = `${FileManagerApiUrl.files}?driveName=Files&$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
-
+      url = `${FileManagerApiUrl.files}?&$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
+    // url = `${FileManagerApiUrl.files}?driveName=${this.driveName}&$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
     this.httpService.get(url).subscribe((response) => {
       this.page.totalCount = response.totalCount;
       if (response && response.items && response.items.length) {
@@ -159,16 +162,8 @@ export class AllFilesComponent implements OnInit {
     this.getdriveName();
   }
 
-  deleteFiles(): void {
-    this.httpService
-      .delete(`${FileManagerApiUrl.files}/${this.fileID}?driveName=Files`)
-      .subscribe(() => {
-        if (!this.bread.length)
-          this.getFilterPagination(1, this.page.pageSize, this.driveId);
-        else {
-          this.getFilterPagination(1, this.page.pageSize, this.currentParentId);
-        }
-      });
+  deleteFiles(ref: TemplateRef<any>): void {
+    this.dialogService.openDialog(ref);
   }
   openRenameDialog(ref: TemplateRef<any>): void {
     this.filesFormgroup = this.formBuilder.group({
@@ -195,9 +190,14 @@ export class AllFilesComponent implements OnInit {
     formData.append('StoragePath', `${this.driveName}` + storagePath);
     formData.append('isFile', this.filesCreateFolderFromgroup.value.isFile);
     this.httpService
-      .post(`${FileManagerApiUrl.files}?driveName=Files`, formData, {
-        observe: 'response',
-      })
+      .post(
+        // `${FileManagerApiUrl.files}?driveName=${this.driveName}`,
+        `${FileManagerApiUrl.files}`,
+        formData,
+        {
+          observe: 'response',
+        }
+      )
       .subscribe((data) => {
         if (data && data.status === 200) {
           if (this.bread && !this.bread.length)
@@ -250,9 +250,14 @@ export class AllFilesComponent implements OnInit {
       formData.append('StoragePath', storagePath);
     }
     this.httpService
-      .post(`${FileManagerApiUrl.files}?driveName=Files`, formData, {
-        observe: 'response',
-      })
+      .post(
+        // `${FileManagerApiUrl.files}?driveName=${this.driveName}`,
+        `${FileManagerApiUrl.files}`,
+        formData,
+        {
+          observe: 'response',
+        }
+      )
       .subscribe((data: any) => {
         if (data && data.status === 200) {
           this.uploadedFilesArr = [];
@@ -287,18 +292,29 @@ export class AllFilesComponent implements OnInit {
   renameFileName(ref) {
     this.httpService
       .put(
-        `${FileManagerApiUrl.files}/${this.fileID}/rename?driveName=${this.driveName}`,
+        // `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.rename}?driveName=${this.driveName}`,
+        `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.rename}`,
         this.filesFormgroup.value,
         { observe: 'response' }
       )
       .subscribe((response) => {
         if (response && response.status === 200) {
+          if (this.bread.length) {
+            this.getFilterPagination(
+              this.page.pageNumber,
+              this.page.pageSize,
+              this.bread[this.bread.length - 1].id
+            );
+          } else {
+            this.getFilterPagination(
+              this.page.pageNumber,
+              this.page.pageSize,
+              this.currentParentId
+            );
+          }
+
+          this.httpService.success('Renamed successfully');
           ref.close();
-          this.getFilterPagination(
-            this.page.pageNumber,
-            this.page.pageSize,
-            this.currentParentId
-          );
         }
       });
   }
@@ -306,7 +322,10 @@ export class AllFilesComponent implements OnInit {
   onDown() {
     let fileName: string;
     this.httpService
-      .get(`${FileManagerApiUrl.files}/${this.fileID}/download?driveName=Files`)
+      .get(
+        // `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.download}?driveName=${this.driveName}`
+        `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.download}`
+      )
       .subscribe((data: HttpResponse<Blob>) => {
         fileName = data.headers
           .get('content-disposition')
@@ -349,7 +368,8 @@ export class AllFilesComponent implements OnInit {
   getByIdFile(id: string): void {
     this.httpService
       .get(
-        `${FileManagerApiUrl.files}?driveName=Files&$filter=ParentId+eq+guid'${id}'`
+        // `${FileManagerApiUrl.files}?driveName=${this.driveName}&$filter=ParentId+eq+guid'${id}'`
+        `${FileManagerApiUrl.files}?&$filter=ParentId+eq+guid'${id}'`
       )
       .subscribe((response) => {
         if (response && response.items) {
@@ -444,10 +464,12 @@ export class AllFilesComponent implements OnInit {
 
   getAllFilesAndFdlders(top: number, skip: number, orderBy?: string): void {
     let url: string;
+    // url = `${FileManagerApiUrl.files}?driveName=${this.driveName}&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
     if (orderBy)
-      url = `${FileManagerApiUrl.files}?driveName=Files&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+      url = `${FileManagerApiUrl.files}?&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
     else
-      url = `${FileManagerApiUrl.files}?driveName=Files&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+      url = `${FileManagerApiUrl.files}?&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+    // url = `${FileManagerApiUrl.files}?driveName=${this.driveName}&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
     this.httpService.get(url).subscribe((response) => {
       if (response && response.items) {
         this.fileManger = [...response.items];
@@ -463,5 +485,31 @@ export class AllFilesComponent implements OnInit {
   closeFileUploadPopup(ref) {
     ref.close();
     this.uploadedFilesArr = [];
+  }
+
+  onDelete(ref) {
+    this.httpService
+      .delete(
+        // `${FileManagerApiUrl.files}/${this.fileID}?driveName=${this.driveName}`,
+        `${FileManagerApiUrl.files}/${this.fileID}?`,
+        {
+          observe: 'response',
+        }
+      )
+      .subscribe((response) => {
+        if (response && response.status === 200) {
+          if (!this.bread.length)
+            this.getFilterPagination(1, this.page.pageSize, this.driveId);
+          else {
+            this.getFilterPagination(
+              1,
+              this.page.pageSize,
+              this.currentParentId
+            );
+          }
+          this.httpService.success('Deleted successfully');
+          ref.close();
+        }
+      });
   }
 }

@@ -37,7 +37,7 @@
                             src="../../../../assets/images/rename-icon.png" />Rename</button>
                     <!-- <button class="btnIcon btnMove"> <img src="../../../../assets/images/move.png" />Move</button> -->
                     <!-- *ngIf="showDeletebtn" -->
-                    <button class="btnIcon btnDelete" (click)="deleteFiles()"><img
+                    <button class="btnIcon btnDelete" (click)="deleteFiles(deleteDialog)"><img
                             src="../../../../assets/images/delete-icon.png" />Delete</button>
 
                 </div>
@@ -303,6 +303,28 @@
                 Cancel
             </button>
 
+        </nb-card-footer>
+    </nb-card>
+</ng-template>
+
+
+<ng-template #deleteDialog let-data let-ref="dialogRef">
+    <nb-card>
+        <nb-card-header>
+            <h6>Delete</h6>
+        </nb-card-header>
+        <nb-card-body>
+            <div aria-labelledby="title">
+                <p>Are you sure you want to delete?</p>
+            </div>
+        </nb-card-body>
+        <nb-card-footer>
+            <button class="btn btn-danger" (click)="onDelete(ref)">
+                Delete
+            </button>
+            <button nbButton style="margin-left: 11px" (click)="ref.close()">
+                Cancel
+            </button>
         </nb-card-footer>
     </nb-card>
 </ng-template>
