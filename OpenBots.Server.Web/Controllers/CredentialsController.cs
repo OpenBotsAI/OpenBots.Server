@@ -250,7 +250,7 @@ namespace OpenBots.Server.Web
         /// <response code="400">Bad request, when the credential value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
         /// <returns>Newly created unique credential</returns>
         [HttpPost]
         [ProducesResponseType(typeof(Credential), StatusCodes.Status200OK)]

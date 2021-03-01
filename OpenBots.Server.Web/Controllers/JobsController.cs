@@ -419,7 +419,7 @@ namespace OpenBots.Server.Web
         /// <response code="400">Bad request, when the job value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
         /// <returns>Newly created job details</returns>
         [HttpPost]
         [ProducesResponseType(typeof(Job), StatusCodes.Status200OK)]
@@ -713,7 +713,7 @@ namespace OpenBots.Server.Web
         /// <response code="400">Bad request, when the job value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
         /// <returns> Newly created Checkpoint details</returns>
         [HttpPost("{JobId}/AddCheckpoint")]
         [ProducesResponseType(typeof(JobCheckpoint), StatusCodes.Status200OK)]

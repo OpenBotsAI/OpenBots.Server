@@ -261,7 +261,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="400">Bad request, when the agent value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
         /// <returns>Newly created unique agent id with route name</returns>
         [HttpPost]
         [ProducesResponseType(typeof(Agent), StatusCodes.Status200OK)]

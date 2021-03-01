@@ -165,7 +165,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// <response code="400">Bad request, when the email setting value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
         /// <returns>Newly created unique email settings</returns>
         [HttpPost]
         [ProducesResponseType(typeof(EmailSettings), StatusCodes.Status200OK)]

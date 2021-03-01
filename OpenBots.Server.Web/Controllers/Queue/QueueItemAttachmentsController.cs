@@ -216,7 +216,7 @@ namespace OpenBots.Server.Web.Controllers.Queue
         /// <response code="400">Bad request, when the queue item attachment values are not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity</response>
+        /// <response code="422">Unprocessable Entity</response>
         /// <returns> Newly created unique queue item attachments</returns>
         [HttpPost("files")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
@@ -251,7 +251,7 @@ namespace OpenBots.Server.Web.Controllers.Queue
         /// <response code="400">Bad request, when the binary object value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity</response>
+        /// <response code="422">Unprocessable Entity</response>
         /// <returns> Newly created unique binary object</returns>
         [HttpPost]
         [ProducesResponseType(typeof(QueueItemAttachment), StatusCodes.Status200OK)]

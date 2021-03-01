@@ -235,7 +235,7 @@ namespace OpenBots.Server.Web
         /// <response code="400">BadRequest,When the AutomationExecutionLog value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict,concurrency error</response> 
-        /// <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+        /// <response code="422">Unprocessable Entity,when a duplicate record is being entered.</response>
         /// <returns> newly created unique AutomationExecutionLog Id with route name </returns>
         [HttpPost]
         [ProducesResponseType(typeof(AutomationExecutionLog), StatusCodes.Status200OK)]
@@ -268,7 +268,7 @@ namespace OpenBots.Server.Web
         /// <response code="400">BadRequest,When the AutomationExecutionLog value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict,concurrency error</response> 
-        /// <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+        /// <response code="422">Unprocessable Entity,when a duplicate record is being entered.</response>
         /// <returns> newly created unique AutomationExecutionLog Id with route name </returns>
         [AllowAnonymous]
         [HttpPost("StartAutomation")]
