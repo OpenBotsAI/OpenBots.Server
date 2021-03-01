@@ -16,21 +16,21 @@ export class SpinnerService {
 
   requestStarted() {
     if (++this.count === 1) {
-      console.log(this.count, 'request Started');
+      // console.log(this.count, 'request Started');
       this.spinner$.next('start');
     }
   }
 
   requestEnded() {
     if (this.count === 0 || --this.count === 0) {
-      console.log(this.count, 'request End');
+      // console.log(this.count, 'request End');
       this.spinner$.next('stop');
     }
   }
 
   resetSpinner() {
     this.count = 0;
-    console.log(this.count, 'Reset');
+    //console.log(this.count, 'Reset');
     this.spinner$.next('stop');
   }
 }

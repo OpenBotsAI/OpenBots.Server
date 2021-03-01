@@ -29,7 +29,8 @@ export class AllAgentsComponent implements OnInit {
   get_perPage: boolean = false;
   per_page_num: any = [];
   itemsPerPage: ItemsPerPage[] = [];
-
+  isLoading = false;
+  gSearch: boolean = false;
   constructor(
     public router: Router,
     private dialogService: DialogService,
@@ -81,14 +82,37 @@ export class AllAgentsComponent implements OnInit {
   }
 
   sort(filter_value, vale) {
-    const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-    this.feild_name = filter_value + '+' + vale;
-    this.agentService
-      .getAllAgentOrder(this.page.pageSize, skip, this.feild_name)
-      .subscribe((data: any) => {
-        this.showpage = data;
-        this.showAllAgents = data.items;
-      });
+    if (this.gSearch == false) {
+      const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+      this.feild_name = filter_value + '+' + vale;
+      this.agentService
+        .getAllAgentOrder(this.page.pageSize, skip, this.feild_name)
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showAllAgents = data.items;
+        });
+    } else if (this.gSearch == true) {
+      const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+      const feildname = filter_value + '+' + vale;
+
+  //       getFilterAgentOrder(tpage: any, spage: any, filterName,ordername,colName) {
+  //   let getagentUrl = `/${AgentApiUrl.AgentsView}?$orderby=${ordername}&$filter=substringof(tolower('${filterName}'),tolower('${colName}'))&$top=${tpage}&$skip=${spage}`;
+  //   return this.http.get(`${this.apiUrl}` + getagentUrl);
+  // }
+      this.agentService
+        .getFilterAgentOrder(
+          this.page.pageSize,
+          skip,
+          this.feild_name,
+          feildname,
+          filter_value
+        )
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showAllAgents = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    }
   }
 
   patch_Agent(event, id) {
@@ -103,19 +127,33 @@ export class AllAgentsComponent implements OnInit {
   }
 
   per_page(val) {
-    // this.blockUI.start('Loading');
-    this.per_page_num = val;
-    this.show_perpage_size = true;
-    this.page.pageSize = val;
-    const skip = (this.page.pageNumber - 1) * this.per_page_num;
-    this.agentService
-      .getAllAgent(this.page.pageSize, skip)
-      .subscribe((data: any) => {
-        this.showpage = data;
-        this.showAllAgents = data.items;
-        this.page.totalCount = data.totalCount;
-        // this.blockUI.stop();
-      });
+    if (this.gSearch == false) {
+      this.per_page_num = val;
+      this.show_perpage_size = true;
+      this.page.pageSize = val;
+      const skip = (this.page.pageNumber - 1) * this.per_page_num;
+      this.agentService
+        .getAllAgent(this.page.pageSize, skip)
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showAllAgents = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    } else if (this.gSearch == true) {
+      // const top: number = this.per_page_num;
+      // const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+      this.per_page_num = val;
+      this.show_perpage_size = true;
+      this.page.pageSize = val;
+      const skip = (this.page.pageNumber - 1) * this.per_page_num;
+      this.agentService
+        .getFilterAgent(this.page.pageSize, skip, this.feild_name)
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showAllAgents = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    }
   }
 
   open2(dialog: TemplateRef<any>, id: any) {
@@ -126,7 +164,8 @@ export class AllAgentsComponent implements OnInit {
   }
 
   del_agent(ref) {
-    this.isDeleted = true;
+    if(this.gSearch == false ){
+         this.isDeleted = true;
     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
     this.agentService.delAgentbyID(this.del_id).subscribe(
       () => {
@@ -137,10 +176,24 @@ export class AllAgentsComponent implements OnInit {
       },
       () => (this.isDeleted = false)
     );
+    }
+    else if (this.gSearch == true ){
+        this.isDeleted = true;
+    const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+    this.agentService.delAgentbyID(this.del_id).subscribe(
+      () => {
+        this.isDeleted = false;
+        this.toastrService.success('Agent Delete Successfully', 'Success');
+        ref.close();
+      this.Gobalsearch(this.page.pageSize, skip, this.feild_name);
+      },
+      () => (this.isDeleted = false));
+    }
+ 
   }
 
   get_allagent(top, skip) {
-    // this.blockUI.start('Loading');
+    this.isLoading = true;
     this.get_perPage = false;
     this.agentService.getAllAgent(top, skip).subscribe(
       (data: any) => {
@@ -148,7 +201,8 @@ export class AllAgentsComponent implements OnInit {
         this.showAllAgents = data.items;
         this.page.totalCount = data.totalCount;
         this.get_perPage = true;
-        // this.blockUI.stop();
+        this.isLoading = false;
+       
       },
       (error) => {}
     );
@@ -161,13 +215,40 @@ export class AllAgentsComponent implements OnInit {
 
   pagination(pageNumber, pageSize?) {
     if (this.show_perpage_size == false) {
-      const top: number = pageSize;
-      const skip = (pageNumber - 1) * pageSize;
-      this.get_allagent(top, skip);
+      if (this.gSearch == false) {
+        const top: number = pageSize;
+        const skip = (pageNumber - 1) * pageSize;
+        this.get_allagent(top, skip);
+      } else if (this.gSearch == true) {
+        const top: number = pageSize;
+        const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+        this.agentService
+          .getFilterAgent(top, skip, this.feild_name)
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showAllAgents = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      }
     } else if (this.show_perpage_size == true) {
-      const top: number = this.per_page_num;
-      const skip = (pageNumber - 1) * this.per_page_num;
-      this.get_allagent(top, skip);
+      // const top: number = this.per_page_num;
+      // const skip = (pageNumber - 1) * this.per_page_num;
+      // this.get_allagent(top, skip);
+      if (this.gSearch == false) {
+        const top: number = this.per_page_num;
+        const skip = (pageNumber - 1) * this.per_page_num;
+        this.get_allagent(top, skip);
+      } else if (this.gSearch == true) {
+        const top: number = this.per_page_num;
+        const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+        this.agentService
+          .getFilterAgent(top, skip, this.feild_name)
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showAllAgents = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      }
     }
   }
   trackByFn(index: number, item: unknown): number {
@@ -175,19 +256,26 @@ export class AllAgentsComponent implements OnInit {
     return index;
   }
 
-  searchValue(value) {
-    if (value.length) {
+  searchValue(event) {
+    if (event.target.value.length >= 2) {
+      this.gSearch = true;
       const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-      this.feild_name = value;
-      this.agentService
-        .getFilterAgent(this.page.pageSize, skip, this.feild_name)
-        .subscribe((data: any) => {
-          this.showpage = data;
-          this.showAllAgents = data.items;
-          this.page.totalCount = data.totalCount;
-        });
-    } else {
+      this.feild_name = event.target.value;
+      this.Gobalsearch(this.page.pageSize, skip, this.feild_name);
+    } else if (!event.target.value.length) {
+      this.gSearch = false;
       this.pagination(this.page.pageNumber, this.page.pageSize);
     }
+  }
+
+
+  Gobalsearch(pageSize,skip,searchName){
+    this.agentService
+      .getFilterAgent(pageSize, skip, searchName)
+      .subscribe((data: any) => {
+        this.showpage = data;
+        this.showAllAgents = data.items;
+        this.page.totalCount = data.totalCount;
+      });
   }
 }

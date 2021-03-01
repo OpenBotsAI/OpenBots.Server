@@ -24,7 +24,11 @@ export class AgentsService {
   }
 
   getFilterAgent(tpage: any, spage: any, filterName) {
-    let getagentUrl = `/${AgentApiUrl.AgentsView}?$filter=substringof(tolower('${filterName}'), tolower(name))&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/${AgentApiUrl.AgentsView}?$filter=substringof(tolower('${filterName}'),tolower(name))&$top=${tpage}&$skip=${spage}`;
+    return this.http.get(`${this.apiUrl}` + getagentUrl);
+  }
+  getFilterAgentOrder(tpage: any, spage: any, filterName,ordername,colName) {
+    let getagentUrl = `/${AgentApiUrl.AgentsView}?$filter=substringof(tolower('${filterName}'), tolower(Name))&$orderby=${ordername}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
