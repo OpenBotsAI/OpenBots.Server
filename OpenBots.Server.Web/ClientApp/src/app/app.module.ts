@@ -21,9 +21,11 @@ import { BlockUIModule } from 'ng-block-ui';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { PwaComponent } from './pwa/pwa.component';
+import { LoaderSpinnerComponent } from './loader-spinner/loader-spinner.component';
+import { SpinnerService } from './loader-spinner/spinner.service';
 
 @NgModule({
-  declarations: [AppComponent, PwaComponent],
+  declarations: [AppComponent, PwaComponent, LoaderSpinnerComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -45,6 +47,7 @@ import { PwaComponent } from './pwa/pwa.component';
   ],
   bootstrap: [AppComponent],
   providers: [
+    SpinnerService,
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
     ConnectionServiceModule,
   ],
