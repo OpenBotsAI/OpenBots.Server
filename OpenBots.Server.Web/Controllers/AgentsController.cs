@@ -148,6 +148,37 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
+        /// Provides a list of all AgentGroupMembers for the specified Agent 
+        /// </summary>
+        /// <param name="agentGroupId"> Specifies the id of the Agent</param>
+        /// <response code="200">OK,a paginated list of GroupMembers</response>
+        /// <response code="400">BadRequest</response>
+        /// <response code="403">Forbidden, unauthorized access</response>  
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Paginated list of all AgentGroupMembers with the specified Agent id</returns>
+        [HttpGet("{AgentId}/GetAllGroupMembers")]
+        [ProducesResponseType(typeof(PaginatedList<AgentGroupMember>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> GetAllGroupMembers(string agentId)
+        {
+            try
+            {
+                var result = _agentManager.GetAllMembersInGroup(agentId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
         /// Provides a count of agents 
         /// </summary>
         /// <param name="filter"></param>
@@ -230,7 +261,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="400">Bad request, when the agent value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
         /// <returns>Newly created unique agent id with route name</returns>
         [HttpPost]
         [ProducesResponseType(typeof(Agent), StatusCodes.Status200OK)]
@@ -319,8 +350,9 @@ namespace OpenBots.Server.Web.Controllers
 
                 _agentManager.DeleteAgentDependencies(agent);
 
+                var result = await base.DeleteEntity(id);
                 await _webhookPublisher.PublishAsync("Agents.AgentDeleted", id, agent.Name).ConfigureAwait(false);
-                return await base.DeleteEntity(id);
+                return result;
             }
             catch (Exception ex)
             {
@@ -481,46 +513,22 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Produces("application/json")]
-        public async Task<IActionResult> AddHeartbeat([FromBody] AgentHeartbeat request, string agentId)
+        public async Task<IActionResult> AddHeartbeat([FromBody] HeartbeatViewModel request, string agentId)
         {
             try
             {
-                if (request == null)
-                {
-                    ModelState.AddModelError("Save", "No data passed");
-                    return BadRequest(ModelState);
-                }
-
-                Guid entityId = Guid.NewGuid();
-                if (request.Id == null || !request.Id.HasValue || request.Id.Equals(Guid.Empty))
-                    request.Id = entityId;
-
-                Agent agent = _agentRepo.GetOne(new Guid(agentId));
-                if (agent == null)
-                {
-                    return NotFound("The Agent ID provided does not match any existing Agents");
-                }
-
-                if (agent.IsConnected == false)
-                {
-                    ModelState.AddModelError("HeartBeat", "Agent is not connected");
-                    return BadRequest(ModelState);
-                }
-
-                if (request.IsHealthy == false)
-                {
-                    await _webhookPublisher.PublishAsync("Agents.UnhealthyReported", agent.Id.ToString(), agent.Name).ConfigureAwait(false);
-                }
-
-                //Add HeartBeat Values
-                request.AgentId = new Guid(agentId);
-                request.CreatedBy = applicationUser?.UserName;
-                request.CreatedOn = DateTime.UtcNow;
-                request.LastReportedOn = request.LastReportedOn ?? DateTime.UtcNow;
-                _agentHeartbeatRepo.Add(request);
+                var newHeartBeat = _agentManager.PerformAgentHeartbeat(request, agentId);
                 var resultRoute = "GetAgentHeartbeat";
 
-                return CreatedAtRoute(resultRoute, new { id = request.Id.Value.ToString("b") }, request);
+                CreatedAtRoute(resultRoute, new { id = newHeartBeat.Id.Value.ToString("b") }, newHeartBeat);
+
+                if (request.GetNextJob)
+                {
+                    var nextJob = _agentManager.GetNextJob(agentId);
+                    return Ok(nextJob);
+                }
+
+                return Ok();
             }
             catch (Exception ex)
             {

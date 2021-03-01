@@ -177,7 +177,7 @@ namespace OpenBots.Server.WebAPI.Controllers
         /// <response code="400">Bad  request, when the organization value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
         /// <returns>Newly created unique organization details</returns>
         [HttpPost]
         [ProducesResponseType(typeof(Organization), StatusCodes.Status200OK)]
