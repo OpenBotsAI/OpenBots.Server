@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MimeKit;
+using System;
 using System.Collections.Generic;
 
 namespace OpenBots.Server.Model.Core
@@ -9,24 +10,24 @@ namespace OpenBots.Server.Model.Core
         {
         }
 
-        public System.Net.Mail.MailAddress ToMailAddress()
+        public MailboxAddress ToMailAddress()
         {
-            return new System.Net.Mail.MailAddress(Address, Name);
+            return new MailboxAddress(Name, Address);
         }
 
-        public EmailAddress(System.Net.Mail.MailAddress address)
+        public EmailAddress(MailboxAddress address)
         {
-            Name = address.DisplayName;
+            Name = address.Name;
             Address = address.Address;
         }
 
-        public static List<System.Net.Mail.MailAddress> IterateBack(IEnumerable<EmailAddress> addresses)
+        public static List<MailboxAddress> IterateBack(IEnumerable<EmailAddress> addresses)
         {
-            List<System.Net.Mail.MailAddress> addressStubs = new List<System.Net.Mail.MailAddress>();
+            List<MailboxAddress> addressStubs = new List<MailboxAddress>();
 
             foreach (var addr in addresses)
             {
-                addressStubs.Add(new System.Net.Mail.MailAddress(addr.Address, addr.Name));
+                addressStubs.Add(new MailboxAddress(addr.Name, addr.Address));
             }
 
             return addressStubs;
