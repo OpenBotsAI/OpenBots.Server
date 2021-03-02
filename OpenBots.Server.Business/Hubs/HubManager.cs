@@ -23,6 +23,7 @@ namespace OpenBots.Server.Web.Hubs
         private readonly IJobParameterRepository _jobParameterRepository;
         private readonly IScheduleParameterRepository _scheduleParameterRepository;
         private readonly IOrganizationSettingManager _organizationSettingManager;
+        private readonly IAgentGroupManager _agentGroupManager;
 
         public HubManager(IRecurringJobManager recurringJobManager,
             IJobRepository jobRepository, IHubContext<NotificationHub> hub,
@@ -30,7 +31,8 @@ namespace OpenBots.Server.Web.Hubs
             IWebhookPublisher webhookPublisher,
             IJobParameterRepository jobParameterRepository,
             IScheduleParameterRepository scheduleParameterRepository,
-            IOrganizationSettingManager organizationSettingManager)
+            IOrganizationSettingManager organizationSettingManager,
+            IAgentGroupManager agentGroupManager)
         {
             _recurringJobManager = recurringJobManager;
             _jobRepository = jobRepository;
@@ -40,6 +42,7 @@ namespace OpenBots.Server.Web.Hubs
             _hub = hub;
             _scheduleParameterRepository = scheduleParameterRepository;
             _organizationSettingManager = organizationSettingManager;
+            _agentGroupManager = agentGroupManager;
         }
 
         public HubManager()
@@ -100,6 +103,7 @@ namespace OpenBots.Server.Web.Hubs
 
             Job job = new Job();
             job.AgentId = schedule.AgentId == null ? Guid.Empty : schedule.AgentId.Value;
+            job.AgentGroupId = schedule.AgentGroupId == null ? Guid.Empty : schedule.AgentGroupId.Value;
             job.CreatedBy = schedule.CreatedBy;
             job.CreatedOn = DateTime.UtcNow;
             job.EnqueueTime = DateTime.UtcNow;
@@ -123,9 +127,21 @@ namespace OpenBots.Server.Web.Hubs
                 };
                 _jobParameterRepository.Add(jobParameter);
             }
-
             _jobRepository.Add(job);
-            _hub.Clients.All.SendAsync("botnewjobnotification", job.AgentId.ToString());
+
+            if (job.AgentGroupId == null || job.AgentGroupId == Guid.Empty)
+            {
+                _hub.Clients.All.SendAsync("botnewjobnotification", job.AgentId.ToString());
+            }
+            else //notify all group members
+            {
+                var agentsInGroup = _agentGroupManager.GetAllMembersInGroup(job.AgentGroupId.ToString()).Items;
+                foreach (var groupMember in agentsInGroup)
+                {
+                    _hub.Clients.All.SendAsync("botnewjobnotification", groupMember.AgentId.ToString());
+                }
+            }
+
             _webhookPublisher.PublishAsync("Jobs.NewJobCreated", job.Id.ToString()).ConfigureAwait(false);
 
             return "Success";
