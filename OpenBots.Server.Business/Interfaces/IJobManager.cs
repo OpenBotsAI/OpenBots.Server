@@ -16,7 +16,6 @@ namespace OpenBots.Server.Business
         JobsLookupViewModel GetJobAgentsLookup();
         PaginatedList<AllJobsViewModel> GetJobAgentsandAutomations(Predicate<AllJobsViewModel> predicate = null,
             string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
-        NextJobViewModel GetNextJob(Guid agentId);
         IEnumerable<JobParameter> GetJobParameters(Guid id);
         IEnumerable<JobCheckpoint> GetJobCheckpoints(Guid jobId);
         void DeleteExistingParameters(Guid jobId);

@@ -17,6 +17,8 @@ namespace OpenBots.Server.DataAccess
         public DbSet<QueueItemAttachment> QueueItemAttachments { get; set; }
         public DbSet<BinaryObject> BinaryObjects { get; set; }
         public DbSet<Agent> Agents { get; set; }
+        public DbSet<AgentGroup> AgentGroups { get; set; }
+        public DbSet<AgentGroupMember> AgentGroupMembers { get; set; }
         public DbSet<AgentHeartbeat> AgentHeartbeats { get; set; }
         public DbSet<Queue> Queues { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
