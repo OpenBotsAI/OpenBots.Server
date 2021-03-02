@@ -249,7 +249,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="400">Bad request, when the file/folder values are not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
         /// <returns>Newly created file/folder details</returns>
         [HttpPost]
         [ProducesResponseType(typeof(FileFolderViewModel), StatusCodes.Status200OK)]
@@ -487,7 +487,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="400">Bad request, when the server drive values are not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
         /// <returns>Newly created server drive details</returns>
         [HttpPost("drive")]
         [ProducesResponseType(typeof(ServerDrive), StatusCodes.Status200OK)]

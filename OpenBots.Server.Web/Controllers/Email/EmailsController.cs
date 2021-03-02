@@ -18,7 +18,6 @@ using OpenBots.Server.ViewModel.Email;
 using OpenBots.Server.Model.Options;
 using EmailModel = OpenBots.Server.Model.Configuration.Email;
 using OpenBots.Server.Business.Interfaces;
-using System.Collections.Generic;
 
 namespace OpenBots.Server.Web.Controllers.EmailConfiguration
 {
@@ -214,7 +213,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// <response code="400">Bad request, when the email value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessable Entity</response>
+        /// <response code="422">Unprocessabile entity</response>
         /// <returns> Newly created unique email and attachments, if any</returns>
         [HttpPost]
         [ProducesResponseType(typeof(EmailViewModel), StatusCodes.Status200OK)]
@@ -232,10 +231,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
                 EmailModel email = _manager.CreateEmail(request);
 
                 //create email attachments & binary objects entities; upload binary object files to server
-                var attachments = new List<EmailAttachment>();
-                if (request.Files != null)
-                    attachments = _manager.AddAttachments(request.Files, email.Id.Value, request.DriveName);
-
+                var attachments = _manager.AddAttachments(request.Files, email.Id.Value, request.DriveName);
                 EmailViewModel emailViewModel = _manager.GetEmailViewModel(email, attachments);
 
                 await base.PostEntity(email);
@@ -292,7 +288,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// <response code="400">Bad request, when the email message value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
         /// <returns>Ok response</returns>
         [HttpPost("send")]
         [ProducesResponseType(typeof(EmailViewModel), StatusCodes.Status200OK)]

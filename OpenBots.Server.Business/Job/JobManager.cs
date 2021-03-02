@@ -108,6 +108,26 @@ namespace OpenBots.Server.Business
             return _repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
 
+        //gets the next available job for the given agent id
+        public NextJobViewModel GetNextJob(Guid agentId)
+        {
+            Job job = _repo.Find(0, 1).Items
+              .Where(j => j.AgentId == agentId && j.JobStatus == JobStatusType.New)
+              .OrderBy(j => j.CreatedOn)
+              .FirstOrDefault();
+
+            var jobParameters = GetJobParameters(job?.Id ?? Guid.Empty);
+
+            NextJobViewModel nextJob = new NextJobViewModel()
+            {
+                IsJobAvailable = job == null ? false : true,
+                AssignedJob = job,
+                JobParameters = jobParameters
+            };
+
+            return nextJob;
+        }
+
         public IEnumerable<JobParameter> GetJobParameters(Guid jobId)
         {
             var jobParameters = _jobParameterRepo.Find(0, 1)?.Items?.Where(p => p.JobId == jobId);

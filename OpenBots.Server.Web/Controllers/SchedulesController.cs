@@ -223,7 +223,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="400">Bad request, when the schedule value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
         /// <returns>Newly created unique schedule id with route name</returns>
         [HttpPost]
         [ProducesResponseType(typeof(Schedule), StatusCodes.Status200OK)]
@@ -488,13 +488,11 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                Guid AutomationId = request.AutomationId;
-                Guid AgentId = request.AgentId;
-                Guid AgentGroupId = request.AgentGroupId;
+                Guid AutomationID = request.AutomationId;
+                Guid AgentID = request.AgentId;
 
                 Schedule schedule = new Schedule();
-                schedule.AgentId = AgentId;
-                schedule.AgentGroupId = AgentGroupId;
+                schedule.AgentId = AgentID;
                 schedule.CRONExpression = "";
                 schedule.LastExecution = DateTime.UtcNow;
                 schedule.NextExecution = DateTime.UtcNow;
@@ -504,12 +502,12 @@ namespace OpenBots.Server.Web.Controllers
                 schedule.Status = "New";
                 schedule.ExpiryDate = DateTime.UtcNow.AddDays(1);
                 schedule.StartDate = DateTime.UtcNow;
-                schedule.AutomationId = AutomationId;
+                schedule.AutomationId = AutomationID;
                 schedule.CreatedOn = DateTime.UtcNow;
                 schedule.CreatedBy = applicationUser?.UserName;
 
                 var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(schedule); 
-                _hubManager.ExecuteJob(jsonScheduleObj, request.JobParameters);
+                var jobId = BackgroundJob.Enqueue(() => _hubManager.ExecuteJob(jsonScheduleObj, request.JobParameters));
 
                 return Ok();
             }

@@ -338,6 +338,57 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
+        /// Gets the next available job for the provided agent id
+        /// </summary>
+        /// <param name="agentId">Agent id</param>
+        /// <response code="200">Ok, if ajJob exists for the given agent id</response>
+        /// <response code="304">Not modified</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Returns the oldest available job and sets its status to 'Assigned'</returns>
+        [HttpGet("Next")]
+        [ProducesResponseType(typeof(NextJobViewModel), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> Next([FromQuery] string agentId)
+        {
+            try
+            {
+                if (agentId == null)
+                {
+                    ModelState.AddModelError("Next", "No Agent ID was passed");
+                    return BadRequest(ModelState);
+                }
+
+                bool isValid = Guid.TryParse(agentId, out Guid agentGuid);
+                if (!isValid)
+                {
+                    ModelState.AddModelError("Next", "Agent ID is not a valid GUID ");
+                    return BadRequest(ModelState);
+                }
+
+                JsonPatchDocument<Job> statusPatch = new JsonPatchDocument<Job>();
+                statusPatch.Replace(j => j.JobStatus, JobStatusType.Assigned);
+                statusPatch.Replace(j => j.DequeueTime, DateTime.UtcNow);
+
+                NextJobViewModel nextJob = _jobManager.GetNextJob(agentGuid);
+
+                return Ok(nextJob);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
         /// Exports all jobs into a downloadable file
         /// </summary>
         /// <param name="filter"></param>
@@ -419,7 +470,7 @@ namespace OpenBots.Server.Web
         /// <response code="400">Bad request, when the job value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
         /// <returns>Newly created job details</returns>
         [HttpPost]
         [ProducesResponseType(typeof(Job), StatusCodes.Status200OK)]
@@ -713,7 +764,7 @@ namespace OpenBots.Server.Web
         /// <response code="400">Bad request, when the job value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
         /// <returns> Newly created Checkpoint details</returns>
         [HttpPost("{JobId}/AddCheckpoint")]
         [ProducesResponseType(typeof(JobCheckpoint), StatusCodes.Status200OK)]
