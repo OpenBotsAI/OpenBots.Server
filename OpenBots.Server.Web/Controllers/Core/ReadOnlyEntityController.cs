@@ -214,7 +214,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             if (entity == null)
             {
                 ModelState.AddModelError("GetData", "Record does not exist or you do not have authorized access.");
-                return NotFound(ModelState);
+                return BadRequest(ModelState);
             }
 
             string timeStamp = "\"" + Convert.ToBase64String(entity.Timestamp) + "\"";

@@ -202,7 +202,7 @@ namespace OpenBots.Server.Web
         /// <response code="400">Bad request, when the asset value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
         /// <returns>Newly created asset details</returns>
         [HttpPost]
         [ProducesResponseType(typeof(GlobalAssetViewModel), StatusCodes.Status200OK)]
@@ -238,7 +238,7 @@ namespace OpenBots.Server.Web
         /// <response code="400">Bad request, when the asset value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
         /// <returns>Newly created Asset details</returns>
         [HttpPost("AddAgentAsset")]
         [ProducesResponseType(typeof(Asset), StatusCodes.Status200OK)]

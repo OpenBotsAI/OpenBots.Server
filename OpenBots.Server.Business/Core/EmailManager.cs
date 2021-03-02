@@ -1,5 +1,4 @@
-﻿using MimeKit;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Infrastructure.Azure.Email;
 using OpenBots.Server.Infrastructure.Email;
@@ -10,6 +9,7 @@ using OpenBots.Server.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -89,7 +89,7 @@ namespace OpenBots.Server.Business
         {
             EmailViewModel emailViewModel = new EmailViewModel();
             emailViewModel = emailViewModel.Map(email);
-            if (attachments.Count != 0 && attachments != null)
+            if (attachments.Count != 0)
                 emailViewModel.Attachments = attachments;
             return emailViewModel;
         }
@@ -325,8 +325,8 @@ namespace OpenBots.Server.Business
                         {
                             if (!string.IsNullOrEmpty(address.Address))
                             {
-                                MailboxAddress mailAddress = new MailboxAddress(address.Address);
-                                if (!denyList.Contains(mailAddress.Address.Split("@")[1].ToLowerInvariant()))
+                                MailAddress mailAddress = new MailAddress(address.Address);
+                                if (!denyList.Contains(mailAddress.Host.ToLowerInvariant()))
                                     toList.Add(address);
                             }
                         }
@@ -337,8 +337,8 @@ namespace OpenBots.Server.Business
                         {
                             if (!string.IsNullOrEmpty(address.Address))
                             {
-                                MailboxAddress mailAddress = new MailboxAddress(address.Address);
-                                if (!denyList.Contains(mailAddress.Address.Split("@")[1].ToLowerInvariant()))
+                                MailAddress mailAddress = new MailAddress(address.Address);
+                                if (!denyList.Contains(mailAddress.Host.ToLowerInvariant()))
                                     ccList.Add(address);
                             }
                         }
@@ -349,8 +349,8 @@ namespace OpenBots.Server.Business
                         {
                             if (!string.IsNullOrEmpty(address.Address))
                             {
-                                MailboxAddress mailAddress = new MailboxAddress(address.Address);
-                                if (!denyList.Contains(mailAddress.Address.Split("@")[1].ToLowerInvariant()))
+                                MailAddress mailAddress = new MailAddress(address.Address);
+                                if (!denyList.Contains(mailAddress.Host.ToLowerInvariant()))
                                     bccList.Add(address);
                             }
                         }
@@ -368,8 +368,8 @@ namespace OpenBots.Server.Business
                         {
                             if (!string.IsNullOrEmpty(address.Address))
                             {
-                                MailboxAddress mailAddress = new MailboxAddress(address.Address);
-                                if (allowList.Contains(mailAddress.Address.Split("@")[1].ToLowerInvariant()))
+                                MailAddress mailAddress = new MailAddress(address.Address);
+                                if (allowList.Contains(mailAddress.Host.ToLowerInvariant()))
                                     toList.Add(address);
                             }
                         }
@@ -380,8 +380,8 @@ namespace OpenBots.Server.Business
                         {
                             if (!string.IsNullOrEmpty(address.Address))
                             {
-                                MailboxAddress mailAddress = new MailboxAddress(address.Address);
-                                if (allowList.Contains(mailAddress.Address.Split("@")[1].ToLowerInvariant()))
+                                MailAddress mailAddress = new MailAddress(address.Address);
+                                if (allowList.Contains(mailAddress.Host.ToLowerInvariant()))
                                     ccList.Add(address);
                             }
                         }
@@ -392,8 +392,8 @@ namespace OpenBots.Server.Business
                         {
                             if (!string.IsNullOrEmpty(address.Address))
                             {
-                                MailboxAddress mailAddress = new MailboxAddress(address.Address);
-                                if (allowList.Contains(mailAddress.Address.Split("@")[1].ToLowerInvariant()))
+                                MailAddress mailAddress = new MailAddress(address.Address);
+                                if (allowList.Contains(mailAddress.Host.ToLowerInvariant()))
                                     bccList.Add(address);
                             }
                         }

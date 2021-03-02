@@ -91,20 +91,20 @@ namespace XUnitTests
             var automationVersionRepo = new AutomationVersionRepository(context, automationVersionLogger, httpContextAccessor.Object);
 
             //manager to be tested
-/*            _manager = new JobManager(jobRepository, agentRepo, automationRepo, jobParameterRepo, jobCheckpointRepo, automationVersionRepo);
-*/        }
+            _manager = new JobManager(jobRepository, agentRepo, automationRepo, jobParameterRepo, jobCheckpointRepo, automationVersionRepo);
+        }
 
         //gets the next job that has not been picked up for the specified agent id
         [Fact]
         public async Task GetNextJob()
         {
             //act
-            /*var jobsAvailable = _manager.GetNextJob(_newJobAgentId);
-            var jobsCompleted  = _manager.GetNextJob(_completedJobAgentId);*/
+            var jobsAvailable = _manager.GetNextJob(_newJobAgentId);
+            var jobsCompleted  = _manager.GetNextJob(_completedJobAgentId);
 
             //assert
-            //Assert.True(jobsAvailable.IsJobAvailable); //agent id with a new job
-            //Assert.False(jobsCompleted.IsJobAvailable); //agent id without a new job
+            Assert.True(jobsAvailable.IsJobAvailable); //agent id with a new job
+            Assert.False(jobsCompleted.IsJobAvailable); //agent id without a new job
         }
 
         //get the job parameters for the specified job id

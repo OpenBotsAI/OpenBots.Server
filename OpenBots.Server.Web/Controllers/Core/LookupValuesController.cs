@@ -132,7 +132,7 @@ namespace OpenBots.Server.WebAPI.Controllers.Core
         /// <response code="400">Bad request, when lookup value is not in the proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
         /// <returns>Newly created unique lookup value details</returns>
         [HttpPost]
         [ProducesResponseType(typeof(LookupValue), StatusCodes.Status200OK)]

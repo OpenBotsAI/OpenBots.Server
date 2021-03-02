@@ -1,4 +1,4 @@
-<nb-card>
+<nb-card >
   <nb-card-header>
     <div class="titleHeader">
       <div class="titleLeft">
@@ -22,20 +22,20 @@
   </nb-card-header>
   <nb-card-body>
    
-    <!-- <div class="row row-fil">         
+    <div class="row row-fil">         
         <div class="col-md-4 col-lg-4">
           <label class="label">Search with Name:</label>
           <input type="text" icon="search" nbInput fullWidth placeholder="Search with Name"
-        (keyup)="searchValue($event.target.value)">
+        (keyup)="searchValue($event)">
         </div>
-      </div> -->
+      </div>
 
     <table class="table table-bordered">
       <thead>
         <tr>
           <th scope="col">
             Name
-            <i (click)="onSortClick($event, 'MachineName')" class="my-icon fa fa-chevron-up"></i>
+            <i (click)="onSortClick($event, 'name')" class="my-icon fa fa-chevron-up"></i>
           </th>
 
           <th scope="col">

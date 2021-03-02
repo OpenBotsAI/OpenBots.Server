@@ -1,8 +1,7 @@
-﻿using MimeKit;
-using OpenBots.Server.Model.Core;
+﻿using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Configuration;
 using System;
-using MailKit.Net.Smtp;
+using System.Net.Mail;
 
 namespace OpenBots.Server.Infrastructure.Email
 {
@@ -22,19 +21,20 @@ namespace OpenBots.Server.Infrastructure.Email
 
             try
             {
-                MimeMessage mail = EmailMessage.FromStub(message);
+                MailMessage mail = EmailMessage.FromStub(message);
 
-                using (SmtpClient client = new SmtpClient())
-                {
-                    client.Connect(_smtpSetting.Host, _smtpSetting.Port);
-                    client.Authenticate(_smtpSetting.Username, _smtpSetting.EncryptedPassword);
-                    client.Send(mail);
-                    client.Disconnect(true);
-                };
+                SmtpClient client = new SmtpClient();
+                client.UseDefaultCredentials = false;
+                client.Credentials = new System.Net.NetworkCredential(_smtpSetting.Username, _smtpSetting.EncryptedPassword);
+                client.Port = _smtpSetting.Port; //use Port 25 if 587 is blocked
+                client.Host = _smtpSetting.Host;
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                client.EnableSsl = _smtpSetting.IsSslEnabled;
+                client.Send(mail);
             }
             catch(Exception ex)
             {
-                throw new CannotSendEmailException("Cannot send email" + ex.Message, ex);
+                throw new CannotSendEmailException("Cannot Send Email." + ex.Message, ex);
             }
         }
     }
