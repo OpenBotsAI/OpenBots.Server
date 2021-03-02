@@ -29,7 +29,6 @@ export class AllAgentsComponent implements OnInit {
   get_perPage: boolean = false;
   per_page_num: any = [];
   itemsPerPage: ItemsPerPage[] = [];
-  isLoading = false;
   gSearch: boolean = false;
   constructor(
     public router: Router,
@@ -193,7 +192,7 @@ export class AllAgentsComponent implements OnInit {
   }
 
   get_allagent(top, skip) {
-    this.isLoading = true;
+   
     this.get_perPage = false;
     this.agentService.getAllAgent(top, skip).subscribe(
       (data: any) => {
@@ -201,7 +200,7 @@ export class AllAgentsComponent implements OnInit {
         this.showAllAgents = data.items;
         this.page.totalCount = data.totalCount;
         this.get_perPage = true;
-        this.isLoading = false;
+      
        
       },
       (error) => {}

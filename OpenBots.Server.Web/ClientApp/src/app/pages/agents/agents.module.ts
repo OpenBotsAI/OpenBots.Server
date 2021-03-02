@@ -8,7 +8,6 @@ import { AgentsService } from './agents.service';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { SharedModule } from '../../@core/shared/shared.module';
 import { RxReactiveFormsModule } from '@rxweb/reactive-form-validators';
-import { NbSpinnerModule } from '@nebular/theme';
 
 @NgModule({
   declarations: [
@@ -19,7 +18,6 @@ import { NbSpinnerModule } from '@nebular/theme';
   ],
   imports: [
     SharedModule,
-    NbSpinnerModule,
     AgentsRoutingModule,
     NgxPaginationModule,
     RxReactiveFormsModule,

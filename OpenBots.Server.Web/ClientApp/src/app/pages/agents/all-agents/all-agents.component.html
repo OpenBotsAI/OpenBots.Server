@@ -1,4 +1,4 @@
-<nb-card [nbSpinner]="isLoading" nbSpinnerStatus="primary">
+<nb-card >
   <nb-card-header>
     <div class="titleHeader">
       <div class="titleLeft">
@@ -35,7 +35,7 @@
         <tr>
           <th scope="col">
             Name
-            <i (click)="onSortClick($event, 'MachineName')" class="my-icon fa fa-chevron-up"></i>
+            <i (click)="onSortClick($event, 'name')" class="my-icon fa fa-chevron-up"></i>
           </th>
 
           <th scope="col">
