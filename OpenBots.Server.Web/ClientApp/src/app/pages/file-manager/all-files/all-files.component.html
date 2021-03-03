@@ -37,7 +37,7 @@
                             src="../../../../assets/images/rename-icon.png" />Rename</button>
                     <!-- <button class="btnIcon btnMove"> <img src="../../../../assets/images/move.png" />Move</button> -->
                     <!-- *ngIf="showDeletebtn" -->
-                    <button class="btnIcon btnDelete" (click)="deleteFiles()"><img
+                    <button class="btnIcon btnDelete" (click)="deleteFiles(deleteDialog)"><img
                             src="../../../../assets/images/delete-icon.png" />Delete</button>
 
                 </div>
@@ -177,17 +177,7 @@
         <div class="row pagerow">
             <div class="col-md-8 col-lg-8 no-left-padding">
                 <pagination-controls (pageChange)="pageChanged($event)" autoHide="true"></pagination-controls>
-                <!-- <pagination-controls id="foo" class="paginateDiv" previousLabel="Prev" nextLabel="Next"
-                    responsive="true" (pageChange)="pageChanged($event,true)"
-                    (pageBoundsCorrection)="pageChanged($event, true)" directionLinks="true" autoHide="true"
-                    screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
-                    screenReaderCurrentLabel="You're on page"></pagination-controls> -->
-                <!-- <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
-                    (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)"
-                    directionLinks="true" autoHide="true" screenReaderPaginationLabel="Pagination"
-                    screenReaderPageLabel="page" screenReaderCurrentLabel="You're on page"></pagination-controls> -->
             </div>
-            <!--  *ngIf="get_perPage" -->
             <div class="col-md-4 col-lg-4 text-right no-right-padding">
                 <label class="label">Total {{ page.totalCount}} /</label>
 
@@ -245,7 +235,6 @@
 
 
 <!-- Rename foler of file -->
-
 <ng-template #dialog let-data let-ref="dialogRef">
     <form class="rename-popup" [formGroup]="filesFormgroup">
         <nb-card>
@@ -272,7 +261,6 @@
                 </div>
             </nb-card-body>
             <nb-card-footer>
-                <!-- [disabled]="isDeleted" (click)="del_agent(ref)" -->
                 <button class="btn btn-primary" [disabled]="isSubmitted || !filesFormgroup.valid"
                     (click)="renameFileName(ref)">Save</button>
                 <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
@@ -287,11 +275,8 @@
 
 
 
-
-<!-- upload file or folder
-   uploaddialog -->
+<!-- upload file or folder uploaddialog -->
 <ng-template #uploaddialog let-data let-ref="dialogRef">
-    <!-- <form class="rename-popup" [formGroup]="filesFormgroup"> -->
     <nb-card>
         <nb-card-header>
             <h6>File Upload</h6>
@@ -306,25 +291,13 @@
                     <span class="or-file">OR</span>
                 </div>
                 <label class="upload-button">
-
                     <input type="file" class="btn-files custom-file-input" ngFileSelect [options]="options"
                         (uploadOutput)="onUploadOutput($event)" [uploadInput]="uploadInput" multiple>
                     <span>Browse</span>
                 </label>
             </div>
-
-            <!-- <div aria-labelledby="title">
-                <label class="label">Upload Automation File *</label>
-                <label class="upload-button">
-                    <input type="file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
-                        [uploadInput]="uploadInput" multiple>
-
-                </label>
-
-            </div> -->
         </nb-card-body>
         <nb-card-footer>
-            <!-- [disabled]="isDeleted" (click)="del_agent(ref)" -->
             <button class="btn btn-primary btnNoMargn" (click)="UploadFile(ref)">Upload</button>
             <button class="btn btn-light" style="margin-left: 11px" (click)="closeFileUploadPopup(ref)">
                 Cancel
@@ -332,5 +305,26 @@
 
         </nb-card-footer>
     </nb-card>
-    <!-- </form> -->
+</ng-template>
+
+
+<ng-template #deleteDialog let-data let-ref="dialogRef">
+    <nb-card>
+        <nb-card-header>
+            <h6>Delete</h6>
+        </nb-card-header>
+        <nb-card-body>
+            <div aria-labelledby="title">
+                <p>Are you sure you want to delete?</p>
+            </div>
+        </nb-card-body>
+        <nb-card-footer>
+            <button class="btn btn-danger" (click)="onDelete(ref)">
+                Delete
+            </button>
+            <button nbButton style="margin-left: 11px" (click)="ref.close()">
+                Cancel
+            </button>
+        </nb-card-footer>
+    </nb-card>
 </ng-template>

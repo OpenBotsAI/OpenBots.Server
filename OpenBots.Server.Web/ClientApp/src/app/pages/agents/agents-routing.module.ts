@@ -21,11 +21,6 @@ const routes: Routes = [
     path: 'edit/:id',
     component: AddAgentsComponent,
   },
-
-  //   { path: 'list', component: FileComponent },
-  // { path: 'add', component: AddFileComponent },
-  // { path: 'get-file-id/:id', component: GetFileIdComponent },
-  // { path: 'edit/:id', component: AddFileComponent },
 ];
 
 @NgModule({

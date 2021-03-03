@@ -8,7 +8,7 @@ export interface BinaryFile {
   deletedBy?: string;
   folder?: any;
   hashCode: string;
-  id: string;
+  id?: string;
   isDeleted?: boolean;
   name: string;
   organizationId: string;
@@ -18,4 +18,5 @@ export interface BinaryFile {
   timestamp?: string;
   updatedBy?: string;
   updatedOn?: string;
+  fileId: string;
 }

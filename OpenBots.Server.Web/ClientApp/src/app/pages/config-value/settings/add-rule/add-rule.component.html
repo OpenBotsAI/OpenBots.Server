@@ -11,7 +11,7 @@
     <nb-card-body>
         <form [formGroup]="ruleForm" autocomplete="off">
             <div class="row rowPadding">
-                <div class="col-md-12 col-lg-12 col-xxxl-12">
+                <div class="col-md-6 col-lg-6 col-xxxl-6">
                     <label for="usage" class="label">Usage *</label>
                     <select class="custom-select" formControlName="usage" placeholder="Please choose usage">
                         <option value="" disabled="true" selected>
@@ -28,9 +28,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row rowPadding">
-                <div class="col-md-12 col-lg-12 col-xxxl-12">
+                    <div class="col-md-6 col-lg-6 col-xxxl-6">
                     <label for="rule" class="label">Rule Type *</label>
                     <select class="custom-select" formControlName="rule" placeholder="Please choose rule type"
                         (change)="onRuleChange($event.target.value)">
@@ -49,6 +47,7 @@
                     </div>
                 </div>
             </div>
+             
             <div *ngIf="ruleForm && (ruleForm.value.rule === 'IPv4' || ruleForm.value.rule === 'IPv6')  ">
                 <div class="row rowPadding">
                     <div class="col-md-12 col-lg-12 col-xxxl-12">

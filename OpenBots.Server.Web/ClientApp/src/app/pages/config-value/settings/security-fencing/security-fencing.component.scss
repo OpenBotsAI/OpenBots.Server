@@ -47,13 +47,13 @@
     left: 2px;
     transition: all 0.3s ease;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-    top: 3px;
+    top: 1px;
   }
   
   .checkbox.checbox-switch label>input:checked+span:before,
   .checkbox-inline.checbox-switch>input:checked+span:before {
     left: 25px;
-    top: 3px;
+    top: 1px;
   }
   
   /* Switch Primary */

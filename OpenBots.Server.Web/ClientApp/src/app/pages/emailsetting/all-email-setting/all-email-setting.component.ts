@@ -57,7 +57,6 @@ export class AllEmailSettingComponent implements OnInit {
 
   get_allagent() {
     this.esettingService.getEmailbyId().subscribe((data: any) => {
-      console.log('data', data);
       if (data && data.items.length) {
         this.showEmail = data.items[0];
         this.emailId = this.showEmail.id;

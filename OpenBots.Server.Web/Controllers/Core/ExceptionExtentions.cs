@@ -40,8 +40,9 @@ namespace OpenBots.Server.WebAPI.Controllers
         {
             var problem = new ServiceBadRequest();
             problem.Detail = ex.Message;
-            problem.Title = string.Concat("Unknown Exception", ex.Message);
+            problem.Title = string.Concat("Unknown Exception. ", ex.Message);
             problem.Status = 400;
+            problem.serviceErrors = new string[1] { ex.Message };
 
             if (ex is UnauthorizedOperationException || ex is UnauthorizedAccessException)
             {

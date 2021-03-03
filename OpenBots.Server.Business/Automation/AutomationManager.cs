@@ -140,8 +140,7 @@ namespace OpenBots.Server.Business
         public void DeleteAutomation(Automation automation, string driveName)
         {
             //remove file associated with automation
-            var file = _fileManager.DeleteFileFolder(automation.FileId.ToString(), driveName);
-            _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { file });
+            _fileManager.DeleteFileFolder(automation.FileId.ToString(), driveName);
             _repo.SoftDelete(automation.Id.Value);
 
             //remove automation version entity associated with automation

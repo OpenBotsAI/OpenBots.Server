@@ -118,7 +118,7 @@
               <label for="queueitemtype" class="label">OS Logon Credentials *</label>
               <select class="custom-select" formControlName="CredentialId">
                 <option value='' [disabled]='true' selected>Please select OS Logon Credentials </option>
-                <option *ngFor="let item of cred_value" [value]="item.credentialId">{{item.credentialName}}</option>
+                <option *ngFor="let item of credValue" [value]="item.credentialId">{{item.credentialName}}</option>
               </select>
               <div *ngIf="f.CredentialId.touched && f.CredentialId.invalid" class="invalid-feedback-frm">
                 <div *ngIf="f.CredentialId.errors && f.CredentialId.errors.required"> Credential is required.</div>

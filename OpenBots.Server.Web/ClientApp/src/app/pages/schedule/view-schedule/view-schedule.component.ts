@@ -187,7 +187,6 @@ export class ViewScheduleComponent implements OnInit {
     // );
     this.jobRunNowForm.setControl('items', this.setvalues(this.parameters));
     this.jobRunNowForm.patchValue(this.parameters);
-    console.log('value', this.jobRunNowForm.value);
     // `${SchedulesApiUrl.schedules}/${automationsApiUrl.automation}/${this.scheduleData.automationId}/${SchedulesApiUrl.runNow}?AgentId=${this.scheduleData.agentId}`
     // const obj = {
     //   agentId: this.scheduleData.agentId,
@@ -198,7 +197,6 @@ export class ViewScheduleComponent implements OnInit {
     //     observe: 'response',
     //   })
     //   .subscribe((response) => {
-    //     console.log('res', response);
     //     if (response && response.status === 200)
     //       this.httpService.success('Job created successfully');
     //   });

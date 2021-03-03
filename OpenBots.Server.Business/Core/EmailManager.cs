@@ -780,17 +780,18 @@ namespace OpenBots.Server.Business
 
         public void DeleteEmailAttachments(string id, string driveName)
         {
+            //soft delete each email attachment entity and file entity that correlates to the email
             var attachments = _emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(id))?.Items;
             if (attachments.Count != 0)
             {
-                var fileList = new List<FileFolderViewModel>();
+                var fileView = new FileFolderViewModel();
                 foreach (var attachment in attachments)
                 {
-                    var file = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
-                    fileList.Add(file);
+                    fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
                     _emailAttachmentRepository.SoftDelete(attachment.Id.Value);
                 }
-                _fileManager.AddBytesToFoldersAndDrive(fileList);
+                fileView = _fileManager.DeleteFileFolder(fileView.ParentId.ToString(), driveName);
+                _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileView });
             }
         }
 

@@ -11,7 +11,29 @@ export class AssetService {
     return environment.apiUrl;
   }
 
-  constructor(private http: HttpClient, private helperService: HelperService) { }
+  constructor(private http: HttpClient, private helperService: HelperService) {}
+
+  getFilterPagination(
+    top: number,
+    skip: number,
+    orderBy: string,
+    searchedValue?: string
+  ) {
+    let url: string;
+    // let getagentUrl = `/${AgentApiUrl.AgentsView}?$filter=substringof(tolower('${filterName}'), tolower(Name))&$orderby=${ordername}&$top=${tpage}&$skip=${spage}`;
+    if (searchedValue) {
+      if (orderBy != 'createdOn+desc') {
+        url = `/${AssetApiUrl.Assets}?$filter=substringof(tolower('${searchedValue}'), tolower(Name))&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+      } else {
+        url = `/${AssetApiUrl.Assets}?$filter=substringof(tolower('${searchedValue}'), tolower(Name))&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+      }
+    } else if (orderBy) {
+      url = `/${AssetApiUrl.Assets}?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+    } else {
+      url = `/${AssetApiUrl.Assets}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+    }
+    return this.http.get(this.apiUrl + url);
+  }
 
   getAllAsset(tpage: any, spage: any) {
     let getagentUrl = `/${AssetApiUrl.Assets}?$orderby=createdOn desc&$top=${tpage}&$skip=${spage}`;
@@ -20,6 +42,11 @@ export class AssetService {
 
   getAllAssetOrder(tpage: any, spage: any, name) {
     let getagentUrl = `/${AssetApiUrl.Assets}?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    return this.http.get(`${this.apiUrl}` + getagentUrl);
+  }
+
+  getFilterAsset(tpage: any, spage: any, filterName) {
+    let getagentUrl = `/${AssetApiUrl.Assets}?$filter=substringof(tolower('${filterName}'), tolower(name))&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
@@ -43,10 +70,6 @@ export class AssetService {
     return this.http.post(`${this.apiUrl}` + addassetUrl, obj);
   }
 
-  AssetFile(id, file) {
-    let editassetUrl = `/${AssetApiUrl.Assets}/${id}/upload`;
-    return this.http.post(`${this.apiUrl}` + editassetUrl, file);
-  }
   editAssetbyUpload(id, obj, etag) {
     const headers = new HttpHeaders({ 'If-Match': etag });
     let editassetUrl = `/${AssetApiUrl.Assets}/${id}/update`;
@@ -55,12 +78,9 @@ export class AssetService {
     });
   }
   editAsset(id, obj, etag) {
-    const headers = this.helperService.getETagHeaders(etag)
-    // const headers = new HttpHeaders({ 'If-Match': etag });
+    const headers = this.helperService.getETagHeaders(etag);
     let editassetUrl = `/${AssetApiUrl.Assets}/${id}`;
-    return this.http.put(`${this.apiUrl}` + editassetUrl, obj, {
-      headers,
-    });
+    return this.http.put(`${this.apiUrl}` + editassetUrl, obj, { headers });
   }
 
   assetFileExport(id) {

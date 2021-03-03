@@ -15,8 +15,8 @@ export class EditAgentsComponent implements OnInit {
   addagent: FormGroup;
   isSubmitted = false;
   agent_id: any = [];
-  cred_value: any = [];
-  show_allagents: any = [];
+  credValue: any = [];
+  showAllAgents: any = [];
   etag;
   checked = false;
   ipVersion = 'V4';
@@ -29,9 +29,9 @@ export class EditAgentsComponent implements OnInit {
   ) {
     this.acroute.queryParams.subscribe((params) => {
       this.agent_id = params.id;
-      this.get_allagent(params.id);
+      this.getAllAgent(params.id);
     });
-    this.get_cred();
+    this.getCredenital();
   }
 
   ngOnInit(): void {
@@ -55,10 +55,10 @@ export class EditAgentsComponent implements OnInit {
     });
   }
 
-  get_allagent(id) {
+  getAllAgent(id) {
     this.agentService.getAgentbyID(id).subscribe((data: HttpResponse<any>) => {
       if (data && data.body) {
-        this.show_allagents = data.body;
+        this.showAllAgents = data.body;
         if (data.body.ipOption === 'ipv6') {
           this.addagent
             .get('ipAddresses')
@@ -78,16 +78,16 @@ export class EditAgentsComponent implements OnInit {
           this.addagent.get('ipAddresses').updateValueAndValidity();
         }
         this.etag = data.headers.get('ETag').replace(/\"/g, '');
-        this.addagent.patchValue(this.show_allagents);
+        this.addagent.patchValue(this.showAllAgents);
         this.addagent.patchValue({
-          CredentialId: this.show_allagents.credentialId,
+          CredentialId: this.showAllAgents.credentialId,
         });
       }
     });
   }
-  get_cred() {
-    this.agentService.getCred().subscribe((data: any) => {
-      this.cred_value = data;
+  getCredenital() {
+    this.agentService.getCredentail().subscribe((data: any) => {
+      this.credValue = data;
     });
   }
 
@@ -107,7 +107,7 @@ export class EditAgentsComponent implements OnInit {
         (error) => {
           if (error.error.status === 409) {
             this.toastrService.danger(error.error.serviceErrors, 'error');
-            this.get_allagent(this.agent_id);
+            this.getAllAgent(this.agent_id);
             this.isSubmitted = false;
           }
           if (error.error.status === 429) {

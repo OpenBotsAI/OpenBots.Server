@@ -16,16 +16,17 @@ import { PagesMenu } from './pages-menu';
   `,
 })
 export class PagesComponent implements OnDestroy {
-
   menu: NbMenuItem[];
   alive: boolean = true;
 
-  constructor(private pagesMenu: PagesMenu,
-    private tokenService: NbTokenService,
+  constructor(
+    private pagesMenu: PagesMenu,
+    private tokenService: NbTokenService
   ) {
     this.initMenu();
 
-    this.tokenService.tokenChange()
+    this.tokenService
+      .tokenChange()
       .pipe(takeWhile(() => this.alive))
       .subscribe(() => {
         this.initMenu();
@@ -33,9 +34,10 @@ export class PagesComponent implements OnDestroy {
   }
 
   initMenu() {
-    this.pagesMenu.getMenu()
+    this.pagesMenu
+      .getMenu()
       .pipe(takeWhile(() => this.alive))
-      .subscribe(menu => {
+      .subscribe((menu) => {
         this.menu = menu;
       });
   }

@@ -29,6 +29,8 @@
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <Content Remove="$(SpaRoot)**" />
+    <Content Remove="Files\ABC123\**" />
+    <Content Remove="Files\AtoZ321\**" />
     <Content Remove="logs\**" />
     <None Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
@@ -36,11 +38,17 @@
 
 
   <ItemGroup>
+    <Compile Remove="Files\ABC123\**" />
+    <Compile Remove="Files\AtoZ321\**" />
     <Compile Remove="logs\**" />
     <Compile Remove="Uploads\**" />
     <Content Remove="Uploads\**" />
+    <EmbeddedResource Remove="Files\ABC123\**" />
+    <EmbeddedResource Remove="Files\AtoZ321\**" />
     <EmbeddedResource Remove="logs\**" />
     <EmbeddedResource Remove="Uploads\**" />
+    <None Remove="Files\ABC123\**" />
+    <None Remove="Files\AtoZ321\**" />
     <None Remove="logs\**" />
     <None Remove="Uploads\**" />
   </ItemGroup>
@@ -156,10 +164,17 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Files\Assets\da2a37cd-228c-4089-b729-2c78d72d860a\" />
     <Folder Include="Files\Automations\1c2fb3e9-0998-4a37-8fbb-095b1e404cc2\" />
     <Folder Include="Files\Automations\217b0af1-0bfe-4730-9d78-ea52e8a4f994\" />
+    <Folder Include="Files\CBA321\ABC123\CBA321\" />
     <Folder Include="Files\Email Attachments\" />
+    <Folder Include="Files\ParentFolder\ChildFolder\" />
     <Folder Include="Files\Queue Item Attachments\14bb9ed7-fc93-49cf-9dfd-eef7c17b6706\" />
+    <Folder Include="Files\Queue Item Attachments\6d52dd5c-23a1-47da-a589-6103dba2d698\" />
+    <Folder Include="Files\Queue Item Attachments\82202936-87af-484f-81c1-d8007dcd2830\" />
+    <Folder Include="Files\Queue Item Attachments\bf0ff5cc-cb00-40a6-913e-fbcd8ab67a35\" />
+    <Folder Include="Files\Queue Item Attachments\d8d6bbdf-f0fc-433f-8ae8-a321e848968b\" />
     <Folder Include="New Files\Assets\" />
     <Folder Include="New Files\Assets\a37b784c-dc8b-4c48-90cb-9940b005984a\" />
     <Folder Include="New Files\Automations\" />

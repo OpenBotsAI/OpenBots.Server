@@ -1446,6 +1446,18 @@
             <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
             <returns>Newly created server drive details</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetDriveNames(System.String)">
+            <summary>
+            Provides server drive names
+            </summary>
+            <response code="200">Ok, if the server drive names exist</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if server drive name is not in proper format</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no server drive names exist</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Server drive names</returns>
+        </member>
         <member name="T:OpenBots.Server.Web.Controllers.Queue.QueueItemAttachmentsController">
             <summary>
             Controller for queue item attachments
@@ -1777,6 +1789,7 @@
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response</returns>
         </member>
+        <!-- Badly formed XML comment ignored for member "M:OpenBots.Server.Web.Controllers.QueueItemsController.UpdateFiles(System.String,OpenBots.Server.ViewModel.QueueItem.UpdateQueueItemViewModel)" -->
         <member name="T:OpenBots.Server.Web.Controllers.QueuesController">
             <summary>
             Controller for Queues
@@ -3578,7 +3591,7 @@
             Controller used for token generation
             </summary>
         </member>
-        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.#ctor(OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Identity.SignInManager{OpenBots.Server.Security.ApplicationUser},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController},OpenBots.Server.Business.IMembershipManager,OpenBots.Server.DataAccess.Repositories.IPersonRepository,OpenBots.Server.DataAccess.Repositories.IPersonEmailRepository,OpenBots.Server.DataAccess.Repositories.IEmailVerificationRepository,OpenBots.Server.DataAccess.Repositories.IPasswordPolicyRepository,OpenBots.Server.Business.IEmailManager,OpenBots.Server.Business.IOrganizationManager,OpenBots.Server.Business.IAccessRequestsManager,OpenBots.Server.DataAccess.Repositories.IAccessRequestRepository,OpenBots.Server.DataAccess.Repositories.IOrganizationMemberRepository,OpenBots.Server.DataAccess.Repositories.IAgentRepository,OpenBots.Server.Business.ITermsConditionsManager,OpenBots.Server.DataAccess.Repositories.IAuditLogRepository,OpenBots.Server.Business.IIPFencingManager,OpenBots.Server.DataAccess.Repositories.IIPFencingRepository,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IOrganizationSettingRepository)">
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.#ctor(OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Identity.SignInManager{OpenBots.Server.Security.ApplicationUser},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController},OpenBots.Server.Business.IMembershipManager,OpenBots.Server.DataAccess.Repositories.IPersonRepository,OpenBots.Server.DataAccess.Repositories.IPersonEmailRepository,OpenBots.Server.DataAccess.Repositories.IEmailVerificationRepository,OpenBots.Server.DataAccess.Repositories.IPasswordPolicyRepository,OpenBots.Server.Business.IEmailManager,OpenBots.Server.Business.IOrganizationManager,OpenBots.Server.Business.IAccessRequestsManager,OpenBots.Server.DataAccess.Repositories.IAccessRequestRepository,OpenBots.Server.DataAccess.Repositories.IOrganizationMemberRepository,OpenBots.Server.DataAccess.Repositories.IAgentRepository,OpenBots.Server.Business.ITermsConditionsManager,OpenBots.Server.DataAccess.Repositories.IAuditLogRepository,OpenBots.Server.Business.IIPFencingManager,OpenBots.Server.DataAccess.Repositories.IIPFencingRepository,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IOrganizationSettingRepository,OpenBots.Server.DataAccess.Repositories.Interfaces.IServerDriveRepository,OpenBots.Server.DataAccess.Repositories.Interfaces.IServerFolderRepository)">
             <summary>
             AuthController constructor
             </summary>
@@ -3604,6 +3617,8 @@
             <param name="organizationMemberRepository"></param>
             <param name="passwordPolicyRepository"></param>
             <param name="termsConditionsManager"></param>
+            <param name="serverDriveRepository"></param>
+            <param name="serverFolderRepository"></param>
         </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.CreateToken(OpenBots.Server.Model.Identity.Login)">
             <summary>

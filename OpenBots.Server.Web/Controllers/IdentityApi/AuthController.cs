@@ -30,6 +30,9 @@ using OpenBots.Server.Web.Extensions;
 using OpenBots.Server.ViewModel.Email;
 using OpenBots.Server.Model.Membership;
 using OpenBots.Server.DataAccess.Exceptions;
+using OpenBots.Server.DataAccess.Repositories.Interfaces;
+using System.IO;
+using OpenBots.Server.Model.File;
 
 namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
 {
@@ -65,6 +68,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         readonly IIPFencingRepository iPFencingRepository;
         readonly IHttpContextAccessor context;
         readonly IOrganizationSettingRepository organizationSettingRepository;
+        readonly IServerDriveRepository serverDriveRepository;
+        readonly IServerFolderRepository serverFolderRepository;
 
         /// <summary>
         /// AuthController constructor
@@ -91,6 +96,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         /// <param name="organizationMemberRepository"></param>
         /// <param name="passwordPolicyRepository"></param>
         /// <param name="termsConditionsManager"></param>
+        /// <param name="serverDriveRepository"></param>
+        /// <param name="serverFolderRepository"></param>
         public AuthController(
            ApplicationIdentityUserManager userManager,
            SignInManager<ApplicationUser> signInManager,
@@ -113,7 +120,9 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
            IIPFencingManager iPFencingManager,
            IIPFencingRepository iPFencingRepository,
            IHttpContextAccessor context,
-           IOrganizationSettingRepository organizationSettingRepository) : base(httpContextAccessor, userManager, membershipManager)
+           IOrganizationSettingRepository organizationSettingRepository,
+           IServerDriveRepository serverDriveRepository,
+           IServerFolderRepository serverFolderRepository) : base(httpContextAccessor, userManager, membershipManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -138,6 +147,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             this.iPFencingRepository = iPFencingRepository;
             this.context = context;
             this.organizationSettingRepository = organizationSettingRepository;
+            this.serverDriveRepository = serverDriveRepository;
+            this.serverFolderRepository = serverFolderRepository;
         }
 
         /// <summary>
@@ -493,6 +504,105 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                             organizationSettingRepository.ForceIgnoreSecurity();
                             organizationSettingRepository.Add(orgSettings);
                             organizationSettingRepository.ForceSecurity();
+
+                            //create server drive
+                            var drive = serverDriveRepository.Find(null).Items?.FirstOrDefault();
+                            if (drive == null)
+                            {
+                                if (newOrganization != null)
+                                {
+                                    Guid? organizationId = newOrganization.Id;
+                                    Guid driveId = new Guid("37a01356-7514-47a2-96ce-986faadd628e");
+                                    string storagePath = "Files";
+                                    string emailAttachments = "Email Attachments";
+                                    string queueItemAttachments = "Queue Item Attachments";
+                                    string automations = "Automations";
+                                    string assets = "Assets";
+
+                                    var serverDrive = new ServerDrive()
+                                    {
+                                        Id = driveId,
+                                        FileStorageAdapterType = "LocalFileStorage",
+                                        Name = storagePath,
+                                        OrganizationId = newOrganization.Id,
+                                        CreatedBy = person.Name,
+                                        CreatedOn = DateTime.UtcNow,
+                                        StoragePath = storagePath,
+                                        StorageSizeInBytes = 0
+                                    };
+
+                                    //add default server drive
+                                    Directory.CreateDirectory(storagePath);
+                                    serverDriveRepository.Add(serverDrive);
+
+                                    var emailAttachmentsFolder = new ServerFolder()
+                                    {
+                                        Id = new Guid("eea9B112-4eaf-4733-b67b-b71fea62ef06"),
+                                        CreatedBy = person.Name,
+                                        CreatedOn = DateTime.UtcNow,
+                                        Name = emailAttachments,
+                                        OrganizationId = newOrganization.Id,
+                                        ParentFolderId = driveId,
+                                        StoragePath = Path.Combine(storagePath, emailAttachments),
+                                        SizeInBytes = 0,
+                                        StorageDriveId = driveId
+
+                                    };
+                                    serverFolderRepository.Add(emailAttachmentsFolder);
+
+                                    var queueItemAttachmentsFolder = new ServerFolder()
+                                    {
+                                        Id = new Guid("e5981bba-dbbf-469f-b2de-5f30f8a3e517"),
+                                        CreatedBy = person.Name,
+                                        CreatedOn = DateTime.UtcNow,
+                                        Name = queueItemAttachments,
+                                        OrganizationId = newOrganization.Id,
+                                        ParentFolderId = driveId,
+                                        StoragePath = Path.Combine(storagePath, queueItemAttachments),
+                                        SizeInBytes = 0,
+                                        StorageDriveId = driveId
+
+                                    };
+                                    serverFolderRepository.Add(queueItemAttachmentsFolder);
+
+                                    var assetsFolder = new ServerFolder()
+                                    {
+                                        Id = new Guid("7b21c237-f374-4f67-8051-aae101527611"),
+                                        CreatedBy = person.Name,
+                                        CreatedOn = DateTime.UtcNow,
+                                        Name = assets,
+                                        OrganizationId = newOrganization.Id,
+                                        ParentFolderId = driveId,
+                                        StoragePath = Path.Combine(storagePath, assets),
+                                        SizeInBytes = 0,
+                                        StorageDriveId = driveId
+
+                                    };
+                                    serverFolderRepository.Add(assetsFolder);
+
+                                    var automationsFolder = new ServerFolder()
+                                    {
+                                        Id = new Guid("5ecd59f0-d2d2-43de-a441-b019432469a6"),
+                                        CreatedBy = person.Name,
+                                        CreatedOn = DateTime.UtcNow,
+                                        Name = automations,
+                                        OrganizationId = newOrganization.Id,
+                                        ParentFolderId = driveId,
+                                        StoragePath = Path.Combine(storagePath, automations),
+                                        SizeInBytes = 0,
+                                        StorageDriveId = driveId
+
+                                    };
+                                    serverFolderRepository.Add(automationsFolder);
+
+                                    //add component folders
+                                    List<string> componentList = new List<string>() { emailAttachments, queueItemAttachments, automations, assets };
+                                    foreach (var component in componentList)
+                                    {
+                                        Directory.CreateDirectory(Path.Combine(storagePath, component));
+                                    }
+                                }
+                            }
                         }
                     }
                     else

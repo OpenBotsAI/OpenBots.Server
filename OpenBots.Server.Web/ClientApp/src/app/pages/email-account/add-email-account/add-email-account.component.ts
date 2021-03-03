@@ -106,12 +106,10 @@ export class AddEmailAccountComponent implements OnInit {
     });
   }
 
-
   onSubmit() {
     if (this.urlId) {
       this.UpdateEmailAccount();
-    }
-    else {
+    } else {
       this.AddEmailAccount();
     }
   }
@@ -143,7 +141,6 @@ export class AddEmailAccountComponent implements OnInit {
           this.router.navigate(['pages/emailaccount/list']);
         },
         (error) => {
-          console.log(error.status, error);
           if (error.error.status === 409) {
             this.toastrService.danger(error.error.serviceErrors, 'error');
             this.getallemail(this.urlId);

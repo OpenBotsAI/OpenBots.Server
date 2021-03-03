@@ -5,7 +5,6 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { TimeDatePipe } from '../../../@core/pipe';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
 import { HelperService } from '../../../@core/services/helper.service';
-import { DialogService } from '../../../@core/dialogservices';
 import { Page } from '../../../interfaces/paginateInstance';
 @Component({
   selector: 'ngx-get-agents-id',
@@ -13,22 +12,19 @@ import { Page } from '../../../interfaces/paginateInstance';
   styleUrls: ['./get-agents-id.component.scss'],
 })
 export class GetAgentsIdComponent implements OnInit {
-  show_allagents: any = [];
-  cred_value: any = [];
+  showAllAgents: any = [];
   addagent: FormGroup;
   isDeleted = false;
   showpage: any = [];
   ParmasAgentId: any;
   sortDir = 1;
-  view_dialog: any;
-  del_id: any = [];
   showAgentHeartBeat: any = [];
   toggle: boolean;
   feild_name: any = [];
   page: Page = {};
-  show_perpage_size: boolean = false;
-  get_perPage: boolean = false;
-  per_page_num: any = [];
+  showPerPageSize: boolean = false;
+  getPerPage: boolean = false;
+  perPageNum: any = [];
   itemsPerPage: ItemsPerPage[] = [];
   showGridHeatbeat: boolean;
 
@@ -79,24 +75,24 @@ export class GetAgentsIdComponent implements OnInit {
 
   getAgentId(id) {
     this.agentService.getAgentbyID(id).subscribe((data: any) => {
-      this.show_allagents = data.body;
+      this.showAllAgents = data.body;
       const filterPipe = new TimeDatePipe();
-      this.show_allagents.lastReportedOn = filterPipe.transform(
-        this.show_allagents.lastReportedOn,
+      this.showAllAgents.lastReportedOn = filterPipe.transform(
+        this.showAllAgents.lastReportedOn,
         'lll'
       );
-      if (this.show_allagents.isHealthy == true) {
-        this.show_allagents.isHealthy = 'yes';
-      } else if (this.show_allagents.isHealthy == false) {
-        this.show_allagents.isHealthy = 'No';
+      if (this.showAllAgents.isHealthy == true) {
+        this.showAllAgents.isHealthy = 'yes';
+      } else if (this.showAllAgents.isHealthy == false) {
+        this.showAllAgents.isHealthy = 'No';
       }
-      this.addagent.patchValue(this.show_allagents);
+      this.addagent.patchValue(this.showAllAgents);
       this.addagent.disable();
     });
   }
 
   getAgentHeartBeatID(id, top, skip) {
-    this.get_perPage = false;
+    this.getPerPage = false;
     this.agentService.getAgentbyHeartBeatID(id, top, skip).subscribe(
       (data: any) => {
         if (data.items.length == 0) {
@@ -105,7 +101,7 @@ export class GetAgentsIdComponent implements OnInit {
           this.showGridHeatbeat = true;
           this.showAgentHeartBeat = data.items;
           this.page.totalCount = data.totalCount;
-          this.get_perPage = true;
+          this.getPerPage = true;
         }
       },
       (error) => {}
@@ -118,7 +114,7 @@ export class GetAgentsIdComponent implements OnInit {
 
   gotoaudit() {
     this.router.navigate(['/pages/change-log/list'], {
-      queryParams: { PageName: 'Agent', id: this.show_allagents.id },
+      queryParams: { PageName: 'Agent', id: this.showAllAgents.id },
     });
   }
 
@@ -151,22 +147,19 @@ export class GetAgentsIdComponent implements OnInit {
         this.feild_name
       )
       .subscribe((data: any) => {
-        this.showAgentHeartBeat = data;
-        // this.showAgentHeartBeat = data.items;
+        this.showAgentHeartBeat = data.items;
       });
   }
 
-  per_page(val) {
-    console.log(val);
-    this.per_page_num = val;
-    this.show_perpage_size = true;
+  perPage(val) {
+    this.perPageNum = val;
+    this.showPerPageSize = true;
     this.page.pageSize = val;
-    const skip = (this.page.pageNumber - 1) * this.per_page_num;
+    const skip = (this.page.pageNumber - 1) * this.perPageNum;
     this.agentService
-      .getAllAgent(this.page.pageSize, skip)
+      .getAgentbyHeartBeatID(this.ParmasAgentId, this.page.pageSize, skip)
       .subscribe((data: any) => {
-        this.showAgentHeartBeat = data;
-        // this.showAgentHeartBeat = data.items;
+        this.showAgentHeartBeat = data.items;
         this.page.totalCount = data.totalCount;
       });
   }
@@ -177,13 +170,13 @@ export class GetAgentsIdComponent implements OnInit {
   }
 
   pagination(pageNumber, pageSize?) {
-    if (this.show_perpage_size == false) {
+    if (this.showPerPageSize == false) {
       const top: number = pageSize;
       const skip = (pageNumber - 1) * pageSize;
       this.getAgentHeartBeatID(this.ParmasAgentId, top, skip);
-    } else if (this.show_perpage_size == true) {
-      const top: number = this.per_page_num;
-      const skip = (pageNumber - 1) * this.per_page_num;
+    } else if (this.showPerPageSize == true) {
+      const top: number = this.perPageNum;
+      const skip = (pageNumber - 1) * this.perPageNum;
       this.getAgentHeartBeatID(this.ParmasAgentId, top, skip);
     }
   }

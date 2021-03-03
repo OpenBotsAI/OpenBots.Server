@@ -20,6 +20,7 @@ export class CredentialsComponent implements OnInit {
   filterOrderBy: string;
   isDeleted = false;
   itemsPerPage: ItemsPerPage[] = [];
+  searchedValue: string;
 
   constructor(
     private httpService: HttpService,
@@ -44,7 +45,12 @@ export class CredentialsComponent implements OnInit {
 
   getAllCredentials(top: number, skip: number, orderBy?: string): void {
     let url: string;
-    if (orderBy)
+    if (this.searchedValue) {
+      if (orderBy)
+        url = `${CredentialsApiUrl.credentials}?$filter=substringof(tolower('${this.searchedValue}'), tolower(Name))&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+      else
+        url = `${CredentialsApiUrl.credentials}?$filter=substringof(tolower('${this.searchedValue}'), tolower(Name))&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+    } else if (orderBy)
       url = `${CredentialsApiUrl.credentials}?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
     else
       url = `${CredentialsApiUrl.credentials}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
@@ -140,7 +146,7 @@ export class CredentialsComponent implements OnInit {
       this.pagination(
         this.page.pageNumber,
         this.page.pageSize,
-        `${this.filterOrderBy}`
+        this.filterOrderBy
       );
     } else this.pagination(this.page.pageNumber, this.page.pageSize);
   }
@@ -150,17 +156,34 @@ export class CredentialsComponent implements OnInit {
     return index;
   }
 
-  searchValue(value) {
-    if (value.length) {
-      this.httpService
-        .get(
-          `${CredentialsApiUrl.credentials}?$filter=substringof(tolower('${value}'), tolower(Name))`
-        )
-        .subscribe((response) => {
-          console.log('res', response);
-          this.credentialsArr = response.items;
-          this.page.totalCount = response.totalCount;
-        });
-    } else this.pagination(this.page.pageNumber, this.page.pageSize);
+  searchValue(event) {
+    if (event.target.value.length >= 2) {
+      this.searchedValue = event.target.value;
+      if (this.filterOrderBy) {
+        this.pagination(
+          this.page.pageNumber,
+          this.page.pageSize,
+          this.filterOrderBy
+        );
+      } else {
+        this.httpService
+          .get(
+            `${CredentialsApiUrl.credentials}?$filter=substringof(tolower('${event.target.value}'), tolower(Name))`
+          )
+          .subscribe((response) => {
+            this.credentialsArr = [...response.items];
+            this.page.totalCount = response.totalCount;
+          });
+      }
+    } else if (!event.target.value.length) {
+      this.searchedValue = null;
+      if (this.filterOrderBy) {
+        this.pagination(
+          this.page.pageNumber,
+          this.page.pageSize,
+          this.filterOrderBy
+        );
+      } else this.pagination(this.page.pageNumber, this.page.pageSize);
+    }
   }
 }

@@ -20,6 +20,13 @@
     </div>
   </nb-card-header>
   <nb-card-body>
+      <div class="row row-fil">
+      <div class="col-md-4 col-lg-4">
+          <!-- <label class="label">Search with Name:</label> -->
+          <input type="text" icon="search" nbInput fullWidth placeholder="Search with name..."
+        (keyup)="searchValue($event)">
+        </div>
+      </div>
     <table class="table table-bordered">
       <thead>
         <tr>
@@ -80,7 +87,7 @@
           autoHide="true" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
           screenReaderCurrentLabel="You're on page"></pagination-controls>
       </div>
-      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
+      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="showallassets && showallassets.length">
         <label class="label">Total {{ showpage.totalCount }} /</label>
 
         <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
@@ -96,7 +103,7 @@
 <ng-template #dialog let-data let-ref="dialogRef">
   <nb-card>
     <nb-card-header>
-      <h6>Delete Agent</h6>
+      <h6>Delete Asset</h6>
     </nb-card-header>
     <nb-card-body>
       <div aria-labelledby="title">

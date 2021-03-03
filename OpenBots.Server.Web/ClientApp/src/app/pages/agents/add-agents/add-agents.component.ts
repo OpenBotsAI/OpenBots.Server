@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IpVersion, RxwebValidators } from '@rxweb/reactive-form-validators';
-import { HttpService } from '../../../@core/services/http.service';
-import { AgentApiUrl, CredentialsApiUrl } from '../../../webApiUrls';
-import { HelperService } from '../../../@core/services/helper.service';
+import { AgentsService } from '../agents.service';
+import { HttpResponse } from '@angular/common/http';
+import { NbToastrService } from '@nebular/theme';
 
 @Component({
   selector: 'ngx-add-agents',
@@ -17,17 +17,17 @@ export class AddAgentsComponent implements OnInit {
   title = 'Add';
   checked = false;
   submitted = false;
-  credentialArr: { credentialId: string; credentialName: string }[] = [];
+  credentialArr: any = [];
   value = ['JSON', 'Number', 'Text'];
   ipVersion = 'V4';
   urlId: string;
-  show_allagents: any = [];
+  showAllAgents: any = [];
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    private httpService: HttpService,
-    private helperService: HelperService
+    protected agentService: AgentsService,
+    private toastrService: NbToastrService
   ) {}
 
   ngOnInit(): void {
@@ -65,14 +65,14 @@ export class AddAgentsComponent implements OnInit {
   }
 
   getCredentials(): void {
-    this.httpService
-      .get(`${CredentialsApiUrl.credentials}/${CredentialsApiUrl.getLookUp}`)
-      .subscribe((data) => {
-        if (data) this.credentialArr = [...data];
-        else this.credentialArr = [];
-      });
+    this.agentService.getCredentail().subscribe((data) => {
+      if (data) {
+        this.credentialArr = data;
+      } else {
+        this.credentialArr = [];
+      }
+    });
   }
-
   get formControl() {
     return this.agentForm.controls;
   }
@@ -122,35 +122,32 @@ export class AddAgentsComponent implements OnInit {
     if (this.agentForm.invalid) {
       return;
     }
-    this.httpService
-      .post(`${AgentApiUrl.Agents}`, this.agentForm.value)
-      .subscribe(
-        () => {
-          this.httpService.success('Agent added successfully');
-          this.router.navigate(['pages/agents/list']);
-        },
-        () => (this.submitted = false)
-      );
+    this.agentService.addAgent(this.agentForm.value).subscribe(
+      () => {
+        this.toastrService.success('Agent added successfully');
+        this.router.navigate(['pages/agents/list']);
+      },
+      () => (this.submitted = false)
+    );
   }
 
   updateAgent(): void {
     this.submitted = true;
-    const headers = this.helperService.getETagHeaders(this.etag);
-    this.httpService
-      .put(`${AgentApiUrl.Agents}/${this.urlId}`, this.agentForm.value, headers)
+    this.agentService
+      .editAgent(this.urlId, this.agentForm.value, this.etag)
       .subscribe(
         () => {
-          this.httpService.success('Updated successfully');
+          this.toastrService.success('Updated successfully');
           this.router.navigate(['pages/agents/list']);
         },
         (error) => {
           if (error.error.status === 409) {
-            this.httpService.error(error.error.serviceErrors);
+            this.toastrService.danger(error.error.serviceErrors, 'Error');
             this.getAgentById();
             this.submitted = false;
           }
           if (error.error.status === 429) {
-            this.httpService.error(error.error.serviceErrors);
+            this.toastrService.danger(error.error.serviceErrors, 'Error');
             this.submitted = false;
           }
         }
@@ -195,12 +192,11 @@ export class AddAgentsComponent implements OnInit {
   }
 
   getAgentById(): void {
-    this.httpService
-      .get(`${AgentApiUrl.Agents}/${this.urlId}`, { observe: 'response' })
-      .subscribe((data) => {
-        console.log('data', data);
+    this.agentService
+      .getAgentbyID(this.urlId)
+      .subscribe((data: HttpResponse<any>) => {
         if (data && data.body) {
-          this.show_allagents = data.body;
+          this.showAllAgents = data.body;
           if (data.body.ipOption === 'ipv6') {
             this.agentForm
               .get('ipAddresses')
@@ -220,9 +216,9 @@ export class AddAgentsComponent implements OnInit {
             this.agentForm.get('ipAddresses').updateValueAndValidity();
           }
           this.etag = data.headers.get('ETag').replace(/\"/g, '');
-          this.agentForm.patchValue(this.show_allagents);
+          this.agentForm.patchValue(this.showAllAgents);
           this.agentForm.patchValue({
-            CredentialId: this.show_allagents.credentialId,
+            CredentialId: this.showAllAgents.credentialId,
           });
         }
       });

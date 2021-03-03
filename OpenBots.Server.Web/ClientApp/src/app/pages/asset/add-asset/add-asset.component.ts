@@ -31,7 +31,7 @@ export class AddAssetComponent implements OnInit {
   etag;
   showAssetbyID: any = [];
   title = 'Add';
-  show_upload: boolean = false;
+  showUpload: boolean = false;
   save_value: any = [];
   addasset: FormGroup;
   submitted = false;
@@ -56,7 +56,6 @@ export class AddAssetComponent implements OnInit {
     this.editorOptions = new JsonEditorOptions();
     this.editorOptions.modes = ['code', 'text', 'tree', 'view'];
     this.urlId = this.route.snapshot.params['id'];
-   
   }
 
   ngOnInit(): void {
@@ -82,11 +81,11 @@ export class AddAssetComponent implements OnInit {
       ],
       type: ['', Validators.required],
     });
-     if (this.urlId) {
-       this.getAssetById(this.urlId);
-       this.title = 'Update';
-       this.addasset.get('type').disable();
-     }
+    if (this.urlId) {
+      this.getAssetById(this.urlId);
+      this.title = 'Update';
+      this.addasset.get('type').disable();
+    }
   }
 
   getAssetById(id) {
@@ -145,7 +144,7 @@ export class AddAssetComponent implements OnInit {
           }
           this.native_file = output.file.nativeFile;
           this.native_file_name = output.file.nativeFile.name;
-          this.show_upload = false;
+          this.showUpload = false;
         }
         break;
     }
@@ -154,11 +153,10 @@ export class AddAssetComponent implements OnInit {
   get f() {
     return this.addasset.controls;
   }
-  onSubmit(){
-    if(this.urlId){
+  onSubmit() {
+    if (this.urlId) {
       this.UpdateAsset();
-    }
-    else {
+    } else {
       this.addAsset();
     }
   }
@@ -177,13 +175,12 @@ export class AddAssetComponent implements OnInit {
       }
       this.addasset.value.JsonValue = JSON.stringify(this.editor.get());
 
-      let jsonObj = {
-        name: this.addasset.value.name,
-        type: this.addasset.value.type,
-        JsonValue: this.addasset.value.JsonValue,
-      };
+      let jsonObjFromData = new FormData();
+      jsonObjFromData.append('name', this.addasset.value.name);
+      jsonObjFromData.append('type', this.addasset.value.type);
+      jsonObjFromData.append('JsonValue', this.addasset.value.JsonValue);
 
-      this.assetService.addAsset(jsonObj).subscribe(
+      this.assetService.addAsset(jsonObjFromData).subscribe(
         (data) => {
           this.toastrService.success('Asset added Successfully', 'Success');
           this.router.navigate(['pages/asset/list']);
@@ -196,13 +193,11 @@ export class AddAssetComponent implements OnInit {
       this.textvalue == false &&
       this.file == false
     ) {
-      let numberObj = {
-        name: this.addasset.value.name,
-        type: this.addasset.value.type,
-        NumberValue: this.addasset.value.NumberValue,
-      };
-
-      this.assetService.addAsset(numberObj).subscribe(
+      let numberObjFromData = new FormData();
+      numberObjFromData.append('name', this.addasset.value.name);
+      numberObjFromData.append('type', this.addasset.value.type);
+      numberObjFromData.append('NumberValue', this.addasset.value.NumberValue);
+      this.assetService.addAsset(numberObjFromData).subscribe(
         (data) => {
           this.toastrService.success('Asset added Successfully', 'Success');
           this.router.navigate(['pages/asset/list']);
@@ -215,13 +210,12 @@ export class AddAssetComponent implements OnInit {
       this.textvalue == true &&
       this.file == false
     ) {
-      let textObj = {
-        name: this.addasset.value.name,
-        type: this.addasset.value.type,
-        TextValue: this.addasset.value.TextValue,
-      };
+      let textObjFromData = new FormData();
+      textObjFromData.append('name', this.addasset.value.name);
+      textObjFromData.append('type', this.addasset.value.type);
+      textObjFromData.append('TextValue', this.addasset.value.TextValue);
 
-      this.assetService.addAsset(textObj).subscribe(
+      this.assetService.addAsset(textObjFromData).subscribe(
         (data) => {
           this.toastrService.success('Asset added Successfully', 'Success');
           this.router.navigate(['pages/asset/list']);
@@ -235,29 +229,20 @@ export class AddAssetComponent implements OnInit {
       this.file == true
     ) {
       if (this.native_file) {
-        let formData = new FormData();
-        formData.append('file', this.native_file, this.native_file_name);
-        let fileObj = {
-          name: this.addasset.value.name,
-          type: this.addasset.value.type,
-        };
-        this.assetService.addAsset(fileObj).subscribe(
+        let fileObjFromData = new FormData();
+        fileObjFromData.append('name', this.addasset.value.name);
+        fileObjFromData.append('type', this.addasset.value.type);
+        fileObjFromData.append('file', this.native_file, this.native_file_name);
+
+        this.assetService.addAsset(fileObjFromData).subscribe(
           (data: any) => {
-            this.assetService.AssetFile(data.id, formData).subscribe(
-              (filedata: any) => {
-                this.toastrService.success(
-                  'Asset added Successfully',
-                  'Success'
-                );
-                this.router.navigate(['pages/asset/list']);
-              },
-              () => (this.submitted = false)
-            );
+            this.toastrService.success('Asset added Successfully', 'Success');
+            this.router.navigate(['pages/asset/list']);
           },
           () => (this.submitted = false)
         );
       } else {
-        this.show_upload = true;
+        this.showUpload = true;
         this.native_file_name = undefined;
         this.native_file = undefined;
       }
@@ -265,9 +250,7 @@ export class AddAssetComponent implements OnInit {
   }
 
   UpdateAsset() {
-    console.log(this.addasset.getRawValue().type);
     this.submitted = true;
-
     if (this.showAssetbyID.type == 'File') {
       if (this.native_file) {
         let FileUploadformData = new FormData();
@@ -277,7 +260,7 @@ export class AddAssetComponent implements OnInit {
           this.native_file_name
         );
         FileUploadformData.append('name', this.addasset.value.name);
-        FileUploadformData.append('type', this.addasset.value.type);
+        FileUploadformData.append('type', this.addasset.getRawValue().type);
         this.assetService
           .editAssetbyUpload(this.urlId, FileUploadformData, this.etag)
           .subscribe(
@@ -291,7 +274,7 @@ export class AddAssetComponent implements OnInit {
               this.native_file_name = undefined;
             },
             (error) => {
-              console.log(error, error.status);
+              this.submitted = false;
               if (error.error.status === 409) {
                 this.toastrService.danger(error.error.serviceErrors, 'error');
                 this.getAssetById(this.urlId);
@@ -300,9 +283,8 @@ export class AddAssetComponent implements OnInit {
           );
       } else if (this.native_file == undefined) {
         let fileObj = {
-         
           name: this.addasset.value.name,
-          type: this.addasset.value.type,
+          type: this.addasset.getRawValue().type,
         };
         this.assetService.editAsset(this.urlId, fileObj, this.etag).subscribe(
           (data: HttpResponse<any>) => {
@@ -312,6 +294,7 @@ export class AddAssetComponent implements OnInit {
             this.native_file_name = undefined;
           },
           (error) => {
+            this.submitted = false;
             if (error.error.status === 409) {
               this.toastrService.danger(error.error.serviceErrors, 'error');
               this.getAssetById(this.urlId);
@@ -319,7 +302,7 @@ export class AddAssetComponent implements OnInit {
           }
         );
       } else {
-        this.show_upload = true;
+        this.showUpload = true;
         this.native_file_name = undefined;
         this.native_file = undefined;
       }
@@ -331,7 +314,7 @@ export class AddAssetComponent implements OnInit {
       this.addasset.value.JsonValue = JSON.stringify(this.editor.get());
       let jsondata = {
         name: this.addasset.value.name,
-        type: this.addasset.value.type,
+        type: this.addasset.getRawValue().type,
         Organizationid: localStorage.getItem('ActiveOrganizationID'),
         jsonValue: this.addasset.value.JsonValue,
       };
@@ -344,6 +327,7 @@ export class AddAssetComponent implements OnInit {
           this.router.navigate(['pages/asset/list']);
         },
         (error) => {
+          this.submitted = false;
           if (error.error.error.status === 409) {
             this.toastrService.danger(error.error.serviceErrors, 'error');
             this.getAssetById(this.urlId);
@@ -366,6 +350,7 @@ export class AddAssetComponent implements OnInit {
           this.router.navigate(['pages/asset/list']);
         },
         (error) => {
+          this.submitted = false;
           if (error.error.status === 409) {
             this.toastrService.danger(error.error.serviceErrors, 'error');
             this.getAssetById(this.urlId);
@@ -388,6 +373,7 @@ export class AddAssetComponent implements OnInit {
           this.router.navigate(['pages/asset/list']);
         },
         (error) => {
+          this.submitted = false;
           if (error.error.status === 409) {
             this.toastrService.danger(error.error.serviceErrors, 'error');
             this.getAssetById(this.urlId);

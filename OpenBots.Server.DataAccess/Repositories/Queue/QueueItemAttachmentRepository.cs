@@ -35,6 +35,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                                  from b in table1.DefaultIfEmpty()
                                  select new AllQueueItemAttachmentsViewModel
                                  {
+                                     Id = (Guid)(a?.Id),
                                      FileId = (Guid)(a?.FileId),
                                      SizeInBytes = (long)(a?.SizeInBytes),
                                      QueueItemId = (Guid)(a?.QueueItemId),

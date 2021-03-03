@@ -140,14 +140,14 @@ export class PagesMenu {
             title: 'Files Manager',
             link: '/pages/file-manager',
           },
-          {
-            title: 'All Files',
-            link: '/pages/file/list',
-          },
-          {
-            title: 'Add File',
-            link: '/pages/file/add',
-          },
+          // {
+          //   title: 'All Files',
+          //   link: '/pages/file/list',
+          // },
+          // {
+          //   title: 'Add File',
+          //   link: '/pages/file/add',
+          // },
         ],
       },
       // {

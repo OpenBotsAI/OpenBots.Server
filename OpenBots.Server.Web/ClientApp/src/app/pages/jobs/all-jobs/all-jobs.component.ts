@@ -364,7 +364,6 @@ export class AllJobsComponent implements OnInit, OnDestroy {
               }
             }
             this.show_alljobs = data.items;
-            console.log('jobs2', this.show_alljobs);
             this.showpage = data;
             this.page.totalCount = data.totalCount;
           });

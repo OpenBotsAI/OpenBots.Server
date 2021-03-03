@@ -146,15 +146,9 @@
           </div>
         </form>
         <hr *ngIf="showGridHeatbeat == true">
-           <!-- <button  class="btn btn-primary"> -->
-            
              <nb-icon *ngIf="showGridHeatbeat == true"  nbTooltip="Refresh HeartBeat" icon="refresh" class="refresh-icon" (click)="refreshData()">
-        
         </nb-icon>
-         <!-- Refresh HeartBeat -->
-          
-      <!-- </button> -->
-          
+         <label class="refresh-icon" *ngIf="showGridHeatbeat == true"> Refresh HeartBeat</label>
        
         <table class="table table-bordered" *ngIf="showGridHeatbeat == true">
           <thead>
@@ -222,15 +216,15 @@
               autoHide="true" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
               screenReaderCurrentLabel="You're on page"></pagination-controls>
           </div>
-          <!-- <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
+          <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="getPerPage">
         <label class="label">Total {{ showpage.totalCount }} /</label>
 
-        <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
+        <select class="custom-select per-page-drop" (change)="perPage($event.target.value)">
           <option *ngFor="let item of itemsPerPage" [value]="item.id">
             {{ item.name }}
           </option>
         </select>
-      </div> -->
+      </div>
         </div>
       </nb-card-body>
     </nb-card>

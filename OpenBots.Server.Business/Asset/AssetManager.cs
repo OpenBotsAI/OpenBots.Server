@@ -279,10 +279,7 @@ namespace OpenBots.Server.Business
 
             //remove file associated with asset
             if (asset.Type == "File")
-            {
-                var file = _fileManager.DeleteFileFolder(asset.FileId.ToString(), driveName);
-                _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { file });
-            }
+                _fileManager.DeleteFileFolder(asset.FileId.ToString(), driveName);
 
             return asset;
         }

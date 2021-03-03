@@ -10,10 +10,9 @@ import { ConfigValueService } from '../config-value.service';
 @Component({
   selector: 'ngx-edit-config-value',
   templateUrl: './edit-config-value.component.html',
-  styleUrls: ['./edit-config-value.component.scss']
+  styleUrls: ['./edit-config-value.component.scss'],
 })
 export class EditConfigValueComponent implements OnInit {
-
   submitted = false;
   showconfigValue: any = [];
   configform: FormGroup;
@@ -26,10 +25,11 @@ export class EditConfigValueComponent implements OnInit {
     private acroute: ActivatedRoute,
     protected configService: ConfigValueService,
     private toastrService: NbToastrService,
-    private formBuilder: FormBuilder, protected router: Router,
+    private formBuilder: FormBuilder,
+    protected router: Router
   ) {
     this.acroute.queryParams.subscribe((params) => {
-      this.configId = params.id
+      this.configId = params.id;
       this.getConfigValueById(params.id);
     });
   }
@@ -53,52 +53,64 @@ export class EditConfigValueComponent implements OnInit {
     });
   }
 
-
-
-
-
   getConfigValueById(id) {
-    this.configService.getConfigValuebyId(id).subscribe((data: HttpResponse<any>) => {
-      this.showconfigValue = data.body;
-      this.etag = data.headers.get('ETag').replace(/\"/g, '')
-      console.log(this.etag)
-      const filterPipe = new TimeDatePipe();
-      this.showconfigValue.updatedOn = filterPipe.transform(this.showconfigValue.updatedOn, 'lll');
-      this.configform.patchValue(this.showconfigValue)
-    }, (error) => {
-      console.log(error.status, error)
-      if (error.error.status === 409) {
-        this.toastrService.danger(error.error.serviceErrors, 'error')
-        this.getConfigValueById(this.configId)
+    this.configService.getConfigValuebyId(id).subscribe(
+      (data: HttpResponse<any>) => {
+        this.showconfigValue = data.body;
+        this.etag = data.headers.get('ETag').replace(/\"/g, '');
+        const filterPipe = new TimeDatePipe();
+        this.showconfigValue.updatedOn = filterPipe.transform(
+          this.showconfigValue.updatedOn,
+          'lll'
+        );
+        this.configform.patchValue(this.showconfigValue);
+      },
+      (error) => {
+        if (error.error.status === 409) {
+          this.toastrService.danger(error.error.serviceErrors, 'error');
+          this.getConfigValueById(this.configId);
+        }
       }
-    });
+    );
   }
 
   onSubmit() {
     this.submitted = true;
     this.configService
       .editConfigValue(this.configId, this.configform.value, this.etag)
-      .subscribe(() => {
-        this.toastrService.success('Config Details Update Successfully', 'Success');
-        this.router.navigate(['pages/config/list']);
-      }, (error) => {
-        console.log(error.status, error)
-        if (error.error.status === 409) {
-          this.toastrService.danger(error.error.serviceErrors, 'error')
-          this.getConfigValueById(this.configId)
+      .subscribe(
+        () => {
+          this.toastrService.success(
+            'Config Details Update Successfully',
+            'Success'
+          );
+          this.router.navigate(['pages/config/list']);
+        },
+        (error) => {
+          if (error.error.status === 409) {
+            this.toastrService.danger(error.error.serviceErrors, 'error');
+            this.getConfigValueById(this.configId);
+          }
         }
-      });
+      );
 
     this.submitted = false;
-
   }
-
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'Configuration.ConfigurationValue', id: this.showconfigValue.id } })
+    this.router.navigate(['/pages/change-log/list'], {
+      queryParams: {
+        PageName: 'Configuration.ConfigurationValue',
+        id: this.showconfigValue.id,
+      },
+    });
   }
   gotoEmailTest() {
-    this.router.navigate(['/pages/emailaccount/test-email'], { queryParams: { name: this.showconfigValue.name, email: this.showconfigValue.fromEmailAddress } })
+    this.router.navigate(['/pages/emailaccount/test-email'], {
+      queryParams: {
+        name: this.showconfigValue.name,
+        email: this.showconfigValue.fromEmailAddress,
+      },
+    });
   }
-
 }

@@ -38,5 +38,7 @@ namespace OpenBots.Server.Business.Interfaces
         FileFolderViewModel GetFileFolderByStoragePath(string storagePath, string driveName = null);
 
         ServerDrive AddServerDrive(string driveName);
+
+        Dictionary<Guid?, string> GetDriveNames(string adapterType);
     }
 }

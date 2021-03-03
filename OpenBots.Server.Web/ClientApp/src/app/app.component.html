@@ -1,44 +1,8 @@
-
-
-<!-- <div > -->
+ <!-- <ngx-loader-spinner></ngx-loader-spinner> -->
 <block-ui *ngIf="!noInternetConnection" > 
+ 
     <router-outlet></router-outlet>
-       <!-- <div>
-
-    <p style.color = "{{ isConnectionAvailable  ? 'green' : 'red'}}"> {{ isConnectionAvailable  ? 'Online' : 'Offline'}} </p>  
-
-    <div id="blackout" class="noselect" style.display = "{{isConnectionAvailable ? 'none' : 'block'}}">
-        <br><br><br><br><br>
-        <p>No Internet connection!</p>
-        <br>
-    </div>
-
-</div> -->
 </block-ui>
-<!-- </div> -->
-
-
-<!-- <div   > -->
-  
- 
-  
-
-
- <!-- <div *ngIf="noInternetConnection" style="text-align: center;">     -->
-    <!-- <h1>THERE IS NO INTERNET CONNECTION</h1>     -->
-    <!-- <img width="111px" src="assets/images/no.wifi_.png" alt="Wifi Connecred" />  -->
     <ngx-pwa *ngIf="noInternetConnection" ></ngx-pwa>   
-<!-- </div>   -->
-  
-<!-- 
-<ng-template #blockTemplate>
-      <div class="block-ui-template">
-        
-        <img src="../assets/images/OBServer_logo.png"/>
-      </div>
-    </ng-template>
+    
  
-    <block-ui [template]="blockTemplate">
-    <router-outlet></router-outlet>
-    </block-ui> -->
-

@@ -1,6 +1,5 @@
 import { Component, OnInit, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NbToastrService } from '@nebular/theme';
 import {
@@ -25,8 +24,8 @@ export class AddAutomationComponent implements OnInit {
   uploadInput: EventEmitter<UploadInput>;
   humanizeBytes: Function;
   dragOver: boolean;
-  native_file: any;
-  native_file_name: any;
+  nativeFile: any;
+  nativeFileName: any;
   automationSelection: string[] = ['OpenBots', 'Python'];
   ///// end declartion////
   etag;
@@ -35,8 +34,7 @@ export class AddAutomationComponent implements OnInit {
   fileSize = false;
   value = ['Published', 'Commited'];
   showprocess: FormGroup;
-  save_value: any = [];
-  show_upload: boolean = false;
+  showUpload: boolean = false;
   submitted = false;
   urlId: string;
 
@@ -96,9 +94,9 @@ export class AddAutomationComponent implements OnInit {
             this.fileSize = false;
             this.submitted = false;
           }
-          this.native_file = output.file.nativeFile;
-          this.native_file_name = output.file.nativeFile.name;
-          this.show_upload = false;
+          this.nativeFile = output.file.nativeFile;
+          this.nativeFileName = output.file.nativeFile.name;
+          this.showUpload = false;
         }
         break;
     }
@@ -126,46 +124,45 @@ export class AddAutomationComponent implements OnInit {
 
   addAutomation() {
     this.submitted = true;
-    let formData = new FormData();
-    if (this.native_file) {
-      formData.append('file', this.native_file, this.native_file_name);
 
-      let processobj = {
-        name: this.showprocess.value.name,
-        status: this.showprocess.value.status,
-        automationEngine: this.showprocess.value.automationEngine,
-      };
-
-      this.automationService.addProcess(processobj).subscribe(
+    if (this.nativeFile) {
+      let AutomationformData = new FormData();
+      AutomationformData.append(
+        'file',
+        this.nativeFile,
+        this.nativeFileName
+      );
+      AutomationformData.append('name', this.showprocess.value.name);
+      AutomationformData.append('status', this.showprocess.value.status);
+      AutomationformData.append(
+        'automationEngine',
+        this.showprocess.value.automationEngine
+      );
+      this.automationService.addProcess(AutomationformData).subscribe(
         (data: any) => {
-          this.automationService.uploadProcessFile(data.id, formData).subscribe(
-            (filedata: any) => {
-              this.native_file_name = undefined;
-              this.native_file = undefined;
-              this.toastrService.success(
-                'Automation Add  Successfully!',
-                'Success'
-              );
-              this.router.navigate(['/pages/automation/list']);
-            },
-            () => (this.submitted = false)
+          this.nativeFileName = undefined;
+          this.nativeFile = undefined;
+          this.toastrService.success(
+            'Automation Add  Successfully!',
+            'Success'
           );
+          this.router.navigate(['/pages/automation/list']);
         },
         () => (this.submitted = false)
       );
     } else {
-      this.show_upload = true;
+      this.showUpload = true;
       this.toastrService.danger('Please Add Automation file!', 'Failed');
       this.submitted = false;
-      this.native_file_name = undefined;
-      this.native_file = undefined;
+      this.nativeFileName = undefined;
+      this.nativeFile = undefined;
     }
   }
 
   updateAutomation() {
-    if (this.native_file) {
+    if (this.nativeFile) {
       let formData = new FormData();
-      formData.append('File', this.native_file, this.native_file_name);
+      formData.append('File', this.nativeFile, this.nativeFileName);
       formData.append('name', this.showprocess.value.name);
       formData.append('status', this.showprocess.value.status);
       formData.append(
@@ -179,8 +176,8 @@ export class AddAutomationComponent implements OnInit {
             this.showprocess.value.binaryObjectId = data.binaryObjectId;
             this.toastrService.success('Updated successfully', 'Success');
             this.router.navigate(['/pages/automation/list']);
-            this.native_file = undefined;
-            this.native_file_name = undefined;
+            this.nativeFile = undefined;
+            this.nativeFileName = undefined;
           },
           (error) => {
             if (error && error.error && error.error.status === 409) {
@@ -189,7 +186,7 @@ export class AddAutomationComponent implements OnInit {
             }
           }
         );
-    } else if (this.native_file == undefined) {
+    } else if (this.nativeFile == undefined) {
       let processobj = {
         name: this.showprocess.value.name,
         status: this.showprocess.value.status,
@@ -201,8 +198,8 @@ export class AddAutomationComponent implements OnInit {
           (data) => {
             this.toastrService.success('Updated successfully', 'Success');
             this.router.navigate(['/pages/automation/list']);
-            this.native_file = undefined;
-            this.native_file_name = undefined;
+            this.nativeFile = undefined;
+            this.nativeFileName = undefined;
           },
           (error) => {
             if (error && error.error && error.error.status === 409) {
