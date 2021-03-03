@@ -29,7 +29,6 @@ export class AllAgentsComponent implements OnInit {
   get_perPage: boolean = false;
   per_page_num: any = [];
   itemsPerPage: ItemsPerPage[] = [];
-  gSearch: boolean = false;
   searchedValue: string;
   filterOrderBy: string;
   constructor(
@@ -126,32 +125,6 @@ export class AllAgentsComponent implements OnInit {
           this.page.totalCount = data.totalCount;
         });
     }
-    // if (this.gSearch == false) {
-    //   const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-    //   this.filterOrderBy = `${filter_value}+${vale}`;
-    //   this.feild_name = filter_value + '+' + vale;
-    //   this.agentService
-    //     .getAllAgentOrder(this.page.pageSize, skip, this.feild_name)
-    //     .subscribe((data: any) => {
-    //       this.showpage = data;
-    //       this.showAllAgents = data.items;
-    //     });
-    // } else if (this.gSearch == true) {
-    //   const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-    //   const feildname = filter_value + '+' + vale;
-    //   this.agentService
-    //     .getFilterAgentOrder(
-    //       this.page.pageSize,
-    //       skip,
-    //       this.searchedValue,
-    //       feildname
-    //     )
-    //     .subscribe((data: any) => {
-    //       this.showpage = data;
-    //       this.showAllAgents = data.items;
-    //       this.page.totalCount = data.totalCount;
-    //     });
-    // }
   }
 
   patch_Agent(event, id) {
@@ -166,14 +139,19 @@ export class AllAgentsComponent implements OnInit {
   }
 
   per_page(val) {
-    if (this.gSearch == false) {
-      this.per_page_num = val;
-      this.show_perpage_size = true;
-      this.page.pageSize = val;
-      const skip = (this.page.pageNumber - 1) * this.per_page_num;
+    this.per_page_num = val;
+    this.show_perpage_size = true;
+    this.page.pageSize = val;
+    const skip = (this.page.pageNumber - 1) * this.per_page_num;
+    if (this.searchedValue) {
       if (this.filterOrderBy) {
         this.agentService
-          .getFilterPagination(this.page.pageSize, skip, this.filterOrderBy)
+          .getFilterPagination(
+            this.page.pageSize,
+            skip,
+            this.filterOrderBy,
+            this.searchedValue
+          )
           .subscribe((data: any) => {
             this.showpage = data;
             this.showAllAgents = data.items;
@@ -181,29 +159,29 @@ export class AllAgentsComponent implements OnInit {
           });
       } else {
         this.agentService
-          .getFilterPagination(this.page.pageSize, skip, 'createdOn+desc')
+          .getFilterPagination(
+            this.page.pageSize,
+            skip,
+            'createdOn+desc',
+            this.searchedValue
+          )
           .subscribe((data: any) => {
             this.showpage = data;
             this.showAllAgents = data.items;
             this.page.totalCount = data.totalCount;
           });
       }
-      // this.agentService
-      //   .getFilterPagination(this.page.pageSize, skip, '')
-      //   .subscribe((data: any) => {
-      //     this.showpage = data;
-      //     this.showAllAgents = data.items;
-      //     this.page.totalCount = data.totalCount;
-      //   });
-    } else if (this.gSearch == true) {
-      // const top: number = this.per_page_num;
-      // const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-      this.per_page_num = val;
-      this.show_perpage_size = true;
-      this.page.pageSize = val;
-      const skip = (this.page.pageNumber - 1) * this.per_page_num;
+    } else if (this.filterOrderBy) {
       this.agentService
-        .getFilterAgent(this.page.pageSize, skip, this.feild_name)
+        .getFilterPagination(this.page.pageSize, skip, this.filterOrderBy)
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showAllAgents = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    } else {
+      this.agentService
+        .getFilterPagination(this.page.pageSize, skip, 'createdOn+desc')
         .subscribe((data: any) => {
           this.showpage = data;
           this.showAllAgents = data.items;
@@ -220,31 +198,17 @@ export class AllAgentsComponent implements OnInit {
   }
 
   del_agent(ref) {
-    if (this.gSearch == false) {
-      this.isDeleted = true;
-      const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-      this.agentService.delAgentbyID(this.del_id).subscribe(
-        () => {
-          this.isDeleted = false;
-          this.toastrService.success('Agent Delete Successfully', 'Success');
-          ref.close();
-          this.get_allagent(this.page.pageSize, skip);
-        },
-        () => (this.isDeleted = false)
-      );
-    } else if (this.gSearch == true) {
-      this.isDeleted = true;
-      const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-      this.agentService.delAgentbyID(this.del_id).subscribe(
-        () => {
-          this.isDeleted = false;
-          this.toastrService.success('Agent Delete Successfully', 'Success');
-          ref.close();
-          this.Gobalsearch(this.page.pageSize, skip, this.feild_name);
-        },
-        () => (this.isDeleted = false)
-      );
-    }
+    this.isDeleted = true;
+    const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+    this.agentService.delAgentbyID(this.del_id).subscribe(
+      () => {
+        this.isDeleted = false;
+        this.toastrService.success('Agent Delete Successfully', 'Success');
+        ref.close();
+        this.pagination(this.page.pageNumber, this.page.pageSize);
+      },
+      () => (this.isDeleted = false)
+    );
   }
 
   get_allagent(top, skip) {
@@ -264,8 +228,6 @@ export class AllAgentsComponent implements OnInit {
 
   pageChanged(event) {
     this.page.pageNumber = event;
-    // const top: number = pageSize;
-    //     const skip = (pageNumber - 1) * pageSize;
     this.pagination(event, this.page.pageSize);
   }
 
@@ -313,88 +275,12 @@ export class AllAgentsComponent implements OnInit {
           this.page.totalCount = data.totalCount;
         });
     }
-    // if (this.show_perpage_size == false) {
-    //   if (this.gSearch == false) {
-    //     const top: number = pageSize;
-    //     const skip = (pageNumber - 1) * pageSize;
-    //     if (this.feild_name.length == 0) {
-    //       this.get_allagent(top, skip);
-    //     } else if (this.feild_name.length != 0) {
-    //       this.agentService
-    //         .getAllAgentOrder(top, skip, this.feild_name)
-    //         .subscribe((data: any) => {
-    //           this.showpage = data;
-    //           this.showAllAgents = data.items;
-    //           this.page.totalCount = data.totalCount;
-    //         });
-    //     }
-    //   } else if (this.gSearch == true) {
-    //     const top: number = pageSize;
-    //     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-    //     if (this.feild_name.length == 0) {
-    //       this.agentService
-    //         .getFilterAgent(top, skip, this.searchedValue)
-    //         .subscribe((data: any) => {
-    //           this.showpage = data;
-    //           this.showAllAgents = data.items;
-    //           this.page.totalCount = data.totalCount;
-    //         });
-    //     } else if (this.feild_name.length != 0) {
-    //       this.Gobalsearch(top, skip, this.searchedValue, this.feild_name);
-    //     }
-    //   }
-    // } else if (this.show_perpage_size == true) {
-    //   // const top: number = this.per_page_num;
-    //   // const skip = (pageNumber - 1) * this.per_page_num;
-    //   // this.get_allagent(top, skip);
-    //   if (this.gSearch == false) {
-    //     const top: number = this.per_page_num;
-    //     const skip = (pageNumber - 1) * this.per_page_num;
-    //     this.get_allagent(top, skip);
-    //   } else if (this.gSearch == true) {
-    //     const top: number = this.per_page_num;
-    //     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-    //     this.agentService
-    //       .getFilterAgent(top, skip, this.feild_name)
-    //       .subscribe((data: any) => {
-    //         this.showpage = data;
-    //         this.showAllAgents = data.items;
-    //         this.page.totalCount = data.totalCount;
-    //       });
-    //   }
-    // }
   }
   trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
   }
 
-  // searchValue(event) {
-  //   if (event.target.value.length >= 2) {
-  //     this.gSearch = true;
-  //     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-  //     this.searchedValue = event.target.value;
-  //     if (this.feild_name.length == 0) {
-  //       this.agentService
-  //         .getFilterAgent(this.page.pageSize, skip, this.searchedValue)
-  //         .subscribe((data: any) => {
-  //           this.showpage = data;
-  //           this.showAllAgents = data.items;
-  //           this.page.totalCount = data.totalCount;
-  //         });
-  //     } else if (this.feild_name.length != 0) {
-  //       this.Gobalsearch(
-  //         this.page.pageSize,
-  //         skip,
-  //         this.feild_name,
-  //         this.searchedValue
-  //       );
-  //     }
-  //   } else if (!event.target.value.length) {
-  //     this.gSearch = false;
-  //     this.pagination(this.page.pageNumber, this.page.pageSize);
-  //   }
-  // }
   searchValue(event) {
     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
     if (event.target.value.length >= 2) {
@@ -445,15 +331,5 @@ export class AllAgentsComponent implements OnInit {
             this.page.totalCount = data.totalCount;
           });
     }
-  }
-
-  Gobalsearch(pageSize, skip, searchName, fieldName?) {
-    this.agentService
-      .getFilterAgentOrder(pageSize, skip, fieldName, searchName)
-      .subscribe((data: any) => {
-        this.showpage = data;
-        this.showAllAgents = data.items;
-        this.page.totalCount = data.totalCount;
-      });
   }
 }
