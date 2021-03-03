@@ -38,19 +38,20 @@ export class AutomationService {
     return this.http.get(this.apiUrl + url);
   }
 
-  getAllProcess(tpage: any, spage: any) {
-    let getprocessUrlbyId = `/${automationsApiUrl.automationsView}?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
-    return this.http.get(`${this.apiUrl}` + getprocessUrlbyId);
-  }
+  // getAllProcess(tpage: any, spage: any) {
+  //   let getprocessUrlbyId = `/${automationsApiUrl.automationsView}?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
+  //   return this.http.get(`${this.apiUrl}` + getprocessUrlbyId);
+  // }
 
   addProcess(obj) {
     let addassetUrl = `/${automationsApiUrl.automations}`;
     return this.http.post(`${this.apiUrl}` + addassetUrl, obj);
   }
-  getFilterProcess(tpage: any, spage: any, filterName) {
-    let getagentUrl = `/${automationsApiUrl.automationsView}?$filter=substringof(tolower('${filterName}'), tolower(name))&$top=${tpage}&$skip=${spage}`;
-    return this.http.get(`${this.apiUrl}` + getagentUrl);
-  }
+
+  // getFilterProcess(tpage: any, spage: any, filterName) {
+  //   let getagentUrl = `/${automationsApiUrl.automationsView}?$filter=substringof(tolower('${filterName}'), tolower(name))&$top=${tpage}&$skip=${spage}`;
+  //   return this.http.get(`${this.apiUrl}` + getagentUrl);
+  // }
   uploadUpdateProcessFile(obj, process_id, etag) {
     const headers = this.helperService.getETagHeaders(etag);
     let processUrl = `/${automationsApiUrl.automations}/${process_id}/update`;
@@ -93,10 +94,10 @@ export class AutomationService {
     }
   }
 
-  getAllJobsOrder(tpage: any, spage: any, name) {
-    let getprocessUrlbyId = `/${automationsApiUrl.automationsView}?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
-    return this.http.get(`${this.apiUrl}` + getprocessUrlbyId);
-  }
+  // getAllJobsOrder(tpage: any, spage: any, name) {
+  //   let getprocessUrlbyId = `/${automationsApiUrl.automationsView}?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+  //   return this.http.get(`${this.apiUrl}` + getprocessUrlbyId);
+  // }
 
   getProcessId(id) {
     let resoptions = {};

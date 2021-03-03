@@ -102,7 +102,6 @@ export class AllAutomationComponent implements OnInit {
             this.searchedValue
           )
           .subscribe((data: any) => {
-            
             this.showAllprocess = data.items;
             this.page.totalCount = data.totalCount;
           });
@@ -110,7 +109,6 @@ export class AllAutomationComponent implements OnInit {
         this.automationService
           .getFilterPagination(top, skip, 'createdOn+desc', this.searchedValue)
           .subscribe((data: any) => {
-           
             this.showAllprocess = data.items;
             this.page.totalCount = data.totalCount;
           });
@@ -119,7 +117,6 @@ export class AllAutomationComponent implements OnInit {
       this.automationService
         .getFilterPagination(top, skip, this.filterOrderBy)
         .subscribe((data: any) => {
-           
           this.showAllprocess = data.items;
           this.page.totalCount = data.totalCount;
         });
@@ -127,7 +124,6 @@ export class AllAutomationComponent implements OnInit {
       this.automationService
         .getFilterPagination(top, skip, 'createdOn+desc')
         .subscribe((data: any) => {
-         
           this.showAllprocess = data.items;
           this.page.totalCount = data.totalCount;
         });
@@ -145,65 +141,60 @@ export class AllAutomationComponent implements OnInit {
     //     this.showAllprocess = data.items;
     //     this.page.totalCount = data.totalCount;
     //   });
-     this.per_page_num = val;
-     this.show_perpage_size = true;
-     this.page.pageSize = val;
-     const skip = (this.page.pageNumber - 1) * this.per_page_num;
-     if (this.searchedValue) {
-       if (this.filterOrderBy) {
-         this.automationService
-           .getFilterPagination(
-             this.page.pageSize,
-             skip,
-             this.filterOrderBy,
-             this.searchedValue
-           )
-           .subscribe((data: any) => {
-             
-             this.showAllprocess = data.items;
-             this.page.totalCount = data.totalCount;
-           });
-       } else {
-         this.automationService
-           .getFilterPagination(
-             this.page.pageSize,
-             skip,
-             'createdOn+desc',
-             this.searchedValue
-           )
-           .subscribe((data: any) => {
-            
-             this.showAllprocess = data.items;
-             this.page.totalCount = data.totalCount;
-           });
-       }
-     } else if (this.filterOrderBy) {
-       this.automationService
-         .getFilterPagination(this.page.pageSize, skip, this.filterOrderBy)
-         .subscribe((data: any) => {
-       
-           this.showAllprocess = data.items;
-           this.page.totalCount = data.totalCount;
-         });
-     } else {
-       this.automationService
-         .getFilterPagination(this.page.pageSize, skip, 'createdOn+desc')
-         .subscribe((data: any) => {
-           
-           this.showAllprocess = data.items;
-           this.page.totalCount = data.totalCount;
-         });
-     }
-
+    this.per_page_num = val;
+    this.show_perpage_size = true;
+    this.page.pageSize = val;
+    const skip = (this.page.pageNumber - 1) * this.per_page_num;
+    if (this.searchedValue) {
+      if (this.filterOrderBy) {
+        this.automationService
+          .getFilterPagination(
+            this.page.pageSize,
+            skip,
+            this.filterOrderBy,
+            this.searchedValue
+          )
+          .subscribe((data: any) => {
+            this.showAllprocess = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      } else {
+        this.automationService
+          .getFilterPagination(
+            this.page.pageSize,
+            skip,
+            'createdOn+desc',
+            this.searchedValue
+          )
+          .subscribe((data: any) => {
+            this.showAllprocess = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      }
+    } else if (this.filterOrderBy) {
+      this.automationService
+        .getFilterPagination(this.page.pageSize, skip, this.filterOrderBy)
+        .subscribe((data: any) => {
+          this.showAllprocess = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    } else {
+      this.automationService
+        .getFilterPagination(this.page.pageSize, skip, 'createdOn+desc')
+        .subscribe((data: any) => {
+          this.showAllprocess = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    }
   }
 
-  get_AllJobs(top, skip) {
-    this.feild_name = 'MachineName';
-    this.automationService.getAllProcess(top, skip).subscribe((data: any) => {
-      this.showAllprocess = data.items;
-      this.page.totalCount = data.totalCount;
-    });
-  }
+  // get_AllJobs(top, skip) {
+  //   this.feild_name = 'MachineName';
+  //   this.automationService.getAllProcess(top, skip).subscribe((data: any) => {
+  //     this.showAllprocess = data.items;
+  //     this.page.totalCount = data.totalCount;
+  //   });
+  // }
 
   onSortClick(event, filter_val) {
     let target = event.currentTarget,
@@ -237,56 +228,52 @@ export class AllAutomationComponent implements OnInit {
     //   const skip = (pageNumber - 1) * this.per_page_num;
     //   this.get_AllJobs(top, skip);
     // }
-     const top = pageSize;
-     this.page.pageSize = pageSize;
-     const skip = (pageNumber - 1) * pageSize;
-     if (this.searchedValue) {
-       if (this.filterOrderBy) {
-         this.automationService
-           .getFilterPagination(
-             top,
-             skip,
-             this.filterOrderBy,
-             this.searchedValue
-           )
-           .subscribe((data: any) => {
-         
-             this.showAllprocess = data.items;
-             this.page.totalCount = data.totalCount;
-           });
-       } else {
-         this.automationService
-           .getFilterPagination(top, skip, 'createdOn+desc', this.searchedValue)
-           .subscribe((data: any) => {
-          
-             this.showAllprocess = data.items;
-             this.page.totalCount = data.totalCount;
-           });
-       }
-     } else if (this.filterOrderBy) {
-       this.automationService
-         .getFilterPagination(top, skip, this.filterOrderBy)
-         .subscribe((data: any) => {
-          
-           this.showAllprocess = data.items;
-           this.page.totalCount = data.totalCount;
-         });
-     } else {
-       this.automationService
-         .getFilterPagination(top, skip, 'createdOn+desc')
-         .subscribe((data: any) => {
-            
-           this.showAllprocess = data.items;
-           this.page.totalCount = data.totalCount;
-         });
-     }
+    const top = pageSize;
+    this.page.pageSize = pageSize;
+    const skip = (pageNumber - 1) * pageSize;
+    if (this.searchedValue) {
+      if (this.filterOrderBy) {
+        this.automationService
+          .getFilterPagination(
+            top,
+            skip,
+            this.filterOrderBy,
+            this.searchedValue
+          )
+          .subscribe((data: any) => {
+            this.showAllprocess = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      } else {
+        this.automationService
+          .getFilterPagination(top, skip, 'createdOn+desc', this.searchedValue)
+          .subscribe((data: any) => {
+            this.showAllprocess = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      }
+    } else if (this.filterOrderBy) {
+      this.automationService
+        .getFilterPagination(top, skip, this.filterOrderBy)
+        .subscribe((data: any) => {
+          this.showAllprocess = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    } else {
+      this.automationService
+        .getFilterPagination(top, skip, 'createdOn+desc')
+        .subscribe((data: any) => {
+          this.showAllprocess = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    }
   }
 
   trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
   }
- searchValue(event) {
+  searchValue(event) {
     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
     if (event.target.value.length >= 2) {
       this.searchedValue = event.target.value;
@@ -299,7 +286,6 @@ export class AllAutomationComponent implements OnInit {
             this.searchedValue
           )
           .subscribe((data: any) => {
-            
             this.showAllprocess = data.items;
             this.page.totalCount = data.totalCount;
           });
@@ -312,7 +298,6 @@ export class AllAutomationComponent implements OnInit {
             this.searchedValue
           )
           .subscribe((data: any) => {
-       
             this.showAllprocess = data.items;
             this.page.totalCount = data.totalCount;
           });
@@ -323,7 +308,6 @@ export class AllAutomationComponent implements OnInit {
         this.automationService
           .getFilterPagination(this.page.pageSize, skip, this.filterOrderBy)
           .subscribe((data: any) => {
-           
             this.showAllprocess = data.items;
             this.page.totalCount = data.totalCount;
           });
@@ -331,7 +315,6 @@ export class AllAutomationComponent implements OnInit {
         this.automationService
           .getFilterPagination(this.page.pageSize, skip, 'createdOn+desc')
           .subscribe((data: any) => {
-          
             this.showAllprocess = data.items;
             this.page.totalCount = data.totalCount;
           });
