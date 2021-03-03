@@ -178,10 +178,10 @@ namespace OpenBots.Server.Business
 
                 if (orgSettings == null)
                 {
-                    fencingMode = IPFencingMode.AllowMode;
+                    fencingMode = fencingMode ?? IPFencingMode.AllowMode;
                 }
                 else
-                    fencingMode = orgSettings.IPFencingMode;
+                    fencingMode = fencingMode ?? orgSettings.IPFencingMode;
             }
             //if there is no default organization, find the current user's organization
             else if (user != null)

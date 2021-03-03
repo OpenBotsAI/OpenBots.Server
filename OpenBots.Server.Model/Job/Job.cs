@@ -6,8 +6,8 @@ namespace OpenBots.Server.Model
 {
     public class Job : Entity, INonAuditable
     {
-        [Required]
         public Guid? AgentId { get; set; }
+        public Guid? AgentGroupId { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public double? ExecutionTimeInMinutes { get; set; }
