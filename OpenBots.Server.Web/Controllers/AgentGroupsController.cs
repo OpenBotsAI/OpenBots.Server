@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business;
 using OpenBots.Server.Business.Interfaces;
+using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Security;
+using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
 using System.Threading.Tasks;
@@ -26,6 +28,8 @@ namespace OpenBots.Server.Web.Controllers
     public class AgentGroupsController : EntityController<AgentGroup>
     {
         private readonly IAgentGroupManager _agentGroupsManager;
+        private readonly IWebhookPublisher _webhookPublisher;
+        private readonly IAgentGroupRepository _agentGroupRepository;
 
         /// <summary>
         /// AgentGroupsController constructor
@@ -40,9 +44,12 @@ namespace OpenBots.Server.Web.Controllers
             IHttpContextAccessor accessor,
             IMembershipManager membershipManager,
             IConfiguration configuration,
-            IAgentGroupManager agentGroupsManager) : base(agentGroupRepository, userManager, accessor, membershipManager, configuration)
+            IAgentGroupManager agentGroupsManager,
+            IWebhookPublisher webhookPublisher) : base(agentGroupRepository, userManager, accessor, membershipManager, configuration)
         {
             _agentGroupsManager = agentGroupsManager;
+            _webhookPublisher = webhookPublisher;
+            _agentGroupRepository = agentGroupRepository;
         }
 
         /// <summary>
@@ -200,7 +207,9 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                return await base.PostEntity(request);
+                var result = await base.PostEntity(request);           
+                await _webhookPublisher.PublishAsync("AgentGroups.NewAgentGroupCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
+                return result;
             }
             catch (Exception ex)
             {
@@ -266,8 +275,11 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                var existingAgent = _agentGroupsManager.UpdateAgentGroup(id, request);
-                return await base.PutEntity(id, existingAgent);
+                var existingAgentGroup = _agentGroupsManager.UpdateAgentGroup(id, request);
+                var result = await base.PutEntity(id, existingAgentGroup);
+
+                await _webhookPublisher.PublishAsync("AgentGroups.AgentGroupUpdated", existingAgentGroup.Id.ToString(), existingAgentGroup.Name).ConfigureAwait(false);
+                return result;
             }
             catch (Exception ex)
             {
@@ -301,6 +313,7 @@ namespace OpenBots.Server.Web.Controllers
                 }
                 var result = await base.DeleteEntity(id);
                 _agentGroupsManager.DeleteGroupMembers(id);
+                await _webhookPublisher.PublishAsync("AgentGroups.AgentGroupDeleted", id, agentGroup.Name).ConfigureAwait(false);
                 return result;
             }
             catch (Exception ex)
@@ -330,9 +343,18 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                _agentGroupsManager.AttemptPatchUpdate(request, id);
+                Guid entityId = new Guid(id);
 
-                return await base.PatchEntity(id, request);
+                var existingAgentGroup = _agentGroupRepository.GetOne(entityId);
+                if (existingAgentGroup == null)
+                {
+                    throw new EntityDoesNotExistException("No agent group exists with the specified id");
+                }
+
+                _agentGroupsManager.AttemptPatchUpdate(request, entityId);
+                var result = await base.PatchEntity(id, request);
+                await _webhookPublisher.PublishAsync("AgentGroups.AgentGroupUpdated", existingAgentGroup.Id.ToString(), existingAgentGroup.Name).ConfigureAwait(false);
+                return result;
             }
             catch (Exception ex)
             {
