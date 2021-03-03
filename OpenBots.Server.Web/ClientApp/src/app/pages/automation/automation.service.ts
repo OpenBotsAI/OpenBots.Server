@@ -16,6 +16,28 @@ export class AutomationService {
 
   constructor(private http: HttpClient, private helperService: HelperService) {}
 
+  getFilterPagination(
+    top: number,
+    skip: number,
+    orderBy: string,
+    searchedValue?: string
+  ) {
+    let url: string;
+    // let getagentUrl = `/${automationsApiUrl.automationsView}?$filter=substringof(tolower('${filterName}'), tolower(Name))&$orderby=${ordername}&$top=${tpage}&$skip=${spage}`;
+    if (searchedValue) {
+      if (orderBy != 'createdOn+desc') {
+        url = `/${automationsApiUrl.automationsView}?$filter=substringof(tolower('${searchedValue}'), tolower(Name))&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+      } else {
+        url = `/${automationsApiUrl.automationsView}?$filter=substringof(tolower('${searchedValue}'), tolower(Name))&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+      }
+    } else if (orderBy) {
+      url = `/${automationsApiUrl.automationsView}?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+    } else {
+      url = `/${automationsApiUrl.automationsView}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+    }
+    return this.http.get(this.apiUrl + url);
+  }
+
   getAllProcess(tpage: any, spage: any) {
     let getprocessUrlbyId = `/${automationsApiUrl.automationsView}?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getprocessUrlbyId);
