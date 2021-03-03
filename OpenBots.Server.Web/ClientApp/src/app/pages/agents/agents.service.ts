@@ -13,10 +13,10 @@ export class AgentsService {
 
   constructor(private http: HttpClient, private helperService: HelperService) {}
 
-  getAllAgent(tpage: any, spage: any) {
-    let getagentUrl = `/${AgentApiUrl.AgentsView}?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
-    return this.http.get(`${this.apiUrl}` + getagentUrl);
-  }
+  // getAllAgent(tpage: any, spage: any) {
+  //   let getagentUrl = `/${AgentApiUrl.AgentsView}?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
+  //   return this.http.get(`${this.apiUrl}` + getagentUrl);
+  // }
 
   getAllAgentOrder(tpage: any, spage: any, name) {
     let getagentUrl = `/${AgentApiUrl.AgentsView}?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
@@ -27,7 +27,7 @@ export class AgentsService {
     let getagentUrl = `/${AgentApiUrl.AgentsView}?$filter=substringof(tolower('${filterName}'),tolower(name))&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
-  getFilterAgentOrder(tpage: any, spage: any, filterName,ordername,colName) {
+  getFilterAgentOrder(tpage: any, spage: any, filterName, ordername) {
     let getagentUrl = `/${AgentApiUrl.AgentsView}?$filter=substringof(tolower('${filterName}'), tolower(Name))&$orderby=${ordername}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
@@ -83,5 +83,27 @@ export class AgentsService {
     ];
     let editagentUrl = `/${AgentApiUrl.Agents}/${id}`;
     return this.http.patch(`${this.apiUrl}` + editagentUrl, obj);
+  }
+
+  getFilterPagination(
+    top: number,
+    skip: number,
+    orderBy: string,
+    searchedValue?: string
+  ) {
+    let url: string;
+    // let getagentUrl = `/${AgentApiUrl.AgentsView}?$filter=substringof(tolower('${filterName}'), tolower(Name))&$orderby=${ordername}&$top=${tpage}&$skip=${spage}`;
+    if (searchedValue) {
+      if (orderBy != 'createdOn+desc') {
+        url = `/${AgentApiUrl.AgentsView}?$filter=substringof(tolower('${searchedValue}'), tolower(Name))&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+      } else {
+        url = `/${AgentApiUrl.AgentsView}?$filter=substringof(tolower('${searchedValue}'), tolower(Name))&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+      }
+    } else if (orderBy) {
+      url = `/${AgentApiUrl.AgentsView}?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+    } else {
+      url = `/${AgentApiUrl.AgentsView}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+    }
+    return this.http.get(this.apiUrl + url);
   }
 }

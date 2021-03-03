@@ -1,4 +1,4 @@
-<nb-card >
+<nb-card>
   <nb-card-header>
     <div class="titleHeader">
       <div class="titleLeft">
@@ -21,14 +21,13 @@
     </div>
   </nb-card-header>
   <nb-card-body>
-   
-    <div class="row row-fil">         
-        <div class="col-md-4 col-lg-4">
-          <label class="label">Search with Name:</label>
-          <input type="text" icon="search" nbInput fullWidth placeholder="Search with Name"
-        (keyup)="searchValue($event)">
-        </div>
+
+    <div class="row row-fil">
+      <div class="col-md-4 col-lg-4">
+        <label class="label">Search with Name:</label>
+        <input type="text" icon="search" nbInput fullWidth placeholder="Search with Name" (keyup)="searchValue($event)">
       </div>
+    </div>
 
     <table class="table table-bordered">
       <thead>
@@ -145,7 +144,7 @@
           autoHide="true" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
           screenReaderCurrentLabel="You're on page"></pagination-controls>
       </div>
-      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
+      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="showAllAgents && showAllAgents.length">
         <label class="label">Total {{ showpage.totalCount }} /</label>
 
         <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
