@@ -108,16 +108,8 @@ namespace OpenBots.Server.Business
         /// </summary>
         /// <param name="request"></param>
         /// <param name="id"></param>
-        public void AttemptPatchUpdate(JsonPatchDocument<AgentGroup> request, string id)
+        public void AttemptPatchUpdate(JsonPatchDocument<AgentGroup> request, Guid entityId)
         {
-            Guid entityId = new Guid(id);
-
-            var existingAgentGroup = _agentGroupRepository.GetOne(entityId);
-            if (existingAgentGroup == null)
-            {
-                throw new EntityDoesNotExistException("No agent group exists with the specified id");
-            }
-
             for (int i = 0; i < request.Operations.Count; i++)
             {
                 if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")

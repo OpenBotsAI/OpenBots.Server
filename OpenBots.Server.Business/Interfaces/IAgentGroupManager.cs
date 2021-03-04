@@ -11,7 +11,7 @@ namespace OpenBots.Server.Business.Interfaces
     {
         AgentGroupMember CreateNewGroupMember(string agentGroupId, string agentId);
         AgentGroup UpdateAgentGroup(string id, AgentGroup request);
-        void AttemptPatchUpdate(JsonPatchDocument<AgentGroup> request, string id);
+        void AttemptPatchUpdate(JsonPatchDocument<AgentGroup> request, Guid entityId);
         PaginatedList<AgentGroupMember> GetAllMembersInGroup(string agentGroupId);
         void DeleteGroupMembers(string agentGroupId);
     }
