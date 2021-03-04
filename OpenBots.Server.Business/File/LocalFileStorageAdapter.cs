@@ -1142,6 +1142,10 @@ namespace OpenBots.Server.Business.File
         {
             Guid? organizationId = _organizationManager.GetDefaultOrganization().Id;
 
+            var existingServerDrive = _serverDriveRepository.Find(null, q => q.Name == driveName).Items?.FirstOrDefault();
+            if (existingServerDrive != null)
+                throw new EntityAlreadyExistsException($"Drive with name {driveName} already exists");
+
             var serverDrive = new ServerDrive()
             {
                 FileStorageAdapterType = "LocalFileStorage",
@@ -1154,6 +1158,8 @@ namespace OpenBots.Server.Business.File
             };
             _serverDriveRepository.Add(serverDrive);
             _directoryManager.CreateDirectory(driveName);
+
+            _webhookPublisher.PublishAsync("Files.NewDriveCreated", serverDrive.Id.ToString(), serverDrive.Name);
 
             return serverDrive;
         }

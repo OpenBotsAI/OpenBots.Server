@@ -98,6 +98,7 @@ namespace OpenBots.Server.DataAccess
             new IntegrationEvent { Id = new Guid("53b4365e-d103-4e74-a72c-294d670abdbd"), Description = "A new Folder has been created", EntityType = "File", IsSystem = true, IsDeleted = false, Name = "Files.NewFolderCreated" },
             new IntegrationEvent { Id = new Guid("d10616c6-53c4-4137-8cd0-70a5c7409938"), Description = "A Folder has been updated", EntityType = "File", IsSystem = true, IsDeleted = false, Name = "Files.FolderUpdated" },
             new IntegrationEvent { Id = new Guid("e4a9ceaa-88e2-4c03-a203-7a419749c613"), Description = "A Folder has been deleted", EntityType = "File", IsSystem = true, IsDeleted = false, Name = "Files.FolderDeleted" },
+            new IntegrationEvent { Id = new Guid("fa264362-998e-473d-8645-e6fdf86bc79f"), Description = "A new Drive has been created", EntityType = "File", IsSystem = true, IsDeleted = false, Name = "Files.NewDriveCreated" },
             new IntegrationEvent { Id = new Guid("513bb79b-3f2e-4846-a804-2c5b9a6792d0"), Description = "Local Drive has been updated", EntityType = "File", IsSystem = true, IsDeleted = false, Name = "Files.DriveUpdated" }
             );
         }
