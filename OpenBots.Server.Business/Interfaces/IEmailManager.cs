@@ -2,6 +2,7 @@
 using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.ViewModel.Email;
+using OpenBots.Server.ViewModel.File;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -26,5 +27,6 @@ namespace OpenBots.Server.Business
         EmailViewModel UpdateFiles(string id, UpdateEmailViewModel request);
         void DeleteEmailAttachments(string id, string driveName);
         EmailViewModel GetEmailView(EmailViewModel email);
+        Task<FileFolderViewModel> Export(string id, string driveName = null);
     }
 }

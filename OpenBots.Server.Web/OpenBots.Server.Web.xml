@@ -1261,6 +1261,20 @@
             <response code="403">Forbidden</response>
             <returns>Ok response</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.Email.EmailAttachmentsController.ExportEmailAttachment(System.String,System.String)">
+            <summary>
+            Export/download an email attachment file
+            </summary>
+            <param name="id"></param>
+            <param name="driveName"></param>
+            <response code="200">Ok if an email attachment file exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if email attachment id is not in proper format or proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no email attachment file exists for the given email attachment id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Downloaded email attachment file</returns>
+        </member>
         <member name="T:OpenBots.Server.Web.Controllers.FilesController">
             <summary>
             Controller for files
@@ -1614,6 +1628,20 @@
             <response code="400">Bad request, if queue item attachment id is null or empty Guid</response>
             <response code="403">Forbidden</response>
             <returns>Ok response</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.Queue.QueueItemAttachmentsController.ExportQueueItemAttachment(System.String,System.String)">
+            <summary>
+            Export/download a queue item attachment file
+            </summary>
+            <param name="id"></param>
+            <param name="driveName"></param>
+            <response code="200">Ok if a queue item attachment file exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if queue item attachment id is not in proper format or proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no queue item attachment file exists for the given queue item attachment id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Downloaded queue item attachment file</returns>
         </member>
         <member name="T:OpenBots.Server.Web.Controllers.QueueItemsController">
             <summary>

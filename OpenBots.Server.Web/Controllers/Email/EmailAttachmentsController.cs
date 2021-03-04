@@ -12,6 +12,7 @@ using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel.Email;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Web.Controllers.Email
@@ -418,6 +419,40 @@ namespace OpenBots.Server.Web.Controllers.Email
                 _manager.DeleteOne(id, driveName);
                 await base.DeleteEntity(id);
                 return Ok();
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Export/download an email attachment file
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="driveName"></param>
+        /// <response code="200">Ok if an email attachment file exists with the given id</response>
+        /// <response code="304">Not modified</response>
+        /// <response code="400">Bad request, if email attachment id is not in proper format or proper Guid</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not found, when no email attachment file exists for the given email attachment id</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Downloaded email attachment file</returns>
+        [HttpGet("{id}/Export", Name = "ExportEmailAttachment")]
+        [ProducesResponseType(typeof(MemoryStream), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> ExportEmailAttachment(string id, string driveName = null)
+        {
+            try
+            {
+                var fileObject = _manager.Export(id, driveName);
+                return File(fileObject.Result?.Content, fileObject.Result?.ContentType, fileObject.Result?.Name);
             }
             catch (Exception ex)
             {

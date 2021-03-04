@@ -31,5 +31,6 @@ namespace OpenBots.Server.Business
         void DeleteQueueItem(QueueItem existingQueueItem, string driveName);
         void DeleteAll(QueueItem queueItem, string driveName = null);
         void DeleteOne(QueueItemAttachment attachment, QueueItem queueItem, string driveName = null);
+        Task<FileFolderViewModel> Export(string id, string driveName = null);
     }
 }
