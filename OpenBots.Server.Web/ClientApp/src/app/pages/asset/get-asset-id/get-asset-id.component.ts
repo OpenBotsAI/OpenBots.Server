@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { AssetService } from '../asset.service';
 import { DatePipe } from '@angular/common';
 import { FileSaverService } from 'ngx-filesaver';
-import * as moment from 'moment';
 import { TimeDatePipe } from '../../../@core/pipe';
 import { HttpResponse } from '@angular/common/http';
 @Component({
