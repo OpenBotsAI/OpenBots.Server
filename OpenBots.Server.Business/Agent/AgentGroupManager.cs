@@ -6,6 +6,7 @@ using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Identity;
+using OpenBots.Server.Web.Webhooks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,24 +21,28 @@ namespace OpenBots.Server.Business
         private readonly IAgentGroupMemberRepository _agentGroupMemberRepository;
         private readonly ClaimsPrincipal _caller;
         private readonly IAgentRepository _agentRepository;
+        private readonly IWebhookPublisher _webhookPublisher;
 
         public AgentGroupManager(
             IAgentGroupRepository agentGroupRepository, 
             IAgentGroupMemberRepository agentGroupMemberRepository,
             IHttpContextAccessor httpContextAccessor,
-            IAgentRepository agentRepository
+            IAgentRepository agentRepository,
+            IWebhookPublisher webhookPublisher
             )
         {
             _agentGroupRepository = agentGroupRepository;
             _agentGroupMemberRepository = agentGroupMemberRepository;
             _caller = ((httpContextAccessor.HttpContext != null) ? httpContextAccessor.HttpContext.User : new ClaimsPrincipal());
             _agentRepository = agentRepository;
+            _webhookPublisher = webhookPublisher;
         }
 
         public override void SetContext(UserSecurityContext userSecurityContext)
         {
             _agentGroupRepository.SetContext(userSecurityContext);
             _agentGroupMemberRepository.SetContext(userSecurityContext);
+            _agentRepository.SetContext(userSecurityContext);
             SecurityContext = userSecurityContext;
         }
 
@@ -71,7 +76,9 @@ namespace OpenBots.Server.Business
                 CreatedBy = _caller.Identity.Name,
                 CreatedOn = DateTime.UtcNow
             };
-            return _agentGroupMemberRepository.Add(agentGroupMember);
+            var result = _agentGroupMemberRepository.Add(agentGroupMember);
+            _webhookPublisher.PublishAsync("AgentGroups.AgentGroupMemberCreated", agentGroupId, agentGroup.Name).ConfigureAwait(false);
+            return result;
         }
 
         /// <summary>
@@ -108,16 +115,8 @@ namespace OpenBots.Server.Business
         /// </summary>
         /// <param name="request"></param>
         /// <param name="id"></param>
-        public void AttemptPatchUpdate(JsonPatchDocument<AgentGroup> request, string id)
+        public void AttemptPatchUpdate(JsonPatchDocument<AgentGroup> request, Guid entityId)
         {
-            Guid entityId = new Guid(id);
-
-            var existingAgentGroup = _agentGroupRepository.GetOne(entityId);
-            if (existingAgentGroup == null)
-            {
-                throw new EntityDoesNotExistException("No agent group exists with the specified id");
-            }
-
             for (int i = 0; i < request.Operations.Count; i++)
             {
                 if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")

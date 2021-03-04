@@ -316,7 +316,9 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 var existingAgent = _agentManager.UpdateAgent(id, request);
-                return await base.PutEntity(id, existingAgent);
+                var result = await base.PutEntity(id, existingAgent);
+                await _webhookPublisher.PublishAsync("Agents.AgentUpdated", existingAgent.Id.ToString(), existingAgent.Name).ConfigureAwait(false);
+                return result;
             }
             catch (Exception ex)
             {
@@ -394,7 +396,9 @@ namespace OpenBots.Server.Web.Controllers
                     }
                 }
 
-                return await base.PatchEntity(id, request);
+                var result = await base.PatchEntity(id, request);
+                await _webhookPublisher.PublishAsync("Agents.AgentUpdated", existingAgent.Id.ToString(), existingAgent.Name).ConfigureAwait(false);
+                return result;
             }
             catch (Exception ex)
             {

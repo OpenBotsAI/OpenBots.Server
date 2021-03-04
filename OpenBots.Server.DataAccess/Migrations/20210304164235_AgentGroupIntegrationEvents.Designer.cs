@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenBots.Server.DataAccess;
 
 namespace OpenBots.Server.DataAccess.Migrations
 {
     [DbContext(typeof(StorageContext))]
-    partial class StorageContextModelSnapshot : ModelSnapshot
+    [Migration("20210304164235_AgentGroupIntegrationEvents")]
+    partial class AgentGroupIntegrationEvents
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3462,18 +3464,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                             IsDeleted = false,
                             IsSystem = true,
                             Name = "Files.FolderDeleted",
-                            Timestamp = new byte[] { 0 }
-                        },
-                        new
-                        {
-                            Id = new Guid("fa264362-998e-473d-8645-e6fdf86bc79f"),
-                            CreatedBy = "",
-                            DeletedBy = "",
-                            Description = "A new Drive has been created",
-                            EntityType = "File",
-                            IsDeleted = false,
-                            IsSystem = true,
-                            Name = "Files.NewDriveCreated",
                             Timestamp = new byte[] { 0 }
                         },
                         new
