@@ -101,7 +101,8 @@ namespace OpenBots.Server.DataAccess
             new IntegrationEvent { Id = new Guid("513bb79b-3f2e-4846-a804-2c5b9a6792d0"), Description = "Local Drive has been updated", EntityType = "File", IsSystem = true, IsDeleted = false, Name = "Files.DriveUpdated" },
             new IntegrationEvent { Id = new Guid("2c5b29c7-2fed-42b6-afcb-b7d8a41aacb5"), Description = "A new AgentGroup has been created", EntityType = "AgentGroup", IsSystem = true, IsDeleted = false, Name = "AgentGroups.NewAgentGroupCreated" },
             new IntegrationEvent { Id = new Guid("e096bb0f-850c-4001-946a-88a7f8692d5a"), Description = "An AgentGroup has been updated", EntityType = "AgentGroup", IsSystem = true, IsDeleted = false, Name = "AgentGroups.AgentGroupUpdated" },
-            new IntegrationEvent { Id = new Guid("3789f1ae-2693-4ad7-8696-723bd551199f"), Description = "An AgentGroup has been deleted", EntityType = "AgentGroup", IsSystem = true, IsDeleted = false, Name = "AgentGroups.AgentGroupDeleted" }
+            new IntegrationEvent { Id = new Guid("3789f1ae-2693-4ad7-8696-723bd551199f"), Description = "An AgentGroup has been deleted", EntityType = "AgentGroup", IsSystem = true, IsDeleted = false, Name = "AgentGroups.AgentGroupDeleted" },
+            new IntegrationEvent { Id = new Guid("76910164-6fda-4861-b1b5-7737370a8461"), Description = "An Agent has been added to the AgentGroup", EntityType = "AgentGroup", IsSystem = true, IsDeleted = false, Name = "AgentGroups.AgentGroupMemberCreated" }
             );
         }
         protected void CreateCoreModel(ModelBuilder modelBuilder)

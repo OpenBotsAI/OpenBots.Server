@@ -9,7 +9,7 @@
             Controller for AgentGroups
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAgentGroupRepository,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.Business.Interfaces.IAgentGroupManager)">
+        <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.#ctor(OpenBots.Server.DataAccess.Repositories.IAgentGroupRepository,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.Business.Interfaces.IAgentGroupManager,OpenBots.Server.Web.Webhooks.IWebhookPublisher)">
             <summary>
             AgentGroupsController constructor
             </summary>
@@ -85,7 +85,7 @@
             <response code="400">Bad request, if the AgentGroup id is null or ids don't match</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict</response>
-            <response code="422">Unprocessabl entity</response>
+            <response code="422">Unprocessable entity</response>
             <returns>Ok response with the updated value</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.Delete(System.String)">
