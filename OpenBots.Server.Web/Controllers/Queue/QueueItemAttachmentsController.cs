@@ -14,6 +14,7 @@ using OpenBots.Server.ViewModel.Queue;
 using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -399,6 +400,40 @@ namespace OpenBots.Server.Web.Controllers.Queue
                 await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
 
                 return Ok();
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Export/download a queue item attachment file
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="driveName"></param>
+        /// <response code="200">Ok if a queue item attachment file exists with the given id</response>
+        /// <response code="304">Not modified</response>
+        /// <response code="400">Bad request, if queue item attachment id is not in proper format or proper Guid</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not found, when no queue item attachment file exists for the given queue item attachment id</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Downloaded queue item attachment file</returns>
+        [HttpGet("{id}/Export", Name = "ExportQueueItemAttachment")]
+        [ProducesResponseType(typeof(MemoryStream), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> ExportQueueItemAttachment(string id, string driveName = null)
+        {
+            try
+            {
+                var fileObject = _manager.Export(id, driveName);
+                return File(fileObject.Result?.Content, fileObject.Result?.ContentType, fileObject.Result?.Name);
             }
             catch (Exception ex)
             {

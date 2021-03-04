@@ -725,5 +725,18 @@ namespace OpenBots.Server.Business
             }
             else throw new EntityDoesNotExistException("Attachment could not be found");
         }
+
+        public async Task<FileFolderViewModel> Export(string id, string driveName)
+        {
+            Guid attachmentId;
+            Guid.TryParse(id, out attachmentId);
+
+            QueueItemAttachment attachment = _queueItemAttachmentRepository.GetOne(attachmentId);
+            if (attachment == null || attachment.FileId == null || attachment.FileId == Guid.Empty)
+                throw new EntityDoesNotExistException($"Queue item attachment with id {id} could not be found or doesn't exist");
+
+            var response = await _fileManager.ExportFileFolder(attachment.FileId.ToString(), driveName);
+            return response;
+        }
     }
 }

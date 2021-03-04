@@ -805,6 +805,19 @@ namespace OpenBots.Server.Business
             return emailViewModel;
         }
 
+        public async Task<FileFolderViewModel> Export(string id, string driveName)
+        {
+            Guid attachmentId;
+            Guid.TryParse(id, out attachmentId);
+
+            EmailAttachment attachment = _emailAttachmentRepository.GetOne(attachmentId);
+            if (attachment == null || attachment.FileId == null || attachment.FileId == Guid.Empty)
+                throw new EntityDoesNotExistException($"Email attachment with id {id} could not be found or doesn't exist");
+
+            var response = await _fileManager.ExportFileFolder(attachment.FileId.ToString(), driveName);
+            return response;
+        }
+
         public enum StatusType : int
         {
             Failed = 0,
