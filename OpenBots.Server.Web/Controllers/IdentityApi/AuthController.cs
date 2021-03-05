@@ -598,9 +598,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                     //add component folders
                                     List<string> componentList = new List<string>() { emailAttachments, queueItemAttachments, automations, assets };
                                     foreach (var component in componentList)
-                                    {
                                         Directory.CreateDirectory(Path.Combine(storagePath, component));
-                                    }
                                 }
                             }
                         }
