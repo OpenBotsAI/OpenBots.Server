@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Business
@@ -20,18 +21,24 @@ namespace OpenBots.Server.Business
         private readonly IAutomationRepository _repo;
         private readonly IFileManager _fileManager;
         private readonly IAutomationVersionRepository _automationVersionRepository;
+        private readonly IAutomationParameterRepository _automationParameterRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ClaimsPrincipal _caller;
 
         public AutomationManager(
             IAutomationRepository repo,
             IFileManager fileManager,
             IAutomationVersionRepository automationVersionRepository,
-            IHttpContextAccessor httpContextAccessor)
+            IAutomationParameterRepository automationParameterRepository,
+            IHttpContextAccessor httpContextAccessor
+            )
         {
             _repo = repo;
             _fileManager = fileManager;
             _automationVersionRepository = automationVersionRepository;
+            _automationParameterRepository = automationParameterRepository;
             _httpContextAccessor = httpContextAccessor;
+            _caller = ((httpContextAccessor.HttpContext != null) ? httpContextAccessor.HttpContext.User : new ClaimsPrincipal());
         }
 
         public Automation AddAutomation(AutomationViewModel request)
@@ -146,6 +153,7 @@ namespace OpenBots.Server.Business
             //remove automation version entity associated with automation
             var automationVersion = _automationVersionRepository.Find(null, q => q.AutomationId == automation.Id).Items?.FirstOrDefault();
             _automationVersionRepository.SoftDelete(automationVersion.Id.Value);
+            DeleteExistingParameters(automation.Id);
         }
 
         public void AddAutomationVersion(AutomationViewModel automationViewModel)
@@ -195,9 +203,9 @@ namespace OpenBots.Server.Business
             return _repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
 
-        public AutomationViewModel GetAutomationView(AutomationViewModel automationView, string id)
+        public AutomationViewModel GetAutomationView(AutomationViewModel automationView)
         {
-            var automationVersion = _automationVersionRepository.Find(null, q => q.AutomationId == Guid.Parse(id))?.Items?.FirstOrDefault();
+            var automationVersion = _automationVersionRepository.Find(null, q => q.AutomationId == automationView.Id)?.Items?.FirstOrDefault();
             if (automationVersion != null)
             {
                 automationView.VersionId = (Guid)automationVersion.Id;
@@ -205,9 +213,65 @@ namespace OpenBots.Server.Business
                 automationView.Status = automationVersion.Status;
                 automationView.PublishedBy = automationVersion.PublishedBy;
                 automationView.PublishedOnUTC = automationVersion.PublishedOnUTC;
+                automationView.AutomtationParameters = GetAutomationParameters(automationView.Id);
             }
 
             return automationView;
+        }
+
+        public IEnumerable<AutomationParameter> UpdateAutomationParameters(IEnumerable<AutomationParameter> automationParameters, string automationId)
+        {
+            Guid? entityId = Guid.Parse(automationId);
+
+            checkParameterNameAvailability(automationParameters, entityId);
+            DeleteExistingParameters(entityId);
+            return AddAutomationParameters(automationParameters, entityId);
+        }
+
+        private IEnumerable<AutomationParameter> AddAutomationParameters(IEnumerable<AutomationParameter> automationParameters, Guid? automationId)
+        {
+            List<AutomationParameter> parameterList = new List<AutomationParameter>();
+
+            foreach (var parameter in automationParameters ?? Enumerable.Empty<AutomationParameter>())
+            {
+                parameter.AutomationId = automationId ?? Guid.Empty;
+                parameter.CreatedBy = _caller.Identity.Name;
+                parameter.CreatedOn = DateTime.UtcNow;
+                parameter.Id = Guid.NewGuid();
+
+                _automationParameterRepository.Add(parameter);
+                parameterList.Add(parameter);
+            }
+
+            return parameterList.AsEnumerable();
+        }
+
+        private IEnumerable<AutomationParameter> GetAutomationParameters(Guid? automationId)
+        {
+            var automationParameters = _automationParameterRepository.Find(0, 1)?.Items?.Where(p => p.AutomationId == automationId);
+            return automationParameters;
+        }
+
+        private void DeleteExistingParameters(Guid? automationId)
+        {
+            var automationParameters = GetAutomationParameters(automationId);
+            foreach (var parmeter in automationParameters ?? Enumerable.Empty<AutomationParameter>())
+            {
+                _automationParameterRepository.SoftDelete(parmeter.Id ?? Guid.Empty);
+            }
+        }
+
+        private void checkParameterNameAvailability(IEnumerable<AutomationParameter> automationParameters, Guid? automationId)
+        {
+            var set = new HashSet<string>();
+
+            foreach (var parameter in automationParameters ?? Enumerable.Empty<AutomationParameter>())
+            {
+                if (!set.Add(parameter.Name))
+                {
+                    throw new Exception($"Automation parameter name \"{parameter.Name}\" already exists");
+                }
+            }
         }
     }
 }

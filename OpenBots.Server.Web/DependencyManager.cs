@@ -33,7 +33,6 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IPersonEmailRepository), typeof(PersonEmailRepository));
             services.AddTransient(typeof(IEmailVerificationRepository), typeof(EmailVerificationRepository));
             services.AddTransient(typeof(IAspNetUsersRepository), typeof(AspNetUsersRepository));
-            services.AddTransient(typeof(IAutomationRepository), typeof(AutomationRepository));
             services.AddTransient(typeof(IScheduleRepository), typeof(ScheduleRepository));
             services.AddTransient(typeof(IScheduleManager), typeof(ScheduleManager));
             services.AddTransient(typeof(IScheduleParameterRepository), typeof(ScheduleParameterRepository));
@@ -43,7 +42,6 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(ITermsConditionsManager), typeof(TermsConditionsManager));
             services.AddTransient(typeof(IPasswordPolicyRepository), typeof(PasswordPolicyRepository));
             services.AddTransient(typeof(IOrganizationManager), typeof(OrganizationManager));
-            services.AddTransient(typeof(IAutomationManager), typeof(AutomationManager));
 
             services.AddTransient(typeof(ILookupValueRepository), typeof(LookupValueRepository));
             services.AddTransient(typeof(IApplicationVersionRepository), typeof(ApplicationVersionRepository));
@@ -58,18 +56,13 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IJobCheckpointRepository), typeof(JobCheckpointRepository));
             services.AddTransient(typeof(ICredentialRepository), typeof(CredentialRepository));
             services.AddTransient(typeof(ICredentialManager), typeof(CredentialManager));
-            services.AddTransient(typeof(IAutomationExecutionLogRepository), typeof(AutomationExecutionLogRepository));
-            services.AddTransient(typeof(IAutomationExecutionLogManager), typeof(AutomationExecutionLogManager));
             services.AddTransient(typeof(IUserAgreementRepository), typeof(UserAgreementRepository));
             services.AddTransient(typeof(IUserConsentRepository), typeof(UserConsentRepository));
             services.AddTransient(typeof(IAuditLogRepository), typeof(AuditLogRepository));
             services.AddTransient(typeof(IAuditLogManager), typeof(AuditLogManager));
             services.AddTransient(typeof(IQueueRepository), typeof(QueueRepository));
             services.AddTransient(typeof(IQueueManager), typeof(QueueManager));
-            services.AddTransient(typeof(IAutomationLogRepository), typeof(AutomationLogRepository));
-            services.AddTransient(typeof(IAutomationLogManager), typeof(AutomationLogManager));
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddTransient(typeof(IAutomationVersionRepository), typeof(AutomationVersionRepository));
             services.AddTransient(typeof(IConfigurationValueRepository), typeof(ConfigurationValueRepository));
             services.AddTransient(typeof(IIPFencingRepository), typeof(IPFencingRepository));
             services.AddTransient(typeof(IIPFencingManager), typeof(IPFencingManager));
@@ -82,7 +75,18 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IAgentGroupRepository), typeof(AgentGroupRepository));
             services.AddTransient(typeof(IAgentGroupManager), typeof(AgentGroupManager));
             services.AddTransient(typeof(IAgentGroupMemberRepository), typeof(AgentGroupMemberRepository));
-            
+
+            //automations
+            services.AddTransient(typeof(IAutomationRepository), typeof(AutomationRepository));
+            services.AddTransient(typeof(IAutomationManager), typeof(AutomationManager));
+            services.AddTransient(typeof(IAutomationExecutionLogRepository), typeof(AutomationExecutionLogRepository));
+            services.AddTransient(typeof(IAutomationExecutionLogManager), typeof(AutomationExecutionLogManager));
+            services.AddTransient(typeof(IAutomationLogRepository), typeof(AutomationLogRepository));
+            services.AddTransient(typeof(IAutomationLogManager), typeof(AutomationLogManager));
+            services.AddTransient(typeof(IAutomationVersionRepository), typeof(AutomationVersionRepository));
+            services.AddTransient(typeof(IAutomationParameterRepository), typeof(AutomationParameterRepository));
+
+
             //webHooks
             services.AddTransient(typeof(IIntegrationEventRepository), typeof(IntegrationEventRepository));
             services.AddTransient(typeof(IIntegrationEventLogRepository), typeof(IntegrationEventLogRepository));

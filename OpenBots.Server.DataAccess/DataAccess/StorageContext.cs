@@ -25,14 +25,15 @@ namespace OpenBots.Server.DataAccess
         public DbSet<Asset> Assets { get; set; }
         public DbSet<Automation> Automations { get; set; }
         public DbSet<AutomationVersion> AutomationVersions { get; set; }
+        public DbSet<AutomationExecutionLog> AutomationExecutionLogs { get; set; }
+        public DbSet<AutomationLog> AutomationLogs { get; set; }
+        public DbSet<AutomationParameter> AutomationParameters { get; set; }
         public DbSet<Job> Jobs { get; set; }
         public DbSet<JobParameter> JobParameters { get; set; }
         public DbSet<JobCheckpoint> JobCheckpoints { get; set; }
         public DbSet<Credential> Credentials { get; set; }
-        public DbSet<AutomationExecutionLog> AutomationExecutionLogs { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
         public DbSet<ScheduleParameter> ScheduleParameters { get; set; }
-        public DbSet<AutomationLog> AutomationLogs { get; set; }
         public DbSet<ConfigurationValue> ConfigurationValues { get; set; }
         public DbSet<EmailAccount> EmailAccounts { get; set; }
         public DbSet<EmailSettings> EmailSettings { get; set; }
