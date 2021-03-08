@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
@@ -11,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Security.Claims;
 
 namespace OpenBots.Server.Business
 {
@@ -22,13 +24,15 @@ namespace OpenBots.Server.Business
         private readonly IJobParameterRepository _jobParameterRepo;
         private readonly IJobCheckpointRepository _jobCheckpointRepo;
         private readonly IAutomationVersionRepository _automationVersionRepo;
+        private readonly ClaimsPrincipal _caller;
 
         public JobManager(IJobRepository jobRepository, 
             IAgentRepository agentRepository,
             IAutomationRepository automationRepository,
             IJobParameterRepository jobParameterRepository,
             IJobCheckpointRepository jobCheckpointRepository,
-            IAutomationVersionRepository automationVersionRepository)
+            IAutomationVersionRepository automationVersionRepository,
+            IHttpContextAccessor httpContextAccessor)
         {
             _repo = jobRepository;
             _agentRepo = agentRepository;
@@ -36,11 +40,13 @@ namespace OpenBots.Server.Business
             _jobParameterRepo = jobParameterRepository;
             _jobCheckpointRepo = jobCheckpointRepository;
             _automationVersionRepo = automationVersionRepository;
+            httpContextAccessor = httpContextAccessor;
+            _caller = ((httpContextAccessor.HttpContext != null) ? httpContextAccessor.HttpContext.User : new ClaimsPrincipal());
         }
 
-        public Job UpdateJob(string id, CreateJobViewModel request, ApplicationUser applicationUser)
+        public Job UpdateJob(string jobId, CreateJobViewModel request, ApplicationUser applicationUser)
         {
-            Guid entityId = new Guid(id);
+            Guid entityId = new Guid(jobId);
 
             var existingJob = _repo.GetOne(entityId);
             if (existingJob == null) throw new EntityDoesNotExistException("Unable to find a job for the specified id");
@@ -65,21 +71,7 @@ namespace OpenBots.Server.Business
             existingJob.Message = request.Message;
             existingJob.IsSuccessful = request.IsSuccessful;
 
-            DeleteExistingParameters(entityId);
-
-            var set = new HashSet<string>();
-            foreach (var parameter in request.JobParameters ?? Enumerable.Empty<JobParameter>())
-            {
-                if (!set.Add(parameter.Name))
-                {
-                    throw new Exception("Job parameter name already exists");
-                }
-                parameter.JobId = entityId;
-                parameter.CreatedBy = applicationUser?.UserName;
-                parameter.CreatedOn = DateTime.UtcNow;
-                parameter.Id = Guid.NewGuid();
-                _jobParameterRepo.Add(parameter);
-            }
+            UpdateAutomationParameters(request.JobParameters, existingJob.Id);
 
             if (request.EndTime != null)
             {
@@ -108,25 +100,10 @@ namespace OpenBots.Server.Business
             return _repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
 
-        public IEnumerable<JobParameter> GetJobParameters(Guid jobId)
-        {
-            var jobParameters = _jobParameterRepo.Find(0, 1)?.Items?.Where(p => p.JobId == jobId);
-            return jobParameters;
-        }
-
         public IEnumerable<JobCheckpoint> GetJobCheckpoints(Guid jobId)
         {
             var jobCheckPoints = _jobCheckpointRepo.Find(0, 1)?.Items?.Where(p => p.JobId == jobId);
             return jobCheckPoints;
-        }
-
-        public void DeleteExistingParameters(Guid jobId)
-        {
-            var jobParameters = GetJobParameters(jobId);
-            foreach (var parmeter in jobParameters)
-            {
-                _jobParameterRepo.SoftDelete(parmeter.Id ?? Guid.Empty);
-            }
         }
 
         public void DeleteExistingCheckpoints(Guid jobId)
@@ -219,6 +196,59 @@ namespace OpenBots.Server.Business
 
             DeleteExistingParameters(jobId);
             DeleteExistingCheckpoints(jobId);
+        }
+
+        public IEnumerable<JobParameter> UpdateAutomationParameters(IEnumerable<JobParameter> jobParameters, Guid? jobId)
+        {
+            checkParameterNameAvailability(jobParameters);
+            DeleteExistingParameters(jobId);
+            return AddJobParameters(jobParameters, jobId);
+        }
+
+        public IEnumerable<JobParameter> GetJobParameters(Guid? jobId)
+        {
+            var jobParameters = _jobParameterRepo.Find(0, 1)?.Items?.Where(p => p.JobId == jobId);
+            return jobParameters;
+        }
+
+        public IEnumerable<JobParameter> AddJobParameters(IEnumerable<JobParameter> jobParameters, Guid? jobId)
+        {
+            List<JobParameter> parameterList = new List<JobParameter>();
+
+            foreach (var parameter in jobParameters ?? Enumerable.Empty<JobParameter>())
+            {
+                parameter.JobId = jobId ?? Guid.Empty;
+                parameter.CreatedBy = _caller.Identity.Name;
+                parameter.CreatedOn = DateTime.UtcNow;
+                parameter.Id = Guid.NewGuid();
+
+                _jobParameterRepo.Add(parameter);
+                parameterList.Add(parameter);
+            }
+
+            return parameterList.AsEnumerable();
+        }
+
+        public void DeleteExistingParameters(Guid? jobId)
+        {
+            var jobParameters = GetJobParameters(jobId);
+            foreach (var parmeter in jobParameters ?? Enumerable.Empty<JobParameter>())
+            {
+                _jobParameterRepo.SoftDelete(parmeter.Id ?? Guid.Empty);
+            }
+        }
+
+        public void checkParameterNameAvailability(IEnumerable<JobParameter> jobParameters)
+        {
+            var set = new HashSet<string>();
+
+            foreach (var parameter in jobParameters ?? Enumerable.Empty<JobParameter>())
+            {
+                if (!set.Add(parameter.Name))
+                {
+                    throw new Exception($"Job parameter name \"{parameter.Name}\" already exists");
+                }
+            }
         }
     }
 }

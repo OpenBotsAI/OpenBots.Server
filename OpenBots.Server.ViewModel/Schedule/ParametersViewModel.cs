@@ -1,5 +1,8 @@
 ﻿using OpenBots.Server.Model.Core;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace OpenBots.Server.ViewModel
 {
@@ -15,5 +18,18 @@ namespace OpenBots.Server.ViewModel
         [Required]
         [Display(Name = "Value")]
         public string Value { get; set; }
+
+        public static void verifyParameterNameAvailability(IEnumerable<ParametersViewModel> genericParameters)
+        {
+            var set = new HashSet<string>();
+
+            foreach (var parameter in genericParameters ?? Enumerable.Empty<ParametersViewModel>())
+            {
+                if (!set.Add(parameter.Name))
+                {
+                    throw new Exception($"Parameter name \"{parameter.Name}\", is a duplicate");
+                }
+            }
+        }
     }
 }

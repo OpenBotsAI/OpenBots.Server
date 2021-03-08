@@ -235,6 +235,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Post([FromBody] CreateScheduleViewModel request)
         {
+            ParametersViewModel.verifyParameterNameAvailability(request.Parameters);
             if (request == null)
             {
                 ModelState.AddModelError("Save", "No data passed");
@@ -325,6 +326,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
+                ParametersViewModel.verifyParameterNameAvailability(request.Parameters);
                 //validate the cron expression
                 if (!string.IsNullOrWhiteSpace(request.CRONExpression))
                 {
@@ -488,6 +490,8 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
+                ParametersViewModel.verifyParameterNameAvailability(request.JobParameters);
+
                 Guid AutomationId = request.AutomationId;
                 Guid AgentId = request.AgentId;
                 Guid AgentGroupId = request.AgentGroupId;
@@ -509,7 +513,7 @@ namespace OpenBots.Server.Web.Controllers
                 schedule.CreatedBy = applicationUser?.UserName;
 
                 var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(schedule); 
-                _hubManager.ExecuteJob(jsonScheduleObj, request.JobParameters);
+                BackgroundJob.Enqueue(() => _hubManager.ExecuteJob(jsonScheduleObj, request.JobParameters));
 
                 return Ok();
             }

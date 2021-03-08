@@ -223,7 +223,7 @@ namespace OpenBots.Server.Business
         {
             Guid? entityId = Guid.Parse(automationId);
 
-            checkParameterNameAvailability(automationParameters, entityId);
+            checkParameterNameAvailability(automationParameters);
             DeleteExistingParameters(entityId);
             return AddAutomationParameters(automationParameters, entityId);
         }
@@ -261,7 +261,7 @@ namespace OpenBots.Server.Business
             }
         }
 
-        private void checkParameterNameAvailability(IEnumerable<AutomationParameter> automationParameters, Guid? automationId)
+        private void checkParameterNameAvailability(IEnumerable<AutomationParameter> automationParameters)
         {
             var set = new HashSet<string>();
 

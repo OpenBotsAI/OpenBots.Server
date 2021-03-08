@@ -455,14 +455,7 @@ namespace OpenBots.Server.Web
                 job.AutomationVersion = automationVersion.VersionNumber;
                 job.AutomationVersionId = automationVersion.Id;
 
-                foreach (var parameter in request.JobParameters ?? Enumerable.Empty<JobParameter>())
-                {
-                    parameter.JobId = entityId;
-                    parameter.CreatedBy = applicationUser?.UserName;
-                    parameter.CreatedOn = DateTime.UtcNow;
-                    parameter.Id = Guid.NewGuid();
-                    _jobParameterRepo.Add(parameter);
-                }
+                _jobManager.UpdateAutomationParameters(request.JobParameters, request.Id);
 
                 //send SignalR notification to all connected clients 
                 await _hub.Clients.All.SendAsync("botnewjobnotification", request.AgentId.ToString());
