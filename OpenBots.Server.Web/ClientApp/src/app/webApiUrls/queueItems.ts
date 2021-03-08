@@ -7,4 +7,5 @@ export enum QueueItemsApiUrl {
   queueitemattachments = 'queueitemattachments',
   files = 'files',
   drive = 'drive',
+  export = 'export',
 }
