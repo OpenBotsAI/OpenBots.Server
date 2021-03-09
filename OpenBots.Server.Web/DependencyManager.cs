@@ -86,7 +86,6 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IAutomationVersionRepository), typeof(AutomationVersionRepository));
             services.AddTransient(typeof(IAutomationParameterRepository), typeof(AutomationParameterRepository));
 
-
             //webHooks
             services.AddTransient(typeof(IIntegrationEventRepository), typeof(IntegrationEventRepository));
             services.AddTransient(typeof(IIntegrationEventLogRepository), typeof(IntegrationEventLogRepository));
