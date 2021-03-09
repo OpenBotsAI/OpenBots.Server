@@ -141,12 +141,18 @@ export class ViewQueueItemComponent implements OnInit {
       });
   }
 
-  downloadFile(id: string): void {
+  downloadFile(queueItemAttachmentId): void {
+    // console.log('file', file);
     this.httpService
-      .get(`${FilesApiUrl.files}/${id}/${FilesApiUrl.download}`, {
-        responseType: 'blob',
-        observe: 'response',
-      })
+      // // .get(`${FilesApiUrl.files}/${id}/${FilesApiUrl.download}`
+      .get(
+        `${QueueItemsApiUrl.QueueItems}/${this.queueItemId}/${QueueItemsApiUrl.queueitemattachments}/${queueItemAttachmentId}/${QueueItemsApiUrl.export}`,
+
+        {
+          responseType: 'blob',
+          observe: 'response',
+        }
+      )
       .subscribe((response) => {
         this.fileSaverService.save(
           response.body,

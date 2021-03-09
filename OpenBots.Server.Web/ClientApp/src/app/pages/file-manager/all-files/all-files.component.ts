@@ -69,7 +69,7 @@ export class AllFilesComponent implements OnInit {
   renameId: string;
 
   constructor(
-    private FileSaverService: FileSaverService,
+    private fileSaverService: FileSaverService,
     private formBuilder: FormBuilder,
     private dialogService: DialogService,
     private helperService: HelperService,
@@ -324,15 +324,21 @@ export class AllFilesComponent implements OnInit {
     this.httpService
       .get(
         // `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.download}?driveName=${this.driveName}`
-        `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.download}`
+        `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.download}`,
+        {
+          responseType: 'blob',
+          observe: 'response',
+        }
       )
-      .subscribe((data: HttpResponse<Blob>) => {
-        fileName = data.headers
-          .get('content-disposition')
-          .split(';')[1]
-          .split('=')[1]
-          .replace(/\"/g, '');
-        this.FileSaverService.save(data.body, fileName);
+      .subscribe((response) => {
+        this.fileSaverService.save(
+          response.body,
+          response.headers
+            .get('content-disposition')
+            .split(';')[1]
+            .split('=')[1]
+            .replace(/\"/g, '')
+        );
       });
   }
 
