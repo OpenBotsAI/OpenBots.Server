@@ -113,7 +113,10 @@ namespace OpenBots.Server.Business
                     {
                         agentAsset.TextValue = globalAsset.TextValue;
                     }
-                    agentAsset.TextValue = request.TextValue;
+                    else
+                    {
+                        agentAsset.TextValue = request.TextValue;
+                    }
                     agentAsset = GetSizeInBytes(agentAsset);
                     break;
                 case "number":
@@ -121,7 +124,10 @@ namespace OpenBots.Server.Business
                     {
                         agentAsset.NumberValue = globalAsset.NumberValue;
                     }
-                    agentAsset.NumberValue = request.NumberValue;
+                    else
+                    {
+                        agentAsset.NumberValue = request.NumberValue;
+                    }
                     agentAsset = GetSizeInBytes(agentAsset);
                     break;
                 case "json":
@@ -129,7 +135,10 @@ namespace OpenBots.Server.Business
                     {
                         agentAsset.JsonValue = globalAsset.JsonValue;
                     }
-                    agentAsset.JsonValue = request.JsonValue;
+                    else
+                    {
+                        agentAsset.JsonValue = request.JsonValue;
+                    }
                     agentAsset = GetSizeInBytes(agentAsset);
                     break;
                 case "file":
@@ -151,7 +160,8 @@ namespace OpenBots.Server.Business
                             ContentType = request.File.ContentType,
                             Files = fileArray,
                             StoragePath = storagePath,
-                            IsFile = true
+                            IsFile = true,
+                            FullStoragePath = Path.Combine(storagePath, request.File.FileName)
                         };
 
                         var folder = CheckStoragePathExists(fileView, request);
