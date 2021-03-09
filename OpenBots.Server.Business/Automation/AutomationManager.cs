@@ -223,12 +223,12 @@ namespace OpenBots.Server.Business
         {
             Guid? entityId = Guid.Parse(automationId);
 
-            checkParameterNameAvailability(automationParameters);
+            CheckParameterNameAvailability(automationParameters);
             DeleteExistingParameters(entityId);
             return AddAutomationParameters(automationParameters, entityId);
         }
 
-        private IEnumerable<AutomationParameter> AddAutomationParameters(IEnumerable<AutomationParameter> automationParameters, Guid? automationId)
+        public IEnumerable<AutomationParameter> AddAutomationParameters(IEnumerable<AutomationParameter> automationParameters, Guid? automationId)
         {
             List<AutomationParameter> parameterList = new List<AutomationParameter>();
 
@@ -246,13 +246,13 @@ namespace OpenBots.Server.Business
             return parameterList.AsEnumerable();
         }
 
-        private IEnumerable<AutomationParameter> GetAutomationParameters(Guid? automationId)
+        public IEnumerable<AutomationParameter> GetAutomationParameters(Guid? automationId)
         {
             var automationParameters = _automationParameterRepository.Find(0, 1)?.Items?.Where(p => p.AutomationId == automationId);
             return automationParameters;
         }
 
-        private void DeleteExistingParameters(Guid? automationId)
+        public void DeleteExistingParameters(Guid? automationId)
         {
             var automationParameters = GetAutomationParameters(automationId);
             foreach (var parmeter in automationParameters ?? Enumerable.Empty<AutomationParameter>())
@@ -261,7 +261,7 @@ namespace OpenBots.Server.Business
             }
         }
 
-        private void checkParameterNameAvailability(IEnumerable<AutomationParameter> automationParameters)
+        public void CheckParameterNameAvailability(IEnumerable<AutomationParameter> automationParameters)
         {
             var set = new HashSet<string>();
 

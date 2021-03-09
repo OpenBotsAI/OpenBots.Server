@@ -200,7 +200,7 @@ namespace OpenBots.Server.Business
 
         public IEnumerable<JobParameter> UpdateJobParameters(IEnumerable<JobParameter> jobParameters, Guid? jobId)
         {
-            checkParameterNameAvailability(jobParameters);
+            CheckParameterNameAvailability(jobParameters);
             DeleteExistingParameters(jobId);
             return AddJobParameters(jobParameters, jobId);
         }
@@ -238,7 +238,7 @@ namespace OpenBots.Server.Business
             }
         }
 
-        public void checkParameterNameAvailability(IEnumerable<JobParameter> jobParameters)
+        public void CheckParameterNameAvailability(IEnumerable<JobParameter> jobParameters)
         {
             var set = new HashSet<string>();
 

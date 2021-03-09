@@ -496,7 +496,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="409">Conflict, concurrency error</response> 
         /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
         /// <returns>Newly created AutomationParameter details</returns>
-        [HttpPost("{AutomationId}/UpdateParameters")]
+        [HttpPost("{automationId}/UpdateParameters")]
         [ProducesResponseType(typeof(IEnumerable<AutomationParameter?>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -19,7 +19,7 @@ namespace OpenBots.Server.ViewModel
         [Display(Name = "Value")]
         public string Value { get; set; }
 
-        public static void verifyParameterNameAvailability(IEnumerable<ParametersViewModel> genericParameters)
+        public static void VerifyParameterNameAvailability(IEnumerable<ParametersViewModel> genericParameters)
         {
             var set = new HashSet<string>();
 

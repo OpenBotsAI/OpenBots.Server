@@ -173,7 +173,7 @@ namespace OpenBots.Server.Web
         /// <response code="404">Not found, when no Asset exists for the given Asset name</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Asset details for the given name</returns>
-        [HttpGet("GetAssetByName/{AssetName}")]
+        [HttpGet("GetAssetByName/{assetName}")]
         [ProducesResponseType(typeof(Asset), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]

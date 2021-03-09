@@ -19,5 +19,10 @@ namespace OpenBots.Server.Business
         PaginatedList<AllAutomationsViewModel> GetAutomationsAndAutomationVersions(Predicate<AllAutomationsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
         AutomationViewModel GetAutomationView(AutomationViewModel automationView);
         IEnumerable<AutomationParameter> UpdateAutomationParameters(IEnumerable<AutomationParameter> automationParameters, string automationId);
+        IEnumerable<AutomationParameter> AddAutomationParameters(IEnumerable<AutomationParameter> automationParameters, Guid? automationId);
+        IEnumerable<AutomationParameter> GetAutomationParameters(Guid? automationId);
+        void DeleteExistingParameters(Guid? automationId);
+        void CheckParameterNameAvailability(IEnumerable<AutomationParameter> automationParameters);
+
     }
 }

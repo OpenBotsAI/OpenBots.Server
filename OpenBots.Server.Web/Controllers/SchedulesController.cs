@@ -235,7 +235,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Post([FromBody] CreateScheduleViewModel request)
         {
-            ParametersViewModel.verifyParameterNameAvailability(request.Parameters);
+            ParametersViewModel.VerifyParameterNameAvailability(request.Parameters);
             if (request == null)
             {
                 ModelState.AddModelError("Save", "No data passed");
@@ -326,7 +326,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                ParametersViewModel.verifyParameterNameAvailability(request.Parameters);
+                ParametersViewModel.VerifyParameterNameAvailability(request.Parameters);
                 //validate the cron expression
                 if (!string.IsNullOrWhiteSpace(request.CRONExpression))
                 {
@@ -490,7 +490,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                ParametersViewModel.verifyParameterNameAvailability(request.JobParameters);
+                ParametersViewModel.VerifyParameterNameAvailability(request.JobParameters);
 
                 Guid AutomationId = request.AutomationId;
                 Guid AgentId = request.AgentId;
