@@ -71,7 +71,7 @@ namespace OpenBots.Server.Business
             existingJob.Message = request.Message;
             existingJob.IsSuccessful = request.IsSuccessful;
 
-            UpdateAutomationParameters(request.JobParameters, existingJob.Id);
+            UpdateJobParameters(request.JobParameters, existingJob.Id);
 
             if (request.EndTime != null)
             {
@@ -198,7 +198,7 @@ namespace OpenBots.Server.Business
             DeleteExistingCheckpoints(jobId);
         }
 
-        public IEnumerable<JobParameter> UpdateAutomationParameters(IEnumerable<JobParameter> jobParameters, Guid? jobId)
+        public IEnumerable<JobParameter> UpdateJobParameters(IEnumerable<JobParameter> jobParameters, Guid? jobId)
         {
             checkParameterNameAvailability(jobParameters);
             DeleteExistingParameters(jobId);

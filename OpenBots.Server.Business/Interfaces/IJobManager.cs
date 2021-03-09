@@ -22,7 +22,7 @@ namespace OpenBots.Server.Business
         MemoryStream ZipCsv(FileContentResult csvFile);
         void UpdateAutomationAverages(Guid? updatedJobId);
         void DeleteJobChildTables(Guid jobId);
-        IEnumerable<JobParameter> UpdateAutomationParameters(IEnumerable<JobParameter> jobParameters, Guid? jobId);
+        IEnumerable<JobParameter> UpdateJobParameters(IEnumerable<JobParameter> jobParameters, Guid? jobId);
         IEnumerable<JobParameter> GetJobParameters(Guid? jobId);
         IEnumerable<JobParameter> AddJobParameters(IEnumerable<JobParameter> jobParameters, Guid? jobId);
         void DeleteExistingParameters(Guid? jobId);
