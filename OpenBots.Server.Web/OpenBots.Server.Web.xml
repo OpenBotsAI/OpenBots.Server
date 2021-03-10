@@ -425,91 +425,91 @@
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
-            Provides a list of all automations
+            Provides a list of all Automations
             </summary>
-            <response code="200">Ok, a paginated list of all automations</response>
+            <response code="200">Ok, a paginated list of all Automations</response>
             <response code="400">Bad request</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="404">Not found</response>
             <response code="422">Unprocessable entity</response>
-            <returns>Paginated list of all automations</returns>
+            <returns>Paginated list of all Automations</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.View(System.String,System.String,System.Int32,System.Int32)">
             <summary>
-            Provides a view model list of all automations and corresponding automation version information
+            Provides a view model list of all Automations and corresponding Automation version information
             </summary>
             <param name="top"></param>
             <param name="skip"></param>
             <param name="orderBy"></param>
             <param name="filter"></param>
-            <response code="200">Ok, a paginated list of all automationes</response>
+            <response code="200">Ok, a paginated list of all Automations</response>
             <response code="400">Bad request</response>
             <response code="403">Forbidden, unauthorized access</response>  
             <response code="404">Not found</response>
             <response code="422">Unprocessable entity</response>
-            <returns>Paginated list of all automationes</returns>
+            <returns>Paginated list of all Automations</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.GetCount(System.String)">
             <summary>
-            Gets count of automations in database
+            Gets count of Automations in database
             </summary>
             <param name="filter"></param>
-            <response code="200">Ok, a count of all automations</response>
+            <response code="200">Ok, a count of all Automations</response>
             <response code="400">Bad request</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="404">Not found</response>
             <response code="422">Unprocessable entity</response>
-            <returns>Count of all automations</returns>
+            <returns>Count of all Automations</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Get(System.String)">
             <summary>
-            Get automation by id
+            Get Automation by id
             </summary>
             <param name="id"></param>
-            <response code="200">Ok, if a automation exists with the given id</response>
+            <response code="200">Ok, if a Automation exists with the given id</response>
             <response code="304">Not modified</response>
-            <response code="400">Bad request, if automation id is not in proper format or a proper Guid</response>
+            <response code="400">Bad request, if Automation id is not in proper format or a proper Guid</response>
             <response code="403">Forbidden</response>
-            <response code="404">Not found, when no automation exists for the given automation id</response>
+            <response code="404">Not found, when no Automation exists for the given Automation id</response>
             <response code="422">Unprocessable entity</response>
             <returns>Automation entity</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.View(System.String)">
             <summary>
-            Provides an automation's view model details for a particular automation id
+            Provides an Automation's view model details for a particular Automation id
             </summary>
             <param name="id">Automation id</param>
-            <response code="200">Ok, if a automation exists with the given id</response>
+            <response code="200">Ok, if a Automation exists with the given id</response>
             <response code="304">Not modified</response>
-            <response code="400">Bad request, if automation id is not in the proper format or a proper Guid</response>
+            <response code="400">Bad request, if Automation id is not in the proper format or a proper Guid</response>
             <response code="403">Forbidden</response>
-            <response code="404">Not found, when no automation exists for the given automation id</response>
+            <response code="404">Not found, when no Automation exists for the given Automation id</response>
             <response code="422">Unprocessable entity</response>
             <returns>Automation view model details for the given id</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Post(OpenBots.Server.ViewModel.AutomationViewModel)">
             <summary>
-            Create a new automation entity and file
+            Create a new Automation entity and file
             </summary>
             <param name="request"></param>
-            <response code="200">Ok, new automation entity created and returned</response>
-            <response code="400">Bad request, when the automation value is not in proper format</response>
+            <response code="200">Ok, new Automation entity created and returned</response>
+            <response code="400">Bad request, when the Automation value is not in proper format</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict, concurrency error</response> 
             <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
-            <returns>Newly created automation details</returns>
+            <returns>Newly created Automation details</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Update(System.String,OpenBots.Server.ViewModel.AutomationViewModel)">
             <summary>
-            Update automation with file 
+            Update Automation with file 
             </summary>
             <remarks>
-            Provides an action to update an automation, when automation id and the new details of automation are given
+            Provides an action to update an Automation, when Automation id and the new details of Automation are given
             </remarks>
             <param name="id">Automation id, produces bad request if id is null or ids don't match</param>
             <param name="request">Automation details to be updated</param>
-            <response code="200">Ok, if the automation details for the given automation id have been updated</response>
-            <response code="400">Bad request, if the automation id is null or ids don't match</response>
+            <response code="200">Ok, if the Automation details for the given Automation id have been updated</response>
+            <response code="400">Bad request, if the Automation id is null or ids don't match</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict</response>
             <response code="422">Unprocessable entity</response>
@@ -517,66 +517,79 @@
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Put(System.String,OpenBots.Server.ViewModel.AutomationViewModel)">
             <summary>
-            Update automation entity
+            Update Automation entity
             </summary>
             <remarks>
-            Provides an action to update an automation, when automation id and the new details of automation are given
+            Provides an action to update an Automation, when Automation id and the new details of Automation are given
             </remarks>
             <param name="id">Automation id, produces bad request if id is null or ids don't match</param>
             <param name="value">Automation details to be updated</param>
-            <response code="200">Ok, if the automation details for the given automation id have been updated</response>
-            <response code="400">Bad request, if the automation id is null or ids don't match</response>
+            <response code="200">Ok, if the Automation details for the given Automation id have been updated</response>
+            <response code="400">Bad request, if the Automation id is null or ids don't match</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="422">Unprocessable entity</response>
             <returns>Ok response with the updated value details</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Automation})">
             <summary>
-            Updates partial details of an automation
+            Updates partial details of an Automation
             </summary>
             <param name="id">Automation identifier</param>
-            <param name="request">Value of the automation to be updated</param>
-            <response code="200">Ok, if update of automation is successful</response>
+            <param name="request">Value of the Automation to be updated</param>
+            <response code="200">Ok, if update of Automation is successful</response>
             <response code="400">Bad request, if the id is null or ids don't match</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="422">Unprocessable entity ,validation error</response>
-            <returns>Ok response, if the partial automation values have been updated</returns>
+            <returns>Ok response, if the partial Automation values have been updated</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Export(System.String,System.String)">
             <summary>
-            Export/download an automation
+            Export/download an Automation
             </summary>
             <param name="id"></param>
             <param name="driveName"></param>
-            <response code="200">Ok, if a automation exists with the given id</response>
+            <response code="200">Ok, if a Automation exists with the given id</response>
             <response code="304">Not modified</response>
-            <response code="400">Bad request, if automation id is not in proper format or a proper Guid</response>
+            <response code="400">Bad request, if Automation id is not in proper format or a proper Guid</response>
             <response code="403">Forbidden</response>
-            <response code="404">Not found, when no automation exists for the given automation id</response>
+            <response code="404">Not found, when no Automation exists for the given Automation id</response>
             <response code="422">Unprocessable entity</response>
-            <returns>Downloaded automation file</returns>        
+            <returns>Downloaded Automation file</returns>        
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Delete(System.String,System.String)">
             <summary>
-            Delete automation with a specified id from list of automationes
+            Delete Automation with a specified id from list of Automations
             </summary>
             <param name="id">Automation id to be deleted - throws bad request if null or empty Guid</param>
             <param name="driveName"></param>
-            <response code="200">Ok, when automation is soft deleted, (isDeleted flag is set to true in database)</response>
-            <response code="400">Bad request, if automation id is null or empty Guid</response>
+            <response code="200">Ok, when Automation is soft deleted, (isDeleted flag is set to true in database)</response>
+            <response code="400">Bad request, if Automation id is null or empty Guid</response>
             <response code="403">Forbidden</response>
             <returns>Ok response</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.GetLookup">
             <summary>
-            Lookup list of all automations
+            Lookup list of all Automations
             </summary>
-            <response code="200">Ok, a lookup list of all automationes</response>
+            <response code="200">Ok, a lookup list of all Automations</response>
             <response code="400">Bad request</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="404">Not found</response>
             <response code="422">Unprocessable entity</response>
-            <returns>Lookup list of all automationes</returns>
+            <returns>Lookup list of all Automations</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.UpdateParameters(System.String,System.Collections.Generic.IEnumerable{OpenBots.Server.Model.AutomationParameter})">
+            <summary>
+            Update an Automation's parameters
+            </summary>
+            <param name="automationId"></param>
+            <param name="request"></param>
+            <response code="200">Ok, new AutomationParameter entity created and returned</response>
+            <response code="400">Bad request, when the AutomationParameter value is not in proper format</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+            <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+            <returns>Newly created AutomationParameter details</returns>
         </member>
         <member name="T:OpenBots.Server.Web.Controllers.Core.ConfigurationValuesController">
             <summary>
@@ -2406,7 +2419,7 @@
             If the requesting user is an Agent with an existing Asset, then that value will be returned
             </remarks>
             <param name="assetName">Asset name</param>
-            /// <param name="assetName">Asset name</param>
+            <param name="assetType">Asset type</param>
             <response code="200">Ok, if an Asset exists with the given name</response>
             <response code="304">Not modified</response>
             <response code="400">Bad request</response>

@@ -165,7 +165,7 @@ namespace OpenBots.Server.Web
         /// If the requesting user is an Agent with an existing Asset, then that value will be returned
         /// </remarks>
         /// <param name="assetName">Asset name</param>
-        /// /// <param name="assetName">Asset name</param>
+        /// <param name="assetType">Asset type</param>
         /// <response code="200">Ok, if an Asset exists with the given name</response>
         /// <response code="304">Not modified</response>
         /// <response code="400">Bad request</response>
@@ -173,7 +173,7 @@ namespace OpenBots.Server.Web
         /// <response code="404">Not found, when no Asset exists for the given Asset name</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Asset details for the given name</returns>
-        [HttpGet("GetAssetByName/{AssetName}")]
+        [HttpGet("GetAssetByName/{assetName}")]
         [ProducesResponseType(typeof(Asset), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]

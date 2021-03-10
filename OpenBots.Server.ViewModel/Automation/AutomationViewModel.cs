@@ -2,6 +2,7 @@
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
 using System;
+using System.Collections.Generic;
 
 namespace OpenBots.Server.ViewModel
 {
@@ -17,6 +18,7 @@ namespace OpenBots.Server.ViewModel
         public DateTime? PublishedOnUTC { get; set; }
         public string AutomationEngine { get; set; }
         public string DriveName { get; set; }
+        public IEnumerable<AutomationParameter>? AutomtationParameters { get; set; }
 
         public AutomationViewModel Map(Automation entity)
         {
