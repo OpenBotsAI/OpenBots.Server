@@ -17,7 +17,8 @@ export class GetAssetIdComponent implements OnInit {
   addAsset: FormGroup;
   pipe = new DatePipe('en-US');
   now = Date();
-
+  showGlobalAsset: boolean = false;
+  showAgentAsstData: any = [];
   constructor(
     private acroute: ActivatedRoute,
     protected assetService: AssetService,
@@ -105,6 +106,20 @@ export class GetAssetIdComponent implements OnInit {
       }
       this.addAsset.patchValue(this.AssetType);
       this.addAsset.disable();
+      this.assetService
+        .getAssetByname(this.AssetType.name)
+        .subscribe((data: any) => {
+          console.log(data);
+          
+          this.showAgentAsstData = data.items;
+          if(this.showAgentAsstData.length == 0){
+            this.showGlobalAsset = false;
+          }
+          else {
+            this.showGlobalAsset = true
+          }
+
+        });
     });
   }
   gotoaudit() {

@@ -52,7 +52,7 @@ export class AssetService {
   }
 
   getAssetByname(AssetName) {
-    let getagentUrl = `/${AssetApiUrl.Assets}/${AssetApiUrl.GetbyAssetName}/${AssetName}`;
+    let getagentUrl = `/${AssetApiUrl.Assets}?$filter=name+eq+'${AssetName}'and agentId+eq+null`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
   addAssetAgent(obj) {

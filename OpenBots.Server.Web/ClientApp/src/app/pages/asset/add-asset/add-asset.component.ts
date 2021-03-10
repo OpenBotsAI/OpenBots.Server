@@ -114,7 +114,7 @@ export class AddAssetComponent implements OnInit {
         .getAssetByname(this.showAssetbyID.name)
         .subscribe((data: any) => {
           console.log(data);
-          this.showAgentAsstData = data;
+          this.showAgentAsstData = data.items;
         });
 
       if (this.showAssetbyID.jsonValue) {

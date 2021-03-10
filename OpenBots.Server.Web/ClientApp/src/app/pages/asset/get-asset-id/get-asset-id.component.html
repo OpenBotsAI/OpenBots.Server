@@ -75,7 +75,42 @@
               </div>
 
 
-
+               
+                 <div class="row rowPadTOp" *ngIf="showGlobalAsset">
+          <div class="col-md-12">
+              <table class="table table-bordered"  >
+          <thead>
+            <tr >
+              <th scope="col">
+               Agent
+                
+              </th>
+              <th scope="col">
+                Value
+                
+              </th>
+             
+               
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let assetagentvalue of showAgentAsstData" 
+               ><td scope="row">
+               {{assetagentvalue.name}}
+              </td>
+              <td scope="row">
+                {{assetagentvalue.name}}
+              </td>
+               
+            
+            </tr>
+           
+          </tbody>
+        </table>
+          </div>
+        
+        </div>
+            
               <div class="row" >
 
 

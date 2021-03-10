@@ -138,18 +138,7 @@
               <label for="agentname" class="label"> Value *</label>
               <input type="input" nbInput fullWidth id="Name " formControlName="Name" class="form-control"  trim="blur" ngxSpecialChar 
                 placeholder="Please enter asset name">
-              <!-- <div *ngIf="(f.Name.touched || f.name.dirty) && f.name.invalid" class="invalid-feedback-frm">
-                <div *ngIf="f.Name.errors && f.name.errors.required"> Asset Name is required.</div>
-                <div *ngIf="f.Name.errors.minlength">
-                  Asset Name at least 3 characters long.
-                </div>
-                <div *ngIf="f.name.errors.maxlength">
-                  Asset Name at least 100 characters long.
-                </div>
-                <div *ngIf=" f.name.errors.pattern">
-                  Please enter valid Asset Name .
-                </div>
-              </div> -->
+              
             </div>
             
           
@@ -181,16 +170,15 @@
             </tr>
           </thead>
           <tbody>
-            <tr  
+            <tr *ngFor="let assetagentvalue of showAgentAsstData" 
                ><td scope="row">
-               {{showAgentAsstData.agentId}}
+               {{assetagentvalue.agentId}}
               </td>
               <td scope="row">
-                {{showAgentAsstData.name}}
+                {{assetagentvalue.name}}
               </td>
                
                <td>
-              <!-- (click)="gotodetail(asset.id)" -->
             <a >
               <i class="fa fa-edit" aria-hidden="true"></i>
             </a>
@@ -214,8 +202,7 @@
                 (click)="onSubmit()">Save</button>
             </div>
             <div class="col-md-6 col-lg-6 col-xxxl-6 titleRight">
-              <!-- <button type="submit" class="btn btn-primary"   status="primary" [disabled]="submitted || !addasset.valid"
-                (click)="showAssetAgentBox()">Add Agent Value</button> -->
+           
             </div>
           </div>
           
