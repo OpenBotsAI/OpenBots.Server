@@ -110,16 +110,142 @@
             </div>
           </div>
 
+
+<div class="row rowPadTOp " *ngIf="urlId"    >
+    <div class="col-md-6 col-lg-6 col-xxxl-6 "  ></div>
+          <div class="col-md-6 col-lg-6 col-xxxl-6 titleRight" *ngIf="showAgentAssetBtn">
+              <button type="submit" class="btn btn-primary"   status="primary" 
+                (click)="showAssetAgentBox()">Add Agent Value</button>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6 titleRight" *ngIf="hideAgentAssetBtn">
+              <button type="submit" class="btn btn-primary"   status="primary" 
+                (click)="hideAssetAgentBox()">Close Agent Value</button>
+            </div>
+            </div>
+             <div class="row rowPadTOp"  *ngIf="showGlobalAsset">
+             <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="queueitemtype" class="label">Select Type *</label>
+              <select class="custom-select" formControlName="AgentId" >
+                <option value='' [disabled]='true' selected>Please select Type</option>
+                <option *ngFor="let item of showLookUpagent" [value]="item.agentId">{{item.agentName}}</option>
+              </select>
+              <div *ngIf="f.type.touched && f.type.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.type.errors && f.type.errors.required"> Type is required.</div>
+              </div>
+            </div>
+
+          <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <label for="agentname" class="label"> Value *</label>
+              <input type="input" nbInput fullWidth id="Name " formControlName="Name" class="form-control"  trim="blur" ngxSpecialChar 
+                placeholder="Please enter asset name">
+              <!-- <div *ngIf="(f.Name.touched || f.name.dirty) && f.name.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.Name.errors && f.name.errors.required"> Asset Name is required.</div>
+                <div *ngIf="f.Name.errors.minlength">
+                  Asset Name at least 3 characters long.
+                </div>
+                <div *ngIf="f.name.errors.maxlength">
+                  Asset Name at least 100 characters long.
+                </div>
+                <div *ngIf=" f.name.errors.pattern">
+                  Please enter valid Asset Name .
+                </div>
+              </div> -->
+            </div>
+            
+          
+        </div>
+    
+         
+        <div class="row rowPadTOp" *ngIf="showGlobalAsset">
+          <div class="col-md-12">
+              <table class="table table-bordered"  >
+          <thead>
+            <tr >
+              <th scope="col">
+               Agent
+                
+              </th>
+              <th scope="col">
+                Value
+                
+              </th>
+              <th scope="col">
+                Edit
+                
+              </th>
+              <th scope="col">
+                Delete
+                
+              </th>
+               
+            </tr>
+          </thead>
+          <tbody>
+            <tr  
+               ><td scope="row">
+               {{showAgentAsstData.agentId}}
+              </td>
+              <td scope="row">
+                {{showAgentAsstData.name}}
+              </td>
+               
+               <td>
+              <!-- (click)="gotodetail(asset.id)" -->
+            <a >
+              <i class="fa fa-edit" aria-hidden="true"></i>
+            </a>
+          </td>
+          <td>
+            <!-- (click)="gotoedit(asset.id)" -->
+            <a >
+              <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
+            </a>
+          </td>
+            </tr>
+           
+          </tbody>
+        </table>
+          </div>
+        
+        </div>
           <div class="row rowPadTOp">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <button type="submit" class="btn btn-primary"   status="primary" [disabled]="submitted || !addasset.valid"
                 (click)="onSubmit()">Save</button>
             </div>
-            <div class="col-md-6 col-lg-6 col-xxxl-6"></div>
+            <div class="col-md-6 col-lg-6 col-xxxl-6 titleRight">
+              <!-- <button type="submit" class="btn btn-primary"   status="primary" [disabled]="submitted || !addasset.valid"
+                (click)="showAssetAgentBox()">Add Agent Value</button> -->
+            </div>
           </div>
           
-        </form>
+        </form> 
+      
+     
+            
+        
       </nb-card-body>
     </nb-card>
   </div>
 </div>
+
+
+<ng-template #dialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <h6>Delete Asset</h6>
+    </nb-card-header>
+    <nb-card-body>
+      <div aria-labelledby="title">
+        <p>Are you sure you want to delete?</p>
+      </div>
+    </nb-card-body>
+    <nb-card-footer>
+      <button class="btn btn-danger"    >Delete</button>
+      <button class="btn btn-light" style="margin-left: 11px"  >
+        Cancel
+      </button>
+
+    </nb-card-footer>
+  </nb-card>
+</ng-template>

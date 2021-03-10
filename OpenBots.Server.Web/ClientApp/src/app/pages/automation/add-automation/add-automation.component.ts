@@ -26,7 +26,7 @@ export class AddAutomationComponent implements OnInit {
   dragOver: boolean;
   nativeFile: any;
   nativeFileName: any;
-  automationSelection: string[] = ['OpenBots', 'Python'];
+  automationSelection: string[] = ['OpenBots', 'Python', 'TagUI', 'CS-Script'];
   ///// end declartion////
   etag;
   showAutomation: any = [];
@@ -127,11 +127,7 @@ export class AddAutomationComponent implements OnInit {
 
     if (this.nativeFile) {
       let AutomationformData = new FormData();
-      AutomationformData.append(
-        'file',
-        this.nativeFile,
-        this.nativeFileName
-      );
+      AutomationformData.append('file', this.nativeFile, this.nativeFileName);
       AutomationformData.append('name', this.showprocess.value.name);
       AutomationformData.append('status', this.showprocess.value.status);
       AutomationformData.append(

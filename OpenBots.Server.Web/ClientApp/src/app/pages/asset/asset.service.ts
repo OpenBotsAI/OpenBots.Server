@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { HelperService } from '../../@core/services/helper.service';
 import { AssetApiUrl } from '../../webApiUrls/assetsUrl';
+import { AgentApiUrl } from '../../webApiUrls';
 @Injectable({
   providedIn: 'root',
 })
@@ -48,6 +49,19 @@ export class AssetService {
   getFilterAsset(tpage: any, spage: any, filterName) {
     let getagentUrl = `/${AssetApiUrl.Assets}?$filter=substringof(tolower('${filterName}'), tolower(name))&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
+  }
+
+  getAssetByname(AssetName) {
+    let getagentUrl = `/${AssetApiUrl.Assets}/${AssetApiUrl.GetbyAssetName}/${AssetName}`;
+    return this.http.get(`${this.apiUrl}` + getagentUrl);
+  }
+  addAssetAgent(obj) {
+    let addassetUrl = `/${AssetApiUrl.Assets}/${AssetApiUrl.AddAgentAsset}`;
+    return this.http.post(`${this.apiUrl}` + addassetUrl, obj);
+  }
+  getAgentName() {
+    let getAgentUrl = `/${AgentApiUrl.Agents}/${AgentApiUrl.getLookup}`;
+    return this.http.get(`${this.apiUrl}` + getAgentUrl);
   }
 
   getAssetbyId(id) {
