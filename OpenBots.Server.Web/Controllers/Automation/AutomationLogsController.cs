@@ -153,7 +153,7 @@ namespace OpenBots.Server.Web
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Downloadable file</returns>
-        [HttpGet("export/{filetype?}")]
+        [HttpGet("export/{fileType?}")]
         [Produces("text/csv", "application/zip", "application/json")]
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status304NotModified)]

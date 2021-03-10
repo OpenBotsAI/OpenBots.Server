@@ -100,7 +100,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Paginated list of all AgentGroupMembers in the AgentGroup</returns>
-        [HttpGet("{AgentGroupId}/GetAllGroupMembers")]
+        [HttpGet("{agentGroupId}/GetAllGroupMembers")]
         [ProducesResponseType(typeof(PaginatedList<AgentGroupMember>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -228,7 +228,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="409">Conflict, concurrency error</response> 
         /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
         /// <returns>Newly created AgentGroupMember</returns>
-        [HttpPost("{AgentGroupId}/AddAgentToGroup/{AgentId}")]
+        [HttpPost("{agentGroupId}/AddAgentToGroup/{agentId}")]
         [ProducesResponseType(typeof(Agent), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

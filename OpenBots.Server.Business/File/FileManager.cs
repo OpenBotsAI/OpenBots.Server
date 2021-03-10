@@ -125,12 +125,7 @@ namespace OpenBots.Server.Business.File
             FileFolderViewModel fileFolder = new FileFolderViewModel();
             string adapter = GetAdapterType(driveName);
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
-            {
                 fileFolder = _localFileStorageAdapter.DeleteFileFolder(id, driveName);
-                if (fileFolder.Size > 0 && fileFolder.IsFile == true && !fileFolder.StoragePath.Contains("Queue Item Attachments")
-                    && !fileFolder.StoragePath.Contains("Email Attachments"))
-                    AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileFolder });
-            }
             //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
             //    azureBlobStorageAdapter.SaveFile(request);
             //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
@@ -138,6 +133,11 @@ namespace OpenBots.Server.Business.File
             //else if (adapter.Equals("GoogleBlobStorageAdapter") && storageProvider.Equals("FileSystem.Google"))
             //    googleBlobStorageAdapter.SaveFile(request);
             else throw new EntityOperationException("Configuration is not set up for local file storage");
+
+            if (fileFolder.Size > 0 && fileFolder.IsFile == true && !fileFolder.StoragePath.Contains("Queue Item Attachments")
+                && !fileFolder.StoragePath.Contains("Email Attachments") || (fileFolder.IsFile == false
+                && (fileFolder.StoragePath.Contains("Automations") || fileFolder.StoragePath.Contains("QueueItemAttachments"))))
+                AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileFolder });
 
             return fileFolder;
         }

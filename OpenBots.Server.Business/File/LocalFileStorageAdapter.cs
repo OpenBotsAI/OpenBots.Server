@@ -833,9 +833,14 @@ namespace OpenBots.Server.Business.File
             var fileFolder = new FileFolderViewModel();
             if (string.IsNullOrEmpty(driveName))
                 driveName = "Files";
-            Guid? driveId = GetDriveId(driveName);
-            var newParentFolder = _serverFolderRepository.GetOne((Guid)parentId);
-            string parentFolderPath = newParentFolder.StoragePath;
+            var drive = GetDriveByName(driveName);
+            Guid? driveId = drive.Id;
+            var parentFolder = _serverFolderRepository.GetOne(parentId.Value);
+            string parentFolderPath;
+            if (parentFolder != null)
+                parentFolderPath = parentFolder.StoragePath;
+            else
+                parentFolderPath = drive.StoragePath;
 
             var serverFile = _serverFileRepository.Find(null).Items?.Where(q => q.Id == entityId && q.ServerDriveId == driveId).FirstOrDefault();
             var serverFolder = new ServerFolder();
@@ -864,7 +869,7 @@ namespace OpenBots.Server.Business.File
                 _fileAttributeRepository.Update(appendAttribute);
 
                 //update new and old parent folder sizes
-                UpdateFolderSize(oldParentFolderId, newParentFolder, serverFile);
+                UpdateFolderSize(oldParentFolderId, parentFolderPath, serverFile);
             }
             else if (serverFile == null)
             {
@@ -894,7 +899,7 @@ namespace OpenBots.Server.Business.File
                     fileFolder = fileFolder.Map(serverFolder, parentFolderPath, hasChild);
 
                     //update new and old parent folder sizes
-                    UpdateFolderSize(oldParentFolderId, newParentFolder, null, serverFolder);
+                    UpdateFolderSize(oldParentFolderId, parentFolderPath, null, serverFolder);
                 }
                 else
                     throw new EntityDoesNotExistException($"Folder or file with id '{fileFolderId}' could not be found");
@@ -925,8 +930,12 @@ namespace OpenBots.Server.Business.File
                 driveName = "Files";
             var drive = GetDriveByName(driveName);
             Guid? driveId = drive.Id;
-            var parentFolder = _serverFolderRepository.GetOne((Guid)parentId);
-            string parentFolderPath = parentFolder.StoragePath;
+            var parentFolder = _serverFolderRepository.GetOne(parentId.Value);
+            string parentFolderPath;
+            if (parentFolder != null)
+                parentFolderPath = parentFolder.StoragePath;
+            else
+                parentFolderPath = drive.StoragePath;
 
             var serverFile = _serverFileRepository.Find(null).Items?.Where(q => q.Id == entityId && q.ServerDriveId == driveId).FirstOrDefault();
             var serverFolder = new ServerFolder();
@@ -954,7 +963,7 @@ namespace OpenBots.Server.Business.File
                     var newFile = _serverFileRepository.GetOne((Guid)fileFolder.Id);
 
                     //add size in bytes of file to new parent folders and server drive
-                    UpdateFolderSize(serverFile.StorageFolderId, parentFolder, newFile);
+                    UpdateFolderSize(serverFile.StorageFolderId, parentFolderId, newFile);
 
                     drive.StorageSizeInBytes += file.Length;
                     _serverDriveRepository.Update(drive);
@@ -1064,17 +1073,25 @@ namespace OpenBots.Server.Business.File
                 throw new EntityAlreadyExistsException($"File with path {path} already exists in current folder");
         }
 
-        public void UpdateFolderSize(Guid? oldParentFolderId, ServerFolder newParentFolder, ServerFile serverFile = null, ServerFolder serverFolder = null)
+        public void UpdateFolderSize(Guid? oldParentFolderId, string storagePath, ServerFile serverFile = null, ServerFolder serverFolder = null)
         {
             var oldParentFolder = _serverFolderRepository.GetOne((Guid)oldParentFolderId);
+            string oldStoragePath;
+            if (oldParentFolder == null)
+            {
+                var oldParentDrive = _serverDriveRepository.GetOne(oldParentFolderId.Value);
+                oldStoragePath = oldParentDrive.StoragePath;
+            }
+            else oldStoragePath = oldParentFolder.StoragePath;
+
             long? size;
             if (serverFile != null)
                 size = serverFile.SizeInBytes;
             else
                 size = serverFolder.SizeInBytes;
 
-            var oldParentPathArray = oldParentFolder.StoragePath.Split(Path.DirectorySeparatorChar);
-            var newParentPathArray = newParentFolder.StoragePath.Split(Path.DirectorySeparatorChar);
+            var oldParentPathArray = oldStoragePath.Split(Path.DirectorySeparatorChar);
+            var newParentPathArray = storagePath.Split(Path.DirectorySeparatorChar);
             var oldParentPathList = new List<string>();
             var newParentPathList = new List<string>();
 
