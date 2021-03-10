@@ -3,7 +3,6 @@ import { Routes, RouterModule } from '@angular/router';
 import { AllAgentsComponent } from './all-agents/all-agents.component';
 import { GetAgentsIdComponent } from './get-agents-id/get-agents-id.component';
 import { AddAgentsComponent } from './add-agents/add-agents.component';
-import { EditAgentsComponent } from './edit-agents/edit-agents.component';
 const routes: Routes = [
   {
     path: 'list',

@@ -436,6 +436,7 @@ export class AddAssetComponent implements OnInit {
       } else if (this.showAssetbyID.type == 'Json') {
         agentdata.append('JsonValue', this.addasset.value.JsonValue);
       } else if (this.showAssetbyID.type == 'File') {
+        //if (this.native_file)
         agentdata.append('File', this.native_file, this.native_file_name);
       }
 
