@@ -1,4 +1,10 @@
-import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NbToastrService } from '@nebular/theme';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,6 +17,7 @@ import {
   UploaderOptions,
 } from 'ngx-uploader';
 import { HttpResponse } from '@angular/common/http';
+import { DialogService } from '../../../@core/dialogservices';
 
 @Component({
   selector: 'ngx-add-asset',
@@ -27,9 +34,11 @@ export class AddAssetComponent implements OnInit {
   native_file: any;
   native_file_name: any;
   ///// end declartion////
+  showLookUpagent: any = [];
   fileSize = false;
   etag;
   showAssetbyID: any = [];
+  showAgentAsstData: any = [];
   title = 'Add';
   showUpload: boolean = false;
   save_value: any = [];
@@ -43,19 +52,25 @@ export class AddAssetComponent implements OnInit {
   urlId: string;
   public editorOptions: JsonEditorOptions;
   public data: any;
+  showGlobalAsset: boolean = false;
   @ViewChild(JsonEditorComponent, { static: false })
   editor: JsonEditorComponent;
+  viewDialog: any;
+  showAgentAssetBtn: boolean = true;
+  hideAgentAssetBtn: boolean = false;
 
   constructor(
     private formBuilder: FormBuilder,
     protected assetService: AssetService,
     protected router: Router,
     private toastrService: NbToastrService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private dialogService: DialogService
   ) {
     this.editorOptions = new JsonEditorOptions();
     this.editorOptions.modes = ['code', 'text', 'tree', 'view'];
     this.urlId = this.route.snapshot.params['id'];
+   
   }
 
   ngOnInit(): void {
@@ -80,6 +95,8 @@ export class AddAssetComponent implements OnInit {
         ],
       ],
       type: ['', Validators.required],
+      Name: [''],
+      AgentId: [''],
     });
     if (this.urlId) {
       this.getAssetById(this.urlId);
@@ -93,6 +110,13 @@ export class AddAssetComponent implements OnInit {
       this.showAssetbyID = data.body;
       this.etag = data.headers.get('ETag').replace(/\"/g, '');
       this.addasset.patchValue(this.showAssetbyID);
+      this.assetService
+        .getAssetByname(this.showAssetbyID.name)
+        .subscribe((data: any) => {
+          console.log(data);
+          this.showAgentAsstData = data;
+        });
+
       if (this.showAssetbyID.jsonValue) {
         this.showAssetbyID.jsonValue = JSON.parse(this.showAssetbyID.jsonValue);
       }
@@ -160,6 +184,22 @@ export class AddAssetComponent implements OnInit {
       this.addAsset();
     }
   }
+  showAssetAgentBox() {
+    this.showGlobalAsset = true;
+    this.hideAgentAssetBtn = true;
+    this.showAgentAssetBtn = false;
+    this.assetService.getAgentName().subscribe((data: any) => {
+      this.showLookUpagent = data;
+    });
+  }
+  hideAssetAgentBox() {
+    this.showGlobalAsset = false;
+    this.hideAgentAssetBtn = false;
+    this.showAgentAssetBtn = true;
+  }
+
+ 
+
   addAsset() {
     this.submitted = true;
 
@@ -321,7 +361,7 @@ export class AddAssetComponent implements OnInit {
       this.assetService.editAsset(this.urlId, jsondata, this.etag).subscribe(
         () => {
           this.toastrService.success(
-            'Asset Details Upate Successfully!',
+            'Asset Details Update Successfully!',
             'Success'
           );
           this.router.navigate(['pages/asset/list']);
@@ -344,7 +384,7 @@ export class AddAssetComponent implements OnInit {
       this.assetService.editAsset(this.urlId, textdata, this.etag).subscribe(
         () => {
           this.toastrService.success(
-            'Asset Details Upate Successfully!',
+            'Asset Details Update Successfully!',
             'Success'
           );
           this.router.navigate(['pages/asset/list']);
@@ -367,7 +407,7 @@ export class AddAssetComponent implements OnInit {
       this.assetService.editAsset(this.urlId, numberdata, this.etag).subscribe(
         () => {
           this.toastrService.success(
-            'Asset Details Upate Successfully!',
+            'Asset Details Update Successfully!',
             'Success'
           );
           this.router.navigate(['pages/asset/list']);
@@ -381,6 +421,33 @@ export class AddAssetComponent implements OnInit {
         }
       );
     }
+    ////// code of add agent asset
+    if (
+      this.addasset.value.Name != "" &&
+      this.addasset.value.AgentId != ""
+    ) {
+      let agentdata = new FormData();
+      agentdata.append('Name', this.addasset.value.Name);
+      agentdata.append('AgentId', this.addasset.value.AgentId);
+      if (this.showAssetbyID.type == 'Text') {
+        agentdata.append('TextValue', this.addasset.value.TextValue);
+      } else if (this.showAssetbyID.type == 'Number') {
+        agentdata.append('NumberValue', this.addasset.value.NumberValue);
+      } else if (this.showAssetbyID.type == 'Json') {
+        agentdata.append('JsonValue', this.addasset.value.JsonValue);
+      } else if (this.showAssetbyID.type == 'File') {
+        agentdata.append('File', this.native_file, this.native_file_name);
+      }
+
+      this.assetService.addAssetAgent(agentdata).subscribe(() => {
+        this.toastrService.success(
+          'Asset Agent Value Save Successfully!',
+          'Success'
+        );
+        this.router.navigate(['pages/asset/list']);
+      });
+    }
+
     this.submitted = false;
   }
 
