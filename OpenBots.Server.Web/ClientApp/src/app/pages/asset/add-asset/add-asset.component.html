@@ -57,7 +57,7 @@
           <div class="row rowPadTOp" *ngIf="json">
             <div class="col-md-12 col-lg-12 col-xxxl-12"> 
             <label for="JsonValue" class="label">Json * </label>
-              <json-editor [options]="editorOptions" formControlName="JsonValue"></json-editor>
+              <json-editor [options]="editorOptions" #editor formControlName="JsonValue"></json-editor>
               <div *ngIf="f.JsonValue.touched && f.JsonValue.invalid" class="invalid-feedback-frm">
                 <div *ngIf="f.JsonValue.errors && f.JsonValue.errors.required"> Json is required.</div>
                 <div *ngIf="f.JsonValue.errors.minlength">
@@ -175,7 +175,7 @@
 
               <div class="col-md-12 col-lg-12 col-xxxl-12" *ngIf="showAssetbyID.type == 'Json'  ">
                 <label for="Name" class="label">Json * </label>
-              <json-editor [options]="editorOptions" formControlName="Name"></json-editor>
+              <json-editor [options]="editorOptions" #editorAssetAgent formControlName="Name"></json-editor>
               <div *ngIf="f.Name.touched && f.Name.invalid" class="invalid-feedback-frm">
                 <div *ngIf="f.Name.errors && f.Name.errors.required"> Json is required.</div>
                 <div *ngIf="f.Name.errors.minlength">
@@ -286,4 +286,4 @@
 
     </nb-card-footer>
   </nb-card>
-</ng-template>;
+</ng-template>

@@ -18,6 +18,7 @@ import {
 } from 'ngx-uploader';
 import { HttpResponse } from '@angular/common/http';
 import { DialogService } from '../../../@core/dialogservices';
+import { relativeTimeRounding } from 'moment';
 
 @Component({
   selector: 'ngx-add-asset',
@@ -56,12 +57,11 @@ export class AddAssetComponent implements OnInit {
   public editorOptionsAgentAsset: JsonEditorOptions;
   public data: any;
   showGlobalAsset: boolean = false;
-  @ViewChild(JsonEditorComponent, { static: false })
   // @ViewChild(JsonEditorComponent, { static: false })
-  // @ViewChild('editor') editor: JsonEditorComponent;
-  //@ViewChild('editorAssetAgent') editorAssetAgent: JsonEditorComponent;
-  editor: JsonEditorComponent;
-  editorAssetAgent: JsonEditorComponent;
+  @ViewChild('editor') editor: JsonEditorComponent;
+  @ViewChild('editorAssetAgent') editorAssetAgent: JsonEditorComponent;
+  // editor: JsonEditorComponent;
+  // editorAssetAgent: JsonEditorComponent;
   viewDialog: any;
   showAgentAssetBtn: boolean = true;
   hideAgentAssetBtn: boolean = false;
@@ -76,8 +76,10 @@ export class AddAssetComponent implements OnInit {
   ) {
     this.editorOptions = new JsonEditorOptions();
     this.editorOptions.modes = ['code', 'text', 'tree', 'view'];
+    // this.editorOptions.onChange = () => console.log(this.editor.get());
     this.editorOptionsAgentAsset = new JsonEditorOptions();
     this.editorOptionsAgentAsset.modes = ['code', 'text', 'tree', 'view'];
+    //  this.editorOptionsAgentAsset.onChange = () => console.log(this.editorAssetAgent.get());
     this.urlId = this.route.snapshot.params['id'];
   }
 
@@ -112,6 +114,10 @@ export class AddAssetComponent implements OnInit {
 
       this.title = 'Update';
       this.addasset.get('type').disable();
+      this.editorOptionsAgentAsset = new JsonEditorOptions();
+      this.editorOptionsAgentAsset.modes = ['code', 'text', 'tree', 'view'];
+      this.editorOptionsAgentAsset.onChange = () =>
+        console.log(this.editorAssetAgent.get());
     }
   }
 
@@ -223,6 +229,9 @@ export class AddAssetComponent implements OnInit {
       if (!this.editor.isValidJson()) {
         this.toastrService.danger('Provided json is not valid', 'error');
         this.submitted = false;
+      }
+      else {
+        this.submitted = true;
       }
       this.addasset.value.JsonValue = JSON.stringify(this.editor.get());
 
@@ -358,17 +367,21 @@ export class AddAssetComponent implements OnInit {
         this.native_file = undefined;
       }
     } else if (this.showAssetbyID.type == 'Json') {
+      console.log(this.editor.get());
+       console.log(JSON.stringify(this.editor.get()));
       if (!this.editor.isValidJson()) {
         this.toastrService.danger('Provided json is not valid', 'error');
         this.submitted = false;
       }
-      this.addasset.value.JsonValue = JSON.stringify(this.editor.get());
+       this.addasset.value.JsonValue = JSON.stringify(this.editor.get());
       let jsondata = {
         name: this.addasset.value.name,
         type: this.addasset.getRawValue().type,
         Organizationid: localStorage.getItem('ActiveOrganizationID'),
         jsonValue: this.addasset.value.JsonValue,
       };
+      console.log(this.addasset.value.JsonValue);
+      
       this.assetService.editAsset(this.urlId, jsondata, this.etag).subscribe(
         () => {
           this.toastrService.success(
@@ -437,7 +450,6 @@ export class AddAssetComponent implements OnInit {
   }
 
   SaveAgentAsset() {
-    // console.log(this.addasset.value.Name);
     // if (this.addasset.value.Name != '' && this.addasset.value.AgentId != '') {
     let agentdata = new FormData();
     agentdata.append('Name', this.addasset.value.name);
@@ -447,26 +459,7 @@ export class AddAssetComponent implements OnInit {
     } else if (this.showAssetbyID.type == 'Number') {
       agentdata.append('NumberValue', this.addasset.value.Name);
     } else if (this.showAssetbyID.type == 'Json') {
-      // this.addasset.value.Name = JSON.stringify(
-      //   this.editor.update(this.addasset.value.Name)
-      // );
-      // console.log(this.addasset.value.Name);
-      // console.log(this.editorAssetAgent.get());
-      //  console.log(
-      //    JSON.stringify(this.editorAssetAgent.get())
-      //  );
-      //  console.log(JSON.stringify(this.editorAssetAgent.get()));
-      // console.log(JSON.stringify(this.editorAssetAgent.getMode()));
-      // console.log(JSON.stringify(this.editorAssetAgent.getName()));
-      // console.log(JSON.stringify(this.editorAssetAgent.getText()));
-
-      //      get(): JSON;
-      // getMode(): JsonEditorMode;
-      // getName(): string;
-      // getText(): string;
-      this.addasset.value.Name = JSON.stringify(this.editor.get());
-      // console.log(JSON.stringify(this.editorAssetAgent.get()));
-      console.log(this.addasset.value.Name);
+      this.addasset.value.Name = JSON.stringify(this.editorAssetAgent.get());
       agentdata.append('JsonValue', this.addasset.value.Name);
     } else if (this.showAssetbyID.type == 'File') {
       if (this.native_file) {
@@ -477,7 +470,7 @@ export class AddAssetComponent implements OnInit {
         this.native_file = undefined;
       }
     }
-    return;
+ 
     this.assetService.addAssetAgent(agentdata).subscribe(
       () => {
         this.toastrService.success(
@@ -487,13 +480,13 @@ export class AddAssetComponent implements OnInit {
         this.getAssetAgentValue();
         //  this.router.navigate(['pages/asset/list']);
       },
-        (error) => {
-          this.submitted = false;
-          if (error.error.status === 409) {
-            this.toastrService.danger(error.error.serviceErrors, 'error');
-            this.getAssetAgentValue();
-          }
+      (error) => {
+        this.submitted = false;
+        if (error.error.status === 409) {
+          this.toastrService.danger(error.error.serviceErrors, 'error');
+          this.getAssetAgentValue();
         }
+      }
     );
   }
 
@@ -511,7 +504,9 @@ export class AddAssetComponent implements OnInit {
       () => {
         this.isDeleted = false;
         this.toastrService.success('Deleted Successfully');
+       
         ref.close();
+        this.getAssetAgentValue();
         // this.get_allasset(this.page.pageSize, skip);
         //this.pagination(this.page.pageNumber, this.page.pageSize);
       },
