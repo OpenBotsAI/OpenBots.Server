@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business;
-using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
@@ -350,7 +349,7 @@ namespace OpenBots.Server.Web
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns> Downloadable file</returns>
-        [HttpGet("export/{filetype?}")]
+        [HttpGet("export/{fileType?}")]
         [Produces("text/csv", "application/zip", "application/json")]
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
@@ -455,14 +454,7 @@ namespace OpenBots.Server.Web
                 job.AutomationVersion = automationVersion.VersionNumber;
                 job.AutomationVersionId = automationVersion.Id;
 
-                foreach (var parameter in request.JobParameters ?? Enumerable.Empty<JobParameter>())
-                {
-                    parameter.JobId = entityId;
-                    parameter.CreatedBy = applicationUser?.UserName;
-                    parameter.CreatedOn = DateTime.UtcNow;
-                    parameter.Id = Guid.NewGuid();
-                    _jobParameterRepo.Add(parameter);
-                }
+                _jobManager.UpdateJobParameters(request.JobParameters, request.Id);
 
                 //send SignalR notification to all connected clients 
                 await _hub.Clients.All.SendAsync("botnewjobnotification", request.AgentId.ToString());
@@ -715,7 +707,7 @@ namespace OpenBots.Server.Web
         /// <response code="409">Conflict, concurrency error</response> 
         /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
         /// <returns> Newly created Checkpoint details</returns>
-        [HttpPost("{JobId}/AddCheckpoint")]
+        [HttpPost("{jobId}/AddCheckpoint")]
         [ProducesResponseType(typeof(JobCheckpoint), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -768,7 +760,7 @@ namespace OpenBots.Server.Web
         /// <response code="404">Not found, when no job exists for the given job id</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>JobCheckpoint details for the given id</returns>
-        [HttpGet("{JobId}/JobCheckpoints", Name = "GetJobCheckpoint")]
+        [HttpGet("{jobId}/JobCheckpoints", Name = "GetJobCheckpoint")]
         [ProducesResponseType(typeof(PaginatedList<JobCheckpoint>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]

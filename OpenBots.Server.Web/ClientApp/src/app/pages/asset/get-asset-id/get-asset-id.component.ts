@@ -17,7 +17,8 @@ export class GetAssetIdComponent implements OnInit {
   addAsset: FormGroup;
   pipe = new DatePipe('en-US');
   now = Date();
-
+  showGlobalAsset: boolean = false;
+  showAgentAsstData: any = [];
   constructor(
     private acroute: ActivatedRoute,
     protected assetService: AssetService,

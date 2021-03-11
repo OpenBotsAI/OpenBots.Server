@@ -294,7 +294,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Downloadable file</returns>
-        [HttpGet("export/{filetype?}")]
+        [HttpGet("export/{fileType?}")]
         [Produces("text/csv", "application/zip", "application/json")]
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

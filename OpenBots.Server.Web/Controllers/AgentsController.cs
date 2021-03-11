@@ -157,7 +157,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Paginated list of all AgentGroupMembers with the specified Agent id</returns>
-        [HttpGet("{AgentId}/GetAllGroupMembers")]
+        [HttpGet("{agentId}/GetAllGroupMembers")]
         [ProducesResponseType(typeof(PaginatedList<AgentGroupMember>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -511,7 +511,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
         /// <returns>Newly created Agent heartbeat</returns>
-        [HttpPost("{AgentId}/AddHeartbeat")]
+        [HttpPost("{agentId}/AddHeartbeat")]
         [ProducesResponseType(typeof(AgentHeartbeat), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -551,7 +551,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessable entity</response>
         /// <response code="404">Not found, when no agent exists for the given agent id</response>
         /// <returns>Agent heaetbeat details for the given id</returns>
-        [HttpGet("{AgentId}/AgentHeartbeats", Name = "GetAgentHeartbeat")]
+        [HttpGet("{agentId}/AgentHeartbeats", Name = "GetAgentHeartbeat")]
         [ProducesResponseType(typeof(PaginatedList<AgentHeartbeat>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]

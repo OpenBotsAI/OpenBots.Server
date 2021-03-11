@@ -659,7 +659,7 @@ namespace OpenBots.Server.Business
             if (size <= 0) throw new EntityOperationException($"File size of file {fileView.Name} cannot be 0");
 
             //update queue item attachment entity
-            var storagePath = Path.Combine(driveName, "Queue Item Attachments", file.FileName);
+            var storagePath = Path.Combine(driveName, "Queue Item Attachments", queueItem.Id.ToString(), file.FileName);
             existingAttachment.SizeInBytes = file.Length;
             _queueItemAttachmentRepository.Update(existingAttachment);
 
@@ -693,17 +693,17 @@ namespace OpenBots.Server.Business
         public void DeleteAll(QueueItem queueItem, string driveName)
         {
             var attachments = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == queueItem.Id)?.Items;
+            var fileView = new FileFolderViewModel();
             if (attachments.Count != 0)
             {
-                var fileList = new List<FileFolderViewModel>();
                 foreach (var attachment in attachments)
                 {
-                    var fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
-                    fileList.Add(fileView);
+                    fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
                     _queueItemAttachmentRepository.SoftDelete(attachment.Id.Value);
                 }
 
-                _fileManager.AddBytesToFoldersAndDrive(fileList);
+                var folder = _fileManager.DeleteFileFolder(fileView.ParentId.ToString(), driveName);
+                _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
 
                 //update queue item payload
                 queueItem.PayloadSizeInBytes = 0;

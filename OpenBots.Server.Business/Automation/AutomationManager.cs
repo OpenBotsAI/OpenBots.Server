@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Business
@@ -20,18 +21,24 @@ namespace OpenBots.Server.Business
         private readonly IAutomationRepository _repo;
         private readonly IFileManager _fileManager;
         private readonly IAutomationVersionRepository _automationVersionRepository;
+        private readonly IAutomationParameterRepository _automationParameterRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ClaimsPrincipal _caller;
 
         public AutomationManager(
             IAutomationRepository repo,
             IFileManager fileManager,
             IAutomationVersionRepository automationVersionRepository,
-            IHttpContextAccessor httpContextAccessor)
+            IAutomationParameterRepository automationParameterRepository,
+            IHttpContextAccessor httpContextAccessor
+            )
         {
             _repo = repo;
             _fileManager = fileManager;
             _automationVersionRepository = automationVersionRepository;
+            _automationParameterRepository = automationParameterRepository;
             _httpContextAccessor = httpContextAccessor;
+            _caller = ((httpContextAccessor.HttpContext != null) ? httpContextAccessor.HttpContext.User : new ClaimsPrincipal());
         }
 
         public Automation AddAutomation(AutomationViewModel request)
@@ -56,10 +63,12 @@ namespace OpenBots.Server.Business
             CheckStoragePathExists(fileView, request);
             fileView = _fileManager.AddFileFolder(fileView, request.DriveName)[0];
 
+            var automationEngine = GetAutomationEngine(request.AutomationEngine);
+
             var automation = new Automation()
             {
                 Name = request.Name,
-                AutomationEngine = request.AutomationEngine,
+                AutomationEngine = automationEngine,
                 Id = request.Id,
                 FileId = fileView.Id,
                 OriginalPackageName = request.File.FileName
@@ -106,7 +115,7 @@ namespace OpenBots.Server.Business
             if (existingAutomation == null) throw new EntityDoesNotExistException($"Automation with id {id} could not be found");
 
             existingAutomation.Name = request.Name;
-            existingAutomation.AutomationEngine = request.AutomationEngine;
+            existingAutomation.AutomationEngine = GetAutomationEngine(request.AutomationEngine);
 
             var automationVersion = _automationVersionRepository.Find(null, q => q.AutomationId == existingAutomation.Id).Items?.FirstOrDefault();
             if (!string.IsNullOrEmpty(automationVersion.Status))
@@ -140,12 +149,16 @@ namespace OpenBots.Server.Business
         public void DeleteAutomation(Automation automation, string driveName)
         {
             //remove file associated with automation
+            var file = _fileManager.GetFileFolder(automation.FileId.ToString(), driveName);
             _fileManager.DeleteFileFolder(automation.FileId.ToString(), driveName);
+            var folder = _fileManager.GetFileFolder(file.ParentId.ToString(), driveName);
+            _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
             _repo.SoftDelete(automation.Id.Value);
 
             //remove automation version entity associated with automation
             var automationVersion = _automationVersionRepository.Find(null, q => q.AutomationId == automation.Id).Items?.FirstOrDefault();
             _automationVersionRepository.SoftDelete(automationVersion.Id.Value);
+            DeleteExistingParameters(automation.Id);
         }
 
         public void AddAutomationVersion(AutomationViewModel automationViewModel)
@@ -195,9 +208,9 @@ namespace OpenBots.Server.Business
             return _repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
 
-        public AutomationViewModel GetAutomationView(AutomationViewModel automationView, string id)
+        public AutomationViewModel GetAutomationView(AutomationViewModel automationView)
         {
-            var automationVersion = _automationVersionRepository.Find(null, q => q.AutomationId == Guid.Parse(id))?.Items?.FirstOrDefault();
+            var automationVersion = _automationVersionRepository.Find(null, q => q.AutomationId == automationView.Id)?.Items?.FirstOrDefault();
             if (automationVersion != null)
             {
                 automationView.VersionId = (Guid)automationVersion.Id;
@@ -205,9 +218,90 @@ namespace OpenBots.Server.Business
                 automationView.Status = automationVersion.Status;
                 automationView.PublishedBy = automationVersion.PublishedBy;
                 automationView.PublishedOnUTC = automationVersion.PublishedOnUTC;
+                automationView.AutomtationParameters = GetAutomationParameters(automationView.Id);
             }
 
             return automationView;
+        }
+
+        public IEnumerable<AutomationParameter> UpdateAutomationParameters(IEnumerable<AutomationParameter> automationParameters, string automationId)
+        {
+            Guid? entityId = Guid.Parse(automationId);
+
+            CheckParameterNameAvailability(automationParameters);
+            DeleteExistingParameters(entityId);
+            return AddAutomationParameters(automationParameters, entityId);
+        }
+
+        public IEnumerable<AutomationParameter> AddAutomationParameters(IEnumerable<AutomationParameter> automationParameters, Guid? automationId)
+        {
+            List<AutomationParameter> parameterList = new List<AutomationParameter>();
+
+            foreach (var parameter in automationParameters ?? Enumerable.Empty<AutomationParameter>())
+            {
+                parameter.AutomationId = automationId ?? Guid.Empty;
+                parameter.CreatedBy = _caller.Identity.Name;
+                parameter.CreatedOn = DateTime.UtcNow;
+                parameter.Id = Guid.NewGuid();
+
+                _automationParameterRepository.Add(parameter);
+                parameterList.Add(parameter);
+            }
+
+            return parameterList.AsEnumerable();
+        }
+
+        public IEnumerable<AutomationParameter> GetAutomationParameters(Guid? automationId)
+        {
+            var automationParameters = _automationParameterRepository.Find(0, 1)?.Items?.Where(p => p.AutomationId == automationId);
+            return automationParameters;
+        }
+
+        public void DeleteExistingParameters(Guid? automationId)
+        {
+            var automationParameters = GetAutomationParameters(automationId);
+            foreach (var parmeter in automationParameters ?? Enumerable.Empty<AutomationParameter>())
+            {
+                _automationParameterRepository.SoftDelete(parmeter.Id ?? Guid.Empty);
+            }
+        }
+
+        public void CheckParameterNameAvailability(IEnumerable<AutomationParameter> automationParameters)
+        {
+            var set = new HashSet<string>();
+
+            foreach (var parameter in automationParameters ?? Enumerable.Empty<AutomationParameter>())
+            {
+                if (!set.Add(parameter.Name))
+                {
+                    throw new Exception($"Automation parameter name \"{parameter.Name}\" already exists");
+                }
+            }
+        }
+
+        public string GetAutomationEngine(string requestEngine)
+        {
+            string automationEngine = null;
+            if (requestEngine.ToLower() == AutomationEngines.CSScript.ToString().ToLower())
+                automationEngine = AutomationEngines.CSScript.ToString();
+            else if (requestEngine.ToLower() == AutomationEngines.OpenBots.ToString().ToLower())
+                automationEngine = AutomationEngines.OpenBots.ToString();
+            else if (requestEngine.ToLower() == AutomationEngines.Python.ToString().ToLower())
+                automationEngine = AutomationEngines.Python.ToString();
+            else if (requestEngine.ToLower() == AutomationEngines.TagUI.ToString().ToLower())
+                automationEngine = AutomationEngines.TagUI.ToString();
+            else
+                throw new EntityOperationException($"Automation engine type {requestEngine} does not exist");
+
+            return automationEngine;
+        }
+        
+        public enum AutomationEngines
+        {
+            OpenBots,
+            Python,
+            CSScript,
+            TagUI
         }
     }
 }
