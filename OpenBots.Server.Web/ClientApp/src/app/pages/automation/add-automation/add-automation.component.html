@@ -72,11 +72,12 @@
                             </div>
                         </div>
                     </div>
-                    <!-- *ngIf="urlId" -->
+
                     <div class="btn-primary addBtn" *ngIf="urlId">
                         <nb-icon nbTooltip="Add Automations Parameter" icon="plus" (click)="automationParameter()">
                         </nb-icon>
                     </div>
+
                     <div class="row rowPaddingTop">
                         <div class="col-md-4 col-lg-4 col-xxxl-4 topPadding" formArrayName="automationParameter"
                             *ngFor="let item of formArrayControl?.controls; let i = index;">
