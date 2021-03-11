@@ -277,4 +277,24 @@ export class AddScheduleComponent implements OnInit {
     this.scheduleForm.markAsDirty();
     this.scheduleForm.markAsTouched();
   }
+
+  onAutomationChange(event): void {
+    console.log(event.target.value);
+    this.httpService
+      .get(
+        `${automationsApiUrl.automations}/${automationsApiUrl.view}/${event.target.value}`,
+        { observe: 'response' }
+      )
+      .subscribe((response) => {
+        if (response && response.status == 200) {
+          console.log(response.body);
+          this.scheduleForm.setControl(
+            'parameters',
+            this.setvalues(response.body.automtationParameters)
+          );
+          this.scheduleForm.markAsDirty();
+          this.scheduleForm.markAsTouched();
+        }
+      });
+  }
 }

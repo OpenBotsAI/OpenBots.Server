@@ -63,10 +63,12 @@ namespace OpenBots.Server.Business
             CheckStoragePathExists(fileView, request);
             fileView = _fileManager.AddFileFolder(fileView, request.DriveName)[0];
 
+            var automationEngine = GetAutomationEngine(request.AutomationEngine);
+
             var automation = new Automation()
             {
                 Name = request.Name,
-                AutomationEngine = request.AutomationEngine,
+                AutomationEngine = automationEngine,
                 Id = request.Id,
                 FileId = fileView.Id,
                 OriginalPackageName = request.File.FileName
@@ -113,7 +115,7 @@ namespace OpenBots.Server.Business
             if (existingAutomation == null) throw new EntityDoesNotExistException($"Automation with id {id} could not be found");
 
             existingAutomation.Name = request.Name;
-            existingAutomation.AutomationEngine = request.AutomationEngine;
+            existingAutomation.AutomationEngine = GetAutomationEngine(request.AutomationEngine);
 
             var automationVersion = _automationVersionRepository.Find(null, q => q.AutomationId == existingAutomation.Id).Items?.FirstOrDefault();
             if (!string.IsNullOrEmpty(automationVersion.Status))
@@ -147,7 +149,10 @@ namespace OpenBots.Server.Business
         public void DeleteAutomation(Automation automation, string driveName)
         {
             //remove file associated with automation
+            var file = _fileManager.GetFileFolder(automation.FileId.ToString(), driveName);
             _fileManager.DeleteFileFolder(automation.FileId.ToString(), driveName);
+            var folder = _fileManager.GetFileFolder(file.ParentId.ToString(), driveName);
+            _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
             _repo.SoftDelete(automation.Id.Value);
 
             //remove automation version entity associated with automation
@@ -272,6 +277,31 @@ namespace OpenBots.Server.Business
                     throw new Exception($"Automation parameter name \"{parameter.Name}\" already exists");
                 }
             }
+        }
+
+        public string GetAutomationEngine(string requestEngine)
+        {
+            string automationEngine = null;
+            if (requestEngine.ToLower() == AutomationEngines.CSScript.ToString().ToLower())
+                automationEngine = AutomationEngines.CSScript.ToString();
+            else if (requestEngine.ToLower() == AutomationEngines.OpenBots.ToString().ToLower())
+                automationEngine = AutomationEngines.OpenBots.ToString();
+            else if (requestEngine.ToLower() == AutomationEngines.Python.ToString().ToLower())
+                automationEngine = AutomationEngines.Python.ToString();
+            else if (requestEngine.ToLower() == AutomationEngines.TagUI.ToString().ToLower())
+                automationEngine = AutomationEngines.TagUI.ToString();
+            else
+                throw new EntityOperationException($"Automation engine type {requestEngine} does not exist");
+
+            return automationEngine;
+        }
+        
+        public enum AutomationEngines
+        {
+            OpenBots,
+            Python,
+            CSScript,
+            TagUI
         }
     }
 }

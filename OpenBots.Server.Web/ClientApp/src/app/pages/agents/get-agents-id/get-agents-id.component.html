@@ -200,10 +200,17 @@
                 <ngx-tooltip [data]="agent?.lastReportedWork" [size]="40">
                 </ngx-tooltip>
               </td>
-              <td scope="row">
-                <ngx-tooltip [data]="agent?.isHealthy" [size]="40">
+              <td scope="row" *ngIf="agent.isHealthy == false">
+                <ngx-tooltip [data]="'Not Healthy'" [size]="40">
                 </ngx-tooltip>
               </td>
+              <td scope="row" *ngIf="agent.isHealthy == true">
+                <ngx-tooltip [data]="'Healthy'" [size]="40">
+                </ngx-tooltip>
+              </td>
+                <td scope="row" *ngIf="agent.isHealthy == null">
+            <p></p>
+          </td>
             </tr>
           </tbody>
         </table>
@@ -217,7 +224,7 @@
               screenReaderCurrentLabel="You're on page"></pagination-controls>
           </div>
           <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="getPerPage">
-        <label class="label">Total {{ showpage.totalCount }} /</label>
+        <label class="label">Total {{ page.totalCount }} /</label>
 
         <select class="custom-select per-page-drop" (change)="perPage($event.target.value)">
           <option *ngFor="let item of itemsPerPage" [value]="item.id">

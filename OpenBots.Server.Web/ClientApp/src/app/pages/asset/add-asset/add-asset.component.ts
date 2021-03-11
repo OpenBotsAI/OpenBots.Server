@@ -1,4 +1,10 @@
-import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NbToastrService } from '@nebular/theme';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,6 +17,8 @@ import {
   UploaderOptions,
 } from 'ngx-uploader';
 import { HttpResponse } from '@angular/common/http';
+import { DialogService } from '../../../@core/dialogservices';
+import { relativeTimeRounding } from 'moment';
 
 @Component({
   selector: 'ngx-add-asset',
@@ -27,9 +35,13 @@ export class AddAssetComponent implements OnInit {
   native_file: any;
   native_file_name: any;
   ///// end declartion////
+  showLookUpagent: any = [];
+  isDeleted = false;
   fileSize = false;
   etag;
+  delId: any = [];
   showAssetbyID: any = [];
+  showAgentAsstData: any = [];
   title = 'Add';
   showUpload: boolean = false;
   save_value: any = [];
@@ -42,19 +54,32 @@ export class AddAssetComponent implements OnInit {
   value = ['Json', 'Number', 'Text', 'File'];
   urlId: string;
   public editorOptions: JsonEditorOptions;
+  public editorOptionsAgentAsset: JsonEditorOptions;
   public data: any;
-  @ViewChild(JsonEditorComponent, { static: false })
-  editor: JsonEditorComponent;
+  showGlobalAsset: boolean = false;
+  // @ViewChild(JsonEditorComponent, { static: false })
+  @ViewChild('editor') editor: JsonEditorComponent;
+  @ViewChild('editorAssetAgent') editorAssetAgent: JsonEditorComponent;
+  // editor: JsonEditorComponent;
+  // editorAssetAgent: JsonEditorComponent;
+  viewDialog: any;
+  showAgentAssetBtn: boolean = true;
+  hideAgentAssetBtn: boolean = false;
 
   constructor(
     private formBuilder: FormBuilder,
     protected assetService: AssetService,
     protected router: Router,
     private toastrService: NbToastrService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private dialogService: DialogService
   ) {
     this.editorOptions = new JsonEditorOptions();
     this.editorOptions.modes = ['code', 'text', 'tree', 'view'];
+    // this.editorOptions.onChange = () => console.log(this.editor.get());
+    this.editorOptionsAgentAsset = new JsonEditorOptions();
+    this.editorOptionsAgentAsset.modes = ['code', 'text', 'tree', 'view'];
+    //  this.editorOptionsAgentAsset.onChange = () => console.log(this.editorAssetAgent.get());
     this.urlId = this.route.snapshot.params['id'];
   }
 
@@ -80,11 +105,19 @@ export class AddAssetComponent implements OnInit {
         ],
       ],
       type: ['', Validators.required],
+      Name: [''],
+      AgentId: [''],
+      JsonValuesAssetAgent: [''],
     });
     if (this.urlId) {
       this.getAssetById(this.urlId);
+
       this.title = 'Update';
       this.addasset.get('type').disable();
+      this.editorOptionsAgentAsset = new JsonEditorOptions();
+      this.editorOptionsAgentAsset.modes = ['code', 'text', 'tree', 'view'];
+      this.editorOptionsAgentAsset.onChange = () =>
+        console.log(this.editorAssetAgent.get());
     }
   }
 
@@ -93,6 +126,7 @@ export class AddAssetComponent implements OnInit {
       this.showAssetbyID = data.body;
       this.etag = data.headers.get('ETag').replace(/\"/g, '');
       this.addasset.patchValue(this.showAssetbyID);
+      this.getAssetAgentValue();
       if (this.showAssetbyID.jsonValue) {
         this.showAssetbyID.jsonValue = JSON.parse(this.showAssetbyID.jsonValue);
       }
@@ -130,6 +164,14 @@ export class AddAssetComponent implements OnInit {
       }
     });
   }
+  getAssetAgentValue() {
+    this.assetService
+      .getAssetByname(this.showAssetbyID.name, this.urlId)
+      .subscribe((data: any) => {
+        console.log(data);
+        this.showAgentAsstData = data.items;
+      });
+  }
 
   onUploadOutput(output: UploadOutput): void {
     switch (output.type) {
@@ -160,6 +202,21 @@ export class AddAssetComponent implements OnInit {
       this.addAsset();
     }
   }
+
+  showAssetAgentBox() {
+    this.showGlobalAsset = true;
+    this.hideAgentAssetBtn = true;
+    this.showAgentAssetBtn = false;
+    this.assetService.getAgentName().subscribe((data: any) => {
+      this.showLookUpagent = data;
+    });
+  }
+  hideAssetAgentBox() {
+    this.showGlobalAsset = false;
+    this.hideAgentAssetBtn = false;
+    this.showAgentAssetBtn = true;
+  }
+
   addAsset() {
     this.submitted = true;
 
@@ -172,6 +229,9 @@ export class AddAssetComponent implements OnInit {
       if (!this.editor.isValidJson()) {
         this.toastrService.danger('Provided json is not valid', 'error');
         this.submitted = false;
+      }
+      else {
+        this.submitted = true;
       }
       this.addasset.value.JsonValue = JSON.stringify(this.editor.get());
 
@@ -307,21 +367,25 @@ export class AddAssetComponent implements OnInit {
         this.native_file = undefined;
       }
     } else if (this.showAssetbyID.type == 'Json') {
+      console.log(this.editor.get());
+       console.log(JSON.stringify(this.editor.get()));
       if (!this.editor.isValidJson()) {
         this.toastrService.danger('Provided json is not valid', 'error');
         this.submitted = false;
       }
-      this.addasset.value.JsonValue = JSON.stringify(this.editor.get());
+       this.addasset.value.JsonValue = JSON.stringify(this.editor.get());
       let jsondata = {
         name: this.addasset.value.name,
         type: this.addasset.getRawValue().type,
         Organizationid: localStorage.getItem('ActiveOrganizationID'),
         jsonValue: this.addasset.value.JsonValue,
       };
+      console.log(this.addasset.value.JsonValue);
+      
       this.assetService.editAsset(this.urlId, jsondata, this.etag).subscribe(
         () => {
           this.toastrService.success(
-            'Asset Details Upate Successfully!',
+            'Asset Details Update Successfully!',
             'Success'
           );
           this.router.navigate(['pages/asset/list']);
@@ -344,7 +408,7 @@ export class AddAssetComponent implements OnInit {
       this.assetService.editAsset(this.urlId, textdata, this.etag).subscribe(
         () => {
           this.toastrService.success(
-            'Asset Details Upate Successfully!',
+            'Asset Details Update Successfully!',
             'Success'
           );
           this.router.navigate(['pages/asset/list']);
@@ -367,7 +431,7 @@ export class AddAssetComponent implements OnInit {
       this.assetService.editAsset(this.urlId, numberdata, this.etag).subscribe(
         () => {
           this.toastrService.success(
-            'Asset Details Upate Successfully!',
+            'Asset Details Update Successfully!',
             'Success'
           );
           this.router.navigate(['pages/asset/list']);
@@ -381,7 +445,73 @@ export class AddAssetComponent implements OnInit {
         }
       );
     }
+
     this.submitted = false;
+  }
+
+  SaveAgentAsset() {
+    // if (this.addasset.value.Name != '' && this.addasset.value.AgentId != '') {
+    let agentdata = new FormData();
+    agentdata.append('Name', this.addasset.value.name);
+    agentdata.append('AgentId', this.addasset.value.AgentId);
+    if (this.showAssetbyID.type == 'Text') {
+      agentdata.append('TextValue', this.addasset.value.Name);
+    } else if (this.showAssetbyID.type == 'Number') {
+      agentdata.append('NumberValue', this.addasset.value.Name);
+    } else if (this.showAssetbyID.type == 'Json') {
+      this.addasset.value.Name = JSON.stringify(this.editorAssetAgent.get());
+      agentdata.append('JsonValue', this.addasset.value.Name);
+    } else if (this.showAssetbyID.type == 'File') {
+      if (this.native_file) {
+        agentdata.append('file', this.native_file, this.native_file_name);
+      } else {
+        this.showUpload = true;
+        this.native_file_name = undefined;
+        this.native_file = undefined;
+      }
+    }
+ 
+    this.assetService.addAssetAgent(agentdata).subscribe(
+      () => {
+        this.toastrService.success(
+          'Asset Agent Value Save Successfully!',
+          'Success'
+        );
+        this.getAssetAgentValue();
+        //  this.router.navigate(['pages/asset/list']);
+      },
+      (error) => {
+        this.submitted = false;
+        if (error.error.status === 409) {
+          this.toastrService.danger(error.error.serviceErrors, 'error');
+          this.getAssetAgentValue();
+        }
+      }
+    );
+  }
+
+  open2(dialog: TemplateRef<any>, id: any) {
+    this.delId = [];
+    this.viewDialog = dialog;
+    this.dialogService.openDialog(dialog);
+    this.delId = id;
+  }
+
+  del_agent(ref) {
+    this.isDeleted = true;
+    // const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+    this.assetService.delAssetbyID(this.delId).subscribe(
+      () => {
+        this.isDeleted = false;
+        this.toastrService.success('Deleted Successfully');
+       
+        ref.close();
+        this.getAssetAgentValue();
+        // this.get_allasset(this.page.pageSize, skip);
+        //this.pagination(this.page.pageNumber, this.page.pageSize);
+      },
+      () => (this.isDeleted = false)
+    );
   }
 
   onReset() {

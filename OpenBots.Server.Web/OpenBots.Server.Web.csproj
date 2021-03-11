@@ -34,6 +34,7 @@
     <Content Remove="Files\CBA321\**" />
     <Content Remove="Files\ParentFolder\**" />
     <Content Remove="logs\**" />
+    <Content Remove="New Files\**" />
     <None Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
@@ -45,6 +46,7 @@
     <Compile Remove="Files\CBA321\**" />
     <Compile Remove="Files\ParentFolder\**" />
     <Compile Remove="logs\**" />
+    <Compile Remove="New Files\**" />
     <Compile Remove="Uploads\**" />
     <Content Remove="Uploads\**" />
     <EmbeddedResource Remove="Files\ABC123\**" />
@@ -52,12 +54,14 @@
     <EmbeddedResource Remove="Files\CBA321\**" />
     <EmbeddedResource Remove="Files\ParentFolder\**" />
     <EmbeddedResource Remove="logs\**" />
+    <EmbeddedResource Remove="New Files\**" />
     <EmbeddedResource Remove="Uploads\**" />
     <None Remove="Files\ABC123\**" />
     <None Remove="Files\AtoZ321\**" />
     <None Remove="Files\CBA321\**" />
     <None Remove="Files\ParentFolder\**" />
     <None Remove="logs\**" />
+    <None Remove="New Files\**" />
     <None Remove="Uploads\**" />
   </ItemGroup>
 
@@ -181,11 +185,6 @@
     <Folder Include="Files\Queue Item Attachments\82202936-87af-484f-81c1-d8007dcd2830\" />
     <Folder Include="Files\Queue Item Attachments\bf0ff5cc-cb00-40a6-913e-fbcd8ab67a35\" />
     <Folder Include="Files\Queue Item Attachments\d8d6bbdf-f0fc-433f-8ae8-a321e848968b\" />
-    <Folder Include="New Files\Assets\" />
-    <Folder Include="New Files\Assets\a37b784c-dc8b-4c48-90cb-9940b005984a\" />
-    <Folder Include="New Files\Automations\" />
-    <Folder Include="New Files\Email Attachments\" />
-    <Folder Include="New Files\Queue Item Attachments\" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptTarget>ES2020</TypeScriptTarget>

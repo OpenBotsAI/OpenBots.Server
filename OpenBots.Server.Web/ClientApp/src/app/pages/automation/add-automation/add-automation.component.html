@@ -73,6 +73,39 @@
                         </div>
                     </div>
 
+                    <div class="btn-primary addBtn" *ngIf="urlId">
+                        <nb-icon nbTooltip="Add Automations Parameter" icon="plus" (click)="automationParameter()">
+                        </nb-icon>
+                    </div>
+
+                    <div class="row rowPaddingTop">
+                        <div class="col-md-4 col-lg-4 col-xxxl-4 topPadding" formArrayName="automationParameter"
+                            *ngFor="let item of formArrayControl?.controls; let i = index;">
+                            <a (click)="deleteAutomationParameter(i)" nbTooltip="Delete Job Parameter"
+                                style="float: right;">
+                                <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
+                            </a>
+                            <div [formGroupName]="i">
+                                <div class="form-group">
+                                    <label for="Name" class="label">Name *</label>
+                                    <input id="Name" nbInput fullWidth formControlName="Name" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="DataType" class="label">Data type *</label>
+                                    <select class="custom-select" formControlName="DataType">
+                                        <option *ngFor="let item of dataType" [value]="item"
+                                            [attr.selected]="item ==='Text'? true: null">
+                                            {{item}}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Value" class="label">Value *</label>
+                                    <input id="Value" nbInput fullWidth formControlName="Value" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row rowPadTOp">
                         <div class="col-md-12 col-lg-12 col-xxxl-6">
                             <button type="submit" class="btn btn-primary" status="primary"

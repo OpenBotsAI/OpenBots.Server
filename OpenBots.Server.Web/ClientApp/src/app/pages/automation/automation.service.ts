@@ -113,4 +113,9 @@ export class AutomationService {
     let getprocessUrlbyId = `/${automationsApiUrl.automations}/${id}`;
     return this.http.delete(`${this.apiUrl}` + getprocessUrlbyId);
   }
+
+  postAutomationParameters(id: string, value) {
+    const url = `${this.apiUrl}/${automationsApiUrl.automations}/${id}/${automationsApiUrl.updateParameters}`;
+    return this.http.post(url, value, { observe: 'response' });
+  }
 }
