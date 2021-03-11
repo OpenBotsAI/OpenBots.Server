@@ -105,6 +105,18 @@ export class GetAssetIdComponent implements OnInit {
       }
       this.addAsset.patchValue(this.AssetType);
       this.addAsset.disable();
+      this.assetService
+        .getAssetByname(this.AssetType.name, id)
+        .subscribe((data: any) => {
+          console.log(data);
+
+          this.showAgentAsstData = data.items;
+          if (this.showAgentAsstData.length == 0) {
+            this.showGlobalAsset = false;
+          } else {
+            this.showGlobalAsset = true;
+          }
+        });
     });
   }
   gotoaudit() {

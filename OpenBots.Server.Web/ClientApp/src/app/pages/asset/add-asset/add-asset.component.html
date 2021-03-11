@@ -112,7 +112,10 @@
 
 
 <div class="row rowPadTOp " *ngIf="urlId"    >
-    <div class="col-md-6 col-lg-6 col-xxxl-6 "  ></div>
+   
+    <div class="col-md-6 col-lg-6 col-xxxl-6 "  >
+
+    </div>
           <div class="col-md-6 col-lg-6 col-xxxl-6 titleRight" *ngIf="showAgentAssetBtn">
               <button type="submit" class="btn btn-primary"   status="primary" 
                 (click)="showAssetAgentBox()">Add Agent Value</button>
@@ -123,18 +126,18 @@
             </div>
             </div>
              <div class="row rowPadTOp"  *ngIf="showGlobalAsset">
-             <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <label for="queueitemtype" class="label">Select Type *</label>
+             <div class="col-md-5 col-lg-5 col-xxxl-5">
+              <label for="AgentId" class="label">Select Agent *</label>
               <select class="custom-select" formControlName="AgentId" >
-                <option value='' [disabled]='true' selected>Please select Type</option>
+                <option value='' [disabled]='true' selected>Please Select Agent </option>
                 <option *ngFor="let item of showLookUpagent" [value]="item.agentId">{{item.agentName}}</option>
               </select>
-              <div *ngIf="f.type.touched && f.type.invalid" class="invalid-feedback-frm">
-                <div *ngIf="f.type.errors && f.type.errors.required"> Type is required.</div>
+              <div *ngIf="f.AgentId.touched && f.AgentId.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.AgentId.errors && f.AgentId.errors.required"> Agent is required.</div>
               </div>
             </div>
 
-          <div class="col-md-6 col-lg-6 col-xxxl-6">
+          <div class="col-md-5 col-lg-5 col-xxxl-5">
               <label for="agentname" class="label"> Value *</label>
               <input type="input" nbInput fullWidth id="Name " formControlName="Name" class="form-control"  trim="blur" ngxSpecialChar 
                 placeholder="Please enter asset name">
@@ -150,6 +153,11 @@
                   Please enter valid Asset Name .
                 </div>
               </div> -->
+            </div>
+
+            <div class="col-md-2 col-lg-2 col-xxxl-2 rowPadTOpAssetbtn">
+              <button type="submit" class="btn btn-primary"   status="primary"
+                (click)="SaveAgentAsset()">Save Agent Value</button>
             </div>
             
           
@@ -185,8 +193,17 @@
                ><td scope="row">
                {{showAgentAsstData.agentId}}
               </td>
-              <td scope="row">
-                {{showAgentAsstData.name}}
+              <td scope="row" *ngIf="assetagentvalue.type == 'Text'" >
+                {{assetagentvalue.textValue}}
+              </td>
+              <td scope="row" *ngIf="assetagentvalue.type == 'Json'" >
+                {{assetagentvalue.jsonValue}}
+              </td>
+              <td scope="row" *ngIf="assetagentvalue.type == 'Number'" >
+                {{assetagentvalue.numberValue}}
+              </td>
+              <td scope="row" *ngIf="assetagentvalue.type == 'File'" >
+                {{assetagentvalue.name}}
               </td>
                
                <td>
@@ -196,8 +213,7 @@
             </a>
           </td>
           <td>
-            <!-- (click)="gotoedit(asset.id)" -->
-            <a >
+            <a (click)="open2(dialog,assetagentvalue.id)" >
               <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
             </a>
           </td>
@@ -241,8 +257,8 @@
       </div>
     </nb-card-body>
     <nb-card-footer>
-      <button class="btn btn-danger"    >Delete</button>
-      <button class="btn btn-light" style="margin-left: 11px"  >
+      <button class="btn btn-danger" [disabled]="isDeleted" (click)="del_agent(ref)">Delete</button>
+      <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
         Cancel
       </button>
 

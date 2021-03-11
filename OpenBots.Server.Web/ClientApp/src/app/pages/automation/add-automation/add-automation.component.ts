@@ -26,7 +26,7 @@ export class AddAutomationComponent implements OnInit {
   dragOver: boolean;
   nativeFile: any;
   nativeFileName: any;
-  automationSelection: string[] = ['OpenBots', 'Python', 'TagUI', 'CS-Script'];
+  automationSelection: string[] = ['OpenBots', 'Python', 'TagUI', 'CSScript'];
   ///// end declartion////
   etag;
   showAutomation: any = [];
