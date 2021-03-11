@@ -123,6 +123,8 @@ export class AddAutomationComponent implements OnInit {
   }
 
   onSubmit() {
+    // deleting the dynamically created parameters
+    delete this.showprocess.value.automationParameter;
     if (this.urlId) {
       this.updateAutomation();
     } else {
@@ -132,7 +134,6 @@ export class AddAutomationComponent implements OnInit {
 
   addAutomation() {
     this.submitted = true;
-
     if (this.nativeFile) {
       let AutomationformData = new FormData();
       AutomationformData.append('file', this.nativeFile, this.nativeFileName);
@@ -177,9 +178,15 @@ export class AddAutomationComponent implements OnInit {
         .uploadUpdateProcessFile(formData, this.urlId, this.etag)
         .subscribe(
           (data: any) => {
+            this.automationService
+              .postAutomationParameters(this.urlId, this.items.value)
+              .subscribe((response) => {
+                if (response) {
+                  this.toastrService.success('Updated successfully', 'Success');
+                  this.router.navigate(['/pages/automation/list']);
+                }
+              });
             this.showprocess.value.binaryObjectId = data.binaryObjectId;
-            this.toastrService.success('Updated successfully', 'Success');
-            this.router.navigate(['/pages/automation/list']);
             this.nativeFile = undefined;
             this.nativeFileName = undefined;
           },
@@ -199,9 +206,15 @@ export class AddAutomationComponent implements OnInit {
       this.automationService
         .updateProcess(processobj, this.urlId, this.etag)
         .subscribe(
-          (data) => {
-            this.toastrService.success('Updated successfully', 'Success');
-            this.router.navigate(['/pages/automation/list']);
+          () => {
+            this.automationService
+              .postAutomationParameters(this.urlId, this.items.value)
+              .subscribe((response) => {
+                if (response) {
+                  this.toastrService.success('Updated successfully', 'Success');
+                  this.router.navigate(['/pages/automation/list']);
+                }
+              });
             this.nativeFile = undefined;
             this.nativeFileName = undefined;
           },
