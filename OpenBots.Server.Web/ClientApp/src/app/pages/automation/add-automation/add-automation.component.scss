@@ -39,3 +39,12 @@ label.upload-button{
   display: block;
   padding: 7px;
 }
+.addBtn{
+  display: inline-block;
+  padding: 11px 12px;
+  -webkit-border-radius: 33px;
+  -moz-border-radius: 33px;
+  border-radius: 33px;
+  line-height: 1.2;
+  cursor: pointer;
+}
