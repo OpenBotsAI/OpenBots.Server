@@ -35,8 +35,10 @@ export class AddAssetComponent implements OnInit {
   native_file_name: any;
   ///// end declartion////
   showLookUpagent: any = [];
+  isDeleted = false;
   fileSize = false;
   etag;
+  delId: any = [];
   showAssetbyID: any = [];
   showAgentAsstData: any = [];
   title = 'Add';
@@ -70,7 +72,6 @@ export class AddAssetComponent implements OnInit {
     this.editorOptions = new JsonEditorOptions();
     this.editorOptions.modes = ['code', 'text', 'tree', 'view'];
     this.urlId = this.route.snapshot.params['id'];
-   
   }
 
   ngOnInit(): void {
@@ -111,10 +112,11 @@ export class AddAssetComponent implements OnInit {
       this.etag = data.headers.get('ETag').replace(/\"/g, '');
       this.addasset.patchValue(this.showAssetbyID);
       this.assetService
-        .getAssetByname(this.showAssetbyID.name)
+        .getAssetByname(this.showAssetbyID.name, this.urlId)
         .subscribe((data: any) => {
           console.log(data);
           this.showAgentAsstData = data.items;
+           
         });
 
       if (this.showAssetbyID.jsonValue) {
@@ -197,8 +199,6 @@ export class AddAssetComponent implements OnInit {
     this.hideAgentAssetBtn = false;
     this.showAgentAssetBtn = true;
   }
-
- 
 
   addAsset() {
     this.submitted = true;
@@ -421,20 +421,22 @@ export class AddAssetComponent implements OnInit {
         }
       );
     }
+
+    this.submitted = false;
+  }
+
+  SaveAgentAsset() {
     ////// code of add agent asset
-    if (
-      this.addasset.value.Name != "" &&
-      this.addasset.value.AgentId != ""
-    ) {
+    if (this.addasset.value.Name != '' && this.addasset.value.AgentId != '') {
       let agentdata = new FormData();
-      agentdata.append('Name', this.addasset.value.Name);
+      agentdata.append('Name', this.addasset.value.name);
       agentdata.append('AgentId', this.addasset.value.AgentId);
       if (this.showAssetbyID.type == 'Text') {
-        agentdata.append('TextValue', this.addasset.value.TextValue);
+        agentdata.append('TextValue', this.addasset.value.Name);
       } else if (this.showAssetbyID.type == 'Number') {
-        agentdata.append('NumberValue', this.addasset.value.NumberValue);
+        agentdata.append('NumberValue', this.addasset.value.Name);
       } else if (this.showAssetbyID.type == 'Json') {
-        agentdata.append('JsonValue', this.addasset.value.JsonValue);
+        agentdata.append('JsonValue', this.addasset.value.Name);
       } else if (this.showAssetbyID.type == 'File') {
         //if (this.native_file)
         agentdata.append('File', this.native_file, this.native_file_name);
@@ -445,11 +447,31 @@ export class AddAssetComponent implements OnInit {
           'Asset Agent Value Save Successfully!',
           'Success'
         );
-        this.router.navigate(['pages/asset/list']);
+        //// this.router.navigate(['pages/asset/list']);
       });
     }
+  }
 
-    this.submitted = false;
+  open2(dialog: TemplateRef<any>, id: any) {
+    this.delId = [];
+    this.viewDialog = dialog;
+    this.dialogService.openDialog(dialog);
+    this.delId = id;
+  }
+
+  del_agent(ref) {
+    this.isDeleted = true;
+       // const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+    this.assetService.delAssetbyID(this.delId).subscribe(
+      () => {
+        this.isDeleted = false;
+        this.toastrService.success('Deleted Successfully');
+        ref.close();
+        // this.get_allasset(this.page.pageSize, skip);
+        //this.pagination(this.page.pageNumber, this.page.pageSize);
+      },
+      () => (this.isDeleted = false)
+    );
   }
 
   onReset() {

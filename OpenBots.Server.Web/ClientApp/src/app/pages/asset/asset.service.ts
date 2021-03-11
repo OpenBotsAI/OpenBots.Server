@@ -51,8 +51,11 @@ export class AssetService {
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
-  getAssetByname(AssetName) {
-    let getagentUrl = `/${AssetApiUrl.Assets}?$filter=name+eq+'${AssetName}'and agentId+eq+null`;
+  getAssetByname(AssetName, id) {
+    let getagentUrl = `/${AssetApiUrl.Assets}?$filter=name+eq+'${AssetName}'`;
+
+    //`/${AssetApiUrl.Assets}?$filter=substringof(tolower('${AssetName}'), tolower(name)) and Assetid  eq guid '${id}' `;
+    //filter=substringof(tolower('${AssetName}'), tolower(name))and agentId+eq+null`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
   addAssetAgent(obj) {
