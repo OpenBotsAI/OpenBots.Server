@@ -164,7 +164,7 @@
   <div class="col-md-5 col-lg-5 col-xxxl-5" *ngIf="showAssetbyID.type == 'Json'  "></div>
 
             <div class="col-md-2 col-lg-2 col-xxxl-2 rowPadTOpAssetbtn">
-              <button type="submit" class="btn btn-primary"   status="primary"
+              <button type="submit" class="btn btn-primary"   status="primary" 
                 (click)="SaveAgentAsset()">Save Agent Value</button>
             </div>
             
@@ -220,8 +220,12 @@
               <td scope="row" *ngIf="assetagentvalue.type == 'Text'" >
                 {{assetagentvalue.textValue}}
               </td>
-              <td scope="row" *ngIf="assetagentvalue.type == 'Json'" >
-                {{assetagentvalue.jsonValue}}
+              <td scope="row " *ngIf="assetagentvalue.type == 'Json'" >
+                <!-- {{assetagentvalue.jsonValue}} -->
+                 <p class="p-text">
+                    <ngx-json-viewer [json]="assetagentvalue.jsonValue" [expanded]="false"></ngx-json-viewer>
+                 </p>
+                
               </td>
               <td scope="row" *ngIf="assetagentvalue.type == 'Number'" >
                 {{assetagentvalue.numberValue}}
