@@ -31,6 +31,7 @@ namespace OpenBots.Server.Web
     {
         private readonly IWebhookPublisher _webhookPublisher;
         private readonly IAssetManager _manager;
+        private readonly IAssetRepository _repository;
 
         /// <summary>
         /// AssetsController constructor
@@ -53,6 +54,7 @@ namespace OpenBots.Server.Web
         {
             _webhookPublisher = webhookPublisher;
             _manager = manager;
+            _repository = repository;
 
             _manager.SetContext(SecurityContext);
         }
@@ -128,7 +130,7 @@ namespace OpenBots.Server.Web
                 ODataHelper<AllAssetsViewModel> oDataHelper = new ODataHelper<AllAssetsViewModel>();
                 var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-                return Ok(_manager.GetAutomationsAndAutomationVersions(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+                return Ok(_repository.FindAllView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
             }
             catch (Exception ex)
             {

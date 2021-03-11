@@ -2386,6 +2386,21 @@
             <response code="422">Unprocessable entity</response>
             <returns>Paginated list of all Assets</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.AssetsController.View(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a view model list of all Assets and corresponding Agents and Files
+            </summary>
+            <param name="top"></param>
+            <param name="skip"></param>
+            <param name="orderBy"></param>
+            <param name="filter"></param>
+            <response code="200">Ok, a paginated list of all Assets</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>  
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all Assets</returns>
+        </member>
         <member name="M:OpenBots.Server.Web.AssetsController.Count(System.String)">
             <summary>
             Provides a count of assets 
