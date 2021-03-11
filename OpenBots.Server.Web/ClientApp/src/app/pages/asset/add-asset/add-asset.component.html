@@ -125,6 +125,9 @@
                 (click)="hideAssetAgentBox()">Close Agent Value</button>
             </div>
             </div>
+
+
+
              <div class="row rowPadTOp"  *ngIf="showGlobalAsset">
              <div class="col-md-5 col-lg-5 col-xxxl-5">
               <label for="AgentId" class="label">Select Agent *</label>
@@ -137,12 +140,28 @@
               </div>
             </div>
 
-          <div class="col-md-5 col-lg-5 col-xxxl-5">
+          <div class="col-md-5 col-lg-5 col-xxxl-5" *ngIf="showAssetbyID.type == 'Text' || showAssetbyID.type == 'Number'">
               <label for="agentname" class="label"> Value *</label>
               <input type="input" nbInput fullWidth id="Name " formControlName="Name" class="form-control"  trim="blur" ngxSpecialChar 
                 placeholder="Please enter asset name">
               
             </div>
+            <div class="col-md-5 col-lg-5 col-xxxl-5" *ngIf="showAssetbyID.type == 'File'  ">
+                 <label class="label">Upload File *</label>
+            <label class="upload-button">
+                <input type="file" ngFileSelect [options]="options"
+                 (uploadOutput)="onUploadOutput($event)" [uploadInput]="uploadInput" multiple>
+                 
+              </label>
+              <div *ngIf="showUpload" class="invalid-feedback-frm">
+                Please Upload  File 
+            </div>
+             <div *ngIf="fileSize" class="invalid-feedback-frm">
+                  You cannot upload empty file.
+                </div>
+              
+            </div>
+  <div class="col-md-5 col-lg-5 col-xxxl-5" *ngIf="showAssetbyID.type == 'Json'  "></div>
 
             <div class="col-md-2 col-lg-2 col-xxxl-2 rowPadTOpAssetbtn">
               <button type="submit" class="btn btn-primary"   status="primary"
@@ -152,7 +171,23 @@
           
         </div>
     
-         
+           <div class="row rowPadTOp" *ngIf="showGlobalAsset">
+
+              <div class="col-md-12 col-lg-12 col-xxxl-12" *ngIf="showAssetbyID.type == 'Json'  ">
+                <label for="Name" class="label">Json * </label>
+              <json-editor [options]="editorOptions" formControlName="Name"></json-editor>
+              <div *ngIf="f.Name.touched && f.Name.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.Name.errors && f.Name.errors.required"> Json is required.</div>
+                <div *ngIf="f.Name.errors.minlength">
+                  Json at least 2 characters long.
+                </div>
+                <div *ngIf="f.Name.errors.maxlength">
+                  Json at least 100 characters long.
+                </div>
+              </div>
+              
+            </div>
+           </div>
         <div class="row rowPadTOp" *ngIf="showGlobalAsset">
           <div class="col-md-12">
               <table class="table table-bordered"  >
@@ -251,4 +286,4 @@
 
     </nb-card-footer>
   </nb-card>
-</ng-template>
+</ng-template>;
