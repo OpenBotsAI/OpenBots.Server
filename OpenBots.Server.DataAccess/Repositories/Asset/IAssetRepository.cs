@@ -7,6 +7,6 @@ namespace OpenBots.Server.DataAccess.Repositories
 {
     public interface IAssetRepository : IEntityRepository<Asset>
     {
-        PaginatedList<AllAssetsViewModel> FindAllView(Predicate<AllAssetsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
+        PaginatedList<AssetViewModel> FindAllView(Predicate<AssetViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
     }
 }

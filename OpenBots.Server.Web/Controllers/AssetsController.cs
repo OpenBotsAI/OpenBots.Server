@@ -60,7 +60,7 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Provides a list of all assets
+        /// Provides a list of all Assets
         /// </summary>
         /// <param name="top"></param>
         /// <param name="skip"></param>
@@ -111,7 +111,7 @@ namespace OpenBots.Server.Web
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Paginated list of all Assets</returns>
         [HttpGet("view")]
-        [ProducesResponseType(typeof(PaginatedList<AllAssetsViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<AssetViewModel>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -127,7 +127,7 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                ODataHelper<AllAssetsViewModel> oDataHelper = new ODataHelper<AllAssetsViewModel>();
+                ODataHelper<AssetViewModel> oDataHelper = new ODataHelper<AssetViewModel>();
                 var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
                 return Ok(_repository.FindAllView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
@@ -139,15 +139,15 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Provides a count of assets 
+        /// Provides a count of Assets 
         /// </summary>
         /// <param name="filter"></param>
-        /// <response code="200">Ok, total count of assets</response>
+        /// <response code="200">Ok, total count of Assets</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden, unauthorized access</response>  
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Total count of assets</returns>
+        /// <returns>Total count of Assets</returns>
         [HttpGet("Count")]
         [ProducesResponseType(typeof(int?), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -170,14 +170,14 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Provides an asset's details for a particular asset id
+        /// Provides an Asset's details for a particular Asset id
         /// </summary>
         /// <param name="id">Asset id</param>
-        /// <response code="200">Ok, if an asset exists with the given id</response>
+        /// <response code="200">Ok, if an Asset exists with the given id</response>
         /// <response code="304">Not modified</response>
-        /// <response code="400">Bad request, if asset id is not in proper format or proper Guid</response>
+        /// <response code="400">Bad request, if Asset id is not in proper format or proper Guid</response>
         /// <response code="403">Forbidden</response>
-        /// <response code="404">Not found, when no asset exists for the given asset id</response>
+        /// <response code="404">Not found, when no Asset exists for the given Asset id</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Asset details for the given id</returns>
         [HttpGet("{id}", Name = "GetAsset")]
@@ -202,7 +202,47 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Provides an asset's details for a particular asset name
+        /// Provides an Asset's view model details for a particular Asset id
+        /// </summary>
+        /// <param name="assetId"> Specifies the id of the Asset</param>
+        /// <response code="200">OK,if an Asset exists with the given id</response>
+        /// <response code="304">Not modified</response>
+        /// <response code="400">Bad request, if Asset id is not in proper format or proper Guid<response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not found, when no agent exists for the given Asset id</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Asset details for the given id</returns>
+        [HttpGet("view/{assetId}")]
+        [ProducesResponseType(typeof(PaginatedList<AssetViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> View(string assetId)
+        {
+            try
+            {
+                IActionResult actionResult = await base.GetEntity<AssetViewModel>(assetId);
+                OkObjectResult okResult = actionResult as OkObjectResult;
+
+                if (okResult != null)
+                {
+                    AssetViewModel view = okResult.Value as AssetViewModel;
+                    view = _manager.GetAssetDetails(view);
+                }
+
+                return actionResult;
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Provides an Asset's details for a particular Asset name
         /// </summary>
         /// <remarks>
         /// If the requesting user is an Agent with an existing Asset, then that value will be returned
@@ -238,15 +278,15 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Create a new asset entity
+        /// Create a new Asset entity
         /// </summary>
         /// <param name="request"></param>
-        /// <response code="200">Ok, new asset created and returned</response>
-        /// <response code="400">Bad request, when the asset value is not in proper format</response>
+        /// <response code="200">Ok, new Asset created and returned</response>
+        /// <response code="400">Bad request, when the Asset value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
         /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
-        /// <returns>Newly created asset details</returns>
+        /// <returns>Newly created Asset details</returns>
         [HttpPost]
         [ProducesResponseType(typeof(GlobalAssetViewModel), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -274,11 +314,11 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Adds a new agent asset if a global asset exists for the given name
+        /// Adds a new agent Asset if a global Asset exists for the given name
         /// </summary>
         /// <param name="request">New file to update Asset</param>
-        /// <response code="200">Ok, asset created and returned</response>
-        /// <response code="400">Bad request, when the asset value is not in proper format</response>
+        /// <response code="200">Ok, Asset created and returned</response>
+        /// <response code="400">Bad request, when the Asset value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
         /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
@@ -308,15 +348,15 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Export/download an asset file
+        /// Export/download an Asset file
         /// </summary>
         /// <param name="id"></param>
         /// <param name="driveName"></param>
-        /// <response code="200">Ok if an asset file exists with the given id</response>
+        /// <response code="200">Ok if an Asset file exists with the given id</response>
         /// <response code="304">Not modified</response>
-        /// <response code="400">Bad request, if asset id is not in proper format or proper Guid</response>
+        /// <response code="400">Bad request, if Asset id is not in proper format or proper Guid</response>
         /// <response code="403">Forbidden</response>
-        /// <response code="404">Not found, when no asset file exists for the given asset id</response>
+        /// <response code="404">Not found, when no Asset file exists for the given Asset id</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Downloaded asset file</returns>
         [HttpGet("{id}/Export", Name = "ExportAsset")]
@@ -342,15 +382,15 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Updates an asset 
+        /// Updates an Asset 
         /// </summary>
         /// <remarks>
-        /// Provides an action to update an asset, when asset id and the new details of asset are given
+        /// Provides an action to update an Asset, when Asset id and the new details of Asset are given
         /// </remarks>
         /// <param name="id">Asset id, produces bad request if id is null or ids don't match</param>
         /// <param name="request">Asset details to be updated</param>
-        /// <response code="200">Ok, if the asset details for the given asset id have been updated</response>
-        /// <response code="400">Bad request, if the asset id is null or ids don't match</response>
+        /// <response code="200">Ok, if the Asset details for the given Asset id have been updated</response>
+        /// <response code="400">Bad request, if the Asset id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict</response>
         /// <response code="422">Unprocessable entity</response>
@@ -369,8 +409,6 @@ namespace OpenBots.Server.Web
             {
                 var existingAsset = _manager.UpdateAsset(id, request);
 
-                _manager.AssetNameAvailability(existingAsset);
-
                 await _webhookPublisher.PublishAsync("Assets.AssetUpdated", existingAsset.Id.ToString(), existingAsset.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingAsset);
             }
@@ -381,18 +419,18 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Updates an asset with file 
+        /// Updates an Asset with file 
         /// </summary>
         /// <remarks>
-        /// Provides an action to update an asset with file, when asset id and the new details of asset are given
+        /// Provides an action to update an Asset with file, when Asset id and the new details of Asset are given
         /// </remarks>
         /// <param name="id">Asset id, produces bad request if id is null or ids don't match</param>
         /// <param name="request">New file to update Asset</param>
-        /// <response code="200">Ok, if the asset details for the given asset id have been updated</response>
-        /// <response code="400">Bad request, if the asset id is null or ids don't match</response>
+        /// <response code="200">Ok, if the Asset details for the given Asset id have been updated</response>
+        /// <response code="400">Bad request, if the Asset id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Ok response with the updated asset value</returns>
+        /// <returns>Ok response with the updated Asset value</returns>
         [HttpPut("{id}/Update")]
         [ProducesResponseType(typeof(Asset), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -420,11 +458,11 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Deletes an asset with a specified id
+        /// Deletes an Asset with a specified id
         /// </summary>
         /// <param name="id">Asset id to be deleted - throws bad request if null or empty Guid</param>
-        /// <response code="200">Ok, when asset is soft deleted, (isDeleted flag is set to true in database)</response>
-        /// <response code="400">Bad request, if asset id is null or empty Guid</response>
+        /// <response code="200">Ok, when Asset is soft deleted, (isDeleted flag is set to true in database)</response>
+        /// <response code="400">Bad request, if Asset id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>
         /// <returns>Ok response</returns>
         [HttpDelete("{id}")]
@@ -449,15 +487,15 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Updates partial details of asset
+        /// Updates partial details of Asset
         /// </summary>
         /// <param name="id">Asset identifier</param>
-        /// <param name="request">Value of the asset to be updated</param>
-        /// <response code="200">Ok, if update of asset is successful</response>
+        /// <param name="request">Value of the Asset to be updated</param>
+        /// <response code="200">Ok, if update of Asset is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
-        /// <returns>Ok response, if the partial asset values have been updated</returns>
+        /// <returns>Ok response, if the partial Asset values have been updated</returns>
         [HttpPatch("{id}")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -480,14 +518,14 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Increment the number value of an asset
+        /// Increment the number value of an Asset
         /// </summary>
         /// <param name="id">Asset identifier</param>
-        /// <response code="200">Ok, if update of asset is successful</response>
+        /// <response code="200">Ok, if update of Asset is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
-        /// <returns>Ok response with updated asset value</returns>
+        /// <returns>Ok response with updated Asset value</returns>
         [HttpPut("{id}/Increment")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -509,14 +547,14 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Decrement the number value of asset
+        /// Decrement the number value of Asset
         /// </summary>
         /// <param name="id">Asset identifier</param>
-        /// <response code="200">Ok, if update of asset is successful</response>
+        /// <response code="200">Ok, if update of Asset is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
-        /// <returns>Ok response with updated asset value</returns>
+        /// <returns>Ok response with updated Asset value</returns>
         [HttpPut("{id}/Decrement")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -538,15 +576,15 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Add the number value of asset
+        /// Add the number value of Asset
         /// </summary>
         /// <param name="id">Asset identifier</param>
-        /// <param name="value">Value of the asset to be updated</param>
-        /// <response code="200">Ok, if update of asset is successful</response>
+        /// <param name="value">Value of the Asset to be updated</param>
+        /// <response code="200">Ok, if update of Asset is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match.</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
-        /// <returns>Ok response with updated asset value</returns>
+        /// <returns>Ok response with updated Asset value</returns>
         [HttpPut("{id}/Add")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -568,15 +606,15 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Subtract the number value of asset
+        /// Subtract the number value of Asset
         /// </summary>
         /// <param name="id">Asset identifier</param>
-        /// <param name="value">Value of the asset to be updated</param>
-        /// <response code="200">Ok, if update of asset is successful</response>
+        /// <param name="value">Value of the Asset to be updated</param>
+        /// <response code="200">Ok, if update of Asset is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
-        /// <returns>Ok response with updated asset value</returns>
+        /// <returns>Ok response with updated Asset value</returns>
         [HttpPut("{id}/Subtract")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -598,15 +636,15 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Append the text value of asset
+        /// Append the text value of Asset
         /// </summary>
         /// <param name="id">Asset identifier</param>
-        /// <param name="value">Value of the asset to be updated</param>
-        /// <response code="200">Ok, if update of asset is successful</response>
+        /// <param name="value">Value of the Asset to be updated</param>
+        /// <response code="200">Ok, if update of Asset is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
-        /// <returns>Ok response with updated asset value</returns>
+        /// <returns>Ok response with updated Asset value</returns>
         [HttpPut("{id}/Append")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -91,46 +91,7 @@ namespace OpenBots.Server.Web.Controllers
                 return ex.GetActionResult();
             }
         }
-
-        /// <summary>
-        /// Provides an AgentGroup's view model details for a particular AgentGroup id
-        /// </summary>
-        /// <param name="agentGroupId"> Specifies the id of the AgentGroup</param>
-        /// <response code="200">OK,a paginated list of all AgentGroups view model</response>
-        /// <response code="400">BadRequest</response>
-        /// <response code="403">Forbidden, unauthorized access</response>  
-        /// <response code="404">Not found</response>
-        /// <response code="422">Unprocessable entity</response>
-        /// <returns>Paginated list of all AgentGroup views for the given id</returns>
-        [HttpGet("view/{agentGroupId}")]
-        [ProducesResponseType(typeof(PaginatedList<AgentGroupViewModel>), StatusCodes.Status200OK)]
-        [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        [ProducesDefaultResponseType]
-        public async Task<IActionResult> View(string agentGroupId)
-        {
-            try
-            {
-                IActionResult actionResult = await base.GetEntity<AgentGroupViewModel>(agentGroupId);
-                OkObjectResult okResult = actionResult as OkObjectResult;
-
-                if (okResult != null)
-                {
-                    AgentGroupViewModel view = okResult.Value as AgentGroupViewModel;
-                    view.AgentGroupMembers = _agentGroupsManager.GetAllMembersInGroup(agentGroupId);
-                }
-
-                return actionResult;
-            }
-            catch (Exception ex)
-            {
-                return ex.GetActionResult();
-            }
-        }
-
+   
         /// <summary>
         /// Provides a count of AgentGroups 
         /// </summary>
@@ -187,6 +148,45 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 return await base.GetEntity(id).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Provides an AgentGroup's view model details for a particular AgentGroup id
+        /// </summary>
+        /// <param name="agentGroupId"> Specifies the id of the AgentGroup</param>
+        /// <response code="200">OK,a paginated list of all AgentGroups view model</response>
+        /// <response code="400">BadRequest</response>
+        /// <response code="403">Forbidden, unauthorized access</response>  
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Paginated list of all AgentGroup views for the given id</returns>
+        [HttpGet("view/{agentGroupId}")]
+        [ProducesResponseType(typeof(PaginatedList<AgentGroupViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> View(string agentGroupId)
+        {
+            try
+            {
+                IActionResult actionResult = await base.GetEntity<AgentGroupViewModel>(agentGroupId);
+                OkObjectResult okResult = actionResult as OkObjectResult;
+
+                if (okResult != null)
+                {
+                    AgentGroupViewModel view = okResult.Value as AgentGroupViewModel;
+                    view.AgentGroupMembers = _agentGroupsManager.GetAllMembersInGroup(agentGroupId);
+                }
+
+                return actionResult;
             }
             catch (Exception ex)
             {

@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.JsonPatch;
 using OpenBots.Server.Business.Interfaces;
 using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
+using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Identity;
+using OpenBots.Server.ViewModel;
 using OpenBots.Server.ViewModel.File;
 using OpenBots.Server.ViewModel.ViewModels;
 using System;
@@ -21,13 +23,19 @@ namespace OpenBots.Server.Business
         private readonly IFileManager _fileManager;
         private readonly IPersonRepository _personRepository;
         private readonly IAgentRepository _agentRepository;
+        private readonly IServerFileRepository _serverFileRepository;
 
-        public AssetManager(IAssetRepository assetRepository, IFileManager fileManager, IPersonRepository personRepository, IAgentRepository agentRepository)
+        public AssetManager(IAssetRepository assetRepository,
+            IFileManager fileManager, 
+            IPersonRepository personRepository,
+            IAgentRepository agentRepository,
+            IServerFileRepository serverFileRepository)
         {
             _repo = assetRepository;
             _fileManager = fileManager;
             _personRepository = personRepository;
             _agentRepository = agentRepository;
+            _serverFileRepository = serverFileRepository;
         }
 
         public Asset GetAsset(string id)
@@ -236,8 +244,6 @@ namespace OpenBots.Server.Business
         public Asset UpdateAsset(string id, Asset request)
         {
             var existingAsset = GetAsset(id);
-
-            var asset = _repo.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
             
             existingAsset.Name = request.Name;
             existingAsset.Type = request.Type;
@@ -434,6 +440,14 @@ namespace OpenBots.Server.Business
                     throw new EntityAlreadyExistsException("A global asset already exists with that name");
                 }
             }
+        }
+
+        public AssetViewModel GetAssetDetails(AssetViewModel assetView)
+        {
+            assetView.AgentName = _agentRepository.Find(null, a => a.Id == assetView.AgentId).Items?.FirstOrDefault()?.Name;
+            assetView.FileName = _serverFileRepository.Find(null, f => f.Id == assetView.FileId).Items?.FirstOrDefault()?.Name;
+
+            return assetView;
         }
     }
 }
