@@ -163,9 +163,16 @@
             </div>
   <div class="col-md-5 col-lg-5 col-xxxl-5" *ngIf="showAssetbyID.type == 'Json'  "></div>
 
-            <div class="col-md-2 col-lg-2 col-xxxl-2 rowPadTOpAssetbtn">
+            <div class="col-md-2 col-lg-2 col-xxxl-2 rowPadTOpAssetbtn" *ngIf="showSaveAssetAgentbutton">
               <button type="submit" class="btn btn-primary"   status="primary" 
                 (click)="SaveAgentAsset()">Save Agent Value</button>
+            </div>
+
+
+
+            <div class="col-md-2 col-lg-2 col-xxxl-2 rowPadTOpAssetbtn" *ngIf="showUpdateAssetAgentbutton">
+              <button type="submit" class="btn btn-primary"   status="primary" 
+                (click)="UpdateAssetAgent()">Update Agent Value </button>
             </div>
             
           
@@ -199,11 +206,15 @@
               </th>
               <th scope="col">
                 Value
-                
               </th>
-              <th scope="col">
+              <th scope="col" *ngIf="showAssetbyID.type == 'File'">
+                File Size
+              </th>
+              <th scope="col" *ngIf="showAssetbyID.type == 'File'">
+               Download
+              </th>
+              <th scope="col" *ngIf="showAssetbyID.type !== 'File'">
                 Edit
-                
               </th>
               <th scope="col">
                 Delete
@@ -219,9 +230,9 @@
               </td>
               <td scope="row" *ngIf="assetagentvalue.type == 'Text'" >
                 {{assetagentvalue.textValue}}
+              
               </td>
               <td scope="row " *ngIf="assetagentvalue.type == 'Json'" >
-                <!-- {{assetagentvalue.jsonValue}} -->
                  <p class="p-text">
                     <ngx-json-viewer [json]="assetagentvalue.jsonValue" [expanded]="false"></ngx-json-viewer>
                  </p>
@@ -233,9 +244,15 @@
               <td scope="row" *ngIf="assetagentvalue.type == 'File'" >
                 {{assetagentvalue.name}}
               </td>
+              <td scope="row" *ngIf="assetagentvalue.type == 'File'" >
+                {{assetagentvalue.sizeInBytes | filesize}}
+              </td>
+              <td scope="row" *ngIf="assetagentvalue.type == 'File'" >
+                 <a (click)="downloadFile(assetagentvalue.id )"><i class="fa fa-download"></i></a>
+              </td>
                
-               <td>
-            <a >
+               <td *ngIf="assetagentvalue.type !== 'File'">
+            <a (click)="editAssetAgent(assetagentvalue )">
               <i class="fa fa-edit" aria-hidden="true"></i>
             </a>
           </td>
@@ -271,7 +288,7 @@
   </div>
 </div>
 
-
+<!-- Delete Asset Agent -->
 <ng-template #dialog let-data let-ref="dialogRef">
   <nb-card>
     <nb-card-header>
