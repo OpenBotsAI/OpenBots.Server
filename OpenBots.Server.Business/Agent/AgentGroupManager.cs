@@ -47,38 +47,38 @@ namespace OpenBots.Server.Business
         }
 
         /// <summary>
-        /// Creates a new AgentGroupMember entity with the specified ids
+        /// Updates the AgentGroupMembers of the specified AgentGroup id
         /// </summary>
         /// <param name="agentGroupId"></param>
         /// <param name="agentId"></param>
         /// <returns></returns>
-        public AgentGroupMember CreateNewGroupMember(string agentGroupId, string agentId)
+        public IEnumerable<AgentGroupMember> UpdateGroupMembers(string agentGroupId, IEnumerable<AgentGroupMember> groupMembers)
         {
             var agentGroupGuid = Guid.Parse(agentGroupId);
-            var agentGuid = Guid.Parse(agentId);
 
             AgentGroup agentGroup = _agentGroupRepository.GetOne(agentGroupGuid);
-            Agent agent = _agentRepository.GetOne(agentGuid);
 
             if (agentGroup == null)
             {
                 throw new EntityDoesNotExistException("No agent group was found with the specified id");
             }
-            if (agent == null)
+
+            List<AgentGroupMember> memberList = new List<AgentGroupMember>();
+
+            DeleteGroupMembers(agentGroupId);//delete existing members
+
+            foreach (var member in groupMembers ?? Enumerable.Empty<AgentGroupMember>())
             {
-                throw new EntityDoesNotExistException("No agent was found with the specified id");
+                member.AgentGroupId = agentGroupGuid;
+                member.CreatedBy = _caller.Identity.Name;
+                member.CreatedOn = DateTime.UtcNow;
+
+                _agentGroupMemberRepository.Add(member);
+                memberList.Add(member);
             }
 
-            AgentGroupMember agentGroupMember = new AgentGroupMember() 
-            {
-                AgentGroupId = Guid.Parse(agentGroupId),
-                AgentId = Guid.Parse(agentId),
-                CreatedBy = _caller.Identity.Name,
-                CreatedOn = DateTime.UtcNow
-            };
-            var result = _agentGroupMemberRepository.Add(agentGroupMember);
             _webhookPublisher.PublishAsync("AgentGroups.AgentGroupMemberCreated", agentGroupId, agentGroup.Name).ConfigureAwait(false);
-            return result;
+            return memberList.AsEnumerable();
         }
 
         /// <summary>
@@ -135,21 +135,21 @@ namespace OpenBots.Server.Business
         /// </summary>
         /// <param name="agentGroupId"></param>
         /// <returns></returns>
-        public PaginatedList<AgentGroupMember> GetAllMembersInGroup(string agentGroupId)
+        public IEnumerable<AgentGroupMember> GetAllMembersInGroup(string agentGroupId)
         {
             var entityId = Guid.Parse(agentGroupId);
             var groupMemberList =_agentGroupMemberRepository.Find(null, a => a.AgentGroupId == entityId);
 
-            return groupMemberList;
+            return groupMemberList.Items.AsEnumerable();
         }
 
         public void DeleteGroupMembers(string agentGroupId)
         {
             //delete all group members with this agent group id
-            var allAgentGroupMembers = GetAllMembersInGroup(agentGroupId).Items;
-            foreach (var member in allAgentGroupMembers)
+            var allAgentGroupMembers = GetAllMembersInGroup(agentGroupId);
+            foreach (var member in allAgentGroupMembers ?? Enumerable.Empty<AgentGroupMember>())
             {
-                _agentGroupMemberRepository.SoftDelete(member.Id ?? Guid.Empty);
+                _agentGroupMemberRepository.Delete(member.Id ?? Guid.Empty);
             }
         }
     }
