@@ -24,35 +24,35 @@ export class AssetService {
     // let getagentUrl = `/${AgentApiUrl.AgentsView}?$filter=substringof(tolower('${filterName}'), tolower(Name))&$orderby=${ordername}&$top=${tpage}&$skip=${spage}`;
     if (searchedValue) {
       if (orderBy != 'createdOn+desc') {
-        url = `/${AssetApiUrl.Assets}?$filter=substringof(tolower('${searchedValue}'), tolower(Name))&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+        url = `/${AssetApiUrl.AssetsView}?$filter=substringof(tolower('${searchedValue}'), tolower(Name))&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
       } else {
-        url = `/${AssetApiUrl.Assets}?$filter=substringof(tolower('${searchedValue}'), tolower(Name))&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+        url = `/${AssetApiUrl.AssetsView}?$filter=substringof(tolower('${searchedValue}'), tolower(Name))&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
       }
     } else if (orderBy) {
-      url = `/${AssetApiUrl.Assets}?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+      url = `/${AssetApiUrl.AssetsView}?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
     } else {
-      url = `/${AssetApiUrl.Assets}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+      url = `/${AssetApiUrl.AssetsView}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
     }
     return this.http.get(this.apiUrl + url);
   }
 
   getAllAsset(tpage: any, spage: any) {
-    let getagentUrl = `/${AssetApiUrl.Assets}?$orderby=createdOn desc&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/${AssetApiUrl.AssetsView}?$orderby=createdOn desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
   getAllAssetOrder(tpage: any, spage: any, name) {
-    let getagentUrl = `/${AssetApiUrl.Assets}?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/${AssetApiUrl.AssetsView}?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
   getFilterAsset(tpage: any, spage: any, filterName) {
-    let getagentUrl = `/${AssetApiUrl.Assets}?$filter=substringof(tolower('${filterName}'), tolower(name))&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/${AssetApiUrl.AssetsView}?$filter=substringof(tolower('${filterName}'), tolower(name))&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
   getAssetByname(AssetName, id) {
-    let getagentUrl = `/${AssetApiUrl.Assets}?$filter=name+eq+'${AssetName}'`;
+    let getagentUrl = `/${AssetApiUrl.AssetsView}?$filter=name+eq+'${AssetName}'`;
 
     //`/${AssetApiUrl.Assets}?$filter=substringof(tolower('${AssetName}'), tolower(name)) and Assetid  eq guid '${id}' `;
     //filter=substringof(tolower('${AssetName}'), tolower(name))and agentId+eq+null`;
