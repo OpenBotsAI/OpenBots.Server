@@ -201,11 +201,14 @@
           <thead>
             <tr >
               <th scope="col">
-               Agent
+               Agent Name
                 
               </th>
-              <th scope="col">
+              <th scope="col" *ngIf="showAssetbyID.type !== 'File'">
                 Value
+              </th>
+              <th scope="col" *ngIf="showAssetbyID.type == 'File'">
+                File Name 
               </th>
               <th scope="col" *ngIf="showAssetbyID.type == 'File'">
                 File Size
@@ -226,7 +229,7 @@
           <tbody>
             <tr *ngFor="let assetagentvalue of showAgentAsstData" 
                ><td scope="row">
-               {{assetagentvalue.agentId}}
+               {{assetagentvalue.agentName}}
               </td>
               <td scope="row" *ngIf="assetagentvalue.type == 'Text'" >
                 {{assetagentvalue.textValue}}
@@ -242,7 +245,7 @@
                 {{assetagentvalue.numberValue}}
               </td>
               <td scope="row" *ngIf="assetagentvalue.type == 'File'" >
-                {{assetagentvalue.name}}
+                {{assetagentvalue.fileName}}
               </td>
               <td scope="row" *ngIf="assetagentvalue.type == 'File'" >
                 {{assetagentvalue.sizeInBytes | filesize}}
