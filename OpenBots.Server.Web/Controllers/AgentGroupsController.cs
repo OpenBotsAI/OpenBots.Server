@@ -11,9 +11,11 @@ using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Security;
+using OpenBots.Server.ViewModel;
 using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Web.Controllers
@@ -91,29 +93,37 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Provides a list of all AgentGroupMembers in the AgentGroup
+        /// Provides an AgentGroup's view model details for a particular AgentGroup id
         /// </summary>
         /// <param name="agentGroupId"> Specifies the id of the AgentGroup</param>
-        /// <response code="200">OK,a paginated list of all AgentGroupMembers</response>
+        /// <response code="200">OK,a paginated list of all AgentGroups view model</response>
         /// <response code="400">BadRequest</response>
         /// <response code="403">Forbidden, unauthorized access</response>  
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Paginated list of all AgentGroupMembers in the AgentGroup</returns>
-        [HttpGet("{agentGroupId}/GetAllGroupMembers")]
-        [ProducesResponseType(typeof(PaginatedList<AgentGroupMember>), StatusCodes.Status200OK)]
+        /// <returns>Paginated list of all AgentGroup views for the given id</returns>
+        [HttpGet("view/{agentGroupId}")]
+        [ProducesResponseType(typeof(PaginatedList<AgentGroupViewModel>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> GetAllGroupMembers(string agentGroupId)
+        public async Task<IActionResult> View(string agentGroupId)
         {
             try
             {
-                var result = _agentGroupsManager.GetAllMembersInGroup(agentGroupId);
-                return Ok(result);
+                IActionResult actionResult = await base.GetEntity<AgentGroupViewModel>(agentGroupId);
+                OkObjectResult okResult = actionResult as OkObjectResult;
+
+                if (okResult != null)
+                {
+                    AgentGroupViewModel view = okResult.Value as AgentGroupViewModel;
+                    view.AgentGroupMembers = _agentGroupsManager.GetAllMembersInGroup(agentGroupId);
+                }
+
+                return actionResult;
             }
             catch (Exception ex)
             {
@@ -218,17 +228,17 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
-        /// Adds a new AgentGroupMember with the specified AgentGroupId and AgentId
+        /// Updates the AgentGroupMembers of the specified AgentGroup id
         /// </summary>
         /// <param name="agentGroupId"></param>
-        /// <param name="agentId"></param>
-        /// <response code="200">Ok, new AgentGroup created and returned</response>
-        /// <response code="400">Bad request, when the AgentGroup value is not in proper format</response>
+        /// <param name="request"></param>
+        /// <response code="200">Ok, new AgentGroupMembers created and returned</response>
+        /// <response code="400">Bad request, when the request value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
         /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
-        /// <returns>Newly created AgentGroupMember</returns>
-        [HttpPost("{agentGroupId}/AddAgentToGroup/{agentId}")]
+        /// <returns>Newly created AgentGroupMembers</returns>
+        [HttpPut("{agentGroupId}/UpdateGroupMembers")]
         [ProducesResponseType(typeof(Agent), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -236,12 +246,12 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> AddAgentToGroup(string agentGroupId, string agentId)
+        public async Task<IActionResult> UpdateGroupMembers(string agentGroupId, [FromBody] IEnumerable<AgentGroupMember> request)
         {
             try
             {
-                var newGroupMember = _agentGroupsManager.CreateNewGroupMember(agentGroupId, agentId);
-                return Ok(newGroupMember);
+                var newGroupMembers = _agentGroupsManager.UpdateGroupMembers(agentGroupId, request);
+                return Ok(newGroupMembers);
             }
             catch (Exception ex)
             {
