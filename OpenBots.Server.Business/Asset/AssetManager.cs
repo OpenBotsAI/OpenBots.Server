@@ -245,8 +245,6 @@ namespace OpenBots.Server.Business
         {
             var existingAsset = GetAsset(id);
             
-            existingAsset.Name = request.Name;
-            existingAsset.Type = request.Type;
             existingAsset.TextValue = request.TextValue;
             existingAsset.NumberValue = request.NumberValue;
             existingAsset.JsonValue = request.JsonValue;
@@ -274,7 +272,6 @@ namespace OpenBots.Server.Business
             _fileManager.UpdateFile(file);
 
             existingAsset.SizeInBytes = file.Size;
-            existingAsset.Name = request.Name;
 
             AssetNameAvailability(existingAsset);
 
