@@ -105,8 +105,8 @@ export class AddAssetComponent implements OnInit {
         ],
       ],
       type: ['', Validators.required],
-      Name: [''],
-      AgentId: [''],
+      Name: this.urlId ? ['', Validators.required] : [''],
+      AgentId: this.urlId ? ['', Validators.required] : [''],
       JsonValuesAssetAgent: [''],
     });
     if (this.urlId) {
@@ -170,6 +170,9 @@ export class AddAssetComponent implements OnInit {
       .subscribe((data: any) => {
         console.log(data);
         this.showAgentAsstData = data.items;
+        for(let abc of this.showAgentAsstData){
+          abc.jsonValue = JSON.parse(abc.jsonValue);
+        }
       });
   }
 
@@ -229,8 +232,7 @@ export class AddAssetComponent implements OnInit {
       if (!this.editor.isValidJson()) {
         this.toastrService.danger('Provided json is not valid', 'error');
         this.submitted = false;
-      }
-      else {
+      } else {
         this.submitted = true;
       }
       this.addasset.value.JsonValue = JSON.stringify(this.editor.get());
@@ -368,12 +370,12 @@ export class AddAssetComponent implements OnInit {
       }
     } else if (this.showAssetbyID.type == 'Json') {
       console.log(this.editor.get());
-       console.log(JSON.stringify(this.editor.get()));
+      console.log(JSON.stringify(this.editor.get()));
       if (!this.editor.isValidJson()) {
         this.toastrService.danger('Provided json is not valid', 'error');
         this.submitted = false;
       }
-       this.addasset.value.JsonValue = JSON.stringify(this.editor.get());
+      this.addasset.value.JsonValue = JSON.stringify(this.editor.get());
       let jsondata = {
         name: this.addasset.value.name,
         type: this.addasset.getRawValue().type,
@@ -381,7 +383,7 @@ export class AddAssetComponent implements OnInit {
         jsonValue: this.addasset.value.JsonValue,
       };
       console.log(this.addasset.value.JsonValue);
-      
+
       this.assetService.editAsset(this.urlId, jsondata, this.etag).subscribe(
         () => {
           this.toastrService.success(
@@ -450,8 +452,17 @@ export class AddAssetComponent implements OnInit {
   }
 
   SaveAgentAsset() {
-    // if (this.addasset.value.Name != '' && this.addasset.value.AgentId != '') {
-    let agentdata = new FormData();
+    console.log(
+      this.addasset.value.Name !== "" && this.addasset.value.AgentId !== ""
+    )
+    console.log(
+      this.addasset.value.Name == '' && this.addasset.value.AgentId == ''
+    );
+
+    if (this.addasset.value.Name !== "" && this.addasset.value.AgentId !== ""){
+
+   
+      let agentdata = new FormData();
     agentdata.append('Name', this.addasset.value.name);
     agentdata.append('AgentId', this.addasset.value.AgentId);
     if (this.showAssetbyID.type == 'Text') {
@@ -470,7 +481,7 @@ export class AddAssetComponent implements OnInit {
         this.native_file = undefined;
       }
     }
- 
+
     this.assetService.addAssetAgent(agentdata).subscribe(
       () => {
         this.toastrService.success(
@@ -488,6 +499,7 @@ export class AddAssetComponent implements OnInit {
         }
       }
     );
+    }
   }
 
   open2(dialog: TemplateRef<any>, id: any) {
@@ -504,7 +516,7 @@ export class AddAssetComponent implements OnInit {
       () => {
         this.isDeleted = false;
         this.toastrService.success('Deleted Successfully');
-       
+
         ref.close();
         this.getAssetAgentValue();
         // this.get_allasset(this.page.pageSize, skip);
