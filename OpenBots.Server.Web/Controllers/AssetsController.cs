@@ -31,6 +31,7 @@ namespace OpenBots.Server.Web
     {
         private readonly IWebhookPublisher _webhookPublisher;
         private readonly IAssetManager _manager;
+        private readonly IAssetRepository _repository;
 
         /// <summary>
         /// AssetsController constructor
@@ -53,6 +54,7 @@ namespace OpenBots.Server.Web
         {
             _webhookPublisher = webhookPublisher;
             _manager = manager;
+            _repository = repository;
 
             _manager.SetContext(SecurityContext);
         }
@@ -88,6 +90,47 @@ namespace OpenBots.Server.Web
             try
             {
                 return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Provides a view model list of all Assets and corresponding Agents and Files
+        /// </summary>
+        /// <param name="top"></param>
+        /// <param name="skip"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="filter"></param>
+        /// <response code="200">Ok, a paginated list of all Assets</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response>  
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Paginated list of all Assets</returns>
+        [HttpGet("view")]
+        [ProducesResponseType(typeof(PaginatedList<AllAssetsViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> View(
+            [FromQuery(Name = "$filter")] string filter = "",
+            [FromQuery(Name = "$orderby")] string orderBy = "",
+            [FromQuery(Name = "$top")] int top = 100,
+            [FromQuery(Name = "$skip")] int skip = 0
+            )
+        {
+            try
+            {
+                ODataHelper<AllAssetsViewModel> oDataHelper = new ODataHelper<AllAssetsViewModel>();
+                var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
+
+                return Ok(_repository.FindAllView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
             }
             catch (Exception ex)
             {

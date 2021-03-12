@@ -35,7 +35,7 @@ namespace OpenBots.Server.Business
             var schedulParameters = GetScheduleParameters(scheduleId);
             foreach (var parmeter in schedulParameters)
             {
-                _scheduleParameterRepository.SoftDelete(parmeter.Id ?? Guid.Empty);
+                _scheduleParameterRepository.Delete(parmeter.Id ?? Guid.Empty);
             }
         }
 

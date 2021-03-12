@@ -33,17 +33,17 @@
             <response code="422">Unprocessable entity</response>
             <returns>Paginated list of all AgentGroups</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.GetAllGroupMembers(System.String)">
+        <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.View(System.String)">
             <summary>
-            Provides a list of all AgentGroupMembers in the AgentGroup
+            Provides an AgentGroup's view model details for a particular AgentGroup id
             </summary>
             <param name="agentGroupId"> Specifies the id of the AgentGroup</param>
-            <response code="200">OK,a paginated list of all AgentGroupMembers</response>
+            <response code="200">OK,a paginated list of all AgentGroups view model</response>
             <response code="400">BadRequest</response>
             <response code="403">Forbidden, unauthorized access</response>  
             <response code="404">Not found</response>
             <response code="422">Unprocessable entity</response>
-            <returns>Paginated list of all AgentGroupMembers in the AgentGroup</returns>
+            <returns>Paginated list of all AgentGroup views for the given id</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.Count(System.String)">
             <summary>
@@ -59,18 +59,18 @@
         </member>
         <!-- Badly formed XML comment ignored for member "M:OpenBots.Server.Web.Controllers.AgentGroupsController.Get(System.String)" -->
         <!-- Badly formed XML comment ignored for member "M:OpenBots.Server.Web.Controllers.AgentGroupsController.Post(OpenBots.Server.Model.AgentGroup)" -->
-        <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.AddAgentToGroup(System.String,System.String)">
+        <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.UpdateGroupMembers(System.String,System.Collections.Generic.IEnumerable{OpenBots.Server.Model.AgentGroupMember})">
             <summary>
-            Adds a new AgentGroupMember with the specified AgentGroupId and AgentId
+            Updates the AgentGroupMembers of the specified AgentGroup id
             </summary>
             <param name="agentGroupId"></param>
-            <param name="agentId"></param>
-            <response code="200">Ok, new AgentGroup created and returned</response>
-            <response code="400">Bad request, when the AgentGroup value is not in proper format</response>
+            <param name="request"></param>
+            <response code="200">Ok, new AgentGroupMembers created and returned</response>
+            <response code="400">Bad request, when the request value is not in proper format</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict, concurrency error</response> 
             <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
-            <returns>Newly created AgentGroupMember</returns>
+            <returns>Newly created AgentGroupMembers</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.Put(System.String,OpenBots.Server.Model.AgentGroup)">
             <summary>
@@ -2382,6 +2382,21 @@
             <response code="200">OK,a Paginated list of all Assets</response>
             <response code="400">BadRequest</response>
             <response code="403">Forbidden,unauthorized access</response> 
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all Assets</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.AssetsController.View(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a view model list of all Assets and corresponding Agents and Files
+            </summary>
+            <param name="top"></param>
+            <param name="skip"></param>
+            <param name="orderBy"></param>
+            <param name="filter"></param>
+            <response code="200">Ok, a paginated list of all Assets</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>  
             <response code="404">Not found</response>
             <response code="422">Unprocessable entity</response>
             <returns>Paginated list of all Assets</returns>
