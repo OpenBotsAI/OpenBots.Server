@@ -182,6 +182,14 @@ const routes: Routes = [
         canActivate: [LoginGuard],
       },
       {
+        path: 'agentgroup',
+        loadChildren: () =>
+          import('./agentgroup/agentgroup.module').then(
+            (mod) => mod.AgentGroupModule
+          ),
+        canActivate: [LoginGuard],
+      },
+      {
         path: 'miscellaneous',
         loadChildren: () =>
           import('./miscellaneous/miscellaneous.module').then(
@@ -206,4 +214,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class PagesRoutingModule { }
+export class PagesRoutingModule {}

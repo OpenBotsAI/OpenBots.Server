@@ -44,6 +44,7 @@
     "@nebular/theme": "5.0.0",
     "@rxweb/reactive-form-validators": "^2.1.2",
     "ang-jsoneditor": "^1.10.1",
+    "angular2-multiselect-dropdown": "^4.6.9",
     "angular2-toaster": "^8.0.0",
     "bootstrap": "4.3.1",
     "chart.js": "^2.7.1",

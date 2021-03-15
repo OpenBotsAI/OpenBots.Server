@@ -35,6 +35,14 @@ export class PagesMenu {
         icon: { icon: 'agent', pack: 'custom-icons' },
         children: [
           {
+            title: 'All Agent Group',
+            link: '/pages/agentgroup/list',
+          },
+          {
+            title: 'Add Agent Group',
+            link: '/pages/agentgroup',
+          },
+          {
             title: 'All Agents',
             link: '/pages/agents/list',
           },

@@ -12,3 +12,4 @@ export * from './ChangesLogUrls';
 export * from './ConfigValues';
 export * from './SubscribeUrls';
 export * from './fileManager';
+export * from './agentGroup';
