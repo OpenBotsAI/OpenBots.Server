@@ -77,7 +77,7 @@ namespace OpenBots.Server.Business
                 memberList.Add(member);
             }
 
-            _webhookPublisher.PublishAsync("AgentGroups.AgentGroupMemberCreated", agentGroupId, agentGroup.Name).ConfigureAwait(false);
+            _webhookPublisher.PublishAsync("AgentGroups.AgentGroupMemberUpdated", agentGroupId, agentGroup.Name).ConfigureAwait(false);
             return memberList.AsEnumerable();
         }
 
