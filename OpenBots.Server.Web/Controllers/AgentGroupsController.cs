@@ -183,7 +183,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (okResult != null)
                 {
                     AgentGroupViewModel view = okResult.Value as AgentGroupViewModel;
-                    view.AgentGroupMembers = _agentGroupsManager.GetAllMembersInGroup(id);
+                    view.AgentGroupMembers = _agentGroupsManager.GetMembersView(id);
                 }
 
                 return actionResult;

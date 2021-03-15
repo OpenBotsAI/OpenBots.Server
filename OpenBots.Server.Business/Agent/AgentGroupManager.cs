@@ -6,6 +6,7 @@ using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.Identity;
+using OpenBots.Server.ViewModel;
 using OpenBots.Server.Web.Webhooks;
 using System;
 using System.Collections.Generic;
@@ -141,6 +142,18 @@ namespace OpenBots.Server.Business
             var groupMemberList =_agentGroupMemberRepository.Find(null, a => a.AgentGroupId == entityId);
 
             return groupMemberList.Items.AsEnumerable();
+        }
+
+        /// <summary>
+        /// Gets a list of all GroupMembers view in the specified AgentGroup
+        /// </summary>
+        /// <param name="agentGroupId"></param>
+        /// <returns></returns>
+        public IEnumerable<AgentGroupMemberViewModel> GetMembersView(string agentGroupId)
+        {
+            var groupMemberList =_agentGroupMemberRepository.GetMemberByGroupId(agentGroupId);
+
+            return groupMemberList;
         }
 
         public void DeleteGroupMembers(string agentGroupId)

@@ -50,7 +50,7 @@
             <summary>
             Provides an AgentGroup's view model details for a particular AgentGroup id
             </summary>
-            <param name="agentGroupId"> Specifies the id of the AgentGroup</param>
+            <param name="id"> Specifies the id of the AgentGroup</param>
             <response code="200">OK,a paginated list of all AgentGroups view model</response>
             <response code="400">BadRequest</response>
             <response code="403">Forbidden, unauthorized access</response>  
@@ -63,7 +63,7 @@
             <summary>
             Updates the AgentGroupMembers of the specified AgentGroup id
             </summary>
-            <param name="agentGroupId"></param>
+            <param name="id"></param>
             <param name="request"></param>
             <response code="200">Ok, new AgentGroupMembers created and returned</response>
             <response code="400">Bad request, when the request value is not in proper format</response>
