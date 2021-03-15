@@ -112,6 +112,9 @@ export class GetAssetIdComponent implements OnInit {
           console.log(data);
 
           this.showAgentAsstData = data.items;
+          for (let abc of this.showAgentAsstData) {
+            abc.jsonValue = JSON.parse(abc.jsonValue);
+          }
           if (this.showAgentAsstData.length == 0) {
             this.showGlobalAsset = false;
           } else {
@@ -124,5 +127,19 @@ export class GetAssetIdComponent implements OnInit {
     this.router.navigate(['/pages/change-log/list'], {
       queryParams: { PageName: 'Asset', id: this.AssetType.id },
     });
+  }
+
+  downloadFile(id) {
+    let fileName: string;
+    this.assetService
+      .assetFileExport(id)
+      .subscribe((data: HttpResponse<Blob>) => {
+        fileName = data.headers
+          .get('content-disposition')
+          .split(';')[1]
+          .split('=')[1]
+          .replace(/\"/g, '');
+        this.FileSaverService.save(data.body, fileName);
+      });
   }
 }
