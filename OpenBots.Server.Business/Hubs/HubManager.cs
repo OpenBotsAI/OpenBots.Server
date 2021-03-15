@@ -135,8 +135,8 @@ namespace OpenBots.Server.Web.Hubs
             }
             else //notify all group members
             {
-                var agentsInGroup = _agentGroupManager.GetAllMembersInGroup(job.AgentGroupId.ToString()).Items;
-                foreach (var groupMember in agentsInGroup)
+                var agentsInGroup = _agentGroupManager.GetAllMembersInGroup(job.AgentGroupId.ToString());
+                foreach (var groupMember in agentsInGroup ?? Enumerable.Empty<AgentGroupMember>())
                 {
                     _hub.Clients.All.SendAsync("botnewjobnotification", groupMember.AgentId.ToString());
                 }

@@ -234,7 +234,7 @@ namespace OpenBots.Server.Business
             var jobParameters = GetJobParameters(jobId);
             foreach (var parmeter in jobParameters ?? Enumerable.Empty<JobParameter>())
             {
-                _jobParameterRepo.SoftDelete(parmeter.Id ?? Guid.Empty);
+                _jobParameterRepo.Delete(parmeter.Id ?? Guid.Empty);
             }
         }
 

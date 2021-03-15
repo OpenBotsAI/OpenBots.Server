@@ -9,10 +9,10 @@ namespace OpenBots.Server.Business.Interfaces
 {
     public interface IAgentGroupManager : IManager
     {
-        AgentGroupMember CreateNewGroupMember(string agentGroupId, string agentId);
+        IEnumerable<AgentGroupMember> UpdateGroupMembers(string agentGroupId, IEnumerable<AgentGroupMember> groupMembers);
         AgentGroup UpdateAgentGroup(string id, AgentGroup request);
         void AttemptPatchUpdate(JsonPatchDocument<AgentGroup> request, Guid entityId);
-        PaginatedList<AgentGroupMember> GetAllMembersInGroup(string agentGroupId);
+        IEnumerable<AgentGroupMember> GetAllMembersInGroup(string agentGroupId);
         void DeleteGroupMembers(string agentGroupId);
     }
 }

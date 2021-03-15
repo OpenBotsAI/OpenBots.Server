@@ -262,7 +262,7 @@ namespace OpenBots.Server.Business
             var automationParameters = GetAutomationParameters(automationId);
             foreach (var parmeter in automationParameters ?? Enumerable.Empty<AutomationParameter>())
             {
-                _automationParameterRepository.SoftDelete(parmeter.Id ?? Guid.Empty);
+                _automationParameterRepository.Delete(parmeter.Id ?? Guid.Empty);
             }
         }
 

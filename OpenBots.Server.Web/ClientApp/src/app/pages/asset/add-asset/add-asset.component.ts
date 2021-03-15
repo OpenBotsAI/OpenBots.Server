@@ -18,7 +18,7 @@ import {
 } from 'ngx-uploader';
 import { HttpResponse } from '@angular/common/http';
 import { DialogService } from '../../../@core/dialogservices';
-import { relativeTimeRounding } from 'moment';
+import { FileSaverService } from 'ngx-filesaver';
 
 @Component({
   selector: 'ngx-add-asset',
@@ -57,14 +57,14 @@ export class AddAssetComponent implements OnInit {
   public editorOptionsAgentAsset: JsonEditorOptions;
   public data: any;
   showGlobalAsset: boolean = false;
-  // @ViewChild(JsonEditorComponent, { static: false })
   @ViewChild('editor') editor: JsonEditorComponent;
   @ViewChild('editorAssetAgent') editorAssetAgent: JsonEditorComponent;
-  // editor: JsonEditorComponent;
-  // editorAssetAgent: JsonEditorComponent;
   viewDialog: any;
   showAgentAssetBtn: boolean = true;
   hideAgentAssetBtn: boolean = false;
+  showUpdateAssetAgentbutton: boolean = false;
+  showSaveAssetAgentbutton: boolean = true;
+  assetAgentId :any =[];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -72,7 +72,8 @@ export class AddAssetComponent implements OnInit {
     protected router: Router,
     private toastrService: NbToastrService,
     private route: ActivatedRoute,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private FileSaverService: FileSaverService
   ) {
     this.editorOptions = new JsonEditorOptions();
     this.editorOptions.modes = ['code', 'text', 'tree', 'view'];
@@ -105,9 +106,8 @@ export class AddAssetComponent implements OnInit {
         ],
       ],
       type: ['', Validators.required],
-      Name: this.urlId ? ['', Validators.required] : [''],
-      AgentId: this.urlId ? ['', Validators.required] : [''],
-      JsonValuesAssetAgent: [''],
+      Name: [''],
+      AgentId: [''],
     });
     if (this.urlId) {
       this.getAssetById(this.urlId);
@@ -168,9 +168,8 @@ export class AddAssetComponent implements OnInit {
     this.assetService
       .getAssetByname(this.showAssetbyID.name, this.urlId)
       .subscribe((data: any) => {
-        console.log(data);
         this.showAgentAsstData = data.items;
-        for(let abc of this.showAgentAsstData){
+        for (let abc of this.showAgentAsstData) {
           abc.jsonValue = JSON.parse(abc.jsonValue);
         }
       });
@@ -373,7 +372,7 @@ export class AddAssetComponent implements OnInit {
       console.log(JSON.stringify(this.editor.get()));
       if (!this.editor.isValidJson()) {
         this.toastrService.danger('Provided json is not valid', 'error');
-        this.submitted = false;
+        // this.submitted = false;
       }
       this.addasset.value.JsonValue = JSON.stringify(this.editor.get());
       let jsondata = {
@@ -452,53 +451,44 @@ export class AddAssetComponent implements OnInit {
   }
 
   SaveAgentAsset() {
-    console.log(
-      this.addasset.value.Name !== "" && this.addasset.value.AgentId !== ""
-    )
-    console.log(
-      this.addasset.value.Name == '' && this.addasset.value.AgentId == ''
-    );
-
-    if (this.addasset.value.Name !== "" && this.addasset.value.AgentId !== ""){
-
-   
+    if (this.addasset.value.Name !== '' && this.addasset.value.AgentId !== '') {
       let agentdata = new FormData();
-    agentdata.append('Name', this.addasset.value.name);
-    agentdata.append('AgentId', this.addasset.value.AgentId);
-    if (this.showAssetbyID.type == 'Text') {
-      agentdata.append('TextValue', this.addasset.value.Name);
-    } else if (this.showAssetbyID.type == 'Number') {
-      agentdata.append('NumberValue', this.addasset.value.Name);
-    } else if (this.showAssetbyID.type == 'Json') {
-      this.addasset.value.Name = JSON.stringify(this.editorAssetAgent.get());
-      agentdata.append('JsonValue', this.addasset.value.Name);
-    } else if (this.showAssetbyID.type == 'File') {
-      if (this.native_file) {
-        agentdata.append('file', this.native_file, this.native_file_name);
-      } else {
-        this.showUpload = true;
-        this.native_file_name = undefined;
-        this.native_file = undefined;
-      }
-    }
-
-    this.assetService.addAssetAgent(agentdata).subscribe(
-      () => {
-        this.toastrService.success(
-          'Asset Agent Value Save Successfully!',
-          'Success'
-        );
-        this.getAssetAgentValue();
-        //  this.router.navigate(['pages/asset/list']);
-      },
-      (error) => {
-        this.submitted = false;
-        if (error.error.status === 409) {
-          this.toastrService.danger(error.error.serviceErrors, 'error');
-          this.getAssetAgentValue();
+      agentdata.append('Name', this.addasset.value.name);
+      agentdata.append('AgentId', this.addasset.value.AgentId);
+      if (this.showAssetbyID.type == 'Text') {
+        agentdata.append('TextValue', this.addasset.value.Name);
+      } else if (this.showAssetbyID.type == 'Number') {
+        agentdata.append('NumberValue', this.addasset.value.Name);
+      } else if (this.showAssetbyID.type == 'Json') {
+        this.addasset.value.Name = JSON.stringify(this.editorAssetAgent.get());
+        agentdata.append('JsonValue', this.addasset.value.Name);
+      } else if (this.showAssetbyID.type == 'File') {
+        if (this.native_file) {
+          agentdata.append('file', this.native_file, this.native_file_name);
+        } else {
+          this.showUpload = true;
+          this.native_file_name = undefined;
+          this.native_file = undefined;
         }
       }
-    );
+
+      this.assetService.addAssetAgent(agentdata).subscribe(
+        () => {
+          this.toastrService.success(
+            'Asset Agent Value Save Successfully!',
+            'Success'
+          );
+          this.getAssetAgentValue();
+          //  this.router.navigate(['pages/asset/list']);
+        },
+        (error) => {
+          this.submitted = false;
+          if (error.error.status === 409) {
+            this.toastrService.danger(error.error.serviceErrors, 'error');
+            this.getAssetAgentValue();
+          }
+        }
+      );
     }
   }
 
@@ -509,6 +499,149 @@ export class AddAssetComponent implements OnInit {
     this.delId = id;
   }
 
+  editAssetAgent(assetvalue) {
+    console.log(assetvalue);
+    this.assetAgentId = assetvalue.id
+    if (assetvalue.type == 'Text') {
+      this.addasset.patchValue({
+        Name: assetvalue.textValue,
+        AgentId: assetvalue.agentId,
+      });
+       this.addasset.get('AgentId').disable();
+      this.showUpdateAssetAgentbutton = true;
+      this.showSaveAssetAgentbutton = false;
+    } else if (assetvalue.type == 'Number') {
+      this.addasset.patchValue({
+        Name: assetvalue.numberValue,
+        AgentId: assetvalue.agentId,
+      });
+      this.addasset.get('AgentId').disable();
+      this.showUpdateAssetAgentbutton = true;
+      this.showSaveAssetAgentbutton = false;
+    } else if (assetvalue.type == 'Json') {
+      this.addasset.patchValue({
+        Name: assetvalue.jsonValue,
+        AgentId: assetvalue.agentId,
+      });
+      this.addasset.get('AgentId').disable();
+      this.showUpdateAssetAgentbutton = true;
+      this.showSaveAssetAgentbutton = false;
+    }
+  }
+
+  UpdateAssetAgent() {
+    if (this.showAssetbyID.type == 'Text') {
+      
+      let textdata = {
+        Name: this.addasset.value.name,
+        AgentId: this.addasset.getRawValue().AgentId,
+        TextValue: this.addasset.value.Name,
+        type: this.addasset.getRawValue().type,
+      };
+      this.assetService
+        .editAsset(this.assetAgentId, textdata, this.etag)
+        .subscribe(
+          () => {
+            this.toastrService.success(
+              'Agent Asset Details Update Successfully!',
+              'Success'
+            );
+            this.showSaveAssetAgentbutton = true;
+            this.showUpdateAssetAgentbutton = false;
+            this.addasset.get('AgentId').enable();
+            this.addasset.get('Name').reset();
+            this.getAssetAgentValue();
+          
+          },
+          (error) => {
+            this.submitted = false;
+            if (error.error.error.status === 409) {
+              this.toastrService.danger(error.error.serviceErrors, 'error');
+            }
+          }
+        );
+    } else if (this.showAssetbyID.type == 'Number') {
+      let Numberdata = {
+        
+        Name: this.addasset.value.name,
+        AgentId: this.addasset.getRawValue().AgentId,
+        NumberValue: this.addasset.value.Name,
+        type: this.addasset.getRawValue().type,
+           
+      };
+
+      this.assetService
+        .editAsset(this.assetAgentId, Numberdata, this.etag)
+        .subscribe(
+          () => {
+            this.toastrService.success(
+              ' Agent Asset Details Update Successfully!',
+              'Success'
+            );
+            this.showSaveAssetAgentbutton = true;
+            this.showUpdateAssetAgentbutton = false;
+            this.addasset.get('AgentId').enable();
+            this.addasset.get('Name').reset();
+               this.getAssetAgentValue();
+            // this.router.navigate(['pages/asset/list']);
+          },
+          (error) => {
+            this.submitted = false;
+            if (error.error.error.status === 409) {
+              this.toastrService.danger(error.error.serviceErrors, 'error');
+              this.getAssetById(this.urlId);
+            }
+          }
+        );
+    } else if (this.showAssetbyID.type == 'Json') {
+    
+      this.addasset.value.Name = JSON.stringify(this.editorAssetAgent.get());
+      let jsondata = {
+        Name: this.addasset.value.name,
+        AgentId: this.addasset.getRawValue().AgentId,
+        jsonValue: this.addasset.value.Name,
+        type: this.addasset.getRawValue().type,
+      };
+      console.log(this.addasset.value.JsonValue);
+
+      this.assetService
+        .editAsset(this.assetAgentId, jsondata, this.etag)
+        .subscribe(
+          () => {
+            this.toastrService.success(
+              ' Agent Asset Details Update Successfully!',
+              'Success'
+            );
+            this.showSaveAssetAgentbutton = true;
+            this.showUpdateAssetAgentbutton = false;
+            this.addasset.get('AgentId').enable();
+            this.addasset.get('Name').reset();
+               this.getAssetAgentValue();
+          },
+          (error) => {
+            this.submitted = false;
+            if (error.error.error.status === 409) {
+              this.toastrService.danger(error.error.serviceErrors, 'error');
+              this.getAssetById(this.urlId);
+            }
+          }
+        );
+    }
+  }
+
+  downloadFile(id) {
+    let fileName: string;
+    this.assetService
+      .assetFileExport(id)
+      .subscribe((data: HttpResponse<Blob>) => {
+        fileName = data.headers
+          .get('content-disposition')
+          .split(';')[1]
+          .split('=')[1]
+          .replace(/\"/g, '');
+        this.FileSaverService.save(data.body, fileName);
+      });
+  }
   del_agent(ref) {
     this.isDeleted = true;
     // const skip = (this.page.pageNumber - 1) * this.page.pageSize;
