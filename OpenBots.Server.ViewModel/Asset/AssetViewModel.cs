@@ -8,7 +8,7 @@ using System.Text;
 
 namespace OpenBots.Server.ViewModel
 {
-    public class AllAssetsViewModel : IViewModel<Asset, AllAssetsViewModel>
+    public class AssetViewModel : IViewModel<Asset, AssetViewModel>
     {
         public Guid? Id { get; set; }
         [Required]
@@ -25,15 +25,18 @@ namespace OpenBots.Server.ViewModel
         public string AgentName { get; set; }
         public string FileName { get; set; }
 
-        public AllAssetsViewModel Map(Asset entity)
+        public AssetViewModel Map(Asset entity)
         {
-            AllAssetsViewModel assetsViewModel = new AllAssetsViewModel();
+            AssetViewModel assetsViewModel = new AssetViewModel();
 
             assetsViewModel.Id = entity.Id;
             assetsViewModel.Name = entity.Name;
             assetsViewModel.TextValue = entity.TextValue;
+            assetsViewModel.NumberValue = entity.NumberValue;
             assetsViewModel.JsonValue = entity.JsonValue;
             assetsViewModel.FileId = entity.FileId;
+            assetsViewModel.SizeInBytes = entity.SizeInBytes;
+            assetsViewModel.AgentId = entity.AgentId;
             assetsViewModel.Name = entity.Name;
             assetsViewModel.CreatedBy = entity.CreatedBy;
             assetsViewModel.CreatedOn = entity.CreatedOn;

@@ -21,9 +21,9 @@ namespace OpenBots.Server.DataAccess.Repositories
             return dbContext.Assets;
         }
 
-        public PaginatedList<AllAssetsViewModel> FindAllView(Predicate<AllAssetsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        public PaginatedList<AssetViewModel> FindAllView(Predicate<AssetViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
-            PaginatedList<AllAssetsViewModel> paginatedList = new PaginatedList<AllAssetsViewModel>();
+            PaginatedList<AssetViewModel> paginatedList = new PaginatedList<AssetViewModel>();
 
             var itemsList = base.Find(null, j => j.IsDeleted == false);
             if (itemsList != null && itemsList.Items != null && itemsList.Items.Count > 0)
@@ -33,7 +33,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                                  from a in table1.DefaultIfEmpty()
                                  join f in dbContext.ServerFiles on p.FileId equals f.Id into table2
                                  from f in table2.DefaultIfEmpty()
-                                 select new AllAssetsViewModel
+                                 select new AssetViewModel
                                  {
                                      Id = p?.Id,
                                      Name = p?.Name,
@@ -55,7 +55,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                     else if (direction == OrderByDirectionType.Descending)
                         itemRecord = itemRecord.OrderByDescending(j => j.GetType().GetProperty(sortColumn).GetValue(j)).ToList();
 
-                List<AllAssetsViewModel> filterRecord = null;
+                List<AssetViewModel> filterRecord = null;
                 if (predicate != null)
                     filterRecord = itemRecord.ToList().FindAll(predicate);
                 else

@@ -29,6 +29,7 @@ namespace OpenBots.Server.Business
         private readonly IJobManager _jobManager;
         private readonly IWebhookPublisher _webhookPublisher;
         private readonly ClaimsPrincipal _caller;
+        private readonly IAgentGroupRepository _agentGroupRepository;
 
         public AgentManager(IAgentRepository agentRepository,
             IScheduleRepository scheduleRepository,
@@ -41,7 +42,8 @@ namespace OpenBots.Server.Business
             IAgentGroupMemberRepository agentGroupMemberRepository,
             IJobManager jobManager,
             IWebhookPublisher webhookPublisher,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IAgentGroupRepository agentGroupRepository)
         {
             _agentRepo = agentRepository;
             _scheduleRepo = scheduleRepository;
@@ -53,6 +55,7 @@ namespace OpenBots.Server.Business
             _personRepo = personRepository;
             _agentGroupMemberRepository = agentGroupMemberRepository;
             _jobManager = jobManager;
+            _agentGroupRepository = agentGroupRepository;
             _webhookPublisher = webhookPublisher;
             _caller = ((httpContextAccessor.HttpContext != null) ? httpContextAccessor.HttpContext.User : new ClaimsPrincipal());
         }
@@ -399,11 +402,15 @@ namespace OpenBots.Server.Business
                 throw new EntityOperationException("Agent ID is not a valid GUID ");
             }
 
-            //get all new jobs of the agent group
+            //get all new jobs of the agent group and assign the oldest one to the current agent
             List<Job> agentGroupJobs = new List<Job>();
             var agentGroupsMembers = GetAllMembersInGroup(agentId.ToString()).Items;
             foreach (var member in agentGroupsMembers)
             {
+                AgentGroup agentGroup = _agentGroupRepository.Find(null, g => g.Id == member.AgentGroupId).Items?.FirstOrDefault();
+                //if agent group is disabled, then do not retreive jobs from that group
+                if (agentGroup.IsEnabled == false) continue;
+
                 var memberGroupJobs = _jobRepo.Find(null, j => j.AgentGroupId == member.AgentGroupId && j.JobStatus == JobStatusType.New).Items;
                 agentGroupJobs = agentGroupJobs.Concat(memberGroupJobs).ToList();
             }

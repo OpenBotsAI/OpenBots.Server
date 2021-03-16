@@ -85,9 +85,17 @@
                Agent
                 
               </th>
-              <th scope="col">
+              <th scope="col" *ngIf="AssetType.type !== 'File'">
                 Value
-                
+              </th>
+              <th scope="col" *ngIf="AssetType.type == 'File'">
+                File Name 
+              </th>
+              <th scope="col" *ngIf="AssetType.type == 'File'">
+                File Size
+              </th>
+              <th scope="col" *ngIf="AssetType.type == 'File'">
+               Download
               </th>
              
                
@@ -96,10 +104,30 @@
           <tbody>
             <tr *ngFor="let assetagentvalue of showAgentAsstData" 
                ><td scope="row">
-               {{assetagentvalue.name}}
+               {{assetagentvalue.agentName}}
               </td>
-              <td scope="row">
-                {{assetagentvalue.name}}
+              
+              <td scope="row" *ngIf="AssetType.type == 'Text'" >
+                {{assetagentvalue.textValue}}
+              
+              </td>
+              <td scope="row " *ngIf="AssetType.type == 'Json'" >
+                 <p class="p-text">
+                    <ngx-json-viewer [json]="assetagentvalue.jsonValue" [expanded]="false"></ngx-json-viewer>
+                 </p>
+                
+              </td>
+              <td scope="row" *ngIf="AssetType.type == 'Number'" >
+                {{assetagentvalue.numberValue}}
+              </td>
+              <td scope="row" *ngIf="AssetType.type == 'File'" >
+                {{assetagentvalue.fileName}}
+              </td>
+              <td scope="row" *ngIf="AssetType.type == 'File'" >
+                {{assetagentvalue.sizeInBytes | filesize}}
+              </td>
+               <td scope="row" *ngIf="AssetType.type == 'File'" >
+                 <a (click)="downloadFile(assetagentvalue.id )"><i class="fa fa-download"></i></a>
               </td>
                
             
