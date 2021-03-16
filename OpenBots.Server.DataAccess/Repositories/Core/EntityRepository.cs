@@ -297,10 +297,9 @@ namespace OpenBots.Server.DataAccess.Repositories
                     {
                         if (retryCount >= 3)
                         {
-                            throw new DbUpdateConcurrencyException(ex.Message);
+                            throw new EntityConcurrencyException(ex);
                         }
                         retryCount++;
-
 
                         foreach (var entry in ex.Entries)
                         {
@@ -313,7 +312,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                             }
                             else
                             {
-                                throw new DbUpdateConcurrencyException(ex.Message);
+                                throw new EntityConcurrencyException(ex);
                             }
                         }
                     }
