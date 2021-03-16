@@ -10,7 +10,7 @@ namespace OpenBots.Server.ViewModel
     {
         public bool IsEnabled { get; set; }
         public string Description { get; set; }
-        public IEnumerable<AgentGroupMember>? AgentGroupMembers { get; set; }
+        public IEnumerable<AgentGroupMemberViewModel>? AgentGroupMembers { get; set; }
 
         public AgentGroupViewModel Map(AgentGroup entity)
         {

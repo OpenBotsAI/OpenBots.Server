@@ -25,5 +25,6 @@ namespace OpenBots.Server.Business.Interfaces
         Asset Add(string id, int value);
         Asset Subtract(string id, int value);
         Asset Append(string id, string value);
+        AssetViewModel GetAssetDetails(AssetViewModel assetView);
     }
 }
