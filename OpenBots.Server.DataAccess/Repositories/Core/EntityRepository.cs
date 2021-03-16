@@ -278,7 +278,6 @@ namespace OpenBots.Server.DataAccess.Repositories
                         entity.UpdatedBy = _caller?.Identity?.Name ?? "Server";
 
                         DbContext.Entry(entity).State = EntityState.Modified;
-                        var hello = DbContext.ChangeTracker.AutoDetectChangesEnabled;
                         DbContext.SaveChanges();
                         saved = true;
 
