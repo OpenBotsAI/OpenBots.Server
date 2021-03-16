@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HelperService } from '../../../@core/services/helper.service';
 import { HttpService } from '../../../@core/services/http.service';
 import { AgentApiUrl, AgentGroupAPiUrl } from '../../../webApiUrls';
-import { Agents } from '../../../interfaces/agnets';
+import { AgentGroup } from '../../../interfaces/agentGroup';
 @Component({
   selector: 'ngx-agent-group',
   templateUrl: './agent-group.component.html',
@@ -16,15 +16,7 @@ export class AgentGroupComponent implements OnInit {
   urlId: string;
   eTag: string;
   title = 'Add';
-  allAgentsArr: any;
-  // selectedItems: Array<any> = [];
-  // dropdownList: Array<any> = [];
-  // dropdownSettings: IDropdownSettings = {};
-  settings = {};
-  data = [];
-  dropdownList = [];
-  selectedItems = [];
-  dropdownSettings = {};
+  allAgentsArr: AgentGroup[] = [];
   constructor(
     private fb: FormBuilder,
     private httpService: HttpService,
@@ -35,62 +27,12 @@ export class AgentGroupComponent implements OnInit {
 
   ngOnInit(): void {
     this.urlId = this.route.snapshot.params['id'];
-    this.getAllAgents();
-    // this.multiDropDownSettings();
+    this.agentGroupForm = this.initializeAgentGroupForm();
     if (this.urlId) {
+      this.getAllAgents();
       this.title = 'Update';
       this.getAgentGroupById();
     }
-    this.agentGroupForm = this.initializeAgentGroupForm();
-    this.dropdownList = [
-      { id: 1, itemName: 'India' },
-      { id: 2, itemName: 'Singapore' },
-      { id: 3, itemName: 'Australia' },
-      { id: 4, itemName: 'Canada' },
-      { id: 5, itemName: 'South Korea' },
-      { id: 6, itemName: 'Germany' },
-      { id: 7, itemName: 'France' },
-      { id: 8, itemName: 'Russia' },
-      { id: 9, itemName: 'Italy' },
-      { id: 10, itemName: 'Sweden' },
-    ];
-    // this.selectedItems = [
-    //   { id: 2, itemName: 'Singapore' },
-    //   { id: 3, itemName: 'Australia' },
-    //   { id: 4, itemName: 'Canada' },
-    //   { id: 5, itemName: 'South Korea' },
-    // ];
-    this.dropdownSettings = {
-      // agentId: 'agentId',
-      // agentName: 'agentName',
-      // singleSelection: false,
-      text: 'Select Agents',
-      selectAllText: 'Select All',
-      unSelectAllText: 'UnSelect All',
-      // enableSearchFilter: true,
-      class: 'myclass custom-class',
-    };
-  }
-
-  multiDropDownSettings(): void {
-    this.settings = {
-      singleSelection: false,
-      idField: 'item_id',
-      textField: 'item_text',
-      enableCheckAll: true,
-      selectAllText: 'Chọn All',
-      unSelectAllText: 'Hủy chọn',
-      allowSearchFilter: true,
-      limitSelection: -1,
-      clearSearchFilter: true,
-      maxHeight: 197,
-      itemsShowLimit: 3,
-      searchPlaceholderText: 'Tìm kiếm',
-      noDataAvailablePlaceholderText: 'Không có dữ liệu',
-      closeDropDownOnSelection: false,
-      showSelectedItemsAtTop: false,
-      defaultOpen: false,
-    };
   }
 
   initializeAgentGroupForm() {
@@ -104,7 +46,7 @@ export class AgentGroupComponent implements OnInit {
         ],
       ],
       isEnabled: [''],
-      selectedItems: [],
+      agentGroupMembers: [],
       description: [''],
     });
   }
@@ -121,18 +63,31 @@ export class AgentGroupComponent implements OnInit {
 
   updateAgentGroup() {
     const headers = this.helperService.getETagHeaders(this.eTag);
+    const agentGroupMembers = [...this.agentGroupForm.value.agentGroupMembers];
+    delete this.agentGroupForm.value.agentGroupMembers;
     this.httpService
-      .put(`${AgentGroupAPiUrl.agentGroups}`, this.agentGroupForm.value, {
-        observe: 'response',
-        headers,
-      })
+      .put(
+        `${AgentGroupAPiUrl.agentGroups}/${this.urlId}`,
+        this.agentGroupForm.value,
+        {
+          observe: 'response',
+          headers,
+        }
+      )
       .subscribe(
         (response) => {
-          if (response) {
-            this.httpService.success('Agent goup created successfully');
-            this.isSubmitted = false;
-            this.agentGroupForm.reset();
-            this.router.navigate(['/pages/agentgroup/list']);
+          if (response && response.status === 200) {
+            this.httpService
+              .put(
+                `${AgentGroupAPiUrl.agentGroups}/${this.urlId}/${AgentGroupAPiUrl.updateGroupMembers}`,
+                agentGroupMembers
+              )
+              .subscribe(() => {
+                this.httpService.success('Agent group updated successfully');
+                this.isSubmitted = false;
+                this.agentGroupForm.reset();
+                this.router.navigate(['/pages/agentgroup/list']);
+              });
           }
         },
         (error) => {
@@ -146,6 +101,8 @@ export class AgentGroupComponent implements OnInit {
   }
 
   addAgentGroup() {
+    delete this.agentGroupForm.value.agentGroupMembers;
+    delete this.agentGroupForm.value.isEnabled;
     this.httpService
       .post(`${AgentGroupAPiUrl.agentGroups}`, this.agentGroupForm.value)
       .subscribe((response) => {
@@ -159,14 +116,16 @@ export class AgentGroupComponent implements OnInit {
 
   getAgentGroupById(): void {
     this.httpService
-      .get(`${AgentGroupAPiUrl.agentGroups}/${this.urlId}`, {
-        observe: 'response',
-      })
+      .get(
+        `${AgentGroupAPiUrl.agentGroups}/${AgentGroupAPiUrl.view}/${this.urlId}`,
+        {
+          observe: 'response',
+        }
+      )
       .subscribe((response) => {
-        console.log('response', response);
         if (response && response.body) {
           this.eTag = response.headers.get('etag');
-          this.agentGroupForm.patchValue({ ...response.body });
+          this.agentGroupForm.patchValue(response.body);
         }
       });
   }
@@ -176,50 +135,8 @@ export class AgentGroupComponent implements OnInit {
       .get(`${AgentApiUrl.Agents}/${AgentApiUrl.getLookup}`)
       .subscribe((response) => {
         if (response) {
-          // for (let data of response) {
-          //   this.allAgentsArr = data.agentName;
-          //   console.log('agents', this.allAgentsArr);
-          // }
-
-          for (let data of response) {
-            data.id = data.agentId;
-            data.itemName = data.agentName;
-          }
-          this.allAgentsArr = response;
-          // this.allAgentsArr = this.allAgentsArr.map((x) => {
-          //   (x.id = x.agentId), (x.itemName = x.agentName);
-          // });
-          console.log('agents', this.allAgentsArr);
-          // this.agentGroupForm
-          //   .get('selectedItems')
-          //   .patchValue(this.allAgentsArr);
+          this.allAgentsArr = [...response];
         }
       });
-  }
-
-  onItemSelect(item: any) {
-    console.log(item);
-  }
-  onSelectAll(items: any) {
-    console.log(items);
-  }
-
-  public onFilterChange(item: any) {
-    console.log(item);
-  }
-  public onDropDownClose(item: any) {
-    console.log(item);
-  }
-
-  public onDeSelect(item: any) {
-    console.log(item);
-  }
-
-  public onDeSelectAll(items: any) {
-    console.log(items);
-  }
-  OnItemDeSelect(item: any) {
-    console.log(item);
-    // console.log(this.selectedItems);
   }
 }

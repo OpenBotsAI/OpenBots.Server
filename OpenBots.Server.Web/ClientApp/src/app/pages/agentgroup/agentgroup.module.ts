@@ -1,23 +1,24 @@
-import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
+import { NgModule } from '@angular/core';
 import { AgentGroupRoutingModule } from './agentgroup-routing.module';
 import { SharedModule } from '../../@core/shared';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { AgentGroupComponent } from './agent-group/agent-group.component';
 import { AllAgentGroupGridComponent } from './all-agent-group-grid/all-agent-group-grid.component';
-import { AngularMultiSelectModule } from 'angular2-multiselect-dropdown';
+import { ViewAgentGroupComponent } from './view-agent-group/view-agent-group.component';
+import { NgSelectModule } from '@ng-select/ng-select';
 @NgModule({
-  declarations: [AgentGroupComponent, AllAgentGroupGridComponent],
+  declarations: [
+    AgentGroupComponent,
+    AllAgentGroupGridComponent,
+    ViewAgentGroupComponent,
+  ],
   imports: [
     AgentGroupRoutingModule,
     SharedModule,
     NgxPaginationModule,
     ReactiveFormsModule,
-    AngularMultiSelectModule,
-    FormsModule,
+    NgSelectModule,
   ],
-  // schemas: [NO_ERRORS_SCHEMA],
 })
 export class AgentGroupModule {}

@@ -1,5 +1,8 @@
 export interface AgentGroup {
-  name: string;
+  // agentId and agentName replace by id and ItemName because of dropdown takes those properties
+  agentId?: string; // these used for changing property name that's why its declared
+  agentName?: string; //these used for changing property name that's why its declared
+  itemName: string;
   description: string;
   id: string;
   isDeleted?: boolean;

@@ -20,7 +20,7 @@ export class AllAgentGroupGridComponent implements OnInit {
   itemsPerPage: ItemsPerPage[] = [];
   allAgentGroupArr: AgentGroup[] = [];
   deleteId: string;
-
+  isDeleted = false;
   constructor(
     private httpService: HttpService,
     private router: Router,
@@ -58,7 +58,6 @@ export class AllAgentGroupGridComponent implements OnInit {
     else
       url = `${AgentGroupAPiUrl.agentGroups}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
     this.httpService.get(url).subscribe((response) => {
-      console.log('res', response);
       if (response && response.items && response.items.length) {
         this.allAgentGroupArr = [...response.items];
       } else this.allAgentGroupArr = [];
@@ -135,7 +134,7 @@ export class AllAgentGroupGridComponent implements OnInit {
   }
 
   viewAgentGroup(id: string): void {
-    // this.router.navigate([])
+    this.router.navigate([`/pages/agentgroup/view/${id}`]);
   }
 
   editAgentGroup(id: string): void {
@@ -147,7 +146,23 @@ export class AllAgentGroupGridComponent implements OnInit {
     this.dialogService.openDialog(ref);
   }
 
-  deleteAgentGroup() {}
+  deleteAgentGroup(ref) {
+    this.isDeleted = true;
+    this.httpService
+      .delete(`${AgentGroupAPiUrl.agentGroups}/${this.deleteId}`)
+      .subscribe(() => {
+        ref.close();
+        this.httpService.success('Agent group deleted successfully');
+        this.isDeleted = false;
+        if (this.filterOrderBy) {
+          this.pagination(
+            this.page.pageNumber,
+            this.page.pageSize,
+            this.filterOrderBy
+          );
+        } else this.pagination(this.page.pageNumber, this.page.pageSize);
+      });
+  }
 
   pageChanged(event): void {
     this.page.pageNumber = event;

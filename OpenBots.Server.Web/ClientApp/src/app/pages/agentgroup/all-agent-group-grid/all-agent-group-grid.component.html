@@ -32,8 +32,6 @@
                     <th scope="col">Name
                         <i (click)="onSortClick($event, 'name')"
                             [attr.class]="allAgentGroupArr | chevron: page.totalCount: searchedValue"></i></th>
-                    <th scope="col">Description <i (click)="onSortClick($event, 'description')"
-                            [attr.class]="allAgentGroupArr | chevron: page.totalCount: searchedValue"></i></th>
                     <th scope="col">Enabled <i (click)="onSortClick($event, 'isEnabled')"
                             [attr.class]="allAgentGroupArr | chevron: page.totalCount: searchedValue"></i></th>
                     <th scope="col">View</th>
@@ -53,10 +51,7 @@
                         <ngx-tooltip [data]="data?.name" [size]="30"> </ngx-tooltip>
                     </td>
                     <td>
-                        <ngx-tooltip [data]="data?.description" [size]="30"> </ngx-tooltip>
-                    </td>
-                    <td>
-                        <ngx-tooltip [data]="data?.isEnabled" [size]="15"> </ngx-tooltip>
+                        <ngx-tooltip [data]="data?.isEnabled === true ? 'Yes': 'No'" [size]="15"> </ngx-tooltip>
                     </td>
                     <td>
                         <a (click)="viewAgentGroup(data?.id)"><i class="fa fa-eye" aria-hidden="true"></i></a>
