@@ -259,6 +259,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                 if (!Exists(entity.Id.Value))
                     throw new EntityDoesNotExistException();
 
+                int retryCount = 0;
                 var saved = false;
                 while (!saved)
                 {
@@ -294,6 +295,13 @@ namespace OpenBots.Server.DataAccess.Repositories
                     }
                     catch (DbUpdateConcurrencyException ex)
                     {
+                        if (retryCount >= 3)
+                        {
+                            throw new DbUpdateConcurrencyException(ex.Message);
+                        }
+                        retryCount++;
+
+
                         foreach (var entry in ex.Entries)
                         {
                             if (entry.Entity is Asset)
