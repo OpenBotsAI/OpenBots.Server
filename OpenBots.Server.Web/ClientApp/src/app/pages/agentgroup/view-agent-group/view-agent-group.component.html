@@ -1,0 +1,48 @@
+<div class="row">
+    <div class="col-md-12">
+        <nb-card>
+            <nb-card-header>
+                <h2>Agent Group Detail</h2>
+            </nb-card-header>
+            <nb-card-body>
+                <form [formGroup]="agentGroupForm" autocomplete="off">
+                    <div class="row rowPadding">
+                        <div class="col-md-12 col-lg-12 col-xxxl-12">
+                            <label for="name" class="label">Name *</label>
+                            <input type="input" nbInput fullWidth id="name" formControlName="name"
+                                placeholder="Please enter name" ngxSpecialChar trim="blur" />
+                        </div>
+                    </div>
+                    <div class="row rowPaddingTop">
+                        <div class="col-md-10 col-sm-10 col-xxxl-10">
+                            <label class="label">Agent Group</label>
+                            <ng-select [items]="allAgentsArr" [searchable]="true" bindLabel="agentName"
+                                formControlName="agentGroupMembers" class="NgSelect" [multiple]="true">
+                            </ng-select>
+                        </div>
+                        <div class="col-md-2 col-sm-2 col-xxxl-2">
+                            <div class="form-group">
+                                <label class="label">Enabled </label>
+                                <div class="checkbox checbox-switch switch-primary">
+                                    <label>
+                                        <input type="checkbox" name="isAdmin" formControlName="isEnabled" />
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row rowPaddingTop">
+                        <div class="col-md-12 col-lg-12 col-xxxl-12">
+                            <label for="description" class="label">Description</label>
+                            <textarea type="input" rows="5" nbInput fullWidth id="description"
+                                formControlName="description" class="form-control"
+                                placeholder="Please enter description"> </textarea>
+                        </div>
+                    </div>
+
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
+</div>

@@ -1,0 +1,113 @@
+<nb-card>
+    <nb-card-header>
+        <div class="titleHeader">
+            <div class="titleLeft">
+                <div class="LeftBgIcon">
+                    <img class="img-head-logo" src="../../../../assets/icons/Agent.svg" />
+                </div>
+                <div class="LeftBgText">
+                    <h2>Agent Group</h2>
+                    <!-- <p>
+                        Agents are physical/virtual machines that will be executing
+                        automation.
+                    </p> -->
+                </div>
+            </div>
+            <div class="titleRight">
+                <button type="button" class="btn btn-primary" status="primary" (click)="addAgentGroup()">
+                    Add Agent Group
+                </button>
+            </div>
+        </div>
+    </nb-card-header>
+    <nb-card-body>
+        <div class="col-md-3 col-lg-3 col-xxxl-3 noLeftPadding searchBottom">
+            <input type="text" icon="search" nbInput fullWidth placeholder="Search by name..."
+                (keyup)="searchValue($event)">
+        </div>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">Name
+                        <i (click)="onSortClick($event, 'name')"
+                            [attr.class]="allAgentGroupArr | chevron: page.totalCount: searchedValue"></i></th>
+                    <th scope="col">Enabled <i (click)="onSortClick($event, 'isEnabled')"
+                            [attr.class]="allAgentGroupArr | chevron: page.totalCount: searchedValue"></i></th>
+                    <th scope="col">View</th>
+                    <th scope="col">Edit</th>
+                    <th scope="col">Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of allAgentGroupArr   | paginate
+                : {
+                    id: '1',
+                    itemsPerPage: page.pageSize,
+                    currentPage: page.pageNumber,
+                    totalItems: page.totalCount
+                  };trackBy: trackByFn">
+                    <td>
+                        <ngx-tooltip [data]="data?.name" [size]="30"> </ngx-tooltip>
+                    </td>
+                    <td>
+                        <ngx-tooltip [data]="data?.isEnabled === true ? 'Yes': 'No'" [size]="15"> </ngx-tooltip>
+                    </td>
+                    <td>
+                        <a (click)="viewAgentGroup(data?.id)"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                    </td>
+                    <td>
+                        <a (click)="editAgentGroup(data?.id)">
+                            <i class="fa fa-edit" aria-hidden="true"> </i>
+                        </a>
+                    </td>
+                    <td>
+                        <a (click)="openDeleteDialog(deleteDialog, data?.id)">
+                            <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </nb-card-body>
+    <nb-card-body class="noTopPadding">
+        <div class="row pagerow">
+            <div class="col-md-8 col-lg-8 no-left-padding">
+                <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+                    (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)" directionLinks=true
+                    autoHide=true screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
+                    screenReaderCurrentLabel="You're on page"></pagination-controls>
+            </div>
+            <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="page.totalCount > 5">
+                <label class="label">Total {{ page.totalCount }} /</label>
+                <select class="custom-select per-page-drop" (change)="selectChange($event)">
+                    <option *ngFor="let item of itemsPerPage" [value]="item?.id">
+                        {{ item?.name }}
+                    </option>
+                </select>
+            </div>
+
+        </div>
+    </nb-card-body>
+</nb-card>
+
+<ng-template #deleteDialog let-data let-ref="dialogRef">
+    <nb-card>
+        <nb-card-header>
+            <h6>Delete Agent Group </h6>
+        </nb-card-header>
+        <nb-card-body>
+            <div aria-labelledby="title">
+                <p>Are you sure you want to delete?</p>
+            </div>
+        </nb-card-body>
+        <nb-card-footer>
+            <button [disabled]="isDeleted" class="btn btn-danger" (click)="deleteAgentGroup(ref)">
+                Delete
+            </button>
+            <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
+                Cancel
+            </button>
+        </nb-card-footer>
+    </nb-card>
+</ng-template>

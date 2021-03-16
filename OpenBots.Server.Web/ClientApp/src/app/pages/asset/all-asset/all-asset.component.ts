@@ -57,14 +57,7 @@ export class AllAssetComponent implements OnInit {
   }
 
   sort(filter_value, vale) {
-    // const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-    // this.feildName = filter_val + '+' + vale;
-    // this.assestService
-    //   .getAllAssetOrder(this.page.pageSize, skip, this.feildName)
-    //   .subscribe((data: any) => {
-    //     this.showpage = data;
-    //     this.showallassets = data.items;
-    //   });
+
     const top = this.page.pageSize;
     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
     this.filterOrderBy = `${filter_value}+${vale}`;
@@ -132,22 +125,22 @@ export class AllAssetComponent implements OnInit {
     );
   }
 
-  get_allasset(top, skip) {
-    this.getPerPage = false;
-    this.assestService.getAllAsset(top, skip).subscribe((data: any) => {
-      for (const item of data.items) {
-        if (item.valueJson) {
-          item.valueJson = JSON.stringify(item.valueJson);
-          item.valueJson = JSON.parse(item.valueJson);
-        }
-      }
-      this.showpage = data;
-      this.showallassets = data.items;
+  // get_allasset(top, skip) {
+  //   this.getPerPage = false;
+  //   this.assestService.getAllAsset(top, skip).subscribe((data: any) => {
+  //     for (const item of data.items) {
+  //       if (item.valueJson) {
+  //         item.valueJson = JSON.stringify(item.valueJson);
+  //         item.valueJson = JSON.parse(item.valueJson);
+  //       }
+  //     }
+  //     this.showpage = data;
+  //     this.showallassets = data.items;
 
-      this.page.totalCount = data.totalCount;
-      this.getPerPage = true;
-    });
-  }
+  //     this.page.totalCount = data.totalCount;
+  //     this.getPerPage = true;
+  //   });
+  // }
 
   cleanString(str) {
     str = str.replace('"{', '{');
