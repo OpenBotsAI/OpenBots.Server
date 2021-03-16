@@ -259,51 +259,70 @@ namespace OpenBots.Server.DataAccess.Repositories
                 if (!Exists(entity.Id.Value))
                     throw new EntityDoesNotExistException();
 
-                try
+                var saved = false;
+                while (!saved)
                 {
-                    var originalValues = DbContext.Entry(entity).GetDatabaseValues();
-                    var oldValues = originalValues.Clone();
-
-                    T originalEntity = (T)oldValues.ToObject();
-                    ChangeNonAuditableProperties(oldValues, originalEntity, originalEntity);
-                    oldValues = DbContext.Entry(originalEntity).CurrentValues;
-
-                    if (originalTimestamp != null)
-                        entity.Timestamp = originalTimestamp;
-
-                    entity.UpdatedOn = DateTime.UtcNow;
-                    entity.UpdatedBy = _caller?.Identity?.Name ?? "Server";
-
-                    DbContext.Entry(entity).State = EntityState.Modified;
-                    DbContext.SaveChanges();
-
-                    var currentValues = DbContext.Entry(entity).CurrentValues;
-                    var newValues = currentValues.Clone();
-
-                    //throw new Exception("too many requests");
-
-                    T newEntity = new T();
-                    ChangeNonAuditableProperties(newValues, entity, newEntity);
-                    newValues = DbContext.Entry(newEntity).CurrentValues;
-
-                    TrackChange(entity, EntityOperationType.Update, newValues, oldValues);
-                }
-                catch (DbUpdateConcurrencyException ex)
-                {
-                    throw new EntityConcurrencyException(ex);
-                }
-                catch (DbUpdateException ex)
-                {
-                    if (ex.InnerException != null && ex.InnerException.GetType() == typeof(Microsoft.Data.SqlClient.SqlException))
+                    try
                     {
-                        HandleDuplicateConstraint(ex.InnerException as Microsoft.Data.SqlClient.SqlException);
-                    }
-                    throw new EntityOperationException(ex);
+                        var originalValues = DbContext.Entry(entity).GetDatabaseValues();
+                        var oldValues = originalValues.Clone();
 
-                }
-                catch (Exception ex)
-                {
-                    throw new EntityOperationException(ex);
+                        T originalEntity = (T)oldValues.ToObject();
+                        ChangeNonAuditableProperties(oldValues, originalEntity, originalEntity);
+                        oldValues = DbContext.Entry(originalEntity).CurrentValues;
+
+                        if (originalTimestamp != null)
+                            entity.Timestamp = originalTimestamp;
+
+                        entity.UpdatedOn = DateTime.UtcNow;
+                        entity.UpdatedBy = _caller?.Identity?.Name ?? "Server";
+
+                        DbContext.Entry(entity).State = EntityState.Modified;
+                        var hello = DbContext.ChangeTracker.AutoDetectChangesEnabled;
+                        DbContext.SaveChanges();
+                        saved = true;
+
+                        var currentValues = DbContext.Entry(entity).CurrentValues;
+                        var newValues = currentValues.Clone();
+
+                        //throw new Exception("too many requests");
+
+                        T newEntity = new T();
+                        ChangeNonAuditableProperties(newValues, entity, newEntity);
+                        newValues = DbContext.Entry(newEntity).CurrentValues;
+
+                        TrackChange(entity, EntityOperationType.Update, newValues, oldValues);
+                    }
+                    catch (DbUpdateConcurrencyException ex)
+                    {
+                        foreach (var entry in ex.Entries)
+                        {
+                            if (entry.Entity is Asset)
+                            {
+                                var databaseValues = entry.GetDatabaseValues();
+
+                                // Refresh original values to bypass next concurrency check
+                                entry.OriginalValues.SetValues(databaseValues);
+                            }
+                            else
+                            {
+                                throw new DbUpdateConcurrencyException(ex.Message);
+                            }
+                        }
+                    }
+                    catch (DbUpdateException ex)
+                    {
+                        if (ex.InnerException != null && ex.InnerException.GetType() == typeof(Microsoft.Data.SqlClient.SqlException))
+                        {
+                            HandleDuplicateConstraint(ex.InnerException as Microsoft.Data.SqlClient.SqlException);
+                        }
+                        throw new EntityOperationException(ex);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new EntityOperationException(ex);
+                    }
                 }
 
                 return entity;
