@@ -39,6 +39,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                                      Name = p?.Name,
                                      Type = p?.Type,
                                      TextValue = p.TextValue,
+                                     NumberValue = p.NumberValue,
                                      JsonValue = p.JsonValue,
                                      FileId = p?.FileId,
                                      SizeInBytes = p.SizeInBytes,
