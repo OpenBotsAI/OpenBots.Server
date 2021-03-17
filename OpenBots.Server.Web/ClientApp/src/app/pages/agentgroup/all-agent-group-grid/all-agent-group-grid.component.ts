@@ -170,4 +170,17 @@ export class AllAgentGroupGridComponent implements OnInit {
       this.pagination(event, this.page.pageSize, `${this.filterOrderBy}`);
     else this.pagination(event, this.page.pageSize);
   }
+  patchAgentGroup(id: string, event): void {
+    const arr = [
+      { op: 'replace', path: '/isEnabled', value: event.target.checked },
+    ];
+
+    this.httpService
+      .patch(`${AgentGroupAPiUrl.agentGroups}/${id}`, arr)
+      .subscribe(() => {
+        if (event.target.checked)
+          this.httpService.success('Agent group enabled successfully');
+        else this.httpService.success('Agent group disabled successfully');
+      });
+  }
 }
