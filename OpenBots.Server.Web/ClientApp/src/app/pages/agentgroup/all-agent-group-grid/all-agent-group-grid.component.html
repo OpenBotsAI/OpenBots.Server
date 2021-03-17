@@ -51,7 +51,13 @@
                         <ngx-tooltip [data]="data?.name" [size]="30"> </ngx-tooltip>
                     </td>
                     <td>
-                        <ngx-tooltip [data]="data?.isEnabled === true ? 'Yes': 'No'" [size]="15"> </ngx-tooltip>
+                        <div class="checkbox checbox-switch switch-primary">
+                            <label>
+                                <input type="checkbox" [checked]="data?.isEnabled"
+                                    (click)="patchAgentGroup(data.id, $event)" />
+                                <span></span>
+                            </label>
+                        </div>
                     </td>
                     <td>
                         <a (click)="viewAgentGroup(data?.id)"><i class="fa fa-eye" aria-hidden="true"></i></a>
