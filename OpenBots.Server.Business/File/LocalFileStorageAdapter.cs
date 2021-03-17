@@ -95,6 +95,19 @@ namespace OpenBots.Server.Business.File
                 driveName = "Files";
             ServerDrive drive = GetDriveByName(driveName);
 
+            //check directory and component folders exist
+            bool directoryExists = _directoryManager.Exists(driveName);
+            if (!directoryExists)
+                _directoryManager.CreateDirectory(driveName);
+
+            if (request.StoragePath.Contains("Automations") || request.StoragePath.Contains("Email Attachments")
+                || request.StoragePath.Contains("Queue Item Attachments") || request.StoragePath.Contains("Assets"))
+            {
+                bool componentDirectoryExists = _directoryManager.Exists(request.StoragePath);
+                if (!componentDirectoryExists)
+                    _directoryManager.CreateDirectory(request.StoragePath);
+            }
+
             if ((bool)request.IsFile)
             {
                 foreach (var file in request.Files)
@@ -159,8 +172,8 @@ namespace OpenBots.Server.Business.File
                     OrganizationId = organizationId
                 };
 
-                bool directoryExists = CheckDirectoryExists(shortPath);
-                if (directoryExists)
+                bool folderDirectoryExists = CheckDirectoryExists(shortPath);
+                if (folderDirectoryExists)
                 {
                     //create directory and add server folder
                     _directoryManager.CreateDirectory(path);
