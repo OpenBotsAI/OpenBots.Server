@@ -348,6 +348,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 existingSchedule.Name = request.Name;
                 existingSchedule.AgentId = request.AgentId;
+                existingSchedule.AgentGroupId = request.AgentGroupId;
                 existingSchedule.CRONExpression = request.CRONExpression;
                 existingSchedule.LastExecution = request.LastExecution;
                 existingSchedule.NextExecution = request.NextExecution;
