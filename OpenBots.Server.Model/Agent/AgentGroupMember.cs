@@ -9,9 +9,8 @@ namespace OpenBots.Server.Model
 {
     public class AgentGroupMember : Entity
     {
-        [Required]
         [Display(Name = "AgentGroupId")]
-        public Guid? AgentGroupId { get; set; }
+        public Guid AgentGroupId { get; set; }
 
         [Required]
         [Display(Name = "AgentId")]

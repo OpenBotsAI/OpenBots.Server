@@ -9,9 +9,11 @@ namespace OpenBots.Server.ViewModel
     {
         public Guid? Id { get; set; }
         public string AgentName { get; set; }
+        public string AgentGroupName { get; set; }
         public string AutomationName { get; set; }
         [Required]
         public Guid? AgentId { get; set; }
+        public Guid? AgentGroupId { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public DateTime? EnqueueTime { get; set; }
@@ -37,6 +39,7 @@ namespace OpenBots.Server.ViewModel
             {
                 Id = entity.Id,
                 AgentId = entity.AgentId,
+                AgentGroupId = entity.AgentGroupId,
                 StartTime = entity.StartTime,
                 EndTime = entity.EndTime,
                 EnqueueTime = entity.EnqueueTime,
