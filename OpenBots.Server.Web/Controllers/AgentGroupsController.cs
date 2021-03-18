@@ -383,7 +383,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Lookup list of all AgentGroups</returns>
         [HttpGet("GetLookup")]
-        [ProducesResponseType(typeof(List<AgentGroupsLoopUpViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<AgentGroupsLookUpViewModel>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -396,7 +396,7 @@ namespace OpenBots.Server.Web.Controllers
             {
                 var agentGroupList = repository.Find(null, x => x.IsDeleted == false);
                 var agentGroupLookup = from a in agentGroupList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
-                                  select new AgentGroupsLoopUpViewModel
+                                  select new AgentGroupsLookUpViewModel
                                   {
                                       AgentGroupId = (a == null || a.Id == null) ? Guid.Empty : a.Id.Value,
                                       AgentGroupName = a?.Name
