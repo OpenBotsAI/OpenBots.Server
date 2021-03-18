@@ -29,6 +29,7 @@ namespace OpenBots.Server.ViewModel
             {
                 Id = viewModel.Id,
                 AgentId = viewModel.AgentId,
+                AgentGroupId = viewModel.AgentGroupId,
                 StartTime = viewModel.StartTime,
                 EndTime = viewModel.EndTime,
                 EnqueueTime = viewModel.EnqueueTime,
