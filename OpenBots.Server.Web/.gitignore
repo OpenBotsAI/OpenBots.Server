@@ -2,15 +2,15 @@
 
 # Files content
 # Ignore everything in the "Files" directory, except the following folders:
-Files/*
+Files/**
 !Files/Assets
-Files/Assets/*
+Files/Assets/**
 !Files/Automations
-Files/Automations/*
+Files/Automations/**
 !Files/Email Attachments
-Files/Email Attachments/*
+Files/Email Attachments/**
 !Files/Queue Item Attachments
-Files/Queue Item Attachments/*
+Files/Queue Item Attachments/**
 
 logs/
 
