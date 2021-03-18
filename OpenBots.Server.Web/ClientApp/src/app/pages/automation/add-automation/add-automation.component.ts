@@ -71,7 +71,7 @@ export class AddAutomationComponent implements OnInit {
       ],
       status: ['Published'],
       automationEngine: [''],
-      automationParameter: this.formBuilder.array([]),
+      automationParameters: this.formBuilder.array([]),
     });
   }
   getProcessByID(id) {
@@ -80,6 +80,12 @@ export class AddAutomationComponent implements OnInit {
       .subscribe((data: HttpResponse<any>) => {
         this.showAutomation = data.body;
         this.etag = data.headers.get('ETag').replace(/\"/g, '');
+        if (data.body.automtationParameters) {
+          this.showprocess.setControl(
+            'automationParameters',
+            this.setvalues(data.body.automtationParameters)
+          );
+        }
         this.showprocess.patchValue(data.body);
       });
   }
@@ -88,7 +94,7 @@ export class AddAutomationComponent implements OnInit {
   }
 
   get formArrayControl() {
-    return this.showprocess.get('automationParameter') as FormArray;
+    return this.showprocess.get('automationParameters') as FormArray;
   }
 
   onUploadOutput(output: UploadOutput): void {
@@ -124,7 +130,7 @@ export class AddAutomationComponent implements OnInit {
 
   onSubmit() {
     // deleting the dynamically created parameters
-    delete this.showprocess.value.automationParameter;
+    delete this.showprocess.value.automationParameters;
     if (this.urlId) {
       this.updateAutomation();
     } else {
@@ -228,7 +234,7 @@ export class AddAutomationComponent implements OnInit {
     }
   }
   automationParameter() {
-    this.items = this.showprocess.get('automationParameter') as FormArray;
+    this.items = this.showprocess.get('automationParameters') as FormArray;
     this.items.push(this.initializeParameterFormArray());
   }
 
@@ -241,6 +247,23 @@ export class AddAutomationComponent implements OnInit {
   }
 
   deleteAutomationParameter(index: number) {
+    this.items = <FormArray>this.showprocess.get('automationParameters');
     this.items.removeAt(index);
+    this.showprocess.markAsDirty();
+    this.showprocess.markAsTouched();
+  }
+
+  setvalues(parameters): FormArray {
+    const formArray = new FormArray([]);
+    parameters.forEach((param) => {
+      formArray.push(
+        this.formBuilder.group({
+          Name: param.name,
+          DataType: param.dataType,
+          Value: param.value,
+        })
+      );
+    });
+    return formArray;
   }
 }

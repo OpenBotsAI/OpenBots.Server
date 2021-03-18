@@ -270,27 +270,27 @@ export class AddScheduleComponent implements OnInit {
   }
 
   deleteJobParameter(index: number): void {
-    if (this.currentScheduleId) {
-      const arr = <FormArray>this.scheduleForm.get('parameters');
-      arr.removeAt(index);
-    } else this.items.removeAt(index);
+    this.items = <FormArray>this.scheduleForm.get('parameters');
+    this.items.removeAt(index);
     this.scheduleForm.markAsDirty();
     this.scheduleForm.markAsTouched();
   }
 
   onAutomationChange(event): void {
-    console.log(event.target.value);
     this.httpService
       .get(
         `${automationsApiUrl.automations}/${automationsApiUrl.view}/${event.target.value}`,
         { observe: 'response' }
       )
       .subscribe((response) => {
-        if (response && response.status == 200) {
-          console.log(response.body);
+        if (
+          response &&
+          response.status == 200 &&
+          response.body.automationParameters
+        ) {
           this.scheduleForm.setControl(
             'parameters',
-            this.setvalues(response.body.automtationParameters)
+            this.setvalues(response.body.automationParameters)
           );
           this.scheduleForm.markAsDirty();
           this.scheduleForm.markAsTouched();
