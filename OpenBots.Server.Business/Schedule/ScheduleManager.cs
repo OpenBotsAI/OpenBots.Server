@@ -15,14 +15,18 @@ namespace OpenBots.Server.Business
         private readonly IScheduleParameterRepository _scheduleParameterRepository;
         private readonly IAgentRepository _agentRepository;
         private readonly IAutomationRepository _automationRepository;
+        private readonly IAgentGroupRepository _agentGroupRepository;
 
-        public ScheduleManager(IScheduleRepository repo, IScheduleParameterRepository scheduleParameterRepository, IAgentRepository agentRepository,
-            IAutomationRepository automationRepository)
+        public ScheduleManager(IScheduleRepository repo, IScheduleParameterRepository scheduleParameterRepository, 
+            IAgentRepository agentRepository,
+            IAutomationRepository automationRepository,
+            IAgentGroupRepository agentGroupRepository)
         {
             _repo = repo;
             _scheduleParameterRepository = scheduleParameterRepository;
             _agentRepository = agentRepository;
             _automationRepository = automationRepository;
+            _agentGroupRepository = agentGroupRepository;
         }
 
         public PaginatedList<AllSchedulesViewModel> GetScheduleAgentsandAutomations(Predicate<AllSchedulesViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
@@ -53,6 +57,7 @@ namespace OpenBots.Server.Business
         public ScheduleViewModel GetScheduleViewModel(ScheduleViewModel scheduleView)
         {
             scheduleView.AgentName = _agentRepository.GetOne(scheduleView.AgentId ?? Guid.Empty)?.Name;
+            scheduleView.AgentGroupName = _agentGroupRepository.GetOne(scheduleView.AgentGroupId ?? Guid.Empty)?.Name;
             scheduleView.AutomationName = _automationRepository.GetOne(scheduleView.AutomationId ?? Guid.Empty)?.Name;
             scheduleView.ScheduleParameters = GetScheduleParameters(scheduleView.Id ?? Guid.Empty);
 

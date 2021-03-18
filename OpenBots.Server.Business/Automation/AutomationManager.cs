@@ -218,7 +218,7 @@ namespace OpenBots.Server.Business
                 automationView.Status = automationVersion.Status;
                 automationView.PublishedBy = automationVersion.PublishedBy;
                 automationView.PublishedOnUTC = automationVersion.PublishedOnUTC;
-                automationView.AutomtationParameters = GetAutomationParameters(automationView.Id);
+                automationView.AutomationParameters = GetAutomationParameters(automationView.Id);
             }
 
             return automationView;

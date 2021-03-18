@@ -24,6 +24,7 @@ namespace OpenBots.Server.Business
         private readonly IJobParameterRepository _jobParameterRepo;
         private readonly IJobCheckpointRepository _jobCheckpointRepo;
         private readonly IAutomationVersionRepository _automationVersionRepo;
+        private readonly IAgentGroupRepository _agentGroupRepository;
         private readonly ClaimsPrincipal _caller;
 
         public JobManager(IJobRepository jobRepository, 
@@ -32,7 +33,8 @@ namespace OpenBots.Server.Business
             IJobParameterRepository jobParameterRepository,
             IJobCheckpointRepository jobCheckpointRepository,
             IAutomationVersionRepository automationVersionRepository,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IAgentGroupRepository agentGroupRepository)
         {
             _repo = jobRepository;
             _agentRepo = agentRepository;
@@ -40,6 +42,7 @@ namespace OpenBots.Server.Business
             _jobParameterRepo = jobParameterRepository;
             _jobCheckpointRepo = jobCheckpointRepository;
             _automationVersionRepo = automationVersionRepository;
+            _agentGroupRepository = agentGroupRepository;
             httpContextAccessor = httpContextAccessor;
             _caller = ((httpContextAccessor.HttpContext != null) ? httpContextAccessor.HttpContext.User : new ClaimsPrincipal());
         }
@@ -62,6 +65,7 @@ namespace OpenBots.Server.Business
             existingJob.AutomationVersionId = automationVersion.Id;
 
             existingJob.AgentId = request.AgentId;
+            existingJob.AgentGroupId = request.AgentGroupId;
             existingJob.StartTime = request.StartTime;
             existingJob.EndTime = request.EndTime;
             existingJob.ExecutionTimeInMinutes = (existingJob.EndTime.Value - existingJob.StartTime).Value.TotalMinutes;
@@ -84,6 +88,7 @@ namespace OpenBots.Server.Business
         public JobViewModel GetJobView(JobViewModel jobView)
         {
             jobView.AgentName = _agentRepo.GetOne(jobView.AgentId ?? Guid.Empty)?.Name;
+            jobView.AgentGroupName = _agentGroupRepository.GetOne(jobView.AgentGroupId ?? Guid.Empty)?.Name;
             jobView.AutomationName = _automationRepo.GetOne(jobView.AutomationId ?? Guid.Empty)?.Name;
             jobView.JobParameters = GetJobParameters(jobView.Id ?? Guid.Empty);
 

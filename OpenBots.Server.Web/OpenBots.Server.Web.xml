@@ -110,6 +110,17 @@
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response, if the partial AgentGroup values have been updated</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.AgentGroupsController.GetLookup">
+            <summary>
+            Lookup list of all AgentGroups
+            </summary>
+            <response code="200">Ok, a lookup list of all AgentGroups</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Lookup list of all AgentGroups</returns>
+        </member>
         <member name="T:OpenBots.Server.Web.Controllers.AgentsController">
             <summary>
             Controller for agents
