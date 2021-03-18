@@ -18,7 +18,7 @@ namespace OpenBots.Server.ViewModel
         public DateTime? PublishedOnUTC { get; set; }
         public string AutomationEngine { get; set; }
         public string DriveName { get; set; }
-        public IEnumerable<AutomationParameter>? AutomtationParameters { get; set; }
+        public IEnumerable<AutomationParameter>? AutomationParameters { get; set; }
 
         public AutomationViewModel Map(Automation entity)
         {
