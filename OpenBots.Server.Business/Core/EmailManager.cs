@@ -730,13 +730,17 @@ namespace OpenBots.Server.Business
         public EmailViewModel SendNewEmail(SendEmailViewModel request, string emailAccountName)
         {
             EmailMessage emailMessage = JsonConvert.DeserializeObject<EmailMessage>(request.EmailMessageJson);
-
-            //create email attachment entities for each file attached
             Guid id = Guid.NewGuid();
-            var attachments = AddAttachments(request.Files, id, request.DriveName);
+            List<EmailAttachment> attachments = new List<EmailAttachment>();
 
-            //add attachment entities to email message
-            emailMessage.Attachments = attachments;
+            if (request.Files != null)
+            {
+                //create email attachment entities for each file attachment
+                attachments = AddAttachments(request.Files, id, request.DriveName);
+                //add attachment entities to email message
+                emailMessage.Attachments = attachments;
+            }
+
             SendEmailAsync(emailMessage, emailAccountName, id.ToString(), "Outgoing");
 
             Email email = _emailRepository.Find(null, q => q.Id == id)?.Items?.FirstOrDefault();
