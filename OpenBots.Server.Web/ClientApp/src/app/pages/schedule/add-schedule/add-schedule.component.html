@@ -9,8 +9,8 @@
           <div class="row rowPadBottom">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="name" class="label">Name *</label>
-              <input type="input" nbInput fullWidth id="name" formControlName="name" placeholder="Please enter name"
-                ngxSpecialChar trim="blur" />
+              <input type="input" nbInput fullWidth id="name" formControlName="name" style="
+              margin-top: 9px;" placeholder="Please enter name" ngxSpecialChar trim="blur" />
               <div *ngIf=" formControls.name.invalid &&(formControls.name.dirty || formControls.name.touched) "
                 class="invalid-feedback-frm">
                 <div *ngIf="formControls.name.errors.required">
@@ -24,18 +24,43 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <label for="subtopic" class="label">Agent Name *</label>
-              <select class="custom-select" formControlName="agentId">
+            <div class="col-md-6 col-lg-6 col-xxxl-6  checkbox checbox-switch switch-primary">
+              <label for="subtopic" class="label">
+                <label *ngIf="!isChecked">
+                  Agent Name *
+                </label>
+                <label *ngIf="isChecked">
+                  Agent Group *
+                </label>
+              </label>
+              <label nbTooltip="Choose agent or agent group">
+                <input type="checkbox" (change)="onToggleAgent($event)" formControlName="checked" />
+                <span></span>
+              </label>
+              <select class="custom-select" formControlName="agentId" *ngIf="!isChecked">
                 <option value="" disabled>Please select agent name</option>
                 <option *ngFor="let item of allAgents" [value]="item?.agentId">
                   {{ item?.agentName }}
                 </option>
               </select>
-              <div *ngIf=" formControls.agentId.invalid &&(formControls.agentId.dirty || formControls.agentId.touched) "
+              <div
+                *ngIf="formControls.agentId.invalid &&(formControls.agentId.dirty || formControls.agentId.touched) && !isChecked "
                 class="invalid-feedback-frm">
-                <div *ngIf="formControls.agentId.errors.required">
+                <div *ngIf="formControls.agentId?.errors.required">
                   Agent name is required.
+                </div>
+              </div>
+              <select class="custom-select" formControlName="agentGroupId" *ngIf="isChecked">
+                <option value="" disabled>Please select agent group</option>
+                <option *ngFor="let item of allGroupAgents" [value]="item?.agentGroupId">
+                  {{ item?.agentGroupName }}
+                </option>
+              </select>
+              <div
+                *ngIf="formControls.agentGroupId.invalid &&(formControls.agentGroupId.dirty || formControls.agentGroupId.touched) && isChecked "
+                class="invalid-feedback-frm">
+                <div *ngIf="formControls.agentGroupId?.errors.required">
+                  Agent group is required.
                 </div>
               </div>
             </div>

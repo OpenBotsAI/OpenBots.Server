@@ -9,10 +9,12 @@ import { TimeDatePipe } from '../../../@core/pipe';
 import { HelperService } from '../../../@core/services/helper.service';
 import {
   AgentApiUrl,
+  AgentGroupAPiUrl,
   automationsApiUrl,
   SchedulesApiUrl,
 } from '../../../webApiUrls';
 import { Automation } from '../../../interfaces/automations';
+import { AgentGroupLookUp } from '../../../interfaces/AgentGroupLookUp';
 
 @Component({
   selector: 'ngx-add-schedule',
@@ -23,6 +25,7 @@ export class AddScheduleComponent implements OnInit {
   scheduleForm: FormGroup;
   eTag: string;
   allAgents: Agents[] = [];
+  allGroupAgents: AgentGroupLookUp[] = [];
   allProcesses: Automation[] = [];
   isSubmitted = false;
   min: Date;
@@ -39,6 +42,7 @@ export class AddScheduleComponent implements OnInit {
   items: FormArray;
   cronExpression = '0/0 * 0/0 * *';
   isCronDisabled = false;
+  isChecked = false;
   cronOptions: CronOptions = {
     formInputClass: 'form-control cron-editor-input',
     formSelectClass: 'form-control cron-editor-select',
@@ -73,6 +77,7 @@ export class AddScheduleComponent implements OnInit {
     this.currentScheduleId = this.route.snapshot.params['id'];
     this.scheduleForm = this.initScheduleForm();
     this.getAllAgents();
+    this.getAllAgentGroupLookup();
     this.getProcessesLookup();
     if (this.currentScheduleId) {
       this.title = 'Update';
@@ -92,7 +97,7 @@ export class AddScheduleComponent implements OnInit {
           Validators.maxLength(100),
         ],
       ],
-      agentId: ['', [Validators.required]],
+      agentId: [''],
       automationId: ['', [Validators.required]],
       isDisabled: [false],
       cronExpression: [''],
@@ -101,6 +106,8 @@ export class AddScheduleComponent implements OnInit {
       startingType: ['', [Validators.required]],
       expiryDate: [''],
       startDate: [''],
+      agentGroupId: [''],
+      checked: [false],
       parameters: this.currentScheduleId
         ? this.fb.array([this.initializeJobRunNowForm()])
         : this.fb.array([]),
@@ -141,7 +148,10 @@ export class AddScheduleComponent implements OnInit {
     if (this.cronExpression !== '0/0 * 0/0 * *') {
       this.scheduleForm.value.cronExpression = this.cronExpression;
     }
-
+    delete this.scheduleForm.value.checked;
+    if (this.scheduleForm.value.agentGroupId)
+      delete this.scheduleForm.value.agentId;
+    else delete this.scheduleForm.value.agentGroupId;
     if (this.currentScheduleId) this.updateSchedule();
     else this.addSchedule();
   }
@@ -207,6 +217,11 @@ export class AddScheduleComponent implements OnInit {
             'parameters',
             this.setvalues(response.body.scheduleParameters)
           );
+          if (response.body.agentGroupId) {
+            this.isChecked = true;
+            this.scheduleForm.get('checked').patchValue(true);
+          }
+
           this.scheduleForm.patchValue({ ...response.body });
           this.scheduleForm.markAsDirty();
           this.scheduleForm.markAsTouched();
@@ -294,6 +309,34 @@ export class AddScheduleComponent implements OnInit {
           );
           this.scheduleForm.markAsDirty();
           this.scheduleForm.markAsTouched();
+        }
+      });
+  }
+  onToggleAgent(event) {
+    this.isChecked = event.target.checked;
+    if (event.target.checked) {
+      this.scheduleForm.get('agentId').reset();
+      this.scheduleForm.get('agentId').clearValidators();
+      this.scheduleForm.get('agentId').updateValueAndValidity();
+      this.scheduleForm
+        .get('agentGroupId')
+        .setValidators([Validators.required]);
+      this.scheduleForm.get('agentGroupId').updateValueAndValidity();
+    } else {
+      this.scheduleForm.get('agentGroupId').reset();
+      this.scheduleForm.get('agentGroupId').clearValidators();
+      this.scheduleForm.get('agentGroupId').updateValueAndValidity();
+      this.scheduleForm.get('agentId').setValidators([Validators.required]);
+      this.scheduleForm.get('agentId').updateValueAndValidity();
+    }
+  }
+
+  getAllAgentGroupLookup(): void {
+    this.httpService
+      .get(`${AgentGroupAPiUrl.agentGroups}/${AgentGroupAPiUrl.getLookUp}`)
+      .subscribe((response: AgentGroupLookUp[]) => {
+        if (response) {
+          this.allGroupAgents = [...response];
         }
       });
   }

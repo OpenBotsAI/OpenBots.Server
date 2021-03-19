@@ -9,11 +9,13 @@ import { Schedule } from '../../../interfaces/schedule';
 import { Automation } from '../../../interfaces/automations';
 import {
   AgentApiUrl,
+  AgentGroupAPiUrl,
   automationsApiUrl,
   SchedulesApiUrl,
 } from '../../../webApiUrls';
 import { HelperService } from '../../../@core/services/helper.service';
 import { DialogService } from '../../../@core/dialogservices';
+import { AgentGroupLookUp } from '../../../interfaces/AgentGroupLookUp';
 
 @Component({
   selector: 'ngx-view-schedule',
@@ -32,7 +34,9 @@ export class ViewScheduleComponent implements OnInit {
   dataType = ['Text', 'Number'];
   items: FormArray;
   parameters: any[] = [];
+  allGroupAgents: AgentGroupLookUp[] = [];
   isDisabled = false;
+  isChecked = false;
   cronOptions: CronOptions = {
     formInputClass: 'form-control cron-editor-input',
     formSelectClass: 'form-control cron-editor-select',
@@ -63,6 +67,7 @@ export class ViewScheduleComponent implements OnInit {
   ngOnInit(): void {
     this.currentScheduleId = this.route.snapshot.params['id'];
     this.getAllAgents();
+    this.getAllAgentGroupLookup();
     this.getAllProcesses();
     this.scheduleForm = this.initScheduleForm();
     this.jobRunNowForm = this.initializeJobRunNowForm();
@@ -100,6 +105,8 @@ export class ViewScheduleComponent implements OnInit {
       updatedBy: [''],
       updatedOn: [],
       isDisabled: [''],
+      agentGroupId: [],
+      checked: [false],
     });
   }
 
@@ -126,6 +133,10 @@ export class ViewScheduleComponent implements OnInit {
             response.updatedOn,
             'lll'
           );
+          if (response.agentGroupId) {
+            this.isChecked = true;
+            this.scheduleForm.get('checked').patchValue(true);
+          }
           this.cronExpression = response.cronExpression;
           this.scheduleData = { ...response };
           this.parameters = response.scheduleParameters;
@@ -247,5 +258,15 @@ export class ViewScheduleComponent implements OnInit {
   clear(ref): void {
     ref.close();
     if (this.items && this.items.length) this.items.clear();
+  }
+
+  getAllAgentGroupLookup(): void {
+    this.httpService
+      .get(`${AgentGroupAPiUrl.agentGroups}/${AgentGroupAPiUrl.getLookUp}`)
+      .subscribe((response: AgentGroupLookUp[]) => {
+        if (response) {
+          this.allGroupAgents = [...response];
+        }
+      });
   }
 }

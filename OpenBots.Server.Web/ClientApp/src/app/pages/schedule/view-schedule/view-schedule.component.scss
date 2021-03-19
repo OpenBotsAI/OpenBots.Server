@@ -80,14 +80,15 @@
   width: 81px !important;
 }
 
-::ng-deep nb-radio-group,
-.label {
-  display: block !important;
-}
+// ::ng-deep nb-radio-group,
+// .label {
+//   display: block !important;
+// }
 
 .startingtype {
   display: inline-block !important;
 }
+
 
 
 .checkbox.checbox-switch {
@@ -162,7 +163,6 @@
   transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
 }
 
-
 .jobScroll{
   height: 400px;
   overflow-y: scroll;
@@ -176,3 +176,4 @@
   line-height: 1.2;
   cursor: pointer;
 }
+
