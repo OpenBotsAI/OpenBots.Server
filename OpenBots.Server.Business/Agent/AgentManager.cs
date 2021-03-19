@@ -399,7 +399,7 @@ namespace OpenBots.Server.Business
             bool isValid = Guid.TryParse(agentId, out Guid agentGuid);
             if (!isValid)
             {
-                throw new EntityOperationException("Agent ID is not a valid GUID ");
+                throw new EntityOperationException("Agent ID is not a valid GUID");
             }
 
             //get all new jobs of the agent group and assign the oldest one to the current agent
@@ -424,6 +424,7 @@ namespace OpenBots.Server.Business
             {
                 job.JobStatus = JobStatusType.Assigned;
                 job.DequeueTime = DateTime.UtcNow;
+                job.AgentId = agentGuid;
                 _jobRepo.Update(job);
             }
 

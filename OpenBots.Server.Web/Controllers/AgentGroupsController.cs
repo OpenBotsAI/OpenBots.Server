@@ -16,6 +16,7 @@ using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Web.Controllers
@@ -365,6 +366,43 @@ namespace OpenBots.Server.Web.Controllers
                 var result = await base.PatchEntity(id, request);
                 await _webhookPublisher.PublishAsync("AgentGroups.AgentGroupUpdated", existingAgentGroup.Id.ToString(), existingAgentGroup.Name).ConfigureAwait(false);
                 return result;
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Lookup list of all AgentGroups
+        /// </summary>
+        /// <response code="200">Ok, a lookup list of all AgentGroups</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Lookup list of all AgentGroups</returns>
+        [HttpGet("GetLookup")]
+        [ProducesResponseType(typeof(List<AgentGroupsLookUpViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> GetLookup()
+        {
+            try
+            {
+                var agentGroupList = repository.Find(null, x => x.IsDeleted == false);
+                var agentGroupLookup = from a in agentGroupList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
+                                  select new AgentGroupsLookUpViewModel
+                                  {
+                                      AgentGroupId = (a == null || a.Id == null) ? Guid.Empty : a.Id.Value,
+                                      AgentGroupName = a?.Name
+                                  };
+
+                return Ok(agentGroupLookup.ToList());
             }
             catch (Exception ex)
             {

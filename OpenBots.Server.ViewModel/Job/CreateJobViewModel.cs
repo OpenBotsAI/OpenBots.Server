@@ -11,6 +11,7 @@ namespace OpenBots.Server.ViewModel
         public Guid? Id { get; set; }
         [Required]
         public Guid? AgentId { get; set; }
+        public Guid? AgentGroupId { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public DateTime? EnqueueTime { get; set; }
@@ -28,6 +29,7 @@ namespace OpenBots.Server.ViewModel
             {
                 Id = viewModel.Id,
                 AgentId = viewModel.AgentId,
+                AgentGroupId = viewModel.AgentGroupId,
                 StartTime = viewModel.StartTime,
                 EndTime = viewModel.EndTime,
                 EnqueueTime = viewModel.EnqueueTime,

@@ -33,6 +33,8 @@ namespace OpenBots.Server.DataAccess.Repositories
                                 from a in table1.DefaultIfEmpty()
                                 join p in dbContext.Automations on j.AutomationId equals p.Id into table2
                                 from p in table2.DefaultIfEmpty()
+                                join g in dbContext.AgentGroups on j.AgentGroupId equals g.Id into table3
+                                from g in table3.DefaultIfEmpty()
                                 select new AllJobsViewModel
                                 {
                                     Id = j?.Id,
@@ -41,8 +43,10 @@ namespace OpenBots.Server.DataAccess.Repositories
                                     IsSuccessful = j?.IsSuccessful,
                                     Message = j?.Message,
                                     JobStatus = j?.JobStatus,
-                                    AgentId = (a == null || a.Id == null) ? Guid.Empty : a.Id.Value,
+                                    AgentId = (a == null || a?.Id == null) ? Guid.Empty : a?.Id.Value,
+                                    AgentGroupId = (g == null || g?.Id == null) ? Guid.Empty : g?.Id.Value,
                                     AgentName = a?.Name,
+                                    AgentGroupName = g?.Name,
                                     AutomationId = (p == null || p.Id == null) ? Guid.Empty : p.Id.Value,
                                     AutomationName = p?.Name,
                                     StartTime = j.StartTime,
