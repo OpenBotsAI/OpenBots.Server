@@ -18,6 +18,7 @@ using OpenBots.Server.ViewModel.Email;
 using OpenBots.Server.Model.Options;
 using EmailModel = OpenBots.Server.Model.Configuration.Email;
 using OpenBots.Server.Business.Interfaces;
+using System.Collections.Generic;
 
 namespace OpenBots.Server.Web.Controllers.EmailConfiguration
 {
@@ -231,7 +232,10 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
                 EmailModel email = _manager.CreateEmail(request);
 
                 //create email attachments & binary objects entities; upload binary object files to server
-                var attachments = _manager.AddAttachments(request.Files, email.Id.Value, request.DriveName);
+                var attachments = new List<EmailAttachment>();
+                if (request.Files != null)
+                    attachments = _manager.AddAttachments(request.Files, email.Id.Value, request.DriveName);
+
                 EmailViewModel emailViewModel = _manager.GetEmailViewModel(email, attachments);
 
                 await base.PostEntity(email);
