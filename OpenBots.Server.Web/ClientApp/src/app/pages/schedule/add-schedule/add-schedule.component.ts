@@ -322,12 +322,14 @@ export class AddScheduleComponent implements OnInit {
         .get('agentGroupId')
         .setValidators([Validators.required]);
       this.scheduleForm.get('agentGroupId').updateValueAndValidity();
+      this.scheduleForm.get('agentGroupId').patchValue(this.allGroupAgents);
     } else {
       this.scheduleForm.get('agentGroupId').reset();
       this.scheduleForm.get('agentGroupId').clearValidators();
       this.scheduleForm.get('agentGroupId').updateValueAndValidity();
       this.scheduleForm.get('agentId').setValidators([Validators.required]);
       this.scheduleForm.get('agentId').updateValueAndValidity();
+      this.scheduleForm.get('agentId').patchValue(this.allAgents);
     }
   }
 
