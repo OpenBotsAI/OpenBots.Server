@@ -60,7 +60,7 @@ export class GetAssetIdComponent implements OnInit {
         type: fileType,
       });
       this.FileSaverService.save(txtBlob, fileName);
-    } else if (this.AssetType.type == 'Json') {
+    } else if (this.AssetType.type == 'JSON') {
       let type = 'json';
       const fileName = `${this.AssetType.name}.${type}`;
       const fileType = this.FileSaverService.genType(fileName);
