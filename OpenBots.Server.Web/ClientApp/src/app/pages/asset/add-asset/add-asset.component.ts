@@ -451,7 +451,7 @@ export class AddAssetComponent implements OnInit {
   }
 
   SaveAgentAsset() {
-    if (this.addasset.value.Name !== '' && this.addasset.value.AgentId !== '') {
+    // if (this.addasset.value.Name !== '' && this.addasset.value.AgentId !== '') {
       let agentdata = new FormData();
       agentdata.append('Name', this.addasset.value.name);
       agentdata.append('AgentId', this.addasset.value.AgentId);
@@ -489,7 +489,7 @@ export class AddAssetComponent implements OnInit {
           }
         }
       );
-    }
+    // }
   }
 
   open2(dialog: TemplateRef<any>, id: any) {
