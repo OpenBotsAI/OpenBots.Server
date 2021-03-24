@@ -80,7 +80,6 @@ namespace OpenBots.Server.Business
                         ContentType = file.ContentType,
                         Files = fileArray,
                         StoragePath = Path.Combine(driveName, "Assets", asset.Id.ToString()),
-                        FullStoragePath = Path.Combine(driveName, "Assets", asset.Id.ToString()),
                         IsFile = true
                     };
 
@@ -198,7 +197,7 @@ namespace OpenBots.Server.Business
         public FileFolderViewModel CheckStoragePathExists(FileFolderViewModel view, AgentAssetViewModel request)
         {
             //check if storage path exists; if it doesn't exist, create folder
-            var folder = _fileManager.GetFileFolderByStoragePath(view.FullStoragePath, request.DriveName);
+            var folder = _fileManager.GetFileFolderByStoragePath(view.StoragePath, request.DriveName);
             if (folder.Name == null)
             {
                 folder.Name = request.AgentId.ToString();
@@ -429,7 +428,7 @@ namespace OpenBots.Server.Business
             }
             else //global asset
             {
-                var asset = _repo.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))
+                var asset = _repo.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null) && d.AgentId == null)
                 .Items?.FirstOrDefault();
 
                 if (asset != null && asset.Id != request.Id)
