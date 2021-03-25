@@ -668,14 +668,16 @@ namespace OpenBots.Server.Business
             var attachments = _emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(emailId))?.Items;
             if (attachments.Count != 0)
             {
-                var fileList = new List<FileFolderViewModel>();
+                var fileView = new FileFolderViewModel();
                 foreach (var attachment in attachments)
                 {
-                    var fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
-                    fileList.Add(fileView);
+                    fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
                     _emailAttachmentRepository.SoftDelete(attachment.Id.Value);
                 }
-                _fileManager.AddBytesToFoldersAndDrive(fileList);
+                var folder = _fileManager.GetFileFolder(fileView.ParentId.ToString(), driveName);
+                if (!folder.HasChild.Value)
+                    _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
+                else _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileView });
             }
             else throw new EntityDoesNotExistException("No attachments found to delete");
         }
@@ -686,7 +688,10 @@ namespace OpenBots.Server.Business
             if (attachment != null)
             {
                 var fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
-                _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileView });
+                var folder = _fileManager.GetFileFolder(fileView.ParentId.ToString(), driveName);
+                if (!folder.HasChild.Value)
+                    _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
+                else _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileView });
             }
             else throw new EntityDoesNotExistException("Attachment could not be found");
         }
@@ -780,23 +785,6 @@ namespace OpenBots.Server.Business
                 response.Attachments = emailAttachments;
 
             return response;
-        }
-
-        public void DeleteEmailAttachments(string id, string driveName)
-        {
-            //soft delete each email attachment entity and file entity that correlates to the email
-            var attachments = _emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(id))?.Items;
-            if (attachments.Count != 0)
-            {
-                var fileView = new FileFolderViewModel();
-                foreach (var attachment in attachments)
-                {
-                    fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
-                    _emailAttachmentRepository.SoftDelete(attachment.Id.Value);
-                }
-                fileView = _fileManager.DeleteFileFolder(fileView.ParentId.ToString(), driveName);
-                _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileView });
-            }
         }
 
         public EmailViewModel GetEmailView(EmailViewModel emailViewModel)

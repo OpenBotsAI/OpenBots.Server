@@ -438,7 +438,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         {
             try
             {
-                _manager.DeleteEmailAttachments(id, driveName);
+                _manager.DeleteAll(id, driveName);
                 return await base.DeleteEntity(id);
             }
             catch (Exception ex)

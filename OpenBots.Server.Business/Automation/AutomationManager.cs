@@ -152,7 +152,11 @@ namespace OpenBots.Server.Business
             var file = _fileManager.GetFileFolder(automation.FileId.ToString(), driveName);
             _fileManager.DeleteFileFolder(automation.FileId.ToString(), driveName);
             var folder = _fileManager.GetFileFolder(file.ParentId.ToString(), driveName);
-            _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
+            if (!folder.HasChild.Value)
+                _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
+            else _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { file });
+
+            //remove automation entity
             _repo.SoftDelete(automation.Id.Value);
 
             //remove automation version entity associated with automation

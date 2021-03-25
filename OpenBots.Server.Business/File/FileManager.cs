@@ -134,9 +134,11 @@ namespace OpenBots.Server.Business.File
             //    googleBlobStorageAdapter.SaveFile(request);
             else throw new EntityOperationException("Configuration is not set up for local file storage");
 
-            if (fileFolder.Size > 0 && fileFolder.IsFile == true && !fileFolder.StoragePath.Contains("Queue Item Attachments")
-                && !fileFolder.StoragePath.Contains("Email Attachments") || (fileFolder.IsFile == false
-                && (fileFolder.StoragePath.Contains("Automations") || fileFolder.StoragePath.Contains("QueueItemAttachments"))))
+            if (fileFolder.Size > 0 && (fileFolder.IsFile == true
+                && !fileFolder.StoragePath.Contains("Queue Item Attachments") && !fileFolder.StoragePath.Contains("Email Attachments")
+                && !fileFolder.StoragePath.Contains("Automations") && !fileFolder.StoragePath.Contains("Assets") 
+                || fileFolder.IsFile == false && (fileFolder.StoragePath.Contains("Automations") || fileFolder.StoragePath.Contains("Assets")
+                || fileFolder.StoragePath.Contains("Email Attachments") || fileFolder.StoragePath.Contains("Queue Item Attachments"))))
                 AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileFolder });
 
             return fileFolder;

@@ -267,9 +267,9 @@ namespace OpenBots.Server.Web.Controllers
             {
                 var existingQueueItem = repository.GetOne(Guid.Parse(id));
                 _manager.DeleteQueueItem(existingQueueItem, driveName);
-                
-                await _webhookPublisher.PublishAsync("QueueItems.QueueItemDeleted", existingQueueItem.Id.ToString(), existingQueueItem.Name).ConfigureAwait(false);
+
                 var response = await base.DeleteEntity(id);
+                await _webhookPublisher.PublishAsync("QueueItems.QueueItemDeleted", existingQueueItem.Id.ToString(), existingQueueItem.Name).ConfigureAwait(false);
                 _hub.Clients.All.SendAsync("sendnotification", "QueueItem deleted.");
 
                 return response;
