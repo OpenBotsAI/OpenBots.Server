@@ -1,6 +1,8 @@
 export interface Schedule {
   agentId: string;
   agentName: string;
+  agentGroupId: string;
+  agentGroupName: string;
   // processName: string;
   automationId: string;
   automationName: string;

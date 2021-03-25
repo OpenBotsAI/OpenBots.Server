@@ -216,17 +216,33 @@ export class ViewScheduleComponent implements OnInit {
   runJobNow(ref): void {
     this.isDisabled = true;
     let obj;
+
     if (this.jobRunNowForm.value.items.length) {
-      obj = {
-        agentId: this.scheduleData.agentId,
-        automationId: this.scheduleData.automationId,
-        JobParameters: [...this.jobRunNowForm.value.items],
-      };
+      if (this.scheduleData.agentGroupId) {
+        obj = {
+          agentGroupId: this.scheduleData.agentGroupId,
+          automationId: this.scheduleData.automationId,
+          JobParameters: [...this.jobRunNowForm.value.items],
+        };
+      } else {
+        obj = {
+          agentId: this.scheduleData.agentId,
+          automationId: this.scheduleData.automationId,
+          JobParameters: [...this.jobRunNowForm.value.items],
+        };
+      }
     } else {
-      obj = {
-        agentId: this.scheduleData.agentId,
-        automationId: this.scheduleData.automationId,
-      };
+      if (this.scheduleData.agentGroupId) {
+        obj = {
+          agentGroupId: this.scheduleData.agentGroupId,
+          automationId: this.scheduleData.automationId,
+        };
+      } else {
+        obj = {
+          agentId: this.scheduleData.agentId,
+          automationId: this.scheduleData.automationId,
+        };
+      }
     }
     this.httpService
       .post(`${SchedulesApiUrl.schedules}/${SchedulesApiUrl.runNow}`, obj, {
