@@ -83,6 +83,21 @@ namespace OpenBots.Server.Business
         }
 
         /// <summary>
+        /// Takes an AgentGroup and returns it for addition
+        /// </summary>
+        /// <param name="agentGroup"></param>
+        /// <returns>The AgentGroup to be added</returns>
+        public AgentGroup AddAgentGroup(AgentGroup agentGroup)
+        {
+            var namedAgentGroup = _agentGroupRepository.Find(null, d => d.Name.ToLower() == agentGroup.Name.ToLower())?.Items?.FirstOrDefault();
+            if (namedAgentGroup != null)
+            {
+                throw new EntityAlreadyExistsException("Agent group name already exists");
+            }
+            return agentGroup;
+        }
+
+        /// <summary>
         /// Updates an AgentGroup entity 
         /// </summary>
         /// <param name="id"></param>
@@ -98,8 +113,8 @@ namespace OpenBots.Server.Business
                 throw new EntityDoesNotExistException("No agent group exists for the specified agent group id");
             }
 
-            var namedAgent = _agentGroupRepository.Find(null, d => d.Name.ToLower() == request.Name.ToLower() && d.Id != entityId)?.Items?.FirstOrDefault();
-            if (namedAgent != null && namedAgent.Id != entityId)
+            var namedAgentGroup = _agentGroupRepository.Find(null, d => d.Name.ToLower() == request.Name.ToLower() && d.Id != entityId)?.Items?.FirstOrDefault();
+            if (namedAgentGroup != null && namedAgentGroup.Id != entityId)
             {
                 throw new EntityAlreadyExistsException("Agent group name already exists");
             }
