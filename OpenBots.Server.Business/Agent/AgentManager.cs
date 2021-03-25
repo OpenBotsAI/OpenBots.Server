@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
@@ -403,8 +404,24 @@ namespace OpenBots.Server.Business
             }
 
             //get all new jobs of the agent group and assign the oldest one to the current agent
+            var job = GetAgentGroupJob(agentGuid);
+
+            var jobParameters = _jobManager.GetJobParameters(job?.Id ?? Guid.Empty);
+
+            NextJobViewModel nextJob = new NextJobViewModel()
+            {
+                IsJobAvailable = job == null ? false : true,
+                AssignedJob = job,
+                JobParameters = jobParameters
+            };
+
+            return nextJob;
+        }
+
+        public Job GetAgentGroupJob(Guid agentGuid)
+        {
             List<Job> agentGroupJobs = new List<Job>();
-            var agentGroupsMembers = GetAllMembersInGroup(agentId.ToString()).Items;
+            var agentGroupsMembers = GetAllMembersInGroup(agentGuid.ToString()).Items;
             foreach (var member in agentGroupsMembers)
             {
                 AgentGroup agentGroup = _agentGroupRepository.Find(null, g => g.Id == member.AgentGroupId).Items?.FirstOrDefault();
@@ -425,19 +442,16 @@ namespace OpenBots.Server.Business
                 job.JobStatus = JobStatusType.Assigned;
                 job.DequeueTime = DateTime.UtcNow;
                 job.AgentId = agentGuid;
-                _jobRepo.Update(job);
+                try
+                {
+                    job = _jobRepo.Update(job);
+                }
+                catch (EntityConcurrencyException ex)
+                {
+                    job = null;
+                }
             }
-
-            var jobParameters = _jobManager.GetJobParameters(job?.Id ?? Guid.Empty);
-
-            NextJobViewModel nextJob = new NextJobViewModel()
-            {
-                IsJobAvailable = job == null ? false : true,
-                AssignedJob = job,
-                JobParameters = jobParameters
-            };
-
-            return nextJob;
+            return job;
         }
     }
 }

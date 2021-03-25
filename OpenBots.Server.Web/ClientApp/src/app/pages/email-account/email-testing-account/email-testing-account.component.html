@@ -43,29 +43,25 @@
               </div> -->
 
 
-          
-                     <label class="label col-form-label">Name *</label>
-                    <select class="custom-select  "   style="color: #000000"
-                        formControlName="name" >
-                        
-                        <option *ngFor="let item of getEmail" [value]="item.emailAccountName">
-                            {{ item.emailAccountName }}
-                        </option>
-                    </select>
-                    <div
-                  *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid"
-                  class="invalid-feedback-frm"
-                >
-                  <div *ngIf="f.name.errors && f.name.errors.required">
-                    Name is required.
-                  </div>
-                   
-                  <div *ngIf="f.name.errors.pattern">
-                    Please enter valid name.
-                  </div>
+
+              <label class="label col-form-label">Name *</label>
+              <select class="custom-select  " style="color: #000000" formControlName="name">
+
+                <option *ngFor="let item of getEmail" [value]="item.emailAccountName">
+                  {{ item.emailAccountName }}
+                </option>
+              </select>
+              <div *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.name.errors && f.name.errors.required">
+                  Name is required.
                 </div>
-             
-     
+
+                <div *ngIf="f.name.errors.pattern">
+                  Please enter valid name.
+                </div>
+              </div>
+
+
 
 
 
@@ -75,20 +71,11 @@
               <div class="form-group">
                 <label class="label col-form-label"> Email * </label>
 
-                <input
-                  type="input"
-                  nbInput
-                  fullWidth
-                  formControlName="address"
-                  style="color: #000000"
-                  placeholder="Please enter email"
-                />
-                <div
-                  *ngIf="
+                <input type="input" nbInput fullWidth formControlName="address" style="color: #000000"
+                  placeholder="Please enter email" />
+                <div *ngIf="
                     (f.address.touched || f.address.dirty) && f.address.invalid
-                  "
-                  class="invalid-feedback-frm"
-                >
+                  " class="invalid-feedback-frm">
                   <div *ngIf="f.address.errors && f.address.errors.required">
                     Email is required.
                   </div>
@@ -106,20 +93,11 @@
               <div class="form-group">
                 <label class="label col-form-label">CC </label>
 
-                <input
-                  type="input"
-                  nbInput
-                  fullWidth
-                  formControlName="cc"
-                  style="color: #000000"
-                  placeholder="Please enter cc"
-                />
-                <div
-                  *ngIf="
+                <input type="input" nbInput fullWidth formControlName="cc" style="color: #000000"
+                  placeholder="Please enter cc" />
+                <div *ngIf="
                     (f.cc.touched || f.cc.dirty) && f.cc.invalid
-                  "
-                  class="invalid-feedback-frm"
-                >
+                  " class="invalid-feedback-frm">
                   <div *ngIf="f.cc.errors && f.cc.errors.required">
                     Email is required.
                   </div>
@@ -133,21 +111,12 @@
               <div class="form-group">
                 <label class="label col-form-label"> Bcc </label>
 
-                <input
-                  type="input"
-                  nbInput
-                  fullWidth
-                  formControlName="bcc"
-                  style="color: #000000"
-                  placeholder="Please enter bcc"
-                />
+                <input type="input" nbInput fullWidth formControlName="bcc" style="color: #000000"
+                  placeholder="Please enter bcc" />
 
-                <div
-                  *ngIf="
+                <div *ngIf="
                     (f.bcc.touched || f.bcc.dirty) && f.bcc.invalid
-                  "
-                  class="invalid-feedback-frm"
-                >
+                  " class="invalid-feedback-frm">
                   <div *ngIf="f.bcc.errors && f.bcc.errors.required">
                     Email is required.
                   </div>
@@ -165,33 +134,27 @@
               <div class="form-group">
                 <label class="label col-form-label">Subject </label>
 
-                <input
-                  type="input"
-                  nbInput
-                  fullWidth
-                  formControlName="subject"
-                  style="color: #000000"
-                  placeholder="Please enter subject"
-                />
+                <input type="input" nbInput fullWidth formControlName="subject" style="color: #000000"
+                  placeholder="Please enter subject" />
               </div>
             </div>
           </div>
 
 
-           <div class="row">
+          <div class="row">
             <div class="col-md-6">
-                <div class="form-group">
+              <div class="form-group">
                 <label class="label">Please Upload File</label>
                 <br>
                 <label class="upload-button">
                   <input type="file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
                     [uploadInput]="uploadInput" multiple />
                 </label>
-                </div>
-                 <div *ngIf="fileSize" class="invalid-feedback-frm">
-                  You cannot upload empty file.
-                </div>
-            
+              </div>
+              <div *ngIf="fileSize" class="invalid-feedback-frm">
+                You cannot upload empty file.
+              </div>
+
             </div>
           </div>
 
@@ -201,20 +164,11 @@
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
-                <label class="label col-form-label"
-                  >Please write something
+                <label class="label col-form-label">Please write something
                 </label>
 
-                <ckeditor
-                  formControlName="body"
-                  name="myckeditor"
-                  required
-                  placeholder="Please enter email"
-                  [config]="ckeConfig"
-                  debounce="500"
-                  (paste)="onPaste($event)"
-                  (change)="onChange($event)"
-                >
+                <ckeditor formControlName="body" name="myckeditor" required placeholder="Please enter email"
+                  [config]="ckeConfig" debounce="500" (paste)="onPaste($event)" (change)="onChange($event)">
                 </ckeditor>
               </div>
             </div>
@@ -222,14 +176,9 @@
           <!-- [disabled]="submitted || !emailform.valid" -->
           <div class="row rowPadTOp">
             <div class="col-md-12 col-lg-12 col-xxxl-6">
-              <button
-                type="submit"
-                class="btn btn-primary"
-                [disabled]="submitted || !emailform.valid"
-                status="primary"
-                (click)="onSubmit()"
-              >
-                Save
+              <button type="submit" class="btn btn-primary" [disabled]="submitted || !emailform.valid" status="primary"
+                (click)="onSubmit()">
+                Send
               </button>
             </div>
           </div>

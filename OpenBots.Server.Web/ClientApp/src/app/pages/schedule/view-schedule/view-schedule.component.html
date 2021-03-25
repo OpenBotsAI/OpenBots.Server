@@ -7,8 +7,9 @@
                         <h2>Schedule Detail </h2>
                     </div>
                     <div class="col-md-4 col-lg-4 col-xxxl-6 text-right">
-                        <button class="btn btn-primary" (click)="runNowJob(jobsDialog)" *ngIf="this.scheduleData && 
-                        this.scheduleData.automationId && this.scheduleData.agentId">Run Now</button>
+                        <button class="btn btn-primary" (click)="runNowJob(jobsDialog)"
+                            *ngIf="this.scheduleData && 
+                        this.scheduleData.automationId && (this.scheduleData.agentId || this.scheduleData.agentGroupId)">Run Now</button>
                         <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn "
                             (click)="gotoaudit()">
                             <img class="img" src="../../../../assets/images/auditLog.svg"> </button>
@@ -18,19 +19,38 @@
             </nb-card-header>
             <nb-card-body>
                 <form [formGroup]="scheduleForm" autocomplete="off">
-                    <div class="row">
+                    <div class="row rowPadBottom">
                         <div class="col-md-6 col-lg-6 col-xxxl-6">
                             <div class="form-group">
                                 <label for="name" class="label  col-form-label">Name</label>
-                                <input type="input" nbInput fullWidth id="name" formControlName="name">
+                                <input type="input" nbInput style="
+                                margin-top: 9px;" fullWidth id="name" formControlName="name">
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-6 col-xxxl-6">
-                            <label for="subtopic" class="label">Agent Name</label>
-                            <select class="custom-select" formControlName="agentId">
+
+                        <div class="col-md-6 col-lg-6 col-xxxl-6 checkbox checbox-switch switch-primary">
+                            <label for="subtopic" class="label">
+                                <label *ngIf="!isChecked">
+                                    Agent Name *
+                                </label>
+                                <label *ngIf="isChecked">
+                                    Agent Group *
+                                </label>
+                            </label>
+                            <label nbTooltip="Choose agent or agent group">
+                                <input type="checkbox" formControlName="checked" />
+                                <span></span>
+                            </label>
+                            <select class="custom-select" formControlName="agentId" *ngIf="!isChecked">
                                 <option value="" disabled>Pleace select agent name</option>
                                 <option *ngFor="let item of allAgents" [value]="item?.agentId">
                                     {{ item?.agentName }}
+                                </option>
+                            </select>
+                            <select class="custom-select" formControlName="agentGroupId" *ngIf="isChecked">
+                                <option value="" disabled>Pleace select agent group</option>
+                                <option *ngFor="let item of allGroupAgents" [value]="item?.agentGroupId">
+                                    {{ item?.agentGroupName }}
                                 </option>
                             </select>
                         </div>

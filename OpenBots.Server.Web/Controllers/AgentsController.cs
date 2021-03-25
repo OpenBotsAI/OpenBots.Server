@@ -157,7 +157,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Paginated list of all AgentGroupMembers with the specified Agent id</returns>
-        [HttpGet("{agentId}/GetAllGroupMembers")]
+        [HttpGet("{agentGroupId}/GetAllGroupMembers")]
         [ProducesResponseType(typeof(PaginatedList<AgentGroupMember>), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -165,11 +165,11 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> GetAllGroupMembers(string agentId)
+        public async Task<IActionResult> GetAllGroupMembers(string agentGroupId)
         {
             try
             {
-                var result = _agentManager.GetAllMembersInGroup(agentId);
+                var result = _agentManager.GetAllMembersInGroup(agentGroupId);
                 return Ok(result);
             }
             catch (Exception ex)
