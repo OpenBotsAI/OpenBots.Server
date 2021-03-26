@@ -5,7 +5,7 @@ using System;
 
 namespace OpenBots.Server.DataAccess.Repositories.Interfaces
 {
-    public interface IServerFileRepository : IEntityRepository<ServerFile>
+    public interface IStorageFileRepository : IEntityRepository<StorageFile>
     {
 
         public PaginatedList<FileFolderViewModel> FindAllView(Guid? driveId, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);

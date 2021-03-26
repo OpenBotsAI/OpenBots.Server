@@ -68,8 +68,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         readonly IIPFencingRepository iPFencingRepository;
         readonly IHttpContextAccessor context;
         readonly IOrganizationSettingRepository organizationSettingRepository;
-        readonly IServerDriveRepository serverDriveRepository;
-        readonly IServerFolderRepository serverFolderRepository;
+        readonly IStorageDriveRepository storageDriveRepository;
+        readonly IStorageFolderRepository storageFolderRepository;
 
         /// <summary>
         /// AuthController constructor
@@ -96,8 +96,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         /// <param name="organizationMemberRepository"></param>
         /// <param name="passwordPolicyRepository"></param>
         /// <param name="termsConditionsManager"></param>
-        /// <param name="serverDriveRepository"></param>
-        /// <param name="serverFolderRepository"></param>
+        /// <param name="storageDriveRepository"></param>
+        /// <param name="storageFolderRepository"></param>
         public AuthController(
            ApplicationIdentityUserManager userManager,
            SignInManager<ApplicationUser> signInManager,
@@ -121,8 +121,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
            IIPFencingRepository iPFencingRepository,
            IHttpContextAccessor context,
            IOrganizationSettingRepository organizationSettingRepository,
-           IServerDriveRepository serverDriveRepository,
-           IServerFolderRepository serverFolderRepository) : base(httpContextAccessor, userManager, membershipManager)
+           IStorageDriveRepository storageDriveRepository,
+           IStorageFolderRepository storageFolderRepository) : base(httpContextAccessor, userManager, membershipManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -147,8 +147,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             this.iPFencingRepository = iPFencingRepository;
             this.context = context;
             this.organizationSettingRepository = organizationSettingRepository;
-            this.serverDriveRepository = serverDriveRepository;
-            this.serverFolderRepository = serverFolderRepository;
+            this.storageDriveRepository = storageDriveRepository;
+            this.storageFolderRepository = storageFolderRepository;
         }
 
         /// <summary>
@@ -506,7 +506,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                             organizationSettingRepository.ForceSecurity();
 
                             //create server drive
-                            var drive = serverDriveRepository.Find(null).Items?.FirstOrDefault();
+                            var drive = storageDriveRepository.Find(null).Items?.FirstOrDefault();
                             if (drive == null)
                             {
                                 if (newOrganization != null)
@@ -519,7 +519,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                     string automations = "Automations";
                                     string assets = "Assets";
 
-                                    var serverDrive = new ServerDrive()
+                                    var storageDrive = new StorageDrive()
                                     {
                                         Id = driveId,
                                         FileStorageAdapterType = "LocalFileStorage",
@@ -533,9 +533,9 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
 
                                     //add default server drive
                                     Directory.CreateDirectory(storagePath);
-                                    serverDriveRepository.Add(serverDrive);
+                                    storageDriveRepository.Add(storageDrive);
 
-                                    var emailAttachmentsFolder = new ServerFolder()
+                                    var emailAttachmentsFolder = new StorageFolder()
                                     {
                                         Id = new Guid("eea9B112-4eaf-4733-b67b-b71fea62ef06"),
                                         CreatedBy = person.Name,
@@ -548,9 +548,9 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                         StorageDriveId = driveId
 
                                     };
-                                    serverFolderRepository.Add(emailAttachmentsFolder);
+                                    storageFolderRepository.Add(emailAttachmentsFolder);
 
-                                    var queueItemAttachmentsFolder = new ServerFolder()
+                                    var queueItemAttachmentsFolder = new StorageFolder()
                                     {
                                         Id = new Guid("e5981bba-dbbf-469f-b2de-5f30f8a3e517"),
                                         CreatedBy = person.Name,
@@ -563,9 +563,9 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                         StorageDriveId = driveId
 
                                     };
-                                    serverFolderRepository.Add(queueItemAttachmentsFolder);
+                                    storageFolderRepository.Add(queueItemAttachmentsFolder);
 
-                                    var assetsFolder = new ServerFolder()
+                                    var assetsFolder = new StorageFolder()
                                     {
                                         Id = new Guid("7b21c237-f374-4f67-8051-aae101527611"),
                                         CreatedBy = person.Name,
@@ -578,9 +578,9 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                         StorageDriveId = driveId
 
                                     };
-                                    serverFolderRepository.Add(assetsFolder);
+                                    storageFolderRepository.Add(assetsFolder);
 
-                                    var automationsFolder = new ServerFolder()
+                                    var automationsFolder = new StorageFolder()
                                     {
                                         Id = new Guid("5ecd59f0-d2d2-43de-a441-b019432469a6"),
                                         CreatedBy = person.Name,
@@ -593,7 +593,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                         StorageDriveId = driveId
 
                                     };
-                                    serverFolderRepository.Add(automationsFolder);
+                                    storageFolderRepository.Add(automationsFolder);
 
                                     //add component folders
                                     List<string> componentList = new List<string>() { emailAttachments, queueItemAttachments, automations, assets };

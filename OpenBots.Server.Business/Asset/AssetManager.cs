@@ -23,19 +23,19 @@ namespace OpenBots.Server.Business
         private readonly IFileManager _fileManager;
         private readonly IPersonRepository _personRepository;
         private readonly IAgentRepository _agentRepository;
-        private readonly IServerFileRepository _serverFileRepository;
+        private readonly IStorageFileRepository _storageFileRepository;
 
         public AssetManager(IAssetRepository assetRepository,
             IFileManager fileManager, 
             IPersonRepository personRepository,
             IAgentRepository agentRepository,
-            IServerFileRepository serverFileRepository)
+            IStorageFileRepository storageFileRepository)
         {
             _repo = assetRepository;
             _fileManager = fileManager;
             _personRepository = personRepository;
             _agentRepository = agentRepository;
-            _serverFileRepository = serverFileRepository;
+            _storageFileRepository = storageFileRepository;
         }
 
         public Asset GetAsset(string id)
@@ -441,7 +441,7 @@ namespace OpenBots.Server.Business
         public AssetViewModel GetAssetDetails(AssetViewModel assetView)
         {
             assetView.AgentName = _agentRepository.Find(null, a => a.Id == assetView.AgentId).Items?.FirstOrDefault()?.Name;
-            assetView.FileName = _serverFileRepository.Find(null, f => f.Id == assetView.FileId).Items?.FirstOrDefault()?.Name;
+            assetView.FileName = _storageFileRepository.Find(null, f => f.Id == assetView.FileId).Items?.FirstOrDefault()?.Name;
 
             return assetView;
         }

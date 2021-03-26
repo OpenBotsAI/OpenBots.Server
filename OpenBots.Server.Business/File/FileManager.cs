@@ -74,7 +74,7 @@ namespace OpenBots.Server.Business.File
             else throw new EntityOperationException("Configuration is not set up for local file storage");
         }
 
-        public ServerDrive GetDrive(string driveName = null)
+        public StorageDrive GetDrive(string driveName = null)
         {
             string adapter = GetAdapterType(driveName);
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
@@ -226,15 +226,15 @@ namespace OpenBots.Server.Business.File
             return response;
         }
 
-        public ServerDrive AddServerDrive(string driveName)
+        public StorageDrive AddStorageDrive(string driveName)
         {
-            var serverDrive = new ServerDrive();
+            var storageDrive = new StorageDrive();
             string adapter = GetAdapterType(driveName);
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
-                serverDrive = _localFileStorageAdapter.AddServerDrive(driveName);
+                storageDrive = _localFileStorageAdapter.AddStorageDrive(driveName);
             else throw new EntityOperationException("Configuration is not set up for local file storage");
 
-            return serverDrive;
+            return storageDrive;
         }
 
         public Dictionary<Guid?, string> GetDriveNames(string adapterType)

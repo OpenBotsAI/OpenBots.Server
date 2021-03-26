@@ -11,18 +11,18 @@ using System.Linq;
 
 namespace OpenBots.Server.DataAccess.Repositories.File
 {
-    public class ServerFolderRepository : EntityRepository<ServerFolder>, IServerFolderRepository
+    public class StorageFolderRepository : EntityRepository<StorageFolder>, IStorageFolderRepository
     {
-        private readonly IServerFileRepository _serverFileRepository;
+        private readonly IStorageFileRepository _storageFileRepository;
 
-        public ServerFolderRepository(StorageContext context, ILogger<ServerFolder> logger, IHttpContextAccessor httpContextAccessor, IServerFileRepository serverFileRepository) : base(context, logger, httpContextAccessor)
+        public StorageFolderRepository(StorageContext context, ILogger<StorageFolder> logger, IHttpContextAccessor httpContextAccessor, IStorageFileRepository storageFileRepository) : base(context, logger, httpContextAccessor)
         {
-            this._serverFileRepository = serverFileRepository;
+            this._storageFileRepository = storageFileRepository;
         }
 
-        protected override DbSet<ServerFolder> DbTable()
+        protected override DbSet<StorageFolder> DbTable()
         {
-            return dbContext.ServerFolders;
+            return dbContext.StorageFolders;
         }
 
         public PaginatedList<FileFolderViewModel> FindAllView(Guid? driveId, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
@@ -34,11 +34,11 @@ namespace OpenBots.Server.DataAccess.Repositories.File
             {
 
                 var itemRecord = from a in itemsList.Items
-                                 join b in dbContext.ServerFolders on a.ParentFolderId equals b.Id into table1
+                                 join b in dbContext.StorageFolders on a.ParentFolderId equals b.Id into table1
                                  from b in table1.DefaultIfEmpty()
-                                 join c in dbContext.ServerFolders on a.Id equals c.ParentFolderId into table2
+                                 join c in dbContext.StorageFolders on a.Id equals c.ParentFolderId into table2
                                  from c in table1.DefaultIfEmpty()
-                                 join d in dbContext.ServerDrives on a.StorageDriveId equals d.Id into table3
+                                 join d in dbContext.StorageDrives on a.StorageDriveId equals d.Id into table3
                                  from d in table3.DefaultIfEmpty()
                                  select new FileFolderViewModel
                                  {
@@ -91,11 +91,11 @@ namespace OpenBots.Server.DataAccess.Repositories.File
             {
 
                 var folderItemRecord = from a in folderItemsList.Items
-                                 join b in dbContext.ServerFolders on a.ParentFolderId equals b.Id into table1
+                                 join b in dbContext.StorageFolders on a.ParentFolderId equals b.Id into table1
                                  from b in table1.DefaultIfEmpty()
-                                 join c in dbContext.ServerFolders on a.Id equals c.ParentFolderId into table2
+                                 join c in dbContext.StorageFolders on a.Id equals c.ParentFolderId into table2
                                  from c in table1.DefaultIfEmpty()
-                                 join d in dbContext.ServerDrives on a.StorageDriveId equals d.Id into table3
+                                 join d in dbContext.StorageDrives on a.StorageDriveId equals d.Id into table3
                                  from d in table3.DefaultIfEmpty()
                                  select new FileFolderViewModel
                                  {
@@ -119,14 +119,14 @@ namespace OpenBots.Server.DataAccess.Repositories.File
                     else if (direction == OrderByDirectionType.Descending)
                         folderItemRecord = folderItemRecord.OrderByDescending(j => j.GetType().GetProperty(sortColumn).GetValue(j)).ToList();
 
-                var fileItemsList = _serverFileRepository.Find(null, j => j.IsDeleted == false && j.ServerDriveId == driveId);
+                var fileItemsList = _storageFileRepository.Find(null, j => j.IsDeleted == false && j.StorageDriveId == driveId);
 
                 if (fileItemsList != null && fileItemsList.Items != null && fileItemsList.Items.Count > 0)
                 {
                     var fileItemRecord = from a in fileItemsList.Items
-                                         join b in dbContext.ServerFolders on a.StorageFolderId equals b.Id into table1
+                                         join b in dbContext.StorageFolders on a.StorageFolderId equals b.Id into table1
                                          from b in table1.DefaultIfEmpty()
-                                         join c in dbContext.ServerDrives on a.ServerDriveId equals c.Id into table2
+                                         join c in dbContext.StorageDrives on a.StorageDriveId equals c.Id into table2
                                          from c in table2.DefaultIfEmpty()
                                          select new FileFolderViewModel
                                          {
@@ -141,7 +141,7 @@ namespace OpenBots.Server.DataAccess.Repositories.File
                                              ParentId = a?.StorageFolderId,
                                              StoragePath = b?.StoragePath != null ? b?.StoragePath : c?.Name,
                                              Size = a?.SizeInBytes,
-                                             StorageDriveId = a?.ServerDriveId
+                                             StorageDriveId = a?.StorageDriveId
                                          };
 
                     if (!string.IsNullOrWhiteSpace(sortColumn))

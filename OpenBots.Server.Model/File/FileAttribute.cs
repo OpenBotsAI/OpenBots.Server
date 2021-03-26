@@ -5,10 +5,10 @@ namespace OpenBots.Server.Model.File
 {
     public class FileAttribute : NamedEntity
     {
-        public Guid? ServerFileId { get; set; }
+        public Guid? StorageFileId { get; set; }
         public int AttributeValue { get; set; }
         public string DataType { get; set; }
         public Guid? OrganizationId { get; set; }
-        public Guid? ServerDriveId { get; set; }
+        public Guid? StorageDriveId { get; set; }
     }
 }

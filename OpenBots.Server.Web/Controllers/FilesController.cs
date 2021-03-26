@@ -29,7 +29,7 @@ namespace OpenBots.Server.Web.Controllers
     [ApiController]
     [Authorize]
     [FeatureGate(MyFeatureFlags.Files)]
-    public class FilesController : EntityController<ServerFile>
+    public class FilesController : EntityController<StorageFile>
     {
         private readonly IFileManager _manager;
 
@@ -47,11 +47,11 @@ namespace OpenBots.Server.Web.Controllers
         /// <param name="userManager"></param>
         public FilesController(
             IFileManager manager,
-            IServerFileRepository serverFileRepository,
+            IStorageFileRepository storageFileRepository,
             ApplicationIdentityUserManager userManager,
             IHttpContextAccessor httpContextAccessor,
             IMembershipManager membershipManager,
-            IConfiguration configuration) : base(serverFileRepository, userManager, httpContextAccessor, membershipManager, configuration)
+            IConfiguration configuration) : base(storageFileRepository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             _manager = manager;
         }
@@ -220,7 +220,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Server drive details</returns>
         [HttpGet("drive", Name = "GetDrive")]
-        [ProducesResponseType(typeof(ServerDrive), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(StorageDrive), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -490,7 +490,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
         /// <returns>Newly created server drive details</returns>
         [HttpPost("drive")]
-        [ProducesResponseType(typeof(ServerDrive), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(StorageDrive), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -501,7 +501,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                var response = _manager.AddServerDrive(driveName);
+                var response = _manager.AddStorageDrive(driveName);
                 return Ok(response);
             }
             catch (Exception ex)
