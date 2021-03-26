@@ -98,7 +98,7 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IDirectoryManager), typeof(DirectoryManager));
             services.AddTransient(typeof(IWebhookPublisher), typeof(WebhookPublisher));
             services.AddTransient(typeof(IWebhookSender), typeof(WebhookSender));
-            services.AddTransient(typeof(LocalFileStorageAdapter), typeof(LocalFileStorageAdapter));
+            services.AddTransient(typeof(ILocalFileStorageAdapter), typeof(LocalFileStorageAdapter));
             services.AddTransient(typeof(IFileManager), typeof(FileManager));
 
             //email services

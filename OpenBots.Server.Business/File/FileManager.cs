@@ -11,10 +11,10 @@ namespace OpenBots.Server.Business.File
 {
     public class FileManager : BaseManager, IFileManager
     {
-        private readonly LocalFileStorageAdapter _localFileStorageAdapter;
+        private readonly ILocalFileStorageAdapter _localFileStorageAdapter;
 
         public FileManager(
-            LocalFileStorageAdapter localFileStorageAdapter)
+            ILocalFileStorageAdapter localFileStorageAdapter)
         {
             _localFileStorageAdapter = localFileStorageAdapter;
         }
@@ -139,7 +139,7 @@ namespace OpenBots.Server.Business.File
                 && !fileFolder.StoragePath.Contains("Automations") && !fileFolder.StoragePath.Contains("Assets") 
                 || fileFolder.IsFile == false && (fileFolder.StoragePath.Contains("Automations") || fileFolder.StoragePath.Contains("Assets")
                 || fileFolder.StoragePath.Contains("Email Attachments") || fileFolder.StoragePath.Contains("Queue Item Attachments"))))
-                AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileFolder });
+                RemoveBytesFromFoldersAndDrive(new List<FileFolderViewModel> { fileFolder });
 
             return fileFolder;
         }
@@ -149,6 +149,13 @@ namespace OpenBots.Server.Business.File
             string adapter = GetAdapterType("Files");
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
                 _localFileStorageAdapter.AddBytesToFoldersAndDrive(files);
+        }
+
+        public void RemoveBytesFromFoldersAndDrive(List<FileFolderViewModel> files)
+        {
+            string adapter = GetAdapterType("Files");
+            if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
+                _localFileStorageAdapter.RemoveBytesFromFoldersAndDrive(files);
         }
 
         public FileFolderViewModel RenameFileFolder(string id, string name, string driveName = null)

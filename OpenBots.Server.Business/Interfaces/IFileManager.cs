@@ -15,7 +15,9 @@ namespace OpenBots.Server.Business.Interfaces
 
         FileFolderViewModel DeleteFileFolder(string id, string driveName = null);
 
-        void AddBytesToFoldersAndDrive(List<FileFolderViewModel> file);
+        void AddBytesToFoldersAndDrive(List<FileFolderViewModel> files);
+
+        void RemoveBytesFromFoldersAndDrive(List<FileFolderViewModel> file);
 
         int? GetFileCount(string driveName = null);
 

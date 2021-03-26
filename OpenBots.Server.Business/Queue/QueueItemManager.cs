@@ -687,7 +687,7 @@ namespace OpenBots.Server.Business
                 var folder = _fileManager.GetFileFolder(fileView.ParentId.ToString(), driveName);
                 if (!folder.HasChild.Value)
                     _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
-                else _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileView });
+                else _fileManager.RemoveBytesFromFoldersAndDrive(new List<FileFolderViewModel> { fileView });
             }
             else throw new EntityDoesNotExistException("No attachments found to delete");
         }
@@ -709,7 +709,7 @@ namespace OpenBots.Server.Business
                 var folder = _fileManager.GetFileFolder(fileView.ParentId.ToString(), driveName);
                 if (!folder.HasChild.Value)
                     _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
-                else _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileView });
+                else _fileManager.RemoveBytesFromFoldersAndDrive(new List<FileFolderViewModel> { fileView });
 
                 //update queue item payload
                 queueItem.PayloadSizeInBytes -= attachment.SizeInBytes;

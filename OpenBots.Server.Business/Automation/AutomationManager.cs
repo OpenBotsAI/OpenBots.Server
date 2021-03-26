@@ -154,7 +154,7 @@ namespace OpenBots.Server.Business
             var folder = _fileManager.GetFileFolder(file.ParentId.ToString(), driveName);
             if (!folder.HasChild.Value)
                 _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
-            else _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { file });
+            else _fileManager.RemoveBytesFromFoldersAndDrive(new List<FileFolderViewModel> { file });
 
             //remove automation entity
             _repo.SoftDelete(automation.Id.Value);
