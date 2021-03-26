@@ -505,7 +505,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                             organizationSettingRepository.Add(orgSettings);
                             organizationSettingRepository.ForceSecurity();
 
-                            //create server drive
+                            //create storage drive
                             var drive = storageDriveRepository.Find(null).Items?.FirstOrDefault();
                             if (drive == null)
                             {
@@ -531,7 +531,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                         StorageSizeInBytes = 0
                                     };
 
-                                    //add default server drive
+                                    //add default storage drive
                                     Directory.CreateDirectory(storagePath);
                                     storageDriveRepository.Add(storageDrive);
 

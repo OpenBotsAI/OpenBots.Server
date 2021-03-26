@@ -200,7 +200,7 @@ namespace OpenBots.Server.Business.File
                 name = "Files";
             var storageDrive = _storageDriveRepository.Find(null).Items?.Where(q => q.Name == name).FirstOrDefault();
             if (storageDrive == null)
-                throw new EntityDoesNotExistException("Server drive could not be found");
+                throw new EntityDoesNotExistException("Storage drive could not be found");
             return storageDrive;
         }
 
@@ -279,7 +279,7 @@ namespace OpenBots.Server.Business.File
                     path = GetShortPath(path);
                 AddBytesToParentFolders(path, filesSizeInBytes);
 
-                //add size in bytes to server drive
+                //add size in bytes to storage drive
                 AddBytesToStorageDrive(drive, filesSizeInBytes);
             }
             else
@@ -312,7 +312,7 @@ namespace OpenBots.Server.Business.File
                 bool folderDirectoryExists = CheckDirectoryExists(shortPath);
                 if (folderDirectoryExists)
                 {
-                    //create directory and add server folder
+                    //create directory and add storage folder
                     _directoryManager.CreateDirectory(path);
                     _storageFolderRepository.Add(storageFolder);
                     _webhookPublisher.PublishAsync("Files.NewFolderCreated", storageFolder.Id.ToString(), storageFolder.Name);
@@ -353,7 +353,7 @@ namespace OpenBots.Server.Business.File
             var hash = GetHash(path);
             Guid? driveId = drive.Id;
 
-            //add file properties to server file entity
+            //add file properties to storage file entity
             var storageFile = new StorageFile()
             {
                 Id = id,
@@ -455,7 +455,7 @@ namespace OpenBots.Server.Business.File
 
             var hash = GetHash(path);
 
-            //update server file entity properties
+            //update storage file entity properties
             storageFile.ContentType = file.ContentType;
             storageFile.HashCode = hash;
             storageFile.Name = file.FileName;
@@ -467,12 +467,12 @@ namespace OpenBots.Server.Business.File
             _storageFileRepository.Update(storageFile);
             _webhookPublisher.PublishAsync("Files.FileUpdated", storageFile.Id.ToString(), storageFile.Name);
 
-            //update size in bytes of server folders
+            //update size in bytes of storage folders
             var drive = GetDriveById(storageFile.StorageDriveId);
             if (storageFile.StorageFolderId != drive.Id)
                 AddBytesToParentFolders(request.StoragePath, storageFile.SizeInBytes);
 
-            //update size in bytes in server drive
+            //update size in bytes in storage drive
             size = request.Files[0].Length - size;
             AddBytesToStorageDrive(drive, size);
         }
@@ -777,11 +777,11 @@ namespace OpenBots.Server.Business.File
                     fileFolder.CreatedBy = null;
                     fileFolder.CreatedOn = null;
                     //create new file and file attributes in database
-                    //create new file in server drive
+                    //create new file in storage drive
                     fileFolder = SaveFile(fileFolder, file, drive);
                     var newFile = _storageFileRepository.GetOne((Guid)fileFolder.Id);
 
-                    //add size in bytes of file to new parent folders and server drive
+                    //add size in bytes of file to new parent folders and storage drive
                     UpdateFolderSize(storageFile.StorageFolderId, parentFolderId, newFile);
 
                     drive.StorageSizeInBytes += file.Length;
@@ -808,7 +808,7 @@ namespace OpenBots.Server.Business.File
                     storageFolder.UpdatedOn = null;
                     _storageFolderRepository.Add(storageFolder);
 
-                    //map server folder to file folder view model
+                    //map storage folder to file folder view model
                     bool hasChild = CheckFolderHasChild(entityId);
                     fileFolder.Map(storageFolder, parentFolderPath, hasChild);
 
@@ -860,11 +860,11 @@ namespace OpenBots.Server.Business.File
                             newFile.CreatedBy = null;
                             newFile.CreatedOn = null;
                             //create new file and file attributes in database
-                            //create new file in server drive
+                            //create new file in storage drive
                             newFile = SaveFile(newFile, formFile, drive);
                         }
                     }
-                    //add size in bytes of each folder to new parent folder and server drive
+                    //add size in bytes of each folder to new parent folder and storage drive
                     long? size = storageFolder.SizeInBytes;
                     AddBytesToParentFolders(parentFolderPath, size);
 
@@ -889,7 +889,7 @@ namespace OpenBots.Server.Business.File
             //update size in bytes in folder
             AddBytesToParentFolders(storagePath, size);
 
-            //update size in bytes in server drive
+            //update size in bytes in storage drive
             var drive = GetDriveById(storageDriveId);
             AddBytesToStorageDrive(drive, size);
         }
@@ -898,15 +898,15 @@ namespace OpenBots.Server.Business.File
         {
             long? size = 0;
             var storagePath = files[0].FullStoragePath;
-            var serverDriveId = files[0].StorageDriveId;
+            var storageDriveId = files[0].StorageDriveId;
             foreach (var file in files)
                 size -= file.Size;
 
             //update size in bytes in folder
             AddBytesToParentFolders(storagePath, size);
 
-            //update size in bytes in server drive
-            var drive = GetDriveById(serverDriveId);
+            //update size in bytes in storage drive
+            var drive = GetDriveById(storageDriveId);
             AddBytesToStorageDrive(drive, size);
         }
 
@@ -947,7 +947,7 @@ namespace OpenBots.Server.Business.File
 
         private void AddBytesToStorageDrive(StorageDrive storageDrive, long? size)
         {
-            //add to storage size in bytes property in server drive
+            //add to storage size in bytes property in storage drive
             storageDrive.StorageSizeInBytes += size;
             _storageDriveRepository.Update(storageDrive);
             _webhookPublisher.PublishAsync("Files.DriveUpdated", storageDrive.Id.ToString(), storageDrive.Name);
@@ -982,7 +982,7 @@ namespace OpenBots.Server.Business.File
             //remove file
             IOFile.Delete(storageFile.StoragePath);
 
-            //remove server file entity
+            //remove storage file entity
             _storageFileRepository.SoftDelete((Guid)storageFile.Id);
             _webhookPublisher.PublishAsync("Files.FileDeleted", storageFile.Id.ToString(), storageFile.Name);
 
@@ -1063,7 +1063,7 @@ namespace OpenBots.Server.Business.File
         {
             var storageDrive = _storageDriveRepository.Find(null).Items?.Where(q => q.Id == id).FirstOrDefault();
             if (storageDrive == null)
-                throw new EntityDoesNotExistException("Server drive could not be found");
+                throw new EntityDoesNotExistException("Storage drive could not be found");
             return storageDrive;
         }
 
@@ -1218,7 +1218,7 @@ namespace OpenBots.Server.Business.File
             string oldParentPath = string.Join(Path.DirectorySeparatorChar, oldParentPathList);
             string newParentPath = string.Join(Path.DirectorySeparatorChar, newParentPathList);
 
-            //remove size in bytes in old parent foders (only those that do not overlap in new parent folders list)
+            //remove size in bytes in old parent folders (only those that do not overlap in new parent folders list)
             AddBytesToParentFolders(oldParentPath, -size);
 
             //add size in bytes of new parent folders (only those that do not overlap in old parent folders list)
