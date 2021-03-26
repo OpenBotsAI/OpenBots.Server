@@ -675,41 +675,30 @@ namespace OpenBots.Server.Business
 
         public void DeleteQueueItem(QueueItem existingQueueItem, string driveName)
         {
-            if (existingQueueItem == null) throw new EntityDoesNotExistException("Queue item cannot be found or does not exist");
-            if (existingQueueItem.IsLocked) throw new EntityOperationException("Queue item is locked at this time and cannot be deleted");
-
-            //soft delete each queue item attachment entity and file entity that correlates to the queue item
-            var attachmentsList = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == existingQueueItem.Id)?.Items;
-            var fileView = new FileFolderViewModel();
-            foreach (var attachment in attachmentsList)
-            {
-                 fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
-                _queueItemAttachmentRepository.SoftDelete(attachment.Id.Value);
-            }
-            fileView = _fileManager.DeleteFileFolder(fileView.ParentId.ToString(), driveName);
-            _fileManager.AddBytesToFoldersAndDrive( new List<FileFolderViewModel> { fileView });
-        }
-
-        public void DeleteAll(QueueItem queueItem, string driveName)
-        {
-            var attachments = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == queueItem.Id)?.Items;
-            var fileView = new FileFolderViewModel();
+            var attachments = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == existingQueueItem.Id)?.Items;
             if (attachments.Count != 0)
             {
+                var fileView = new FileFolderViewModel();
                 foreach (var attachment in attachments)
                 {
                     fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
                     _queueItemAttachmentRepository.SoftDelete(attachment.Id.Value);
                 }
-
-                var folder = _fileManager.DeleteFileFolder(fileView.ParentId.ToString(), driveName);
-                _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
-
-                //update queue item payload
-                queueItem.PayloadSizeInBytes = 0;
-                _repo.Update(queueItem);
+                var folder = _fileManager.GetFileFolder(fileView.ParentId.ToString(), driveName);
+                if (!folder.HasChild.Value)
+                    _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
+                else _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileView });
             }
-            else throw new EntityDoesNotExistException("Attachments could not be found");
+            else throw new EntityDoesNotExistException("No attachments found to delete");
+        }
+
+        public void DeleteAll(QueueItem queueItem, string driveName)
+        {
+            DeleteQueueItem(queueItem, driveName);
+
+            //update queue item payload
+            queueItem.PayloadSizeInBytes = 0;
+            _repo.Update(queueItem);
         }
 
         public void DeleteOne(QueueItemAttachment attachment, QueueItem queueItem, string driveName)
@@ -717,7 +706,10 @@ namespace OpenBots.Server.Business
             if (attachment != null)
             {
                 var fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
-                _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileView });
+                var folder = _fileManager.GetFileFolder(fileView.ParentId.ToString(), driveName);
+                if (!folder.HasChild.Value)
+                    _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
+                else _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileView });
 
                 //update queue item payload
                 queueItem.PayloadSizeInBytes -= attachment.SizeInBytes;

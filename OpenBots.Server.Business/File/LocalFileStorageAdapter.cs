@@ -696,9 +696,7 @@ namespace OpenBots.Server.Business.File
                     string shortPath = GetShortPath(storageFolder.StoragePath);
                     bool hasChild = CheckFolderHasChild(storageFolder.Id);
                     fileFolder = fileFolder.Map(storageFolder, shortPath, hasChild);
-                    if (storageFolder.StoragePath.Contains("Queue Item Attachments") && !hasChild)
-                        DeleteFolder(storageFolder);
-                    else if (storageFolder.SizeInBytes > 0)
+                    if (storageFolder.SizeInBytes > 0 && !storageFolder.StoragePath.Contains("Queue Item Attachments") && !storageFolder.StoragePath.Contains("Automations") && !storageFolder.StoragePath.Contains("Assets") && !storageFolder.StoragePath.Contains("Email Attachments"))
                         throw new EntityOperationException("Folder cannot be deleted because it has files inside");
                     else if (hasChild)
                         throw new EntityOperationException("Folder cannot be deleted because it has folders inside");

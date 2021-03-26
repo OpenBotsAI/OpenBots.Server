@@ -25,7 +25,6 @@ namespace OpenBots.Server.Business
         EmailViewModel SendDraftEmail(string id, SendEmailViewModel request, string emailAccountName = null);
         EmailViewModel SendNewEmail(SendEmailViewModel request, string emailAccountName = null);
         EmailViewModel UpdateFiles(string id, UpdateEmailViewModel request);
-        void DeleteEmailAttachments(string id, string driveName);
         EmailViewModel GetEmailView(EmailViewModel email);
         Task<FileFolderViewModel> Export(string id, string driveName = null);
     }
