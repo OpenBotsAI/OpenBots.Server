@@ -27,7 +27,7 @@ namespace OpenBots.Server.Business.Interfaces
         FileFolderViewModel MoveFileFolder(string fileFolderId, string parentFolderId, string driveName = null);
         FileFolderViewModel CopyFileFolder(string fileFolderId, string parentFolderId, string driveName = null);
         void AddBytesToFoldersAndDrive(List<FileFolderViewModel> files);
-        void RemoveBytesFromFoldersAndDrive(List<FileFolderViewModel> files)
+        void RemoveBytesFromFoldersAndDrive(List<FileFolderViewModel> files);
         StorageDrive AddStorageDrive(string driveName);
     }
 }
