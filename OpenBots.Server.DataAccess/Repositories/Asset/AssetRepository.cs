@@ -31,7 +31,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                 var itemRecord = from p in itemsList.Items
                                  join a in dbContext.Agents on p.AgentId equals a.Id into table1
                                  from a in table1.DefaultIfEmpty()
-                                 join f in dbContext.ServerFiles on p.FileId equals f.Id into table2
+                                 join f in dbContext.StorageFiles on p.FileId equals f.Id into table2
                                  from f in table2.DefaultIfEmpty()
                                  select new AssetViewModel
                                  {

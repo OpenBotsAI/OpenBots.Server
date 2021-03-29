@@ -44,9 +44,9 @@ namespace OpenBots.Server.DataAccess
         public DbSet<IntegrationEventLog> IntegrationEventLogs { get; set; }
         public DbSet<IntegrationEventSubscription> IntegrationEventSubscriptions { get; set; }
         public DbSet<IntegrationEventSubscriptionAttempt> IntegrationEventSubscriptionAttempts { get; set; }
-        public DbSet<ServerDrive> ServerDrives { get; set; }
-        public DbSet<ServerFolder> ServerFolders { get; set; }
-        public DbSet<ServerFile> ServerFiles { get; set; }
+        public DbSet<StorageDrive> StorageDrives { get; set; }
+        public DbSet<StorageFolder> StorageFolders { get; set; }
+        public DbSet<StorageFile> StorageFiles { get; set; }
         public DbSet<FileAttribute> FileAttributes { get; set; }
 
 

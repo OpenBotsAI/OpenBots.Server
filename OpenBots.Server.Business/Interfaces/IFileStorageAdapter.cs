@@ -13,7 +13,7 @@ namespace OpenBots.Server.Business.Interfaces
 
         public PaginatedList<FileFolderViewModel> GetFilesFolders(bool? isFile = null, string driveName = null, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
 
-        public FileFolderViewModel SaveFile(FileFolderViewModel viewModel, IFormFile file, ServerDrive drive);
+        public FileFolderViewModel SaveFile(FileFolderViewModel viewModel, IFormFile file, StorageDrive drive);
 
         public void UpdateFile(FileFolderViewModel request);
 

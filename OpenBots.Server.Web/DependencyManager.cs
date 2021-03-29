@@ -98,7 +98,7 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IDirectoryManager), typeof(DirectoryManager));
             services.AddTransient(typeof(IWebhookPublisher), typeof(WebhookPublisher));
             services.AddTransient(typeof(IWebhookSender), typeof(WebhookSender));
-            services.AddTransient(typeof(LocalFileStorageAdapter), typeof(LocalFileStorageAdapter));
+            services.AddTransient(typeof(ILocalFileStorageAdapter), typeof(LocalFileStorageAdapter));
             services.AddTransient(typeof(IFileManager), typeof(FileManager));
 
             //email services
@@ -114,9 +114,9 @@ namespace OpenBots.Server.Web
 
             //files
             services.AddTransient(typeof(IFileAttributeRepository), typeof(FileAttributeRepository));
-            services.AddTransient(typeof(IServerDriveRepository), typeof(ServerDriveRepository));
-            services.AddTransient(typeof(IServerFolderRepository), typeof(ServerFolderRepository));
-            services.AddTransient(typeof(IServerFileRepository), typeof(ServerFileRepository));
+            services.AddTransient(typeof(IStorageDriveRepository), typeof(StorageDriveRepository));
+            services.AddTransient(typeof(IStorageFolderRepository), typeof(StorageFolderRepository));
+            services.AddTransient(typeof(IStorageFileRepository), typeof(StorageFileRepository));
         }
     }
 }

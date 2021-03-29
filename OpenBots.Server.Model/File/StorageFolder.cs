@@ -3,7 +3,7 @@ using System;
 
 namespace OpenBots.Server.Model.File
 {
-    public class ServerFolder: NamedEntity
+    public class StorageFolder: NamedEntity
     {
         public Guid? StorageDriveId { get; set; }
         public Guid? ParentFolderId { get; set; }

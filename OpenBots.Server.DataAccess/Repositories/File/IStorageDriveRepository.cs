@@ -2,7 +2,7 @@
 
 namespace OpenBots.Server.DataAccess.Repositories.Interfaces
 {
-    public interface IServerDriveRepository : IEntityRepository<ServerDrive>
+    public interface IStorageDriveRepository : IEntityRepository<StorageDrive>
     {
     }
 }

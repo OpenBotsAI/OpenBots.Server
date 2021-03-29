@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace OpenBots.Server.Model.File
 {
-    public class ServerFile: NamedEntity
+    public class StorageFile: NamedEntity
     {
         public Guid? StorageFolderId { get; set; }
         public string ContentType { get; set; }
@@ -13,7 +13,7 @@ namespace OpenBots.Server.Model.File
         public long? SizeInBytes { get; set; }
         public string HashCode { get; set; }
         public Guid? OrganizationId { get; set; }
-        public Guid? ServerDriveId { get; set; }
+        public Guid? StorageDriveId { get; set; }
         public List<FileAttribute> FileAttributes { get; set; }
     }
 }

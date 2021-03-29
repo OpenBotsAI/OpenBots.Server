@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenBots.Server.DataAccess;
 
 namespace OpenBots.Server.DataAccess.Migrations
 {
     [DbContext(typeof(StorageContext))]
-    partial class StorageContextModelSnapshot : ModelSnapshot
+    [Migration("20210325194724_RenameStorageAttributes")]
+    partial class RenameStorageAttributes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1446,7 +1448,7 @@ namespace OpenBots.Server.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StorageDrives");
+                    b.ToTable("ServerDrives");
                 });
 
             modelBuilder.Entity("OpenBots.Server.Model.File.StorageFile", b =>
@@ -1516,7 +1518,7 @@ namespace OpenBots.Server.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StorageFiles");
+                    b.ToTable("ServerFiles");
                 });
 
             modelBuilder.Entity("OpenBots.Server.Model.File.StorageFolder", b =>
@@ -1577,7 +1579,7 @@ namespace OpenBots.Server.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StorageFolders");
+                    b.ToTable("ServerFolders");
                 });
 
             modelBuilder.Entity("OpenBots.Server.Model.IPFencing", b =>

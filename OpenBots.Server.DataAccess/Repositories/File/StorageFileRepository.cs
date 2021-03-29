@@ -11,27 +11,27 @@ using System.Linq;
 
 namespace OpenBots.Server.DataAccess.Repositories.File
 {
-    public class ServerFileRepository : EntityRepository<ServerFile>, IServerFileRepository
+    public class StorageFileRepository : EntityRepository<StorageFile>, IStorageFileRepository
     {
-        public ServerFileRepository(StorageContext context, ILogger<ServerFile> logger, IHttpContextAccessor httpContextAccessor) : base(context, logger, httpContextAccessor)
+        public StorageFileRepository(StorageContext context, ILogger<StorageFile> logger, IHttpContextAccessor httpContextAccessor) : base(context, logger, httpContextAccessor)
         { }
 
-        protected override DbSet<ServerFile> DbTable()
+        protected override DbSet<StorageFile> DbTable()
         {
-            return dbContext.ServerFiles;
+            return dbContext.StorageFiles;
         }
 
         public PaginatedList<FileFolderViewModel> FindAllView(Guid? driveId, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
             PaginatedList<FileFolderViewModel> paginatedList = new PaginatedList<FileFolderViewModel>();
-            var itemsList = base.Find(null, j => j.IsDeleted == false && j.ServerDriveId == driveId);
+            var itemsList = base.Find(null, j => j.IsDeleted == false && j.StorageDriveId == driveId);
 
             if (itemsList != null && itemsList.Items != null && itemsList.Items.Count > 0)
             {
                 var itemRecord = from a in itemsList.Items
-                                 join b in dbContext.ServerFolders on a.StorageFolderId equals b.Id into table1
+                                 join b in dbContext.StorageFolders on a.StorageFolderId equals b.Id into table1
                                  from b in table1.DefaultIfEmpty()
-                                 join c in dbContext.ServerDrives on a.ServerDriveId equals c.Id into table2
+                                 join c in dbContext.StorageDrives on a.StorageDriveId equals c.Id into table2
                                  from c in table2.DefaultIfEmpty()
                                  select new FileFolderViewModel
                                  {
@@ -46,7 +46,7 @@ namespace OpenBots.Server.DataAccess.Repositories.File
                                      ParentId = a?.StorageFolderId,
                                      StoragePath = b?.StoragePath != null ? b?.StoragePath : c?.Name,
                                      Size = a?.SizeInBytes,
-                                     StorageDriveId = a?.ServerDriveId
+                                     StorageDriveId = a?.StorageDriveId
                                  };
 
                 if (!string.IsNullOrWhiteSpace(sortColumn))
