@@ -118,19 +118,15 @@
           <div class="row">
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
-                <label for="queueitemtype" class="label">OS Logon Credentials * </label>
+                <label for="queueitemtype" class="label">OS Logon Credentials *</label>
                 <!-- <select class="custom-select" formControlName="CredentialId">
                   <option value='' selected> </option>
                   <option *ngFor="let item of credentialArr" [value]="item.credentialId">{{item.credentialName}}
                   </option>
                 </select> -->
                 <ng-select [items]="credentialArr" [searchable]="true" bindLabel="credentialName"
-                  formControlName="CredentialId" class="NgSelect" placeholder="Please select agent group"
-                  [closeOnSelect]="true" bindValue="credentialId">
-                  <!-- <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
-                    <input id="item-{{index}}" type="checkbox" [checked]="item$.selected" />
-                    {{item.credentialName}}
-                  </ng-template> -->
+                  formControlName="CredentialId" class="NgSelect" placeholder="Please select credential"
+                  [closeOnSelect]="true" bindValue="credentialId" [clearable]="false">
                 </ng-select>
                 <div *ngIf="formControl.CredentialId.touched && formControl.CredentialId.invalid"
                   class="invalid-feedback-frm">
@@ -141,7 +137,7 @@
             </div>
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
-                <label class="label">Agent Enabled </label>
+                <label class="label">Agent Enabled</label>
                 <div class="checkbox checbox-switch switch-primary">
                   <label>
                     <input type="checkbox" name="isAdmin" formControlName="isEnabled" />

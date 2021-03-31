@@ -38,12 +38,16 @@
                 <span></span>
               </label>
               <ng-container *ngIf="!isChecked">
-                <select class="custom-select" formControlName="agentId">
+                <!-- <select class="custom-select" formControlName="agentId">
                   <option value="" disabled>Please select agent name</option>
                   <option *ngFor="let item of allAgents" [value]="item?.agentId">
                     {{ item?.agentName }}
                   </option>
-                </select>
+                </select> -->
+                <ng-select [items]="allAgents" [searchable]="true" bindLabel="agentName" formControlName="agentId"
+                  class="NgSelect" [closeOnSelect]="true" placeholder="Please select agent" bindValue="agentId"
+                  [clearable]="false">
+                </ng-select>
                 <div
                   *ngIf="formControls.agentId.invalid &&(formControls.agentId.dirty || formControls.agentId.touched) && !isChecked "
                   class="invalid-feedback-frm">
@@ -53,12 +57,16 @@
                 </div>
               </ng-container>
               <ng-container *ngIf="isChecked">
-                <select class="custom-select" formControlName="agentGroupId">
+                <!-- <select class="custom-select" formControlName="agentGroupId">
                   <option value="" disabled>Please select agent group</option>
                   <option *ngFor="let item of allGroupAgents" [value]="item?.agentGroupId">
                     {{ item?.agentGroupName }}
                   </option>
-                </select>
+                </select> -->
+                <ng-select [items]="allGroupAgents" [searchable]="true" bindLabel="agentGroupName"
+                  formControlName="agentGroupId" class="NgSelect" [closeOnSelect]="true"
+                  placeholder="Please select agent group" bindValue="agentGroupId" [clearable]="false">
+                </ng-select>
                 <div
                   *ngIf="formControls.agentGroupId.invalid &&(formControls.agentGroupId.dirty || formControls.agentGroupId.touched) && isChecked "
                   class="invalid-feedback-frm">
@@ -72,12 +80,17 @@
           <div class="row rowPadBottom">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="processId" class="label">Automations *</label>
-              <select class="custom-select" formControlName="automationId" (change)="onAutomationChange($event)">
+              <!-- <select class="custom-select" formControlName="automationId" (change)="onAutomationChange($event)">
                 <option value="" disabled>Please select automation name</option>
                 <option *ngFor="let item of allProcesses" [value]="item?.automationId">
                   {{ item?.automationNameWithVersion }}
                 </option>
-              </select>
+              </select> -->
+              <ng-select [items]="allProcesses" [searchable]="true" bindLabel="automationNameWithVersion"
+                formControlName="automationId" class="NgSelect" [closeOnSelect]="true"
+                placeholder="Please select automation" bindValue="automationId" [clearable]="false"
+                (change)="onAutomationChange($event)">
+              </ng-select>
               <div
                 *ngIf=" formControls.automationId.invalid &&(formControls.automationId.dirty || formControls.automationId.touched) "
                 class="invalid-feedback-frm">

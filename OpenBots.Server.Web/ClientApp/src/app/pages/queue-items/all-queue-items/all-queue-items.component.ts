@@ -163,8 +163,11 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
   selectChange(event, param: string): void {
     this.searchForm.reset();
     this.searchedValue = null;
-    this.selectedQueueId = event.target.value;
-    if (event.target.value && param === 'pageSize') {
+    if (event && event.id) {
+      this.selectedQueueId = event.id;
+    }
+    // this.selectedQueueId = event.target.value;
+    if (event && event.target && event.target.value && param === 'pageSize') {
       this.page.pageNumber = 1;
       this.page.pageSize = +event.target.value;
       if (this.filterOrderBy)
@@ -173,7 +176,7 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
           this.page.pageSize,
           `${this.filterOrderBy}`
         );
-    } else if (event.target.value && param === 'nothing') {
+    } else if (event.id && param === 'nothing') {
       if (this.filterOrderBy)
         this.pagination(
           this.page.pageNumber,
