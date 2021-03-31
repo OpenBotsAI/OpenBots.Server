@@ -12,7 +12,6 @@ namespace OpenBots.Server.Model
         [Display(Name = "DataType")]
         public string DataType { get; set; }
 
-        [Required]
         [Display(Name = "Value")]
         public string Value { get; set; }
 

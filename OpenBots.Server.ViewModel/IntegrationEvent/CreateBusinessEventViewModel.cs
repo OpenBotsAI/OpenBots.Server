@@ -18,9 +18,9 @@ namespace OpenBots.Server.ViewModel
         public string Description { get; set; }
 
         [StringLength(256, ErrorMessage = "The EntityType cannot exceed 256 characters. ")]
-        public string? EntityType { get; set; }
+        public string EntityType { get; set; }
 
-        public string? PayloadSchema { get; set; }
+        public string PayloadSchema { get; set; }
 
         public IntegrationEvent Map(CreateBusinessEventViewModel businessEventViewModel)
         {

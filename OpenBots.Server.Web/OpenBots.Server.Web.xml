@@ -2150,7 +2150,7 @@
             Controller for Integration events
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.#ctor(OpenBots.Server.DataAccess.Repositories.IIntegrationEventRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.Business.IIntegrationEventManager,OpenBots.Server.Web.Webhooks.IWebhookPublisher,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.#ctor(OpenBots.Server.DataAccess.Repositories.IIntegrationEventRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.Business.IIntegrationEventManager,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
             <summary>
             IntegrationEventsController constructor
             </summary>
@@ -2212,6 +2212,19 @@
             <response code="409">Conflict, concurrency error</response> 
              <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
              <returns>Newly created business event details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.RaiseBusinessEvent(System.String,OpenBots.Server.ViewModel.RaiseBusinessEventViewModel)">
+             <summary>
+             Raise a new business event
+             </summary>
+             <param name="request">Request to raise new business event</param>
+             <param name="id">IntegrationEvent id, produces bad request if id is null or ids don't match</param>
+             <response code="200">Ok, new event raised and returned</response>
+             <response code="400">Bad request, when the event value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+             <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+             <returns>Ok if business event was successfully raised</returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.PutBusinessEvent(System.String,OpenBots.Server.ViewModel.CreateBusinessEventViewModel)">
             <summary>
