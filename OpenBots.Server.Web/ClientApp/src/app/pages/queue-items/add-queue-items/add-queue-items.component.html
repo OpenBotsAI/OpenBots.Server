@@ -30,12 +30,16 @@
           <div class="row rowPadding">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="queueId" class="label">Queue *</label>
-              <select class="custom-select" formControlName="queueId">
+              <!-- <select class="custom-select" formControlName="queueId">
                 <option value="" [disabled]="true">Please select Queue</option>
                 <option *ngFor="let item of queuesArr" [value]="item?.id">
                   {{ item?.name }}
                 </option>
-              </select>
+              </select> -->
+              <ng-select [items]="queuesArr" [searchable]="true" bindLabel="name" formControlName="queueId"
+                class="NgSelect" placeholder="Please select queue" [closeOnSelect]="true" bindValue="id"
+                [clearable]="false">
+              </ng-select>
               <div *ngIf="controls.queueId.invalid &&
                   (controls.queueId.dirty || controls.queueId.touched)" class="invalid-feedback-frm">
                 <div *ngIf="controls.queueId.errors.required">

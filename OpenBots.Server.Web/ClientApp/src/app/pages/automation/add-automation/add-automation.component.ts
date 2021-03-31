@@ -71,7 +71,9 @@ export class AddAutomationComponent implements OnInit {
       ],
       status: ['Published'],
       automationEngine: [''],
-      automationParameters: this.formBuilder.array([]),
+      automationParameters: this.urlId
+        ? this.formBuilder.array([this.initializeParameterFormArray()])
+        : this.formBuilder.array([]),
     });
   }
   getProcessByID(id) {
@@ -214,7 +216,10 @@ export class AddAutomationComponent implements OnInit {
         .subscribe(
           () => {
             this.automationService
-              .postAutomationParameters(this.urlId, this.items.value)
+              .postAutomationParameters(
+                this.urlId,
+                this.showprocess.get('automationParameters').value
+              )
               .subscribe((response) => {
                 if (response) {
                   this.toastrService.success('Updated successfully', 'Success');

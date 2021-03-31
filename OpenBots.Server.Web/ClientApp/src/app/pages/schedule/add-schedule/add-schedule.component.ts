@@ -294,7 +294,7 @@ export class AddScheduleComponent implements OnInit {
   onAutomationChange(event): void {
     this.httpService
       .get(
-        `${automationsApiUrl.automations}/${automationsApiUrl.view}/${event.target.value}`,
+        `${automationsApiUrl.automations}/${automationsApiUrl.view}/${event.automationId}`,
         { observe: 'response' }
       )
       .subscribe((response) => {

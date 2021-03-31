@@ -23,6 +23,7 @@ import { InputTrimModule } from 'ng2-trim-directive';
 import { TimeagoPipe } from '../services/timeago.pipe';
 import { TooltipComponent } from './tooltip/tooltip.component';
 import { BlockUIModule } from 'ng-block-ui';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { BlockUIModule } from 'ng-block-ui';
     TimeagoPipe,
     BlockUIModule,
     OrderByPipe,
+    NgSelectModule,
   ],
 })
 export class SharedModule {}
