@@ -55,7 +55,7 @@
           <div class="row">
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
-                <label for="email" class="label"> Enhanced Security</label>
+                <label for="email" class="label">Enhanced Security</label>
                 <label class="upload-button">
                   <nb-checkbox (checkedChange)="check($event)" formControlName="isEnhancedSecurity"> Enhanced Security
                   </nb-checkbox>
@@ -118,12 +118,20 @@
           <div class="row">
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">
-                <label for="queueitemtype" class="label"> OS Logon Credentials * </label>
-                <select class="custom-select" formControlName="CredentialId">
+                <label for="queueitemtype" class="label">OS Logon Credentials * </label>
+                <!-- <select class="custom-select" formControlName="CredentialId">
                   <option value='' selected> </option>
                   <option *ngFor="let item of credentialArr" [value]="item.credentialId">{{item.credentialName}}
                   </option>
-                </select>
+                </select> -->
+                <ng-select [items]="credentialArr" [searchable]="true" bindLabel="credentialName"
+                  formControlName="CredentialId" class="NgSelect" placeholder="Please select agent group"
+                  [closeOnSelect]="true" bindValue="credentialId">
+                  <!-- <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
+                    <input id="item-{{index}}" type="checkbox" [checked]="item$.selected" />
+                    {{item.credentialName}}
+                  </ng-template> -->
+                </ng-select>
                 <div *ngIf="formControl.CredentialId.touched && formControl.CredentialId.invalid"
                   class="invalid-feedback-frm">
                   <div *ngIf="formControl.CredentialId.errors && formControl.CredentialId.errors.required"> Credential
