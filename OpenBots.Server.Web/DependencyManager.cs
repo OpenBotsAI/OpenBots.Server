@@ -86,18 +86,18 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IAutomationVersionRepository), typeof(AutomationVersionRepository));
             services.AddTransient(typeof(IAutomationParameterRepository), typeof(AutomationParameterRepository));
 
-            //webHooks
+            //IntegrationEvents
             services.AddTransient(typeof(IIntegrationEventRepository), typeof(IntegrationEventRepository));
             services.AddTransient(typeof(IIntegrationEventLogRepository), typeof(IntegrationEventLogRepository));
             services.AddTransient(typeof(IIntegrationEventSubscriptionRepository), typeof(IntegrationEventSubscriptionRepository));
             services.AddTransient(typeof(IIntegrationEventSubscriptionAttemptRepository), typeof(IntegrationEventSubscriptionAttemptRepository));
             services.AddTransient(typeof(IIntegrationEventSubscriptionAttemptManager), typeof(IntegrationEventSubscriptionAttemptManager));
-
+            services.AddTransient(typeof(IWebhookPublisher), typeof(WebhookPublisher));
+            services.AddTransient(typeof(IWebhookSender), typeof(WebhookSender));
+            services.AddTransient(typeof(IIntegrationEventManager), typeof(IntegrationEventManager));
 
             //blob storage
             services.AddTransient(typeof(IDirectoryManager), typeof(DirectoryManager));
-            services.AddTransient(typeof(IWebhookPublisher), typeof(WebhookPublisher));
-            services.AddTransient(typeof(IWebhookSender), typeof(WebhookSender));
             services.AddTransient(typeof(ILocalFileStorageAdapter), typeof(LocalFileStorageAdapter));
             services.AddTransient(typeof(IFileManager), typeof(FileManager));
 

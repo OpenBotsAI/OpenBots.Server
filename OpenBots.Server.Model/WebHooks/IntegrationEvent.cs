@@ -9,7 +9,7 @@ namespace OpenBots.Server.Model.Webhooks
         [StringLength(2048, ErrorMessage = "The Description cannot exceed 2048 characters. ")]
         public string Description { get; set; }
 
-        [StringLength(256, ErrorMessage = "The EntityName cannot exceed 256 characters. ")]
+        [StringLength(256, ErrorMessage = "The EntityType cannot exceed 256 characters. ")]
         public string? EntityType { get; set; }
 
         public string? PayloadSchema { get; set; }

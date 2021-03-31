@@ -2150,7 +2150,7 @@
             Controller for Integration events
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.#ctor(OpenBots.Server.DataAccess.Repositories.IIntegrationEventRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.#ctor(OpenBots.Server.DataAccess.Repositories.IIntegrationEventRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.Business.IIntegrationEventManager,OpenBots.Server.Web.Webhooks.IWebhookPublisher,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
             <summary>
             IntegrationEventsController constructor
             </summary>
@@ -2197,6 +2197,48 @@
             <response code="404">Not found</response>
             <response code="422">Unprocessable entity</response>
             <returns>List of all names in IntegrationEvents table</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.PostBusinessEvent(OpenBots.Server.ViewModel.CreateBusinessEventViewModel)">
+             <summary>
+             Adds a new business event
+             </summary>
+             <remarks>
+             Adds a business event with a unique id to the existing IntegrationEvents
+             </remarks>
+             <param name="request"></param>
+             <response code="200">Ok, new event created and returned</response>
+             <response code="400">Bad request, when the event value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+             <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+             <returns>Newly created business event details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.PutBusinessEvent(System.String,OpenBots.Server.ViewModel.CreateBusinessEventViewModel)">
+            <summary>
+            Update a business event
+            </summary>
+            <remarks>
+            Provides an action to update a business event, when IntegrationEvent id and the new details of the business event are given
+            </remarks>
+            <param name="id">IntegrationEvent id, produces bad request if id is null or ids don't match</param>
+            <param name="request">Business event details to be updated</param>
+            <response code="200">Ok, if the IntegrationEvent details for the given id have been updated</response>
+            <response code="400">Bad request, if the IntegrationEvent id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Ok response with the updated business event details for the IntegrationEvent</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.PatchBusinessEvent(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Webhooks.IntegrationEvent})">
+            <summary>
+            Updates partial details of a business event
+            </summary>
+            <param name="id">IntegrationEvent identifier</param>
+            <param name="request">Value of the business event to be updated</param>
+            <response code="200">Ok, if update of business event is successful</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity ,validation error</response>
+            <returns>Ok response, if the partial business event values have been updated</returns>
         </member>
         <member name="T:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionAttemptsController">
             <summary>
