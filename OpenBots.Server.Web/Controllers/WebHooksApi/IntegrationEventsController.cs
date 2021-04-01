@@ -179,7 +179,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         ///<response code="409">Conflict, concurrency error</response> 
         /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
         /// <returns>Newly created business event details</returns>
-        [HttpPost("BusinessEvent")]
+        [HttpPost("BusinessEvents")]
         [ProducesResponseType(typeof(IntegrationEvent), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -212,7 +212,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         ///<response code="409">Conflict, concurrency error</response> 
         /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
         /// <returns>Ok if business event was successfully raised</returns>
-        [HttpPost("BusinessEvent/RaiseEvent/{id}")]
+        [HttpPost("BusinessEvents/RaiseEvent/{id}")]
         [ProducesResponseType(typeof(IntegrationEvent), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -246,7 +246,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Ok response with the updated business event details for the IntegrationEvent</returns>
-        [HttpPut("BusinessEvent/{id}")]
+        [HttpPut("BusinessEvents/{id}")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -277,7 +277,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity ,validation error</response>
         /// <returns>Ok response, if the partial business event values have been updated</returns>
-        [HttpPatch("BusinessEvent/{id}")]
+        [HttpPatch("BusinessEvents/{id}")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -296,6 +296,34 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
                 if (existingEvent.IsSystem == true) throw new UnauthorizedOperationException($"System events can't be updated", EntityOperationType.Update);
 
                 return await base.PatchEntity(id, request);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Delete business event with a specified id from list of IntegrationEvents
+        /// </summary>
+        /// <param name="id">IntegrationEvent id to be deleted - throws bad request if null or empty Guid</param>
+        /// <param name="driveName"></param>
+        /// <response code="200">Ok, when business event is soft deleted, (isDeleted flag is set to true in database)</response>
+        /// <response code="400">Bad request, if IntegrationEvent id is null or empty Guid</response>
+        /// <response code="403">Forbidden</response>
+        /// <returns>Ok response if the business event was successfully deleted</returns>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> Delete(string id)
+        {
+            try
+            {
+                _integrationEventManager.DeleteBusinessEvent(id);
+                return Ok();
             }
             catch (Exception ex)
             {

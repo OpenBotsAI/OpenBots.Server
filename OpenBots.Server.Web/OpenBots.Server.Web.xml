@@ -2253,6 +2253,17 @@
             <response code="422">Unprocessable entity ,validation error</response>
             <returns>Ok response, if the partial business event values have been updated</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.Delete(System.String)">
+            <summary>
+            Delete business event with a specified id from list of IntegrationEvents
+            </summary>
+            <param name="id">IntegrationEvent id to be deleted - throws bad request if null or empty Guid</param>
+            <param name="driveName"></param>
+            <response code="200">Ok, when business event is soft deleted, (isDeleted flag is set to true in database)</response>
+            <response code="400">Bad request, if IntegrationEvent id is null or empty Guid</response>
+            <response code="403">Forbidden</response>
+            <returns>Ok response if the business event was successfully deleted</returns>
+        </member>
         <member name="T:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionAttemptsController">
             <summary>
             ReadOnlyController for IntegrationEventSubscriptionAttempts events

@@ -9,7 +9,6 @@ namespace OpenBots.Server.Model
     /// </summary>
     public class JobParameter : NamedEntity
     {
-        [Required]
         [Display(Name = "DataType")]
         public string DataType { get; set; }
 

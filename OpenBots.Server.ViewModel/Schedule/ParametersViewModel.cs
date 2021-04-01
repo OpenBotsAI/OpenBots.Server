@@ -11,7 +11,6 @@ namespace OpenBots.Server.ViewModel
     /// </summary>
     public class ParametersViewModel : NamedEntity
     {
-        [Required]
         [Display(Name = "DataType")]
         public string DataType { get; set; }
 

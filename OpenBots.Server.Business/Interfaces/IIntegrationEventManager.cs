@@ -10,5 +10,6 @@ namespace OpenBots.Server.Business
     {
         IntegrationEvent UpdateBusinessEvent(string id, CreateBusinessEventViewModel request);
         void RaiseBusinessEvent(string id, RaiseBusinessEventViewModel request);
+        void DeleteBusinessEvent(string id);
     }
 }

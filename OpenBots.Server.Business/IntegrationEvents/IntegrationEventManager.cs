@@ -48,6 +48,15 @@ namespace OpenBots.Server.Business
 
         }
 
+        public void DeleteBusinessEvent(string id)
+        {
+            Guid entityId = new Guid(id);
+            var existingEvent = _integrationEventRepository.GetOne(entityId);
+            VerifyBusinessEvent(existingEvent);
+
+            _integrationEventRepository.SoftDelete(entityId);
+        }
+
         /// <summary>
         /// Verify that the IntegrationEvent is not a system event
         /// </summary>
