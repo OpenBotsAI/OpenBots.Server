@@ -100,9 +100,9 @@ export class EmailTestingAccountComponent implements OnInit {
       this.getEmail = data;
     });
   }
-  onChange($event: any): void {}
+  onChange($event: any): void { }
 
-  onPaste($event: any): void {}
+  onPaste($event: any): void { }
 
   get f() {
     return this.emailform.controls;
@@ -157,7 +157,9 @@ export class EmailTestingAccountComponent implements OnInit {
 
     this.emailService.SendEmail(this.emailform.value.name, formData).subscribe(
       () => {
-        this.toastrService.success('Email Send successfully.', 'Success');
+        this.toastrService.success('Email Sent successfully.', 'Success');
+        //this.toastrService.success('Send', 'Success');
+
         this.router.navigate(['pages/emailaccount/list']);
         this.submitted = false;
       },
