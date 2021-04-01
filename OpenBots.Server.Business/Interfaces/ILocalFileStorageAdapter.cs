@@ -29,5 +29,6 @@ namespace OpenBots.Server.Business.Interfaces
         void AddBytesToFoldersAndDrive(List<FileFolderViewModel> files);
         void RemoveBytesFromFoldersAndDrive(List<FileFolderViewModel> files);
         StorageDrive AddStorageDrive(string driveName);
+        string GetShortPath(string path);
     }
 }
