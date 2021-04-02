@@ -150,7 +150,7 @@
                  <label class="label">Upload File *</label>
             <label class="upload-button">
                 <input type="file" ngFileSelect [options]="options"
-                 (uploadOutput)="onUploadOutput($event)" [uploadInput]="uploadInput" multiple>
+                 (uploadOutput)="onUploadOutputAgent($event)" [uploadInput]="uploadInput" multiple>
                  
               </label>
               <div *ngIf="showUpload" class="invalid-feedback-frm">
