@@ -25,14 +25,19 @@
       <div class="row row-fil">
         <div class="col-md-8 col-lg-8">
           <label class="label-ser">Service Name:</label>
-          <select class="custom-select service-name" (change)="get_service_name($event.target.value)"
+          <!-- <select class="custom-select service-name" (change)="get_service_name($event.target.value)"
             formControlName="page_name">
             <option value="" selected>All</option>
-            <!-- | orderBy:'item' -->
+            
             <option *ngFor="let item of show_service_name  " [value]="item">
               {{ item }}
             </option>
-          </select>
+          </select> -->
+          <ng-select [items]="show_service_name" [searchable]="true" bindLabel="show_service_name"
+          formControlName="page_name" class="NgSelect" placeholder="Please select Service Name"
+           (change)="get_service_name($event)"
+          [closeOnSelect]="true" bindValue="show_service_name" [clearable]="false">
+        </ng-select>
         </div>
       </div>
     </form>
