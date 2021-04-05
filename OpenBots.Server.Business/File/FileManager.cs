@@ -263,6 +263,11 @@ namespace OpenBots.Server.Business.File
             return drive.FileStorageAdapterType;
         }
 
+        public string GetShortPath(string path)
+        {
+            return _localFileStorageAdapter.GetShortPath(path);
+        }
+
         public enum AdapterType
         {
             LocalFileStorage,

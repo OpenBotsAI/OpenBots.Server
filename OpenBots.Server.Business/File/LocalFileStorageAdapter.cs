@@ -563,9 +563,9 @@ namespace OpenBots.Server.Business.File
                     string shortPath = GetShortPath(storageFolder.StoragePath);
                     bool hasChild = CheckFolderHasChild(storageFolder.Id);
                     fileFolder = fileFolder.Map(storageFolder, shortPath, hasChild);
-                    if (storageFolder.StoragePath.Contains("Queue Item Attachments") && !hasChild)
-                        DeleteFolder(storageFolder);
-                    else if (storageFolder.SizeInBytes > 0)
+                    if (storageFolder.SizeInBytes > 0 && !storageFolder.StoragePath.Contains("Queue Item Attachments") &&
+                        !storageFolder.StoragePath.Contains("Automations") && !storageFolder.StoragePath.Contains("Assets") &&
+                        !storageFolder.StoragePath.Contains("Email Attachments"))
                         throw new EntityOperationException("Folder cannot be deleted because it has files inside");
                     else if (hasChild)
                         throw new EntityOperationException("Folder cannot be deleted because it has folders inside");
@@ -936,6 +936,19 @@ namespace OpenBots.Server.Business.File
             return storageDrive;
         }
 
+        public string GetShortPath(string path)
+        {
+            var newPathArray = path.Split(Path.DirectorySeparatorChar);
+            var shortPathArray = new string[newPathArray.Length - 1];
+            for (int i = 0; i < newPathArray.Length - 1; i++)
+            {
+                string folderName = newPathArray[i];
+                shortPathArray.SetValue(folderName, i);
+            }
+            string shortPath = string.Join(Path.DirectorySeparatorChar, shortPathArray);
+            return shortPath;
+        }
+
         protected enum FileAttributes
         {
             StorageCount,
@@ -1153,19 +1166,6 @@ namespace OpenBots.Server.Business.File
             path = string.Join(Path.DirectorySeparatorChar, pathArray);
 
             return path;
-        }
-
-        private string GetShortPath(string path)
-        {
-            var newPathArray = path.Split(Path.DirectorySeparatorChar);
-            var shortPathArray = new string[newPathArray.Length - 1];
-            for (int i = 0; i < newPathArray.Length - 1; i++)
-            {
-                string folderName = newPathArray[i];
-                shortPathArray.SetValue(folderName, i);
-            }
-            string shortPath = string.Join(Path.DirectorySeparatorChar, shortPathArray);
-            return shortPath;
         }
 
         private void ExistingFolderCheck(string path)

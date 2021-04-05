@@ -139,6 +139,7 @@ export class AllChangeLogComponent implements OnInit {
   }
 
   get_service_name(val) {
+    console.log(val)
     if (val) {
       if (this.params == false) {
         this.service_name_page = true;

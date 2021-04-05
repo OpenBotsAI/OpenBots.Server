@@ -20,6 +20,9 @@
 ::ng-deep .ngx-pagination {
     padding-left: 0px !important;
 }
+::ng-deep .ng-select.ng-select-single .ng-select-container {
+  height: 44px !important;
+  }
 .ngx-pagination .current, .btn-info {
     background: #17a2b8 !important;
     border: transparent !important;

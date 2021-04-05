@@ -42,5 +42,7 @@ namespace OpenBots.Server.Business.Interfaces
         StorageDrive AddStorageDrive(string driveName);
 
         Dictionary<Guid?, string> GetDriveNames(string adapterType);
+
+        string GetShortPath(string path);
     }
 }

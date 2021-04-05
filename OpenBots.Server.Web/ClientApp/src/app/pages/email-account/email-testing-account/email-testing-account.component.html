@@ -45,12 +45,17 @@
 
 
               <label class="label col-form-label">Name *</label>
-              <select class="custom-select  " style="color: #000000" formControlName="name">
+              <!-- <select class="custom-select  " style="color: #000000" formControlName="name"> -->
 
-                <option *ngFor="let item of getEmail" [value]="item.emailAccountName">
+                <!-- <option *ngFor="let item of getEmail" [value]="item.emailAccountName">
                   {{ item.emailAccountName }}
-                </option>
-              </select>
+                </option> -->
+                <ng-select [items]="getEmail" [searchable]="true" bindLabel="emailAccountName"
+                formControlName="name" class="NgSelect" placeholder="Please select Service Name"
+                  
+                [closeOnSelect]="true" bindValue="emailAccountName" [clearable]="false">
+              </ng-select>
+              <!-- </select> -->
               <div *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid" class="invalid-feedback-frm">
                 <div *ngIf="f.name.errors && f.name.errors.required">
                   Name is required.

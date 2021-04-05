@@ -135,7 +135,8 @@ export class AddEmailAccountComponent implements OnInit {
       .subscribe(
         () => {
           this.toastrService.success(
-            'Email Details Update Successfully',
+            'Email details Updated successfully',
+            //  'Update',
             'Success'
           );
           this.router.navigate(['pages/emailaccount/list']);

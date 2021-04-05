@@ -29,6 +29,7 @@
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <Content Remove="$(SpaRoot)**" />
+    <Content Remove="Files\Assets\a10c2b0e-43fc-4db2-928a-8fa97569dd87\**" />
     <Content Remove="logs\**" />
     <None Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
@@ -36,11 +37,14 @@
 
 
   <ItemGroup>
+    <Compile Remove="Files\Assets\a10c2b0e-43fc-4db2-928a-8fa97569dd87\**" />
     <Compile Remove="logs\**" />
     <Compile Remove="Uploads\**" />
     <Content Remove="Uploads\**" />
+    <EmbeddedResource Remove="Files\Assets\a10c2b0e-43fc-4db2-928a-8fa97569dd87\**" />
     <EmbeddedResource Remove="logs\**" />
     <EmbeddedResource Remove="Uploads\**" />
+    <None Remove="Files\Assets\a10c2b0e-43fc-4db2-928a-8fa97569dd87\**" />
     <None Remove="logs\**" />
     <None Remove="Uploads\**" />
   </ItemGroup>

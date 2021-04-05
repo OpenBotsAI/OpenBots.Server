@@ -85,7 +85,7 @@ namespace OpenBots.Server.Business
 
                     var request = new AgentAssetViewModel();
                     request = request.Map(asset, file, driveName);
-                    CheckStoragePathExists(fileView, request);
+                    CheckStoragePathExists(fileView, request, true);
 
                     fileView = _fileManager.AddFileFolder(fileView, driveName)[0];
                     asset.FileId = fileView.Id;
@@ -157,21 +157,22 @@ namespace OpenBots.Server.Business
                     //if file is in request, use file; else, get file from global asset
                     IFormFile[] fileArray;
                     string agentIdStr = request.AgentId.ToString();
-                    string storagePath = Path.Combine(request.DriveName, "Assets", agentIdStr);
+                    string storagePath = Path.Combine(request.DriveName, "Assets", globalAsset.Id.ToString(), agentIdStr);
 
                     if (request.File != null)
                     {
                         fileArray = new IFormFile[] { request.File };
+                        string fullStoragePath = Path.Combine(storagePath, request.File.FileName);
                         var fileView = new FileFolderViewModel()
                         {
                             ContentType = request.File.ContentType,
                             Files = fileArray,
                             StoragePath = storagePath,
                             IsFile = true,
-                            FullStoragePath = Path.Combine(storagePath, request.File.FileName)
+                            FullStoragePath = fullStoragePath
                         };
 
-                        var folder = CheckStoragePathExists(fileView, request);
+                        var folder = CheckStoragePathExists(fileView, request, true);
 
                         fileView = _fileManager.AddFileFolder(fileView, request.DriveName)[0];
                         agentAsset.FileId = fileView.Id;
@@ -180,9 +181,9 @@ namespace OpenBots.Server.Business
                     else
                     {
                         var fileViewModel = _fileManager.GetFileFolder(globalAsset.FileId.ToString(), request.DriveName);
-                        fileViewModel.FullStoragePath = storagePath;
+                        fileViewModel.StoragePath = storagePath;
 
-                        var folder = CheckStoragePathExists(fileViewModel, request);
+                        var folder = CheckStoragePathExists(fileViewModel, request, true);
 
                         fileViewModel = _fileManager.CopyFileFolder(fileViewModel.Id.ToString(), folder.Id.ToString(), request.DriveName);
                         agentAsset.FileId = fileViewModel.Id;
@@ -194,16 +195,20 @@ namespace OpenBots.Server.Business
             return agentAsset;
         }
 
-        public FileFolderViewModel CheckStoragePathExists(FileFolderViewModel view, AgentAssetViewModel request)
+        public FileFolderViewModel CheckStoragePathExists(FileFolderViewModel view, AgentAssetViewModel request, bool getShortPath)
         {
             //check if storage path exists; if it doesn't exist, create folder
             var folder = _fileManager.GetFileFolderByStoragePath(view.StoragePath, request.DriveName);
             if (folder.Name == null)
             {
+                string storagePath = view.StoragePath;
+                if (getShortPath)
+                    storagePath = _fileManager.GetShortPath(view.StoragePath);
+
                 folder.Name = request.AgentId.ToString();
-                folder.StoragePath = Path.Combine(request.DriveName, "Assets");
+                folder.StoragePath = storagePath;
                 folder.IsFile = false;
-                folder.Size = request.File.Length;
+                folder.Size = (request.File == null) ? view.Size : request.File.Length;
                 folder = _fileManager.AddFileFolder(folder, request.DriveName)[0];
             }
             return folder;

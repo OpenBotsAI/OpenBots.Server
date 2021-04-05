@@ -810,12 +810,12 @@
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailAccountsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Configuration.EmailAccount})">
             <summary>
-            Updates partial details of an email account.
+            Updates partial details of an email account
             </summary>
             <param name="id"></param>
             <param name="request"></param>
             <response code="200">Ok, if update of email account is successful</response>
-            <response code="400">Bad request, if the id is null or ids dont match.</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response</returns>

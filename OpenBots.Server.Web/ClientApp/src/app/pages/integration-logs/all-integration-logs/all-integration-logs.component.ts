@@ -46,6 +46,13 @@ export class AllIntegrationLogsComponent implements OnInit {
     { id: 5, name: 'Completed' },
     { id: 9, name: 'Abandoned' },
   ];
+  Status: { id: string; name: string }[] = [
+    { id: 'New', name: 'New' },
+    { id: 'InProgress', name: 'InProgress' },
+    { id: 'Completed', name: 'Completed' },
+    { id: 'Failed', name: 'Failed' },
+
+  ];
   constructor(
     protected router: Router,
     private FileSaverService: FileSaverService,
@@ -135,7 +142,7 @@ export class AllIntegrationLogsComponent implements OnInit {
     });
   }
   comon_Status(val) {
-    this.filter_jobstatus = val;
+    this.filter_jobstatus = val.id;
     this.filter_job();
   }
 
