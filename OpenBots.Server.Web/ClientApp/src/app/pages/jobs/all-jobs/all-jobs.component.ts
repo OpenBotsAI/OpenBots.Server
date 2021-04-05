@@ -49,6 +49,23 @@ export class AllJobsComponent implements OnInit, OnDestroy {
     { id: 5, name: 'Completed' },
     { id: 9, name: 'Abandoned' },
   ];
+
+  Status: { id: string; name: string }[] = [
+    { id: 'New', name: 'New' },
+    { id: 'InProgress', name: 'InProgress' },
+    { id: 'Completed', name: 'Completed' },
+    { id: 'Failed', name: 'Failed' },
+
+  ];
+
+  Successful: { id: string; name: string }[] = [
+    { id: 'true', name: 'Yes' },
+    { id: 'false', name: 'No' },
+
+
+  ];
+
+
   constructor(
     protected router: Router,
     private FileSaverService: FileSaverService,
@@ -139,22 +156,22 @@ export class AllJobsComponent implements OnInit, OnDestroy {
     });
   }
   comon_job(val) {
-    this.filter_jobstatus = val;
+    this.filter_jobstatus = val.id;
     this.filter_job();
   }
 
   comon_process(val) {
-    this.filter_process_id = val;
+    this.filter_process_id = val.automationId;
     this.filter_job();
   }
 
   comon_succesful(val) {
-    this.filter_successful = val;
+    this.filter_successful = val.id;
     this.filter_job();
   }
 
   common_agent(val) {
-    this.filter_agent_id = val;
+    this.filter_agent_id = val.agentId;
     this.filter_job();
   }
 
