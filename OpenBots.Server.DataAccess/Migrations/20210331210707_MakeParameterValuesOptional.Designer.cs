@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenBots.Server.DataAccess;
 
 namespace OpenBots.Server.DataAccess.Migrations
 {
     [DbContext(typeof(StorageContext))]
-    partial class StorageContextModelSnapshot : ModelSnapshot
+    [Migration("20210331210707_MakeParameterValuesOptional")]
+    partial class MakeParameterValuesOptional
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -611,6 +613,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DataType")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DeleteOn")
@@ -2280,6 +2283,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DataType")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DeleteOn")
@@ -3074,6 +3078,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DataType")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DeleteOn")

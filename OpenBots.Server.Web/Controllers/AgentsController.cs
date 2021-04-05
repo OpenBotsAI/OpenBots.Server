@@ -40,8 +40,6 @@ namespace OpenBots.Server.Web.Controllers
         /// AgentsController constructor
         /// </summary>
         /// <param name="agentRepository"></param>
-        /// <param name="personRepository"></param>
-        /// <param name="usersRepository"></param>
         /// <param name="membershipManager"></param>
         /// <param name="userManager"></param>
         /// <param name="agentManager"></param>
