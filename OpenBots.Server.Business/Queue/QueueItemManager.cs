@@ -91,7 +91,6 @@ namespace OpenBots.Server.Business
                     var jobId = BackgroundJob.Enqueue(() => _hubManager.ExecuteJob(jsonScheduleObj, Enumerable.Empty<ParametersViewModel>()));
                 }
             }         
-
             UpdateExpiredItemsStates(item.QueueId.ToString());
 
             return item;

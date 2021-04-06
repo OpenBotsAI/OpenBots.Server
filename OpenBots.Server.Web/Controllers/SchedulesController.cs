@@ -292,7 +292,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 _recurringJobManager.RemoveIfExists(requestObj.Id?.ToString());
 
-                if (request.IsDisabled == false && !request.StartingType.ToLower().Equals("manual"))
+                if (request.IsDisabled == false && !request.StartingType.ToLower().Equals("manual"))//if schedule is not a manual starting type
                 {
                     var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(requestObj);
 
