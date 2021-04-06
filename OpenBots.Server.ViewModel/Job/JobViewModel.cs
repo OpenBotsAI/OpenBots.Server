@@ -32,6 +32,8 @@ namespace OpenBots.Server.ViewModel
         public string ErrorReason { get; set; }
         public string ErrorCode { get; set; }
         public string SerializedErrorString { get; set; }
+        public int AutomationLogCount { get; set; }
+        public int AutomationExecutionLogCount { get; set; }
         public IEnumerable<JobParameter>? JobParameters { get; set; }
 
         public JobViewModel Map(Job entity)
@@ -55,7 +57,9 @@ namespace OpenBots.Server.ViewModel
                 CreatedBy = entity.CreatedBy,
                 ErrorReason = entity.ErrorReason,
                 ErrorCode = entity.ErrorCode,
-                SerializedErrorString = entity.SerializedErrorString 
+                SerializedErrorString = entity.SerializedErrorString,
+                AutomationExecutionLogCount = entity.AutomationExecutionLogCount,
+                AutomationLogCount = entity.AutomationLogCount
             };
 
             return jobViewModel;

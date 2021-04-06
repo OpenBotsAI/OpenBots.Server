@@ -40,6 +40,8 @@ namespace OpenBots.Server.Web
         private readonly IAutomationVersionRepository _automationVersionRepo;
         private readonly IWebhookPublisher _webhookPublisher;
         private readonly IJobRepository _repository;
+        private readonly IAutomationLogRepository _automationLogRepo;
+        private readonly IAutomationExecutionLogRepository _automationExecutionLogRepo;
 
         /// <summary>
         /// JobsController constructor
@@ -68,7 +70,9 @@ namespace OpenBots.Server.Web
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
             IAutomationVersionRepository automationVersionRepo,
-            IWebhookPublisher webhookPublisher) : base(repository, userManager, httpContextAccessor,
+            IWebhookPublisher webhookPublisher,
+            IAutomationExecutionLogRepository automationExecutionLogRepo,
+            IAutomationLogRepository automationLogRepo) : base(repository, userManager, httpContextAccessor,
                 membershipManager, configuration)
         {
             _jobManager = jobManager;
@@ -80,6 +84,8 @@ namespace OpenBots.Server.Web
             _hub = hub;
             _automationVersionRepo = automationVersionRepo;
             _webhookPublisher = webhookPublisher;
+            _automationExecutionLogRepo = automationExecutionLogRepo;
+            _automationLogRepo = automationLogRepo;
         }
 
         /// <summary>
@@ -582,6 +588,13 @@ namespace OpenBots.Server.Web
                 existingJob.ErrorReason = string.IsNullOrEmpty(jobErrors.ErrorReason) ? existingJob.ErrorReason : jobErrors.ErrorReason;
                 existingJob.ErrorCode = string.IsNullOrEmpty(jobErrors.ErrorCode) ? existingJob.ErrorCode : jobErrors.ErrorReason;
                 existingJob.SerializedErrorString = string.IsNullOrEmpty(jobErrors.SerializedErrorString) ? existingJob.SerializedErrorString : jobErrors.ErrorReason;
+
+                //update automation log and automation execution log counts for existing job
+                if (status.Equals(JobStatusType.Completed) || status.Equals(JobStatusType.Failed))
+                {
+                    existingJob.AutomationLogCount = _automationLogRepo.Find(null, q => q.JobId == existingJob.Id).Items.Count;
+                    existingJob.AutomationExecutionLogCount = _automationExecutionLogRepo.Find(null, q => q.JobID == existingJob.Id).Items.Count;
+                }
 
                 var response = await base.PutEntity(id, existingJob);
                 //send SignalR notification to all connected clients 
