@@ -72,6 +72,12 @@ namespace OpenBots.Server.Web.Hubs
         public string CreateJob(string scheduleSerializeObject, IEnumerable<ParametersViewModel>? parameters)
         {
             var schedule = JsonSerializer.Deserialize<Schedule>(scheduleSerializeObject);
+            //if schedule has expired
+            if (DateTime.UtcNow > schedule.ExpiryDate)
+            {
+                _recurringJobManager.RemoveIfExists(schedule.Id.Value.ToString());//removes an existing recurring job
+                return "ScheduleExpired";
+            }
 
             if (_organizationSettingManager.HasDisallowedExecution())
             {

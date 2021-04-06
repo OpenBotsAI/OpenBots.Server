@@ -64,6 +64,7 @@ namespace OpenBots.Server.Business
             existingJob.AutomationVersion = automationVersion.VersionNumber;
             existingJob.AutomationVersionId = automationVersion.Id;
 
+            existingJob.ScheduleId = request.ScheduleId;
             existingJob.AgentId = request.AgentId;
             existingJob.AgentGroupId = request.AgentGroupId;
             existingJob.StartTime = request.StartTime;

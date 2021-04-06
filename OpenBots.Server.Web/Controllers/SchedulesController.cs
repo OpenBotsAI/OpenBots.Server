@@ -243,14 +243,6 @@ namespace OpenBots.Server.Web.Controllers
                 return BadRequest(ModelState);
             }
 
-            if(request.StartingType.ToLower() == "queuearrival")
-            {
-                if (request.QueueId == null)
-                {
-                    throw new EntityOperationException("Schedule of starting type \"QueueArrival\" must contain a Queue id");
-                }
-            }
-
             //validate the cron expression
             if (!string.IsNullOrWhiteSpace(request.CRONExpression))
             {
@@ -271,6 +263,14 @@ namespace OpenBots.Server.Web.Controllers
 
             try
             {
+                if (request.StartingType.ToLower() == "queuearrival")
+                {
+                    if (request.QueueId == null)
+                    {
+                        throw new EntityOperationException("Schedule of starting type \"QueueArrival\" must contain a Queue id");
+                    }
+                }
+
                 Schedule newSchedule = _manager.AddSchedule(request);
 
                 foreach (var parameter in request.Parameters ?? Enumerable.Empty<ParametersViewModel>())
