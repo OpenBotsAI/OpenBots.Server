@@ -19,6 +19,7 @@ using OpenBots.Server.Model.Attributes;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Collections.Generic;
+using OpenBots.Server.DataAccess.Exceptions;
 
 namespace OpenBots.Server.Web.Controllers
 {
@@ -242,6 +243,14 @@ namespace OpenBots.Server.Web.Controllers
                 return BadRequest(ModelState);
             }
 
+            if(request.StartingType.ToLower() == "queuearrival")
+            {
+                if (request.QueueId == null)
+                {
+                    throw new EntityOperationException("Schedule of starting type \"QueueArrival\" must contain a Queue id");
+                }
+            }
+
             //validate the cron expression
             if (!string.IsNullOrWhiteSpace(request.CRONExpression))
             {
@@ -359,6 +368,7 @@ namespace OpenBots.Server.Web.Controllers
                 existingSchedule.ExpiryDate = request.ExpiryDate;
                 existingSchedule.StartDate = request.StartDate;
                 existingSchedule.AutomationId = request.AutomationId;
+                existingSchedule.MaxRunningJobs = request.MaxRunningJobs;
 
                 var response = await base.PutEntity(id, existingSchedule);
 
@@ -493,13 +503,13 @@ namespace OpenBots.Server.Web.Controllers
             {
                 ParametersViewModel.VerifyParameterNameAvailability(request.JobParameters);
 
-                Guid AutomationId = request.AutomationId;
-                Guid AgentId = request.AgentId;
-                Guid AgentGroupId = request.AgentGroupId;
+                Guid automationId = request.AutomationId;
+                Guid agentId = request.AgentId;
+                Guid agentGroupId = request.AgentGroupId;
 
                 Schedule schedule = new Schedule();
-                schedule.AgentId = AgentId;
-                schedule.AgentGroupId = AgentGroupId;
+                schedule.AgentId = agentId;
+                schedule.AgentGroupId = agentGroupId;
                 schedule.CRONExpression = "";
                 schedule.LastExecution = DateTime.UtcNow;
                 schedule.NextExecution = DateTime.UtcNow;
@@ -509,7 +519,7 @@ namespace OpenBots.Server.Web.Controllers
                 schedule.Status = "New";
                 schedule.ExpiryDate = DateTime.UtcNow.AddDays(1);
                 schedule.StartDate = DateTime.UtcNow;
-                schedule.AutomationId = AutomationId;
+                schedule.AutomationId = automationId;
                 schedule.CreatedOn = DateTime.UtcNow;
                 schedule.CreatedBy = applicationUser?.UserName;
 

@@ -22,6 +22,7 @@ namespace OpenBots.Server.ViewModel
         public DateTime? ExpiryDate { get; set; }
         public DateTime? StartDate { get; set; }
         public Guid? QueueId { get; set; }
+        public int? MaxRunningJobs { get; set; }
         public IEnumerable<ParametersViewModel>? Parameters { get; set; }
 
         public Schedule Map(CreateScheduleViewModel viewModel)
@@ -43,6 +44,7 @@ namespace OpenBots.Server.ViewModel
                 ExpiryDate = viewModel.ExpiryDate,
                 StartDate = viewModel.StartDate,
                 QueueId = viewModel.QueueId,
+                MaxRunningJobs = viewModel.MaxRunningJobs
             };
 
             return schedule;

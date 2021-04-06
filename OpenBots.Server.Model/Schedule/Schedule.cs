@@ -1,5 +1,6 @@
 ﻿using OpenBots.Server.Model.Core;
 using System;
+using System.ComponentModel;
 
 namespace OpenBots.Server.Model
 {
@@ -10,6 +11,7 @@ namespace OpenBots.Server.Model
         public string? CRONExpression { get; set; }
         public DateTime? LastExecution { get; set; }
         public DateTime? NextExecution { get; set; }
+        [DefaultValue(false)]
         public bool? IsDisabled { get; set; }
         public Guid? ProjectId { get; set; }
         public string? TriggerName { get; set; }
@@ -26,5 +28,7 @@ namespace OpenBots.Server.Model
         public DateTime? StartDate { get; set; }
         public Guid? AutomationId { get; set; }
         public Guid? QueueId { get; set; }
+        [DefaultValue(0)]
+        public int? MaxRunningJobs { get; set; }
     }
 }
