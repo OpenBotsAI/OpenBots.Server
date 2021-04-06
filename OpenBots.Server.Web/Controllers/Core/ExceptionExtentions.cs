@@ -63,7 +63,7 @@ namespace OpenBots.Server.WebAPI.Controllers
             if (ex is EntityAlreadyExistsException)
             {
                 problem.Title = string.Concat("Entity Already Exists. ", ex.Message);
-                problem.Status = 409;
+                problem.Status = 422;
             }
             if (ex is EntityConcurrencyException)
             {

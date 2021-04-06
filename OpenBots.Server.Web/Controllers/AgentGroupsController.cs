@@ -218,7 +218,8 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                var result = await base.PostEntity(request);           
+                var newAgentGroup = _agentGroupsManager.AddAgentGroup(request);
+                var result = await base.PostEntity(newAgentGroup);           
                 await _webhookPublisher.PublishAsync("AgentGroups.NewAgentGroupCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
                 return result;
             }

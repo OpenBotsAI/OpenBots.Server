@@ -271,7 +271,7 @@ namespace OpenBots.Server.Web.Controllers
 
             try
             {
-                Schedule requestObj = request.Map(request); //assign request to schedule entity
+                Schedule newSchedule = _manager.AddSchedule(request);
 
                 foreach (var parameter in request.Parameters ?? Enumerable.Empty<ParametersViewModel>())
                 {
@@ -288,16 +288,16 @@ namespace OpenBots.Server.Web.Controllers
                     _scheduleParameterRepository.Add(scheduleParameter);
                 }
 
-                var response = await base.PostEntity(requestObj);
+                var response = await base.PostEntity(newSchedule);
 
-                _recurringJobManager.RemoveIfExists(requestObj.Id?.ToString());
+                _recurringJobManager.RemoveIfExists(newSchedule.Id?.ToString());
 
                 if (request.IsDisabled == false && !request.StartingType.ToLower().Equals("manual"))//if schedule is not a manual starting type
                 {
-                    var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(requestObj);
+                    var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(newSchedule);
 
                     _backgroundJobClient.Schedule(() => _hubManager.ScheduleNewJob(jsonScheduleObj),
-                            new DateTimeOffset(requestObj.StartDate.Value));
+                            new DateTimeOffset(newSchedule.StartDate.Value));
                 }
 
                 return response;
@@ -350,29 +350,10 @@ namespace OpenBots.Server.Web.Controllers
                     }
                 }
 
-                Guid entityId = new Guid(id);
-
-                var existingSchedule = repository.GetOne(entityId);
-                if (existingSchedule == null) return NotFound();
-
-                existingSchedule.Name = request.Name;
-                existingSchedule.AgentId = request.AgentId;
-                existingSchedule.AgentGroupId = request.AgentGroupId;
-                existingSchedule.CRONExpression = request.CRONExpression;
-                existingSchedule.LastExecution = request.LastExecution;
-                existingSchedule.NextExecution = request.NextExecution;
-                existingSchedule.IsDisabled = request.IsDisabled;
-                existingSchedule.ProjectId = request.ProjectId;
-                existingSchedule.StartingType = request.StartingType;
-                existingSchedule.Status = request.Status;
-                existingSchedule.ExpiryDate = request.ExpiryDate;
-                existingSchedule.StartDate = request.StartDate;
-                existingSchedule.AutomationId = request.AutomationId;
-                existingSchedule.MaxRunningJobs = request.MaxRunningJobs;
-
+                Schedule existingSchedule = _manager.UpdateSchedule(id, request);
                 var response = await base.PutEntity(id, existingSchedule);
 
-                _manager.DeleteExistingParameters(entityId);
+                _manager.DeleteExistingParameters(id);
 
                 var set = new HashSet<string>();
                 foreach (var parameter in request.Parameters ?? Enumerable.Empty<ParametersViewModel>())
@@ -389,7 +370,7 @@ namespace OpenBots.Server.Web.Controllers
                         Name = parameter.Name,
                         DataType = parameter.DataType,
                         Value = parameter.Value,
-                        ScheduleId = entityId,
+                        ScheduleId = existingSchedule.Id.Value,
                         CreatedBy = applicationUser?.UserName,
                         CreatedOn = DateTime.UtcNow,
                         Id = Guid.NewGuid()
@@ -439,7 +420,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (existingSchedule == null) return NotFound();
 
                 _recurringJobManager.RemoveIfExists(existingSchedule.Id.Value.ToString());
-                _manager.DeleteExistingParameters(entityId);
+                _manager.DeleteExistingParameters(id);
 
                 return await base.DeleteEntity(id);
 
@@ -470,6 +451,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
+                _manager.AttemptPatchUpdate(request, id);
                 return await base.PatchEntity(id, request);
             }
             catch (Exception ex)
