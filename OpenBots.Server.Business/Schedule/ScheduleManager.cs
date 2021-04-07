@@ -1,4 +1,6 @@
 ﻿using Hangfire;
+using Microsoft.AspNetCore.JsonPatch;
+using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
@@ -29,14 +31,94 @@ namespace OpenBots.Server.Business
             _agentGroupRepository = agentGroupRepository;
         }
 
+        /// <summary>
+        /// Takes a Schedule and returns it for addition
+        /// </summary>
+        /// <param name="schedule"></param>
+        /// <returns>The Schedule to be added</returns>
+        public Schedule AddSchedule(CreateScheduleViewModel createScheduleView)
+        {
+            var existingSchedule = _repo.Find(null, d => d.Name.ToLower() == createScheduleView.Name.ToLower())?.Items?.FirstOrDefault();
+            if (existingSchedule != null)
+            {
+                throw new EntityAlreadyExistsException("Schedule name already exists");
+            }
+            Schedule newSchedule = createScheduleView.Map(createScheduleView); //assign request to schedule entity
+
+            return newSchedule;
+        }
+
+        /// <summary>
+        /// Updates a Schedule entity 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public Schedule UpdateSchedule(string id, CreateScheduleViewModel request)
+        {
+            Guid entityId = new Guid(id);
+
+            var existingSchedule = _repo.GetOne(entityId);
+            if (existingSchedule == null)
+            {
+                throw new EntityDoesNotExistException("No Schedule exists for the specified id");
+            }
+
+            var namedSchedule = _repo.Find(null, d => d.Name.ToLower() == request.Name.ToLower() && d.Id != entityId)?.Items?.FirstOrDefault();
+            if (namedSchedule != null && namedSchedule.Id != entityId)
+            {
+                throw new EntityAlreadyExistsException("Schedule already exists");
+            }
+
+            existingSchedule.Name = request.Name;
+            existingSchedule.AgentId = request.AgentId;
+            existingSchedule.AgentGroupId = request.AgentGroupId;
+            existingSchedule.CRONExpression = request.CRONExpression;
+            existingSchedule.LastExecution = request.LastExecution;
+            existingSchedule.NextExecution = request.NextExecution;
+            existingSchedule.IsDisabled = request.IsDisabled;
+            existingSchedule.ProjectId = request.ProjectId;
+            existingSchedule.StartingType = request.StartingType;
+            existingSchedule.Status = request.Status;
+            existingSchedule.ExpiryDate = request.ExpiryDate;
+            existingSchedule.StartDate = request.StartDate;
+            existingSchedule.AutomationId = request.AutomationId;
+            existingSchedule.MaxRunningJobs = request.MaxRunningJobs;
+
+            return existingSchedule;
+        }
+
+        /// <summary>
+        /// Verifies that the patch update can be completed
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="id"></param>
+        public void AttemptPatchUpdate(JsonPatchDocument<Schedule> request, string id)
+        {
+            for (int i = 0; i < request.Operations.Count; i++)
+            {
+                Guid entityId = new Guid(id);
+
+                if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")
+                {
+                    var namedSchedule = _repo.Find(null, d => d.Name.ToLower() == request.Operations[i].value.ToString().ToLower() && d.Id != entityId)?.Items?.FirstOrDefault();
+                    if (namedSchedule != null && namedSchedule.Id != entityId)
+                    {
+                        throw new EntityAlreadyExistsException("Schedule name already exists");
+                    }
+                }
+            }
+        }
+
         public PaginatedList<AllSchedulesViewModel> GetScheduleAgentsandAutomations(Predicate<AllSchedulesViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
             return _repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
 
-        public void DeleteExistingParameters(Guid scheduleId)
+        public void DeleteExistingParameters(string scheduleId)
         {
-            var schedulParameters = GetScheduleParameters(scheduleId);
+            Guid entityId = new Guid(scheduleId);
+            var schedulParameters = GetScheduleParameters(entityId);
             foreach (var parmeter in schedulParameters)
             {
                 _scheduleParameterRepository.Delete(parmeter.Id ?? Guid.Empty);

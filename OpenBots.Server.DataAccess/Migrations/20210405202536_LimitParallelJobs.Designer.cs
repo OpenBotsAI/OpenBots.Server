@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenBots.Server.DataAccess;
 
 namespace OpenBots.Server.DataAccess.Migrations
 {
     [DbContext(typeof(StorageContext))]
-    partial class StorageContextModelSnapshot : ModelSnapshot
+    [Migration("20210405202536_LimitParallelJobs")]
+    partial class LimitParallelJobs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2122,15 +2124,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<Guid?>("AgentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AutomationExecutionLogCount")
-                        .HasColumnType("int");
-
                     b.Property<Guid?>("AutomationId")
                         .IsRequired()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("AutomationLogCount")
-                        .HasColumnType("int");
 
                     b.Property<int?>("AutomationVersion")
                         .IsRequired()

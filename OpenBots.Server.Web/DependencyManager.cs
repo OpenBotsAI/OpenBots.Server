@@ -95,6 +95,7 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IWebhookPublisher), typeof(WebhookPublisher));
             services.AddTransient(typeof(IWebhookSender), typeof(WebhookSender));
             services.AddTransient(typeof(IIntegrationEventManager), typeof(IntegrationEventManager));
+            services.AddTransient(typeof(IIntegrationEventSubscriptionManager), typeof(IntegrationEventSubscriptionManager));
 
             //blob storage
             services.AddTransient(typeof(IDirectoryManager), typeof(DirectoryManager));

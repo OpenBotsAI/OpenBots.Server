@@ -11,6 +11,7 @@ namespace OpenBots.Server.Business.Interfaces
     public interface IAgentGroupManager : IManager
     {
         IEnumerable<AgentGroupMember> UpdateGroupMembers(string agentGroupId, IEnumerable<AgentGroupMember> groupMembers);
+        AgentGroup AddAgentGroup(AgentGroup agentGroup);
         AgentGroup UpdateAgentGroup(string id, AgentGroup request);
         void AttemptPatchUpdate(JsonPatchDocument<AgentGroup> request, Guid entityId);
         IEnumerable<AgentGroupMember> GetAllMembersInGroup(string agentGroupId);

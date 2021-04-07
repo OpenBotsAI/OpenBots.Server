@@ -191,8 +191,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         {
             try
             {
-
-                IntegrationEvent businessEvent = request.Map(request);
+                IntegrationEvent businessEvent =_integrationEventManager.AddBusinessEvent(request);
                 return await base.PostEntity(businessEvent);
             }
             catch (Exception ex)
@@ -295,6 +294,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
 
                 if (existingEvent.IsSystem == true) throw new UnauthorizedOperationException($"System events can't be updated", EntityOperationType.Update);
 
+                _integrationEventManager.AttemptPatchUpdate(request, id);
                 return await base.PatchEntity(id, request);
             }
             catch (Exception ex)

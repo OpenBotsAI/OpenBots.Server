@@ -2340,7 +2340,7 @@
             Controller for Integration Event Subscriptions
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.#ctor(OpenBots.Server.DataAccess.Repositories.IIntegrationEventSubscriptionRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.#ctor(OpenBots.Server.DataAccess.Repositories.IIntegrationEventSubscriptionRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IIntegrationEventSubscriptionManager)">
             <summary>
             IntegrationEventSubscriptionsController constructor
             </summary>

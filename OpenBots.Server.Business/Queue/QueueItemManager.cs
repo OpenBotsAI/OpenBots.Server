@@ -59,53 +59,38 @@ namespace OpenBots.Server.Business
         public QueueItem Enqueue(QueueItem item)
         {
             item.State = QueueItemStateType.New.ToString();
+            item.PayloadSizeInBytes = 0;
             item.StateMessage = "Successfully created new queue item.";
             item.IsLocked = false;
             if (item.Priority == 0)
                 item.Priority = 100;
 
             //check if a queue arrival schedule exists for this queue
-            Schedule existingSchedule = _scheduleRepo.Find(0, 1).Items?.Where(s => s.QueueId == item.QueueId)?.FirstOrDefault();
-            if (existingSchedule != null && existingSchedule.IsDisabled == false && existingSchedule.StartingType.ToLower().Equals("queuearrival"))
+            var existingSchedules = _scheduleRepo.Find(null, s => s.QueueId == item.QueueId)?.Items;
+            foreach (Schedule existingSchedule in existingSchedules)
             {
-                Schedule schedule = new Schedule();
-                schedule.AgentId = existingSchedule.AgentId;
-                schedule.CRONExpression = "";
-                schedule.LastExecution = DateTime.UtcNow;
-                schedule.NextExecution = DateTime.UtcNow;
-                schedule.IsDisabled = false;
-                schedule.ProjectId = null;
-                schedule.StartingType = "QueueArrival";
-                schedule.Status = "New";
-                schedule.ExpiryDate = DateTime.UtcNow.AddDays(1);
-                schedule.StartDate = DateTime.UtcNow;
-                schedule.AutomationId = existingSchedule.AutomationId;
+                if (existingSchedule != null && existingSchedule.IsDisabled == false && existingSchedule.StartingType.ToLower().Equals("queuearrival"))
+                {
+                    Schedule schedule = new Schedule();
+                    schedule.Id = existingSchedule.Id;
+                    schedule.AgentId = existingSchedule.AgentId;
+                    schedule.CRONExpression = "";
+                    schedule.LastExecution = DateTime.UtcNow;
+                    schedule.NextExecution = DateTime.UtcNow;
+                    schedule.IsDisabled = false;
+                    schedule.ProjectId = null;
+                    schedule.StartingType = "QueueArrival";
+                    schedule.Status = "New";
+                    schedule.ExpiryDate = DateTime.UtcNow.AddDays(1);
+                    schedule.StartDate = DateTime.UtcNow;
+                    schedule.AutomationId = existingSchedule.AutomationId;
+                    schedule.MaxRunningJobs = existingSchedule.MaxRunningJobs;
 
-                var jsonScheduleObj = System.Text.Json.JsonSerializer.Serialize(schedule);
-                //call GetScheduleParameters()
-                var jobId = BackgroundJob.Enqueue(() => _hubManager.ExecuteJob(jsonScheduleObj, Enumerable.Empty<ParametersViewModel>()));
-            }
-
-            QueueItem queueItem = new QueueItem()
-            {
-                CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
-                CreatedOn = DateTime.UtcNow,
-                DataJson = item.DataJson,
-                Event = item.Event,
-                ExpireOnUTC = item.ExpireOnUTC,
-                IsLocked = item.IsLocked,
-                JsonType = item.JsonType,
-                Name = item.Name,
-                PostponeUntilUTC = item.PostponeUntilUTC,
-                Priority = item.Priority,
-                QueueId = item.QueueId,
-                RetryCount = item.RetryCount,
-                Source = item.Source,
-                State = item.State,
-                StateMessage = item.StateMessage,
-                Type = item.Type,
-                PayloadSizeInBytes = 0
-            };
+                    var jsonScheduleObj = System.Text.Json.JsonSerializer.Serialize(schedule);
+                    //call GetScheduleParameters()
+                    var jobId = BackgroundJob.Enqueue(() => _hubManager.ExecuteJob(jsonScheduleObj, Enumerable.Empty<ParametersViewModel>()));
+                }
+            }         
             UpdateExpiredItemsStates(item.QueueId.ToString());
 
             return item;

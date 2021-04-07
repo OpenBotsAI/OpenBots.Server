@@ -26,5 +26,7 @@ namespace OpenBots.Server.ViewModel
         public string? CreatedBy { get; set; }
         public bool? ScheduleNow { get; set; }
         public Guid? QueueId { get; set; }
+        public int? MaxRunningJobs { get; set; }
+
     }
 }

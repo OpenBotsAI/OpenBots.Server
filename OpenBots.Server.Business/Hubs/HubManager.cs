@@ -72,17 +72,26 @@ namespace OpenBots.Server.Web.Hubs
         public string CreateJob(string scheduleSerializeObject, IEnumerable<ParametersViewModel>? parameters)
         {
             var schedule = JsonSerializer.Deserialize<Schedule>(scheduleSerializeObject);
+            //if schedule has expired
+            if (DateTime.UtcNow > schedule.ExpiryDate)
+            {
+                _recurringJobManager.RemoveIfExists(schedule.Id.Value.ToString());//removes an existing recurring job
+                return "ScheduleExpired";
+            }
 
             if (_organizationSettingManager.HasDisallowedExecution())
             {
                 return "DisallowedExecution";
             }
 
-            var automationVersion = _automationVersionRepository.Find(null, a => a.AutomationId == schedule.AutomationId).Items?.FirstOrDefault();
-
             //if this is not a "RunNow" job, then use the schedule parameters
             if (schedule.StartingType.Equals("RunNow") == false)
             {
+                if (ActiveJobLimitReached(schedule.Id,schedule.MaxRunningJobs))
+                {
+                    return "ActiveJobLimitReached";
+                }
+
                 List<ParametersViewModel> parametersList = new List<ParametersViewModel>();
 
                 var scheduleParameters = _scheduleParameterRepository.Find(null, p => p.ScheduleId == schedule.Id).Items;
@@ -101,6 +110,8 @@ namespace OpenBots.Server.Web.Hubs
                 parameters = parametersList.AsEnumerable();
             }
 
+            var automationVersion = _automationVersionRepository.Find(null, a => a.AutomationId == schedule.AutomationId).Items?.FirstOrDefault();
+
             Job job = new Job();
             job.AgentId = schedule.AgentId == null ? Guid.Empty : schedule.AgentId.Value;
             job.AgentGroupId = schedule.AgentGroupId == null ? Guid.Empty : schedule.AgentGroupId.Value;
@@ -112,6 +123,7 @@ namespace OpenBots.Server.Web.Hubs
             job.AutomationVersion = automationVersion != null ? automationVersion.VersionNumber : 0;
             job.AutomationVersionId = automationVersion != null ? automationVersion.Id : Guid.Empty;
             job.Message = "Job is created through internal system logic.";
+            job.ScheduleId = schedule.Id;
 
             foreach (var parameter in parameters ?? Enumerable.Empty<ParametersViewModel>())
             {
@@ -145,6 +157,23 @@ namespace OpenBots.Server.Web.Hubs
             _webhookPublisher.PublishAsync("Jobs.NewJobCreated", job.Id.ToString()).ConfigureAwait(false);
 
             return "Success";
+        }
+
+        private bool ActiveJobLimitReached(Guid? scheduleId, int? maxRunningJobs)
+        {
+
+            var activeJobCount =_jobRepository.Find(null, j => j.ScheduleId == scheduleId 
+                                                    && (j.JobStatus == JobStatusType.Assigned 
+                                                    || j.JobStatus == JobStatusType.InProgress)).Items.Count;
+
+            if (activeJobCount < maxRunningJobs)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 }
