@@ -26,6 +26,8 @@ namespace OpenBots.Server.Model
         public string ErrorReason { get; set; }
         public string ErrorCode { get; set; }
         public string SerializedErrorString { get; set; } 
+        public int AutomationLogCount { get; set; }
+        public int AutomationExecutionLogCount { get; set; }
     }
 
     /// <summary>
