@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace OpenBots.Server.ViewModel
 {
@@ -11,6 +12,7 @@ namespace OpenBots.Server.ViewModel
         public string? AgentName { get; set; }
         public string? AgentGroupName { get; set; }
         public string? CRONExpression { get; set; }
+        public string CRONExpressionTimeZone { get; set; }
         public DateTime? LastExecution { get; set; }
         public DateTime? NextExecution { get; set; }
         public bool? IsDisabled { get; set; }

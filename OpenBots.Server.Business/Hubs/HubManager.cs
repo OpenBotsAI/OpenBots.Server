@@ -59,8 +59,9 @@ namespace OpenBots.Server.Web.Hubs
             }
             else
             {
-                _recurringJobManager.AddOrUpdate(scheduleObj.Id.Value.ToString(), () => CreateJob(scheduleSerializeObject, Enumerable.Empty<ParametersViewModel>()), scheduleObj.CRONExpression);
-
+                _recurringJobManager.AddOrUpdate(scheduleObj.Id.Value.ToString(), 
+                                                () => CreateJob(scheduleSerializeObject, Enumerable.Empty<ParametersViewModel>()), scheduleObj.CRONExpression,
+                                                TimeZoneInfo.FindSystemTimeZoneById(scheduleObj.CRONExpressionTimeZone ?? "UTC"));
             }
         }
 

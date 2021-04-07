@@ -2,6 +2,7 @@
 using OpenBots.Server.Model.Core;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace OpenBots.Server.ViewModel
 {
@@ -12,6 +13,7 @@ namespace OpenBots.Server.ViewModel
         public Guid? AgentId { get; set; }
         public Guid? AgentGroupId { get; set; }
         public string? CRONExpression { get; set; }
+        public string CRONExpressionTimeZone { get; set; }
         public DateTime? LastExecution { get; set; }
         public DateTime? NextExecution { get; set; }
         public bool? IsDisabled { get; set; }
@@ -34,6 +36,7 @@ namespace OpenBots.Server.ViewModel
                 AgentId = viewModel.AgentId,
                 AgentGroupId = viewModel.AgentGroupId,
                 CRONExpression = viewModel.CRONExpression,
+                CRONExpressionTimeZone = viewModel.CRONExpression,
                 LastExecution = viewModel.LastExecution,
                 NextExecution = viewModel.NextExecution,
                 IsDisabled = viewModel.IsDisabled,

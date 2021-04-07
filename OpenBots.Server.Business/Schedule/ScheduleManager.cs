@@ -74,6 +74,7 @@ namespace OpenBots.Server.Business
             existingSchedule.AgentId = request.AgentId;
             existingSchedule.AgentGroupId = request.AgentGroupId;
             existingSchedule.CRONExpression = request.CRONExpression;
+            existingSchedule.CRONExpressionTimeZone = request.CRONExpressionTimeZone;
             existingSchedule.LastExecution = request.LastExecution;
             existingSchedule.NextExecution = request.NextExecution;
             existingSchedule.IsDisabled = request.IsDisabled;
