@@ -246,7 +246,7 @@ namespace OpenBots.Server.Web.Controllers
             //validate the cron expression
             if (!string.IsNullOrWhiteSpace(request.CRONExpression))
             {
-                if (!string.IsNullOrWhiteSpace(request.CRONExpressionTimeZone))
+                if (string.IsNullOrWhiteSpace(request.CRONExpressionTimeZone))
                 {
                     request.CRONExpressionTimeZone = "UTC";
                 }

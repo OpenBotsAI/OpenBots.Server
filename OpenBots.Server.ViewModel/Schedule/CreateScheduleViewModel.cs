@@ -36,7 +36,7 @@ namespace OpenBots.Server.ViewModel
                 AgentId = viewModel.AgentId,
                 AgentGroupId = viewModel.AgentGroupId,
                 CRONExpression = viewModel.CRONExpression,
-                CRONExpressionTimeZone = viewModel.CRONExpression,
+                CRONExpressionTimeZone = viewModel.CRONExpressionTimeZone,
                 LastExecution = viewModel.LastExecution,
                 NextExecution = viewModel.NextExecution,
                 IsDisabled = viewModel.IsDisabled,

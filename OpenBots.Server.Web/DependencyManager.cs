@@ -43,8 +43,6 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IPasswordPolicyRepository), typeof(PasswordPolicyRepository));
             services.AddTransient(typeof(IOrganizationManager), typeof(OrganizationManager));
 
-            services.AddTransient(typeof(ILookupValueRepository), typeof(LookupValueRepository));
-            services.AddTransient(typeof(IApplicationVersionRepository), typeof(ApplicationVersionRepository));
             services.AddTransient(typeof(IQueueItemRepository), typeof(QueueItemRepository));
             services.AddTransient(typeof(IQueueItemManager), typeof(QueueItemManager));
             services.AddTransient(typeof(IAssetRepository), typeof(AssetRepository));
@@ -63,10 +61,15 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IQueueRepository), typeof(QueueRepository));
             services.AddTransient(typeof(IQueueManager), typeof(QueueManager));
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddTransient(typeof(IConfigurationValueRepository), typeof(ConfigurationValueRepository));
             services.AddTransient(typeof(IIPFencingRepository), typeof(IPFencingRepository));
             services.AddTransient(typeof(IIPFencingManager), typeof(IPFencingManager));
             services.AddTransient(typeof(IQueueItemAttachmentRepository), typeof(QueueItemAttachmentRepository));
+
+            //core
+            services.AddTransient(typeof(ILookupValueRepository), typeof(LookupValueRepository));
+            services.AddTransient(typeof(IApplicationVersionRepository), typeof(ApplicationVersionRepository));
+            services.AddTransient(typeof(IConfigurationValueRepository), typeof(ConfigurationValueRepository));
+            services.AddTransient(typeof(ITimeZoneIdRepository), typeof(TimeZoneIdRepository));
 
             //agents
             services.AddTransient(typeof(IAgentHeartbeatRepository), typeof(AgentHeartbeatRepository));
@@ -86,7 +89,7 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IAutomationVersionRepository), typeof(AutomationVersionRepository));
             services.AddTransient(typeof(IAutomationParameterRepository), typeof(AutomationParameterRepository));
 
-            //IntegrationEvents
+            //integration events
             services.AddTransient(typeof(IIntegrationEventRepository), typeof(IntegrationEventRepository));
             services.AddTransient(typeof(IIntegrationEventLogRepository), typeof(IntegrationEventLogRepository));
             services.AddTransient(typeof(IIntegrationEventSubscriptionRepository), typeof(IntegrationEventSubscriptionRepository));

@@ -10,6 +10,7 @@ using OpenBots.Server.ViewModel;
 using System.Text.Json;
 using System.Linq;
 using Microsoft.AspNetCore.SignalR;
+using OpenBots.Server.Business;
 
 namespace OpenBots.Server.Web.Hubs
 {
@@ -24,6 +25,7 @@ namespace OpenBots.Server.Web.Hubs
         private readonly IScheduleParameterRepository _scheduleParameterRepository;
         private readonly IOrganizationSettingManager _organizationSettingManager;
         private readonly IAgentGroupManager _agentGroupManager;
+        private readonly IScheduleManager _scheduleManager;
 
         public HubManager(IRecurringJobManager recurringJobManager,
             IJobRepository jobRepository, IHubContext<NotificationHub> hub,
@@ -32,7 +34,8 @@ namespace OpenBots.Server.Web.Hubs
             IJobParameterRepository jobParameterRepository,
             IScheduleParameterRepository scheduleParameterRepository,
             IOrganizationSettingManager organizationSettingManager,
-            IAgentGroupManager agentGroupManager)
+            IAgentGroupManager agentGroupManager,
+            IScheduleManager scheduleManager)
         {
             _recurringJobManager = recurringJobManager;
             _jobRepository = jobRepository;
@@ -43,6 +46,7 @@ namespace OpenBots.Server.Web.Hubs
             _scheduleParameterRepository = scheduleParameterRepository;
             _organizationSettingManager = organizationSettingManager;
             _agentGroupManager = agentGroupManager;
+            _scheduleManager = scheduleManager;
         }
 
         public HubManager()
@@ -59,9 +63,10 @@ namespace OpenBots.Server.Web.Hubs
             }
             else
             {
+                var timeZone = _scheduleManager.GetTimeZoneId(scheduleObj.CRONExpressionTimeZone);
                 _recurringJobManager.AddOrUpdate(scheduleObj.Id.Value.ToString(), 
                                                 () => CreateJob(scheduleSerializeObject, Enumerable.Empty<ParametersViewModel>()), scheduleObj.CRONExpression,
-                                                TimeZoneInfo.FindSystemTimeZoneById(scheduleObj.CRONExpressionTimeZone ?? "UTC"));
+                                                TimeZoneInfo.FindSystemTimeZoneById(timeZone));
             }
         }
 

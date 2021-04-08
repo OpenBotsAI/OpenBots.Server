@@ -6,6 +6,9 @@ using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.Model.Webhooks;
 using System;
 using OpenBots.Server.Model.File;
+using System.IO;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace OpenBots.Server.DataAccess
 {
@@ -13,6 +16,7 @@ namespace OpenBots.Server.DataAccess
     {
         public DbSet<LookupValue> LookupValues { get; set; }
         public DbSet<ApplicationVersion> AppVersion { get; set; }
+        public DbSet<TimeZoneId> TimeZoneIds { get; set; }
         public DbSet<QueueItem> QueueItems { get; set; }
         public DbSet<QueueItemAttachment> QueueItemAttachments { get; set; }
         public DbSet<BinaryObject> BinaryObjects { get; set; }
@@ -60,11 +64,11 @@ namespace OpenBots.Server.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-        
+            SeedIntegrationEvents(modelBuilder);
+            SeedTimeZoneIdModel(modelBuilder);
             CreateMembershipModel(modelBuilder);
             CreateIdentityModel(modelBuilder);
             CreateCoreModel(modelBuilder);
-            SeedIntegrationEvents(modelBuilder);
         }
         #region core entitites
 
@@ -107,6 +111,22 @@ namespace OpenBots.Server.DataAccess
             new IntegrationEvent { Id = new Guid("76910164-6fda-4861-b1b5-7737370a8461"), Description = "An Agent has been added to the AgentGroup", EntityType = "AgentGroup", IsSystem = true, IsDeleted = false, Name = "AgentGroups.AgentGroupMemberUpdated" }
             );
         }
+
+        protected void SeedTimeZoneIdModel(ModelBuilder modelBuilder)
+        {
+            using (StreamReader r = new StreamReader(@"C:\Users\dha17\Source\Repos\OpenBots.Server2\OpenBots.Server.DataAccess\DataAccess\Windows-Linux-TimeZone.json"))
+            {
+                string json = r.ReadToEnd();
+                dynamic idArray = JsonConvert.DeserializeObject(json);
+
+                foreach (var item in idArray)
+                {
+                    modelBuilder.Entity<TimeZoneId>()
+                        .HasData(new TimeZoneId { WindowsTimeZone = item.Windows, LinuxTimeZone = item.Linux, IsDeleted = false});
+                }
+            }
+        }
+
         protected void CreateCoreModel(ModelBuilder modelBuilder)
         {
             CreateLookupValueModel(modelBuilder.Entity<LookupValue>());
@@ -126,7 +146,6 @@ namespace OpenBots.Server.DataAccess
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("getutcdate()");
             entity.Property(e => e.Id).HasDefaultValueSql("newid()");
         }
-
 
         #endregion
     }

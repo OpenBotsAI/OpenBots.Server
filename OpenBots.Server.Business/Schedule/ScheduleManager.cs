@@ -8,6 +8,7 @@ using OpenBots.Server.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace OpenBots.Server.Business
 {
@@ -18,17 +19,20 @@ namespace OpenBots.Server.Business
         private readonly IAgentRepository _agentRepository;
         private readonly IAutomationRepository _automationRepository;
         private readonly IAgentGroupRepository _agentGroupRepository;
+        private readonly ITimeZoneIdRepository _timeZoneIdRepository;
 
         public ScheduleManager(IScheduleRepository repo, IScheduleParameterRepository scheduleParameterRepository, 
             IAgentRepository agentRepository,
             IAutomationRepository automationRepository,
-            IAgentGroupRepository agentGroupRepository)
+            IAgentGroupRepository agentGroupRepository,
+            ITimeZoneIdRepository timeZoneIdRepository)
         {
             _repo = repo;
             _scheduleParameterRepository = scheduleParameterRepository;
             _agentRepository = agentRepository;
             _automationRepository = automationRepository;
             _agentGroupRepository = agentGroupRepository;
+            _timeZoneIdRepository = timeZoneIdRepository;
         }
 
         /// <summary>
@@ -38,6 +42,7 @@ namespace OpenBots.Server.Business
         /// <returns>The Schedule to be added</returns>
         public Schedule AddSchedule(CreateScheduleViewModel createScheduleView)
         {
+            createScheduleView.CRONExpressionTimeZone = GetTimeZoneId(createScheduleView.CRONExpressionTimeZone);
             var existingSchedule = _repo.Find(null, d => d.Name.ToLower() == createScheduleView.Name.ToLower())?.Items?.FirstOrDefault();
             if (existingSchedule != null)
             {
@@ -74,7 +79,7 @@ namespace OpenBots.Server.Business
             existingSchedule.AgentId = request.AgentId;
             existingSchedule.AgentGroupId = request.AgentGroupId;
             existingSchedule.CRONExpression = request.CRONExpression;
-            existingSchedule.CRONExpressionTimeZone = request.CRONExpressionTimeZone;
+            existingSchedule.CRONExpressionTimeZone = GetTimeZoneId(request.CRONExpressionTimeZone);
             existingSchedule.LastExecution = request.LastExecution;
             existingSchedule.NextExecution = request.NextExecution;
             existingSchedule.IsDisabled = request.IsDisabled;
@@ -145,6 +150,35 @@ namespace OpenBots.Server.Business
             scheduleView.ScheduleParameters = GetScheduleParameters(scheduleView.Id ?? Guid.Empty);
 
             return scheduleView;
+        }
+
+        /// <summary>
+        /// Gets the timezone id for the server's operating system
+        /// </summary>
+        /// <param name="cronExpression"></param>
+        /// <returns>The corresponding timezone for the current operating system</returns>
+        public string GetTimeZoneId(string cronExpressionTimeZone)
+        {
+            if (String.IsNullOrEmpty(cronExpressionTimeZone))
+            {
+                cronExpressionTimeZone = "UTC";
+            }
+
+            var timeZoneIds = _timeZoneIdRepository.Find(null, t => t.WindowsTimeZone == cronExpressionTimeZone || t.LinuxTimeZone == cronExpressionTimeZone).Items?.FirstOrDefault();
+            if (timeZoneIds == null)
+            {
+                throw new InvalidOperationException("The CRONExpressionTimeZone property is not a valid time zone");
+            }
+
+            bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            if (isWindows)
+            {
+                return timeZoneIds?.WindowsTimeZone;
+            }
+            else
+            {
+                return timeZoneIds?.LinuxTimeZone;
+            }
         }
     }
 }
