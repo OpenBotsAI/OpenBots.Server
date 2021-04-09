@@ -9,6 +9,7 @@ namespace OpenBots.Server.Model
         public Guid? AgentId { get; set; }
         public Guid? AgentGroupId { get; set; }
         public string? CRONExpression { get; set; }
+        public string CRONExpressionTimeZone { get; set; }
         public DateTime? LastExecution { get; set; }
         public DateTime? NextExecution { get; set; }
         [DefaultValue(false)]

@@ -17,5 +17,6 @@ namespace OpenBots.Server.Business
         IEnumerable<ScheduleParameter> GetScheduleParameters(Guid scheduleId);
         PaginatedList<ScheduleParameter> GetScheduleParameters(string scheduleId);
         ScheduleViewModel GetScheduleViewModel(ScheduleViewModel scheduleView);
+        string GetTimeZoneId(string cronExpressionTimeZone);
     }
 }
