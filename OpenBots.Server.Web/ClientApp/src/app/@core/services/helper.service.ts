@@ -5,6 +5,7 @@ import { FileSizePipe } from 'ngx-filesize';
 import { Rule, Usage } from '../../interfaces/ipFencing';
 import { ItemsPerPage } from '../../interfaces/itemsPerPage';
 import { TimeDatePipe } from '../pipe';
+import { TimeZonePipe } from '../pipe/time-zone.pipe';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ export class HelperService {
   itemPerPage: ItemsPerPage[];
   pipe: TimeDatePipe;
   fileSize: FileSizePipe;
+  utcTime: TimeZonePipe;
   constructor() {}
 
   noWhitespaceValidator(control: FormControl) {
@@ -66,5 +68,14 @@ export class HelperService {
   getFileSize(param: number): string | string[] {
     this.fileSize = new FileSizePipe();
     return this.fileSize.transform(param);
+  }
+
+  UTCTimeToLocal(param: string) {
+    this.utcTime = new TimeZonePipe();
+    return this.utcTime.transform(param);
+  }
+
+  localToUTCTime(param: string) {
+    return new Date(param);
   }
 }

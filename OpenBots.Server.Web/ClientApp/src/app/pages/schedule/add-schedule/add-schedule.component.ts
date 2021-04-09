@@ -15,7 +15,8 @@ import {
 } from '../../../webApiUrls';
 import { Automation } from '../../../interfaces/automations';
 import { AgentGroupLookUp } from '../../../interfaces/AgentGroupLookUp';
-
+import { timeZonelist } from './timeZone';
+import { TimeZone } from '../../../interfaces/timeZone';
 @Component({
   selector: 'ngx-add-schedule',
   templateUrl: './add-schedule.component.html',
@@ -43,6 +44,7 @@ export class AddScheduleComponent implements OnInit {
   cronExpression = '0/0 * 0/0 * *';
   isCronDisabled = false;
   isChecked = false;
+  timeZoneArr: TimeZone[] = timeZonelist;
   cronOptions: CronOptions = {
     formInputClass: 'form-control cron-editor-input',
     formSelectClass: 'form-control cron-editor-select',
@@ -108,6 +110,7 @@ export class AddScheduleComponent implements OnInit {
       startDate: [''],
       agentGroupId: [''],
       checked: [false],
+      CRONExpressionTimeZone: [''],
       parameters: this.currentScheduleId
         ? this.fb.array([this.initializeJobRunNowForm()])
         : this.fb.array([]),
@@ -134,17 +137,16 @@ export class AddScheduleComponent implements OnInit {
   onScheduleSubmit(): void {
     this.isSubmitted = true;
     if (this.scheduleForm.value.startDate) {
-      this.scheduleForm.value.startDate = this.helperService.transformDate(
-        this.scheduleForm.value.startDate,
-        'lll'
+      this.scheduleForm.value.startDate = this.helperService.localToUTCTime(
+        this.scheduleForm.value.startDate
       );
     }
     if (this.scheduleForm.value.expiryDate) {
-      this.scheduleForm.value.expiryDate = this.helperService.transformDate(
-        this.scheduleForm.value.expiryDate,
-        'lll'
+      this.scheduleForm.value.expiryDate = this.helperService.localToUTCTime(
+        this.scheduleForm.value.expiryDate
       );
     }
+
     if (this.cronExpression !== '0/0 * 0/0 * *') {
       this.scheduleForm.value.cronExpression = this.cronExpression;
     }
@@ -182,6 +184,10 @@ export class AddScheduleComponent implements OnInit {
   }
 
   addSchedule(): void {
+    console.log('selected date', this.scheduleForm.value.startDate);
+    this.scheduleForm.value.startDate = new Date(
+      this.scheduleForm.value.startDate
+    );
     this.httpService
       .post(`${SchedulesApiUrl.schedules}`, this.scheduleForm.value, {
         observe: 'response',
@@ -221,7 +227,14 @@ export class AddScheduleComponent implements OnInit {
             this.isChecked = true;
             this.scheduleForm.get('checked').patchValue(true);
           }
-
+          if (response.body.startDate)
+            response.body.startDate = this.helperService.UTCTimeToLocal(
+              response.body.startDate
+            );
+          if (response.body.expiryDate)
+            response.body.expiryDate = this.helperService.UTCTimeToLocal(
+              response.body.expiryDate
+            );
           this.scheduleForm.patchValue({ ...response.body });
           this.scheduleForm.markAsDirty();
           this.scheduleForm.markAsTouched();
@@ -254,12 +267,22 @@ export class AddScheduleComponent implements OnInit {
     if (value === 'oneTime') {
       this.scheduleForm.get('startDate').setValidators([Validators.required]);
       this.scheduleForm.get('startDate').updateValueAndValidity();
+      this.scheduleForm.get('expiryDate').clearValidators();
+      this.scheduleForm.get('expiryDate').updateValueAndValidity();
+      this.scheduleForm.get('CRONExpressionTimeZone').clearValidators();
+      this.scheduleForm.get('CRONExpressionTimeZone').updateValueAndValidity();
     } else if (value === 'recurrence') {
+      this.scheduleForm
+        .get('CRONExpressionTimeZone')
+        .setValidators([Validators.required]);
+      this.scheduleForm.get('CRONExpressionTimeZone').updateValueAndValidity();
       this.scheduleForm.get('startDate').setValidators([Validators.required]);
       this.scheduleForm.get('startDate').updateValueAndValidity();
       this.scheduleForm.get('expiryDate').setValidators([Validators.required]);
       this.scheduleForm.get('expiryDate').updateValueAndValidity();
     } else if (value === 'manual') {
+      this.scheduleForm.get('CRONExpressionTimeZone').clearValidators();
+      this.scheduleForm.get('CRONExpressionTimeZone').updateValueAndValidity();
       this.scheduleForm.get('startDate').clearValidators();
       this.scheduleForm.get('startDate').updateValueAndValidity();
       this.scheduleForm.get('expiryDate').clearValidators();

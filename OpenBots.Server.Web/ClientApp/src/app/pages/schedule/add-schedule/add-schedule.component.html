@@ -147,7 +147,20 @@
               <owl-date-time #dtPicker1></owl-date-time>
             </div>
           </div>
-
+          <div *ngIf="scheduleForm.value.startingType == 'recurrence'">
+            <label class="label">Select time zone *</label>
+            <ng-select [items]="timeZoneArr" [searchable]="true" bindLabel="text"
+              formControlName="CRONExpressionTimeZone" class="NgSelect" [closeOnSelect]="true"
+              placeholder="Please select time zone" bindValue="value" [clearable]="false">
+            </ng-select>
+            <div
+              *ngIf="formControls.CRONExpressionTimeZone.invalid &&(formControls.CRONExpressionTimeZone.dirty || formControls.CRONExpressionTimeZone.touched) "
+              class="invalid-feedback-frm">
+              <div *ngIf="formControls.CRONExpressionTimeZone?.errors.required">
+                Name is required.
+              </div>
+            </div>
+          </div>
           <div class="row rowPaddingTop" *ngIf="scheduleForm.value.startingType == 'recurrence'">
             <div class="col-md-12 col-lg-12 col-xxxl-6">
               <label for="cronExpression" class="label  col-form-label">Cron Expression *</label>
