@@ -29,6 +29,7 @@ namespace OpenBots.Server.ViewModel
         public string? CreatedBy { get; set; }
         public bool? ScheduleNow { get; set; }
         public Guid? QueueId { get; set; }
+        public int? MaxRunningJobs { get; set; }
         public IEnumerable<ScheduleParameter>? ScheduleParameters { get; set; }
 
         public ScheduleViewModel Map(Schedule entity)
@@ -52,7 +53,8 @@ namespace OpenBots.Server.ViewModel
                 StartDate = entity.StartDate,
                 CreatedOn = entity.CreatedOn,
                 CreatedBy = entity.CreatedBy,
-                QueueId = entity.QueueId
+                QueueId = entity.QueueId,
+                MaxRunningJobs = entity.MaxRunningJobs            
             };
 
             return scheduleViewModel;

@@ -24,6 +24,8 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
     [Authorize]
     public class IntegrationEventSubscriptionsController : EntityController<IntegrationEventSubscription>
     {
+
+        private readonly IIntegrationEventSubscriptionManager _manager;
         /// <summary>
         /// IntegrationEventSubscriptionsController constructor
         /// </summary>
@@ -37,8 +39,10 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
             IConfiguration configuration,
-            IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
+            IHttpContextAccessor httpContextAccessor,
+            IIntegrationEventSubscriptionManager manager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
+            _manager = manager; 
         }
 
         /// <summary>
@@ -133,6 +137,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         {
             try
             {
+                request = _manager.AddIntegrationEventSubscription(request);
                 return await base.PostEntity(request);
             }
             catch (Exception ex)
@@ -168,27 +173,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         {
             try
             {
-                Guid entityId = new Guid(id);
-                IntegrationEventSubscription existingEventSubscription = repository.GetOne(entityId);
-
-                if (existingEventSubscription == null)
-                {
-                    ModelState.AddModelError("Export", "Unable to find an IntegrationEventSubscription for the given ID");
-                    return NotFound(ModelState);
-                }
-
-                existingEventSubscription.Name = request.Name;
-                existingEventSubscription.EntityType = request.EntityType;
-                existingEventSubscription.IntegrationEventName = request.IntegrationEventName;
-                existingEventSubscription.EntityID = request.EntityID;
-                existingEventSubscription.EntityName = request.EntityName;
-                existingEventSubscription.TransportType = request.TransportType;
-                existingEventSubscription.HTTP_URL = request.HTTP_URL;
-                existingEventSubscription.HTTP_AddHeader_Key = request.HTTP_AddHeader_Key;
-                existingEventSubscription.HTTP_AddHeader_Value = request.HTTP_AddHeader_Value;
-                existingEventSubscription.Max_RetryCount = request.Max_RetryCount;
-                existingEventSubscription.QUEUE_QueueID = request.QUEUE_QueueID;
-
+                IntegrationEventSubscription existingEventSubscription = _manager.UpdateIntegrationEventSubscription(id, request);
                 return await base.PutEntity(id, existingEventSubscription);
             }
             catch (Exception ex)
@@ -245,6 +230,8 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         {
             try
             {
+
+                _manager.AttemptPatchUpdate(request, id);
                 return await base.PatchEntity(id, request);
             }
             catch (Exception ex)

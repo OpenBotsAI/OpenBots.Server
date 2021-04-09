@@ -11,7 +11,7 @@ namespace OpenBots.Server.ViewModel
         public string AgentName { get; set; }
         public string AgentGroupName { get; set; }
         public string AutomationName { get; set; }
-        [Required]
+        public Guid? ScheduleId { get; set; }
         public Guid? AgentId { get; set; }
         public Guid? AgentGroupId { get; set; }
         public DateTime? StartTime { get; set; }
@@ -40,6 +40,7 @@ namespace OpenBots.Server.ViewModel
             AllJobsViewModel jobViewModel = new AllJobsViewModel
             {
                 Id = entity.Id,
+                ScheduleId = entity.ScheduleId,
                 AgentId = entity.AgentId,
                 AgentGroupId = entity.AgentGroupId,
                 StartTime = entity.StartTime,
