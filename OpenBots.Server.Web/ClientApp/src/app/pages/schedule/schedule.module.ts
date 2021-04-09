@@ -9,7 +9,6 @@ import { CronEditorModule } from 'cron-editor';
 import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
 import { NbToggleModule } from '@nebular/theme';
 
-
 @NgModule({
   declarations: [
     AllScheduleComponent,

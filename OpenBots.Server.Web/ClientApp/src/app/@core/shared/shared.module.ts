@@ -24,6 +24,7 @@ import { TimeagoPipe } from '../services/timeago.pipe';
 import { TooltipComponent } from './tooltip/tooltip.component';
 import { BlockUIModule } from 'ng-block-ui';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { TimeZonePipe } from '../pipe/time-zone.pipe';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
     PreventSpecialCharDirective,
     TimeagoPipe,
     OrderByPipe,
+    TimeZonePipe,
   ],
   imports: [NbTooltipModule],
   exports: [
@@ -63,6 +65,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
     BlockUIModule,
     OrderByPipe,
     NgSelectModule,
+    TimeZonePipe,
   ],
 })
 export class SharedModule {}
