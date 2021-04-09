@@ -544,7 +544,7 @@ export var timeZonelist = [
     timezone: 'Asia/Karachi',
   },
   {
-    value: '(UTC+05:30) India Standard Time',
+    value: 'India Standard Time',
     abbr: 'IST',
     offset: 5.5,
     isdst: false,
