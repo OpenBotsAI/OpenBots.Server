@@ -114,7 +114,9 @@ namespace OpenBots.Server.DataAccess
 
         protected void SeedTimeZoneIdModel(ModelBuilder modelBuilder)
         {
-            using (StreamReader r = new StreamReader(@"..\OpenBots.Server.DataAccess\DataAccess\Windows-Linux-TimeZone.json"))
+            string[] paths = { @"..", "OpenBots.Server.DataAccess", "DataAccess", "Windows-Linux-TimeZone.json" };
+            string fullPath = Path.Combine(paths);
+            using (StreamReader r = new StreamReader(fullPath))
             {
                 string json = r.ReadToEnd();
                 dynamic idArray = JsonConvert.DeserializeObject(json);
