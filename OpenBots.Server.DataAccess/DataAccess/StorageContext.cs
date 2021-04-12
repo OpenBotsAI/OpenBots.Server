@@ -115,9 +115,8 @@ namespace OpenBots.Server.DataAccess
 
         protected void SeedTimeZoneIdModel(ModelBuilder modelBuilder)
         {
-            var absolutePath = new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath; //was AbsolutePath but didn't work with spaces according to comments
-            var directoryName = Path.GetDirectoryName(absolutePath);
-            using (StreamReader r = new StreamReader($@"{directoryName}\DataAccess\Windows-Linux-TimeZone.json"))
+            string path = Path.Combine(Environment.CurrentDirectory, $@"{Path.Combine(Environment.CurrentDirectory)}", "Windows-Linux-TimeZone.json");
+            using (StreamReader r = new StreamReader(path))
             {
                 string json = r.ReadToEnd();
                 dynamic idArray = JsonConvert.DeserializeObject(json);
