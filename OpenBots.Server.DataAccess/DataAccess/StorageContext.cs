@@ -9,6 +9,7 @@ using OpenBots.Server.Model.File;
 using System.IO;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace OpenBots.Server.DataAccess
 {
@@ -65,7 +66,7 @@ namespace OpenBots.Server.DataAccess
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             SeedIntegrationEvents(modelBuilder);
-            SeedTimeZoneIdModel(modelBuilder);
+            //SeedTimeZoneIdModel(modelBuilder);
             CreateMembershipModel(modelBuilder);
             CreateIdentityModel(modelBuilder);
             CreateCoreModel(modelBuilder);
@@ -114,7 +115,8 @@ namespace OpenBots.Server.DataAccess
 
         protected void SeedTimeZoneIdModel(ModelBuilder modelBuilder)
         {
-            using (StreamReader r = new StreamReader($@"{AppDomain.CurrentDomain.BaseDirectory}\DataAccess\Windows-Linux-TimeZone.json"))
+            string path = Path.Combine(Environment.CurrentDirectory, $@"{Path.Combine(Environment.CurrentDirectory)}", "Windows-Linux-TimeZone.json");
+            using (StreamReader r = new StreamReader(path))
             {
                 string json = r.ReadToEnd();
                 dynamic idArray = JsonConvert.DeserializeObject(json);
