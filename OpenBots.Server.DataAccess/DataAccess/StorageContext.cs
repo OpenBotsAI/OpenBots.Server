@@ -65,7 +65,7 @@ namespace OpenBots.Server.DataAccess
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             SeedIntegrationEvents(modelBuilder);
-            SeedTimeZoneIdModel(modelBuilder);
+            //SeedTimeZoneIdModel(modelBuilder);
             CreateMembershipModel(modelBuilder);
             CreateIdentityModel(modelBuilder);
             CreateCoreModel(modelBuilder);
