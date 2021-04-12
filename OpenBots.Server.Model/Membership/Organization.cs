@@ -29,7 +29,10 @@ namespace OpenBots.Server.Model.Membership
         [StringLength(500,ErrorMessage ="Description must be 500 characters or less.")]
         [Display(Name = "Description")]
         public string? Description { get; set; }
-        
+
+        [Display(Name = "MaxStorageInBytes")]
+        public long? MaxStorageInBytes { get; set; }
+
         public List<OrganizationUnit> Units { get; set; }
 
         public List<AccessRequest> AccessRequests { get; set; }

@@ -6,5 +6,6 @@ namespace OpenBots.Server.Business
     {
         Organization AddNewOrganization(Organization value);
         Organization GetDefaultOrganization();
+        long? GetMaxStorageInBytes(string organizationId = "");
     }
 }

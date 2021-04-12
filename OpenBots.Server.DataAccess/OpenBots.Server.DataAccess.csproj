@@ -53,6 +53,9 @@
     <None Update="DataAccess\OpenBots.Server.DataAccess.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="DataAccess\Windows-Linux-TimeZone.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
