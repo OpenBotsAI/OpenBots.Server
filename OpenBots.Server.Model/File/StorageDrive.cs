@@ -7,7 +7,9 @@ namespace OpenBots.Server.Model.File
     {
         public string FileStorageAdapterType { get; set; }
         public Guid? OrganizationId { get; set; }
-        public long? StorageSizeInBytes { get; set; }
         public string StoragePath { get; set; }
+        public long? StorageSizeInBytes { get; set; }
+        public long? MaxStorageAllowedInBytes { get; set; }
+
     }
 }

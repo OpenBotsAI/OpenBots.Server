@@ -1470,11 +1470,11 @@
             <response code="422">Unprocessable entity</response>
             <returns>Ok response with the copied file or folder value</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.PostDrive(System.String)">
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.PostDrive(OpenBots.Server.Model.File.StorageDrive)">
             <summary>
             Creates new storage drive
             </summary>
-            <param name="driveName"></param>
+            <param name="drive"></param>
             <response code="200">Ok, new storage drive entity created and returned</response>
             <response code="400">Bad request, when the storage drive values are not in proper format</response>
             <response code="403">Forbidden, unauthorized access</response>

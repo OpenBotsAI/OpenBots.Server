@@ -482,7 +482,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <summary>
         /// Creates new storage drive
         /// </summary>
-        /// <param name="driveName"></param>
+        /// <param name="drive"></param>
         /// <response code="200">Ok, new storage drive entity created and returned</response>
         /// <response code="400">Bad request, when the storage drive values are not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
@@ -497,11 +497,11 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> PostDrive([FromQuery] string driveName)
+        public async Task<IActionResult> PostDrive([FromBody] StorageDrive drive)
         {
             try
             {
-                var response = _manager.AddStorageDrive(driveName);
+                var response = _manager.AddStorageDrive(drive);
                 return Ok(response);
             }
             catch (Exception ex)

@@ -47,7 +47,8 @@ namespace OpenBots.Server.Business
                 { "Queue.Global:DefaultMaxRetryCount", "3" },
                 { "App:EnableSwagger", "true"},
                 { "App:MaxExportRecords", "100"},
-                { "App:MaxReturnRecords", "100"}
+                { "App:MaxReturnRecords", "100"},
+                { "Organization:MaxStorageInBytes", "100000000"},
             };
 
             foreach (var value in configValues)

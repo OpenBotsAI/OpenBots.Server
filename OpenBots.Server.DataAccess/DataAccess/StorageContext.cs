@@ -66,7 +66,6 @@ namespace OpenBots.Server.DataAccess
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             SeedIntegrationEvents(modelBuilder);
-            //SeedTimeZoneIdModel(modelBuilder);
             CreateMembershipModel(modelBuilder);
             CreateIdentityModel(modelBuilder);
             CreateCoreModel(modelBuilder);
@@ -111,22 +110,6 @@ namespace OpenBots.Server.DataAccess
             new IntegrationEvent { Id = new Guid("3789f1ae-2693-4ad7-8696-723bd551199f"), Description = "An AgentGroup has been deleted", EntityType = "AgentGroup", IsSystem = true, IsDeleted = false, Name = "AgentGroups.AgentGroupDeleted" },
             new IntegrationEvent { Id = new Guid("76910164-6fda-4861-b1b5-7737370a8461"), Description = "An Agent has been added to the AgentGroup", EntityType = "AgentGroup", IsSystem = true, IsDeleted = false, Name = "AgentGroups.AgentGroupMemberUpdated" }
             );
-        }
-
-        protected void SeedTimeZoneIdModel(ModelBuilder modelBuilder)
-        {
-            string path = Path.Combine(Environment.CurrentDirectory, $@"{Path.Combine(Environment.CurrentDirectory)}", "Windows-Linux-TimeZone.json");
-            using (StreamReader r = new StreamReader(path))
-            {
-                string json = r.ReadToEnd();
-                dynamic idArray = JsonConvert.DeserializeObject(json);
-
-                foreach (var item in idArray)
-                {
-                    modelBuilder.Entity<TimeZoneId>()
-                        .HasData(new TimeZoneId { WindowsTimeZone = item.Windows, LinuxTimeZone = item.Linux, IsDeleted = false});
-                }
-            }
         }
 
         protected void CreateCoreModel(ModelBuilder modelBuilder)
