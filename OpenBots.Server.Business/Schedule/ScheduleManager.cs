@@ -48,6 +48,12 @@ namespace OpenBots.Server.Business
             {
                 throw new EntityAlreadyExistsException("Schedule name already exists");
             }
+
+            var timeZone = GetTimeZoneId(createScheduleView.CRONExpressionTimeZone);
+            if (timeZone == null)
+            {
+                throw new EntityOperationException("Unable to find the specified TimeZoneId");
+            }
             Schedule newSchedule = createScheduleView.Map(createScheduleView); //assign request to schedule entity
 
             return newSchedule;
@@ -73,6 +79,12 @@ namespace OpenBots.Server.Business
             if (namedSchedule != null && namedSchedule.Id != entityId)
             {
                 throw new EntityAlreadyExistsException("Schedule already exists");
+            }
+
+            var timeZone = GetTimeZoneId(request.CRONExpressionTimeZone);
+            if (timeZone == null)
+            {
+                throw new EntityOperationException("Unable to find the specified TimeZoneId");
             }
 
             existingSchedule.Name = request.Name;
