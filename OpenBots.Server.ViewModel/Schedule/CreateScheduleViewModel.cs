@@ -3,6 +3,7 @@ using OpenBots.Server.Model.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace OpenBots.Server.ViewModel
 {
@@ -24,7 +25,8 @@ namespace OpenBots.Server.ViewModel
         public DateTime? ExpiryDate { get; set; }
         public DateTime? StartDate { get; set; }
         public Guid? QueueId { get; set; }
-        public int? MaxRunningJobs { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "Please enter valid a number greater than or equal to 1")]
+        public int? MaxRunningJobs { get; set; } 
         public IEnumerable<ParametersViewModel>? Parameters { get; set; }
 
         public Schedule Map(CreateScheduleViewModel viewModel)
