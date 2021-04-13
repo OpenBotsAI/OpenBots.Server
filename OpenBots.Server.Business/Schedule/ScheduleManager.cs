@@ -42,7 +42,6 @@ namespace OpenBots.Server.Business
         /// <returns>The Schedule to be added</returns>
         public Schedule AddSchedule(CreateScheduleViewModel createScheduleView)
         {
-            createScheduleView.CRONExpressionTimeZone = GetTimeZoneId(createScheduleView.CRONExpressionTimeZone);
             var existingSchedule = _repo.Find(null, d => d.Name.ToLower() == createScheduleView.Name.ToLower())?.Items?.FirstOrDefault();
             if (existingSchedule != null)
             {
@@ -91,7 +90,7 @@ namespace OpenBots.Server.Business
             existingSchedule.AgentId = request.AgentId;
             existingSchedule.AgentGroupId = request.AgentGroupId;
             existingSchedule.CRONExpression = request.CRONExpression;
-            existingSchedule.CRONExpressionTimeZone = GetTimeZoneId(request.CRONExpressionTimeZone);
+            existingSchedule.CRONExpressionTimeZone = request.CRONExpressionTimeZone;
             existingSchedule.LastExecution = request.LastExecution;
             existingSchedule.NextExecution = request.NextExecution;
             existingSchedule.IsDisabled = request.IsDisabled;
