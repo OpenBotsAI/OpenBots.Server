@@ -93,9 +93,12 @@ namespace OpenBots.Server.Web.Hubs
             //if this is not a "RunNow" job, then use the schedule parameters
             if (schedule.StartingType.Equals("RunNow") == false)
             {
-                if (ActiveJobLimitReached(schedule.Id,schedule.MaxRunningJobs))
+                if (schedule.MaxRunningJobs != null)
                 {
-                    return "ActiveJobLimitReached";
+                    if (ActiveJobLimitReached(schedule.Id, schedule.MaxRunningJobs))
+                    {
+                        return "ActiveJobLimitReached";
+                    }
                 }
 
                 List<ParametersViewModel> parametersList = new List<ParametersViewModel>();
@@ -165,6 +168,12 @@ namespace OpenBots.Server.Web.Hubs
             return "Success";
         }
 
+        /// <summary>
+        /// Returns true if the MaxRunningJobs limit has been reached
+        /// </summary>
+        /// <param name="scheduleId"></param>
+        /// <param name="maxRunningJobs"></param>
+        /// <returns></returns>
         private bool ActiveJobLimitReached(Guid? scheduleId, int? maxRunningJobs)
         {
 
