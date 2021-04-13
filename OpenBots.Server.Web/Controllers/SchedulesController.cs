@@ -253,7 +253,6 @@ namespace OpenBots.Server.Web.Controllers
                 try
                 {
                     CronExpression expression = CronExpression.Parse(request.CRONExpression, CronFormat.Standard);
-                    TimeZoneInfo.FindSystemTimeZoneById(request.CRONExpressionTimeZone);
                 }
                 catch (Exception ex)
                 {
@@ -268,7 +267,6 @@ namespace OpenBots.Server.Web.Controllers
 
             try
             {
-
                 if (request.StartingType.ToLower() == "queuearrival")
                 {
                     if (request.QueueId == null)
@@ -352,7 +350,6 @@ namespace OpenBots.Server.Web.Controllers
                     try
                     {
                         CronExpression expression = CronExpression.Parse(request.CRONExpression, CronFormat.Standard);
-                        TimeZoneInfo.FindSystemTimeZoneById(request.CRONExpressionTimeZone);
                     }
                     catch (Exception ex)
                     {
