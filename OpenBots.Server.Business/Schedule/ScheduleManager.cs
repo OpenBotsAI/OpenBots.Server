@@ -42,11 +42,16 @@ namespace OpenBots.Server.Business
         /// <returns>The Schedule to be added</returns>
         public Schedule AddSchedule(CreateScheduleViewModel createScheduleView)
         {
-            createScheduleView.CRONExpressionTimeZone = GetTimeZoneId(createScheduleView.CRONExpressionTimeZone);
             var existingSchedule = _repo.Find(null, d => d.Name.ToLower() == createScheduleView.Name.ToLower())?.Items?.FirstOrDefault();
             if (existingSchedule != null)
             {
                 throw new EntityAlreadyExistsException("Schedule name already exists");
+            }
+
+            var timeZone = GetTimeZoneId(createScheduleView.CRONExpressionTimeZone);
+            if (timeZone == null)
+            {
+                throw new EntityOperationException("Unable to find the specified TimeZoneId");
             }
             Schedule newSchedule = createScheduleView.Map(createScheduleView); //assign request to schedule entity
 
@@ -75,11 +80,17 @@ namespace OpenBots.Server.Business
                 throw new EntityAlreadyExistsException("Schedule already exists");
             }
 
+            var timeZone = GetTimeZoneId(request.CRONExpressionTimeZone);
+            if (timeZone == null)
+            {
+                throw new EntityOperationException("Unable to find the specified TimeZoneId");
+            }
+
             existingSchedule.Name = request.Name;
             existingSchedule.AgentId = request.AgentId;
             existingSchedule.AgentGroupId = request.AgentGroupId;
             existingSchedule.CRONExpression = request.CRONExpression;
-            existingSchedule.CRONExpressionTimeZone = GetTimeZoneId(request.CRONExpressionTimeZone);
+            existingSchedule.CRONExpressionTimeZone = request.CRONExpressionTimeZone;
             existingSchedule.LastExecution = request.LastExecution;
             existingSchedule.NextExecution = request.NextExecution;
             existingSchedule.IsDisabled = request.IsDisabled;
