@@ -11,11 +11,15 @@ import {
   AgentApiUrl,
   AgentGroupAPiUrl,
   automationsApiUrl,
+  QueuesApiUrls,
   SchedulesApiUrl,
 } from '../../../webApiUrls';
 import { HelperService } from '../../../@core/services/helper.service';
 import { DialogService } from '../../../@core/dialogservices';
 import { AgentGroupLookUp } from '../../../interfaces/AgentGroupLookUp';
+import { TimeZone } from '../../../interfaces/timeZone';
+import { timeZonelist } from '../add-schedule/timeZone';
+import { Queues } from '../../../interfaces/queues';
 
 @Component({
   selector: 'ngx-view-schedule',
@@ -37,6 +41,8 @@ export class ViewScheduleComponent implements OnInit {
   allGroupAgents: AgentGroupLookUp[] = [];
   isDisabled = false;
   isChecked = false;
+  timeZoneArr: TimeZone[] = timeZonelist;
+  queuesArr: Queues[] = [];
   cronOptions: CronOptions = {
     formInputClass: 'form-control cron-editor-input',
     formSelectClass: 'form-control cron-editor-select',
@@ -69,6 +75,7 @@ export class ViewScheduleComponent implements OnInit {
     this.getAllAgents();
     this.getAllAgentGroupLookup();
     this.getAllProcesses();
+    this.getAllQueues();
     this.scheduleForm = this.initScheduleForm();
     this.jobRunNowForm = this.initializeJobRunNowForm();
     if (this.currentScheduleId) {
@@ -85,6 +92,16 @@ export class ViewScheduleComponent implements OnInit {
       DataType: ['Text', [Validators.required]],
       Value: ['', [Validators.required]],
     });
+  }
+
+  getAllQueues() {
+    this.httpService
+      .get(`${QueuesApiUrls.Queues}?$orderby=createdOn+desc`)
+      .subscribe((response) => {
+        if (response && response.items && response.items.length)
+          this.queuesArr = [...response.items];
+        else this.queuesArr = [];
+      });
   }
   initScheduleForm() {
     return this.fb.group({
@@ -107,6 +124,10 @@ export class ViewScheduleComponent implements OnInit {
       isDisabled: [''],
       agentGroupId: [],
       checked: [false],
+      cronExpressionTimeZone: [''],
+      queueId: [''],
+      maxRetryChecked: [],
+      maxRunningJobs: [],
     });
   }
 
@@ -117,6 +138,8 @@ export class ViewScheduleComponent implements OnInit {
       )
       .subscribe((response) => {
         if (response) {
+          if (response.maxRunningJobs)
+            this.scheduleForm.get('maxRetryChecked').patchValue(true);
           response.startDate = this.helperService.transformDate(
             response.startDate,
             'lll'
