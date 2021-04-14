@@ -53,7 +53,16 @@ namespace OpenBots.Server.Business
             {
                 throw new EntityOperationException("Unable to find the specified TimeZoneId");
             }
-            Schedule newSchedule = createScheduleView.Map(createScheduleView); //assign request to schedule entity
+
+            if (createScheduleView.IsDisabled == false && !createScheduleView.StartingType.ToLower().Equals("manual"))//if schedule is not a manual starting type
+            {
+                if (createScheduleView.StartDate == null)
+                {
+                    throw new EntityOperationException("StartDate value cannot be null"); 
+                }
+            }
+
+                Schedule newSchedule = createScheduleView.Map(createScheduleView); //assign request to schedule entity
 
             return newSchedule;
         }
