@@ -99,7 +99,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-3 col-lg-3 col-xxxl-3">
+            <div class="col-md-1 col-lg-1 col-xxxl-1">
               <div class="checkbox checbox-switch switch-primary">
                 <label class="label">Disabled</label><br>
                 <label>
@@ -108,13 +108,28 @@
                 </label>
               </div>
             </div>
-            <div class="col-md-3 col-lg-3 col-xxxl-3">
-              <label for="retryCount" class="label">Max Running Jobs</label><br>
+            <div class="col-md-2 col-lg-2 col-xxxl-2" style="text-align: center;">
+              <label for="retryCount" class="label">Max Jobs</label><br>
               <nb-checkbox (checkedChange)="check($event)" formControlName="maxRetryChecked">
               </nb-checkbox>
             </div>
+            <div class="col-md-3 col-lg-3 col-xxxl-3" *ngIf="scheduleForm.value.maxRetryChecked">
+              <label class="label">Max Running Jobs</label>
+              <input type="number" nbInput fullWidth formControlName="maxRunningJobs"
+                placeholder="Please enter max running jobs" ngxSpecialChar trim="blur">
+              <div
+                *ngIf="formControls.maxRunningJobs.invalid && (formControls.maxRunningJobs.dirty || formControls.maxRunningJobs.touched)"
+                class="invalid-feedback-frm">
+                <div *ngIf="formControls.maxRunningJobs?.errors.required">
+                  Max running jobs is required.
+                </div>
+                <div *ngIf="formControls.maxRunningJobs?.errors.pattern">
+                  Max running jobs value between 0-99
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="row rowPadBottom" *ngIf="scheduleForm.value.maxRetryChecked">
+          <!-- <div class="row rowPadBottom" *ngIf="scheduleForm.value.maxRetryChecked">
             <div class="col-md-12 col-lg-12 col-xxxl-12">
               <label for="retryCount" class="label">Max Running Jobs *</label>
               <input type="number" nbInput fullWidth id="retryCount" formControlName="maxRunningJobs"
@@ -132,9 +147,9 @@
 
               </div>
             </div>
-          </div>
+          </div> -->
           <div class="row rowPadBottom">
-            <div class="col-md-6 col-lg-6 col-xxxl-6">
+            <div class="col-md-12 col-lg-12 col-xxxl-12">
               <label class="label">Starting Type *</label>
               <nb-radio-group formControlName="startingType">
                 <nb-radio class="startingtype" value="oneTime" (click)="radioSetValidator('oneTime')" required>One Time

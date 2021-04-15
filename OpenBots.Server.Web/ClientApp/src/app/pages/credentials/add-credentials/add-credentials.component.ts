@@ -92,7 +92,7 @@ export class AddCredentialsComponent implements OnInit {
     return this.credentialForm.controls;
   }
 
-  credential(): void {
+  onSubmitCredential(): void {
     if (this.credentialForm.valid) {
       this.isSubmitted = true;
       if (this.currentUrlId) this.updateCredentials();

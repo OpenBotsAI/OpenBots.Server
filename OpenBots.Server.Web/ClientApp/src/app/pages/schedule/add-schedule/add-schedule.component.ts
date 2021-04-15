@@ -141,7 +141,7 @@ export class AddScheduleComponent implements OnInit {
         else this.queuesArr = [];
       });
   }
-
+  // Validators.pattern(/^-?([0-9]|[0-9][0-9]d*)?$/),
   check(value: boolean): void {
     if (value) {
       this.scheduleForm.get('maxRunningJobs').reset();
@@ -149,7 +149,7 @@ export class AddScheduleComponent implements OnInit {
         .get('maxRunningJobs')
         .setValidators([
           Validators.required,
-          Validators.pattern(/^-?([0-9]|[0-9][0-9]d*)?$/),
+          Validators.pattern(/^([0-9]|[0-9][0-9]d*)?$/),
         ]);
       this.scheduleForm.get('maxRunningJobs').updateValueAndValidity();
     } else {
