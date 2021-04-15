@@ -68,7 +68,7 @@ export class ViewScheduleComponent implements OnInit {
     private route: ActivatedRoute,
     private helperService: HelperService,
     private dialogService: DialogService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.currentScheduleId = this.route.snapshot.params['id'];
@@ -185,12 +185,13 @@ export class ViewScheduleComponent implements OnInit {
   }
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], {
-      queryParams: {
-        PageName: 'Schedule',
-        id: this.currentScheduleId,
-      },
-    });
+    this.router.navigate([`/pages/change-log/list/${'Schedule'}/${this.currentScheduleId}`]);
+    // , {
+    //   queryParams: {
+    //     PageName: 'Schedule',
+    //     id: this.currentScheduleId,
+    //   },
+    // }
   }
 
   getAllAgents(): void {

@@ -30,7 +30,7 @@ export class ViewQueueItemComponent implements OnInit {
     private router: Router,
     private helperService: HelperService,
     private fileSaverService: FileSaverService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.queueItemId = this.route.snapshot.params['id'];
@@ -120,12 +120,13 @@ export class ViewQueueItemComponent implements OnInit {
   }
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], {
-      queryParams: {
-        PageName: 'QueueItem',
-        id: this.queueItemId,
-      },
-    });
+    // this.router.navigate(['/pages/change-log/list'], {
+    //   queryParams: {
+    //     PageName: 'QueueItem',
+    //     id: this.queueItemId,
+    //   },
+    // });
+    this.router.navigate([`/pages/change-log/list/${'QueueItem'}/${this.queueItemId}`]);
   }
 
   getFilesById(): void {

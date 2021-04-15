@@ -109,12 +109,8 @@ export class EmailTestingAccountComponent implements OnInit {
   }
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], {
-      queryParams: {
-        PageName: 'email',
-        id: this.showEmail.id,
-      },
-    });
+
+    this.router.navigate([`/pages/change-log/list/${'email'}/${this.showEmail['id']}`])
   }
 
   onSubmit() {

@@ -28,10 +28,9 @@ export class GetEmailIdComponent implements OnInit {
     private formBuilder: FormBuilder,
     protected router: Router
   ) {
-    this.acroute.queryParams.subscribe((params) => {
-      this.emailId = params.id;
-      this.getEmailById(params.id);
-    });
+    this.emailId = this.acroute.snapshot.params['id']
+    this.getEmailById(this.emailId);
+
   }
 
   ngOnInit(): void {
@@ -86,12 +85,8 @@ export class GetEmailIdComponent implements OnInit {
   }
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], {
-      queryParams: {
-        PageName: 'Configuration.EmailAccount',
-        id: this.showEmail.id,
-      },
-    });
+
+    this.router.navigate([`/pages/change-log/list/${'Configuration.EmailAccount'}/${this.emailId}`]);
   }
 
   gotoEmailTest() {

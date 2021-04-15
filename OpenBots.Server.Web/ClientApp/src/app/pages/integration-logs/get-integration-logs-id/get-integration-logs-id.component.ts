@@ -19,16 +19,19 @@ export class GetIntegrationLogsIdComponent implements OnInit {
   showpayloadSchemaJson: boolean = false;
   pipe: TimeDatePipe;
   showAttempt: boolean;
+  urlId;
   constructor(
     private acroute: ActivatedRoute,
     private formBuilder: FormBuilder,
     protected router: Router,
     protected systemEventService: IntegrationLogsService
   ) {
-    this.acroute.queryParams.subscribe((params) => {
-      this.get_allagent(params.id);
-      this.getintegrationEventlogpayload(params.id);
-    });
+    this.urlId = this.acroute.snapshot.params['id']
+    this.get_allagent(this.urlId);
+    this.getintegrationEventlogpayload(this.urlId);
+    // this.acroute.queryParams.subscribe((params) => {
+
+    // });
   }
 
   ngOnInit(): void {
@@ -76,7 +79,7 @@ export class GetIntegrationLogsIdComponent implements OnInit {
           this.showAttempt = true;
           this.showallpayload = data.items;
         }
-       
+
       });
   }
   transformDate(value, format) {

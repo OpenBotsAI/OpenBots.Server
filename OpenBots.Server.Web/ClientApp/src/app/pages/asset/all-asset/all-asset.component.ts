@@ -35,7 +35,7 @@ export class AllAssetComponent implements OnInit {
     protected assestService: AssetService,
     private helperService: HelperService,
     private toastrService: NbToastrService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.page.pageNumber = 1;
@@ -51,9 +51,8 @@ export class AllAssetComponent implements OnInit {
     this.router.navigate([`/pages/asset/edit/${id}`]);
   }
   gotodetail(id) {
-    this.router.navigate(['/pages/asset/get-asset-id'], {
-      queryParams: { id: id },
-    });
+    this.router.navigate([`/pages/asset/view/${id}`]);
+
   }
 
   sort(filter_value, vale) {
@@ -119,7 +118,7 @@ export class AllAssetComponent implements OnInit {
         this.toastrService.success('Deleted Successfully');
         ref.close();
         // this.get_allasset(this.page.pageSize, skip);
-         this.pagination(this.page.pageNumber, this.page.pageSize);
+        this.pagination(this.page.pageNumber, this.page.pageSize);
       },
       () => (this.isDeleted = false)
     );
@@ -188,55 +187,55 @@ export class AllAssetComponent implements OnInit {
     //       this.page.totalCount = data.totalCount;
     //     });
     // }
-     this.perPageNum = val;
-     this.showPerpageSize = true;
-     this.page.pageSize = val;
-     const skip = (this.page.pageNumber - 1) * this.perPageNum;
-     if (this.searchedValue) {
-       if (this.filterOrderBy) {
-         this.assestService
-           .getFilterPagination(
-             this.page.pageSize,
-             skip,
-             this.filterOrderBy,
-             this.searchedValue
-           )
-           .subscribe((data: any) => {
-             this.showpage = data;
-             this.showallassets = data.items;
-             this.page.totalCount = data.totalCount;
-           });
-       } else {
-         this.assestService
-           .getFilterPagination(
-             this.page.pageSize,
-             skip,
-             'createdOn+desc',
-             this.searchedValue
-           )
-           .subscribe((data: any) => {
-             this.showpage = data;
-             this.showallassets = data.items;
-             this.page.totalCount = data.totalCount;
-           });
-       }
-     } else if (this.filterOrderBy) {
-       this.assestService
-         .getFilterPagination(this.page.pageSize, skip, this.filterOrderBy)
-         .subscribe((data: any) => {
-           this.showpage = data;
-           this.showallassets = data.items;
-           this.page.totalCount = data.totalCount;
-         });
-     } else {
-       this.assestService
-         .getFilterPagination(this.page.pageSize, skip, 'createdOn+desc')
-         .subscribe((data: any) => {
-           this.showpage = data;
-           this.showallassets = data.items;
-           this.page.totalCount = data.totalCount;
-         });
-     }
+    this.perPageNum = val;
+    this.showPerpageSize = true;
+    this.page.pageSize = val;
+    const skip = (this.page.pageNumber - 1) * this.perPageNum;
+    if (this.searchedValue) {
+      if (this.filterOrderBy) {
+        this.assestService
+          .getFilterPagination(
+            this.page.pageSize,
+            skip,
+            this.filterOrderBy,
+            this.searchedValue
+          )
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showallassets = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      } else {
+        this.assestService
+          .getFilterPagination(
+            this.page.pageSize,
+            skip,
+            'createdOn+desc',
+            this.searchedValue
+          )
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showallassets = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      }
+    } else if (this.filterOrderBy) {
+      this.assestService
+        .getFilterPagination(this.page.pageSize, skip, this.filterOrderBy)
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showallassets = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    } else {
+      this.assestService
+        .getFilterPagination(this.page.pageSize, skip, 'createdOn+desc')
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showallassets = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    }
 
   }
 
@@ -271,49 +270,49 @@ export class AllAssetComponent implements OnInit {
     //       this.page.totalCount = data.totalCount;
     //     });
     // }
-     const top = pageSize;
-     this.page.pageSize = pageSize;
-     const skip = (pageNumber - 1) * pageSize;
-     if (this.searchedValue) {
-       if (this.filterOrderBy) {
-         this.assestService
-           .getFilterPagination(
-             top,
-             skip,
-             this.filterOrderBy,
-             this.searchedValue
-           )
-           .subscribe((data: any) => {
-             this.showpage = data;
-             this.showallassets = data.items;
-             this.page.totalCount = data.totalCount;
-           });
-       } else {
-         this.assestService
-           .getFilterPagination(top, skip, 'createdOn+desc', this.searchedValue)
-           .subscribe((data: any) => {
-             this.showpage = data;
-             this.showallassets = data.items;
-             this.page.totalCount = data.totalCount;
-           });
-       }
-     } else if (this.filterOrderBy) {
-       this.assestService
-         .getFilterPagination(top, skip, this.filterOrderBy)
-         .subscribe((data: any) => {
-           this.showpage = data;
-           this.showallassets = data.items;
-           this.page.totalCount = data.totalCount;
-         });
-     } else {
-       this.assestService
-         .getFilterPagination(top, skip, 'createdOn+desc')
-         .subscribe((data: any) => {
-           this.showpage = data;
-           this.showallassets = data.items;
-           this.page.totalCount = data.totalCount;
-         });
-     }
+    const top = pageSize;
+    this.page.pageSize = pageSize;
+    const skip = (pageNumber - 1) * pageSize;
+    if (this.searchedValue) {
+      if (this.filterOrderBy) {
+        this.assestService
+          .getFilterPagination(
+            top,
+            skip,
+            this.filterOrderBy,
+            this.searchedValue
+          )
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showallassets = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      } else {
+        this.assestService
+          .getFilterPagination(top, skip, 'createdOn+desc', this.searchedValue)
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showallassets = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      }
+    } else if (this.filterOrderBy) {
+      this.assestService
+        .getFilterPagination(top, skip, this.filterOrderBy)
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showallassets = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    } else {
+      this.assestService
+        .getFilterPagination(top, skip, 'createdOn+desc')
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showallassets = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    }
   }
 
   trackByFn(index: number, item: unknown): number {

@@ -9,8 +9,13 @@ const routes: Routes = [
     path: 'list',
     component: AllChangeLogComponent,
   },
+  // queryParams: { PageName: 'Agent', id: this.showAllAgents.id },
   {
-    path: 'get-change-log-id',
+    path: 'list/:PageName/:id',
+    component: AllChangeLogComponent,
+  },
+  {
+    path: 'get-change-log-id/:PageName/:id',
     component: GetChangelogIdComponent,
   }
 ];

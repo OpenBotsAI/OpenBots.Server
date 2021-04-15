@@ -46,13 +46,18 @@ export class AllChangeLogComponent implements OnInit {
     protected changelogService: ChangelogService,
     private formBuilder: FormBuilder
   ) {
-    this.acroute.queryParams.subscribe((params) => {
-      this.params_page_name = params.PageName;
-      this.params_id = params.id;
-      if (this.params_page_name != undefined && this.params_id != undefined) {
-        this.params = true;
-      }
-    });
+
+    this.params_page_name = this.acroute.snapshot.params['PageName'];
+    this.params_id = this.acroute.snapshot.params['id'];
+    if (this.params_page_name != undefined && this.params_id != undefined) {
+      this.params = true;
+    }
+
+    // this.acroute.queryParams.subscribe((params) => {
+    //   this.params_page_name = params.PageName;
+    //   this.params_id = params.id;
+
+    // });
 
     this.auditlog = this.formBuilder.group({
       page_name: [''],
@@ -86,9 +91,7 @@ export class AllChangeLogComponent implements OnInit {
   }
 
   gotodetail(id, serviceName) {
-    this.router.navigate(['/pages/change-log/get-change-log-id'], {
-      queryParams: { id: id, serviceName: serviceName },
-    });
+    this.router.navigate([`/pages/change-log/get-change-log-id/${serviceName}/${id}`]);
   }
 
   ngOnInit(): void {

@@ -112,18 +112,20 @@ export class ViewAutomationLogsComponent implements OnInit {
   }
 
   navigateToAudit() {
-    this.router.navigate(['/pages/change-log/list'], {
-      queryParams: {
-        // PageName: 'ExecutionLog',
-        PageName: 'AutomationExecutionLog',
-        id: this.processLogId,
-      },
-    });
+    // , {
+    //   queryParams: {
+    //     // PageName: 'ExecutionLog',
+    //     PageName: 'AutomationExecutionLog',
+    //     id: this.processLogId,
+    //   },
+    // }
+    this.router.navigate([`/pages/change-log/list/${'AutomationExecutionLog'}/${this.processLogId}`]);
   }
 
   navigateToProcess(): void {
-    this.router.navigate(['/pages/automation/get-automation-id'], {
-      queryParams: { id: this.pocessId },
-    });
+    // , {
+    //   queryParams: { id: this.pocessId },
+    // }
+    this.router.navigate([`/pages/automation/view/${this.pocessId}`]);
   }
 }

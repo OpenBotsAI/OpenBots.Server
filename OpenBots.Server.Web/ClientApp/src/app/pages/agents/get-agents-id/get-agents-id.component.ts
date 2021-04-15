@@ -116,9 +116,8 @@ export class GetAgentsIdComponent implements OnInit {
   }
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], {
-      queryParams: { PageName: 'Agent', id: this.showAllAgents.id },
-    });
+    //  queryParams: { PageName: 'Agent', id: this.showAllAgents.id },
+    this.router.navigate([`/pages/change-log/list/${'Agent'}/${this.showAllAgents.id}`]);
   }
 
   onSortClick(event, fil_val) {

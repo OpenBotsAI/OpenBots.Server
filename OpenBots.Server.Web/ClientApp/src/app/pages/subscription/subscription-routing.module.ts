@@ -14,7 +14,7 @@ const routes: Routes = [
     component: AddSubscriptionComponent,
   },
   {
-    path: 'get-subscription-id',
+    path: 'view/:id',
     component: GetSubscriptionIdComponent,
   },
   {
@@ -27,4 +27,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class SubscriptionRoutingModule {}
+export class SubscriptionRoutingModule { }

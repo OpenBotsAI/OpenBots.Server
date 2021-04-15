@@ -78,9 +78,7 @@ export class AllEmailLogComponent implements OnInit {
   }
 
   gotodetail(id) {
-    this.router.navigate(['/pages/emaillog/get-emaillog-id'], {
-      queryParams: { id: id },
-    });
+    this.router.navigate([`/pages/emaillog/view/${id}`]);
   }
 
   sort(filter_val, vale) {
