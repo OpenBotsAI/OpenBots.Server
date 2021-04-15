@@ -1,0 +1,100 @@
+<div class="row">
+    <div class="col-md-12">
+        <nb-card>
+            <nb-card-header>
+
+                <div class="row">
+                    <div class="col-md-8 col-lg-8 col-xxxl-6">
+                        <h2> {{ title }} Business Event </h2>
+                    </div>
+
+                </div>
+            </nb-card-header>
+            <nb-card-body>
+
+                <form [formGroup]="businessEventform">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Business Name </label>
+                                <input type="input" nbInput fullWidth formControlName="name" style="color:#000000">
+                                <div *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid"
+                                    class="invalid-feedback-frm">
+                                    <div *ngIf="f.name.errors && f.name.errors.required"> Name is required.</div>
+                                    <div *ngIf="f.name.errors.minlength">
+                                        Name at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.name.errors.maxlength">
+                                        Name at least 100 characters long.
+                                    </div>
+                                    <div *ngIf=" f.name.errors.pattern">
+                                        Please enter valid Name .
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Description </label>
+
+                                <input type="input" nbInput fullWidth formControlName="description"
+                                    style="color:#000000">
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Entity Type</label>
+
+                                <input type="input" nbInput fullWidth id="status" formControlName="entityType"
+                                    style="color:#000000">
+                                <div *ngIf="(f.entityType.touched || f.entityType.dirty) && f.entityType.invalid"
+                                    class="invalid-feedback-frm">
+                                    <div *ngIf="f.entityType.errors && f.entityType.errors.required"> entityType is
+                                        required.</div>
+
+                                    <div *ngIf=" f.entityType.errors.pattern">
+                                        Please enter valid Name .
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Payload JSON Schema</label>
+                                <textarea type="input" nbInput fullWidth id="payloadSchema"
+                                    formControlName="payloadSchema" style="color:#000000"></textarea>
+                                <!-- <p class="p-text"> -->
+                                <!-- [json]="payloadSchema"  -->
+                                <!-- <json-editor [options]="editorOptions" #editor formControlName="payloadSchema">
+                                    </json-editor> -->
+                                <!-- <ngx-json-viewer  formControlName="payloadSchema"[expanded]="false"></ngx-json-viewer> -->
+                                <!-- </p> -->
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row rowPadTOp">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <button type="submit" class="btn btn-primary" status="primary"
+                                [disabled]="submitted || !businessEventform.valid" (click)="onSubmit()">Save</button>
+                        </div>
+                        <div class="col-md-6 col-lg-6 col-xxxl-6 titleRight">
+
+                        </div>
+                    </div>
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
+</div>

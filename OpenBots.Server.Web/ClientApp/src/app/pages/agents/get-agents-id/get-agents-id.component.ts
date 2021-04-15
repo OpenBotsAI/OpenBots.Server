@@ -35,10 +35,13 @@ export class GetAgentsIdComponent implements OnInit {
     private formBuilder: FormBuilder,
     private helperService: HelperService
   ) {
-    this.acroute.queryParams.subscribe((params) => {
-      this.ParmasAgentId = params.id;
+
+    this.ParmasAgentId = this.acroute.snapshot.params['id']
+    if (this.ParmasAgentId) {
       this.getAgentId(this.ParmasAgentId);
-    });
+    }
+
+
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
     this.pagination(this.page.pageNumber, this.page.pageSize);
@@ -104,7 +107,7 @@ export class GetAgentsIdComponent implements OnInit {
           this.getPerPage = true;
         }
       },
-      (error) => {}
+      (error) => { }
     );
   }
 

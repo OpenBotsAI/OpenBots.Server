@@ -133,9 +133,10 @@ export class GetJobIdComponent implements OnInit, OnDestroy {
     });
   }
   gotoagent() {
-    this.router.navigate(['/pages/agents/get-agents-id'], {
-      queryParams: { id: this.showjobs.value.agentId },
-    });
+    this.router.navigate([`/pages/agents/view/${this.showjobs.value.agentId}`]);
+    // {
+    //   queryParams: { id: this.showjobs.value.agentId },
+    // }
   }
   gotoaudit() {
     this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'Job', id: this.params_id } })

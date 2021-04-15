@@ -178,6 +178,10 @@ export class PagesMenu {
             link: '/pages/system-event/list',
           },
           {
+            title: 'Business Events',
+            link: '/pages/business-event/list',
+          },
+          {
             title: 'Subscriptions',
             link: '/pages/subscription/list',
           },

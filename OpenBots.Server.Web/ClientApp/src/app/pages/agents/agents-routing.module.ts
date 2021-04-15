@@ -13,7 +13,7 @@ const routes: Routes = [
     component: AddAgentsComponent,
   },
   {
-    path: 'get-agents-id',
+    path: 'view/:id',
     component: GetAgentsIdComponent,
   },
   {

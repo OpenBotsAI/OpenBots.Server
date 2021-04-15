@@ -80,9 +80,7 @@ export class GetChangelogIdComponent implements OnInit {
   goto() {
     // this.show_allaudit.serviceName 
     if (this.show_allaudit.serviceName == 'Agent') {
-      this.router.navigate(['/pages/agents/get-agents-id'], {
-        queryParams: { id: this.show_allaudit.objectId },
-      });
+      this.router.navigate([`/pages/agents/view/${this.show_allaudit.objectId}`]);
     } else if (this.show_allaudit.serviceName == 'Schedule') {
       this.router.navigate([
         `/pages/schedules/view/${this.show_allaudit.objectId}`,
