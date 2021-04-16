@@ -43,9 +43,12 @@ export class AddBusinessEventComponent implements OnInit {
         Validators.maxLength(100),
         Validators.pattern('^[A-Za-z0-9_.-]{3,100}$'),
       ],],
-      description: ['', [Validators.pattern('^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$')]],
-      entityType: [''],
-      payloadSchema: ['']
+      description: ['', [
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(100)]],
+      entityType: ['', [Validators.required, Validators.pattern('^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$')]],
+      payloadSchema: ['', [Validators.required, Validators.minLength(3)]]
     });
     if (this.urlId) {
       this.getBusinessEventID(this.urlId);
@@ -60,13 +63,13 @@ export class AddBusinessEventComponent implements OnInit {
 
   onSubmit() {
     if (this.urlId) {
-      // this.UpdateAsset();
+      this.UpdateBusiness();
     } else {
-      this.Save();
+      this.SaveBusiness();
     }
   }
 
-  Save() {
+  SaveBusiness() {
     this.submitted = true;
     this.BusinessEventservice.addBusinessEvenet(this.businessEventform.value).subscribe(
       () => {
@@ -79,13 +82,25 @@ export class AddBusinessEventComponent implements OnInit {
     );
   }
 
+  UpdateBusiness() {
+    this.submitted = true;
+    this.BusinessEventservice.updateBusinessEvenet(this.businessEventform.value, this.urlId).subscribe(
+      () => {
+        this.toastrService.success(
+          'Business Event Save Successfully!',
+          'Success'
+        );
+        this.router.navigate(['pages/business-event/list']);
+      }
+    );
+  }
 
 
   getBusinessEventID(id) {
     this.BusinessEventservice.getSystemEventid(id).subscribe((data: any) => {
       this.showallsystemEvent = data;
       this.businessEventform.patchValue(data);
-      this.businessEventform.disable();
+      // this.businessEventform.disable();
     });
   }
 

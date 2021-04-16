@@ -18,7 +18,7 @@ export class BusinessEventService {
   }
 
   getIntegrationEventName() {
-    let getagentUrl = `/IntegrationEvents/IntegrationEventLookup`;
+    let getagentUrl = `/IntegrationEvents/IntegrationEventLookup?$filter=IsSystem+eq+false`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
@@ -42,12 +42,22 @@ export class BusinessEventService {
   }
 
   getSystemEventid(id) {
-    let getagentUrlbyId = `/IntegrationEvents/BusinessEvents/${id}`;
+    let getagentUrlbyId = `/IntegrationEvents/${id}`;
     return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
+  }
+
+  DeleteBusinessEventid(id) {
+    let UrlbyId = `/IntegrationEvents/${id}`;
+    return this.http.delete(`${this.apiUrl}` + UrlbyId);
   }
 
   addBusinessEvenet(obj) {
     let addUrl = `/IntegrationEvents/BusinessEvents`;
     return this.http.post(`${this.apiUrl}` + addUrl, obj);
+  }
+
+  updateBusinessEvenet(obj, id) {
+    let Url = `/IntegrationEvents/BusinessEvents/${id}`;
+    return this.http.put(`${this.apiUrl}` + Url, obj);
   }
 }

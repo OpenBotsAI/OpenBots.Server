@@ -6,6 +6,7 @@ import { HelperService } from '../../../@core/services/helper.service';
 import { ItemsPerPage } from '../../../interfaces/itemsPerPage';
 import { BusinessEventService } from '../business-event.service';
 import { DialogService } from '../../../@core/dialogservices';
+import { NbToastrService } from '@nebular/theme';
 
 
 
@@ -34,10 +35,12 @@ export class AllBusinessEventComponent implements OnInit {
   params: boolean = false;
   itemsPerPage: ItemsPerPage[] = [];
   viewDialog: any;
+  isDeleted = false;
+  del_id: any = [];
 
   constructor(
     protected router: Router,
-    // private acroute: ActivatedRoute,
+    private toastrService: NbToastrService,
     private dialogService: DialogService,
     private helperService: HelperService,
     protected BusinessEventservice: BusinessEventService,
@@ -74,6 +77,27 @@ export class AllBusinessEventComponent implements OnInit {
     this.itemsPerPage = this.helperService.getItemsPerPage();
   }
 
+  open2(dialog: TemplateRef<any>, id: any) {
+    this.del_id = [];
+    this.dialogService.openDialog(dialog);
+    this.del_id = id;
+  }
+
+  delBusinessEvent(ref) {
+    this.isDeleted = true;
+    const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+    this.BusinessEventservice.DeleteBusinessEventid(this.del_id).subscribe(
+      () => {
+        this.isDeleted = false;
+        this.toastrService.success('Delete Successfully', 'Success');
+        ref.close();
+        this.pagination(this.page.pageNumber, this.page.pageSize);
+      },
+      () => (this.isDeleted = false)
+    );
+  }
+
+
   sort(filter_value, vale) {
     if (this.service_name_page == true) {
       const skip = (this.page.pageNumber - 1) * this.page.pageSize;
@@ -104,12 +128,7 @@ export class AllBusinessEventComponent implements OnInit {
       });
     }
   }
-  open2(dialog: TemplateRef<any>, id: any) {
-    this.delId = [];
-    this.viewDialog = dialog;
-    this.dialogService.openDialog(dialog);
-    this.delId = id;
-  }
+
 
   getEntityname(val) {
     if (val) {

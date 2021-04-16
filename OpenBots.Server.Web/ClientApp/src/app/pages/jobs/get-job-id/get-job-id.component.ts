@@ -128,19 +128,12 @@ export class GetJobIdComponent implements OnInit, OnDestroy {
   }
 
   gotoprocess() {
-    // , {
-    //   queryParams: { id: this.showjobs.value.automationId },
-    // }
     this.router.navigate([`/pages/automation/view/${this.showjobs.value.automationId}`]);
   }
   gotoagent() {
     this.router.navigate([`/pages/agents/view/${this.showjobs.value.agentId}`]);
-    // {
-    //   queryParams: { id: this.showjobs.value.agentId },
-    // }
   }
   gotoaudit() {
     this.router.navigate([`/pages/change-log/list/${'Job'}/${this.params_id}`]);
-    //, { queryParams: { PageName: 'Job', id: this.params_id } }
   }
 }

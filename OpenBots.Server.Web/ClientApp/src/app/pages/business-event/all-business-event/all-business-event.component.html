@@ -97,12 +97,12 @@
                         </a>
                     </td>
                     <td>
-                        <a (click)="gotoedit(asset.id)">
+                        <a (click)="gotoedit(systemevent.id)">
                             <i class="fa fa-edit"> </i>
                         </a>
                     </td>
                     <td>
-                        <a (click)="open2(dialog, asset.id)">
+                        <a (click)="open2(dialog, systemevent.id)">
                             <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
                         </a>
                     </td>
@@ -129,3 +129,23 @@
         </div>
     </nb-card-body>
 </nb-card>
+
+
+<ng-template #dialog let-data let-ref="dialogRef">
+    <nb-card>
+        <nb-card-header>
+            <h6>Delete Business Event</h6>
+        </nb-card-header>
+        <nb-card-body>
+            <div aria-labelledby="title">
+                <p>Are you sure you want to delete?</p>
+            </div>
+        </nb-card-body>
+        <nb-card-footer>
+            <button class="btn btn-danger" [disabled]="isDeleted" (click)="delBusinessEvent(ref)">Delete </button>
+            <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
+                Cancel
+            </button>
+        </nb-card-footer>
+    </nb-card>
+</ng-template>
