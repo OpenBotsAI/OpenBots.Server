@@ -8,6 +8,14 @@
                         <h2> {{ title }} Business Event </h2>
                     </div>
 
+                    <div class="col-md-4 col-lg-4 col-xxxl-6 text-right" *ngIf="showRaiseBtn">
+                        <button type="button" class="btn btn-primary" status="primary" (click)="raiseBusinessEvent()">
+                            Raise Business Event
+                        </button>
+
+                        <!-- <img class="img" src="../../../../assets/images/auditLog.svg">  -->
+
+                    </div>
                 </div>
             </nb-card-header>
             <nb-card-body>

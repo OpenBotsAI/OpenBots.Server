@@ -12,6 +12,7 @@ import { NbToastrService } from '@nebular/theme';
 })
 export class AddBusinessEventComponent implements OnInit {
   urlId;
+  showRaiseBtn: boolean = false;
   submitted = false;
   createdOn: any = [];
   showallsystemEvent: any = [];
@@ -53,6 +54,8 @@ export class AddBusinessEventComponent implements OnInit {
     if (this.urlId) {
       this.getBusinessEventID(this.urlId);
       this.title = 'Update';
+      this.businessEventform.controls['name'].disable({ onlySelf: true });
+      this.showRaiseBtn = true;
     }
   }
 
@@ -71,7 +74,7 @@ export class AddBusinessEventComponent implements OnInit {
 
   SaveBusiness() {
     this.submitted = true;
-    this.BusinessEventservice.addBusinessEvenet(this.businessEventform.value).subscribe(
+    this.BusinessEventservice.addBusinessEvent(this.businessEventform.value).subscribe(
       () => {
         this.toastrService.success(
           'Business Event Save Successfully!',
@@ -84,7 +87,13 @@ export class AddBusinessEventComponent implements OnInit {
 
   UpdateBusiness() {
     this.submitted = true;
-    this.BusinessEventservice.updateBusinessEvenet(this.businessEventform.value, this.urlId).subscribe(
+    let obj = {
+      name: this.businessEventform.getRawValue().name,
+      description: this.businessEventform.value.description,
+      entityType: this.businessEventform.value.entityType,
+      payloadSchema: this.businessEventform.value.payloadSchema,
+    }
+    this.BusinessEventservice.updateBusinessEvent(obj, this.urlId).subscribe(
       () => {
         this.toastrService.success(
           'Business Event Save Successfully!',
@@ -95,6 +104,23 @@ export class AddBusinessEventComponent implements OnInit {
     );
   }
 
+
+  raiseBusinessEvent() {
+    this.submitted = true;
+    let obj = {
+      entityId: this.businessEventform.value.entityType,
+      entityName: this.businessEventform.getRawValue().name
+    }
+    this.BusinessEventservice.raiseBusinessEvent(obj, this.urlId).subscribe(
+      () => {
+        this.toastrService.success(
+          'Raise Business Event Save Successfully!',
+          'Success'
+        );
+        //  this.router.navigate(['pages/business-event/list']);
+      }
+    );
+  }
 
   getBusinessEventID(id) {
     this.BusinessEventservice.getSystemEventid(id).subscribe((data: any) => {

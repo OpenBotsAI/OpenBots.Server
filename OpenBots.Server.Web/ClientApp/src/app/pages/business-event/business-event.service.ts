@@ -51,12 +51,18 @@ export class BusinessEventService {
     return this.http.delete(`${this.apiUrl}` + UrlbyId);
   }
 
-  addBusinessEvenet(obj) {
+  addBusinessEvent(obj) {
     let addUrl = `/IntegrationEvents/BusinessEvents`;
     return this.http.post(`${this.apiUrl}` + addUrl, obj);
   }
 
-  updateBusinessEvenet(obj, id) {
+  raiseBusinessEvent(obj, id) {
+    let addUrl = `/IntegrationEvents/BusinessEvents/RaiseEvent/${id}`;
+    return this.http.post(`${this.apiUrl}` + addUrl, obj);
+  }
+  // https://dev.server.openbots.io/api/v1/IntegrationEvents/BusinessEvents/RaiseEvent/{id}
+
+  updateBusinessEvent(obj, id) {
     let Url = `/IntegrationEvents/BusinessEvents/${id}`;
     return this.http.put(`${this.apiUrl}` + Url, obj);
   }
