@@ -41,9 +41,20 @@ export class BusinessEventService {
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
+  // getSystemEventid(id) {
+  //   let getagentUrlbyId = `/IntegrationEvents/${id}`;
+  //   return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
+  // }
+
+
   getSystemEventid(id) {
+    let resoptions = {};
+    resoptions = {
+      observe: 'response' as 'body',
+      responseType: 'json',
+    };
     let getagentUrlbyId = `/IntegrationEvents/${id}`;
-    return this.http.get(`${this.apiUrl}` + getagentUrlbyId);
+    return this.http.get(`${this.apiUrl}` + getagentUrlbyId, resoptions);
   }
 
   DeleteBusinessEventid(id) {

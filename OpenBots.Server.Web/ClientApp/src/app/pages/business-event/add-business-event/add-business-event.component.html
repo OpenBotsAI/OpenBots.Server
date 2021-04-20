@@ -12,9 +12,6 @@
                         <button type="button" class="btn btn-primary" status="primary" (click)="raiseBusinessEvent()">
                             Raise Business Event
                         </button>
-
-                        <!-- <img class="img" src="../../../../assets/images/auditLog.svg">  -->
-
                     </div>
                 </div>
             </nb-card-header>
@@ -79,7 +76,12 @@
                                     class="invalid-feedback-frm">
                                     <div *ngIf="f.entityType.errors && f.entityType.errors.required"> Entity Type is
                                         required.</div>
-
+                                    <div *ngIf="f.entityType.errors.minlength">
+                                        Entity Type at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.entityType.errors.maxlength">
+                                        Entity Type at least 100 characters long.
+                                    </div>
                                     <div *ngIf=" f.entityType.errors.pattern">
                                         Please enter valid Entity Type .
                                     </div>
@@ -94,7 +96,7 @@
                         <div class="col-md-12">
                             <div class="form-group ">
                                 <label class="label  col-form-label">Payload </label>
-                                <textarea type="input" nbInput fullWidth id="payloadSchema"
+                                <!-- <textarea type="input" nbInput fullWidth id="payloadSchema"
                                     formControlName="payloadSchema" style="color:#000000"></textarea>
                                 <div *ngIf="(f.payloadSchema.touched || f.payloadSchema.dirty) && f.payloadSchema.invalid"
                                     class="invalid-feedback-frm">
@@ -109,11 +111,11 @@
                                     <div *ngIf=" f.payloadSchema.errors.pattern">
                                         Please enter valid Payload Schema .
                                     </div>
-                                </div>
+                                </div> -->
                                 <!-- <p class="p-text"> -->
                                 <!-- [json]="payloadSchema"  -->
-                                <!-- <json-editor [options]="editorOptions" #editor formControlName="payloadSchema">
-                                    </json-editor> -->
+                                <json-editor [options]="editorOptions" #editor formControlName="payloadSchema">
+                                </json-editor>
                                 <!-- <ngx-json-viewer  formControlName="payloadSchema"[expanded]="false"></ngx-json-viewer> -->
                                 <!-- </p> -->
 

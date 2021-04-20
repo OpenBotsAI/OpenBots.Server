@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BusinessEventService } from '../business-event.service';
 import { JsonEditorComponent, JsonEditorOptions } from 'ang-jsoneditor';
 import { NbToastrService } from '@nebular/theme';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'ngx-add-business-event',
@@ -19,7 +20,7 @@ export class AddBusinessEventComponent implements OnInit {
   payloadSchema: any = [];
   businessEventform: FormGroup;
   showChangedToJson: boolean = false;
-
+  etag;
   title = 'Add';
   public editorOptions: JsonEditorOptions;
   @ViewChild('editor') editor: JsonEditorComponent;
@@ -48,7 +49,10 @@ export class AddBusinessEventComponent implements OnInit {
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(100)]],
-      entityType: ['', [Validators.required, Validators.pattern('^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$')]],
+      entityType: ['', [
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(100)]],
       payloadSchema: ['', [Validators.required, Validators.minLength(3)]]
     });
     if (this.urlId) {
@@ -73,6 +77,7 @@ export class AddBusinessEventComponent implements OnInit {
   }
 
   SaveBusiness() {
+    this.businessEventform.value.payloadSchema = JSON.stringify(this.editor.get());
     this.submitted = true;
     this.BusinessEventservice.addBusinessEvent(this.businessEventform.value).subscribe(
       () => {
@@ -87,6 +92,7 @@ export class AddBusinessEventComponent implements OnInit {
 
   UpdateBusiness() {
     this.submitted = true;
+    this.businessEventform.value.payloadSchema = JSON.stringify(this.editor.get());
     let obj = {
       name: this.businessEventform.getRawValue().name,
       description: this.businessEventform.value.description,
@@ -106,27 +112,19 @@ export class AddBusinessEventComponent implements OnInit {
 
 
   raiseBusinessEvent() {
-    this.submitted = true;
-    let obj = {
-      entityId: this.businessEventform.value.entityType,
-      entityName: this.businessEventform.getRawValue().name
-    }
-    this.BusinessEventservice.raiseBusinessEvent(obj, this.urlId).subscribe(
-      () => {
-        this.toastrService.success(
-          'Raise Business Event Save Successfully!',
-          'Success'
-        );
-        //  this.router.navigate(['pages/business-event/list']);
-      }
-    );
+    this.router.navigate(['pages/business-event/raise-event']);
   }
 
   getBusinessEventID(id) {
-    this.BusinessEventservice.getSystemEventid(id).subscribe((data: any) => {
-      this.showallsystemEvent = data;
-      this.businessEventform.patchValue(data);
-      // this.businessEventform.disable();
+    this.BusinessEventservice.getSystemEventid(id).subscribe((data: HttpResponse<any>) => {
+      this.showallsystemEvent = data.body;
+      // this.etag = data.headers.get('ETag').replace(/\"/g, '');
+      // console.log(data.headers.get('ETag'))
+      if (this.showallsystemEvent.payloadSchema) {
+        this.showallsystemEvent.payloadSchema = JSON.parse(this.showallsystemEvent.payloadSchema);
+      }
+      this.businessEventform.patchValue(this.showallsystemEvent);
+
     });
   }
 

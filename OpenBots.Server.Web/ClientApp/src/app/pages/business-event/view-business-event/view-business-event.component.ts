@@ -6,6 +6,7 @@ import { TimeDatePipe } from '../../../@core/pipe';
 // import { JsonEditorOptions } from 'ang-jsoneditor';
 import { JsonEditorComponent, JsonEditorOptions } from 'ang-jsoneditor';
 import { NbToastrService } from '@nebular/theme';
+import { HttpResponse } from '@angular/common/http';
 @Component({
   selector: 'ngx-view-business-event',
   templateUrl: './view-business-event.component.html',
@@ -55,10 +56,10 @@ export class ViewBusinessEventComponent implements OnInit {
 
 
   getBusinessEventID(id) {
-    this.BusinessEventservice.getSystemEventid(id).subscribe((data: any) => {
-      this.showallsystemEvent = data;
-      data.createdOn = this.transformDate(data.createdOn, 'lll');
-      this.businessEventform.patchValue(data);
+    this.BusinessEventservice.getSystemEventid(id).subscribe((data: HttpResponse<any>) => {
+      this.showallsystemEvent = data.body;
+      //  data.createdOn = this.transformDate(data.createdOn, 'lll');
+      this.businessEventform.patchValue(data.body);
       this.businessEventform.disable();
 
       // if (data.payloadSchema != null) {

@@ -1,0 +1,71 @@
+<div class="row">
+    <div class="col-md-12">
+        <nb-card>
+            <nb-card-header>
+
+                <div class="row">
+                    <div class="col-md-8 col-lg-8 col-xxxl-6">
+                        <h2> Raise Business Event </h2>
+                    </div>
+
+                </div>
+            </nb-card-header>
+            <nb-card-body>
+
+                <form [formGroup]="raiseBusinessEventform">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Entity Name </label>
+                                <input type="input" nbInput fullWidth formControlName="entityName"
+                                    style="color:#000000">
+                                <div *ngIf="(f.entityName.touched || f.entityName.dirty) && f.entityName.invalid"
+                                    class="invalid-feedback-frm">
+                                    <div *ngIf="f.entityName.errors && f.entityName.errors.required">Entity Name is
+                                        required.</div>
+                                    <div *ngIf="f.entityName.errors.minlength">
+                                        Entity Name at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.entityName.errors.maxlength">
+                                        Entity Name at least 100 characters long.
+                                    </div>
+                                    <div *ngIf=" f.entityName.errors.pattern">
+                                        Entity Please enter valid Name .
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Entity ID</label>
+
+                                <input type="input" nbInput fullWidth id="status" formControlName="entityId"
+                                    style="color:#000000">
+                                <div *ngIf="(f.entityId.touched || f.entityId.dirty) && f.entityId.invalid"
+                                    class="invalid-feedback-frm">
+                                    <div *ngIf="f.entityId.errors && f.entityId.errors.required"> Entity Id is
+                                        required.</div>
+
+                                    <div *ngIf=" f.entityId.errors.pattern">
+                                        Please enter valid Entity ID .
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row rowPadTOp">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <button type="submit" class="btn btn-primary" status="primary"
+                                [disabled]="submitted || !raiseBusinessEventform.valid"
+                                (click)="onSubmit()">Save</button>
+                        </div>
+                        <div class="col-md-6 col-lg-6 col-xxxl-6 titleRight">
+
+                        </div>
+                    </div>
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
+</div>

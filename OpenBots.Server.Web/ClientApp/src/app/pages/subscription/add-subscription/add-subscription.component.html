@@ -9,19 +9,9 @@
           <div class="row">
             <div class="col-md-12 col-lg-12 col-xxxl-12">
               <label for="name" class="label"> Name * </label>
-              <input
-                type="input"
-                nbInput
-                fullWidth
-                id="name"
-                formControlName="name"
-                class="form-control"
-                placeholder="Please enter name"
-              />
-              <div
-                *ngIf="f.name.touched && f.name.invalid"
-                class="invalid-feedback-frm"
-              >
+              <input type="input" nbInput fullWidth id="name" formControlName="name" class="form-control"
+                placeholder="Please enter name" />
+              <div *ngIf="f.name.touched && f.name.invalid" class="invalid-feedback-frm">
                 <div *ngIf="f.name.errors && f.name.errors.required">
                   Name is required.
                 </div>
@@ -38,15 +28,12 @@
             </div>
           </div>
 
+
           <div class="row rowPadTOp">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="agentname" class="label"> Entity </label>
-              <select
-                class="custom-select"
-                formControlName="entityName"
-                placeholder="Please choose automation engine"
-                (change)="getEntityName($event)"
-              >
+              <select class="custom-select" formControlName="entityName" placeholder="Please choose automation engine"
+                (change)="getEntityName($event)">
                 <option value="" disabled="true" selected>
                   Please choose Entity *
                 </option>
@@ -55,13 +42,10 @@
                 </option>
               </select>
 
-              <div
-                *ngIf="
+              <div *ngIf="
                   f.entityName.invalid &&
                   (f.entityName.dirty || f.entityName.touched)
-                "
-                class="invalid-feedback-frm"
-              >
+                " class="invalid-feedback-frm">
                 <div *ngIf="f.entityName.errors.required">
                   Entity Name is required.
                 </div>
@@ -69,19 +53,9 @@
             </div>
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="entityID" class="label"> ID *</label>
-              <input
-                type="input"
-                nbInput
-                fullWidth
-                id="entityID"
-                formControlName="entityID"
-                class="form-control"
-                placeholder="Please enter ID"
-              />
-              <div
-                *ngIf="f.entityID.touched && f.entityID.invalid"
-                class="invalid-feedback-frm"
-              >
+              <input type="input" nbInput fullWidth id="entityID" formControlName="entityID" class="form-control"
+                placeholder="Please enter ID" />
+              <div *ngIf="f.entityID.touched && f.entityID.invalid" class="invalid-feedback-frm">
                 <div *ngIf="f.entityID.errors && f.entityID.errors.required">
                   ID is required.
                 </div>
@@ -101,11 +75,7 @@
                 class="form-control"
                 placeholder="Please enter Event"
               /> -->
-              <select
-                class="custom-select"
-                formControlName="integrationEventName"
-                placeholder="Please choose Event"
-              >
+              <select class="custom-select" formControlName="integrationEventName" placeholder="Please choose Event">
                 <option value="" disabled="true" selected>
                   Please choose Event *
                 </option>
@@ -113,19 +83,14 @@
                   {{ item.name }}
                 </option>
               </select>
-              <div
-                *ngIf="
+              <div *ngIf="
                   f.integrationEventName.touched &&
                   f.integrationEventName.invalid
-                "
-                class="invalid-feedback-frm"
-              >
-                <div
-                  *ngIf="
+                " class="invalid-feedback-frm">
+                <div *ngIf="
                     f.integrationEventName.errors &&
                     f.integrationEventName.errors.required
-                  "
-                >
+                  ">
                   Event is required.
                 </div>
               </div>
@@ -134,22 +99,10 @@
               <label for="integrationEventName" class="label">
                 Entity Type
               </label>
-              <input
-                type="input"
-                nbInput
-                fullWidth
-                id="entityType"
-                formControlName="entityType"
-                class="form-control"
-                placeholder="Please enter Entity Type"
-              />
-              <div
-                *ngIf="f.entityType.touched && f.entityType.invalid"
-                class="invalid-feedback-frm"
-              >
-                <div
-                  *ngIf="f.entityType.errors && f.entityType.errors.required"
-                >
+              <input type="input" nbInput fullWidth id="entityType" formControlName="entityType" class="form-control"
+                placeholder="Please enter Entity Type" />
+              <div *ngIf="f.entityType.touched && f.entityType.invalid" class="invalid-feedback-frm">
+                <div *ngIf="f.entityType.errors && f.entityType.errors.required">
                   Entity Type is required.
                 </div>
               </div>
@@ -158,12 +111,8 @@
           <div class="row rowPadTOp">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="name" class="label">Transport Type*</label>
-              <select
-                class="custom-select"
-                formControlName="transportType"
-                (change)="showHTTP($event.target.value)"
-                placeholder="Please choose automation engine"
-              >
+              <select class="custom-select" formControlName="transportType" (change)="showHTTP($event.target.value)"
+                placeholder="Please choose automation engine">
                 <option value="" disabled="true" selected>
                   Please choose Transport Type *
                 </option>
@@ -172,13 +121,10 @@
                   {{ item }}
                 </option>
               </select>
-              <div
-                *ngIf="
+              <div *ngIf="
                   f.transportType.invalid &&
                   (f.transportType.dirty || f.transportType.touched)
-                "
-                class="invalid-feedback-frm"
-              >
+                " class="invalid-feedback-frm">
                 <div *ngIf="f.transportType.errors.required">
                   Transport Type is required.
                 </div>
@@ -187,11 +133,8 @@
 
             <div class="col-md-6 col-lg-6 col-xxxl-6" *ngIf="!showTabview">
               <label for="name" class="label">Queues</label>
-              <select
-                class="custom-select"
-                formControlName="queuE_QueueID"
-                placeholder="Please choose automation engine"
-              >
+              <select class="custom-select" formControlName="queuE_QueueID"
+                placeholder="Please choose automation engine">
                 <option value="" disabled="true" selected>
                   Please choose Queues *
                 </option>
@@ -205,19 +148,9 @@
           <div class="row rowPadTOp" *ngIf="showTabview">
             <div class="col-md-12 col-lg-12 col-xxxl-12">
               <label for="agentname" class="label"> URL To Post </label>
-              <input
-                type="input"
-                nbInput
-                fullWidth
-                id="httP_URL"
-                formControlName="httP_URL"
-                class="form-control"
-                placeholder="Please enter URL"
-              />
-              <div
-                *ngIf="f.httP_URL.touched && f.httP_URL.invalid"
-                class="invalid-feedback-frm"
-              >
+              <input type="input" nbInput fullWidth id="httP_URL" formControlName="httP_URL" class="form-control"
+                placeholder="Please enter URL" />
+              <div *ngIf="f.httP_URL.touched && f.httP_URL.invalid" class="invalid-feedback-frm">
                 <div *ngIf="f.httP_URL.errors && f.httP_URL.errors.required">
                   URL is required.
                 </div>
@@ -228,24 +161,12 @@
           <div class="row rowPadTOp" *ngIf="showTabview">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="agentname" class="label"> Max Retries</label>
-              <input
-                type="input"
-                nbInput
-                fullWidth
-                id="Max_RetryCount"
-                formControlName="Max_RetryCount"
-                class="form-control"
-                placeholder="Please enter Retries"
-              />
-              <div
-                *ngIf="f.Max_RetryCount.touched && f.Max_RetryCount.invalid"
-                class="invalid-feedback-frm"
-              >
-                <div
-                  *ngIf="
+              <input type="input" nbInput fullWidth id="Max_RetryCount" formControlName="Max_RetryCount"
+                class="form-control" placeholder="Please enter Retries" />
+              <div *ngIf="f.Max_RetryCount.touched && f.Max_RetryCount.invalid" class="invalid-feedback-frm">
+                <div *ngIf="
                     f.Max_RetryCount.errors && f.Max_RetryCount.errors.required
-                  "
-                >
+                  ">
                   Max Retries is required.
                 </div>
               </div>
@@ -261,56 +182,32 @@
           <div class="row rowPadTOp" *ngIf="showTabview">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="agentname" class="label"> Header Key </label>
-              <input
-                type="input"
-                nbInput
-                fullWidth
-                id="httP_AddHeader_Key"
-                formControlName="httP_AddHeader_Key"
-                class="form-control"
-                placeholder="Please enter Key"
-              />
-              <div
-                *ngIf="
+              <input type="input" nbInput fullWidth id="httP_AddHeader_Key" formControlName="httP_AddHeader_Key"
+                class="form-control" placeholder="Please enter Key" />
+              <div *ngIf="
                   f.httP_AddHeader_Key.touched && f.httP_AddHeader_Key.invalid
-                "
-                class="invalid-feedback-frm"
-              >
-                <div
-                  *ngIf="
+                " class="invalid-feedback-frm">
+                <div *ngIf="
                     f.httP_AddHeader_Key.errors &&
                     f.httP_AddHeader_Key.errors.required
-                  "
-                >
+                  ">
                   HTTP Add Header Key is required.
                 </div>
               </div>
             </div>
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="httP_AddHeader_Value" class="label">
-                Header Value</label
-              >
-              <input
-                type="input"
-                nbInput
-                fullWidth
-                id="httP_AddHeader_Value"
-                formControlName="httP_AddHeader_Value"
-                class="form-control"
-              />
-              <div
-                *ngIf="
+                Header Value</label>
+              <input type="input" nbInput fullWidth id="httP_AddHeader_Value" formControlName="httP_AddHeader_Value"
+                class="form-control" />
+              <div *ngIf="
                   f.httP_AddHeader_Value.touched &&
                   f.httP_AddHeader_Value.invalid
-                "
-                class="invalid-feedback-frm"
-              >
-                <div
-                  *ngIf="
+                " class="invalid-feedback-frm">
+                <div *ngIf="
                     f.httP_AddHeader_Value.errors &&
                     f.httP_AddHeader_Value.errors.required
-                  "
-                >
+                  ">
                   HTTP Header Value is required.
                 </div>
               </div>
@@ -326,26 +223,12 @@
           <div class="row rowPadTOp" *ngIf="showTabview">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="agentname" class="label"> Username</label>
-              <input
-                type="input"
-                nbInput
-                fullWidth
-                id="name"
-                disabled
-                class="form-control"
-              />
+              <input type="input" nbInput fullWidth id="name" disabled class="form-control" />
             </div>
 
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="agentname" class="label"> Password </label>
-              <input
-                type="input"
-                nbInput
-                fullWidth
-                id="name"
-                disabled
-                class="form-control"
-              />
+              <input type="input" nbInput fullWidth id="name" disabled class="form-control" />
             </div>
           </div>
           <div class="row rowPadTOp" *ngIf="showTabview">
@@ -357,38 +240,19 @@
           <div class="row rowPadTOp" *ngIf="showTabview">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="agentname" class="label"> Signature Header:</label>
-              <input
-                type="input"
-                nbInput
-                fullWidth
-                id="name"
-                disabled
-                class="form-control"
-              />
+              <input type="input" nbInput fullWidth id="name" disabled class="form-control" />
             </div>
 
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="agentname" class="label"> Secret </label>
-              <input
-                type="input"
-                nbInput
-                fullWidth
-                id="name"
-                disabled
-                class="form-control"
-              />
+              <input type="input" nbInput fullWidth id="name" disabled class="form-control" />
             </div>
           </div>
 
           <div class="row rowPadTOp">
             <div class="col-md-12 col-lg-12 col-xxxl-6">
-              <button
-                type="submit"
-                class="btn btn-primary"
-                status="primary"
-                [disabled]="submitted || !subscriptionForm.valid"
-                (click)="onSubmit()"
-              >
+              <button type="submit" class="btn btn-primary" status="primary"
+                [disabled]="submitted || !subscriptionForm.valid" (click)="onSubmit()">
                 Save
               </button>
             </div>

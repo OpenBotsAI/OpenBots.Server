@@ -8,10 +8,11 @@ import { BusinessEventService } from './business-event.service';
 import { AddBusinessEventComponent } from './add-business-event/add-business-event.component';
 import { NgxJsonViewerModule } from 'ngx-json-viewer';
 import { ViewBusinessEventComponent } from './view-business-event/view-business-event.component';
+import { RaiseBusinessEventComponent } from './raise-business-event/raise-business-event.component';
 
 
 @NgModule({
-  declarations: [AllBusinessEventComponent, AddBusinessEventComponent, ViewBusinessEventComponent],
+  declarations: [AllBusinessEventComponent, AddBusinessEventComponent, ViewBusinessEventComponent, RaiseBusinessEventComponent],
   imports: [
     CommonModule,
     BusinessEventRoutingModule,
