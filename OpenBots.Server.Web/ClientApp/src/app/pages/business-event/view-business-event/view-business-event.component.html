@@ -50,14 +50,13 @@
                         <div class="col-md-12">
                             <div class="form-group ">
                                 <label class="label  col-form-label">Payload </label>
-                                <textarea type="input" nbInput fullWidth id="payloadSchema"
-                                    formControlName="payloadSchema" style="color:#000000"></textarea>
-                                <!-- <p class="p-text"> -->
-                                <!-- [json]="payloadSchema"  -->
-                                <!-- <json-editor [options]="editorOptions" #editor formControlName="payloadSchema">
-                                    </json-editor> -->
-                                <!-- <ngx-json-viewer  formControlName="payloadSchema"[expanded]="false"></ngx-json-viewer> -->
-                                <!-- </p> -->
+                                <!-- <textarea type="input" nbInput fullWidth id="payloadSchema"
+                                    formControlName="payloadSchema" style="color:#000000"></textarea> -->
+                                <p class="p-text">
+
+                                    <ngx-json-viewer [json]="jsonValue">
+                                    </ngx-json-viewer>
+                                </p>
 
                             </div>
                         </div>

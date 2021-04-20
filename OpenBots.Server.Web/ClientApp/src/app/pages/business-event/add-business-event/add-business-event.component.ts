@@ -17,6 +17,7 @@ export class AddBusinessEventComponent implements OnInit {
   submitted = false;
   createdOn: any = [];
   showallsystemEvent: any = [];
+
   payloadSchema: any = [];
   businessEventform: FormGroup;
   showChangedToJson: boolean = false;
@@ -53,7 +54,7 @@ export class AddBusinessEventComponent implements OnInit {
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(100)]],
-      payloadSchema: ['', [Validators.required, Validators.minLength(3)]]
+      payloadSchema: ['', [Validators.required]]
     });
     if (this.urlId) {
       this.getBusinessEventID(this.urlId);
@@ -118,12 +119,13 @@ export class AddBusinessEventComponent implements OnInit {
   getBusinessEventID(id) {
     this.BusinessEventservice.getSystemEventid(id).subscribe((data: HttpResponse<any>) => {
       this.showallsystemEvent = data.body;
+
       // this.etag = data.headers.get('ETag').replace(/\"/g, '');
       // console.log(data.headers.get('ETag'))
       if (this.showallsystemEvent.payloadSchema) {
         this.showallsystemEvent.payloadSchema = JSON.parse(this.showallsystemEvent.payloadSchema);
       }
-      this.businessEventform.patchValue(this.showallsystemEvent);
+      this.businessEventform.patchValue(data.body);
 
     });
   }

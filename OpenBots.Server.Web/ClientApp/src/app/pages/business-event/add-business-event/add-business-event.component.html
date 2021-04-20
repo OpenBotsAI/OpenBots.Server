@@ -21,7 +21,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group ">
-                                <label class="label  col-form-label">Business Name </label>
+                                <label class="label  col-form-label">Business Name * </label>
                                 <input type="input" nbInput fullWidth formControlName="name" style="color:#000000">
                                 <div *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid"
                                     class="invalid-feedback-frm">
@@ -95,7 +95,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group ">
-                                <label class="label  col-form-label">Payload </label>
+                                <label class="label  col-form-label">Payload * </label>
                                 <!-- <textarea type="input" nbInput fullWidth id="payloadSchema"
                                     formControlName="payloadSchema" style="color:#000000"></textarea>
                                 <div *ngIf="(f.payloadSchema.touched || f.payloadSchema.dirty) && f.payloadSchema.invalid"
@@ -116,6 +116,20 @@
                                 <!-- [json]="payloadSchema"  -->
                                 <json-editor [options]="editorOptions" #editor formControlName="payloadSchema">
                                 </json-editor>
+                                <div *ngIf="(f.payloadSchema.touched || f.payloadSchema.dirty) && f.payloadSchema.invalid"
+                                    class="invalid-feedback-frm">
+                                    <div *ngIf="f.payloadSchema.errors && f.payloadSchema.errors.required"> Payload
+                                        Schema is required.</div>
+                                    <div *ngIf="f.payloadSchema.errors.minlength">
+                                        Payload Schema at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.payloadSchema.errors.maxlength">
+                                        Payload Schema at least 100 characters long.
+                                    </div>
+                                    <div *ngIf=" f.payloadSchema.errors.pattern">
+                                        Please enter valid Payload Schema .
+                                    </div>
+                                </div>
                                 <!-- <ngx-json-viewer  formControlName="payloadSchema"[expanded]="false"></ngx-json-viewer> -->
                                 <!-- </p> -->
 

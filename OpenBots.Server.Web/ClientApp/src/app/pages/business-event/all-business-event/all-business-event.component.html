@@ -45,12 +45,6 @@
             <thead>
                 <tr>
                     <th scope="col">
-                        Entity
-                        <i (click)="onSortClick($event, 'entityType')"
-                            [attr.class]="show_allsystemevent | chevron: page.totalCount">
-                        </i>
-                    </th>
-                    <th scope="col">
                         Name
                         <i (click)="onSortClick($event, 'name')"
                             [attr.class]="show_allsystemevent | chevron: page.totalCount"></i>
@@ -61,6 +55,14 @@
                         <i (click)="onSortClick($event, 'description')"
                             [attr.class]="show_allsystemevent | chevron: page.totalCount"></i>
                     </th>
+                    <th scope="col">
+                        Entity
+                        <i (click)="onSortClick($event, 'entityType')"
+                            [attr.class]="show_allsystemevent | chevron: page.totalCount">
+                        </i>
+                    </th>
+
+
                     <!-- description -->
 
                     <th scope="col">View</th>
