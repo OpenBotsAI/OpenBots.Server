@@ -16,6 +16,7 @@ namespace OpenBots.Server.Model
         public string? PasswordSecret { get; set; }
         public string? PasswordHash { get; set; }
         public string? Certificate { get; set; }
+        public Guid? AgentId { get; set; }
     }
 
     public class CredentialsLookup

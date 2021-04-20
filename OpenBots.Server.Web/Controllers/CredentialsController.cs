@@ -260,14 +260,8 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Post([FromBody] Credential request)
+        public async Task<IActionResult> Post([FromBody] GlobalCredentialViewModel request)
         {
-            if (request == null)
-            {
-                ModelState.AddModelError("Save", "No data passed");
-                return BadRequest(ModelState);
-            }
-
             try
             {
                 applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
@@ -277,21 +271,51 @@ namespace OpenBots.Server.Web
                     request.PasswordHash = userManager.PasswordHasher.HashPassword(applicationUser, request.PasswordSecret);
                 }
 
-                var credential = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
-                if (credential != null)
+                Credential credential = _credentialManager.CreateGlobalCredential(request);
+
+                var result = await base.PostEntity(credential);
+                await _webhookPublisher.PublishAsync("Credentials.NewCredentialCreated", credential.Id.ToString(), credential.Name).ConfigureAwait(false);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Adds a new Agent Credential if a global Credential exists for the given name
+        /// </summary>
+        /// <param name="request">New Agent Credential to create</param>
+        /// <response code="200">Ok, Credential created and returned</response>
+        /// <response code="400">Bad request, when the Credential value is not in proper format</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="409">Conflict, concurrency error</response> 
+        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+        /// <returns>Newly created unique credential</returns>
+        [HttpPost("AddAgentCredential")]
+        [ProducesResponseType(typeof(Credential), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> AddAgentCredential([FromBody] AgentCredentialViewModel request)
+        {
+            try
+            {
+                applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
+
+                if (request.PasswordSecret != null && applicationUser != null)
                 {
-                    ModelState.AddModelError("Credential", "Credential Name Already Exists");
-                    return BadRequest(ModelState);
+                    request.PasswordHash = userManager.PasswordHasher.HashPassword(applicationUser, request.PasswordSecret);
                 }
 
-                if (!_credentialManager.ValidateStartAndEndDates(request))
-                {
-                    ModelState.AddModelError("Credential", "Start and End Date are not valid");
-                    return BadRequest(ModelState);
-                }
+                Credential credential = _credentialManager.CreateAgentCredential(request);
 
-                var result = await base.PostEntity(request);
-                await _webhookPublisher.PublishAsync("Credentials.NewCredentialCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
+                var result = await base.PostEntity(credential);
+                await _webhookPublisher.PublishAsync("Credentials.NewCredentialCreated", credential.Id.ToString(), credential.Name).ConfigureAwait(false);
                 return result;
             }
             catch (Exception ex)
@@ -347,7 +371,6 @@ namespace OpenBots.Server.Web
                     return BadRequest(ModelState);
                 }
 
-                existingCredential.Name = request.Name;
                 existingCredential.Provider = request.Provider;
                 existingCredential.StartDate = request.StartDate;
                 existingCredential.EndDate = request.EndDate;
@@ -359,9 +382,9 @@ namespace OpenBots.Server.Web
 
                 applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
 
-                if (request.PasswordSecret != null && applicationUser != null)
+                if (request.PasswordSecret != existingCredential.PasswordSecret && applicationUser != null)
                 {
-                    existingCredential.PasswordHash = userManager.PasswordHasher.HashPassword(applicationUser, request.PasswordSecret);
+                    existingCredential.PasswordHash = userManager.PasswordHasher.HashPassword(applicationUser, request?.PasswordSecret);
                 }
 
                 await _webhookPublisher.PublishAsync("Credentials.CredentialUpdated", existingCredential.Id.ToString(), existingCredential.Name).ConfigureAwait(false);
@@ -391,14 +414,9 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                var existingCredential = repository.GetOne(Guid.Parse(id));
-                if (existingCredential == null)
-                {
-                    ModelState.AddModelError("Credential", "Credential cannot be found or does not exist.");
-                    return NotFound(ModelState);
-                }
+                var credential = _credentialManager.DeleteCredential(id);
 
-                await _webhookPublisher.PublishAsync("Credentials.CredentialDeleted", existingCredential.Id.ToString(), existingCredential.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Credentials.CredentialDeleted", credential.Id.ToString(), credential.Name).ConfigureAwait(false);
                 return await base.DeleteEntity(id);
             }
             catch (Exception ex)
@@ -441,12 +459,8 @@ namespace OpenBots.Server.Web
                     //verify that credential name is not taken
                     if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")
                     {
-                        var credential = repository.Find(null, d => d.Name.ToLower(null) == request.Operations[i].value.ToString().ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
-                        if (credential != null)
-                        {
-                            ModelState.AddModelError("Credential", "Credential Name Already Exists");
-                            return BadRequest(ModelState);
-                        }
+                        existingCredential.Name = request.Operations[i].value.ToString();
+                        _credentialManager.CredentialNameAvailability(existingCredential);
                     }
 
                     //generate new password hash
@@ -478,6 +492,7 @@ namespace OpenBots.Server.Web
                         }
                     }
                 }
+
                 await _webhookPublisher.PublishAsync("Credentials.CredentialUpdated", existingCredential.Id.ToString(), existingCredential.Name).ConfigureAwait(false);
                 return await base.PatchEntity(id, request);
             }
