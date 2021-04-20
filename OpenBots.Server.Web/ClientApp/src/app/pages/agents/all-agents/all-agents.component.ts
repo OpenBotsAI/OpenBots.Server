@@ -38,7 +38,7 @@ export class AllAgentsComponent implements OnInit {
     protected signalRService: SignalRService,
     private helperService: HelperService,
     private toastrService: NbToastrService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.page.pageNumber = 1;
@@ -59,9 +59,7 @@ export class AllAgentsComponent implements OnInit {
   }
 
   gotodetail(id) {
-    this.router.navigate(['/pages/agents/get-agents-id'], {
-      queryParams: { id: id },
-    });
+    this.router.navigate([`/pages/agents/view/${id}`]);
   }
   onSortClick(event, fil_val) {
     let target = event.currentTarget,
@@ -222,7 +220,7 @@ export class AllAgentsComponent implements OnInit {
           this.page.totalCount = data.totalCount;
           this.get_perPage = true;
         },
-        (error) => {}
+        (error) => { }
       );
   }
 

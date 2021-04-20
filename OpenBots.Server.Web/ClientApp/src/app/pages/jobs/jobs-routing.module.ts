@@ -6,10 +6,10 @@ import { GetJobIdComponent } from './get-job-id/get-job-id.component';
 
 const routes: Routes = [
   {
-    path:'list', component:AllJobsComponent
+    path: 'list', component: AllJobsComponent
   },
   {
-    path:'get-jobs-id' , component:GetJobIdComponent
+    path: 'view/:id', component: GetJobIdComponent
   }
 ];
 

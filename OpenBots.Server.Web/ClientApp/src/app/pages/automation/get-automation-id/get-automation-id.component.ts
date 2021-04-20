@@ -31,10 +31,11 @@ export class GetAutomationIdComponent implements OnInit {
     protected automationService: AutomationService,
     protected router: Router
   ) {
-    this.acroute.queryParams.subscribe((params) => {
-      this.process_id = params.id;
-      this.get_process(params.id);
-    });
+    this.process_id = this.acroute.snapshot.params['id']
+    // this.acroute.queryParams.subscribe((params) => {
+    // this.process_id = params.id;
+    this.get_process(this.process_id);
+    // });
   }
 
   ngOnInit(): void {
@@ -83,13 +84,14 @@ export class GetAutomationIdComponent implements OnInit {
   }
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], {
-      queryParams: {
-        // PageName: 'Process',
-        PageName: 'Automation',
+    // this.router.navigate(['/pages/change-log/list'], {
+    //   queryParams: {
+    //     // PageName: 'Process',
+    //     PageName: 'Automation',
 
-        id: this.show_allprocess.id,
-      },
-    });
+    //     id: this.show_allprocess.id,
+    //   },
+    // });
+    this.router.navigate([`/pages/change-log/list/${'Automation'}/${this.show_allprocess.id}`])
   }
 }

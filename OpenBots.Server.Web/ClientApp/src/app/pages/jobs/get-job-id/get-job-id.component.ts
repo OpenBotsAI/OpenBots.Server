@@ -40,10 +40,10 @@ export class GetJobIdComponent implements OnInit, OnDestroy {
     public signalRService: SignalRService,
     protected jobService: JobsService
   ) {
-    this.acroute.queryParams.subscribe((params) => {
-      this.params_id = params.id;
-      this.get_job(params.id);
-    });
+
+    this.params_id = this.acroute.snapshot.params['id']
+    this.get_job(this.params_id);
+
   }
 
   ngOnInit(): void {
@@ -128,16 +128,12 @@ export class GetJobIdComponent implements OnInit, OnDestroy {
   }
 
   gotoprocess() {
-    this.router.navigate(['/pages/automation/get-automation-id'], {
-      queryParams: { id: this.showjobs.value.automationId },
-    });
+    this.router.navigate([`/pages/automation/view/${this.showjobs.value.automationId}`]);
   }
   gotoagent() {
-    this.router.navigate(['/pages/agents/get-agents-id'], {
-      queryParams: { id: this.showjobs.value.agentId },
-    });
+    this.router.navigate([`/pages/agents/view/${this.showjobs.value.agentId}`]);
   }
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'Job', id: this.params_id } })
+    this.router.navigate([`/pages/change-log/list/${'Job'}/${this.params_id}`]);
   }
 }

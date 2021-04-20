@@ -99,7 +99,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-6 col-lg-6 col-xxxl-6">
+            <div class="col-md-1 col-lg-1 col-xxxl-1">
               <div class="checkbox checbox-switch switch-primary">
                 <label class="label">Disabled</label><br>
                 <label>
@@ -108,10 +108,48 @@
                 </label>
               </div>
             </div>
-
+            <div class="col-md-2 col-lg-2 col-xxxl-2" style="text-align: center;">
+              <label for="retryCount" class="label">Max Jobs</label><br>
+              <nb-checkbox (checkedChange)="check($event)" formControlName="maxRetryChecked">
+              </nb-checkbox>
+            </div>
+            <div class="col-md-3 col-lg-3 col-xxxl-3" *ngIf="scheduleForm.value.maxRetryChecked">
+              <label class="label">Max Running Jobs</label>
+              <input type="number" nbInput fullWidth formControlName="maxRunningJobs"
+                placeholder="Please enter max running jobs" ngxSpecialChar trim="blur">
+              <div
+                *ngIf="formControls.maxRunningJobs.invalid && (formControls.maxRunningJobs.dirty || formControls.maxRunningJobs.touched)"
+                class="invalid-feedback-frm">
+                <div *ngIf="formControls.maxRunningJobs?.errors.required">
+                  Max running jobs is required.
+                </div>
+                <div *ngIf="formControls.maxRunningJobs?.errors.pattern">
+                  Max running jobs value between 0-99
+                </div>
+              </div>
+            </div>
           </div>
+          <!-- <div class="row rowPadBottom" *ngIf="scheduleForm.value.maxRetryChecked">
+            <div class="col-md-12 col-lg-12 col-xxxl-12">
+              <label for="retryCount" class="label">Max Running Jobs *</label>
+              <input type="number" nbInput fullWidth id="retryCount" formControlName="maxRunningJobs"
+                placeholder="Please enter max running jobs" ngxSpecialChar trim="blur">
+
+              <div
+                *ngIf="formControls.maxRunningJobs.invalid && (formControls.maxRunningJobs.dirty || formControls.maxRunningJobs.touched)"
+                class="invalid-feedback-frm">
+                <div *ngIf="formControls.maxRunningJobs?.errors.required">
+                  Max retry count is required.
+                </div>
+                <div *ngIf="formControls.maxRunningJobs?.errors.pattern">
+                  Max retry count value between 0-99
+                </div>
+
+              </div>
+            </div>
+          </div> -->
           <div class="row rowPadBottom">
-            <div class="col-md-6 col-lg-6 col-xxxl-6">
+            <div class="col-md-12 col-lg-12 col-xxxl-12">
               <label class="label">Starting Type *</label>
               <nb-radio-group formControlName="startingType">
                 <nb-radio class="startingtype" value="oneTime" (click)="radioSetValidator('oneTime')" required>One Time
@@ -121,6 +159,10 @@
                 </nb-radio>
                 <nb-radio class="startingtype" value="manual" (click)="radioSetValidator('manual')" required>
                   Manual
+                </nb-radio>
+                <nb-radio class="startingtype" value="queueArrival" (click)="radioSetValidator('queueArrival')"
+                  required>
+                  Queue Arrival
                 </nb-radio>
               </nb-radio-group>
               <div
@@ -132,17 +174,32 @@
               </div>
             </div>
           </div>
-          <div *ngIf="scheduleForm.value.startingType == 'recurrence'" class="row">
+          <div *ngIf="scheduleForm.value.startingType == 'queueArrival'" class="row rowPadBottom">
+            <div class="col-md-12 col-lg-12 col-xxxl-12">
+              <label class="label">Queue *</label>
+              <ng-select [items]="queuesArr" [searchable]="true" bindLabel="name" formControlName="queueId"
+                class="NgSelect" [closeOnSelect]="true" placeholder="Please select queue" bindValue="id"
+                [clearable]="false">
+              </ng-select>
+              <div *ngIf="formControls.queueId.invalid &&(formControls.queueId.dirty || formControls.queueId.touched) "
+                class="invalid-feedback-frm">
+                <div *ngIf="formControls.queueId?.errors.required">
+                  Queue is required.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="scheduleForm.value.startingType == 'recurrence'" class="row rowPadBottom">
             <div class="col-md-12 col-lg-12 col-xxxl-12">
               <label class="label">Select time zone *</label>
               <ng-select [items]="timeZoneArr" [searchable]="true" bindLabel="text"
-                formControlName="CRONExpressionTimeZone" class="NgSelect" [closeOnSelect]="true"
+                formControlName="cronExpressionTimeZone" class="NgSelect" [closeOnSelect]="true"
                 placeholder="Please select time zone" bindValue="value" [clearable]="false">
               </ng-select>
               <div
-                *ngIf="formControls.CRONExpressionTimeZone.invalid &&(formControls.CRONExpressionTimeZone.dirty || formControls.CRONExpressionTimeZone.touched) "
+                *ngIf="formControls.cronExpressionTimeZone.invalid &&(formControls.cronExpressionTimeZone.dirty || formControls.cronExpressionTimeZone.touched) "
                 class="invalid-feedback-frm">
-                <div *ngIf="formControls.CRONExpressionTimeZone?.errors.required">
+                <div *ngIf="formControls.cronExpressionTimeZone?.errors.required">
                   Time zone is required.
                 </div>
               </div>
@@ -150,13 +207,14 @@
           </div>
           <div class="row rowPadBottom">
             <div class="col-md-6 col-lg-6 col-xxxl-6"
-              *ngIf="scheduleForm.value.startingType == 'oneTime' || scheduleForm.value.startingType == 'recurrence'">
+              *ngIf="scheduleForm.value.startingType == 'oneTime' || scheduleForm.value.startingType == 'recurrence' || scheduleForm.value.startingType =='queueArrival'">
               <label for="startDate" class="label">Start Date *</label>
               <input nbInput fullWidth formControlName="startDate" [owlDateTimeTrigger]="dtPicker1"
                 [owlDateTime]="dtPicker1" [min]="min" />
               <owl-date-time #dtPicker1></owl-date-time>
             </div>
-            <div class="col-md-6 col-lg-6 col-xxxl-6" *ngIf="scheduleForm.value.startingType == 'recurrence'">
+            <div class="col-md-6 col-lg-6 col-xxxl-6"
+              *ngIf="scheduleForm.value.startingType == 'recurrence'  || scheduleForm.value.startingType =='queueArrival'">
               <label for="expiryDate" class="label">Expiry Date *</label>
               <input nbInput fullWidth formControlName="expiryDate" [owlDateTimeTrigger]="dtPicker1"
                 [owlDateTime]="dtPicker1" [min]="min" />

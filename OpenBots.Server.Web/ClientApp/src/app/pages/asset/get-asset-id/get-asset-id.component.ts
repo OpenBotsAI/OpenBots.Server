@@ -19,6 +19,7 @@ export class GetAssetIdComponent implements OnInit {
   now = Date();
   showGlobalAsset: boolean = false;
   showAgentAsstData: any = [];
+  urlId;
   constructor(
     private acroute: ActivatedRoute,
     protected assetService: AssetService,
@@ -26,9 +27,10 @@ export class GetAssetIdComponent implements OnInit {
     private FileSaverService: FileSaverService,
     protected router: Router
   ) {
-    this.acroute.queryParams.subscribe((params) => {
-      this.getAllAsset(params.id);
-    });
+
+    this.urlId = this.acroute.snapshot.params['id']
+    this.getAllAsset(this.urlId);
+
   }
 
   ngOnInit(): void {
@@ -124,9 +126,8 @@ export class GetAssetIdComponent implements OnInit {
     });
   }
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], {
-      queryParams: { PageName: 'Asset', id: this.AssetType.id },
-    });
+    this.router.navigate([`/pages/change-log/list/${'Asset'}/${this.urlId}`]);
+    // , {queryParams: { PageName: 'Asset', id: this.AssetType.id },   }
   }
 
   downloadFile(id) {

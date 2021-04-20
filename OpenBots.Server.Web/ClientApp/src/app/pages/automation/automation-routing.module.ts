@@ -10,7 +10,7 @@ const routes: Routes = [
     component: AllAutomationComponent,
   },
   {
-    path: 'get-automation-id',
+    path: 'view/:id',
     component: GetAutomationIdComponent,
   },
   {
@@ -27,4 +27,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class AutomationRoutingModule {}
+export class AutomationRoutingModule { }

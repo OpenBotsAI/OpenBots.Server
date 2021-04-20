@@ -17,16 +17,19 @@ export class GetSystemEventsIdComponent implements OnInit {
   showChangedToJson: boolean = false;
   showpayloadSchemaJson: boolean = false;
   pipe: TimeDatePipe;
-
+  urlId;
   constructor(
     private acroute: ActivatedRoute,
     private formBuilder: FormBuilder,
     protected router: Router,
     protected systemEventService: SystemEventService
   ) {
-    this.acroute.queryParams.subscribe((params) => {
-      this.get_allagent(params.id);
-    });
+
+    this.urlId = this.acroute.snapshot.params['id']
+    this.get_allagent(this.urlId);
+    // this.acroute.queryParams.subscribe((params) => {
+
+    // });
   }
 
   ngOnInit(): void {
@@ -60,7 +63,7 @@ export class GetSystemEventsIdComponent implements OnInit {
         this.payloadSchema = data.payloadSchema;
         this.payloadSchema = JSON.parse(this.payloadSchema);
       }
-      
+
     });
   }
 

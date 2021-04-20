@@ -52,7 +52,7 @@ namespace OpenBots.Server.DataAccess
         public DbSet<StorageDrive> StorageDrives { get; set; }
         public DbSet<StorageFolder> StorageFolders { get; set; }
         public DbSet<StorageFile> StorageFiles { get; set; }
-        public DbSet<FileAttribute> FileAttributes { get; set; }
+        public DbSet<StorageDriveOperation> StorageDriveOperations { get; set; }
 
 
         public StorageContext(DbContextOptions<StorageContext> options)

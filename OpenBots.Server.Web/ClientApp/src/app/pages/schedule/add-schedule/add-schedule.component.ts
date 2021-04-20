@@ -11,12 +11,14 @@ import {
   AgentApiUrl,
   AgentGroupAPiUrl,
   automationsApiUrl,
+  QueuesApiUrls,
   SchedulesApiUrl,
 } from '../../../webApiUrls';
 import { Automation } from '../../../interfaces/automations';
 import { AgentGroupLookUp } from '../../../interfaces/AgentGroupLookUp';
 import { timeZonelist } from './timeZone';
 import { TimeZone } from '../../../interfaces/timeZone';
+import { Queues } from '../../../interfaces/queues';
 @Component({
   selector: 'ngx-add-schedule',
   templateUrl: './add-schedule.component.html',
@@ -45,6 +47,7 @@ export class AddScheduleComponent implements OnInit {
   isCronDisabled = false;
   isChecked = false;
   timeZoneArr: TimeZone[] = timeZonelist;
+  queuesArr: Queues[] = [];
   cronOptions: CronOptions = {
     formInputClass: 'form-control cron-editor-input',
     formSelectClass: 'form-control cron-editor-select',
@@ -81,6 +84,7 @@ export class AddScheduleComponent implements OnInit {
     this.getAllAgents();
     this.getAllAgentGroupLookup();
     this.getProcessesLookup();
+    this.getAllQueues();
     if (this.currentScheduleId) {
       this.title = 'Update';
       this.getScheduleById();
@@ -110,7 +114,10 @@ export class AddScheduleComponent implements OnInit {
       startDate: [''],
       agentGroupId: [''],
       checked: [false],
-      CRONExpressionTimeZone: [''],
+      cronExpressionTimeZone: [''],
+      queueId: [''],
+      maxRetryChecked: [''],
+      maxRunningJobs: [],
       parameters: this.currentScheduleId
         ? this.fb.array([this.initializeJobRunNowForm()])
         : this.fb.array([]),
@@ -125,17 +132,43 @@ export class AddScheduleComponent implements OnInit {
     return this.scheduleForm.controls;
   }
 
+  getAllQueues() {
+    this.httpService
+      .get(`${QueuesApiUrls.Queues}?$orderby=createdOn+desc`)
+      .subscribe((response) => {
+        if (response && response.items && response.items.length)
+          this.queuesArr = [...response.items];
+        else this.queuesArr = [];
+      });
+  }
+  // Validators.pattern(/^-?([0-9]|[0-9][0-9]d*)?$/),
+  check(value: boolean): void {
+    if (value) {
+      this.scheduleForm.get('maxRunningJobs').reset();
+      this.scheduleForm
+        .get('maxRunningJobs')
+        .setValidators([
+          Validators.required,
+          Validators.pattern(/^([0-9]|[0-9][0-9]d*)?$/),
+        ]);
+      this.scheduleForm.get('maxRunningJobs').updateValueAndValidity();
+    } else {
+      this.scheduleForm.get('maxRunningJobs').clearValidators();
+      this.scheduleForm.get('maxRunningJobs').updateValueAndValidity();
+    }
+  }
   getAllAgents(): void {
     this.httpService
       .get(`${AgentApiUrl.Agents}/${AgentApiUrl.getLookup}`)
       .subscribe((response) => {
-        if (response && response.length !== 0) this.allAgents = [...response];
+        if (response && response.length) this.allAgents = [...response];
         else this.allAgents = [];
       });
   }
 
   onScheduleSubmit(): void {
     this.isSubmitted = true;
+    delete this.scheduleForm.value.maxRetryChecked;
     if (this.scheduleForm.value.startDate) {
       this.scheduleForm.value.startDate = this.helperService.localToUTCTime(
         this.scheduleForm.value.startDate
@@ -184,7 +217,6 @@ export class AddScheduleComponent implements OnInit {
   }
 
   addSchedule(): void {
-    console.log('selected date', this.scheduleForm.value.startDate);
     this.scheduleForm.value.startDate = new Date(
       this.scheduleForm.value.startDate
     );
@@ -217,6 +249,8 @@ export class AddScheduleComponent implements OnInit {
         if (response && response.body) {
           this.eTag = response.headers.get('etag');
           this.min = response.body.startDate;
+          if (response.body.maxRunningJobs)
+            this.scheduleForm.get('maxRetryChecked').patchValue(true);
           if (response.body.cronExpression)
             this.cronExpression = response.body.cronExpression;
           this.scheduleForm.setControl(
@@ -269,24 +303,33 @@ export class AddScheduleComponent implements OnInit {
       this.scheduleForm.get('startDate').updateValueAndValidity();
       this.scheduleForm.get('expiryDate').clearValidators();
       this.scheduleForm.get('expiryDate').updateValueAndValidity();
-      this.scheduleForm.get('CRONExpressionTimeZone').clearValidators();
-      this.scheduleForm.get('CRONExpressionTimeZone').updateValueAndValidity();
+      this.scheduleForm.get('cronExpressionTimeZone').clearValidators();
+      this.scheduleForm.get('cronExpressionTimeZone').updateValueAndValidity();
     } else if (value === 'recurrence') {
       this.scheduleForm
-        .get('CRONExpressionTimeZone')
+        .get('cronExpressionTimeZone')
         .setValidators([Validators.required]);
-      this.scheduleForm.get('CRONExpressionTimeZone').updateValueAndValidity();
+      this.scheduleForm.get('cronExpressionTimeZone').updateValueAndValidity();
       this.scheduleForm.get('startDate').setValidators([Validators.required]);
       this.scheduleForm.get('startDate').updateValueAndValidity();
       this.scheduleForm.get('expiryDate').setValidators([Validators.required]);
       this.scheduleForm.get('expiryDate').updateValueAndValidity();
     } else if (value === 'manual') {
-      this.scheduleForm.get('CRONExpressionTimeZone').clearValidators();
-      this.scheduleForm.get('CRONExpressionTimeZone').updateValueAndValidity();
+      this.scheduleForm.get('cronExpressionTimeZone').clearValidators();
+      this.scheduleForm.get('cronExpressionTimeZone').updateValueAndValidity();
       this.scheduleForm.get('startDate').clearValidators();
       this.scheduleForm.get('startDate').updateValueAndValidity();
       this.scheduleForm.get('expiryDate').clearValidators();
       this.scheduleForm.get('expiryDate').updateValueAndValidity();
+    } else if (value === 'queueArrival') {
+      this.scheduleForm.get('cronExpressionTimeZone').clearValidators();
+      this.scheduleForm.get('cronExpressionTimeZone').updateValueAndValidity();
+      this.scheduleForm.get('startDate').setValidators([Validators.required]);
+      this.scheduleForm.get('startDate').updateValueAndValidity();
+      this.scheduleForm.get('expiryDate').clearValidators();
+      this.scheduleForm.get('expiryDate').updateValueAndValidity();
+      this.scheduleForm.get('queueId').setValidators([Validators.required]);
+      this.scheduleForm.get('queueId').updateValueAndValidity();
     }
   }
 

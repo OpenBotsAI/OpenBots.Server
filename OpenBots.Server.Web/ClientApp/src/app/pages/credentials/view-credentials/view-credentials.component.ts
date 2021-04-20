@@ -86,11 +86,6 @@ export class ViewCredentialsComponent implements OnInit {
   }
 
   navigateToAudit(): void {
-    this.router.navigate(['/pages/change-log/list'], {
-      queryParams: {
-        PageName: 'Credential',
-        id: this.currentUrlId,
-      },
-    });
+    this.router.navigate([`/pages/change-log/list/${'Credential'}/${this.currentUrlId}`]);
   }
 }

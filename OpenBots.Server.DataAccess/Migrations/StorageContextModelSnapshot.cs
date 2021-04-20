@@ -1326,69 +1326,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.ToTable("Credentials");
                 });
 
-            modelBuilder.Entity("OpenBots.Server.Model.File.FileAttribute", b =>
-                {
-                    b.Property<Guid?>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("AttributeValue")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DataType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DeleteOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool?>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<Guid?>("OrganizationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("StorageDriveId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("StorageFileId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<byte[]>("Timestamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StorageFileId");
-
-                    b.ToTable("FileAttributes");
-                });
-
             modelBuilder.Entity("OpenBots.Server.Model.File.StorageDrive", b =>
                 {
                     b.Property<Guid?>("Id")
@@ -1448,6 +1385,69 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("StorageDrives");
+                });
+
+            modelBuilder.Entity("OpenBots.Server.Model.File.StorageDriveOperation", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AttributeValue")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DataType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeleteOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("StorageDriveId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("StorageFileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StorageFileId");
+
+                    b.ToTable("StorageDriveOperations");
                 });
 
             modelBuilder.Entity("OpenBots.Server.Model.File.StorageFile", b =>
@@ -3907,10 +3907,10 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("OpenBots.Server.Model.File.FileAttribute", b =>
+            modelBuilder.Entity("OpenBots.Server.Model.File.StorageDriveOperation", b =>
                 {
                     b.HasOne("OpenBots.Server.Model.File.StorageFile", null)
-                        .WithMany("FileAttributes")
+                        .WithMany("StorageDriveOperations")
                         .HasForeignKey("StorageFileId");
                 });
 
@@ -4052,7 +4052,7 @@ namespace OpenBots.Server.DataAccess.Migrations
 
             modelBuilder.Entity("OpenBots.Server.Model.File.StorageFile", b =>
                 {
-                    b.Navigation("FileAttributes");
+                    b.Navigation("StorageDriveOperations");
                 });
 
             modelBuilder.Entity("OpenBots.Server.Model.Identity.Person", b =>

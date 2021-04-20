@@ -131,16 +131,10 @@ export class AllIntegrationLogsComponent implements OnInit {
   // }
 
   gotodetail(id) {
-    this.router.navigate(['/pages/integration-logs/get-integration-log-id'], {
-      queryParams: { id: id },
-    });
+    this.router.navigate([`/pages/integration-logs/view/${id}`]);
   }
 
-  gotoprocesslog(id) {
-    this.router.navigate(['/pages/automationLogs'], {
-      queryParams: { jobId: id },
-    });
-  }
+
   comon_Status(val) {
     this.filter_jobstatus = val.id;
     this.filter_job();

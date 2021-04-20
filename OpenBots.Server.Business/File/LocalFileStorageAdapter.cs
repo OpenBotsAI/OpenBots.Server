@@ -24,7 +24,7 @@ namespace OpenBots.Server.Business.File
     public class LocalFileStorageAdapter : ILocalFileStorageAdapter
     {
         private readonly IStorageFileRepository _storageFileRepository;
-        private readonly IFileAttributeRepository _fileAttributeRepository;
+        private readonly IStorageDriveOperationRepository _storageDriveOperationRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IOrganizationManager _organizationManager;
         private readonly IStorageFolderRepository _storageFolderRepository;
@@ -37,7 +37,7 @@ namespace OpenBots.Server.Business.File
 
         public LocalFileStorageAdapter(
             IStorageFileRepository storageFileRepository,
-            IFileAttributeRepository fileAttributeRepository,
+            IStorageDriveOperationRepository storageDriveOperationRepository,
             IHttpContextAccessor httpContextAccessor,
             IOrganizationManager organizationManager,
             IStorageFolderRepository storageFolderRepository,
@@ -47,7 +47,7 @@ namespace OpenBots.Server.Business.File
             IDirectoryManager directoryManager,
             IAuditLogRepository auditLogRepository)
         {
-            _fileAttributeRepository = fileAttributeRepository;
+            _storageDriveOperationRepository = storageDriveOperationRepository;
             _storageFileRepository = storageFileRepository;
             _httpContextAccessor = httpContextAccessor;
             _organizationManager = organizationManager;
@@ -375,15 +375,15 @@ namespace OpenBots.Server.Business.File
             //add file attribute entities
             var attributes = new Dictionary<string, int>()
             {
-                { FileAttributes.StorageCount.ToString(), 1 },
-                { FileAttributes.RetrievalCount.ToString(), 0 },
-                { FileAttributes.AppendCount.ToString(), 0 }
+                { StorageDriveOperations.StorageCount.ToString(), 1 },
+                { StorageDriveOperations.RetrievalCount.ToString(), 0 },
+                { StorageDriveOperations.AppendCount.ToString(), 0 }
             };
 
-            List<FileAttribute> fileAttributes = new List<FileAttribute>();
+            List<StorageDriveOperation> storageDriveOperations = new List<StorageDriveOperation>();
             foreach (var attribute in attributes)
             {
-                var fileAttribute = new FileAttribute()
+                var storageDriveOperation = new StorageDriveOperation()
                 {
                     StorageFileId = id,
                     AttributeValue = attribute.Value,
@@ -394,8 +394,8 @@ namespace OpenBots.Server.Business.File
                     OrganizationId = organizationId,
                     StorageDriveId = driveId
                 };
-                _fileAttributeRepository.Add(fileAttribute);
-                fileAttributes.Add(fileAttribute);
+                _storageDriveOperationRepository.Add(storageDriveOperation);
+                storageDriveOperations.Add(storageDriveOperation);
             }
 
             var viewModel = new FileFolderViewModel();
@@ -417,18 +417,18 @@ namespace OpenBots.Server.Business.File
             long? size = storageFile.SizeInBytes;
 
             //update file attribute entities
-            List<FileAttribute> fileAttributes = new List<FileAttribute>();
-            var attributes = _fileAttributeRepository.Find(null).Items?.Where(q => q.StorageFileId == entityId);
+            List<StorageDriveOperation> storageDriveOperations = new List<StorageDriveOperation>();
+            var attributes = _storageDriveOperationRepository.Find(null).Items?.Where(q => q.StorageFileId == entityId);
             if (attributes != null)
             {
                 foreach (var attribute in attributes)
                 {
-                    if (attribute.Name == FileAttributes.AppendCount.ToString() || attribute.Name == FileAttributes.StorageCount.ToString())
+                    if (attribute.Name == StorageDriveOperations.AppendCount.ToString() || attribute.Name == StorageDriveOperations.StorageCount.ToString())
                     {
                         attribute.AttributeValue += 1;
-                        _fileAttributeRepository.Update(attribute);
+                        _storageDriveOperationRepository.Update(attribute);
                     }
-                    fileAttributes.Add(attribute);
+                    storageDriveOperations.Add(attribute);
                 }
             }
             else throw new EntityDoesNotExistException("File attribute entities could not be found for this file");
@@ -462,7 +462,7 @@ namespace OpenBots.Server.Business.File
             storageFile.OrganizationId = organizationId;
             storageFile.SizeInBytes = file.Length;
             storageFile.StoragePath = request.StoragePath;
-            storageFile.FileAttributes = fileAttributes;
+            storageFile.StorageDriveOperations = storageDriveOperations;
 
             _storageFileRepository.Update(storageFile);
             _webhookPublisher.PublishAsync("Files.FileUpdated", storageFile.Id.ToString(), storageFile.Name);
@@ -527,11 +527,11 @@ namespace OpenBots.Server.Business.File
                 await stream.FlushAsync();
 
                 //update file attribute: retrieval count
-                var retrievalFileAttribute = _fileAttributeRepository.Find(null).Items?.Where(q => q.StorageFileId == file.Id && q.Name == FileAttributes.RetrievalCount.ToString()).FirstOrDefault();
-                if (retrievalFileAttribute != null)
+                var retrievalStorageDriveOperation = _storageDriveOperationRepository.Find(null).Items?.Where(q => q.StorageFileId == file.Id && q.Name == StorageDriveOperations.RetrievalCount.ToString()).FirstOrDefault();
+                if (retrievalStorageDriveOperation != null)
                 {
-                    retrievalFileAttribute.AttributeValue += 1;
-                    _fileAttributeRepository.Update(retrievalFileAttribute);
+                    retrievalStorageDriveOperation.AttributeValue += 1;
+                    _storageDriveOperationRepository.Update(retrievalStorageDriveOperation);
                 }
             }
             else
@@ -619,10 +619,10 @@ namespace OpenBots.Server.Business.File
                 fileFolder = fileFolder.Map(storageFile, shortPath);
 
                 //update append file attribute
-                var appendAttribute = _fileAttributeRepository.Find(null).Items?.Where(q => q.Name == FileAttributes.AppendCount.ToString() && q.StorageFileId == storageFile.Id).FirstOrDefault();
+                var appendAttribute = _storageDriveOperationRepository.Find(null).Items?.Where(q => q.Name == StorageDriveOperations.AppendCount.ToString() && q.StorageFileId == storageFile.Id).FirstOrDefault();
                 if (appendAttribute != null)
                     appendAttribute.AttributeValue += 1;
-                _fileAttributeRepository.Update(appendAttribute);
+                _storageDriveOperationRepository.Update(appendAttribute);
             }
             else if (storageFile == null)
             {
@@ -695,10 +695,10 @@ namespace OpenBots.Server.Business.File
                 fileFolder = fileFolder.Map(storageFile, parentFolderPath);
 
                 //update append file attribute
-                var appendAttribute = _fileAttributeRepository.Find(null).Items?.Where(q => q.Name == FileAttributes.AppendCount.ToString() && q.StorageDriveId == storageFile.Id).FirstOrDefault();
+                var appendAttribute = _storageDriveOperationRepository.Find(null).Items?.Where(q => q.Name == StorageDriveOperations.AppendCount.ToString() && q.StorageDriveId == storageFile.Id).FirstOrDefault();
                 if (appendAttribute != null)
                     appendAttribute.AttributeValue += 1;
-                _fileAttributeRepository.Update(appendAttribute);
+                _storageDriveOperationRepository.Update(appendAttribute);
 
                 //update new and old parent folder sizes
                 UpdateFolderSize(oldParentFolderId, parentFolderPath, storageFile);
@@ -949,7 +949,7 @@ namespace OpenBots.Server.Business.File
             return shortPath;
         }
 
-        protected enum FileAttributes
+        protected enum StorageDriveOperations
         {
             StorageCount,
             RetrievalCount,
@@ -985,11 +985,11 @@ namespace OpenBots.Server.Business.File
         private long? DeleteFile(StorageFile storageFile)
         {
             //remove file attribute entities
-            var attributes = _fileAttributeRepository.Find(null).Items?.Where(q => q.StorageFileId == storageFile.Id);
+            var attributes = _storageDriveOperationRepository.Find(null).Items?.Where(q => q.StorageFileId == storageFile.Id);
             if (attributes != null)
             {
                 foreach (var attribute in attributes)
-                    _fileAttributeRepository.SoftDelete((Guid)attribute.Id);
+                    _storageDriveOperationRepository.SoftDelete((Guid)attribute.Id);
             }
 
             //remove file

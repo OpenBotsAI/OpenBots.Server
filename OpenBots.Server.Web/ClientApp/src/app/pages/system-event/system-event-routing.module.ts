@@ -6,7 +6,7 @@ import { GetSystemEventsIdComponent } from './get-system-events-id/get-system-ev
 const routes: Routes = [
   { path: 'list', component: AllSystemEventsComponent },
   {
-    path: 'get-system-event-id',
+    path: 'view/:id',
     component: GetSystemEventsIdComponent,
   },
 ];
@@ -15,4 +15,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class SystemEventRoutingModule {}
+export class SystemEventRoutingModule { }

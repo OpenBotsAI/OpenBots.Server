@@ -54,9 +54,7 @@ export class AllEmailAccountComponent implements OnInit {
     this.router.navigate([`/pages/emailaccount/edit/${id}`]);
   }
   gotodetail(id) {
-    this.router.navigate(['/pages/emailaccount/get-email-id'], {
-      queryParams: { id: id },
-    });
+    this.router.navigate([`/pages/emailaccount/view/${id}`]);
   }
 
   sort(filter_val, vale) {

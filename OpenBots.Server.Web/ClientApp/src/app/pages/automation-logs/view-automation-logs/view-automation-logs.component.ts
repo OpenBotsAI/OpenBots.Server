@@ -28,7 +28,7 @@ export class ViewAutomationLogsComponent implements OnInit {
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.processLogId = this.route.snapshot.params['id'];
@@ -102,25 +102,30 @@ export class ViewAutomationLogsComponent implements OnInit {
     });
   }
 
+
+
   navigateToAgent(): void {
-    this.router.navigate(['/pages/agents/get-agents-id'], {
-      queryParams: { id: this.agentId },
-    });
+    this.router.navigate([`/pages/agents/view/${this.agentId}`]);
+    // , {
+    //   queryParams: { id: this.agentId },
+    // }
   }
 
   navigateToAudit() {
-    this.router.navigate(['/pages/change-log/list'], {
-      queryParams: {
-        // PageName: 'ExecutionLog',
-        PageName: 'AutomationExecutionLog',
-        id: this.processLogId,
-      },
-    });
+    // , {
+    //   queryParams: {
+    //     // PageName: 'ExecutionLog',
+    //     PageName: 'AutomationExecutionLog',
+    //     id: this.processLogId,
+    //   },
+    // }
+    this.router.navigate([`/pages/change-log/list/${'AutomationExecutionLog'}/${this.processLogId}`]);
   }
 
   navigateToProcess(): void {
-    this.router.navigate(['/pages/automation/get-automation-id'], {
-      queryParams: { id: this.pocessId },
-    });
+    // , {
+    //   queryParams: { id: this.pocessId },
+    // }
+    this.router.navigate([`/pages/automation/view/${this.pocessId}`]);
   }
 }

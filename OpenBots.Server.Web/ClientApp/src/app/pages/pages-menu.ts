@@ -178,6 +178,15 @@ export class PagesMenu {
             link: '/pages/system-event/list',
           },
           {
+            title: 'Business Events',
+            link: '/pages/business-event/list',
+          },
+          {
+            title: 'Raise Business Events',
+            link: '/pages/business-event/raise-event'
+
+          },
+          {
             title: 'Subscriptions',
             link: '/pages/subscription/list',
           },
@@ -185,6 +194,7 @@ export class PagesMenu {
             title: 'Add Subscriptions',
             link: '/pages/subscription/add',
           },
+
           {
             title: 'Logs',
             link: '/pages/integration-logs/list',

@@ -84,7 +84,7 @@ export class AddAssetComponent implements OnInit {
     this.editorOptionsAgentAsset = new JsonEditorOptions();
     this.editorOptionsAgentAsset.modes = ['code', 'text', 'tree', 'view'];
     //  this.editorOptionsAgentAsset.onChange = () => console.log(this.editorAssetAgent.get());
-    this.urlId = this.route.snapshot.params['id'];
+
   }
 
   ngOnInit(): void {
@@ -112,6 +112,7 @@ export class AddAssetComponent implements OnInit {
       Name: [''],
       AgentId: [''],
     });
+    this.urlId = this.route.snapshot.params['id'];
     if (this.urlId) {
       this.getAssetById(this.urlId);
 
@@ -128,6 +129,7 @@ export class AddAssetComponent implements OnInit {
     this.assetService.getAssetbyId(id).subscribe((data: HttpResponse<any>) => {
       this.showAssetbyID = data.body;
       this.etag = data.headers.get('ETag').replace(/\"/g, '');
+
       this.addasset.patchValue(this.showAssetbyID);
       this.getAssetAgentValue();
       if (this.showAssetbyID.jsonValue) {

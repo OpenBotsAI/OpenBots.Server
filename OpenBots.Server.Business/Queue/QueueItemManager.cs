@@ -605,6 +605,7 @@ namespace OpenBots.Server.Business
             CheckStoragePathExists(fileView, size, queueItem.Id, driveName);
             var fileViewList = _fileManager.AddFileFolder(fileView, driveName);
             var queueItemAttachments = new List<QueueItemAttachment>();
+            long payloadSizeInBytes = 0;
 
             foreach (var file in fileViewList)
             {
@@ -619,6 +620,10 @@ namespace OpenBots.Server.Business
                 };
                 _queueItemAttachmentRepository.Add(queueItemAttachment);
                 queueItemAttachments.Add(queueItemAttachment);
+
+                payloadSizeInBytes += queueItemAttachment.SizeInBytes;
+                queueItem.PayloadSizeInBytes += payloadSizeInBytes;
+                _repo.Update(queueItem);
             }
 
             return queueItemAttachments;

@@ -117,7 +117,7 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IEmailAttachmentRepository), typeof(EmailAttachmentRepository));
 
             //files
-            services.AddTransient(typeof(IFileAttributeRepository), typeof(FileAttributeRepository));
+            services.AddTransient(typeof(IStorageDriveOperationRepository), typeof(StorageDriveOperationRepository));
             services.AddTransient(typeof(IStorageDriveRepository), typeof(StorageDriveRepository));
             services.AddTransient(typeof(IStorageFolderRepository), typeof(StorageFolderRepository));
             services.AddTransient(typeof(IStorageFileRepository), typeof(StorageFileRepository));

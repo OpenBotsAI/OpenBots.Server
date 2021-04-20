@@ -79,6 +79,7 @@ export class AllScheduleComponent implements OnInit {
         if (this.allScehduleData.length == 1 && this.page.pageNumber > 1) {
           this.page.pageNumber--;
         }
+        this.httpService.success('Schedule deleted successfully');
         this.pagination(this.page.pageNumber, this.page.pageSize);
         this.isDeleted = false;
       }),

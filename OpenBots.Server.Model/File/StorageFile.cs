@@ -14,6 +14,6 @@ namespace OpenBots.Server.Model.File
         public string HashCode { get; set; }
         public Guid? OrganizationId { get; set; }
         public Guid? StorageDriveId { get; set; }
-        public List<FileAttribute> FileAttributes { get; set; }
+        public List<StorageDriveOperation> StorageDriveOperations { get; set; }
     }
 }

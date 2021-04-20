@@ -1,0 +1,153 @@
+<nb-card>
+    <nb-card-header>
+        <div class="titleHeader">
+            <div class="titleLeft">
+                <div class="LeftBgIcon">
+                    <img class="img-head-logo" src="../../../../assets/icons/Log.svg" />
+                </div>
+                <div class="LeftBgText">
+                    <h2>Business Events</h2>
+                    <p>
+                        List of Events that are raised by the system that can be used for Integrations.
+
+                    </p>
+                </div>
+            </div>
+            <div class="titleRight">
+                <button type="button" class="btn btn-primary" (click)="gotoadd()">
+                    Add Business
+                </button>
+            </div>
+        </div>
+    </nb-card-header>
+    <nb-card-body>
+        <form [formGroup]="systemEventform">
+            <div class="row row-fil">
+                <div class="col-md-4 col-lg-4">
+                    <label class="label-ser">Entity:</label>
+                    <!-- <select class="custom-select service-name" (change)="getEntityname($event.target.value)"
+              formControlName="page_name">
+              <option value="" selected>All</option>
+              <option *ngFor="let item of show_Entityname" [value]="item">
+                {{ item }}
+              </option>
+            </select> -->
+
+                    <ng-select [items]="show_Entityname" [searchable]="true" bindLabel="show_Entityname"
+                        formControlName="page_name" class="NgSelect" placeholder="Please select Entity"
+                        (change)="getEntityname($event)" [closeOnSelect]="true" bindValue="show_Entityname"
+                        [clearable]="false">
+                    </ng-select>
+                </div>
+            </div>
+        </form>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">
+                        Name
+                        <i (click)="onSortClick($event, 'name')"
+                            [attr.class]="show_allsystemevent | chevron: page.totalCount"></i>
+                    </th>
+
+                    <th scope="col">
+                        Description
+                        <i (click)="onSortClick($event, 'description')"
+                            [attr.class]="show_allsystemevent | chevron: page.totalCount"></i>
+                    </th>
+                    <th scope="col">
+                        Entity
+                        <i (click)="onSortClick($event, 'entityType')"
+                            [attr.class]="show_allsystemevent | chevron: page.totalCount">
+                        </i>
+                    </th>
+
+
+                    <!-- description -->
+
+                    <th scope="col">View</th>
+                    <th scope="col">Edit</th>
+                    <th scope="col">Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="
+              let systemevent of show_allsystemevent
+                | paginate
+                  : {
+                      id: '1',
+                      itemsPerPage: page.pageSize,
+                      currentPage: page.pageNumber,
+                      totalItems: page.totalCount
+                    };trackBy: trackByFn
+            ">
+                    <td>
+                        <ngx-tooltip [data]="systemevent?.entityType" [size]="40"> </ngx-tooltip>
+                    </td>
+                    <td scope="row">
+                        <ngx-tooltip [data]="systemevent?.name" [size]="40"> </ngx-tooltip>
+                    </td>
+                    <td scope="row">
+                        <ngx-tooltip [data]="systemevent?.description" [size]="40"> </ngx-tooltip>
+                    </td>
+
+                    <!--  -->
+
+                    <td>
+                        <a (click)="gotodetail(systemevent.id)">
+                            <i class="fa fa-eye" aria-hidden="true"></i>
+                        </a>
+                    </td>
+                    <td>
+                        <a (click)="gotoedit(systemevent.id)">
+                            <i class="fa fa-edit"> </i>
+                        </a>
+                    </td>
+                    <td>
+                        <a (click)="open2(dialog, systemevent.id)">
+                            <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </nb-card-body>
+    <nb-card-body class="noTopPadding">
+        <div class="row pagerow">
+            <div class="col-md-8 col-lg-8 no-left-padding">
+                <pagination-controls id="1" class="paginateDiv" previousLabel="Prev" nextLabel="Next" responsive="true"
+                    (pageChange)="pageChanged($event)" (pageBoundsCorrection)="pageChanged($event)"
+                    directionLinks="true" autoHide="true" screenReaderPaginationLabel="Pagination"
+                    screenReaderPageLabel="page" screenReaderCurrentLabel="You're on page"></pagination-controls>
+            </div>
+            <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="page.totalCount >5">
+                <label class="label">Total {{ showpage.totalCount }} /</label>
+                <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
+                    <option *ngFor="let item of itemsPerPage" [value]="item.id">
+                        {{ item.name }}
+                    </option>
+                </select>
+            </div>
+        </div>
+    </nb-card-body>
+</nb-card>
+
+
+<ng-template #dialog let-data let-ref="dialogRef">
+    <nb-card>
+        <nb-card-header>
+            <h6>Delete Business Event</h6>
+        </nb-card-header>
+        <nb-card-body>
+            <div aria-labelledby="title">
+                <p>Are you sure you want to delete?</p>
+            </div>
+        </nb-card-body>
+        <nb-card-footer>
+            <button class="btn btn-danger" [disabled]="isDeleted" (click)="delBusinessEvent(ref)">Delete </button>
+            <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
+                Cancel
+            </button>
+        </nb-card-footer>
+    </nb-card>
+</ng-template>

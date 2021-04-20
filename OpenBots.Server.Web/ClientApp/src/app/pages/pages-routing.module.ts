@@ -190,6 +190,14 @@ const routes: Routes = [
         canActivate: [LoginGuard],
       },
       {
+        path: 'business-event',
+        loadChildren: () =>
+          import('./business-event/business-event.module').then(
+            (mod) => mod.BusinessEventModule
+          ),
+        canActivate: [LoginGuard],
+      },
+      {
         path: 'miscellaneous',
         loadChildren: () =>
           import('./miscellaneous/miscellaneous.module').then(
@@ -214,4 +222,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class PagesRoutingModule {}
+export class PagesRoutingModule { }
