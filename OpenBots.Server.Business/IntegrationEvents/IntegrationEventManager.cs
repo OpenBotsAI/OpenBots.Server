@@ -119,7 +119,7 @@ namespace OpenBots.Server.Business
         /// <param name="businessEvent">Event to be verified</param>
         private void VerifyBusinessEvent(IntegrationEvent businessEvent)
         {
-            if (businessEvent == null) throw new EntityDoesNotExistException($"IntegrationEvent with id {businessEvent.Id} could not be found");
+            if (businessEvent == null) throw new EntityDoesNotExistException($"IntegrationEvent could not be found");
 
             if (businessEvent.IsSystem == true) throw new UnauthorizedOperationException($"System events can't be updated", EntityOperationType.Update);
         }

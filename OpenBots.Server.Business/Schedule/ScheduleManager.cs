@@ -110,6 +110,7 @@ namespace OpenBots.Server.Business
             existingSchedule.StartDate = request.StartDate;
             existingSchedule.AutomationId = request.AutomationId;
             existingSchedule.MaxRunningJobs = request.MaxRunningJobs;
+            existingSchedule.QueueId = request.QueueId;
 
             return existingSchedule;
         }

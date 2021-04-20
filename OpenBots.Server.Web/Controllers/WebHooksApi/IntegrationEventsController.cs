@@ -116,7 +116,6 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             try
             {
                 return await base.GetEntity(id);
-
             }
             catch (Exception ex)
             {
