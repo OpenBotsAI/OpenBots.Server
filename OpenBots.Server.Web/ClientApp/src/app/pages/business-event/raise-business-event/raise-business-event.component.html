@@ -2,21 +2,31 @@
     <div class="col-md-12">
         <nb-card>
             <nb-card-header>
-
                 <div class="row">
                     <div class="col-md-8 col-lg-8 col-xxxl-6">
                         <h2> Raise Business Event </h2>
                     </div>
-
                 </div>
             </nb-card-header>
             <nb-card-body>
-
                 <form [formGroup]="raiseBusinessEventform">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group ">
-                                <label class="label  col-form-label">Entity Name </label>
+                                <label class="label  col-form-label">Entity:</label>
+                                <!-- (change)="getEntityname($event)" -->
+                                <ng-select [items]="show_Entityname" [searchable]="true" bindLabel="name"
+                                    formControlName="page_name" class="NgSelect" placeholder="Please select Entity"
+                                    (change)="getEntityname($event)" [closeOnSelect]="true" bindValue="id"
+                                    [clearable]="false">
+                                </ng-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Entity Name *</label>
                                 <input type="input" nbInput fullWidth formControlName="entityName"
                                     style="color:#000000">
                                 <div *ngIf="(f.entityName.touched || f.entityName.dirty) && f.entityName.invalid"
@@ -38,7 +48,7 @@
                         <div class="col-md-6">
 
                             <div class="form-group ">
-                                <label class="label  col-form-label">Entity ID</label>
+                                <label class="label  col-form-label">Entity Identifier *</label>
 
                                 <input type="input" nbInput fullWidth id="status" formControlName="entityId"
                                     style="color:#000000">
@@ -54,6 +64,59 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Message </label>
+                                <textarea type="input" nbInput fullWidth formControlName="message"
+                                    style="color:#000000">
+                                    </textarea>
+
+                                <div *ngIf="(f.message.touched || f.message.dirty) && f.message.invalid"
+                                    class="invalid-feedback-frm">
+                                    <div *ngIf="f.message.errors && f.message.errors.required">Entity Name is
+                                        required.</div>
+                                    <div *ngIf="f.message.errors.minlength">
+                                        message at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.message.errors.maxlength">
+                                        message at least 100 characters long.
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Message </label>
+                                <json-editor [options]="editorOptions" #editor formControlName="payloadSchema">
+                                </json-editor>
+                                <div *ngIf="(f.payloadSchema.touched || f.payloadSchema.dirty) && f.payloadSchema.invalid"
+                                    class="invalid-feedback-frm">
+                                    <div *ngIf="f.payloadSchema.errors && f.payloadSchema.errors.required">Entity Name
+                                        is
+                                        required.</div>
+                                    <div *ngIf="f.payloadSchema.errors.minlength">
+                                        Entity Name at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.payloadSchema.errors.maxlength">
+                                        Entity Name at least 100 characters long.
+                                    </div>
+                                    <div *ngIf=" f.payloadSchema.errors.pattern">
+                                        Entity Please enter valid Name .
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+
+
                     <div class="row rowPadTOp">
                         <div class="col-md-6 col-lg-6 col-xxxl-6">
                             <button type="submit" class="btn btn-primary" status="primary"

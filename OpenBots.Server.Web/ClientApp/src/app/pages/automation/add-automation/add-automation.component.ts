@@ -81,7 +81,7 @@ export class AddAutomationComponent implements OnInit {
       .getProcessId(id)
       .subscribe((data: HttpResponse<any>) => {
         this.showAutomation = data.body;
-        this.etag = data.headers.get('ETag').replace(/\"/g, '');
+        this.etag = data.headers.get('etag');
         if (data.body.automationParameters) {
           this.showprocess.setControl(
             'automationParameters',

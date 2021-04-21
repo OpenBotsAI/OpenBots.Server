@@ -16,13 +16,28 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group ">
-                                <label class="label  col-form-label">Business Name </label>
+                                <label class="label  col-form-label">Business Event Name </label>
                                 <input type="input" nbInput fullWidth formControlName="name" style="color:#000000">
 
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group ">
+                                <label class="label  col-form-label">Entity Type</label>
+
+                                <input type="input" nbInput fullWidth id="status" formControlName="entityType"
+                                    style="color:#000000">
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group ">
+
+
                                 <label class="label  col-form-label">Description </label>
 
                                 <input type="input" nbInput fullWidth formControlName="description"
@@ -30,18 +45,6 @@
 
                             </div>
                         </div>
-
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group ">
-                                <label class="label  col-form-label">Entity Type</label>
-
-                                <input type="input" nbInput fullWidth id="status" formControlName="entityType"
-                                    style="color:#000000">
-                            </div>
-                        </div>
                     </div>
 
 
@@ -49,7 +52,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group ">
-                                <label class="label  col-form-label">Payload </label>
+                                <label class="label  col-form-label">Payload Schema </label>
                                 <!-- <textarea type="input" nbInput fullWidth id="payloadSchema"
                                     formControlName="payloadSchema" style="color:#000000"></textarea> -->
                                 <p class="p-text">
