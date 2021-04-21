@@ -100,7 +100,7 @@ export class AddBusinessEventComponent implements OnInit {
       entityType: this.businessEventform.value.entityType,
       payloadSchema: this.businessEventform.value.payloadSchema,
     }
-    this.BusinessEventservice.updateBusinessEvent(obj, this.urlId).subscribe(
+    this.BusinessEventservice.updateBusinessEvent(obj, this.urlId, this.etag).subscribe(
       () => {
         this.toastrService.success(
           'Business Event Save Successfully!',

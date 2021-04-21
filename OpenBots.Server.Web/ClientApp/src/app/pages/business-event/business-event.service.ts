@@ -79,10 +79,10 @@ export class BusinessEventService {
   }
   // https://dev.server.openbots.io/api/v1/IntegrationEvents/BusinessEvents/RaiseEvent/{id}
 
-  updateBusinessEvent(obj, id) {
-    // const headers = this.helperService.getETagHeaders(etag);
+  updateBusinessEvent(obj, id, etag) {
+    const headers = this.helperService.getETagHeaders(etag);
     let Url = `/IntegrationEvents/BusinessEvents/${id}`;
-    return this.http.put(`${this.apiUrl}` + Url, obj);
+    return this.http.put(`${this.apiUrl}` + Url, obj, { headers });
   }
 
 
