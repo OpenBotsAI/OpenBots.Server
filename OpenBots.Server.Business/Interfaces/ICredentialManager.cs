@@ -10,7 +10,8 @@ namespace OpenBots.Server.Business
         Credential CreateGlobalCredential(GlobalCredentialViewModel request);
         Credential CreateAgentCredential(AgentCredentialViewModel request);
         Credential DeleteCredential(string id);
-        void CredentialNameAvailability(Credential request)
+        void CredentialNameAvailability(Credential request);
+        Credential GetMatchingCredential(string credentialName);
     }
 }
 

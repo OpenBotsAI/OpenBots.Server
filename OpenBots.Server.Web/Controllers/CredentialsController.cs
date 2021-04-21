@@ -199,6 +199,41 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
+        /// Provides a Credential's details for a particular Credential name
+        /// </summary>
+        /// <remarks>
+        /// If the requesting user is an Agent with an existing Credential, then that value will be returned
+        /// </remarks>
+        /// <param name="credentialName">Credential name</param>
+        /// <response code="200">Ok, if a Credential exists with the given name</response>
+        /// <response code="304">Not modified</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not found, when no Credential exists for the given Credential name</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Credential details for the given name</returns>
+        [HttpGet("GetCredentialByName/{credentialName}")]
+        [ProducesResponseType(typeof(Credential), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> GetAssetByName(string credentialName)
+        {
+            try
+            {
+                return Ok(_credentialManager.GetMatchingCredential(credentialName));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
         /// Provides a credential's password string for a particular credential id
         /// </summary>
         /// <param name="id">Credential id</param>
@@ -358,12 +393,7 @@ namespace OpenBots.Server.Web
                     return NotFound(ModelState);
                 }
 
-                var credential = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
-                if (credential != null && credential.Id != entityId)
-                {
-                    ModelState.AddModelError("Credential", "Credential Name Already Exists");
-                    return BadRequest(ModelState);
-                }
+                _credentialManager.CredentialNameAvailability(request);
 
                 if (!_credentialManager.ValidateStartAndEndDates(request))
                 {

@@ -2,8 +2,10 @@
 using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
+using OpenBots.Server.Model.Identity;
 using OpenBots.Server.ViewModel;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace OpenBots.Server.Business
@@ -11,10 +13,14 @@ namespace OpenBots.Server.Business
     public class CredentialManager : BaseManager, ICredentialManager
     {
         private readonly ICredentialRepository _repo;
+        private readonly IPersonRepository _personRepository;
+        private readonly IAgentRepository _agentRepository;
 
-        public CredentialManager(ICredentialRepository repo)
+        public CredentialManager(ICredentialRepository repo, IPersonRepository personRepository, IAgentRepository agentRepository)
         {
             _repo = repo;
+            _personRepository = personRepository;
+            _agentRepository = agentRepository;
         }
 
         public bool ValidateRetrievalDate(Credential credential) //ensure current date falls within start-end date range
@@ -118,7 +124,7 @@ namespace OpenBots.Server.Business
                     throw new EntityAlreadyExistsException("A credential with that name already exists for this agent");
                 }
             }
-            else //global asset
+            else //global credential
             {
                 var credential = _repo.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null) && d.AgentId == null)
                 .Items?.FirstOrDefault();
@@ -128,6 +134,31 @@ namespace OpenBots.Server.Business
                     throw new EntityAlreadyExistsException("A global credential already exists with that name");
                 }
             }
+        }
+
+        public Credential GetMatchingCredential(string credentialName)
+        {
+            Guid? personId = SecurityContext.PersonId;
+            Person callingPerson = _personRepository.Find(null, p => p.Id == personId)?.Items?.FirstOrDefault();
+
+            List<Credential> credentials = _repo.Find(null, a => a.Name == credentialName)?.Items;
+
+            if (credentials.Count == 0)
+            {
+                throw new EntityDoesNotExistException("No credential was found that matches the provided details");
+            }
+
+            if (callingPerson.IsAgent)
+            {
+                Agent currentAgent = _agentRepository.Find(null, a => a.Name == callingPerson.Name)?.Items?.FirstOrDefault();
+                var agentCredential = credentials.Where(a => a.AgentId == currentAgent.Id)?.FirstOrDefault();
+
+                if (agentCredential != null)
+                {
+                    return agentCredential;
+                }
+            }
+            return credentials.Where(a => a.AgentId == null).FirstOrDefault();
         }
     }
 }
