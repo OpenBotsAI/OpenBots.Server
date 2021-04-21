@@ -23,14 +23,6 @@ namespace OpenBots.Server.Business
             _agentRepository = agentRepository;
         }
 
-        public override void SetContext(UserSecurityContext userSecurityContext)
-        {
-            _repo.SetContext(userSecurityContext);
-            _personRepository.SetContext(userSecurityContext);
-            _agentRepository.SetContext(userSecurityContext);
-            base.SetContext(userSecurityContext);
-        }
-
         public bool ValidateRetrievalDate(Credential credential) //ensure current date falls within start-end date range
         {
             if (credential.StartDate != null)
@@ -105,7 +97,7 @@ namespace OpenBots.Server.Business
             var existingCredential = _repo.GetOne(Guid.Parse(id));
             if (existingCredential == null)
             {
-                throw new EntityDoesNotExistException ("Credential cannot be found or does not exist.");
+                throw new EntityDoesNotExistException ("Credential cannot be found or does not exist");
             }
 
             if (existingCredential.AgentId == null)//credential is a global credential
