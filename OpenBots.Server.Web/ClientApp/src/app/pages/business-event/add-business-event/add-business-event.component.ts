@@ -17,7 +17,6 @@ export class AddBusinessEventComponent implements OnInit {
   submitted = false;
   createdOn: any = [];
   showallsystemEvent: any = [];
-
   payloadSchema: any = [];
   businessEventform: FormGroup;
   showChangedToJson: boolean = false;

@@ -13,7 +13,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group ">
-                                <label class="label  col-form-label">Entity:</label>
+                                <label class="label  col-form-label">Business Event</label>
                                 <!-- (change)="getEntityname($event)" -->
                                 <ng-select [items]="show_Entityname" [searchable]="true" bindLabel="name"
                                     formControlName="page_name" class="NgSelect" placeholder="Please select Entity"
@@ -54,11 +54,11 @@
                                     style="color:#000000">
                                 <div *ngIf="(f.entityId.touched || f.entityId.dirty) && f.entityId.invalid"
                                     class="invalid-feedback-frm">
-                                    <div *ngIf="f.entityId.errors && f.entityId.errors.required"> Entity Id is
+                                    <div *ngIf="f.entityId.errors && f.entityId.errors.required"> Entity Identifier is
                                         required.</div>
 
                                     <div *ngIf=" f.entityId.errors.pattern">
-                                        Please enter valid Entity ID .
+                                        Please enter valid Entity Identifier .
                                     </div>
                                 </div>
                             </div>
@@ -91,23 +91,13 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group ">
-                                <label class="label  col-form-label">Message </label>
+                                <label class="label  col-form-label"> Payload JSON * </label>
                                 <json-editor [options]="editorOptions" #editor formControlName="payloadSchema">
                                 </json-editor>
                                 <div *ngIf="(f.payloadSchema.touched || f.payloadSchema.dirty) && f.payloadSchema.invalid"
                                     class="invalid-feedback-frm">
-                                    <div *ngIf="f.payloadSchema.errors && f.payloadSchema.errors.required">Entity Name
-                                        is
-                                        required.</div>
-                                    <div *ngIf="f.payloadSchema.errors.minlength">
-                                        Entity Name at least 3 characters long.
-                                    </div>
-                                    <div *ngIf="f.payloadSchema.errors.maxlength">
-                                        Entity Name at least 100 characters long.
-                                    </div>
-                                    <div *ngIf=" f.payloadSchema.errors.pattern">
-                                        Entity Please enter valid Name .
-                                    </div>
+                                    <div *ngIf="f.payloadSchema.errors && f.payloadSchema.errors.required">Payload JSON
+                                        is required.</div>
                                 </div>
                             </div>
                         </div>
