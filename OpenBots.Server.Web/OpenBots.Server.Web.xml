@@ -2535,7 +2535,7 @@
             <summary>
             Adds a new agent Asset if a global Asset exists for the given name
             </summary>
-            <param name="request">New file to update Asset</param>
+            <param name="request">Agent Asset to create</param>
             <response code="200">Ok, Asset created and returned</response>
             <response code="400">Bad request, when the Asset value is not in proper format</response>
             <response code="403">Forbidden, unauthorized access</response>
@@ -3097,6 +3097,22 @@
             <response code="422">Unprocessable entity</response>
             <returns>Credential view details for the given id</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.CredentialsController.GetAssetByName(System.String)">
+            <summary>
+            Provides a Credential's details for a particular Credential name
+            </summary>
+            <remarks>
+            If the requesting user is an Agent with an existing Credential, then that value will be returned
+            </remarks>
+            <param name="credentialName">Credential name</param>
+            <response code="200">Ok, if a Credential exists with the given name</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no Credential exists for the given Credential name</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Credential details for the given name</returns>
+        </member>
         <member name="M:OpenBots.Server.Web.CredentialsController.GetPassword(System.String)">
             <summary>
             Provides a credential's password string for a particular credential id
@@ -3110,7 +3126,7 @@
             <response code="422">Unprocessable entity</response>
             <returns>Credential view details for the given id</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.CredentialsController.Post(OpenBots.Server.Model.Credential)">
+        <member name="M:OpenBots.Server.Web.CredentialsController.Post(OpenBots.Server.ViewModel.GlobalCredentialViewModel)">
             <summary>
             Adds a new credential to the existing credentials
             </summary>
@@ -3120,6 +3136,18 @@
             <param name="request"></param>
             <response code="200">Ok, new credential created and returned</response>
             <response code="400">Bad request, when the credential value is not in proper format</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+            <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+            <returns>Newly created unique credential</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.CredentialsController.AddAgentCredential(OpenBots.Server.ViewModel.AgentCredentialViewModel)">
+            <summary>
+            Adds a new Agent Credential if a global Credential exists for the given name
+            </summary>
+            <param name="request">New Agent Credential to create</param>
+            <response code="200">Ok, Credential created and returned</response>
+            <response code="400">Bad request, when the Credential value is not in proper format</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict, concurrency error</response> 
             <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>

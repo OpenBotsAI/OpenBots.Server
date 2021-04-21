@@ -12,7 +12,6 @@ using OpenBots.Server.Model.Webhooks;
 using OpenBots.Server.Security;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.ViewModel.Lookup;
-using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
 using System.Collections.Generic;

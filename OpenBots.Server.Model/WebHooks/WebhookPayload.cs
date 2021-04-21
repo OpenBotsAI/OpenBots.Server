@@ -31,7 +31,6 @@ namespace OpenBots.Server.Model.Webhooks
         public string? SHA256Hash { get; set; }
 
         public int? AttemptCount { get; set; }
-
     }
 }
 

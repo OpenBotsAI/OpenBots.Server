@@ -47,7 +47,7 @@ namespace OpenBots.Server.Web.Webhooks
         /// <param name="entityId">Optional parameter that specifies the entity which was affected</param>
         /// <param name="entityName">Optional parameter that specifies the name of the affected entity</param>
         /// <returns></returns>
-        public async Task PublishAsync(string integrationEventName, string entityId = "", string entityName = "")
+        public async Task PublishAsync(string integrationEventName, string entityId = "", string entityName = "", string message = "", string payloadJSON = "")
         {
             //get all subscriptions for the event
             var eventSubscriptions = _eventSubscriptionRepository.Find(0, 1).Items?.
@@ -62,7 +62,12 @@ namespace OpenBots.Server.Web.Webhooks
             var integrationEvent = _eventRepository.Find(0, 1).Items?.Where(e => e.Name == integrationEventName).FirstOrDefault();
 
             if (integrationEvent == null) return;
+
             WebhookPayload payload = CreatePayload(integrationEvent, entityId, entityName);
+            if (integrationEvent.IsSystem == true)//event is system event
+            {
+                payloadJSON = JsonConvert.SerializeObject(payload);
+            }
 
             //log integration event
             IntegrationEventLog eventLog = new IntegrationEventLog()
@@ -71,9 +76,9 @@ namespace OpenBots.Server.Web.Webhooks
                 OccuredOnUTC = DateTime.UtcNow,
                 EntityType = integrationEvent.EntityType,
                 EntityID = Guid.Parse(entityId),
-                PayloadJSON = JsonConvert.SerializeObject(payload),
+                PayloadJSON = payloadJSON,
                 CreatedOn = DateTime.UtcNow,
-                Message = "",
+                Message = message,
                 Status = "",
                 SHA256Hash = ""
             };
@@ -105,7 +110,7 @@ namespace OpenBots.Server.Web.Webhooks
                 {
                     case TransportType.HTTPS:
                         //create a background job to send the webhook
-                        _backgroundJobClient.Enqueue<WebhookSender>(x => x.SendWebhook(eventSubscription, payload, subscriptionAttempt));
+                        _backgroundJobClient.Enqueue<WebhookSender>(x => x.SendWebhook(eventSubscription, payload, subscriptionAttempt, integrationEvent.IsSystem, payloadJSON));
                         break;
                     case TransportType.Queue:
                         QueueItem queueItem = new QueueItem
@@ -115,7 +120,7 @@ namespace OpenBots.Server.Web.Webhooks
                             QueueId = eventSubscription.QUEUE_QueueID ?? Guid.Empty,
                             Type = "Json",
                             JsonType = "IntegrationEvent",
-                            DataJson = JsonConvert.SerializeObject(payload),
+                            DataJson = payloadJSON,
                             State = "New",
                             RetryCount = eventSubscription.Max_RetryCount ?? 1,
                             Source = eventSubscription.IntegrationEventName,
@@ -127,7 +132,7 @@ namespace OpenBots.Server.Web.Webhooks
                         _attemptRepository.Add(subscriptionAttempt);
                         break;
                     case TransportType.SignalR:
-                        await _hub.Clients.All.SendAsync(integrationEventName, JsonConvert.SerializeObject(payload)).ConfigureAwait(false);
+                        await _hub.Clients.All.SendAsync(integrationEventName, payloadJSON).ConfigureAwait(false);
                         subscriptionAttempt.AttemptCounter = 1;
                         _attemptRepository.Add(subscriptionAttempt);
                         break;

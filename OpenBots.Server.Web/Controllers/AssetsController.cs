@@ -316,7 +316,7 @@ namespace OpenBots.Server.Web
         /// <summary>
         /// Adds a new agent Asset if a global Asset exists for the given name
         /// </summary>
-        /// <param name="request">New file to update Asset</param>
+        /// <param name="request">Agent Asset to create</param>
         /// <response code="200">Ok, Asset created and returned</response>
         /// <response code="400">Bad request, when the Asset value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>

@@ -506,6 +506,12 @@ namespace OpenBots.Server.Web
                 
                 var result = await base.PutEntity(id, updatedJob);
 
+
+                if (request.EndTime != null)
+                {
+                    _jobManager.UpdateAutomationAverages(updatedJob.Id);
+                }
+
                 //send SignalR notification to all connected client and update IntegrationEvents
                 await _hub.Clients.All.SendAsync("sendjobnotification", string.Format("Job id {0} updated.", updatedJob.Id));
                 await _webhookPublisher.PublishAsync("Jobs.JobUpdated", updatedJob.Id.ToString()).ConfigureAwait(false);
@@ -680,7 +686,7 @@ namespace OpenBots.Server.Web
                 {
                     if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/endtime")
                     {
-                        double executionTime = (DateTime.Parse(request.Operations[i].value.ToString()) - existingJob.StartTime).Value.TotalMinutes;
+                        long executionTime = (long)(DateTime.Parse(request.Operations[i].value.ToString()) - existingJob.StartTime).Value.TotalMinutes;
                         request.Replace(j => j.ExecutionTimeInMinutes, executionTime);
                         endTimeReported = true;
                     }

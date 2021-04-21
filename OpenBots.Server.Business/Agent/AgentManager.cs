@@ -404,7 +404,7 @@ namespace OpenBots.Server.Business
             }
 
             //get all new jobs of the agent group and assign the oldest one to the current agent
-            var job = GetAgentGroupJob(agentGuid);
+            var job = GetNextAgentJob(agentGuid);
 
             var jobParameters = _jobManager.GetJobParameters(job?.Id ?? Guid.Empty);
 
@@ -418,7 +418,12 @@ namespace OpenBots.Server.Business
             return nextJob;
         }
 
-        public Job GetAgentGroupJob(Guid agentGuid)
+        /// <summary>
+        /// Searches for all Jobs assigned to this Agent or any of its groups
+        /// </summary>
+        /// <param name="agentGuid"></param>
+        /// <returns>The oldest job with a new status</returns>
+        public Job GetNextAgentJob(Guid agentGuid)
         {
             List<Job> agentGroupJobs = new List<Job>();
             var agentGroupsMembers = GetAllMembersInGroup(agentGuid.ToString()).Items;

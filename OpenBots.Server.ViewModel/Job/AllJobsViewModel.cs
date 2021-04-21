@@ -16,6 +16,7 @@ namespace OpenBots.Server.ViewModel
         public Guid? AgentGroupId { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
+        public long? ExecutionTimeInMinutes { get; set; }
         public DateTime? EnqueueTime { get; set; }
         public DateTime? DequeueTime { get; set; }
         [Required]
@@ -45,6 +46,7 @@ namespace OpenBots.Server.ViewModel
                 AgentGroupId = entity.AgentGroupId,
                 StartTime = entity.StartTime,
                 EndTime = entity.EndTime,
+                ExecutionTimeInMinutes = entity.ExecutionTimeInMinutes,
                 EnqueueTime = entity.EnqueueTime,
                 DequeueTime = entity.DequeueTime,                
                 AutomationId = entity.AutomationId,

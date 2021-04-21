@@ -1,4 +1,5 @@
 ﻿using OpenBots.Server.Model;
+using OpenBots.Server.ViewModel;
 
 namespace OpenBots.Server.Business
 {
@@ -6,6 +7,11 @@ namespace OpenBots.Server.Business
     {
         bool ValidateRetrievalDate(Credential credential);
         bool ValidateStartAndEndDates(Credential credential);
+        Credential CreateGlobalCredential(GlobalCredentialViewModel request);
+        Credential CreateAgentCredential(AgentCredentialViewModel request);
+        Credential DeleteCredential(string id);
+        void CredentialNameAvailability(Credential request);
+        Credential GetMatchingCredential(string credentialName);
     }
 }
 
