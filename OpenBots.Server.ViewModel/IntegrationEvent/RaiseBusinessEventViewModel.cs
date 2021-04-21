@@ -8,5 +8,8 @@ namespace OpenBots.Server.ViewModel
     {
         public Guid EntityId { get; set; }
         public string EntityName { get; set; }
+        public string Message { get; set; }
+        public string PayloadJSON { get; set;  }
+
     }
 }

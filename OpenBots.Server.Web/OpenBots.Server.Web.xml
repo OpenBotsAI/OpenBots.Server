@@ -3097,6 +3097,22 @@
             <response code="422">Unprocessable entity</response>
             <returns>Credential view details for the given id</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.CredentialsController.GetAssetByName(System.String)">
+            <summary>
+            Provides a Credential's details for a particular Credential name
+            </summary>
+            <remarks>
+            If the requesting user is an Agent with an existing Credential, then that value will be returned
+            </remarks>
+            <param name="credentialName">Credential name</param>
+            <response code="200">Ok, if a Credential exists with the given name</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no Credential exists for the given Credential name</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Credential details for the given name</returns>
+        </member>
         <member name="M:OpenBots.Server.Web.CredentialsController.GetPassword(System.String)">
             <summary>
             Provides a credential's password string for a particular credential id

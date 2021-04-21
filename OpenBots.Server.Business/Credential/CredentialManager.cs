@@ -23,6 +23,14 @@ namespace OpenBots.Server.Business
             _agentRepository = agentRepository;
         }
 
+        public override void SetContext(UserSecurityContext userSecurityContext)
+        {
+            _repo.SetContext(userSecurityContext);
+            _personRepository.SetContext(userSecurityContext);
+            _agentRepository.SetContext(userSecurityContext);
+            base.SetContext(userSecurityContext);
+        }
+
         public bool ValidateRetrievalDate(Credential credential) //ensure current date falls within start-end date range
         {
             if (credential.StartDate != null)
