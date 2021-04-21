@@ -18,6 +18,8 @@ namespace OpenBots.Server.ViewModel
         public DateTime? PublishedOnUTC { get; set; }
         public string AutomationEngine { get; set; }
         public string DriveName { get; set; }
+        public long? AverageSuccessfulExecutionInMinutes { get; set; }
+        public long? AverageUnSuccessfulExecutionInMinutes { get; set; }
         public IEnumerable<AutomationParameter>? AutomationParameters { get; set; }
 
         public AutomationViewModel Map(Automation entity)
@@ -37,6 +39,8 @@ namespace OpenBots.Server.ViewModel
             automationViewModel.UpdatedOn = entity.UpdatedOn;
             automationViewModel.Name = entity.Name;
             automationViewModel.AutomationEngine = entity.AutomationEngine;
+            automationViewModel.AverageSuccessfulExecutionInMinutes = entity.AverageSuccessfulExecutionInMinutes;
+            automationViewModel.AverageUnSuccessfulExecutionInMinutes = entity.AverageUnSuccessfulExecutionInMinutes;
 
             return automationViewModel;
         }
