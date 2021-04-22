@@ -89,6 +89,8 @@ namespace OpenBots.Server.Business
                 throw new EntityOperationException("Start and End Date are not valid");
             }
 
+            agentCredential.Provider = globalCredential.Provider;
+
             return agentCredential;
         }
 
