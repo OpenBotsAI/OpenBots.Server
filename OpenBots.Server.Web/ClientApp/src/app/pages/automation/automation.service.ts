@@ -16,21 +16,42 @@ export class AutomationService {
 
   constructor(private http: HttpClient, private helperService: HelperService) {}
 
-  getAllProcess(tpage: any, spage: any) {
-    let getprocessUrlbyId = `/${automationsApiUrl.automationsView}?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
-    return this.http.get(`${this.apiUrl}` + getprocessUrlbyId);
+  getFilterPagination(
+    top: number,
+    skip: number,
+    orderBy: string,
+    searchedValue?: string
+  ) {
+    let url: string;
+    // let getagentUrl = `/${automationsApiUrl.automationsView}?$filter=substringof(tolower('${filterName}'), tolower(Name))&$orderby=${ordername}&$top=${tpage}&$skip=${spage}`;
+    if (searchedValue) {
+      if (orderBy != 'createdOn+desc') {
+        url = `/${automationsApiUrl.automationsView}?$filter=substringof(tolower('${searchedValue}'), tolower(Name))&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+      } else {
+        url = `/${automationsApiUrl.automationsView}?$filter=substringof(tolower('${searchedValue}'), tolower(Name))&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+      }
+    } else if (orderBy) {
+      url = `/${automationsApiUrl.automationsView}?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+    } else {
+      url = `/${automationsApiUrl.automationsView}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+    }
+    return this.http.get(this.apiUrl + url);
   }
+
+  // getAllProcess(tpage: any, spage: any) {
+  //   let getprocessUrlbyId = `/${automationsApiUrl.automationsView}?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
+  //   return this.http.get(`${this.apiUrl}` + getprocessUrlbyId);
+  // }
 
   addProcess(obj) {
     let addassetUrl = `/${automationsApiUrl.automations}`;
     return this.http.post(`${this.apiUrl}` + addassetUrl, obj);
   }
 
-  uploadProcessFile(process_id, obj) {
-    let processUrl = `/${automationsApiUrl.automations}/${process_id}/upload`;
-    return this.http.post(`${this.apiUrl}` + processUrl, obj);
-  }
-
+  // getFilterProcess(tpage: any, spage: any, filterName) {
+  //   let getagentUrl = `/${automationsApiUrl.automationsView}?$filter=substringof(tolower('${filterName}'), tolower(name))&$top=${tpage}&$skip=${spage}`;
+  //   return this.http.get(`${this.apiUrl}` + getagentUrl);
+  // }
   uploadUpdateProcessFile(obj, process_id, etag) {
     const headers = this.helperService.getETagHeaders(etag);
     let processUrl = `/${automationsApiUrl.automations}/${process_id}/update`;
@@ -73,10 +94,10 @@ export class AutomationService {
     }
   }
 
-  getAllJobsOrder(tpage: any, spage: any, name) {
-    let getprocessUrlbyId = `/${automationsApiUrl.automationsView}?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
-    return this.http.get(`${this.apiUrl}` + getprocessUrlbyId);
-  }
+  // getAllJobsOrder(tpage: any, spage: any, name) {
+  //   let getprocessUrlbyId = `/${automationsApiUrl.automationsView}?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+  //   return this.http.get(`${this.apiUrl}` + getprocessUrlbyId);
+  // }
 
   getProcessId(id) {
     let resoptions = {};
@@ -91,5 +112,10 @@ export class AutomationService {
   deleteProcess(id) {
     let getprocessUrlbyId = `/${automationsApiUrl.automations}/${id}`;
     return this.http.delete(`${this.apiUrl}` + getprocessUrlbyId);
+  }
+
+  postAutomationParameters(id: string, value) {
+    const url = `${this.apiUrl}/${automationsApiUrl.automations}/${id}/${automationsApiUrl.updateParameters}`;
+    return this.http.post(url, value, { observe: 'response' });
   }
 }

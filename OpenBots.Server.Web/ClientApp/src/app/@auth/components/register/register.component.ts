@@ -71,9 +71,7 @@ export class NgxRegisterComponent implements OnInit {
       });
   }
 
-  resolved(captchaResponse: string) {
-    console.log(`Resolved captcha with response: ${captchaResponse}`);
-  }
+  resolved(captchaResponse: string) {}
   get login() {
     return this.registerForm.get('fullName');
   }

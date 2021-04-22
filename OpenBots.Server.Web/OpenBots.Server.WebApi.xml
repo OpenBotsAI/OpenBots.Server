@@ -43,7 +43,7 @@
              <response code="400">BadRequest,When the LookupValue value is not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict,concurrency error</response> 
-             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <response code="422">Unprocessable Entity,when a duplicate record is being entered.</response>
              <returns> newly created unique LookupValue Id with route name </returns>
         </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.Core.LookupValuesController.Put(System.String,OpenBots.Server.Model.Core.LookupValue)">
@@ -490,7 +490,7 @@
              <response code="400">BadRequest,When the Organization value is not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict,concurrency error</response> 
-             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <response code="422">Unprocessable Entity,when a duplicate record is being entered.</response>
              <returns> newly created unique Organization Id with route name </returns>
         </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationsController.Put(System.String,OpenBots.Server.Model.Membership.Organization)">
@@ -821,7 +821,7 @@
              <response code="400">BadRequest,When the user consent value is not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict,concurrency error</response> 
-             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <response code="422">Unprocessable Entity,when a duplicate record is being entered.</response>
              <returns> newly created user constent </returns>
         </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.OrganizationApi.UserConsentController.Put(System.String,OpenBots.Server.Model.Identity.UserConsent)">
@@ -1325,7 +1325,7 @@
              <response code="400">BadRequest,When the Agent value is not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict,concurrency error</response> 
-             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <response code="422">Unprocessable Entity,when a duplicate record is being entered.</response>
              <returns> newly created unique Agent Id with route name </returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Put(System.String,OpenBots.Server.Model.AgentModel)">
@@ -1459,7 +1459,7 @@
              <response code="400">BadRequest,When the BinaryObject value is not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict,concurrency error</response> 
-             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <response code="422">Unprocessable Entity,when a duplicate record is being entered.</response>
              <returns> newly created unique BinaryObject Id with route name </returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.BinaryObjectsController.Put(System.String,OpenBots.Server.Model.BinaryObject)">
@@ -1533,7 +1533,7 @@
              <response code="400">BadRequest,When the QueueItem value is not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict,concurrency error</response> 
-             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <response code="422">Unprocessable Entity,when a duplicate record is being entered.</response>
              <returns> newly created unique QueueItem Id with route name </returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.Put(System.String,OpenBots.Server.Model.QueueItem)">
@@ -1657,7 +1657,7 @@
              <response code="400">BadRequest,When the Queue value is not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict,concurrency error</response> 
-             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <response code="422">Unprocessable Entity,when a duplicate record is being entered.</response>
              <returns> newly created unique Queue Id with route name </returns>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.QueuesController.Put(System.String,OpenBots.Server.ViewModel.QueueViewModel)">
@@ -1731,7 +1731,7 @@
              <response code="400">BadRequest,When the Asset value is not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict,concurrency error</response> 
-             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <response code="422">Unprocessable Entity,when a duplicate record is being entered.</response>
              <returns> newly created unique Asset Id with route name </returns>
         </member>
         <member name="M:OpenBots.Server.Web.AssetsController.Put(System.String,OpenBots.Server.Model.Asset)">
@@ -1805,7 +1805,7 @@
              <response code="400">BadRequest,When the Credential value is not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict,concurrency error</response> 
-             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <response code="422">Unprocessable Entity,when a duplicate record is being entered.</response>
              <returns> newly created unique Credential Id with route name </returns>
         </member>
         <member name="M:OpenBots.Server.Web.CredentialsController.Put(System.String,OpenBots.Server.Model.Credential)">
@@ -1879,7 +1879,7 @@
              <response code="400">BadRequest,When the Job value is not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict,concurrency error</response> 
-             <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+             <response code="422">Unprocessable Entity,when a duplicate record is being entered.</response>
              <returns> newly created unique Job Id with route name </returns>
         </member>
         <member name="M:OpenBots.Server.Web.JobsController.Put(System.String,OpenBots.Server.Model.Job)">

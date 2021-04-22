@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AddAutomationComponent } from './add-automation/add-automation.component';
 import { AllAutomationComponent } from './all-automation/all-automation.component';
-import { EditAutomationComponent } from './edit-automation/edit-automation.component';
 import { GetAutomationIdComponent } from './get-automation-id/get-automation-id.component';
 
 const routes: Routes = [
@@ -19,8 +18,8 @@ const routes: Routes = [
     component: AddAutomationComponent,
   },
   {
-    path: 'edit',
-    component: EditAutomationComponent,
+    path: 'edit/:id',
+    component: AddAutomationComponent,
   },
 ];
 

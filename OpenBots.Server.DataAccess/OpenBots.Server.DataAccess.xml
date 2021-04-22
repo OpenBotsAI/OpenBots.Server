@@ -51,41 +51,6 @@
             Interface for AutomationRepository
             </summary>
         </member>
-        <member name="T:OpenBots.Server.DataAccess.Repositories.BinaryObjectRepository">
-            <summary>
-            Binary Object Repository
-            </summary>
-        </member>
-        <member name="M:OpenBots.Server.DataAccess.Repositories.BinaryObjectRepository.#ctor(OpenBots.Server.DataAccess.StorageContext,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.Model.BinaryObject},Microsoft.AspNetCore.Http.IHttpContextAccessor)">
-            <summary>
-            Constructor for Binary Object Repository
-            </summary>
-            <param name="context"></param>
-            <param name="logger"></param>
-            <param name="httpContextAccessor"></param>
-        </member>
-        <member name="M:OpenBots.Server.DataAccess.Repositories.BinaryObjectRepository.DbTable">
-            <summary>
-            Access Binary Objects data table
-            </summary>
-            <returns>Binary Object</returns>
-        </member>
-        <member name="M:OpenBots.Server.DataAccess.Repositories.BinaryObjectRepository.UpdateEntity(Microsoft.AspNetCore.Http.IFormFile,System.String,System.String,System.String,System.String,System.String,System.String)">
-            <summary>
-            Update an entity to the Binary Objects data table
-            </summary>
-            <param name="file"></param>
-            <param name="filePath"></param>
-            <param name="binaryObjectId"></param>
-            <param name="apiComponent"></param>
-            <param name="name"></param>
-            <returns>Nothing</returns>
-        </member>
-        <member name="T:OpenBots.Server.DataAccess.Repositories.IBinaryObjectRepository">
-            <summary>
-            Binary Object Repository Interface
-            </summary>
-        </member>
         <member name="T:OpenBots.Server.DataAccess.Repositories.EntityRepository`1">
             <summary>
             Entity Repository
@@ -179,7 +144,7 @@
             The database context
             </summary>
         </member>
-        <member name="F:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1.userContext">
+        <member name="F:OpenBots.Server.DataAccess.Repositories.ReadOnlyEntityRepository`1._userContext">
             <summary>
             The user context
             </summary>

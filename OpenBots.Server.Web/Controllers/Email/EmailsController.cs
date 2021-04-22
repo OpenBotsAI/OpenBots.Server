@@ -15,11 +15,10 @@ using OpenBots.Server.ViewModel;
 using OpenBots.Server.WebAPI.Controllers;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.ViewModel.Email;
-using System.Collections.Generic;
-using System.Linq;
-using Newtonsoft.Json;
 using OpenBots.Server.Model.Options;
 using EmailModel = OpenBots.Server.Model.Configuration.Email;
+using OpenBots.Server.Business.Interfaces;
+using System.Collections.Generic;
 
 namespace OpenBots.Server.Web.Controllers.EmailConfiguration
 {
@@ -33,9 +32,9 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
     [FeatureGate(MyFeatureFlags.Emails)]
     public class EmailsController : EntityController<EmailModel>
     {
-        private readonly IBinaryObjectRepository binaryObjectRepository;
-        private readonly IEmailManager manager;
-        private readonly IEmailAttachmentRepository emailAttachmentRepository;
+        private readonly IEmailManager _manager;
+        private readonly IEmailAttachmentRepository _emailAttachmentRepository;
+        private readonly IFileManager _fileManager;
 
         /// <summary>
         /// EmailsController constructor
@@ -45,22 +44,22 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// <param name="userManager"></param>
         /// <param name="httpContextAccessor"></param>
         /// <param name="configuration"></param>
-        /// <param name="binaryObjectRepository"></param>
         /// <param name="manager"></param>
         /// <param name="emailAttachmentRepository"></param>
+        /// <param name="fileManager"></param>
         public EmailsController(
             IEmailRepository repository,
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
-            IBinaryObjectRepository binaryObjectRepository,
             IEmailManager manager,
-            IEmailAttachmentRepository emailAttachmentRepository) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
+            IEmailAttachmentRepository emailAttachmentRepository,
+            IFileManager fileManager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.binaryObjectRepository = binaryObjectRepository;
-            this.manager = manager;
-            this.emailAttachmentRepository = emailAttachmentRepository;
+            _manager = manager;
+            _emailAttachmentRepository = emailAttachmentRepository;
+            _fileManager = fileManager;
         }
 
         /// <summary>
@@ -84,14 +83,21 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<GetEmailsViewModel> Get(
+        public async Task<IActionResult> Get(
         [FromQuery(Name = "$filter")] string filter = "",
         [FromQuery(Name = "$orderby")] string orderBy = "",
         [FromQuery(Name = "$top")] int top = 100,
         [FromQuery(Name = "$skip")] int skip = 0
         )
         {
-            return base.GetMany<GetEmailsViewModel>();
+            try
+            {
+                return Ok(base.GetMany<GetEmailsViewModel>());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -111,10 +117,17 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<int?> GetCount(
+        public async Task<IActionResult> GetCount(
         [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                return Ok(base.Count());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -173,7 +186,16 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         {
             try
             {
-                return await base.GetEntity<EmailViewModel>(id);
+                IActionResult actionResult = await base.GetEntity<EmailViewModel>(id);
+                OkObjectResult okResult = actionResult as OkObjectResult;
+
+                if (okResult != null)
+                {
+                    EmailViewModel view = okResult.Value as EmailViewModel;
+                    view = _manager.GetEmailView(view);
+                }
+
+                return actionResult;
             }
             catch (Exception ex)
             {
@@ -192,7 +214,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// <response code="400">Bad request, when the email value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity</response>
+        /// <response code="422">Unprocessable Entity</response>
         /// <returns> Newly created unique email and attachments, if any</returns>
         [HttpPost]
         [ProducesResponseType(typeof(EmailViewModel), StatusCodes.Status200OK)]
@@ -207,20 +229,21 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
             try
             {
                 //create email entity
-                EmailModel email = manager.CreateEmail(request);
-
-                await base.PostEntity(email);
+                EmailModel email = _manager.CreateEmail(request);
 
                 //create email attachments & binary objects entities; upload binary object files to server
-                var attachments = manager.AddAttachments(request.Files, (Guid)email.Id);
+                var attachments = new List<EmailAttachment>();
+                if (request.Files != null)
+                    attachments = _manager.AddAttachments(request.Files, email.Id.Value, request.DriveName);
 
-                EmailViewModel emailViewModel = manager.GetEmailViewModel(email, attachments);
+                EmailViewModel emailViewModel = _manager.GetEmailViewModel(email, attachments);
+
+                await base.PostEntity(email);
                 return Ok(emailViewModel);
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Email", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -248,40 +271,8 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         {
             try
             {
-                EmailMessage emailMessage = JsonConvert.DeserializeObject<EmailMessage>(request.EmailMessageJson);
-
-                Guid emailId = Guid.Parse(id);
-                var email = repository.GetOne(emailId);
-
-                var emailAttachments = new List<EmailAttachment>();
-                var attachments = emailAttachmentRepository.Find(null, q => q.EmailId == emailId)?.Items;
-
-                if (email.Status.Equals("Draft"))
-                {
-                    //if file doesn't exist in binary objects: add binary object entity, upload file, and add email attachment entity
-                    string hash = string.Empty;
-                    IFormFile[] filesArray = manager.CheckFiles(request.Files, emailId, hash, attachments);
-                    emailAttachments = manager.AddAttachments(filesArray, emailId, hash);
-                    if (request.Files == null || request.Files.Length == 0)
-                        emailMessage.Attachments = emailAttachments;
-                    else
-                        emailMessage.Attachments = attachments;
-
-                    //email account name is nullable, so it needs to be used as a query parameter instead of in the put url
-                    //if no email account is chosen, the default organization account will be used
-                    await manager.SendEmailAsync(emailMessage, emailAccountName, id, "Outgoing");
-
-                    email = repository.Find(null, q => q.Id == emailId)?.Items?.FirstOrDefault();
-                    EmailViewModel emailViewModel = manager.GetEmailViewModel(email, attachments);
-                    if (attachments.Count == 0 || attachments == null)
-                        emailViewModel.Attachments = emailAttachments;
-                    return Ok(emailViewModel);
-                }
-                else
-                {
-                    ModelState.AddModelError("Send email", "Email was not able to be sent.  Email is not a draft.");
-                    return BadRequest(ModelState);
-                }
+                var emailViewModel = _manager.SendDraftEmail(id, request, emailAccountName);
+                return Ok(emailViewModel);
             }
             catch (Exception ex)
             {
@@ -301,7 +292,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// <response code="400">Bad request, when the email message value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
         /// <returns>Ok response</returns>
         [HttpPost("send")]
         [ProducesResponseType(typeof(EmailViewModel), StatusCodes.Status200OK)]
@@ -315,18 +306,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         {
             try
             {
-                EmailMessage emailMessage = JsonConvert.DeserializeObject<EmailMessage>(request.EmailMessageJson);
-
-                //create email attachment entities for each file attached
-                Guid id = Guid.NewGuid();
-                var attachments = manager.AddAttachments(request.Files, id);
-
-                //add attachment entities to email message
-                emailMessage.Attachments = attachments;
-                await manager.SendEmailAsync(emailMessage, accountName, id.ToString(), "Outgoing");
-
-                EmailModel email = repository.Find(null, q => q.Id == id)?.Items?.FirstOrDefault();
-                EmailViewModel emailViewModel = manager.GetEmailViewModel(email, attachments);
+                var emailViewModel = _manager.SendNewEmail(request, accountName);
                 return Ok(emailViewModel);
             }
             catch (Exception ex)
@@ -380,8 +360,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Email", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -401,35 +380,15 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         [Produces("application/json")]
         public async Task<IActionResult> UpdateFiles(string id, [FromForm] UpdateEmailViewModel request)
         {
-            var email = repository.GetOne(Guid.Parse(id));
-            if (email == null) return NotFound();
-
-            email.ConversationId = request.ConversationId;
-            email.Direction = request.Direction;
-            email.EmailObjectJson = request.EmailObjectJson;
-            email.SenderAddress = request.SenderAddress;
-            email.SenderName = request.SenderName;
-            email.SenderUserId = applicationUser?.PersonId;
-            email.Status = request.Status;
-            email.EmailAccountId = request.EmailAccountId;
-            email.ReplyToEmailId = request.ReplyToEmailId;
-            email.Reason = request.Reason;
-            email.SentOnUTC = request.SentOnUTC;
-
-            //if files don't exist in binary objects: add binary object entity, upload file, and add email attachment attachment entity
-            var attachments = emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(id))?.Items;
-            string hash = string.Empty;
-            IFormFile[] filesArray = manager.CheckFiles(request.Files, (Guid)email.Id, hash, attachments);
-            var emailAttachments = manager.AddAttachments(filesArray, (Guid)email.Id, hash);
-
-            //update email
-            repository.Update(email);
-
-            attachments = emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(id))?.Items;
-            EmailViewModel response = manager.GetEmailViewModel(email, attachments);
-            if (attachments.Count == 0 || attachments == null)
-                response.Attachments = emailAttachments;
-            return Ok(response);
+            try
+            {
+                var response = _manager.UpdateFiles(id, request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -450,13 +409,21 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string id, [FromBody] JsonPatchDocument<EmailModel> request)
         {
-            return await base.PatchEntity(id, request);
+            try
+            {
+                return await base.PatchEntity(id, request);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
         /// Delete email with a specified id from list of emails
         /// </summary>
         /// <param name="id">Email id to be deleted - throws bad request if null or empty Guid/</param>
+        /// <param name="driveName"></param>
         /// <response code="200">Ok, when email is soft deleted, (isDeleted flag is set to true in database)</response>
         /// <response code="400">Bad request, if email id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>
@@ -467,18 +434,17 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(string id, string driveName = null)
         {
-            var attachments = emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(id))?.Items;
-            if (attachments.Count != 0)
+            try
             {
-                foreach (var attachment in attachments)
-                {
-                    emailAttachmentRepository.SoftDelete((Guid)attachment.Id);
-                    binaryObjectRepository.SoftDelete((Guid)attachment.BinaryObjectId);
-                }
+                _manager.DeleteAll(id, driveName);
+                return await base.DeleteEntity(id);
             }
-            return await base.DeleteEntity(id);
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

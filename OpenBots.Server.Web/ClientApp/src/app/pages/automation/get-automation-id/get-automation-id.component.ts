@@ -27,7 +27,7 @@ export class GetAutomationIdComponent implements OnInit {
   constructor(
     private acroute: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private _FileSaverService: FileSaverService,
+    private FileSaverService: FileSaverService,
     protected automationService: AutomationService,
     protected router: Router
   ) {
@@ -62,7 +62,6 @@ export class GetAutomationIdComponent implements OnInit {
       .subscribe((data: HttpResponse<any>) => {
         this.show_allprocess = data.body;
         const filterPipe = new TimeDatePipe();
-        console.log(data.headers.get('ETag').replace(/\"/g, ''));
         data.body.createdOn = filterPipe.transform(data.body.createdOn, 'lll');
         this.showprocess.patchValue(data.body);
         this.showprocess.disable();
@@ -79,7 +78,7 @@ export class GetAutomationIdComponent implements OnInit {
           .split(';')[1]
           .split('=')[1]
           .replace(/\"/g, '');
-        this._FileSaverService.save(data.body, fileName);
+        this.FileSaverService.save(data.body, fileName);
       });
   }
 

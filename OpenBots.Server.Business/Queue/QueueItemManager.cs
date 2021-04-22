@@ -1,54 +1,111 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using OpenBots.Server.Business.Interfaces;
+using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.ViewModel;
+using OpenBots.Server.ViewModel.File;
 using OpenBots.Server.ViewModel.Queue;
 using OpenBots.Server.ViewModel.QueueItem;
+using OpenBots.Server.Web.Hubs;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
+using IOFile = System.IO.File;
 
 namespace OpenBots.Server.Business
 {
     public class QueueItemManager : BaseManager, IQueueItemManager
     {
-        private readonly IQueueItemRepository repo;
-        private readonly IQueueRepository queueRepository;
-        private readonly IQueueItemAttachmentRepository queueItemAttachmentRepository;
-        private readonly IBinaryObjectManager binaryObjectManager;
-        private readonly IBinaryObjectRepository binaryObjectRepository;
-        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IQueueItemRepository _repo;
+        private readonly IQueueRepository _queueRepository;
+        private readonly IQueueItemAttachmentRepository _queueItemAttachmentRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IFileManager _fileManager;
+        private readonly IScheduleRepository _scheduleRepo;
+        private readonly IHubManager _hubManager;
+        public IConfiguration Configuration { get; }
 
         public QueueItemManager(
             IQueueItemRepository repo,
             IQueueRepository queueRepository,
             IQueueItemAttachmentRepository queueItemAttachmentRepository,
-            IBinaryObjectManager binaryObjectManager,
             IHttpContextAccessor httpContextAccessor,
-            IBinaryObjectRepository binaryObjectRepository)
+            IFileManager fileManager,
+            IScheduleRepository schedulerepository,
+            IHubManager hubManager,
+            IConfiguration configuration)
         {
-            this.repo = repo;
-            this.queueRepository = queueRepository;
-            this.queueItemAttachmentRepository = queueItemAttachmentRepository;
-            this.binaryObjectManager = binaryObjectManager;
-            this.httpContextAccessor = httpContextAccessor;
-            this.binaryObjectRepository = binaryObjectRepository;
+            _repo = repo;
+            _queueRepository = queueRepository;
+            _queueItemAttachmentRepository = queueItemAttachmentRepository;
+            _httpContextAccessor = httpContextAccessor;
+            _fileManager = fileManager;
+            _scheduleRepo = schedulerepository;
+            _hubManager = hubManager;
+            Configuration = configuration;
         }
 
-        public async Task<QueueItem> Enqueue(QueueItem item)
+        public QueueItem Enqueue(QueueItem item)
         {
             item.State = QueueItemStateType.New.ToString();
             item.StateMessage = "Successfully created new queue item.";
             item.IsLocked = false;
             if (item.Priority == 0)
                 item.Priority = 100;
+
+            //check if a queue arrival schedule exists for this queue
+            Schedule existingSchedule = _scheduleRepo.Find(0, 1).Items?.Where(s => s.QueueId == item.QueueId)?.FirstOrDefault();
+            if (existingSchedule != null && existingSchedule.IsDisabled == false && existingSchedule.StartingType.ToLower().Equals("queuearrival"))
+            {
+                Schedule schedule = new Schedule();
+                schedule.AgentId = existingSchedule.AgentId;
+                schedule.CRONExpression = "";
+                schedule.LastExecution = DateTime.UtcNow;
+                schedule.NextExecution = DateTime.UtcNow;
+                schedule.IsDisabled = false;
+                schedule.ProjectId = null;
+                schedule.StartingType = "QueueArrival";
+                schedule.Status = "New";
+                schedule.ExpiryDate = DateTime.UtcNow.AddDays(1);
+                schedule.StartDate = DateTime.UtcNow;
+                schedule.AutomationId = existingSchedule.AutomationId;
+
+                var jsonScheduleObj = System.Text.Json.JsonSerializer.Serialize(schedule);
+                //call GetScheduleParameters()
+                var jobId = BackgroundJob.Enqueue(() => _hubManager.ExecuteJob(jsonScheduleObj, Enumerable.Empty<ParametersViewModel>()));
+            }
+
+            QueueItem queueItem = new QueueItem()
+            {
+                CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
+                CreatedOn = DateTime.UtcNow,
+                DataJson = item.DataJson,
+                Event = item.Event,
+                ExpireOnUTC = item.ExpireOnUTC,
+                IsLocked = item.IsLocked,
+                JsonType = item.JsonType,
+                Name = item.Name,
+                PostponeUntilUTC = item.PostponeUntilUTC,
+                Priority = item.Priority,
+                QueueId = item.QueueId,
+                RetryCount = item.RetryCount,
+                Source = item.Source,
+                State = item.State,
+                StateMessage = item.StateMessage,
+                Type = item.Type,
+                PayloadSizeInBytes = 0
+            };
 
             return item;
         }
@@ -62,7 +119,7 @@ namespace OpenBots.Server.Business
             while (expiredItem != null)
             {
                 SetExpiredState(expiredItem);
-                repo.Update(expiredItem);
+                _repo.Update(expiredItem);
 
                 expiredItem = FindExpiredQueueItem(newState, inProgressState, queueId);
                 if (expiredItem == null)
@@ -79,14 +136,14 @@ namespace OpenBots.Server.Business
                 item.StateMessage = null;
                 item.LockedBy = Guid.Parse(agentId);
                 item.LockTransactionKey = Guid.NewGuid();
-                repo.Update(item);
+                _repo.Update(item);
             }
             return item;
         }
 
         public QueueItem FindQueueItem(string state, string queueId)
         {
-            var item = repo.Find(0, 1).Items
+            var item = _repo.Find(0, 1).Items
                 .Where(q => q.QueueId.ToString() == queueId)
                 .Where(q => q.State == state)
                 .Where(q => !q.IsLocked)
@@ -101,7 +158,7 @@ namespace OpenBots.Server.Business
 
         public QueueItem FindExpiredQueueItem(string newState, string inProgressState, string queueId)
         {
-            var item = repo.Find(0, 1).Items
+            var item = _repo.Find(0, 1).Items
                 .Where(q => q.QueueId.ToString() == queueId)
                 .Where(q => q.State == newState || q.State == inProgressState)
                 .Where(q => !q.IsLocked)
@@ -112,13 +169,20 @@ namespace OpenBots.Server.Business
             return item;
         }
 
-        public async Task<QueueItem> Commit(Guid queueItemId, Guid transactionKey, string resultJSON)
+        public async Task<QueueItem> Commit(Guid transactionKey, string resultJSON)
         {
-            var item = repo.GetOne(queueItemId);
+            QueueItem queueItem = await GetQueueItem(transactionKey);
+
+            if (queueItem == null) throw new EntityDoesNotExistException("Transaction key cannot be found");
+
+            var item = _repo.GetOne(queueItem.Id.Value);
+
+            if (item.State == "New") throw new EntityOperationException("Queue item lock time has expired; adding back to queue and trying again");
+
             if (item.LockedUntilUTC <= DateTime.UtcNow)
             {
                 SetNewState(item);
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else if (item?.IsLocked == true && item?.LockTransactionKey == transactionKey && item?.LockedUntilUTC >= DateTime.UtcNow)
@@ -132,16 +196,30 @@ namespace OpenBots.Server.Business
                 item.State = QueueItemStateType.Success.ToString();
                 item.StateMessage = "Queue item transaction has been completed successfully";
 
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else
                 throw new Exception("Transaction Key Mismatched or Expired. Cannot Commit.");
         }
 
-        public async Task<QueueItem> Rollback(Guid queueItemId, Guid transactionKey, int retryLimit, string errorCode = null, string errorMessage = null, bool isFatal = false)
+        public async Task<QueueItem> Rollback(Guid transactionKey, string errorCode = null, string errorMessage = null, bool isFatal = false)
         {
-            var item = repo.GetOne(queueItemId);
+            QueueItem queueItem = await GetQueueItem(transactionKey);
+
+            if (queueItem == null) throw new EntityDoesNotExistException("Transaction key cannot be found");
+
+            Guid queueItemId = queueItem.Id.Value;
+            Guid queueId = queueItem.QueueId;
+            Queue queue = _queueRepository.GetOne(queueId);
+            int retryLimit = queue.MaxRetryCount;
+
+            if (retryLimit == null || retryLimit == 0)
+                retryLimit = int.Parse(Configuration["Queue.Global:DefaultMaxRetryCount"]);
+
+            var item = _repo.GetOne(queueItemId);
+            if (item.State == "Failed") throw new EntityOperationException(item.StateMessage);
+
             if (item?.LockedUntilUTC < DateTime.UtcNow)
             {
                 SetNewState(item);
@@ -152,7 +230,7 @@ namespace OpenBots.Server.Business
                     error.Add(errorCode, errorMessage);
                 item.ErrorSerialized = JsonConvert.SerializeObject(error);
 
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else if (item?.IsLocked == true && item?.LockedUntilUTC >= DateTime.UtcNow && item?.LockTransactionKey == transactionKey)
@@ -189,7 +267,7 @@ namespace OpenBots.Server.Business
                         item.StateMessage = $"Queue item transaction {item.Name} failed fatally and was unable to be automated {retryLimit} times.";
                     }
                 }
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else
@@ -198,34 +276,48 @@ namespace OpenBots.Server.Business
             }
         }
 
-        public async Task<QueueItem> Extend(Guid queueItemId, Guid transactionKey, int extendByMinutes = 60)
+        public async Task<QueueItem> Extend(Guid transactionKey, int extendByMinutes = 60)
         {
-            var item = repo.GetOne(queueItemId);
+            QueueItem queueItem = await GetQueueItem(transactionKey);
+
+            if (queueItem == null) throw new EntityDoesNotExistException("Transaction key cannot be found");
+
+            Guid queueItemId = (Guid)queueItem.Id;
+            var item = _repo.GetOne(queueItemId);
+
+            if (item.State == "New") throw new EntityOperationException("Queue item was not able to be extended; locked until time has passed, adding back to queue and trying again");
 
             if (item?.LockedUntilUTC <= DateTime.UtcNow)
             {
                 SetNewState(item);
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else if (item?.IsLocked == true && item?.LockTransactionKey == transactionKey && item?.LockedUntilUTC >= DateTime.UtcNow)
             {
                 item.LockedUntilUTC = ((DateTime)item.LockedUntilUTC).AddMinutes(extendByMinutes);
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else
                 throw new Exception("Transaction key mismatched or expired. Cannot extend.");
         }
 
-        public async Task<QueueItem> UpdateState(Guid queueItemId, Guid transactionKey, string state = null, string stateMessage = null, string errorCode = null, string errorMessage = null)
+        public async Task<QueueItem> UpdateState(Guid transactionKey, string state = null, string stateMessage = null, string errorCode = null, string errorMessage = null)
         {
-            var item = repo.GetOne(queueItemId);
+            QueueItem queueItem = await GetQueueItem(transactionKey);
 
+            if (queueItem == null) throw new EntityDoesNotExistException("Transaction key cannot be found");
+
+            Guid queueItemId = queueItem.Id.Value;
+            var item = _repo.GetOne(queueItemId);
+
+            if (item.State == "New")
+                throw new EntityOperationException("Queue item state was not able to be updated; locked until time has passed, adding back to queue and trying again");
             if (item?.LockedUntilUTC <= DateTime.UtcNow)
             {
                 SetNewState(item);
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else if (item?.IsLocked == true && item?.LockTransactionKey == transactionKey && item?.LockedUntilUTC >= DateTime.UtcNow)
@@ -240,7 +332,7 @@ namespace OpenBots.Server.Business
                 if (!string.IsNullOrEmpty(errorCode))
                     error.Add(errorCode, errorMessage);
                 item.ErrorSerialized = JsonConvert.SerializeObject(error);
-                repo.Update(item);
+                _repo.Update(item);
                 return item;
             }
             else
@@ -249,7 +341,7 @@ namespace OpenBots.Server.Business
 
         public async Task<QueueItem> GetQueueItem(Guid transactionKeyId)
         {
-            QueueItem queueItem = repo.Find(0, 1).Items
+            QueueItem queueItem = _repo.Find(0, 1).Items
                 .Where(q => q.LockTransactionKey == transactionKeyId)
                 .FirstOrDefault();
 
@@ -269,7 +361,7 @@ namespace OpenBots.Server.Business
         {
             item.RetryCount += 1;
             Guid queueId = item.QueueId;
-            Queue queue = queueRepository.GetOne(queueId);
+            Queue queue = _queueRepository.GetOne(queueId);
             int retryLimit = queue.MaxRetryCount;
 
             if (item.RetryCount < retryLimit)
@@ -300,129 +392,343 @@ namespace OpenBots.Server.Business
             item.LockTransactionKey = null;
         }
 
-        public PaginatedList<AllQueueItemsViewModel> GetQueueItemsAndBinaryObjectIds(Predicate<AllQueueItemsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        public PaginatedList<AllQueueItemsViewModel> GetQueueItemsAndFileIds(Predicate<AllQueueItemsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
-            return repo.FindAllView(predicate, sortColumn, direction, skip, take);
+            return _repo.FindAllView(predicate, sortColumn, direction, skip, take);
         }
 
         public PaginatedList<AllQueueItemAttachmentsViewModel> GetQueueItemAttachmentsAndNames(Guid queueItemId, Predicate<AllQueueItemAttachmentsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
         {
-            return queueItemAttachmentRepository.FindAllView(queueItemId, predicate, sortColumn, direction, skip, take);
+            return _queueItemAttachmentRepository.FindAllView(queueItemId, predicate, sortColumn, direction, skip, take);
         }
 
-        public QueueItemViewModel GetQueueItemView(QueueItemViewModel queueItemView, string id)
+        public QueueItemViewModel GetQueueItemView(QueueItem queueItem)
         {
-            var attachmentsList = queueItemAttachmentRepository.Find(null, q => q.QueueItemId == Guid.Parse(id))?.Items;
+            QueueItemViewModel queueItemViewModel = new QueueItemViewModel();
+            queueItemViewModel = queueItemViewModel.Map(queueItem);
+
+            var attachmentsList = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == queueItem.Id)?.Items;
             if (attachmentsList != null)
             {
-                List<Guid?> binaryObjectIds = new List<Guid?>();
-                foreach (var item in attachmentsList)
-                {
-                    binaryObjectIds.Add(item.BinaryObjectId);
-                }
-                queueItemView.BinaryObjectIds = binaryObjectIds;
+                queueItemViewModel.Attachments = attachmentsList;
             }
-            else queueItemView.BinaryObjectIds = null;
+            else queueItemViewModel.Attachments = null;
 
-            return queueItemView;
+            return queueItemViewModel;
         }
 
-        public List<BinaryObject> AttachFiles(List<IFormFile> files, Guid queueItemId, QueueItem queueItem)
+        public QueueItemViewModel UpdateAttachedFiles(QueueItem queueItem, UpdateQueueItemViewModel request)
         {
-            var binaryObjects = new List<BinaryObject>();
-            long payload = 0;
+            if (queueItem == null) throw new EntityDoesNotExistException("Queue item could not be found or does not exist");
 
-            if (files.Count != 0 || files != null)
+            queueItem.DataJson = request.DataJson;
+            queueItem.Event = request.Event;
+            queueItem.ExpireOnUTC = request.ExpireOnUTC;
+            queueItem.PostponeUntilUTC = request.PostponeUntilUTC;
+            queueItem.Name = request.Name;
+            queueItem.QueueId = request.QueueId.Value;
+            queueItem.Source = request.Source;
+            queueItem.Type = request.Type;
+            queueItem.State = request.State;
+
+            if (queueItem.State == "New")
             {
-                foreach (var file in files)
-                {
-                    if (file == null)
-                    {
-                        throw new FileNotFoundException("No file attached");
-                    }
-
-                    long size = file.Length;
-                    if (size <= 0)
-                    {
-                        throw new InvalidDataException($"File size of file {file.FileName} cannot be 0");
-                    }
-
-                    string organizationId = binaryObjectManager.GetOrganizationId();
-                    string apiComponent = "QueueItemAPI";
-
-                    //create binary object
-                    BinaryObject binaryObject = new BinaryObject()
-                    {
-                        Name = file.FileName,
-                        Folder = apiComponent,
-                        CreatedOn = DateTime.UtcNow,
-                        CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name,
-                        CorrelationEntityId = queueItemId
-                    };
-
-                    string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
-
-                    //upload file to the Server
-                    binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                    binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                    binaryObjectRepository.Add(binaryObject);
-
-                    //create queue item attachment
-                    QueueItemAttachment attachment = new QueueItemAttachment()
-                    {
-                        BinaryObjectId = (Guid)binaryObject.Id,
-                        QueueItemId = queueItemId,
-                        CreatedBy = httpContextAccessor.HttpContext.User.Identity.Name,
-                        CreatedOn = DateTime.UtcNow,
-                        SizeInBytes = file.Length
-                    };
-                    queueItemAttachmentRepository.Add(attachment);
-                    binaryObjects.Add(binaryObject);
-                    payload += attachment.SizeInBytes;
-                }
+                queueItem.StateMessage = null;
+                queueItem.RetryCount = 0;
             }
-            //update queue item payload
-            queueItem.PayloadSizeInBytes += payload;
-            repo.Update(queueItem);
 
-            return binaryObjects;
-        }
+            //if files don't exist in file manager: add file entity, upload file, and add email attachment attachment entity
+            var attachments = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == queueItem.Id)?.Items;
+            string hash = string.Empty;
+            IFormFile[] filesArray = CheckFiles(request.Files, hash, attachments, request.DriveName);
+            var queueItemAttachments = new List<QueueItemAttachment>();
+            if (filesArray.Length > 0)
+                queueItemAttachments = AddNewAttachments(queueItem, filesArray, request.DriveName);
 
-        public List<BinaryObject> UpdateAttachedFiles(UpdateQueueItemViewModel request, QueueItem queueItem)
-        {
-            var attachments = queueItemAttachmentRepository.Find(null, q => q.QueueItemId == request.Id)?.Items;
-            var files = request.Files.ToList();
+            _repo.Update(queueItem);
 
+            //attach new files
+            QueueItemViewModel response = new QueueItemViewModel();
+            response = response.Map(queueItem);
             foreach (var attachment in attachments)
+                queueItemAttachments.Add(attachment);
+            response.Attachments = queueItemAttachments;
+
+            return response;
+        }
+
+        public IFormFile[] CheckFiles(IFormFile[] files, string hash, List<QueueItemAttachment> attachments, string driveName)
+        {
+            if (files != null)
             {
-                var binaryObject = binaryObjectRepository.GetOne(attachment.BinaryObjectId);
-
-                //check if file with same hash and queue item id already exists
-                foreach (var file in request.Files)
+                var filesList = files.ToList();
+                foreach (var attachment in attachments)
                 {
-                    byte[] bytes = Array.Empty<byte>();
-                    using (var ms = new MemoryStream())
+                    var fileView = _fileManager.GetFileFolder(attachment.FileId.ToString(), driveName);
+                    var originalHash = fileView.Hash;
+                    //check if file with same hash and email id already exists
+                    foreach (var file in files)
                     {
-                        file.CopyToAsync(ms);
-                        bytes = ms.ToArray();
-                    }
+                        hash = GetHash(hash, file);
+                        //if email attachment already exists and hash is the same: remove from files list
+                        if (fileView.ContentType == file.ContentType && originalHash == hash && fileView.Size == file.Length)
+                            filesList.Remove(file);
 
-                    string hash = string.Empty;
-                    using (SHA256 sha256Hash = SHA256.Create())
-                    {
-                        hash = binaryObjectManager.GetHash(sha256Hash, bytes);
-                    }
-
-                    if (binaryObject.HashCode == hash && binaryObject.CorrelationEntityId == request.Id)
-                    {
-                        files.Remove(file);
+                        //if email attachment exists but the hash is not the same: update the attachment and file, remove from files list
+                        else if (fileView.ContentType == file.ContentType && fileView.Name == file.FileName)
+                        {
+                            fileView = new FileFolderViewModel()
+                            {
+                                ContentType = file.ContentType,
+                                Files = new IFormFile[] { file },
+                                IsFile = true,
+                                StoragePath = fileView.StoragePath,
+                                Name = file.FileName,
+                                Id = fileView.Id
+                            };
+                            attachment.SizeInBytes = file.Length;
+                            _queueItemAttachmentRepository.Update(attachment);
+                            _fileManager.UpdateFile(fileView);
+                            filesList.Remove(file);
+                        }
                     }
                 }
+                //if file doesn't exist, keep it in files list and return files to be attached
+                var filesArray = filesList.ToArray();
+                return filesArray;
             }
-            //if file doesn't exist in binary objects (list of files): add binary object entity, upload file, and add queue item attachment entity
-            var binaryObjects = AttachFiles(files, (Guid)queueItem.Id, queueItem);
+            else
+                return Array.Empty<IFormFile>();
+        }
 
-            return binaryObjects;
+        public string GetHash(string hash, IFormFile file)
+        {
+            byte[] bytes = Array.Empty<byte>();
+            using (var ms = new MemoryStream())
+            {
+                file.CopyToAsync(ms);
+                bytes = ms.ToArray();
+            }
+
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                HashAlgorithm hashAlgorithm = sha256Hash;
+                byte[] data = hashAlgorithm.ComputeHash(bytes);
+                var sBuilder = new StringBuilder();
+                for (int i = 0; i < data.Length; i++)
+                    sBuilder.Append(data[i].ToString("x2"));
+                hash = sBuilder.ToString();
+            }
+            return hash;
+        }
+
+        public List<QueueItemAttachment> AddFileAttachments(QueueItem queueItem, string[] requests, string driveName)
+        {
+            if (requests.Length == 0 || requests == null) throw new EntityOperationException("No files found to attach");
+
+            if (driveName != "Files" && !string.IsNullOrEmpty(driveName))
+                throw new EntityOperationException("Component files can only be saved in the Files drive");
+            else if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
+
+            long? payload = 0;
+            var queueItemAttachments = new List<QueueItemAttachment>();
+            var files = new List<FileFolderViewModel>();
+
+            foreach (var request in requests)
+            {
+                var file = _fileManager.GetFileFolder(request, driveName);
+                if (file == null) throw new EntityDoesNotExistException($"File could not be found");
+
+                long? size = file.Size;
+                if (size <= 0) throw new EntityOperationException($"File size of file {file.Name} cannot be 0");
+
+                //create queue item attachment file under queue item id folder
+                var path = Path.Combine(driveName, "Queue Item Attachments", queueItem.Id.ToString());
+                using (var stream = IOFile.OpenRead(file.FullStoragePath))
+                {
+                    file.Files = new IFormFile[] { new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name)) };
+                    file.StoragePath = path;
+                    file.FullStoragePath = path;
+
+                    CheckStoragePathExists(file, 0, queueItem.Id, "Files");
+                    file = _fileManager.AddFileFolder(file, "Files")[0];
+                    files.Add(file);
+                }
+
+                //create queue item attachment
+                QueueItemAttachment queueItemAttachment = new QueueItemAttachment()
+                {
+                    FileId = file.Id.Value,
+                    QueueItemId = queueItem.Id.Value,
+                    CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
+                    CreatedOn = DateTime.UtcNow,
+                    SizeInBytes = file.Size.Value
+                };
+                _queueItemAttachmentRepository.Add(queueItemAttachment);
+                payload += queueItemAttachment.SizeInBytes;
+                queueItemAttachments.Add(queueItemAttachment);
+            }
+
+            _fileManager.AddBytesToFoldersAndDrive(files);
+
+            //update queue item payload
+            queueItem.PayloadSizeInBytes += payload.Value;
+            _repo.Update(queueItem);
+
+            return queueItemAttachments;
+        }
+
+        public List<QueueItemAttachment> AddNewAttachments(QueueItem queueItem, IFormFile[] files, string driveName)
+        {
+            if (files.Length == 0 || files == null) throw new EntityOperationException("No files found to attach");
+
+            if (driveName != "Files" && !string.IsNullOrEmpty(driveName))
+                throw new EntityOperationException("Component files can only be saved in the Files drive");
+            else if (string.IsNullOrEmpty(driveName))
+                driveName = "Files";
+
+            //add files to drive
+            string storagePath = Path.Combine(driveName, "Queue Item Attachments", queueItem.Id.ToString());
+            var fileView = new FileFolderViewModel()
+            {
+                StoragePath = storagePath,
+                FullStoragePath = storagePath,
+                Files = files,
+                IsFile = true
+            };
+
+            long? size = 0;
+            foreach (var file in files)
+                size += file.Length;
+
+            CheckStoragePathExists(fileView, size, queueItem.Id, driveName);
+            var fileViewList = _fileManager.AddFileFolder(fileView, driveName);
+            var queueItemAttachments = new List<QueueItemAttachment>();
+
+            foreach (var file in fileViewList)
+            {
+                //create queue item attachment
+                QueueItemAttachment queueItemAttachment = new QueueItemAttachment()
+                {
+                    FileId = file.Id.Value,
+                    CreatedOn = DateTime.UtcNow,
+                    CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
+                    QueueItemId = queueItem.Id.Value,
+                    SizeInBytes = file.Size.Value,
+                };
+                _queueItemAttachmentRepository.Add(queueItemAttachment);
+                queueItemAttachments.Add(queueItemAttachment);
+            }
+
+            return queueItemAttachments;
+        }
+
+        public FileFolderViewModel CheckStoragePathExists(FileFolderViewModel view, long? size, Guid? id, string driveName)
+        {
+            //check if storage path exists; if it doesn't exist, create folder
+            var folder = _fileManager.GetFileFolderByStoragePath(view.FullStoragePath, driveName);
+            if (folder.Name == null)
+            {
+                folder.Name = id.ToString();
+                folder.StoragePath = Path.Combine(driveName, "Queue Item Attachments");
+                folder.IsFile = false;
+                folder.Size = size;
+                folder = _fileManager.AddFileFolder(folder, driveName)[0];
+            }
+            return folder;
+        }
+
+        public QueueItemAttachment UpdateAttachment(QueueItem queueItem, string id, IFormFile file, string driveName)
+        {
+            Guid entityId = new Guid(id);
+            var existingAttachment = _queueItemAttachmentRepository.GetOne(entityId);
+            if (existingAttachment == null) throw new EntityOperationException("No file found to update");
+
+            //update queue item payload
+            long? originalSize = existingAttachment.SizeInBytes;
+            long? size = file.Length;
+            queueItem.PayloadSizeInBytes += size.Value - originalSize.Value;
+            _repo.Update(queueItem);
+
+            var fileView = _fileManager.GetFileFolder(existingAttachment.FileId.ToString(), driveName);
+
+            if (fileView == null) throw new EntityDoesNotExistException($"File could not be found");
+
+            size = fileView.Size;
+            if (size <= 0) throw new EntityOperationException($"File size of file {fileView.Name} cannot be 0");
+
+            //update queue item attachment entity
+            var storagePath = Path.Combine(driveName, "Queue Item Attachments", queueItem.Id.ToString(), file.FileName);
+            existingAttachment.SizeInBytes = file.Length;
+            _queueItemAttachmentRepository.Update(existingAttachment);
+
+            //update file entity and file
+            fileView.Files = new IFormFile[] { file };
+            fileView.StoragePath = storagePath;
+            var fileViewModel = _fileManager.GetFileFolder(existingAttachment.FileId.ToString(), driveName);
+            fileView.FullStoragePath = fileViewModel.FullStoragePath;
+            _fileManager.UpdateFile(fileView);
+
+            return existingAttachment;
+        }
+
+        public void DeleteQueueItem(QueueItem existingQueueItem, string driveName)
+        {
+            var attachments = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == existingQueueItem.Id)?.Items;
+            if (attachments.Count != 0)
+            {
+                var fileView = new FileFolderViewModel();
+                foreach (var attachment in attachments)
+                {
+                    fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
+                    _queueItemAttachmentRepository.SoftDelete(attachment.Id.Value);
+                }
+                var folder = _fileManager.GetFileFolder(fileView.ParentId.ToString(), driveName);
+                if (!folder.HasChild.Value)
+                    _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
+                else _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileView });
+            }
+            else throw new EntityDoesNotExistException("No attachments found to delete");
+        }
+
+        public void DeleteAll(QueueItem queueItem, string driveName)
+        {
+            DeleteQueueItem(queueItem, driveName);
+
+            //update queue item payload
+            queueItem.PayloadSizeInBytes = 0;
+            _repo.Update(queueItem);
+        }
+
+        public void DeleteOne(QueueItemAttachment attachment, QueueItem queueItem, string driveName)
+        {
+            if (attachment != null)
+            {
+                var fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
+                var folder = _fileManager.GetFileFolder(fileView.ParentId.ToString(), driveName);
+                if (!folder.HasChild.Value)
+                    _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
+                else _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileView });
+
+                //update queue item payload
+                queueItem.PayloadSizeInBytes -= attachment.SizeInBytes;
+                _repo.Update(queueItem);
+            }
+            else throw new EntityDoesNotExistException("Attachment could not be found");
+        }
+
+        public async Task<FileFolderViewModel> Export(string id, string driveName)
+        {
+            Guid attachmentId;
+            Guid.TryParse(id, out attachmentId);
+
+            QueueItemAttachment attachment = _queueItemAttachmentRepository.GetOne(attachmentId);
+            if (attachment == null || attachment.FileId == null || attachment.FileId == Guid.Empty)
+                throw new EntityDoesNotExistException($"Queue item attachment with id {id} could not be found or doesn't exist");
+
+            var response = await _fileManager.ExportFileFolder(attachment.FileId.ToString(), driveName);
+            return response;
         }
     }
 }

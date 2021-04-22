@@ -21,12 +21,20 @@
     </div>
   </nb-card-header>
   <nb-card-body>
+
+    <div class="row row-fil">
+    <div class="col-md-3 col-lg-3">
+        <!-- <label class="label">Search with Name:</label> -->
+        <input type="text" icon="search" nbInput fullWidth placeholder="Search with name..." (keyup)="searchValue($event)">
+      </div>
+    </div>
+
     <table class="table table-bordered">
       <thead>
         <tr>
           <th scope="col">
             Name
-            <i (click)="onSortClick($event, 'MachineName')" class="my-icon fa fa-chevron-up"></i>
+            <i (click)="onSortClick($event, 'name')" class="my-icon fa fa-chevron-up"></i>
           </th>
 
           <th scope="col">
@@ -49,7 +57,7 @@
       </thead>
       <tbody>
         <tr *ngFor="
-            let agent of show_allagents
+            let agent of showAllAgents
               | paginate
                 : {
                     id: '1',
@@ -136,7 +144,7 @@
           autoHide="true" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
           screenReaderCurrentLabel="You're on page"></pagination-controls>
       </div>
-      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="get_perPage">
+      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="showAllAgents && showAllAgents.length">
         <label class="label">Total {{ showpage.totalCount }} /</label>
 
         <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">

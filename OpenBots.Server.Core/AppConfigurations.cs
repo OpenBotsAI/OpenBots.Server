@@ -5,17 +5,17 @@ namespace OpenBots.Server.Core
 {
     public static class AppConfigurations
     {
-        private static readonly ConcurrentDictionary<string, IConfigurationRoot> ConfigurationCache;
+        private static readonly ConcurrentDictionary<string, IConfigurationRoot> _configurationCache;
 
         static AppConfigurations()
         {
-            ConfigurationCache = new ConcurrentDictionary<string, IConfigurationRoot>();
+            _configurationCache = new ConcurrentDictionary<string, IConfigurationRoot>();
         }
 
         public static IConfigurationRoot Get(string path, string environmentName = null)
         {
             var cacheKey = path + "#" + environmentName;
-            return ConfigurationCache.GetOrAdd(
+            return _configurationCache.GetOrAdd(
                 cacheKey,
                 _ => BuildConfiguration(path, environmentName)
             );

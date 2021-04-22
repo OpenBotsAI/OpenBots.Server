@@ -15,14 +15,15 @@ namespace OpenBots.Server.Web.Hubs
 {
     public class HubManager : IHubManager
     {
-        private readonly IJobRepository jobRepository;
-        private readonly IRecurringJobManager recurringJobManager;
-        private readonly IAutomationVersionRepository automationVersionRepository;
+        private readonly IJobRepository _jobRepository;
+        private readonly IRecurringJobManager _recurringJobManager;
+        private readonly IAutomationVersionRepository _automationVersionRepository;
         private IHubContext<NotificationHub> _hub;
-        private readonly IWebhookPublisher webhookPublisher;
-        private readonly IJobParameterRepository jobParameterRepository;
-        private readonly IScheduleParameterRepository scheduleParameterRepository;
-        private readonly IOrganizationSettingManager organizationSettingManager;
+        private readonly IWebhookPublisher _webhookPublisher;
+        private readonly IJobParameterRepository _jobParameterRepository;
+        private readonly IScheduleParameterRepository _scheduleParameterRepository;
+        private readonly IOrganizationSettingManager _organizationSettingManager;
+        private readonly IAgentGroupManager _agentGroupManager;
 
         public HubManager(IRecurringJobManager recurringJobManager,
             IJobRepository jobRepository, IHubContext<NotificationHub> hub,
@@ -30,16 +31,18 @@ namespace OpenBots.Server.Web.Hubs
             IWebhookPublisher webhookPublisher,
             IJobParameterRepository jobParameterRepository,
             IScheduleParameterRepository scheduleParameterRepository,
-            IOrganizationSettingManager organizationSettingManager)
+            IOrganizationSettingManager organizationSettingManager,
+            IAgentGroupManager agentGroupManager)
         {
-            this.recurringJobManager = recurringJobManager;
-            this.jobRepository = jobRepository;
-            this.automationVersionRepository = automationVersionRepository;
-            this.webhookPublisher = webhookPublisher;
-            this.jobParameterRepository = jobParameterRepository;
+            _recurringJobManager = recurringJobManager;
+            _jobRepository = jobRepository;
+            _automationVersionRepository = automationVersionRepository;
+            _webhookPublisher = webhookPublisher;
+            _jobParameterRepository = jobParameterRepository;
             _hub = hub;
-            this.scheduleParameterRepository = scheduleParameterRepository;
-            this.organizationSettingManager = organizationSettingManager;
+            _scheduleParameterRepository = scheduleParameterRepository;
+            _organizationSettingManager = organizationSettingManager;
+            _agentGroupManager = agentGroupManager;
         }
 
         public HubManager()
@@ -49,7 +52,16 @@ namespace OpenBots.Server.Web.Hubs
         public void ScheduleNewJob(string scheduleSerializeObject)
         {
             var scheduleObj = JsonSerializer.Deserialize<Schedule>(scheduleSerializeObject);
-            recurringJobManager.AddOrUpdate(scheduleObj.Id.Value.ToString(), () => CreateJob(scheduleSerializeObject, Enumerable.Empty<ParametersViewModel>()), scheduleObj.CRONExpression);
+
+            if (string.IsNullOrWhiteSpace(scheduleObj.CRONExpression))
+            {
+                CreateJob(scheduleSerializeObject, Enumerable.Empty<ParametersViewModel>());
+            }
+            else
+            {
+                _recurringJobManager.AddOrUpdate(scheduleObj.Id.Value.ToString(), () => CreateJob(scheduleSerializeObject, Enumerable.Empty<ParametersViewModel>()), scheduleObj.CRONExpression);
+
+            }
         }
 
         public void ExecuteJob(string scheduleSerializeObject, IEnumerable<ParametersViewModel>? parameters)
@@ -61,19 +73,19 @@ namespace OpenBots.Server.Web.Hubs
         {
             var schedule = JsonSerializer.Deserialize<Schedule>(scheduleSerializeObject);
 
-            if (organizationSettingManager.HasDisallowedExecution())
+            if (_organizationSettingManager.HasDisallowedExecution())
             {
                 return "DisallowedExecution";
             }
 
-            var automationVersion = automationVersionRepository.Find(null, a => a.AutomationId == schedule.AutomationId).Items?.FirstOrDefault();
+            var automationVersion = _automationVersionRepository.Find(null, a => a.AutomationId == schedule.AutomationId).Items?.FirstOrDefault();
 
-            //if this is a scheduled job get the schedule parameters
+            //if this is not a "RunNow" job, then use the schedule parameters
             if (schedule.StartingType.Equals("RunNow") == false)
             {
                 List<ParametersViewModel> parametersList = new List<ParametersViewModel>();
 
-                var scheduleParameters = scheduleParameterRepository.Find(null, p => p.ScheduleId == schedule.Id).Items;
+                var scheduleParameters = _scheduleParameterRepository.Find(null, p => p.ScheduleId == schedule.Id).Items;
                 foreach (var scheduleParameter in scheduleParameters)
                 {
                     ParametersViewModel parametersViewModel = new ParametersViewModel
@@ -91,6 +103,7 @@ namespace OpenBots.Server.Web.Hubs
 
             Job job = new Job();
             job.AgentId = schedule.AgentId == null ? Guid.Empty : schedule.AgentId.Value;
+            job.AgentGroupId = schedule.AgentGroupId == null ? Guid.Empty : schedule.AgentGroupId.Value;
             job.CreatedBy = schedule.CreatedBy;
             job.CreatedOn = DateTime.UtcNow;
             job.EnqueueTime = DateTime.UtcNow;
@@ -112,12 +125,24 @@ namespace OpenBots.Server.Web.Hubs
                     CreatedOn = DateTime.UtcNow,
                     Id = Guid.NewGuid()
                 };
-                jobParameterRepository.Add(jobParameter);
+                _jobParameterRepository.Add(jobParameter);
+            }
+            _jobRepository.Add(job);
+
+            if (job.AgentGroupId == null || job.AgentGroupId == Guid.Empty)
+            {
+                _hub.Clients.All.SendAsync("botnewjobnotification", job.AgentId.ToString());
+            }
+            else //notify all group members
+            {
+                var agentsInGroup = _agentGroupManager.GetAllMembersInGroup(job.AgentGroupId.ToString());
+                foreach (var groupMember in agentsInGroup ?? Enumerable.Empty<AgentGroupMember>())
+                {
+                    _hub.Clients.All.SendAsync("botnewjobnotification", groupMember.AgentId.ToString());
+                }
             }
 
-            jobRepository.Add(job);
-            _hub.Clients.All.SendAsync("botnewjobnotification", job.AgentId.ToString());
-            webhookPublisher.PublishAsync("Jobs.NewJobCreated", job.Id.ToString()).ConfigureAwait(false);
+            _webhookPublisher.PublishAsync("Jobs.NewJobCreated", job.Id.ToString()).ConfigureAwait(false);
 
             return "Success";
         }

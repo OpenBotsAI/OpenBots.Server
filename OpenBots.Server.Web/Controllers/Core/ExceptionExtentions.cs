@@ -40,39 +40,40 @@ namespace OpenBots.Server.WebAPI.Controllers
         {
             var problem = new ServiceBadRequest();
             problem.Detail = ex.Message;
-            problem.Title = string.Concat("Unknown Exception", ex.Message);
+            problem.Title = string.Concat("Unknown Exception. ", ex.Message);
             problem.Status = 400;
+            problem.serviceErrors = new string[1] { ex.Message };
 
             if (ex is UnauthorizedOperationException || ex is UnauthorizedAccessException)
             {
-                problem.Title = string.Concat("Unauthorized Access.", ex.Message);
+                problem.Title = string.Concat("Unauthorized Access. ", ex.Message);
                 problem.Status = 403;
             }
             if (ex is EntityOperationException)
             {
-                problem.Title = string.Concat("Entity Operation Exception.", ex.Message);
+                problem.Title = string.Concat("Entity Operation Exception. ", ex.Message);
                 problem.Status = 400;
             }
             if (ex is EntityValidationException)
             {
                 problem = GetValidationProblemDetails(ex as EntityValidationException);
-                problem.Title = string.Concat("Validation Error.", ex.Message);
+                problem.Title = string.Concat("Validation Error. ", ex.Message);
                 problem.Status = 422;
             }
             if (ex is EntityAlreadyExistsException)
             {
-                problem.Title = string.Concat("Entity Already Exist.", ex.Message);
+                problem.Title = string.Concat("Entity Already Exists. ", ex.Message);
                 problem.Status = 409;
             }
             if (ex is EntityConcurrencyException)
             {
                 problem.Title = string.Concat("Entity Concurrency Error.", ex.Message);
                 problem.Status = 409;
-                problem.serviceErrors = new string[1] { "Record is updated by another user, please try again." };
+                problem.serviceErrors = new string[1] { "Record is being updated by another user, please try again." };
             }
             if (ex is EntityDoesNotExistException)
             {
-                problem.Title = string.Concat("Entity Does Not Exist.", ex.Message);
+                problem.Title = string.Concat("Entity Does Not Exist. ", ex.Message);
                 problem.Status = 400;
                 problem.serviceErrors = new string[1] { "Record(s) no longer exists or you do not have authorized access." };
             }
@@ -91,6 +92,11 @@ namespace OpenBots.Server.WebAPI.Controllers
                 errors.Add(cidce.PropertyName, messages.ToArray());
                 problem = new ServiceBadRequest(errors);
                 problem.Title = string.Concat("Cannot Insert Duplicate Constraint.", ex.Message);
+                problem.Status = 400;
+            }
+            if (ex is TimeoutException)
+            {
+                problem.Title = string.Concat("Request Timed Out.", ex.Message);
                 problem.Status = 400;
             }
             return problem;

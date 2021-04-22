@@ -68,6 +68,9 @@ export class AddQueueItemsComponent implements OnInit {
     { name: 'Success', value: 3 },
     { name: 'Expired', value: 4 },
   ];
+  postponeMinDate: Date;
+  expireMinDate: Date;
+  driveName: string;
   @ViewChild(JsonEditorComponent) editor: JsonEditorComponent;
 
   constructor(
@@ -82,10 +85,13 @@ export class AddQueueItemsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.min = new Date();
-    this.max = new Date();
+    // this.min = new Date();
+    // this.max = new Date();
+    this.postponeMinDate = new Date();
+    this.expireMinDate = new Date();
     this.queueItemForm = this.initializigQueueItemForm();
     this.getQueues();
+    // this.getDriveName();
     this.editorOptions = new JsonEditorOptions();
     this.editorOptions.modes = ['code', 'text', 'tree', 'view'];
     this.queryParamId = this.route.snapshot.queryParams['id'];
@@ -94,10 +100,30 @@ export class AddQueueItemsComponent implements OnInit {
       this.getQueueDataById();
       this.title = 'Update';
       this.btnText = 'Update';
-    } else this.queueItemForm.get('state').disable();
-    this.min = this.dateService.addMonth(this.dateService.today(), 0);
-    this.max = this.dateService.addMonth(this.dateService.today(), 1);
+    } else {
+      this.queueItemForm.get('state').disable();
+    }
+    this.postponeMinDate = this.dateService.addMonth(
+      this.dateService.today(),
+      0
+    );
+    this.expireMinDate = this.dateService.addMonth(this.dateService.today(), 0);
+    // this.min = this.dateService.addMonth(this.dateService.today(), 0);
+    // this.max = this.dateService.addMonth(this.dateService.today(), 1);
   }
+
+  // commented although for now we are using static drive name
+  // getDriveName(): void {
+  //   this.httpService
+  //     .get(`${QueueItemsApiUrl.files}/${QueueItemsApiUrl.drive}`, {
+  //       observe: 'response',
+  //     })
+  //     .subscribe((response) => {
+  //       if (response && response.status === 200) {
+  //         this.driveName = response.body.name;
+  //       }
+  //     });
+  // }
 
   initializigQueueItemForm() {
     return this.fb.group({
@@ -126,7 +152,7 @@ export class AddQueueItemsComponent implements OnInit {
     return this.queueItemForm.controls;
   }
 
-  addQueueItem(): void {
+  onSubmit(): void {
     this.isSubmitted = true;
     if (this.queueItemForm.value.type === 'Json') {
       if (!this.editor.isValidJson()) {
@@ -175,14 +201,18 @@ export class AddQueueItemsComponent implements OnInit {
       )
       .subscribe((response) => {
         if (response && response.status === 200) {
-          this.min = response.body.expireOnUTC;
+          // this.min = response.body.expireOnUTC;
+          this.postponeMinDate = response.body.postponeUntilUTC;
+          this.expireMinDate = response.body.expireOnUTC;
           this.eTag = response.headers.get('etag');
-          this.queuefiles = response.body.binaryObjectIds;
-          if (this.queuefiles) this.getQueueItemFiles();
+          // we are not showing any files on update queueItems for now
+          // if (response.body.fileIds) this.queuefiles = response.body.fileIds;
+          // if (this.queuefiles) this.getQueueItemFiles();
           if (response.body.type.toLowerCase() === 'json')
             response.body.dataJson = JSON.parse(response.body.dataJson);
           this.queueItemForm.patchValue(response.body);
           this.oldQueueFormValue = this.queueItemForm.value;
+          this.getQueueItemFiles();
         }
       });
   }
@@ -197,7 +227,6 @@ export class AddQueueItemsComponent implements OnInit {
       .subscribe(
         (response) => {
           if (response && response.id) {
-            let count = 0;
             if (this.fileArray.length) {
               const formData = new FormData();
               for (let data of this.fileArray) {
@@ -216,32 +245,9 @@ export class AddQueueItemsComponent implements OnInit {
                   this.isSubmitted = false;
                   this.queueItemForm.reset();
                 });
-              // for (let data of this.fileArray) {
-              //   formData.append('files', data.file.nativeFile, data.file.name);
-              //   this.httpService
-              //     .post(
-              //       `${QueueItemsApiUrl.QueueItems}/${response.id}/${QueueItemsApiUrl.queueitemattachments}`,
-              //       formData
-              //     )
-              //     .subscribe(
-              //       (response) => {
-              //         if (response) {
-              //           count++;
-              //           if (count == this.fileArray.length) {
-              //             this.httpService.success(
-              //               'Queue item created successfully'
-              //             );
-              //             this.navigateToQueueItemsList();
-              //             this.isSubmitted = false;
-              //             this.queueItemForm.reset();
-              //           }
-              //         }
-              //       },
-              //       () => (this.isSubmitted = false)
-              //     );
-              // }
             } else {
               this.navigateToQueueItemsList();
+              this.httpService.success('Queue item created successfully');
               this.isSubmitted = false;
               this.queueItemForm.reset();
             }
@@ -366,23 +372,19 @@ export class AddQueueItemsComponent implements OnInit {
   }
 
   getQueueItemFiles(): void {
-    // for (let binaryObjectId of this.queuefiles) {
     this.httpService
-      // .get(`${FilesApiUrl.BinaryObjects}/${binaryObjectId}`)
       .get(
         `${QueueItemsApiUrl.QueueItems}/${this.queueItemId}/${QueueItemsApiUrl.queueitemattachments}/${QueueItemsApiUrl.view}`
       )
       .subscribe((response) => {
         if (response && response.items && response.items.length)
           this.queueItemFiles = [...response.items];
-        // this.queueItemFiles.push(response);
       });
-    // }
   }
 
   downloadFile(id: string): void {
     this.httpService
-      .get(`${FilesApiUrl.BinaryObjects}/${id}/${FilesApiUrl.download}`, {
+      .get(`${FilesApiUrl.files}/${id}/${FilesApiUrl.download}`, {
         responseType: 'blob',
         observe: 'response',
       })

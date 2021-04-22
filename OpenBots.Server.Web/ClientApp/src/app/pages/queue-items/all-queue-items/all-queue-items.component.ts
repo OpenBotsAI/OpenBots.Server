@@ -30,6 +30,8 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
   hubConnection: signalR.HubConnection;
   itemsPerPage: ItemsPerPage[] = [];
   filterOrderBy: string;
+  searchedValue: string;
+  searchForm: FormGroup;
   constructor(
     private httpService: HttpService,
     private router: Router,
@@ -45,6 +47,9 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
     this.page.pageSize = 5;
     this.queueForm = this.initQueueForm();
     this.itemsPerPage = this.helperService.getItemsPerPage();
+    this.searchForm = this.fb.group({
+      search: [''],
+    });
   }
 
   initQueueForm() {
@@ -57,12 +62,17 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
 
   getQeueItemsList(top: number, skip: number, orderBy?: string): void {
     let url: string;
-    if (orderBy)
+    if (this.searchedValue) {
+      if (orderBy)
+        url = `${QueueItemsApiUrl.QueueItems}?$filter=substringof(tolower('${this.searchedValue}'), tolower(Name)) and Queueid eq guid'${this.queueForm.value.id}'&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+      else
+        url = `${QueueItemsApiUrl.QueueItems}?$filter=substringof(tolower('${this.searchedValue}'), tolower(Name)) and Queueid eq guid'${this.queueForm.value.id}'&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+    } else if (orderBy)
       url = `${QueueItemsApiUrl.QueueItems}/${QueueItemsApiUrl.view}?$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter= Queueid eq guid'${this.queueForm.value.id}'`;
     else
       url = `${QueueItemsApiUrl.QueueItems}/${QueueItemsApiUrl.view}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter= Queueid eq guid'${this.queueForm.value.id}'`;
     this.httpService.get(url).subscribe((response) => {
-      if (response && response.items.length) {
+      if (response && response.items) {
         this.page.totalCount = response.totalCount;
         this.allQueueItemData = [...response.items];
       } else this.allQueueItemData = [];
@@ -151,6 +161,8 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
   }
 
   selectChange(event, param: string): void {
+    this.searchForm.reset();
+    this.searchedValue = null;
     this.selectedQueueId = event.target.value;
     if (event.target.value && param === 'pageSize') {
       this.page.pageNumber = 1;
@@ -235,5 +247,36 @@ export class AllQueueItemsComponent implements OnInit, OnDestroy {
         this.filterOrderBy
       );
     else this.pagination(this.page.pageNumber, this.page.pageSize);
+  }
+  // / `${QueueItemsApiUrl.QueueItems}?$filter=substringof(tolower('${event.target.value}'), tolower(Name))`
+  searchValue(event) {
+    if (event.target.value.length >= 2) {
+      this.searchedValue = event.target.value;
+      if (this.filterOrderBy) {
+        this.pagination(
+          this.page.pageNumber,
+          this.page.pageSize,
+          this.filterOrderBy
+        );
+      } else {
+        this.httpService
+          .get(
+            `${QueueItemsApiUrl.QueueItems}?$filter=substringof(tolower('${this.searchedValue}'), tolower(Name)) and Queueid eq guid'${this.queueForm.value.id}'`
+          )
+          .subscribe((response) => {
+            this.allQueueItemData = [...response.items];
+            this.page.totalCount = response.totalCount;
+          });
+      }
+    } else if (!event.target.value.length) {
+      this.searchedValue = null;
+      if (this.filterOrderBy) {
+        this.pagination(
+          this.page.pageNumber,
+          this.page.pageSize,
+          this.filterOrderBy
+        );
+      } else this.pagination(this.page.pageNumber, this.page.pageSize);
+    }
   }
 }

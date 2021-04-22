@@ -14,9 +14,14 @@ namespace OpenBots.Server.DataAccess.Exceptions
             Operation = EntityOperationType.Unknown;
         }
 
-        public UnauthorizedOperationException(EntityOperationType add)
+        public UnauthorizedOperationException(EntityOperationType operationType)
         {
-            Operation = add;
+            Operation = operationType;
+        }
+
+        public UnauthorizedOperationException(string? message, EntityOperationType operationType) : base(message)
+        {
+            Operation = operationType;
         }
     }
 }

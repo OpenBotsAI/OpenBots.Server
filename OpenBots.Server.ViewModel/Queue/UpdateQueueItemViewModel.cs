@@ -17,8 +17,9 @@ namespace OpenBots.Server.ViewModel.QueueItem
         public string? Type { get; set; }
         public string? DataJson { get; set; }
         public string? State { get; set; }
-        public List<Guid>? BinaryObjectIds { get; set; }
+        public List<Guid>? FileIds { get; set; }
         public IFormFile[]? Files { get; set; }
+        public string DriveName { get; set; }
 
         public UpdateQueueItemViewModel Map(Model.QueueItem entity)
         {

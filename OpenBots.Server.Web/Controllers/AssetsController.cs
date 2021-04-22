@@ -10,12 +10,12 @@ using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Security;
+using OpenBots.Server.ViewModel;
 using OpenBots.Server.ViewModel.ViewModels;
 using OpenBots.Server.Web.Webhooks;
 using OpenBots.Server.WebAPI.Controllers;
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Web
@@ -29,11 +29,9 @@ namespace OpenBots.Server.Web
     [Authorize]
     public class AssetsController : EntityController<Asset>
     {
-        private readonly IAutomationManager automationManager;
-        private readonly IBinaryObjectRepository binaryObjectRepo;
-        private readonly IBinaryObjectManager binaryObjectManager;
-        private readonly IWebhookPublisher webhookPublisher;
-        private readonly IAssetManager manager;
+        private readonly IWebhookPublisher _webhookPublisher;
+        private readonly IAssetManager _manager;
+        private readonly IAssetRepository _repository;
 
         /// <summary>
         /// AssetsController constructor
@@ -41,34 +39,28 @@ namespace OpenBots.Server.Web
         /// <param name="repository"></param>
         /// <param name="membershipManager"></param>
         /// <param name="userManager"></param>
-        /// <param name="automationManager"></param>
         /// <param name="httpContextAccessor"></param>
-        /// <param name="binaryObjectManager"></param>
         /// <param name="configuration"></param>
-        /// <param name="binaryObjectRepo"></param>
         /// <param name="webhookPublisher"></param>
         /// <param name="manager"></param>
         public AssetsController(
             IAssetRepository repository,
             IMembershipManager membershipManager,
             ApplicationIdentityUserManager userManager,
-            IAutomationManager automationManager,
             IHttpContextAccessor httpContextAccessor,
-            IBinaryObjectManager binaryObjectManager,
             IConfiguration configuration,
-            IBinaryObjectRepository binaryObjectRepo,
             IWebhookPublisher webhookPublisher,
             IAssetManager manager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.automationManager = automationManager;
-            this.binaryObjectRepo = binaryObjectRepo;
-            this.binaryObjectManager = binaryObjectManager;
-            this.webhookPublisher = webhookPublisher;
-            this.manager = manager;
+            _webhookPublisher = webhookPublisher;
+            _manager = manager;
+            _repository = repository;
+
+            _manager.SetContext(SecurityContext);
         }
 
         /// <summary>
-        /// Provides a list of all assets
+        /// Provides a list of all Assets
         /// </summary>
         /// <param name="top"></param>
         /// <param name="skip"></param>
@@ -79,7 +71,7 @@ namespace OpenBots.Server.Web
         /// <response code="403">Forbidden,unauthorized access</response> 
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Paginated list of all assets</returns>
+        /// <returns>Paginated list of all Assets</returns>
         [HttpGet]
         [ProducesResponseType(typeof(PaginatedList<Asset>), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -88,26 +80,74 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<Asset> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
-        /// Provides a count of assets 
+        /// Provides a view model list of all Assets and corresponding Agents and Files
         /// </summary>
+        /// <param name="top"></param>
+        /// <param name="skip"></param>
+        /// <param name="orderBy"></param>
         /// <param name="filter"></param>
-        /// <response code="200">Ok, total count of assets</response>
+        /// <response code="200">Ok, a paginated list of all Assets</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden, unauthorized access</response>  
         /// <response code="404">Not found</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Total count of assets</returns>
+        /// <returns>Paginated list of all Assets</returns>
+        [HttpGet("view")]
+        [ProducesResponseType(typeof(PaginatedList<AssetViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> View(
+            [FromQuery(Name = "$filter")] string filter = "",
+            [FromQuery(Name = "$orderby")] string orderBy = "",
+            [FromQuery(Name = "$top")] int top = 100,
+            [FromQuery(Name = "$skip")] int skip = 0
+            )
+        {
+            try
+            {
+                ODataHelper<AssetViewModel> oDataHelper = new ODataHelper<AssetViewModel>();
+                var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
+
+                return Ok(_repository.FindAllView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Provides a count of Assets 
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <response code="200">Ok, total count of Assets</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response>  
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Total count of Assets</returns>
         [HttpGet("Count")]
         [ProducesResponseType(typeof(int?), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -116,21 +156,28 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public int? Count(
+        public async Task<IActionResult> Count(
             [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                return Ok(base.Count());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
-        /// Provides an asset's details for a particular asset id
+        /// Provides an Asset's details for a particular Asset id
         /// </summary>
         /// <param name="id">Asset id</param>
-        /// <response code="200">Ok, if an asset exists with the given id</response>
+        /// <response code="200">Ok, if an Asset exists with the given id</response>
         /// <response code="304">Not modified</response>
-        /// <response code="400">Bad request, if asset id is not in proper format or proper Guid</response>
+        /// <response code="400">Bad request, if Asset id is not in proper format or proper Guid</response>
         /// <response code="403">Forbidden</response>
-        /// <response code="404">Not found, when no asset exists for the given asset id</response>
+        /// <response code="404">Not found, when no Asset exists for the given Asset id</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Asset details for the given id</returns>
         [HttpGet("{id}", Name = "GetAsset")]
@@ -155,38 +202,109 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Create a new asset entity
+        /// Provides an Asset's view model details for a particular Asset id
+        /// </summary>
+        /// <param name="assetId"> Specifies the id of the Asset</param>
+        /// <response code="200">OK,if an Asset exists with the given id</response>
+        /// <response code="304">Not modified</response>
+        /// <response code="400">Bad request, if Asset id is not in proper format or proper Guid<response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not found, when no agent exists for the given Asset id</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Asset details for the given id</returns>
+        [HttpGet("view/{assetId}")]
+        [ProducesResponseType(typeof(PaginatedList<AssetViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> View(string assetId)
+        {
+            try
+            {
+                IActionResult actionResult = await base.GetEntity<AssetViewModel>(assetId);
+                OkObjectResult okResult = actionResult as OkObjectResult;
+
+                if (okResult != null)
+                {
+                    AssetViewModel view = okResult.Value as AssetViewModel;
+                    view = _manager.GetAssetDetails(view);
+                }
+
+                return actionResult;
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Provides an Asset's details for a particular Asset name
+        /// </summary>
+        /// <remarks>
+        /// If the requesting user is an Agent with an existing Asset, then that value will be returned
+        /// </remarks>
+        /// <param name="assetName">Asset name</param>
+        /// <param name="assetType">Asset type</param>
+        /// <response code="200">Ok, if an Asset exists with the given name</response>
+        /// <response code="304">Not modified</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not found, when no Asset exists for the given Asset name</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Asset details for the given name</returns>
+        [HttpGet("GetAssetByName/{assetName}")]
+        [ProducesResponseType(typeof(Asset), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> GetAssetByName(string assetName, [FromQuery] string assetType)
+        {
+            try
+            {
+                return Ok(_manager.GetMatchingAsset(assetName,assetType));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Create a new Asset entity
         /// </summary>
         /// <param name="request"></param>
-        /// <response code="200">Ok, new asset created and returned</response>
-        /// <response code="400">Bad request, when the asset value is not in proper format</response>
+        /// <response code="200">Ok, new Asset created and returned</response>
+        /// <response code="400">Bad request, when the Asset value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
-        /// <returns>Newly created asset details</returns>
+        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+        /// <returns>Newly created Asset details</returns>
         [HttpPost]
-        [ProducesResponseType(typeof(Asset), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GlobalAssetViewModel), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Post([FromBody] Asset request)
+        public async Task<IActionResult> Post([FromForm] GlobalAssetViewModel request)
         {
             try
             {
-                var asset = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
-                if (asset != null)
-                {
-                    ModelState.AddModelError("Asset", "Asset Name Already Exists");
-                    return BadRequest(ModelState);
-                }
+                Asset asset = new Asset();
+                asset = request.Map(request);
+                asset = _manager.CreateAsset(asset, request.File, request.DriveName);
 
-                request = manager.GetSizeInBytes(request);
-
-                var response = await base.PostEntity(request);
-                await webhookPublisher.PublishAsync("Assets.NewAssetCreated", request.Id.ToString(), request.Name).ConfigureAwait(false);
+                var response = await base.PostEntity(asset);
+                await _webhookPublisher.PublishAsync("Assets.NewAssetCreated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
                 return response;
             }
             catch (Exception ex)
@@ -196,17 +314,16 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Create a new binary object and upload asset file
+        /// Adds a new agent Asset if a global Asset exists for the given name
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="file"></param>
-        /// <response code="200">Ok, asset updated and returned</response>
-        /// <response code="400">Bad request, when the asset value is not in proper format</response>
+        /// <param name="request">New file to update Asset</param>
+        /// <response code="200">Ok, Asset created and returned</response>
+        /// <response code="400">Bad request, when the Asset value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
-        /// <returns>Newly updated asset details</returns>
-        [HttpPost("{id}/upload")]
+        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+        /// <returns>Newly created Asset details</returns>
+        [HttpPost("AddAgentAsset")]
         [ProducesResponseType(typeof(Asset), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -214,75 +331,32 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Post(string id, [FromForm] IFormFile file)
+        public async Task<IActionResult> AddAgentAsset([FromForm] AgentAssetViewModel request)
         {
             try
             {
-                if (file == null)
-                {
-                    ModelState.AddModelError("Save", "No asset uploaded");
-                    return BadRequest(ModelState);
-                }
+                Asset agentAsset = _manager.CreateAgentAsset(request);
 
-                long size = file.Length;
-                if (size <= 0)
-                {
-                    ModelState.AddModelError("Asset Upload", $"File size of file {file.FileName} cannot be 0");
-                    return BadRequest(ModelState);
-                }
-
-                var existingAsset = repository.GetOne(Guid.Parse(id));
-                if (existingAsset == null)
-                {
-                    ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                    return NotFound(ModelState);
-                }
-                string organizationId = binaryObjectManager.GetOrganizationId();
-                string apiComponent = "AssetAPI";
-
-                BinaryObject binaryObject = new BinaryObject();
-                binaryObject.Name = file.FileName;
-                binaryObject.Folder = apiComponent;
-                binaryObject.CreatedOn = DateTime.UtcNow;
-                binaryObject.CreatedBy = applicationUser?.UserName;
-                binaryObject.CorrelationEntityId = existingAsset.Id;
-
-                string filePath = Path.Combine("BinaryObjects", organizationId, apiComponent, binaryObject.Id.ToString());
-
-                var existingbinary = binaryObjectRepo.Find(null, x => x.Folder?.ToLower(null) == binaryObject.Folder.ToLower(null) && x.Name.ToLower(null) == file?.FileName?.ToLower(null) && x.Id != binaryObject.Id)?.Items?.FirstOrDefault();
-                if (existingbinary != null)
-                {
-                    ModelState.AddModelError("BinaryObject", "Same file name already exists in the given folder");
-                    return BadRequest(ModelState);
-                }
-                binaryObjectManager.Upload(file, organizationId, apiComponent, binaryObject.Id.ToString());
-                binaryObjectManager.SaveEntity(file, filePath, binaryObject, apiComponent, organizationId);
-                binaryObjectRepo.Add(binaryObject);
-
-                existingAsset.BinaryObjectID = binaryObject.Id;
-                existingAsset.SizeInBytes = file.Length;
-                repository.Update(existingAsset);
-
-                await webhookPublisher.PublishAsync("Files.NewFileCreated", binaryObject.Id.ToString(), binaryObject.Name).ConfigureAwait(false);
-                await webhookPublisher.PublishAsync("Assets.AssetUpdated", existingAsset.Id.ToString(), existingAsset.Name).ConfigureAwait(false);
-                return Ok(existingAsset);
+                var response = await base.PostEntity(agentAsset);
+                await _webhookPublisher.PublishAsync("Assets.NewAssetCreated", agentAsset.Id.ToString(), agentAsset.Name).ConfigureAwait(false);
+                return response;
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
         /// <summary>
-        /// Export/download an asset file
+        /// Export/download an Asset file
         /// </summary>
         /// <param name="id"></param>
-        /// <response code="200">Ok if an asset file exists with the given id</response>
+        /// <param name="driveName"></param>
+        /// <response code="200">Ok if an Asset file exists with the given id</response>
         /// <response code="304">Not modified</response>
-        /// <response code="400">Bad request, if asset id is not in proper format or proper Guid</response>
+        /// <response code="400">Bad request, if Asset id is not in proper format or proper Guid</response>
         /// <response code="403">Forbidden</response>
-        /// <response code="404">Not found, when no asset file exists for the given asset id</response>
+        /// <response code="404">Not found, when no Asset file exists for the given Asset id</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Downloaded asset file</returns>
         [HttpGet("{id}/Export", Name = "ExportAsset")]
@@ -294,24 +368,12 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> ExportAsset(string id)
+        public async Task<IActionResult> ExportAsset(string id, string driveName = null)
         {
             try
             {
-                Guid assetId;
-                Guid.TryParse(id, out assetId);
-
-                Asset asset = repository.GetOne(assetId);
-
-                if (asset == null || asset.BinaryObjectID == null || asset.BinaryObjectID == Guid.Empty)
-                {
-                    ModelState.AddModelError("Asset Export", "No asset or asset file found");
-                    return NotFound(ModelState);
-                }
-
-                var fileObject = automationManager.Export(asset.BinaryObjectID.ToString());
-                var file = File(fileObject?.Result?.BlobStream, fileObject?.Result?.ContentType, fileObject?.Result?.Name);
-                return file;
+                var fileObject = _manager.Export(id, driveName);
+                return File(fileObject.Result?.Content, fileObject.Result?.ContentType, fileObject.Result?.Name);
             }
             catch (Exception ex)
             {
@@ -320,15 +382,15 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
-        /// Updates an asset 
+        /// Updates an Asset 
         /// </summary>
         /// <remarks>
-        /// Provides an action to update an asset, when asset id and the new details of asset are given
+        /// Provides an action to update an Asset, when Asset id and the new details of Asset are given
         /// </remarks>
         /// <param name="id">Asset id, produces bad request if id is null or ids don't match</param>
         /// <param name="request">Asset details to be updated</param>
-        /// <response code="200">Ok, if the asset details for the given asset id have been updated</response>
-        /// <response code="400">Bad request, if the asset id is null or ids don't match</response>
+        /// <response code="200">Ok, if the Asset details for the given Asset id have been updated</response>
+        /// <response code="400">Bad request, if the Asset id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict</response>
         /// <response code="422">Unprocessable entity</response>
@@ -345,52 +407,30 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                Guid entityId = new Guid(id);
+                var existingAsset = _manager.UpdateAsset(id, request);
 
-                var existingAsset = repository.GetOne(Guid.Parse(id));
-                if (existingAsset == null)
-                {
-                    ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                    return NotFound(ModelState);
-                }
-
-                var asset = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
-                if (asset != null && asset.Id != entityId)
-                {
-                    ModelState.AddModelError("Asset", "Asset name already exists");
-                    return BadRequest(ModelState);
-                }
-
-                existingAsset.Name = request.Name;
-                existingAsset.Type = request.Type;
-                existingAsset.TextValue = request.TextValue;
-                existingAsset.NumberValue = request.NumberValue;
-                existingAsset.JsonValue = request.JsonValue;
-                existingAsset = manager.GetSizeInBytes(existingAsset);
-
-                await webhookPublisher.PublishAsync("Assets.AssetUpdated", existingAsset.Id.ToString(), existingAsset.Name).ConfigureAwait(false);
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", existingAsset.Id.ToString(), existingAsset.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, existingAsset);
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
         /// <summary>
-        /// Updates an asset with file 
+        /// Updates an Asset with file 
         /// </summary>
         /// <remarks>
-        /// Provides an action to update an asset with file, when asset id and the new details of asset are given
+        /// Provides an action to update an Asset with file, when Asset id and the new details of Asset are given
         /// </remarks>
         /// <param name="id">Asset id, produces bad request if id is null or ids don't match</param>
         /// <param name="request">New file to update Asset</param>
-        /// <response code="200">Ok, if the asset details for the given asset id have been updated</response>
-        /// <response code="400">Bad request, if the asset id is null or ids don't match</response>
+        /// <response code="200">Ok, if the Asset details for the given Asset id have been updated</response>
+        /// <response code="400">Bad request, if the Asset id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity</response>
-        /// <returns>Ok response with the updated asset value</returns>
+        /// <returns>Ok response with the updated Asset value</returns>
         [HttpPut("{id}/Update")]
         [ProducesResponseType(typeof(Asset), StatusCodes.Status200OK)]
         [Produces("application/json")]
@@ -403,89 +443,26 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                Guid entityId = new Guid(id);
-                var existingAsset = repository.GetOne(Guid.Parse(id));
-                if (existingAsset == null)
-                {
-                    ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                    return NotFound(ModelState);
-                }
+                var existingAsset = _manager.UpdateAssetFile(id, request);
 
-                string binaryObjectId = existingAsset.BinaryObjectID.ToString();
-                var binaryObject = binaryObjectRepo.GetOne(Guid.Parse(binaryObjectId));
+                //update asset entity
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", existingAsset.Id.ToString(), existingAsset.Name).ConfigureAwait(false);
+                await base.PutEntity(id, existingAsset);
 
-                string organizationId = binaryObject.OrganizationId.ToString();
-                if (!string.IsNullOrEmpty(organizationId))
-                    organizationId = automationManager.GetOrganizationId().ToString();
-
-                if (request.Name != null)
-                {
-                    var asset = repository.Find(null, d => d.Name.ToLower(null) == request.Name.ToLower(null))?.Items?.FirstOrDefault();
-                    if (asset != null && asset.Id != entityId)
-                    {
-                        ModelState.AddModelError("Asset", "Asset name already exists");
-                        return BadRequest(ModelState);
-                    }
-                }
-                if (request.File == null)
-                {
-                    ModelState.AddModelError("Save", "No asset uploaded");
-                    return BadRequest(ModelState);
-                }
-
-                long size = request.File == null ? 0 : request.File.Length;
-                if (size <= 0)
-                {
-                    ModelState.AddModelError("Asset Upload", $"File size of asset {request.File.FileName} cannot be 0");
-                    return BadRequest(ModelState);
-                }
-
-                try
-                {
-                    if (!string.IsNullOrEmpty(request.Name))
-                        existingAsset.Name = request.Name;
-                    else existingAsset.Name = existingAsset.Name;
-
-                    if (!string.IsNullOrEmpty(request.Type))
-                        existingAsset.Type = request.Type;
-                    else existingAsset.Type = existingAsset.Type;
-
-                    existingAsset.TextValue = request.TextValue;
-                    existingAsset.NumberValue = request.NumberValue;
-                    existingAsset.JsonValue = request.JsonValue;
-                    existingAsset.SizeInBytes = request.File.Length;
-
-                    if (existingAsset.BinaryObjectID != Guid.Empty && size > 0)
-                    {
-                        //update asset file in OpenBots.Server.Web using relative directory
-                        string apiComponent = "AssetAPI";
-                        await automationManager.Update(existingAsset.BinaryObjectID.Value, request.File, organizationId, apiComponent, request.File.FileName);
-                    }
-
-                    //update asset entity
-                    await webhookPublisher.PublishAsync("Assets.AssetUpdated", existingAsset.Id.ToString(), existingAsset.Name).ConfigureAwait(false);
-                    await base.PutEntity(id, existingAsset);
-
-                    return Ok(existingAsset);
-                }
-                catch (Exception ex)
-                {
-                    return ex.GetActionResult();
-                }
+                return Ok(existingAsset);
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
         /// <summary>
-        /// Deletes an asset with a specified id
+        /// Deletes an Asset with a specified id
         /// </summary>
         /// <param name="id">Asset id to be deleted - throws bad request if null or empty Guid</param>
-        /// <response code="200">Ok, when asset is soft deleted, (isDeleted flag is set to true in database)</response>
-        /// <response code="400">Bad request, if asset id is null or empty Guid</response>
+        /// <response code="200">Ok, when Asset is soft deleted, (isDeleted flag is set to true in database)</response>
+        /// <response code="400">Bad request, if Asset id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>
         /// <returns>Ok response</returns>
         [HttpDelete("{id}")]
@@ -494,48 +471,31 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(string id, string driveName = null)
         {
             try
             {
-                var asset = repository.GetOne(Guid.Parse(id));
-                if (asset != null)
-                {
-                    Guid binaryObjectId = asset.BinaryObjectID??Guid.Empty;
-                    var existingBinaryObject = binaryObjectRepo.GetOne(binaryObjectId);
+                var asset = _manager.DeleteAsset(id, driveName);
 
-                    if (existingBinaryObject != null)
-                    {
-                        await webhookPublisher.PublishAsync("Files.FileDeleted", existingBinaryObject.Id.ToString(), existingBinaryObject.Name).ConfigureAwait(false);
-                        binaryObjectRepo.SoftDelete(binaryObjectId);
-                    }
-
-                    await webhookPublisher.PublishAsync("Assets.AssetDeleted", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
-                    return await base.DeleteEntity(id);
-                }
-                else
-                {
-                    ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                    return NotFound(ModelState);
-                }
+                await _webhookPublisher.PublishAsync("Assets.AssetDeleted", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
+                return await base.DeleteEntity(id);
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
         /// <summary>
-        /// Updates partial details of asset
+        /// Updates partial details of Asset
         /// </summary>
         /// <param name="id">Asset identifier</param>
-        /// <param name="request">Value of the asset to be updated</param>
-        /// <response code="200">Ok, if update of asset is successful</response>
+        /// <param name="request">Value of the Asset to be updated</param>
+        /// <response code="200">Ok, if update of Asset is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
-        /// <returns>Ok response, if the partial asset values have been updated</returns>
+        /// <returns>Ok response, if the partial Asset values have been updated</returns>
         [HttpPatch("{id}")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -545,39 +505,27 @@ namespace OpenBots.Server.Web
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<Asset> request)
         {
-            var asset = repository.GetOne(Guid.Parse(id));
-            if (asset == null)
+            try
             {
-                ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                return NotFound(ModelState);
+                var asset = _manager.PatchAsset(id, request);
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
+                return await base.PatchEntity(id, request);
             }
-
-            Guid entityId = new Guid(id);
-            for (int i = 0; i < request.Operations.Count; i++)
+            catch (Exception ex)
             {
-                if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/name")
-                {
-                    var namedAsset = repository.Find(null, d => d.Name.ToLower(null) == request.Operations[i].value.ToString().ToLower(null) && d.Id != entityId)?.Items?.FirstOrDefault();
-                    if (namedAsset != null)
-                    {
-                        ModelState.AddModelError("Asset", "Asset Name Already Exists");
-                        return BadRequest(ModelState);
-                    }
-                }
+                return ex.GetActionResult();
             }
-            await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
-            return await base.PatchEntity(id, request);
         }
 
         /// <summary>
-        /// Increment the number value of an asset
+        /// Increment the number value of an Asset
         /// </summary>
         /// <param name="id">Asset identifier</param>
-        /// <response code="200">Ok, if update of asset is successful</response>
+        /// <response code="200">Ok, if update of Asset is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
-        /// <returns>Ok response with updated asset value</returns>
+        /// <returns>Ok response with updated Asset value</returns>
         [HttpPut("{id}/Increment")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -586,38 +534,27 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> Increment(string id)
         {
-            var asset = repository.GetOne(Guid.Parse(id));
-            if (asset == null)
+            try
             {
-                ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                return NotFound(ModelState);
+                var asset = _manager.Increment(id);
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
+                return await base.PutEntity(id, asset);
             }
-
-            Guid entityId = new Guid(id);
-            var request = repository.GetOne(entityId);
-            if (request == null) return NotFound();
-
-            if (request.Type.ToLower() != "number")
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", "Asset is not a Number type");
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
-
-            request.NumberValue = request.NumberValue + 1;
-            request = manager.GetSizeInBytes(request);
-            await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
-            return await base.PutEntity(id, request);
         }
 
         /// <summary>
-        /// Decrement the number value of asset
+        /// Decrement the number value of Asset
         /// </summary>
         /// <param name="id">Asset identifier</param>
-        /// <response code="200">Ok, if update of asset is successful</response>
+        /// <response code="200">Ok, if update of Asset is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
-        /// <returns>Ok response with updated asset value</returns>
+        /// <returns>Ok response with updated Asset value</returns>
         [HttpPut("{id}/Decrement")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -626,39 +563,28 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> Decrement(string id)
         {
-            var asset = repository.GetOne(Guid.Parse(id));
-            if (asset == null)
+            try
             {
-                ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                return NotFound(ModelState);
+                var asset = _manager.Decrement(id);
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
+                return await base.PutEntity(id, asset);
             }
-
-            Guid entityId = new Guid(id);
-            var request = repository.GetOne(entityId);
-            if (request == null) return NotFound();
-            
-            if (request.Type.ToLower() != "number")
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", "Asset is not a Number type");
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
-
-            request.NumberValue = request.NumberValue - 1;
-            request = manager.GetSizeInBytes(request);
-            await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
-            return await base.PutEntity(id, request);
         }
 
         /// <summary>
-        /// Add the number value of asset
+        /// Add the number value of Asset
         /// </summary>
         /// <param name="id">Asset identifier</param>
-        /// <param name="value">Value of the asset to be updated</param>
-        /// <response code="200">Ok, if update of asset is successful</response>
+        /// <param name="value">Value of the Asset to be updated</param>
+        /// <response code="200">Ok, if update of Asset is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match.</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
-        /// <returns>Ok response with updated asset value</returns>
+        /// <returns>Ok response with updated Asset value</returns>
         [HttpPut("{id}/Add")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -667,39 +593,28 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> Add(string id, int value)
         {
-            var asset = repository.GetOne(Guid.Parse(id));
-            if (asset == null)
+            try
             {
-                ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                return NotFound(ModelState);
+                var asset = _manager.Add(id, value);
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
+                return await base.PutEntity(id, asset);
             }
-
-            Guid entityId = new Guid(id);
-            var request = repository.GetOne(entityId);
-            if (request == null) return NotFound();
-            
-            if (request.Type.ToLower() != "number")
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", "Asset is not a Number type");
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
-
-            request.NumberValue = request.NumberValue + value;
-            request = manager.GetSizeInBytes(request);
-            await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
-            return await base.PutEntity(id, request);
         }
 
         /// <summary>
-        /// Subtract the number value of asset
+        /// Subtract the number value of Asset
         /// </summary>
         /// <param name="id">Asset identifier</param>
-        /// <param name="value">Value of the asset to be updated</param>
-        /// <response code="200">Ok, if update of asset is successful</response>
+        /// <param name="value">Value of the Asset to be updated</param>
+        /// <response code="200">Ok, if update of Asset is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
-        /// <returns>Ok response with updated asset value</returns>
+        /// <returns>Ok response with updated Asset value</returns>
         [HttpPut("{id}/Subtract")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -708,39 +623,28 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> Subtract(string id, int value)
         {
-            var asset = repository.GetOne(Guid.Parse(id));
-            if (asset == null)
+            try
             {
-                ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                return NotFound(ModelState);
+                var asset = _manager.Subtract(id, value);
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
+                return await base.PutEntity(id, asset);
             }
-
-            Guid entityId = new Guid(id);
-            var request = repository.GetOne(entityId);
-            if (request == null) return NotFound();
-           
-            if (request.Type.ToLower() != "number")
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", "Asset is not a Number type");
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
-
-            request.NumberValue = request.NumberValue - value;
-            request = manager.GetSizeInBytes(request);
-            await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
-            return await base.PutEntity(id, request);
         }
 
         /// <summary>
-        /// Append the text value of asset
+        /// Append the text value of Asset
         /// </summary>
         /// <param name="id">Asset identifier</param>
-        /// <param name="value">Value of the asset to be updated</param>
-        /// <response code="200">Ok, if update of asset is successful</response>
+        /// <param name="value">Value of the Asset to be updated</param>
+        /// <response code="200">Ok, if update of Asset is successful</response>
         /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
-        /// <returns>Ok response with updated asset value</returns>
+        /// <returns>Ok response with updated Asset value</returns>
         [HttpPut("{id}/Append")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -749,27 +653,16 @@ namespace OpenBots.Server.Web
         [Produces("application/json")]
         public async Task<IActionResult> Append(string id, string value)
         {
-            var asset = repository.GetOne(Guid.Parse(id));
-            if (asset == null)
+            try
             {
-                ModelState.AddModelError("Asset", "Asset cannot be found or does not exist.");
-                return NotFound(ModelState);
+                var asset = _manager.Append(id, value);
+                await _webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
+                return await base.PutEntity(id, asset);
             }
-
-            Guid entityId = new Guid(id);
-            var request = repository.GetOne(entityId);
-            if (request == null) return NotFound();
-            
-            if (request.Type.ToLower() != "text")
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Asset", "Asset is not a Text type");
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
-
-            request.TextValue = string.Concat(request.TextValue, " ", value);
-            request = manager.GetSizeInBytes(request);
-            await webhookPublisher.PublishAsync("Assets.AssetUpdated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
-            return await base.PutEntity(id, request);
         }
     }
 }

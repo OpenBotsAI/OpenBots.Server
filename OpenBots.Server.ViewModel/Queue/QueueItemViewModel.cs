@@ -1,11 +1,13 @@
 ﻿#nullable enable
+using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
 using System;
 using System.Collections.Generic;
+using QueueItemModel = OpenBots.Server.Model.QueueItem;
 
 namespace OpenBots.Server.ViewModel
 {
-	public class QueueItemViewModel : NamedEntity, IViewModel<Model.QueueItem, QueueItemViewModel>
+	public class QueueItemViewModel : NamedEntity, IViewModel<QueueItemModel, QueueItemViewModel>
 	{
 		public string State { get; set; }
 		public string StateMessage { get; set; }
@@ -30,9 +32,9 @@ namespace OpenBots.Server.ViewModel
 		public int RetryCount { get; set; }
 		public int Priority { get; set; }
 		public long? PayloadSizeInBytes { get; set; }
-		public List<Guid?> BinaryObjectIds { get; set; }
+		public List<QueueItemAttachment> Attachments { get; set; }
 
-		public QueueItemViewModel Map(Model.QueueItem entity)
+		public QueueItemViewModel Map(QueueItemModel entity)
 		{
 			QueueItemViewModel queueItemViewModel = new QueueItemViewModel();
 

@@ -24,7 +24,7 @@ namespace OpenBots.Server.WebAPI.Controllers
     [Authorize]
     public class OrganizationUnitsController : EntityController<OrganizationUnit>
     {
-        IMembershipManager membershipManager;
+        private readonly IMembershipManager _membershipManager;
         
         /// <summary>
         /// OrganizationUnitsController constructor
@@ -41,8 +41,8 @@ namespace OpenBots.Server.WebAPI.Controllers
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor) : base(repository,  userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.membershipManager = membershipManager;
-            this.membershipManager.SetContext(base.SecurityContext);
+            _membershipManager = membershipManager;
+            _membershipManager.SetContext(base.SecurityContext);
         }
 
         /// <summary>
@@ -67,15 +67,22 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<OrganizationUnit> Get(
+        public async Task<IActionResult> Get(
             [FromRoute] string organizationId,
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0)
         {
-            var departments = membershipManager.GetDepartments(organizationId);
-            return departments;
+            try
+            {
+                var departments = _membershipManager.GetDepartments(organizationId);
+                return Ok(departments);
+            }
+            catch (Exception  ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -99,8 +106,15 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Get(string id)
         {
-            var departments = await base.GetEntity(id);
-            return departments;
+            try
+            {
+                var departments = await base.GetEntity(id);
+                return departments;
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -124,36 +138,43 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesDefaultResponseType]
         public  async Task<IActionResult> Post(string organizationId, [FromBody] OrganizationUnit value)
         {
-            if (value == null && string.IsNullOrEmpty(organizationId))
+            try
             {
-                ModelState.AddModelError("Add", "Organization Id not passed");
-                return BadRequest(ModelState);
+                if (value == null && string.IsNullOrEmpty(organizationId))
+                {
+                    ModelState.AddModelError("Add", "Organization Id not passed");
+                    return BadRequest(ModelState);
+                }
+
+                Guid entityId = new Guid(organizationId);
+
+                if (value == null || value.OrganizationId == null || !value.OrganizationId.HasValue || entityId != value.OrganizationId.Value)
+                {
+                    ModelState.AddModelError("Update", "Organization IDs don't match");
+                    return BadRequest(ModelState);
+                }
+
+                var orgmem = _membershipManager.GetOrganizationMember(Guid.Parse(organizationId), SecurityContext.PersonId)?.Items?.FirstOrDefault();
+                if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
+                {
+                    ModelState.AddModelError("Add", "Add department failed, administrator of an organization can only add departments");
+                    return BadRequest(ModelState);
+                }
+
+                var orgUnit = repository.Find(null, d => d.Name.ToLower(null) == value.Name.ToLower(null) && d.OrganizationId == value.OrganizationId)?.Items?.FirstOrDefault();
+                if (orgUnit != null)
+                {
+                    ModelState.AddModelError("Add", "Department Name already exists, cannot add duplicate");
+                    return BadRequest(ModelState);
+                }
+
+                value.OrganizationId = new Guid(organizationId);
+                return await base.PostEntity(value);
             }
-
-            Guid entityId = new Guid(organizationId);
-
-            if (value == null || value.OrganizationId == null || !value.OrganizationId.HasValue || entityId != value.OrganizationId.Value)
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Update", "Organization IDs don't match");
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
-
-            var orgmem = membershipManager.GetOrganizationMember(Guid.Parse(organizationId), SecurityContext.PersonId)?.Items?.FirstOrDefault();
-            if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
-            {
-                ModelState.AddModelError("Add", "Add department failed, administrator of an organization can only add departments");
-                return BadRequest(ModelState);
-            }
-
-            var orgUnit = repository.Find(null, d => d.Name.ToLower(null) == value.Name.ToLower(null) && d.OrganizationId == value.OrganizationId)?.Items?.FirstOrDefault();
-            if (orgUnit != null)
-            {
-                ModelState.AddModelError("Add", "Department Name already exists, cannot add duplicate");
-                return BadRequest(ModelState);
-            }
-
-            value.OrganizationId = new Guid(organizationId);
-            return await base.PostEntity(value);
         }
 
         /// <summary>
@@ -178,28 +199,37 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Put(string organizationId, string id, [FromBody] OrganizationUnit value)
         {
-            if (value == null && string.IsNullOrEmpty(organizationId))
+            try
             {
-                ModelState.AddModelError("Update", "Organization details not passed");
-                return BadRequest(ModelState);
-            }
-            Guid entityId = new Guid(organizationId);
 
-            if (value == null || value.OrganizationId == null || !value.OrganizationId.HasValue || entityId != value.OrganizationId.Value)
+                if (value == null && string.IsNullOrEmpty(organizationId))
+                {
+                    ModelState.AddModelError("Update", "Organization details not passed");
+                    return BadRequest(ModelState);
+                }
+                Guid entityId = new Guid(organizationId);
+
+                if (value == null || value.OrganizationId == null || !value.OrganizationId.HasValue || entityId != value.OrganizationId.Value)
+                {
+                    ModelState.AddModelError("Update", "Organization IDs don't match");
+                    return BadRequest(ModelState);
+                }
+
+                var orgmem = _membershipManager.GetOrganizationMember(Guid.Parse(organizationId), SecurityContext.PersonId)?.Items?.FirstOrDefault();
+                if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
+                {
+                    ModelState.AddModelError("Update", "Update department failed, administrator of an organization can only update departments");
+                    return BadRequest(ModelState);
+                }
+
+                value.OrganizationId = new Guid(organizationId);
+                return await base.PutEntity(id, value);
+   
+            }
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Update", "Organization IDs don't match");
-                return BadRequest(ModelState);
-            }
-
-            var orgmem = membershipManager.GetOrganizationMember(Guid.Parse(organizationId), SecurityContext.PersonId)?.Items?.FirstOrDefault();
-            if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
-            {
-                ModelState.AddModelError("Update", "Update department failed, administrator of an organization can only update departments");
-                return BadRequest(ModelState);
-            }
-
-            value.OrganizationId = new Guid(organizationId);
-            return await base.PutEntity(id, value);
+                return ex.GetActionResult();
+            };
         }
 
         /// <summary>
@@ -220,26 +250,33 @@ namespace OpenBots.Server.WebAPI.Controllers
         [ProducesDefaultResponseType]
         public  async Task<IActionResult> Delete(string organizationId, string id)
         {
-            if (string.IsNullOrEmpty(organizationId) || string.IsNullOrEmpty(id))
+            try
             {
-                ModelState.AddModelError("Update", "Organization Id / Department Id not passed");
-                return BadRequest(ModelState);
-            }
-            Guid entityId = new Guid(id);
-            var orgmem = membershipManager.GetOrganizationMember(Guid.Parse(organizationId), SecurityContext.PersonId)?.Items?.FirstOrDefault();
-            if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
-            {
-                ModelState.AddModelError("Delete", "Delete department failed, administrator of an organization can only delete departments");
-                return BadRequest(ModelState);
-            }
+                if (string.IsNullOrEmpty(organizationId) || string.IsNullOrEmpty(id))
+                {
+                    ModelState.AddModelError("Update", "Organization Id / Department Id not passed");
+                    return BadRequest(ModelState);
+                }
+                Guid entityId = new Guid(id);
+                var orgmem = _membershipManager.GetOrganizationMember(Guid.Parse(organizationId), SecurityContext.PersonId)?.Items?.FirstOrDefault();
+                if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
+                {
+                    ModelState.AddModelError("Delete", "Delete department failed, administrator of an organization can only delete departments");
+                    return BadRequest(ModelState);
+                }
 
-            var orgUnit = repository.Find(null, d => d.Id == entityId && d.CanDelete == false)?.Items?.FirstOrDefault();
-            if (orgUnit != null)
-            {
-                ModelState.AddModelError("Delete", "Department cannot be deleted ");
-                return BadRequest(ModelState);
+                var orgUnit = repository.Find(null, d => d.Id == entityId && d.CanDelete == false)?.Items?.FirstOrDefault();
+                if (orgUnit != null)
+                {
+                    ModelState.AddModelError("Delete", "Department cannot be deleted ");
+                    return BadRequest(ModelState);
+                }
+                return await base.DeleteEntity(id);
             }
-            return await base.DeleteEntity(id);
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -257,19 +294,26 @@ namespace OpenBots.Server.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> Patch(string organizationId, string id,[FromBody] JsonPatchDocument<OrganizationUnit> value)
         {
-            if (value == null || string.IsNullOrEmpty(id))
+            try
             {
-                ModelState.AddModelError("Update", "Organization Department Id not passed");
-                return BadRequest(ModelState);
-            }
+                if (value == null || string.IsNullOrEmpty(id))
+                {
+                    ModelState.AddModelError("Update", "Organization Department Id not passed");
+                    return BadRequest(ModelState);
+                }
 
-            var orgmem = membershipManager.GetOrganizationMember(Guid.Parse(organizationId), SecurityContext.PersonId)?.Items?.FirstOrDefault();
-            if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
-            {
-                ModelState.AddModelError("Update", "Update failed, administrator of an organization can only update");
-                return BadRequest(ModelState);
+                var orgmem = _membershipManager.GetOrganizationMember(Guid.Parse(organizationId), SecurityContext.PersonId)?.Items?.FirstOrDefault();
+                if (orgmem == null || (orgmem != null && orgmem.IsAdministrator == null) || (orgmem != null && orgmem.IsAdministrator.HasValue && orgmem.IsAdministrator == false))
+                {
+                    ModelState.AddModelError("Update", "Update failed, administrator of an organization can only update");
+                    return BadRequest(ModelState);
+                }
+                return await base.PatchEntity(id, value);
             }
-            return await base.PatchEntity(id, value);
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

@@ -26,7 +26,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
     [Authorize]
     public class IntegrationEventsController : ReadOnlyEntityController<IntegrationEvent>
     {
-        private readonly IIntegrationEventRepository repository;
+        private readonly IIntegrationEventRepository _repository;
 
         /// <summary>
         /// IntegrationEventsController constructor
@@ -43,7 +43,7 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.repository = repository;
+            _repository = repository;
         }
 
         /// <summary>
@@ -66,14 +66,21 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<IntegrationEvent> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -126,21 +133,29 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public IntegrationEventEntitiesLookupViewModel AllIntegrationEvents()
+        public async Task<IActionResult> AllIntegrationEvents()
         {
-            var response = repository.Find(null, x => x.IsDeleted == false);
-            IntegrationEventEntitiesLookupViewModel eventLogList = new IntegrationEventEntitiesLookupViewModel();
-
-            if (response != null)
+            try
             {
-                eventLogList.EntityNameList = new List<string>();
+                var response = _repository.Find(null, x => x.IsDeleted == false);
+                IntegrationEventEntitiesLookupViewModel eventLogList = new IntegrationEventEntitiesLookupViewModel();
 
-                foreach (var item in response.Items)
+                if (response != null)
                 {
-                    eventLogList.EntityNameList.Add(item.EntityType);
+                    eventLogList.EntityNameList = new List<string>();
+
+                    foreach (var item in response.Items)
+                    {
+                        eventLogList.EntityNameList.Add(item.EntityType);
+                    }
+                    eventLogList.EntityNameList = eventLogList.EntityNameList.Distinct().ToList();
                 }
-                eventLogList.EntityNameList = eventLogList.EntityNameList.Distinct().ToList();            }
-            return eventLogList;
+                return Ok(eventLogList);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

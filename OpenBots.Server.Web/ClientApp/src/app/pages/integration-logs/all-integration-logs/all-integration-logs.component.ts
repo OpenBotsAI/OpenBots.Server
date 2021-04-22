@@ -48,7 +48,7 @@ export class AllIntegrationLogsComponent implements OnInit {
   ];
   constructor(
     protected router: Router,
-    private _FileSaverService: FileSaverService,
+    private FileSaverService: FileSaverService,
     private formBuilder: FormBuilder,
     protected jobService: IntegrationLogsService,
     private acroute: ActivatedRoute
@@ -62,7 +62,6 @@ export class AllIntegrationLogsComponent implements OnInit {
 
   get_filter_agent_process() {
     this.jobService.get_EntityName().subscribe((data: any) => {
-      console.log(data.integrationEntityTypeList);
       this.show_filter_entity = data.integrationEntityTypeList;
       this.show_filter_event = data.integrationEventNameList;
     });
@@ -196,7 +195,6 @@ export class AllIntegrationLogsComponent implements OnInit {
   }
 
   sort(filter_val, vale) {
-    console.log(filter_val, vale);
     if (this.abc_filter) {
       this.feild_name = filter_val + '+' + vale;
       const skip = (this.page.pageNumber - 1) * this.page.pageSize;
@@ -328,7 +326,6 @@ export class AllIntegrationLogsComponent implements OnInit {
             //   }
             // }
             this.show_allsystemevent = data.items;
-            console.log('jobs2', this.show_allsystemevent);
             this.showpage = data;
             this.page.totalCount = data.totalCount;
           });

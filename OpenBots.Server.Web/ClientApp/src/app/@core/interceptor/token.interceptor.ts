@@ -14,6 +14,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { throwError } from 'rxjs/internal/observable/throwError';
 import { Observable } from 'rxjs/internal/Observable';
 import { HttpService } from '../services/http.service';
+import { SpinnerService } from '../../loader-spinner/spinner.service';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
@@ -23,13 +24,15 @@ export class TokenInterceptor implements HttpInterceptor {
     private toastrService: NbToastrService,
     private authService: AuthService,
     private router: Router,
-    private httpService: HttpService
+    private httpService: HttpService,
+    private spinnerService: SpinnerService
   ) {}
 
   intercept(
     request: HttpRequest<unknown>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
+    // this.spinnerService.requestStarted();
     const token = localStorage.getItem('accessToken');
     if (token) {
       request = this.attachToken(request, token);
@@ -71,6 +74,7 @@ export class TokenInterceptor implements HttpInterceptor {
         switchMap((token: any) => {
           this.isRefreshing = false;
           this.refreshTokenSubject.next(token.jwt);
+          //this.spinnerService.requestEnded();
           return next.handle(this.attachToken(request, token.jwt));
         })
       );
@@ -79,6 +83,7 @@ export class TokenInterceptor implements HttpInterceptor {
         filter((token) => token != null),
         take(1),
         switchMap((token) => {
+          // this.spinnerService.requestEnded();
           return next.handle(this.attachToken(request, token));
         })
       );
@@ -86,8 +91,10 @@ export class TokenInterceptor implements HttpInterceptor {
   }
 
   handleErrorGlobal(error) {
+    // this.spinnerService.resetSpinner();
     let errorMessage = '';
     if (error.error instanceof HttpErrorResponse) {
+       // this.spinnerService.resetSpinner();
       this.toastrService.danger(
         `${error.status} ${error.error.serviceErrors[0]}`
       );
@@ -98,6 +105,7 @@ export class TokenInterceptor implements HttpInterceptor {
         error.error.serviceErrors[0] ==
           'Token is no longer valid. Please log back in.'
       ) {
+         // this.spinnerService.resetSpinner();
         this.toastrService.danger(`${error.error.serviceErrors[0]}`, 'Failed');
         this.router.navigate(['auth/login']);
         localStorage.clear();
@@ -108,13 +116,16 @@ export class TokenInterceptor implements HttpInterceptor {
         error.error.serviceErrors[0] !=
           'Token is no longer valid. Please log back in.'
       ) {
+        //this.spinnerService.resetSpinner();
         this.toastrService.danger(`${error.error.serviceErrors[0]}`, 'Failed');
       }
     }
+    //  this.spinnerService.resetSpinner();
     return throwError(errorMessage);
   }
 
   attachToken(request: HttpRequest<unknown>, token: string) {
+    //this.spinnerService.resetSpinner();
     return request.clone({
       setHeaders: { Authorization: `Bearer ${token}` },
     });

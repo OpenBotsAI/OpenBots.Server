@@ -30,10 +30,10 @@ export class GetFileIdComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private httpService: HttpService,
-    private _FileSaverService: FileSaverService,
+    private FileSaverService: FileSaverService,
     private dialogService: DialogService,
     private helperService: HelperService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.currentUrlId = this.route.snapshot.params['id'];
@@ -117,7 +117,7 @@ export class GetFileIdComponent implements OnInit {
           .split(';')[1]
           .split('=')[1]
           .replace(/\"/g, '');
-        this._FileSaverService.save(res.body, fileName);
+        this.FileSaverService.save(res.body, fileName);
       });
   }
 

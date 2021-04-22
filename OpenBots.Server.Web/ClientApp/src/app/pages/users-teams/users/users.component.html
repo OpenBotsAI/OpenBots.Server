@@ -25,14 +25,16 @@
             Name
             <i (click)="onSortClick($event, 'name')" class="my-icon fa fa-chevron-up"></i>
           </th>
-          <th scope="col" *ngIf="isAdmin == 'true'">Is Admin</th>
+          <th scope="col" *ngIf="isAdmin == 'true'"> Is Admin
+            <i (click)="onSortClick($event, 'isAdmin')" class="my-icon fa fa-chevron-up"></i>
+          </th>
           <th scope="col">
             Email Address
             <i (click)="onSortClick($event, 'emailAddress')" class="my-icon fa fa-chevron-up"></i>
           </th>
           <th scope="col">
             Status
-            <i (click)="onSortClick($event, 'status')" [attr.class]="get_allpeople | chevron"></i>
+            <i (click)="onSortClick($event, 'status')" [attr.class]="get_allpeople | chevron: page.totalCount"></i>
           </th>
           <th scope="col" *ngIf="isAdmin == 'true'">Edit</th>
           <th scope="col" *ngIf="isAdmin == 'true'">Delete</th>

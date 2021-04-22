@@ -26,8 +26,8 @@ namespace OpenBots.Server.Web
     [Authorize]
     public class AutomationExecutionLogsController : EntityController<AutomationExecutionLog>
     {
-        readonly IAgentRepository agentRepository;
-        IAutomationExecutionLogManager automationExecutionLogManager;
+        private readonly IAgentRepository _agentRepository;
+        private readonly IAutomationExecutionLogManager _automationExecutionLogManager;
 
         /// <summary>
         /// AutomationExecutionLogsController constructor
@@ -48,9 +48,9 @@ namespace OpenBots.Server.Web
             IHttpContextAccessor httpContextAccessor,
             IConfiguration configuration) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
-            this.automationExecutionLogManager = automationExecutionLogManager;
-            this.automationExecutionLogManager.SetContext(base.SecurityContext);
-            this.agentRepository = agentRepository;
+            _automationExecutionLogManager = automationExecutionLogManager;
+            _automationExecutionLogManager.SetContext(base.SecurityContext);
+            _agentRepository = agentRepository;
         }
 
         /// <summary>
@@ -69,14 +69,21 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AutomationExecutionLog> Get(
+        public async Task<IActionResult> Get(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            return base.GetMany();
+            try
+            {
+                return Ok(base.GetMany());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -95,18 +102,24 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public PaginatedList<AutomationExecutionViewModel> View(
+        public async Task<IActionResult> View(
             [FromQuery(Name = "$filter")] string filter = "",
             [FromQuery(Name = "$orderby")] string orderBy = "",
             [FromQuery(Name = "$top")] int top = 100,
             [FromQuery(Name = "$skip")] int skip = 0
             )
         {
-            ODataHelper<AutomationExecutionViewModel> oDataHelper = new ODataHelper<AutomationExecutionViewModel>();
+            try
+            {
+                ODataHelper<AutomationExecutionViewModel> oDataHelper = new ODataHelper<AutomationExecutionViewModel>();
+                var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-            var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
-
-            return automationExecutionLogManager.GetAutomationAndAgentNames(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take);
+                return Ok(_automationExecutionLogManager.GetAutomationAndAgentNames(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -125,10 +138,17 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public int? Count(
+        public async Task<IActionResult> Count(
             [FromQuery(Name = "$filter")] string filter = "")
         {
-            return base.Count();
+            try
+            {
+                return Ok(base.Count());
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
 
         /// <summary>
@@ -193,7 +213,7 @@ namespace OpenBots.Server.Web
                 if (okResult != null)
                 {
                     AutomationExecutionViewModel view = okResult.Value as AutomationExecutionViewModel;
-                    view = automationExecutionLogManager.GetExecutionView(view);
+                    view = _automationExecutionLogManager.GetExecutionView(view);
                 }
 
                 return actionResult;
@@ -215,7 +235,7 @@ namespace OpenBots.Server.Web
         /// <response code="400">BadRequest,When the AutomationExecutionLog value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict,concurrency error</response> 
-        /// <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+        /// <response code="422">Unprocessable Entity,when a duplicate record is being entered.</response>
         /// <returns> newly created unique AutomationExecutionLog Id with route name </returns>
         [HttpPost]
         [ProducesResponseType(typeof(AutomationExecutionLog), StatusCodes.Status200OK)]
@@ -248,7 +268,7 @@ namespace OpenBots.Server.Web
         /// <response code="400">BadRequest,When the AutomationExecutionLog value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         ///<response code="409">Conflict,concurrency error</response> 
-        /// <response code="422">UnprocessabileEntity,when a duplicate record is being entered.</response>
+        /// <response code="422">Unprocessable Entity,when a duplicate record is being entered.</response>
         /// <returns> newly created unique AutomationExecutionLog Id with route name </returns>
         [AllowAnonymous]
         [HttpPost("StartAutomation")]
@@ -263,7 +283,7 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                var agent = agentRepository.Find(null, a=> a.Id == request.AgentID)?.Items?.FirstOrDefault();
+                var agent = _agentRepository.Find(null, a=> a.Id == request.AgentID)?.Items?.FirstOrDefault();
 
                 if (agent == null)
                 {
@@ -329,8 +349,7 @@ namespace OpenBots.Server.Web
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("AutomationExecutionLog", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
 
@@ -360,7 +379,7 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                var agent = agentRepository.Find(null, a => a.Id == request.AgentID)?.Items?.FirstOrDefault();
+                var agent = _agentRepository.Find(null, a => a.Id == request.AgentID)?.Items?.FirstOrDefault();
 
                 if (agent == null)
                 {
@@ -434,7 +453,14 @@ namespace OpenBots.Server.Web
         public async Task<IActionResult> Patch(string id,
             [FromBody] JsonPatchDocument<AutomationExecutionLog> request)
         {
-            return await base.PatchEntity(id, request);
+            try
+            {
+                return await base.PatchEntity(id, request);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
         }
     }
 }

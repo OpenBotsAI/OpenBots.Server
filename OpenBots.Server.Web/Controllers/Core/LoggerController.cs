@@ -12,6 +12,7 @@ using Serilog.Parsing;
 using Serilog.Sinks.MSSqlServer.Sinks.MSSqlServer.Options;
 using Serilog.Sinks.MSSqlServer;
 using OpenBots.Server.Model.Attributes;
+using OpenBots.Server.WebAPI.Controllers;
 
 namespace OpenBots.Server.Web.Controllers
 {
@@ -42,7 +43,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="400">Bad request, when the log value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="409">Conflict, concurrency error</response> 
-        /// <response code="422">Unprocessabile entity, when a duplicate record is being entered</response>
+        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
         /// <returns>Ok response if the logs were successfully stored</returns>
         [HttpPost("{logger?}")]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
@@ -135,8 +136,7 @@ namespace OpenBots.Server.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Logger", ex.Message);
-                return BadRequest(ModelState);
+                return ex.GetActionResult();
             }
         }
     }

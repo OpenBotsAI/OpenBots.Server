@@ -15,7 +15,7 @@
         
         </nb-card-header>
         <nb-card-body>
-          <form [formGroup]="addagent"  >
+          <form [formGroup]="addAsset"  >
               <div class="row">
                 <div class="col-md-6">
                     <div class="form-group ">
@@ -37,7 +37,7 @@
 
             
 
-                 <div class="col-md-12" *ngIf="show_allagents.type == 'Number'" >
+                 <div class="col-md-12" *ngIf="AssetType.type == 'Number'" >
                   <div class="form-group ">
                     <label for="agentname" class="label  col-form-label">Number </label>
                 
@@ -50,7 +50,7 @@
 
 
 
-                  <div class="col-md-12" *ngIf="show_allagents.type == 'Text'" >
+                  <div class="col-md-12" *ngIf="AssetType.type == 'Text'" >
                     <div class="form-group ">
                       <label for="agentname" class="label  col-form-label">Text </label>
                      
@@ -63,7 +63,7 @@
                     </div>
 
 
-                  <div class="col-md-12" *ngIf="show_allagents.type == 'JSON'" >
+                  <div class="col-md-12" *ngIf="AssetType.type == 'Json'" >
                     <div class="form-group ">
                       <label for="agentname" class="label  col-form-label">Value Json</label>
                       <p class="p-text">
@@ -75,7 +75,69 @@
               </div>
 
 
-
+               
+                 <div class="row rowPadTOp" *ngIf="showGlobalAsset">
+          <div class="col-md-12">
+              <table class="table table-bordered"  >
+          <thead>
+            <tr >
+              <th scope="col">
+               Agent
+                
+              </th>
+              <th scope="col" *ngIf="AssetType.type !== 'File'">
+                Value
+              </th>
+              <th scope="col" *ngIf="AssetType.type == 'File'">
+                File Name 
+              </th>
+              <th scope="col" *ngIf="AssetType.type == 'File'">
+                File Size
+              </th>
+              <th scope="col" *ngIf="AssetType.type == 'File'">
+               Download
+              </th>
+             
+               
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let assetagentvalue of showAgentAsstData" 
+               ><td scope="row">
+               {{assetagentvalue.agentName}}
+              </td>
+              
+              <td scope="row" *ngIf="AssetType.type == 'Text'" >
+                {{assetagentvalue.textValue}}
+              </td>
+              <td scope="row " *ngIf="AssetType.type == 'Json'" >
+                 <p class="p-text">
+                    <ngx-json-viewer [json]="assetagentvalue.jsonValue" [expanded]="false"></ngx-json-viewer>
+                 </p>
+                
+              </td>
+              <td scope="row" *ngIf="AssetType.type == 'Number'" >
+                {{assetagentvalue.numberValue}}
+              </td>
+              <td scope="row" *ngIf="AssetType.type == 'File'" >
+                {{assetagentvalue.fileName}}
+              </td>
+              <td scope="row" *ngIf="AssetType.type == 'File'" >
+                {{assetagentvalue.sizeInBytes | filesize}}
+              </td>
+               <td scope="row" *ngIf="AssetType.type == 'File'" >
+                 <a (click)="downloadFile(assetagentvalue.id )"><i class="fa fa-download"></i></a>
+              </td>
+               
+            
+            </tr>
+           
+          </tbody>
+        </table>
+          </div>
+        
+        </div>
+            
               <div class="row" >
 
 

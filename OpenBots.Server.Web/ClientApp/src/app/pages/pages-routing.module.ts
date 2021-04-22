@@ -43,6 +43,15 @@ const routes: Routes = [
         canActivate: [LoginGuard],
       },
       {
+        path: 'file-manager',
+        loadChildren: () =>
+          import('./file-manager/file-manager.module').then(
+            (mod) => mod.FileManagerModule
+          ),
+        canActivate: [LoginGuard],
+      },
+
+      {
         path: 'change-log',
         loadChildren: () =>
           import('./change-log/change-log.module').then(
@@ -173,6 +182,14 @@ const routes: Routes = [
         canActivate: [LoginGuard],
       },
       {
+        path: 'agentgroup',
+        loadChildren: () =>
+          import('./agentgroup/agentgroup.module').then(
+            (mod) => mod.AgentGroupModule
+          ),
+        canActivate: [LoginGuard],
+      },
+      {
         path: 'miscellaneous',
         loadChildren: () =>
           import('./miscellaneous/miscellaneous.module').then(
@@ -197,4 +214,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class PagesRoutingModule { }
+export class PagesRoutingModule {}

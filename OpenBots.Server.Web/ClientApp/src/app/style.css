@@ -1,4 +1,5 @@
 @import '~ng-pick-datetime/assets/style/picker.min.css';
+@import "~@ng-select/ng-select/themes/default.theme.css";
 
 body {
     font-size: 14px !important;

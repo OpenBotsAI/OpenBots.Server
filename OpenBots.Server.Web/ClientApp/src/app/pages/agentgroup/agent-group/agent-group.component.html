@@ -1,0 +1,75 @@
+<div class="row">
+    <div class="col-md-12">
+        <nb-card>
+            <nb-card-header>
+                <h2>{{title}} Agent Group</h2>
+            </nb-card-header>
+            <nb-card-body>
+                <form [formGroup]="agentGroupForm" autocomplete="off">
+                    <div class="row rowPadding">
+                        <div class="col-md-12 col-lg-12 col-xxxl-12">
+                            <label for="name" class="label">Name *</label>
+                            <input type="input" nbInput fullWidth id="name" formControlName="name"
+                                placeholder="Please enter name" ngxSpecialChar trim="blur" />
+                            <div *ngIf="
+                          controls.name.invalid && (controls.name.dirty || controls.name.touched)"
+                                class="invalid-feedback-frm">
+                                <div *ngIf="controls.name.errors.required">
+                                    Name is required.
+                                </div>
+                                <div *ngIf="controls.name.errors.minlength">
+                                    Name must be at least 3 characters long.
+                                </div>
+                                <div *ngIf="controls.name.errors.maxlength">
+                                    Name can be 100 characters long.
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="row rowPaddingTop" *ngIf="urlId">
+                        <div class="col-md-10 col-sm-10 col-xxxl-10">
+                            <label class="label">Include Agents</label>
+                            <ng-select [items]="allAgentsArr" [searchable]="true" bindLabel="agentName"
+                                formControlName="agentGroupMembers" class="NgSelect" [multiple]="true"
+                                placeholder="Please select agent group" [closeOnSelect]="false">
+                                <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
+                                    <input id="item-{{index}}" type="checkbox" [checked]="item$.selected" />
+                                    {{item.agentName}}
+                                </ng-template>
+                            </ng-select>
+                        </div>
+                        <div class="col-md-2 col-sm-2 col-xxxl-2">
+                            <div class="form-group">
+                                <label class="label">Enabled</label>
+                                <div class="checkbox checbox-switch switch-primary">
+                                    <label>
+                                        <input type="checkbox" name="isAdmin" formControlName="isEnabled" />
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row rowPaddingTop">
+                        <div class="col-md-12 col-lg-12 col-xxxl-12">
+                            <label for="description" class="label">Description</label>
+                            <textarea type="input" rows="5" nbInput fullWidth id="description"
+                                formControlName="description" class="form-control"
+                                placeholder="Please enter description"> </textarea>
+                        </div>
+                    </div>
+                    <div class="row rowPaddingTop">
+                        <div class="col-md-12 col-lg-12 col-xxxl-6">
+                            <button class="btn btn-primary" status="primary" type="submit"
+                                [disabled]="agentGroupForm.invalid || isSubmitted" (click)="onSubmit()">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
+</div>

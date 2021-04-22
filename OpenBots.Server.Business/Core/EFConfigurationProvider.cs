@@ -8,8 +8,8 @@ using OpenBots.Server.Model.File;
 using OpenBots.Server.Model.Membership;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using static OpenBots.Server.Business.File.FileManager;
 
 namespace OpenBots.Server.Business
 {
@@ -36,18 +36,6 @@ namespace OpenBots.Server.Business
                     ? CreateAndSaveDefaultValues(dbContext)
                     : dbContext.ConfigurationValues.ToDictionary(c => c.Name, c => c.Value);
 
-                //create server drive
-                ServerDrive drive = dbContext.ServerDrives.FirstOrDefault();
-                if (drive == null)
-                {
-                    Organization organization = dbContext.Organizations.FirstOrDefault();
-                    if (organization != null)
-                    {
-                        Guid? organizationId = organization.Id;
-                        dbContext.ServerDrives.Add(new ServerDrive { Id = new Guid("37a01356-7514-47a2-96ce-986faadd628e"), FileStorageAdapterType = AdapterType.LocalFileStorageAdapter.ToString(), Name = "ServerDrive", OrganizationId = organizationId, StorageSizeInBytes = 0, IsDeleted = false });
-                    }
-
-                }
                 dbContext.SaveChanges();
             }
         }
@@ -56,13 +44,10 @@ namespace OpenBots.Server.Business
         {
             var configValues = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
-                { "BinaryObjects:Adapter", "FileSystemAdapter" },
-                { "BinaryObjects:StorageProvider", "FileSystem.Default" },
-                { "BinaryObjects:Path", "BinaryObjects"},
                 { "Queue.Global:DefaultMaxRetryCount", "3" },
                 { "App:EnableSwagger", "true"},
                 { "App:MaxExportRecords", "100"},
-                { "App:MaxReturnRecords", "100"},
+                { "App:MaxReturnRecords", "100"}
             };
 
             foreach (var value in configValues)

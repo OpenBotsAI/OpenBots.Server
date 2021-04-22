@@ -42,6 +42,8 @@ namespace OpenBots.Server.DataAccess.Repositories
                                 from a in table1.DefaultIfEmpty()
                                 join p in dbContext.Automations on s.AutomationId equals p.Id into table2
                                 from p in table2.DefaultIfEmpty()
+                                join g in dbContext.AgentGroups on s.AgentGroupId equals g.Id into table3
+                                from g in table3.DefaultIfEmpty()
                                 select new AllSchedulesViewModel
                                 {
                                     Id = s?.Id,
@@ -50,8 +52,10 @@ namespace OpenBots.Server.DataAccess.Repositories
                                     Name = s?.Name,
                                     StartingType = s?.StartingType,
                                     Status = s?.Status,
-                                    AgentId = (a == null || a.Id == null) ? Guid.Empty : a.Id.Value,
+                                    AgentId = (a == null || a?.Id == null) ? Guid.Empty : a?.Id.Value,
+                                    AgentGroupId = (g == null || g?.Id == null) ? Guid.Empty : g?.Id.Value,
                                     AgentName = a?.Name,
+                                    AgentGroupName = g?.Name,
                                     AutomationId = (p == null || p.Id == null) ? Guid.Empty : p.Id.Value,
                                     AutomationName = p?.Name,
                                     CRONExpression = s?.CRONExpression,

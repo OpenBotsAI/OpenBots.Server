@@ -113,13 +113,13 @@
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="expireOnUTC" class="label">Expire On</label>
               <input nbInput fullWidth formControlName="expireOnUTC" [owlDateTimeTrigger]="dtPicker1"
-                [owlDateTime]="dtPicker1" [min]="min" placeholder="Please select expire on" />
+                [owlDateTime]="dtPicker1" [min]="expireMinDate" placeholder="Please select expire on" />
               <owl-date-time #dtPicker1></owl-date-time>
             </div>
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="postponeUntilUTC" class="label">Postpone Until</label>
               <input nbInput fullWidth formControlName="postponeUntilUTC" [owlDateTimeTrigger]="datePicker1"
-                [owlDateTime]="datePicker1" [min]="min" placeholder="Please select postpone untill" />
+                [owlDateTime]="datePicker1" [min]="postponeMinDate" placeholder="Please select postpone untill" />
               <owl-date-time #datePicker1></owl-date-time>
             </div>
           </div>
@@ -207,7 +207,7 @@
           <div class="row">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <button type="submit" class="btn btn-primary" status="primary"
-                [disabled]="queueItemForm.invalid || isSubmitted" (click)="addQueueItem()">
+                [disabled]="queueItemForm.invalid || isSubmitted" (click)="onSubmit()">
                 Save
               </button>
             </div>
@@ -219,7 +219,7 @@
   </div>
 </div>
 
-<div class="row" *ngIf="title == 'Update' && queuefiles.length ">
+<div class="row" *ngIf="title == 'Update' && queueItemFiles.length ">
   <div class="col-md-12">
     <nb-card>
       <nb-card-header>
@@ -252,7 +252,7 @@
                 <ngx-tooltip [data]="files?.sizeInBytes| filesize" [size]="20"> </ngx-tooltip>
               </td>
               <td>
-                <a (click)="downloadFile(files?.id)"><i class="fa fa-download"></i></a>
+                <a (click)="downloadFile(files?.fileId)"><i class="fa fa-download"></i></a>
               </td>
               <td>
                 <a (click)="openDeleteDialog(deleteDialog, files?.id)">

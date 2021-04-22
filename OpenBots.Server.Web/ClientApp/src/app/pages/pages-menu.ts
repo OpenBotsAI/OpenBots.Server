@@ -35,6 +35,14 @@ export class PagesMenu {
         icon: { icon: 'agent', pack: 'custom-icons' },
         children: [
           {
+            title: 'All Agent Group',
+            link: '/pages/agentgroup/list',
+          },
+          {
+            title: 'Add Agent Group',
+            link: '/pages/agentgroup',
+          },
+          {
             title: 'All Agents',
             link: '/pages/agents/list',
           },
@@ -137,15 +145,30 @@ export class PagesMenu {
         icon: { icon: 'file', pack: 'custom-icons' },
         children: [
           {
-            title: 'All Files',
-            link: '/pages/file/list',
+            title: 'Files Manager',
+            link: '/pages/file-manager',
           },
-          {
-            title: 'Add File',
-            link: '/pages/file/add',
-          },
+          // {
+          //   title: 'All Files',
+          //   link: '/pages/file/list',
+          // },
+          // {
+          //   title: 'Add File',
+          //   link: '/pages/file/add',
+          // },
         ],
       },
+      // {
+      //   title: 'File Manager',
+      //   icon: { icon: 'file', pack: 'custom-icons' },
+      //   children: [
+      //     {
+      //       title: 'Files',
+      //       link: '/pages/file-manager',
+      //     },
+      //   ],
+      // },
+
       {
         title: 'Integration',
         icon: { icon: 'process', pack: 'custom-icons' },

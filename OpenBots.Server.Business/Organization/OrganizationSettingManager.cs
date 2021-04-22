@@ -9,22 +9,22 @@ namespace OpenBots.Server.Business
 {
     public class OrganizationSettingManager : BaseManager, IOrganizationSettingManager
     {
-        private readonly IOrganizationManager organizationManager;
-        private readonly IOrganizationSettingRepository organizationSettingRepository;
+        private readonly IOrganizationManager _organizationManager;
+        private readonly IOrganizationSettingRepository _organizationSettingRepository;
         public OrganizationSettingManager(IOrganizationManager organizationManager,
                 IOrganizationSettingRepository organizationSettingRepository)
         {
-            this.organizationManager = organizationManager;
-            this.organizationSettingRepository = organizationSettingRepository;
+            _organizationManager = organizationManager;
+            _organizationSettingRepository = organizationSettingRepository;
         }
 
         public bool HasDisallowedExecution()
         {
-            var defaultOrganization = organizationManager.GetDefaultOrganization();
+            var defaultOrganization = _organizationManager.GetDefaultOrganization();
 
-            organizationSettingRepository.ForceIgnoreSecurity();
-            var orgSettings = organizationSettingRepository.Find(null, s => s.OrganizationId == defaultOrganization.Id).Items.FirstOrDefault();
-            organizationSettingRepository.ForceSecurity();
+            _organizationSettingRepository.ForceIgnoreSecurity();
+            var orgSettings = _organizationSettingRepository.Find(null, s => s.OrganizationId == defaultOrganization.Id).Items.FirstOrDefault();
+            _organizationSettingRepository.ForceSecurity();
 
             if (orgSettings != null && orgSettings.DisallowAllExecutions != null)
             {

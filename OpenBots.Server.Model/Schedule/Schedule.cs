@@ -6,7 +6,7 @@ namespace OpenBots.Server.Model
     public class Schedule : NamedEntity
     {
         public Guid? AgentId { get; set; }
-        public string? AgentName { get; set; }
+        public Guid? AgentGroupId { get; set; }
         public string? CRONExpression { get; set; }
         public DateTime? LastExecution { get; set; }
         public DateTime? NextExecution { get; set; }

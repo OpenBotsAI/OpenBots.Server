@@ -10,7 +10,9 @@ namespace OpenBots.Server.ViewModel
         public Guid? Id { get; set; }
         public string Name { get; set; }
         public Guid? AgentId { get; set; }
+        public Guid? AgentGroupId { get; set; }
         public string? AgentName { get; set; }
+        public string? AgentGroupName { get; set; }
         public string? CRONExpression { get; set; }
         public DateTime? LastExecution { get; set; }
         public DateTime? NextExecution { get; set; }
@@ -36,7 +38,7 @@ namespace OpenBots.Server.ViewModel
                 Id = entity.Id,
                 Name = entity.Name,
                 AgentId = entity.AgentId,
-                AgentName = entity.AgentName,
+                AgentGroupId = entity.AgentGroupId,
                 CRONExpression = entity.CRONExpression,
                 LastExecution = entity.LastExecution,
                 NextExecution = entity.NextExecution,

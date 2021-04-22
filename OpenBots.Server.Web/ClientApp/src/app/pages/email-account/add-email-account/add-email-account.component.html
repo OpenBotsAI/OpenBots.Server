@@ -4,7 +4,7 @@
             <nb-card-header>
                 <div class="row">
                     <div class="col-md-8 col-lg-8 col-xxxl-6">
-                        <h2>Add Email Account</h2>
+                        <h2>{{title}} Email Account</h2>
                     </div>
 
 
@@ -152,6 +152,31 @@
 
                             </div>
                         </div>
+                        
+                    </div>
+
+                    <div class="row">
+
+                         <div class="col-md-6 col-lg-6 col-xxxl-6">
+               <label for="email" class="label">Default Email  </label>
+               <label class="upload-button">
+                 <nb-checkbox (checkedChange)="check($event)" formControlName="isDefault"> Default Email 
+                    
+                 </nb-checkbox>
+               </label>
+
+ 
+             </div>
+              <div class="col-md-6 col-lg-6 col-xxxl-6">
+               <label for="email" class="label">IsSslEnabled  </label>
+               <label class="upload-button">
+                 <nb-checkbox (checkedChange)="isSSl($event)" formControlName="isSslEnabled"> IsSslEnabled
+                    
+                 </nb-checkbox>
+               </label>
+
+ 
+             </div>
                     </div>
 
 

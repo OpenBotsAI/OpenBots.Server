@@ -36,9 +36,8 @@ export class AllEmailAccountComponent implements OnInit {
     private helperService: HelperService,
     private toastrService: NbToastrService
   ) {
-    this.emailService.getConfigValue().subscribe((data: any) => {
-      console.log(data);
-    });
+    // this.emailService.getConfigValue().subscribe((data: any) => {
+    // });
   }
 
   ngOnInit(): void {
@@ -52,9 +51,7 @@ export class AllEmailAccountComponent implements OnInit {
     this.router.navigate(['/pages/emailaccount/add']);
   }
   gotoedit(id) {
-    this.router.navigate(['/pages/emailaccount/edit'], {
-      queryParams: { id: id },
-    });
+    this.router.navigate([`/pages/emailaccount/edit/${id}`]);
   }
   gotodetail(id) {
     this.router.navigate(['/pages/emailaccount/get-email-id'], {

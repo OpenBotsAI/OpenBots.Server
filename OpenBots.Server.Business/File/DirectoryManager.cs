@@ -18,5 +18,10 @@ namespace OpenBots.Server.Business
         {
             Directory.Delete(path);
         }
+
+        public void Move(string path, string name)
+        {
+            Directory.Move(path, name);
+        }
     }
 }

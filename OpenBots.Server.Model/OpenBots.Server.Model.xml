@@ -154,9 +154,9 @@
             Automation model (inherits NamedEntity model)
             </summary>
         </member>
-        <member name="P:OpenBots.Server.Model.Automation.BinaryObjectId">
+        <member name="P:OpenBots.Server.Model.Automation.FileId">
             <summary>
-            Id linked to Binary Object data table
+            Id linked to Files data table
             </summary>
         </member>
         <member name="P:OpenBots.Server.Model.Automation.OriginalPackageName">
@@ -227,14 +227,6 @@
         <member name="P:OpenBots.Server.Model.BinaryObject.HashCode">
             <summary>
             Hash Code
-            </summary>
-        </member>
-        <member name="T:OpenBots.Server.Model.Core.EmailMessage">
-            <summary>
-            MailMessageStub is a simple serializable Stub for a Email message
-            This would serve as a translation between various formats of mail messages 
-            eg.: Aspose, System.Net, Amazon SES, Outlook etc.
-            It can be serialized to a JSON object and can be stored in Entity or Blob Storage
             </summary>
         </member>
         <member name="T:OpenBots.Server.Model.Core.OrderByClause`1">

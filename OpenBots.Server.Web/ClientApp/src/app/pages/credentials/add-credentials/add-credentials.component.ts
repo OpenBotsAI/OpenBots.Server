@@ -24,6 +24,7 @@ export class AddCredentialsComponent implements OnInit {
     { id: 'AD', name: 'Active Directory' },
     { id: 'A', name: 'Application' },
   ];
+
   constructor(
     private fb: FormBuilder,
     private httpService: HttpService,
@@ -57,7 +58,19 @@ export class AddCredentialsComponent implements OnInit {
         ],
       ],
       provider: ['', [Validators.required]],
-      domain: ['', [Validators.minLength(3), Validators.maxLength(100)]],
+      domain: [
+        '',
+        [
+          Validators.minLength(3),
+          Validators.maxLength(67),
+          Validators.pattern(
+            '^([A-Za-z0-9]{1,63}(-[A-Za-z0-9]{1,63})*?(\\.[A-Za-z0-9]{2,3})?)$'
+          ),
+          // Validators.pattern(
+          //   '^([A-Za-z0-9]{1,63}(-[A-Za-z0-9]{1,63})*\\.?)+([A-Za-z0-9]{3})?$'
+          // ),
+        ],
+      ],
       userName: [
         '',
         [

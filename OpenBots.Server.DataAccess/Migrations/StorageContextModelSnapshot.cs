@@ -90,6 +90,106 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.ToTable("Agents");
                 });
 
+            modelBuilder.Entity("OpenBots.Server.Model.AgentGroup", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeleteOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AgentGroups");
+                });
+
+            modelBuilder.Entity("OpenBots.Server.Model.AgentGroupMember", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AgentGroupId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AgentId")
+                        .IsRequired()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeleteOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AgentGroupMembers");
+                });
+
             modelBuilder.Entity("OpenBots.Server.Model.AgentHeartbeat", b =>
                 {
                     b.Property<Guid?>("Id")
@@ -155,7 +255,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("BinaryObjectID")
+                    b.Property<Guid?>("AgentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CreatedBy")
@@ -171,6 +271,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<string>("DeletedBy")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("FileId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
@@ -291,9 +394,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<double?>("AverageUnSuccessfulExecutionInMinutes")
                         .HasColumnType("float");
 
-                    b.Property<Guid>("BinaryObjectId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -307,6 +407,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<string>("DeletedBy")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("FileId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
@@ -489,6 +592,63 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AutomationLogs");
+                });
+
+            modelBuilder.Entity("OpenBots.Server.Model.AutomationParameter", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AutomationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DataType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeleteOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AutomationParameters");
                 });
 
             modelBuilder.Entity("OpenBots.Server.Model.AutomationVersion", b =>
@@ -979,9 +1139,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("BinaryObjectId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("ContentStorageAddress")
                         .HasColumnType("nvarchar(max)");
 
@@ -1003,6 +1160,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<Guid>("EmailId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FileId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool?>("IsDeleted")
@@ -1205,6 +1365,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<Guid?>("OrganizationId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("ServerDriveId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("ServerFileId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1262,6 +1425,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<Guid?>("OrganizationId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("StoragePath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long?>("StorageSizeInBytes")
                         .HasColumnType("bigint");
 
@@ -1292,12 +1458,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<string>("ContentType")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CorrelationEntity")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("CorrelationEntityId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -1326,7 +1486,10 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<Guid?>("OrganizationId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("SizeInBytes")
+                    b.Property<Guid?>("ServerDriveId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long?>("SizeInBytes")
                         .HasColumnType("bigint");
 
                     b.Property<Guid?>("StorageFolderId")
@@ -1390,7 +1553,7 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<Guid?>("ParentFolderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("SizeInBytes")
+                    b.Property<long?>("SizeInBytes")
                         .HasColumnType("bigint");
 
                     b.Property<Guid?>("StorageDriveId")
@@ -1955,8 +2118,10 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("AgentGroupId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("AgentId")
-                        .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("AutomationId")
@@ -2746,9 +2911,6 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("BinaryObjectId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -2762,6 +2924,9 @@ namespace OpenBots.Server.DataAccess.Migrations
                     b.Property<string>("DeletedBy")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("FileId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
@@ -2796,11 +2961,11 @@ namespace OpenBots.Server.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("AgentId")
+                    b.Property<Guid?>("AgentGroupId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("AgentName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid?>("AgentId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("AutomationId")
                         .HasColumnType("uniqueidentifier");
@@ -3354,6 +3519,18 @@ namespace OpenBots.Server.DataAccess.Migrations
                         },
                         new
                         {
+                            Id = new Guid("fa264362-998e-473d-8645-e6fdf86bc79f"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A new Drive has been created",
+                            EntityType = "File",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "Files.NewDriveCreated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
                             Id = new Guid("513bb79b-3f2e-4846-a804-2c5b9a6792d0"),
                             CreatedBy = "",
                             DeletedBy = "",
@@ -3362,6 +3539,54 @@ namespace OpenBots.Server.DataAccess.Migrations
                             IsDeleted = false,
                             IsSystem = true,
                             Name = "Files.DriveUpdated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("2c5b29c7-2fed-42b6-afcb-b7d8a41aacb5"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "A new AgentGroup has been created",
+                            EntityType = "AgentGroup",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "AgentGroups.NewAgentGroupCreated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("e096bb0f-850c-4001-946a-88a7f8692d5a"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "An AgentGroup has been updated",
+                            EntityType = "AgentGroup",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "AgentGroups.AgentGroupUpdated",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("3789f1ae-2693-4ad7-8696-723bd551199f"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "An AgentGroup has been deleted",
+                            EntityType = "AgentGroup",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "AgentGroups.AgentGroupDeleted",
+                            Timestamp = new byte[] { 0 }
+                        },
+                        new
+                        {
+                            Id = new Guid("76910164-6fda-4861-b1b5-7737370a8461"),
+                            CreatedBy = "",
+                            DeletedBy = "",
+                            Description = "An Agent has been added to the AgentGroup",
+                            EntityType = "AgentGroup",
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Name = "AgentGroups.AgentGroupMemberUpdated",
                             Timestamp = new byte[] { 0 }
                         });
                 });

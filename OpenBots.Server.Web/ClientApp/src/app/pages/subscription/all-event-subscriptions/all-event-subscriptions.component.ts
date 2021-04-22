@@ -67,9 +67,7 @@ export class AllEventSubscriptionsComponent implements OnInit {
     });
   }
   gotoedit(id) {
-    this.router.navigate(['/pages/subscription/edit'], {
-      queryParams: { id: id },
-    });
+    this.router.navigate([`/pages/subscription/edit/${id}`]);
   }
   gotoAdd() {
     this.router.navigate(['/pages/subscription/add']);
@@ -149,7 +147,6 @@ export class AllEventSubscriptionsComponent implements OnInit {
   }
 
   sort(filter_val, vale) {
-    console.log(filter_val, vale);
     if (this.abc_filter) {
       this.feild_name = filter_val + '+' + vale;
       const skip = (this.page.pageNumber - 1) * this.page.pageSize;

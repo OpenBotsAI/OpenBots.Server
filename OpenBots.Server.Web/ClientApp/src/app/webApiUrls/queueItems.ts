@@ -5,4 +5,7 @@ export enum QueueItemsApiUrl {
   attach = 'attach',
   count = 'count',
   queueitemattachments = 'queueitemattachments',
+  files = 'files',
+  drive = 'drive',
+  export = 'export',
 }

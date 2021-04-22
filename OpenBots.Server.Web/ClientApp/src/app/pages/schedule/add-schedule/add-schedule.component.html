@@ -9,8 +9,8 @@
           <div class="row rowPadBottom">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="name" class="label">Name *</label>
-              <input type="input" nbInput fullWidth id="name" formControlName="name" placeholder="Please enter name"
-                ngxSpecialChar trim="blur" />
+              <input type="input" nbInput fullWidth id="name" formControlName="name" style="
+              margin-top: 9px;" placeholder="Please enter name" ngxSpecialChar trim="blur" />
               <div *ngIf=" formControls.name.invalid &&(formControls.name.dirty || formControls.name.touched) "
                 class="invalid-feedback-frm">
                 <div *ngIf="formControls.name.errors.required">
@@ -24,26 +24,55 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <label for="subtopic" class="label">Agent Name *</label>
-              <select class="custom-select" formControlName="agentId">
-                <option value="" disabled>Please select agent name</option>
-                <option *ngFor="let item of allAgents" [value]="item?.agentId">
-                  {{ item?.agentName }}
-                </option>
-              </select>
-              <div *ngIf=" formControls.agentId.invalid &&(formControls.agentId.dirty || formControls.agentId.touched) "
-                class="invalid-feedback-frm">
-                <div *ngIf="formControls.agentId.errors.required">
-                  Agent name is required.
+            <div class="col-md-6 col-lg-6 col-xxxl-6  checkbox checbox-switch switch-primary">
+              <label for="subtopic" class="label">
+                <ng-container *ngIf="!isChecked">
+                  Agent Name *
+                </ng-container>
+                <ng-container *ngIf="isChecked">
+                  Agent Group *
+                </ng-container>
+              </label>
+              <label nbTooltip="Choose agent or agent group">
+                <input type="checkbox" (change)="onToggleAgent($event)" formControlName="checked" />
+                <span></span>
+              </label>
+              <ng-container *ngIf="!isChecked">
+                <select class="custom-select" formControlName="agentId">
+                  <option value="" disabled>Please select agent name</option>
+                  <option *ngFor="let item of allAgents" [value]="item?.agentId">
+                    {{ item?.agentName }}
+                  </option>
+                </select>
+                <div
+                  *ngIf="formControls.agentId.invalid &&(formControls.agentId.dirty || formControls.agentId.touched) && !isChecked "
+                  class="invalid-feedback-frm">
+                  <div *ngIf="formControls.agentId?.errors.required">
+                    Agent name is required.
+                  </div>
                 </div>
-              </div>
+              </ng-container>
+              <ng-container *ngIf="isChecked">
+                <select class="custom-select" formControlName="agentGroupId">
+                  <option value="" disabled>Please select agent group</option>
+                  <option *ngFor="let item of allGroupAgents" [value]="item?.agentGroupId">
+                    {{ item?.agentGroupName }}
+                  </option>
+                </select>
+                <div
+                  *ngIf="formControls.agentGroupId.invalid &&(formControls.agentGroupId.dirty || formControls.agentGroupId.touched) && isChecked "
+                  class="invalid-feedback-frm">
+                  <div *ngIf="formControls.agentGroupId?.errors.required">
+                    Agent group is required.
+                  </div>
+                </div>
+              </ng-container>
             </div>
           </div>
           <div class="row rowPadBottom">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="processId" class="label">Automations *</label>
-              <select class="custom-select" formControlName="automationId">
+              <select class="custom-select" formControlName="automationId" (change)="onAutomationChange($event)">
                 <option value="" disabled>Please select automation name</option>
                 <option *ngFor="let item of allProcesses" [value]="item?.automationId">
                   {{ item?.automationNameWithVersion }}

@@ -58,7 +58,7 @@
               </div>
             </div>
 
-            <button nbButton status="primary" size="large" (click)="login()" [disabled]="submitted || !loginForm.valid">
+            <button nbButton status="primary" size="large" (click)="login()" [disabled]="!loginForm.valid">
               Login
             </button>
             <section class="another-action" aria-label="Register">

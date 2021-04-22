@@ -1,34 +1,44 @@
-﻿using Microsoft.AspNetCore.Http;
-using Syncfusion.EJ2.FileManager.Base;
+﻿using OpenBots.Server.Model.Core;
+using OpenBots.Server.Model.File;
+using OpenBots.Server.ViewModel.File;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace OpenBots.Server.Business.Interfaces
 {
     public interface IFileManager : IManager
     {
-        public object DownloadFile(string downloadInput);
+        List<FileFolderViewModel> AddFileFolder(FileFolderViewModel request, string driveName = null);
 
-        //public void SaveFile(SaveServerFileViewModel request);
+        void UpdateFile(FileFolderViewModel request);
 
-        //public void UpdateFile(UpdateServerFileViewModel request);
+        FileFolderViewModel DeleteFileFolder(string id, string driveName = null);
 
-        //public void DeleteFile(string path);
+        void AddBytesToFoldersAndDrive(List<FileFolderViewModel> file);
 
-        //public int? GetFolderCount();
+        int? GetFileCount(string driveName = null);
 
-        //public ServerFolder GetFolder(string name);
+        int? GetFolderCount(string driveName = null);
 
-        //public ServerDrive GetDrive();
+        FileFolderViewModel GetFileFolder(string id, string driveName = null);
 
-        //public void DeleteFolder(string path);
+        ServerDrive GetDrive(string driveName = null);
 
-        public object LocalFileStorageOperation(FileManagerDirectoryContent args);
+        PaginatedList<FileFolderViewModel> GetFilesFolders(bool? isFile, string driveName = null, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
 
-        public FileManagerResponse UploadFile(string path, IList<IFormFile> uploadFiles, string action);
+        Task<FileFolderViewModel> ExportFileFolder(string id, string driveName = null);
 
-        public object GetImage(FileManagerDirectoryContent args);
+        FileFolderViewModel RenameFileFolder(string id, string name, string driveName = null);
 
-        public enum AdapterType
-        { }
+        FileFolderViewModel MoveFileFolder(string fileFolderId, string parentFolderId, string driveName = null);
+
+        FileFolderViewModel CopyFileFolder(string fileFolderId, string parentFolderId, string driveName = null);
+
+        FileFolderViewModel GetFileFolderByStoragePath(string storagePath, string driveName = null);
+
+        ServerDrive AddServerDrive(string driveName);
+
+        Dictionary<Guid?, string> GetDriveNames(string adapterType);
     }
 }

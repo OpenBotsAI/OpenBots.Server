@@ -31,13 +31,11 @@ export class AppComponent implements OnInit, OnDestroy {
     // window.addEventListener('online', (internet) => {
     //   this.isConnectionAvailable = true;
     //   this.showScreen = true;
-    //   console.log(internet.type);
     // });
 
     // window.addEventListener('offline', (internet) => {
     //   this.isConnectionAvailable = false;
     //   this.showScreen = false;
-    //   console.log(internet.type);
     // });
     this.connectionService.monitor().subscribe((isConnected) => {
       this.isConnected = isConnected;
@@ -53,20 +51,16 @@ export class AppComponent implements OnInit, OnDestroy {
     this.blockUI.start('loading');
     if (this.swUpdate.isEnabled) {
       this.swUpdate.available.subscribe((data: any) => {
-        console.log(data);
         if (confirm('New OpenBots Server version available ')) {
           window.location.reload();
         }
       });
     }
     if (window.matchMedia('(display-mode: standalone)').matches) {
-      console.log('display-mode is standalone');
     }
     window.addEventListener('appinstalled', (evt) => {
       if (evt.type == 'appinstalled') {
         this.showScreen = false;
-        console.log(evt);
-        console.log('a2hs installed');
       }
     });
 

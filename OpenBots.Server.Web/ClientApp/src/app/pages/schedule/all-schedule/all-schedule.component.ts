@@ -22,7 +22,7 @@ export class AllScheduleComponent implements OnInit {
   filterOrderBy: string;
   isPagination = false;
   itemsPerPage: ItemsPerPage[] = [];
-
+  searchedValue: string;
   constructor(
     private httpService: HttpService,
     private router: Router,
@@ -41,7 +41,12 @@ export class AllScheduleComponent implements OnInit {
 
   getAllSchedule(top, skip, orderBy?): void {
     let url: string;
-    if (orderBy)
+    if (this.searchedValue) {
+      if (orderBy)
+        url = `${SchedulesApiUrl.schedules}?$filter=substringof(tolower('${this.searchedValue}'), tolower(Name))&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+      else
+        url = `${SchedulesApiUrl.schedules}?$filter=substringof(tolower('${this.searchedValue}'), tolower(Name))&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+    } else if (orderBy)
       url = `${SchedulesApiUrl.schedules}?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
     else
       url = `${SchedulesApiUrl.schedules}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
@@ -133,5 +138,36 @@ export class AllScheduleComponent implements OnInit {
   trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
+  }
+
+  searchValue(event) {
+    if (event.target.value.length >= 2) {
+      this.searchedValue = event.target.value;
+      if (this.filterOrderBy) {
+        this.pagination(
+          this.page.pageNumber,
+          this.page.pageSize,
+          this.filterOrderBy
+        );
+      } else {
+        this.httpService
+          .get(
+            `${SchedulesApiUrl.schedules}?$filter=substringof(tolower('${event.target.value}'), tolower(Name))`
+          )
+          .subscribe((response) => {
+            this.allScehduleData = [...response.items];
+            this.page.totalCount = response.totalCount;
+          });
+      }
+    } else if (!event.target.value.length) {
+      this.searchedValue = null;
+      if (this.filterOrderBy) {
+        this.pagination(
+          this.page.pageNumber,
+          this.page.pageSize,
+          this.filterOrderBy
+        );
+      } else this.pagination(this.page.pageNumber, this.page.pageSize);
+    }
   }
 }

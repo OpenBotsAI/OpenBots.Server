@@ -18,7 +18,7 @@ export class AllAgentsComponent implements OnInit {
   @BlockUI() blockUI: NgBlockUI;
   isDeleted = false;
   showpage: any = [];
-  show_allagents: any = [];
+  showAllAgents: any = [];
   sortDir = 1;
   view_dialog: any;
   del_id: any = [];
@@ -29,7 +29,8 @@ export class AllAgentsComponent implements OnInit {
   get_perPage: boolean = false;
   per_page_num: any = [];
   itemsPerPage: ItemsPerPage[] = [];
-
+  searchedValue: string;
+  filterOrderBy: string;
   constructor(
     public router: Router,
     private dialogService: DialogService,
@@ -49,7 +50,7 @@ export class AllAgentsComponent implements OnInit {
     this.router.navigate(['/pages/agents/new']);
   }
   gotoedit(id) {
-    this.router.navigate(['/pages/agents/edit'], { queryParams: { id: id } });
+    this.router.navigate([`/pages/agents/edit/${id}`]);
   }
   gotojobs(id) {
     this.router.navigate(['/pages/job/list'], {
@@ -81,14 +82,49 @@ export class AllAgentsComponent implements OnInit {
   }
 
   sort(filter_value, vale) {
+    const top = this.page.pageSize;
     const skip = (this.page.pageNumber - 1) * this.page.pageSize;
-    this.feild_name = filter_value + '+' + vale;
-    this.agentService
-      .getAllAgentOrder(this.page.pageSize, skip, this.feild_name)
-      .subscribe((data: any) => {
-        this.showpage = data;
-        this.show_allagents = data.items;
-      });
+    this.filterOrderBy = `${filter_value}+${vale}`;
+    if (this.searchedValue) {
+      if (this.filterOrderBy) {
+        this.agentService
+          .getFilterPagination(
+            top,
+            skip,
+            this.filterOrderBy,
+            this.searchedValue
+          )
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showAllAgents = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      } else {
+        this.agentService
+          .getFilterPagination(top, skip, 'createdOn+desc', this.searchedValue)
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showAllAgents = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      }
+    } else if (this.filterOrderBy) {
+      this.agentService
+        .getFilterPagination(top, skip, this.filterOrderBy)
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showAllAgents = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    } else {
+      this.agentService
+        .getFilterPagination(top, skip, 'createdOn+desc')
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showAllAgents = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    }
   }
 
   patch_Agent(event, id) {
@@ -103,20 +139,55 @@ export class AllAgentsComponent implements OnInit {
   }
 
   per_page(val) {
-    // this.blockUI.start('Loading');
-    console.log(val);
     this.per_page_num = val;
     this.show_perpage_size = true;
     this.page.pageSize = val;
     const skip = (this.page.pageNumber - 1) * this.per_page_num;
-    this.agentService
-      .getAllAgent(this.page.pageSize, skip)
-      .subscribe((data: any) => {
-        this.showpage = data;
-        this.show_allagents = data.items;
-        this.page.totalCount = data.totalCount;
-        // this.blockUI.stop();
-      });
+    if (this.searchedValue) {
+      if (this.filterOrderBy) {
+        this.agentService
+          .getFilterPagination(
+            this.page.pageSize,
+            skip,
+            this.filterOrderBy,
+            this.searchedValue
+          )
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showAllAgents = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      } else {
+        this.agentService
+          .getFilterPagination(
+            this.page.pageSize,
+            skip,
+            'createdOn+desc',
+            this.searchedValue
+          )
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showAllAgents = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      }
+    } else if (this.filterOrderBy) {
+      this.agentService
+        .getFilterPagination(this.page.pageSize, skip, this.filterOrderBy)
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showAllAgents = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    } else {
+      this.agentService
+        .getFilterPagination(this.page.pageSize, skip, 'createdOn+desc')
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showAllAgents = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    }
   }
 
   open2(dialog: TemplateRef<any>, id: any) {
@@ -134,25 +205,25 @@ export class AllAgentsComponent implements OnInit {
         this.isDeleted = false;
         this.toastrService.success('Agent Delete Successfully', 'Success');
         ref.close();
-        this.get_allagent(this.page.pageSize, skip);
+        this.pagination(this.page.pageNumber, this.page.pageSize);
       },
       () => (this.isDeleted = false)
     );
   }
 
   get_allagent(top, skip) {
-    // this.blockUI.start('Loading');
     this.get_perPage = false;
-    this.agentService.getAllAgent(top, skip).subscribe(
-      (data: any) => {
-        this.showpage = data;
-        this.show_allagents = data.items;
-        this.page.totalCount = data.totalCount;
-        this.get_perPage = true;
-        // this.blockUI.stop();
-      },
-      (error) => {}
-    );
+    this.agentService
+      .getFilterPagination(top, skip, 'createdOn+desc')
+      .subscribe(
+        (data: any) => {
+          this.showpage = data;
+          this.showAllAgents = data.items;
+          this.page.totalCount = data.totalCount;
+          this.get_perPage = true;
+        },
+        (error) => {}
+      );
   }
 
   pageChanged(event) {
@@ -160,19 +231,105 @@ export class AllAgentsComponent implements OnInit {
     this.pagination(event, this.page.pageSize);
   }
 
-  pagination(pageNumber, pageSize?) {
-    if (this.show_perpage_size == false) {
-      const top: number = pageSize;
-      const skip = (pageNumber - 1) * pageSize;
-      this.get_allagent(top, skip);
-    } else if (this.show_perpage_size == true) {
-      const top: number = this.per_page_num;
-      const skip = (pageNumber - 1) * this.per_page_num;
-      this.get_allagent(top, skip);
+  pagination(pageNumber, pageSize) {
+    const top = pageSize;
+    this.page.pageSize = pageSize;
+    const skip = (pageNumber - 1) * pageSize;
+    if (this.searchedValue) {
+      if (this.filterOrderBy) {
+        this.agentService
+          .getFilterPagination(
+            top,
+            skip,
+            this.filterOrderBy,
+            this.searchedValue
+          )
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showAllAgents = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      } else {
+        this.agentService
+          .getFilterPagination(top, skip, 'createdOn+desc', this.searchedValue)
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showAllAgents = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      }
+    } else if (this.filterOrderBy) {
+      this.agentService
+        .getFilterPagination(top, skip, this.filterOrderBy)
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showAllAgents = data.items;
+          this.page.totalCount = data.totalCount;
+        });
+    } else {
+      this.agentService
+        .getFilterPagination(top, skip, 'createdOn+desc')
+        .subscribe((data: any) => {
+          this.showpage = data;
+          this.showAllAgents = data.items;
+          this.page.totalCount = data.totalCount;
+        });
     }
   }
   trackByFn(index: number, item: unknown): number {
     if (!item) return null;
     return index;
+  }
+
+  searchValue(event) {
+    const skip = (this.page.pageNumber - 1) * this.page.pageSize;
+    if (event.target.value.length >= 2) {
+      this.searchedValue = event.target.value;
+      if (this.filterOrderBy) {
+        this.agentService
+          .getFilterPagination(
+            this.page.pageSize,
+            skip,
+            this.filterOrderBy,
+            this.searchedValue
+          )
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showAllAgents = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      } else {
+        this.agentService
+          .getFilterPagination(
+            this.page.pageSize,
+            skip,
+            'createdOn+desc',
+            this.searchedValue
+          )
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showAllAgents = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      }
+    } else if (!event.target.value.length) {
+      this.searchedValue = null;
+      if (this.filterOrderBy) {
+        this.agentService
+          .getFilterPagination(this.page.pageSize, skip, this.filterOrderBy)
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showAllAgents = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+      } else
+        this.agentService
+          .getFilterPagination(this.page.pageSize, skip, 'createdOn+desc')
+          .subscribe((data: any) => {
+            this.showpage = data;
+            this.showAllAgents = data.items;
+            this.page.totalCount = data.totalCount;
+          });
+    }
   }
 }
