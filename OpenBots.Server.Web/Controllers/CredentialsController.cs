@@ -401,7 +401,6 @@ namespace OpenBots.Server.Web
                     return BadRequest(ModelState);
                 }
 
-                existingCredential.Provider = request.Provider;
                 existingCredential.StartDate = request.StartDate;
                 existingCredential.EndDate = request.EndDate;
                 existingCredential.Domain = request.Domain;

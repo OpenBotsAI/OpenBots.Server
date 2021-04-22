@@ -11,7 +11,6 @@ namespace OpenBots.Server.ViewModel
     {
         [Required]
         public string Name { get; set; }
-        public string? Provider { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string? Domain { get; set; }
@@ -29,7 +28,6 @@ namespace OpenBots.Server.ViewModel
             Credential credential = new Credential
             {
                 Name = viewModel.Name,
-                Provider = viewModel.Provider,
                 StartDate = viewModel.StartDate,
                 EndDate = viewModel.EndDate,
                 Domain = viewModel.Domain,
