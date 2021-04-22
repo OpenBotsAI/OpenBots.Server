@@ -11,10 +11,6 @@ namespace OpenBots.Server.ViewModel
     {
         [Required]
         public string Name { get; set; }
-<<<<<<< HEAD
-=======
-        public string? Provider { get; set; }
->>>>>>> 977550359d75b823dde2561a3446469e0f2f6f68
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string? Domain { get; set; }
