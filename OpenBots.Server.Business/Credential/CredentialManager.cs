@@ -90,7 +90,6 @@ namespace OpenBots.Server.Business
             }
 
             agentCredential.Provider = globalCredential.Provider;
-
             return agentCredential;
         }
 

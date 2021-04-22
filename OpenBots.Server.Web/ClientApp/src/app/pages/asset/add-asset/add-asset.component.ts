@@ -130,6 +130,7 @@ export class AddAssetComponent implements OnInit {
       this.showAssetbyID = data.body;
       this.etag = data.headers.get('ETag').replace(/\"/g, '');
 
+
       this.addasset.patchValue(this.showAssetbyID);
       this.getAssetAgentValue();
       if (this.showAssetbyID.jsonValue) {

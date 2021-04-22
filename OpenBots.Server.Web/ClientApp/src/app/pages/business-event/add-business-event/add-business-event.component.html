@@ -21,52 +21,25 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group ">
-                                <label class="label  col-form-label">Business Name * </label>
+                                <label class="label  col-form-label"> Business Event Name * </label>
                                 <input type="input" nbInput fullWidth formControlName="name" style="color:#000000">
                                 <div *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid"
                                     class="invalid-feedback-frm">
-                                    <div *ngIf="f.name.errors && f.name.errors.required"> Name is required.</div>
+                                    <div *ngIf="f.name.errors && f.name.errors.required"> Business Event Name is
+                                        required.</div>
                                     <div *ngIf="f.name.errors.minlength">
-                                        Name at least 3 characters long.
+                                        Business Event Name at least 3 characters long.
                                     </div>
                                     <div *ngIf="f.name.errors.maxlength">
-                                        Name at least 100 characters long.
+                                        Business Event Name at least 100 characters long.
                                     </div>
                                     <div *ngIf=" f.name.errors.pattern">
-                                        Please enter valid Name .
+                                        Please enter valid Business Event Name .
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group ">
-                                <label class="label  col-form-label">Description </label>
-
-                                <input type="input" nbInput fullWidth formControlName="description"
-                                    style="color:#000000">
-
-                                <div *ngIf="(f.description.touched || f.description.dirty) && f.description.invalid"
-                                    class="invalid-feedback-frm">
-                                    <div *ngIf="f.description.errors && f.description.errors.required"> Description is
-                                        required.</div>
-                                    <div *ngIf="f.description.errors.minlength">
-                                        Description at least 3 characters long.
-                                    </div>
-                                    <div *ngIf="f.description.errors.maxlength">
-                                        Description at least 100 characters long.
-                                    </div>
-                                    <div *ngIf=" f.description.errors.pattern">
-                                        Please enter valid Description .
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-12">
                             <div class="form-group ">
                                 <label class="label  col-form-label">Entity Type</label>
 
@@ -88,6 +61,36 @@
                                 </div>
                             </div>
                         </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group ">
+                                <label class="label  col-form-label">Description </label>
+
+                                <textarea type="input" nbInput fullWidth formControlName="description"
+                                    style="color:#000000">
+                                    </textarea>
+
+
+                                <div *ngIf="(f.description.touched || f.description.dirty) && f.description.invalid"
+                                    class="invalid-feedback-frm">
+                                    <div *ngIf="f.description.errors && f.description.errors.required"> Description is
+                                        required.</div>
+                                    <div *ngIf="f.description.errors.minlength">
+                                        Description at least 3 characters long.
+                                    </div>
+                                    <div *ngIf="f.description.errors.maxlength">
+                                        Description at least 100 characters long.
+                                    </div>
+                                    <div *ngIf=" f.description.errors.pattern">
+                                        Please enter valid Description .
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
                     </div>
 
 
@@ -95,7 +98,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group ">
-                                <label class="label  col-form-label">Payload * </label>
+                                <label class="label  col-form-label">Payload Schema * </label>
                                 <!-- <textarea type="input" nbInput fullWidth id="payloadSchema"
                                     formControlName="payloadSchema" style="color:#000000"></textarea>
                                 <div *ngIf="(f.payloadSchema.touched || f.payloadSchema.dirty) && f.payloadSchema.invalid"

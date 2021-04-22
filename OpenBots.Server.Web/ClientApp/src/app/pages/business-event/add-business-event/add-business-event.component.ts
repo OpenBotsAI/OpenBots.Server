@@ -17,7 +17,6 @@ export class AddBusinessEventComponent implements OnInit {
   submitted = false;
   createdOn: any = [];
   showallsystemEvent: any = [];
-
   payloadSchema: any = [];
   businessEventform: FormGroup;
   showChangedToJson: boolean = false;
@@ -44,7 +43,7 @@ export class AddBusinessEventComponent implements OnInit {
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(100),
-        Validators.pattern('^[A-Za-z0-9_.-]{3,100}$'),
+        // Validators.pattern('^[A-Za-z0-9_.-]{3,100}$'),
       ],],
       description: ['', [
         Validators.required,
@@ -100,7 +99,7 @@ export class AddBusinessEventComponent implements OnInit {
       entityType: this.businessEventform.value.entityType,
       payloadSchema: this.businessEventform.value.payloadSchema,
     }
-    this.BusinessEventservice.updateBusinessEvent(obj, this.urlId).subscribe(
+    this.BusinessEventservice.updateBusinessEvent(obj, this.urlId, this.etag).subscribe(
       () => {
         this.toastrService.success(
           'Business Event Save Successfully!',
@@ -120,8 +119,9 @@ export class AddBusinessEventComponent implements OnInit {
     this.BusinessEventservice.getSystemEventid(id).subscribe((data: HttpResponse<any>) => {
       this.showallsystemEvent = data.body;
 
-      // this.etag = data.headers.get('ETag').replace(/\"/g, '');
-      // console.log(data.headers.get('ETag'))
+      this.etag = data.headers.get('etag')
+      console.log(this.etag)
+      // console.log(data.headers.get('etag').replace(/\"/g, ''))
       if (this.showallsystemEvent.payloadSchema) {
         this.showallsystemEvent.payloadSchema = JSON.parse(this.showallsystemEvent.payloadSchema);
       }

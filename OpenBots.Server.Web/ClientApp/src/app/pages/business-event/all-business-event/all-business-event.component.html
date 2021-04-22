@@ -50,11 +50,11 @@
                             [attr.class]="show_allsystemevent | chevron: page.totalCount"></i>
                     </th>
 
-                    <th scope="col">
+                    <!-- <th scope="col">
                         Description
                         <i (click)="onSortClick($event, 'description')"
                             [attr.class]="show_allsystemevent | chevron: page.totalCount"></i>
-                    </th>
+                    </th> -->
                     <th scope="col">
                         Entity
                         <i (click)="onSortClick($event, 'entityType')"
@@ -87,11 +87,10 @@
                     <td scope="row">
                         <ngx-tooltip [data]="systemevent?.name" [size]="40"> </ngx-tooltip>
                     </td>
-                    <td scope="row">
+                    <!-- <td scope="row">
                         <ngx-tooltip [data]="systemevent?.description" [size]="40"> </ngx-tooltip>
-                    </td>
+                    </td> -->
 
-                    <!--  -->
 
                     <td>
                         <a (click)="gotodetail(systemevent.id)">

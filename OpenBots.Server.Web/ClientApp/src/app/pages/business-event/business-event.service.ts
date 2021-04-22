@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { HelperService } from '../../@core/services/helper.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +11,7 @@ export class BusinessEventService {
     return environment.apiUrl;
   }
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private helperService: HelperService) { }
 
   get_AllSystemEvent(tpage: any, spage: any) {
     let getagentUrl = `/IntegrationEvents?$filter=IsSystem+eq+false&$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
@@ -19,6 +20,11 @@ export class BusinessEventService {
 
   getIntegrationEventName() {
     let getagentUrl = `/IntegrationEvents/IntegrationEventLookup?$filter=IsSystem+eq+false`;
+    return this.http.get(`${this.apiUrl}` + getagentUrl);
+  }
+
+  getBusinessEventName() {
+    let getagentUrl = `/IntegrationEvents?$filter=IsSystem+eq+false`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
@@ -73,8 +79,16 @@ export class BusinessEventService {
   }
   // https://dev.server.openbots.io/api/v1/IntegrationEvents/BusinessEvents/RaiseEvent/{id}
 
-  updateBusinessEvent(obj, id) {
+  updateBusinessEvent(obj, id, etag) {
+    const headers = this.helperService.getETagHeaders(etag);
     let Url = `/IntegrationEvents/BusinessEvents/${id}`;
-    return this.http.put(`${this.apiUrl}` + Url, obj);
+    return this.http.put(`${this.apiUrl}` + Url, obj, { headers });
   }
+
+
+  // updateProcess(obj, process_id, etag) {
+  //   const headers = this.helperService.getETagHeaders(etag);
+  //   let updateassetUrl = `/${automationsApiUrl.automations}/${process_id}`;
+  //   return this.http.put(`${this.apiUrl}` + updateassetUrl, obj, { headers });
+  // }
 }
