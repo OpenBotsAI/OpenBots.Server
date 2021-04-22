@@ -78,12 +78,13 @@ export class AddAssetComponent implements OnInit {
     private dialogService: DialogService,
     private FileSaverService: FileSaverService
   ) {
+    // /allowedContentTypes: ['image/jpeg', 'image/png', 'image/gif'] 
+    // this.options = { concurrency: 1, maxUploads: 1, maxFileSize: 1000000, };
+    // this.files = [];
     this.editorOptions = new JsonEditorOptions();
     this.editorOptions.modes = ['code', 'text', 'tree', 'view'];
-    // this.editorOptions.onChange = () => console.log(this.editor.get());
     this.editorOptionsAgentAsset = new JsonEditorOptions();
     this.editorOptionsAgentAsset.modes = ['code', 'text', 'tree', 'view'];
-    //  this.editorOptionsAgentAsset.onChange = () => console.log(this.editorAssetAgent.get());
 
   }
 
@@ -128,7 +129,8 @@ export class AddAssetComponent implements OnInit {
   getAssetById(id) {
     this.assetService.getAssetbyId(id).subscribe((data: HttpResponse<any>) => {
       this.showAssetbyID = data.body;
-      this.etag = data.headers.get('ETag').replace(/\"/g, '');
+      // this.etag = data.headers.get('ETag').replace(/\"/g, '');
+      this.etag = data.headers.get('etag')
 
 
       this.addasset.patchValue(this.showAssetbyID);
@@ -183,6 +185,7 @@ export class AddAssetComponent implements OnInit {
 
 
   onUploadOutput(output: UploadOutput): void {
+    let uplaodFIle;
     switch (output.type) {
       case 'addedToQueue':
         if (typeof output.file !== 'undefined') {
@@ -193,9 +196,22 @@ export class AddAssetComponent implements OnInit {
             this.fileSize = false;
             this.submitted = false;
           }
-          this.native_file = output.file.nativeFile;
-          this.native_file_name = output.file.nativeFile.name;
-          this.showUpload = false;
+
+          uplaodFIle = output.file.name
+
+
+          if (uplaodFIle.includes('.BAT') || uplaodFIle.includes('.bat') || uplaodFIle.includes('.exe') || uplaodFIle.includes('.com') || uplaodFIle.includes('.VBS') || uplaodFIle.includes('.vbs') || uplaodFIle.includes('.COM')) {
+            this.toastrService.danger(`This File format is not allowed `, 'error');
+            // this.submitted = false
+          }
+          else {
+            // this.submitted = true;
+            this.toastrService.success(`Upload`, 'Success');
+            this.native_file = output.file.nativeFile;
+            this.native_file_name = output.file.nativeFile.name;
+            this.showUpload = false;
+          }
+
         }
         break;
     }
@@ -203,6 +219,7 @@ export class AddAssetComponent implements OnInit {
 
 
   onUploadOutputAgent(output: UploadOutput): void {
+    let uplaodFIle;
     switch (output.type) {
       case 'addedToQueue':
         if (typeof output.file !== 'undefined') {
@@ -213,9 +230,17 @@ export class AddAssetComponent implements OnInit {
             this.fileSizeAgentAsset = false;
             this.submitted = false;
           }
-          this.native_fileAgentAsset = output.file.nativeFile;
-          this.native_file_nameAgentAsset = output.file.nativeFile.name;
-          this.showUpload = false;
+          uplaodFIle = output.file.name
+
+          if (uplaodFIle.includes('.BAT') || uplaodFIle.includes('.bat') || uplaodFIle.includes('.exe') || uplaodFIle.includes('.com') || uplaodFIle.includes('.VBS') || uplaodFIle.includes('.vbs') || uplaodFIle.includes('.COM')) {
+            this.toastrService.danger(`This File format is not allowed `, 'error');
+
+          }
+          else {
+            this.native_fileAgentAsset = output.file.nativeFile;
+            this.native_file_nameAgentAsset = output.file.nativeFile.name;
+            this.showUpload = false;
+          }
         }
         break;
     }

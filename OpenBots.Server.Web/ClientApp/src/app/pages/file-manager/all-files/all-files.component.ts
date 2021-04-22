@@ -227,6 +227,7 @@ export class AllFilesComponent implements OnInit {
   }
 
   onUploadOutput(output: UploadOutput): void {
+    let uplaodFIle
     switch (output.type) {
       case 'addedToQueue':
         if (typeof output.file !== 'undefined') {
@@ -235,11 +236,24 @@ export class AllFilesComponent implements OnInit {
           } else {
             this.fileSize = false;
           }
-          this.uploadedFilesArr.push(output.file);
+
+          uplaodFIle = output.file.name
+
+
+          if (uplaodFIle.includes('.BAT') || uplaodFIle.includes('.bat') || uplaodFIle.includes('.exe') || uplaodFIle.includes('.com') || uplaodFIle.includes('.VBS') || uplaodFIle.includes('.vbs') || uplaodFIle.includes('.COM')) {
+
+            // this.submitted = false
+          }
+          else {
+
+
+            this.uploadedFilesArr.push(output.file);
+          }
         }
         break;
     }
   }
+
   UploadFile(ref): void {
     let storagePath = this.driveName;
     if (this.bread && this.bread.length)
