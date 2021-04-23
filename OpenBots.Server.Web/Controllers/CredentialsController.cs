@@ -393,6 +393,7 @@ namespace OpenBots.Server.Web
                     return NotFound(ModelState);
                 }
 
+                request.Id = entityId;
                 _credentialManager.CredentialNameAvailability(request);
 
                 if (!_credentialManager.ValidateStartAndEndDates(request))
