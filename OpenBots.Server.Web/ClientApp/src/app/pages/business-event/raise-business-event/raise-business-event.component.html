@@ -16,10 +16,17 @@
                                 <label class="label  col-form-label">Business Event</label>
                                 <!-- (change)="getEntityname($event)" -->
                                 <ng-select [items]="show_Entityname" [searchable]="true" bindLabel="name"
-                                    formControlName="page_name" class="NgSelect" placeholder="Please select Entity"
-                                    (change)="getEntityname($event)" [closeOnSelect]="true" bindValue="id"
-                                    [clearable]="false">
+                                    formControlName="businessEventName" class="NgSelect"
+                                    placeholder="Please select Entity" (change)="getEntityname($event)"
+                                    [closeOnSelect]="true" bindValue="id" [clearable]="false">
                                 </ng-select>
+                                <div *ngIf="(f.businessEventName.touched || f.businessEventName.dirty) && f.businessEventName.invalid"
+                                    class="invalid-feedback-frm">
+                                    <div *ngIf="f.businessEventName.errors && f.businessEventName.errors.required">
+                                        Business Event is
+                                        required.</div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -92,11 +99,11 @@
                         <div class="col-md-12">
                             <div class="form-group ">
                                 <label class="label  col-form-label"> Payload JSON * </label>
-                                <json-editor [options]="editorOptions" #editor formControlName="payloadSchema">
+                                <json-editor [options]="editorOptions" #editor formControlName="payloadJSON">
                                 </json-editor>
-                                <div *ngIf="(f.payloadSchema.touched || f.payloadSchema.dirty) && f.payloadSchema.invalid"
+                                <div *ngIf="(f.payloadJSON.touched || f.payloadJSON.dirty) && f.payloadJSON.invalid"
                                     class="invalid-feedback-frm">
-                                    <div *ngIf="f.payloadSchema.errors && f.payloadSchema.errors.required">Payload JSON
+                                    <div *ngIf="f.payloadJSON.errors && f.payloadJSON.errors.required">Payload JSON
                                         is required.</div>
                                 </div>
                             </div>
