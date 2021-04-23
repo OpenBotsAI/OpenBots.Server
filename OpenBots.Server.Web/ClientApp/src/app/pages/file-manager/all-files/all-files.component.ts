@@ -236,17 +236,12 @@ export class AllFilesComponent implements OnInit {
           } else {
             this.fileSize = false;
           }
-
           uplaodFIle = output.file.name
-
-
           if (uplaodFIle.includes('.BAT') || uplaodFIle.includes('.bat') || uplaodFIle.includes('.exe') || uplaodFIle.includes('.com') || uplaodFIle.includes('.VBS') || uplaodFIle.includes('.vbs') || uplaodFIle.includes('.COM')) {
-
             // this.submitted = false
+            this.httpService.error('This File format is not allowed ');
           }
           else {
-
-
             this.uploadedFilesArr.push(output.file);
           }
         }

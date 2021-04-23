@@ -195,22 +195,22 @@ export class AddAssetComponent implements OnInit {
           } else {
             this.fileSize = false;
             this.submitted = false;
+
+            uplaodFIle = output.file.name;
+            if (uplaodFIle.includes('.BAT') || uplaodFIle.includes('.bat') || uplaodFIle.includes('.exe') || uplaodFIle.includes('.com') || uplaodFIle.includes('.VBS') || uplaodFIle.includes('.vbs') || uplaodFIle.includes('.COM')) {
+              this.toastrService.danger(`This File format is not allowed `, 'error');
+              // this.submitted = false
+              this.showUpload = true;
+            }
+            else {
+              this.native_file = output.file.nativeFile;
+              this.native_file_name = output.file.nativeFile.name;
+              this.showUpload = false;
+            }
+
           }
 
-          uplaodFIle = output.file.name
 
-
-          if (uplaodFIle.includes('.BAT') || uplaodFIle.includes('.bat') || uplaodFIle.includes('.exe') || uplaodFIle.includes('.com') || uplaodFIle.includes('.VBS') || uplaodFIle.includes('.vbs') || uplaodFIle.includes('.COM')) {
-            this.toastrService.danger(`This File format is not allowed `, 'error');
-            // this.submitted = false
-          }
-          else {
-            // this.submitted = true;
-            this.toastrService.success(`Upload`, 'Success');
-            this.native_file = output.file.nativeFile;
-            this.native_file_name = output.file.nativeFile.name;
-            this.showUpload = false;
-          }
 
         }
         break;
