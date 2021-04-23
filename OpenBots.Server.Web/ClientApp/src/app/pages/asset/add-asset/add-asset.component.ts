@@ -198,7 +198,7 @@ export class AddAssetComponent implements OnInit {
 
             uplaodFIle = output.file.name;
             if (uplaodFIle.includes('.BAT') || uplaodFIle.includes('.bat') || uplaodFIle.includes('.exe') || uplaodFIle.includes('.com') || uplaodFIle.includes('.VBS') || uplaodFIle.includes('.vbs') || uplaodFIle.includes('.COM')) {
-              this.toastrService.danger(`This File format is not allowed `, 'error');
+              // this.toastrService.danger(`This File format is not allowed `, 'error');
               // this.submitted = false
               this.showUpload = true;
             }
