@@ -182,6 +182,10 @@ export class PagesMenu {
             link: '/pages/business-event/list',
           },
           {
+            title: 'Add Business Events',
+            link: '/pages/business-event/add'
+          },
+          {
             title: 'Raise Business Events',
             link: '/pages/business-event/raise-event'
 
