@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpService } from '../../../@core/services/http.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NbDateService } from '@nebular/theme';
 import { HelperService } from '../../../@core/services/helper.service';
 import { AgentApiUrl, CredentialsApiUrl } from '../../../webApiUrls';
+import { DialogService } from '../../../@core/dialogservices';
 
 @Component({
   selector: 'ngx-add-credentials',
@@ -29,6 +30,8 @@ export class AddCredentialsComponent implements OnInit {
   isSubmitted = false;
   trimError: boolean;
   eTag: string;
+  isDeleted = false;
+  deleteId: string;
   providerArr = [
     { id: 'AD', name: 'Active Directory' },
     { id: 'A', name: 'Application' },
@@ -40,7 +43,8 @@ export class AddCredentialsComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private dateService: NbDateService<Date>,
-    private helperService: HelperService
+    private helperService: HelperService,
+    private dialogService: DialogService,
   ) { }
 
   ngOnInit(): void {
@@ -163,6 +167,7 @@ export class AddCredentialsComponent implements OnInit {
     });
 
   }
+
   hideAssetAgentBox() {
     this.showGlobalAsset = false;
     this.hideAgentAssetBtn = false;
@@ -180,7 +185,7 @@ export class AddCredentialsComponent implements OnInit {
 
 
   UpdateCredAgent() {
-    // const headers = this.helperService.getETagHeaders(this.eTag);
+    const headers = this.helperService.getETagHeaders(this.eTag);
     if (this.agentCredentialForm.value.startDate) {
       this.agentCredentialForm.value.startDate = this.helperService.transformDate(
         this.agentCredentialForm.value.startDate,
@@ -199,7 +204,7 @@ export class AddCredentialsComponent implements OnInit {
         this.agentCredentialForm.value,
         {
           observe: 'response',
-          // headers,
+          headers,
         }
       )
       .subscribe(
@@ -253,7 +258,6 @@ export class AddCredentialsComponent implements OnInit {
             this.agentCredentialForm.reset();
             this.httpService.get(`${CredentialsApiUrl.credentials}?$filter=name+eq+'${this.credentialForm.value.name}'and agentId+ne+null`).subscribe((response) => {
               this.showCredAsstData = response.items
-              console.log(this.showCredAsstData)
             });
           }
         },
@@ -356,5 +360,30 @@ export class AddCredentialsComponent implements OnInit {
           this.credentialForm.patchValue({ ...response.body });
         }
       });
+  }
+  openDeleteDialog(ref: TemplateRef<any>, id: string): void {
+    this.deleteId = id;
+    this.dialogService.openDialog(ref);
+  }
+
+  deleteCredential(ref): void {
+    this.isDeleted = true;
+    this.httpService
+      .delete(`${CredentialsApiUrl.credentials}/${this.deleteId}`, {
+        observe: 'response',
+      })
+      .subscribe(
+        () => {
+          ref.close();
+          this.httpService.success('Deleted Successfully');
+          this.isDeleted = false;
+          this.httpService.get(`${CredentialsApiUrl.credentials}?$filter=name+eq+'${this.credentialForm.value.name}'and agentId+ne+null`).subscribe((response) => {
+            this.showCredAsstData = response.items
+            console.log(this.showCredAsstData)
+          });
+
+        },
+        () => (this.isDeleted = false)
+      );
   }
 }
