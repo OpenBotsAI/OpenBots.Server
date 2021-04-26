@@ -71,6 +71,7 @@ export class AddQueueItemsComponent implements OnInit {
   postponeMinDate: Date;
   expireMinDate: Date;
   driveName: string;
+  integrationEvents: string[] = [];
   @ViewChild(JsonEditorComponent) editor: JsonEditorComponent;
 
   constructor(
@@ -91,6 +92,7 @@ export class AddQueueItemsComponent implements OnInit {
     this.expireMinDate = new Date();
     this.queueItemForm = this.initializigQueueItemForm();
     this.getQueues();
+    this.getIntegrationEvents();
     // this.getDriveName();
     this.editorOptions = new JsonEditorOptions();
     this.editorOptions.modes = ['code', 'text', 'tree', 'view'];
@@ -145,7 +147,7 @@ export class AddQueueItemsComponent implements OnInit {
       expireOnUTC: [''],
       postponeUntilUTC: [''],
       source: ['', [Validators.minLength(3), Validators.maxLength(100)]],
-      event: ['', [Validators.minLength(3), Validators.maxLength(100)]],
+      event: [''],
     });
   }
   get controls() {
@@ -428,5 +430,14 @@ export class AddQueueItemsComponent implements OnInit {
         },
         () => (this.isDeleted = false)
       );
+  }
+  getIntegrationEvents(): void {
+    this.httpService
+      .get(`IntegrationEvents/IntegrationEventLookup`)
+      .subscribe((response) => {
+        if (response && response.entityNameList) {
+          this.integrationEvents = [...response.entityNameList];
+        }
+      });
   }
 }
