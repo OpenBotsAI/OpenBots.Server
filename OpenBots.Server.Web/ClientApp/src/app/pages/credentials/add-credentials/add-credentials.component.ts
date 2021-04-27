@@ -23,6 +23,7 @@ export class AddCredentialsComponent implements OnInit {
   showUpdateAssetAgentbutton: boolean = false;
   showSaveAssetAgentbutton: boolean = true;
   getCredAgent: any;
+  getAgentD: any;
   currentUrlId: string;
   min: Date;
   max: Date;
@@ -175,7 +176,9 @@ export class AddCredentialsComponent implements OnInit {
   }
 
   editAssetAgent(credAgentValue) {
+    console.log(credAgentValue)
     this.getCredAgent = credAgentValue.id
+    this.getAgentD = credAgentValue.agentId
     this.agentCredentialForm.get('agentId').disable();
     this.agentCredentialForm.patchValue({ ...credAgentValue });
     this.showUpdateAssetAgentbutton = true;
@@ -198,6 +201,7 @@ export class AddCredentialsComponent implements OnInit {
         'lll'
       );
     }
+    this.agentCredentialForm.value.agentId = this.getAgentD;
     this.httpService
       .put(
         `${CredentialsApiUrl.credentials}/${this.getCredAgent}`,

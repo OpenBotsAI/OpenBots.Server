@@ -27,7 +27,7 @@ export class CredentialsComponent implements OnInit {
     private router: Router,
     private dialogService: DialogService,
     private helperService: HelperService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.page.pageNumber = 1;
@@ -47,13 +47,14 @@ export class CredentialsComponent implements OnInit {
     let url: string;
     if (this.searchedValue) {
       if (orderBy)
-        url = `${CredentialsApiUrl.credentials}?$filter=substringof(tolower('${this.searchedValue}'), tolower(Name))&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+        //$filter=agentId+eq+null&$orderby=createdOn+desc&$top=5&$skip=0
+        url = `${CredentialsApiUrl.credentials}?$filter=agentId+eq+null&substringof(tolower('${this.searchedValue}'), tolower(Name))&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
       else
-        url = `${CredentialsApiUrl.credentials}?$filter=substringof(tolower('${this.searchedValue}'), tolower(Name))&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+        url = `${CredentialsApiUrl.credentials}?$filter=agentId+eq+null&substringof(tolower('${this.searchedValue}'), tolower(Name))&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
     } else if (orderBy)
-      url = `${CredentialsApiUrl.credentials}?$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
+      url = `${CredentialsApiUrl.credentials}?$filter=agentId+eq+null&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
     else
-      url = `${CredentialsApiUrl.credentials}?$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
+      url = `${CredentialsApiUrl.credentials}?$filter=agentId+eq+null&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
     this.httpService.get(url).subscribe((response) => {
       if (response && response.items.length) {
         this.credentialsArr = [...response.items];
@@ -168,7 +169,7 @@ export class CredentialsComponent implements OnInit {
       } else {
         this.httpService
           .get(
-            `${CredentialsApiUrl.credentials}?$filter=substringof(tolower('${event.target.value}'), tolower(Name))`
+            `${CredentialsApiUrl.credentials}?$filter=agentId+eq+null&substringof(tolower('${event.target.value}'), tolower(Name))`
           )
           .subscribe((response) => {
             this.credentialsArr = [...response.items];
