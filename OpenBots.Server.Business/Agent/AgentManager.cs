@@ -174,6 +174,13 @@ namespace OpenBots.Server.Business
             }
 
             DeleteExistingHeartbeats(agent.Id ?? Guid.Empty);
+
+            //delete agent settings
+            var agentSettings = _agentSettingRepository.Find(null, s => s.AgentId == agent.Id)?.Items?.FirstOrDefault();
+            if (agentSettings != null)
+            {
+                _agentSettingRepository.SoftDelete(agentSettings.Id.Value);
+            }
         }
 
         /// <summary>
@@ -218,12 +225,17 @@ namespace OpenBots.Server.Business
                 settingViewModel.AgentId = entityId;
                 AgentSetting agentSetting = settingViewModel.Map(settingViewModel);
 
-                var existingSetting = _agentSettingRepository.Find(null, s => s.AgentId == entityId);
+                var existingSetting = _agentSettingRepository.Find(null, s => s.AgentId == entityId).Items.FirstOrDefault();
 
                 //if setting exists, then update the setting
                 if (existingSetting != null)
-                {               
-                    _agentSettingRepository.Update(agentSetting);
+                {
+                    existingSetting.AgentId = settingViewModel.AgentId;
+                    existingSetting.HeartbeatInterval = settingViewModel.HeartbeatInterval;
+                    existingSetting.JobLoggingInterval = settingViewModel.JobLoggingInterval;
+                    existingSetting.VerifySslCertificate = settingViewModel.VerifySslCertificate;
+
+                    _agentSettingRepository.Update(existingSetting);
                 }
                 //if setting does not exist, then create a new setting
                 else
@@ -280,8 +292,8 @@ namespace OpenBots.Server.Business
             agentView.UserName = _usersRepo.Find(null, u => u.Name == agentView.Name).Items?.FirstOrDefault()?.UserName;
             agentView.CredentialName = _credentialRepo.GetOne(agentView.CredentialId ?? Guid.Empty)?.Name;
 
+            //get agent hearbeat details
             AgentHeartbeat agentHeartBeat = _agentHeartbeatRepo.Find(0, 1).Items?.Where(a => a.AgentId == agentView.Id).OrderByDescending(a => a.CreatedOn).FirstOrDefault();
-
             if (agentHeartBeat != null)
             {
                 agentView.LastReportedOn = agentHeartBeat.LastReportedOn;
@@ -290,6 +302,13 @@ namespace OpenBots.Server.Business
                 agentView.LastReportedMessage = agentHeartBeat.LastReportedMessage;
                 agentView.IsHealthy = agentHeartBeat.IsHealthy;
             }
+
+            //get agent settings detials
+            AgentSetting agentSetting = _agentSettingRepository.Find(null, s => s.AgentId == agentView.Id).Items.FirstOrDefault();
+
+            AgentSettingViewModel settingViewModel = new AgentSettingViewModel();
+            settingViewModel = settingViewModel.MapFromModel(agentSetting);
+            agentView.AgentSetting = settingViewModel;
 
             return agentView;
         }

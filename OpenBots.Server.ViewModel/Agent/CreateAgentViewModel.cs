@@ -32,7 +32,6 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
         public string Password { get; set; }
         public string IPOption { get; set; }
         public bool IsEnhancedSecurity { get; set; }
-
         public AgentSettingViewModel? AgentSetting { get; set; } 
 
         public Agent Map(CreateAgentViewModel viewModel)

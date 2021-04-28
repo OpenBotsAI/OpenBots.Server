@@ -29,6 +29,19 @@ namespace OpenBots.Server.ViewModel
 
             return agentSetting;
         }
+        public AgentSettingViewModel MapFromModel(AgentSetting entity)
+        {
+            AgentSettingViewModel viewModel = new AgentSettingViewModel
+            {
+                AgentId = entity.AgentId,
+                HeartbeatInterval = entity.HeartbeatInterval,
+                JobLoggingInterval = entity.JobLoggingInterval,
+                VerifySslCertificate = entity.VerifySslCertificate
+            };
+
+            return viewModel;
+        }
+
     }
 }
 
