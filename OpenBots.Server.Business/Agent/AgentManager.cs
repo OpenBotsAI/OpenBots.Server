@@ -438,7 +438,7 @@ namespace OpenBots.Server.Business
             //connect agent if it is not already connected
             if (agent.IsConnected == true)
             {
-                agent.IsConnected = true;
+                agent.IsConnected = false;
                 _agentRepo.Update(agent);
             }
         }
