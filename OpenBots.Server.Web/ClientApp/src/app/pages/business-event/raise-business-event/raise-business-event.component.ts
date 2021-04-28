@@ -44,12 +44,11 @@ export class RaiseBusinessEventComponent implements OnInit {
         Validators.maxLength(100),
         Validators.pattern('^[A-Za-z0-9_.-]{3,100}$'),
       ]],
-      payloadSchema: [''],
+      payloadJSON: [''],
       message: [''],
-      page_name: [''],
+      businessEventName: ['', [Validators.required]],
       entityId: ['', [Validators.required, Validators.pattern('^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$')]],
     });
-
 
   }
   entityName() {
@@ -69,15 +68,22 @@ export class RaiseBusinessEventComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
+    this.raiseBusinessEventform.value.payloadJSON = JSON.stringify(this.editor.get());
 
-    this.BusinessEventservice.raiseBusinessEvent(this.raiseBusinessEventform.value,
-      this.raiseBusinessEventform.value.entityId).subscribe(
+    let objData = {
+      entityId: this.raiseBusinessEventform.value.entityId,
+      entityName: this.raiseBusinessEventform.value.entityName,
+      message: this.raiseBusinessEventform.value.message,
+      payloadJSON: this.raiseBusinessEventform.value.payloadJSON,
+    }
+    this.BusinessEventservice.raiseBusinessEvent(objData,
+      this.raiseBusinessEventform.value.businessEventName).subscribe(
         () => {
           this.toastrService.success(
             'Raise Business Event Save Successfully!',
             'Success'
           );
-          this.router.navigate(['pages/business-event/list']);
+          this.router.navigate(['pages/integration-logs/list']);
         },
         (error) => {
           this.submitted = false;

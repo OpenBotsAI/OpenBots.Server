@@ -13,3 +13,4 @@ export * from './ConfigValues';
 export * from './SubscribeUrls';
 export * from './fileManager';
 export * from './agentGroup';
+export * from './integrationUrl';
