@@ -208,7 +208,7 @@
             <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
             <returns>Newly created unique agent id with route name</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Put(System.String,OpenBots.Server.Model.Agent)">
+        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Put(System.String,OpenBots.Server.ViewModel.AgentViewModels.UpdateAgentViewModel)">
             <summary>
             Updates an Agent 
             </summary>

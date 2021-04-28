@@ -31,6 +31,7 @@ namespace OpenBots.Server.Business
         private readonly IWebhookPublisher _webhookPublisher;
         private readonly ClaimsPrincipal _caller;
         private readonly IAgentGroupRepository _agentGroupRepository;
+        private readonly IAgentSettingRepository _agentSettingRepository;
 
         public AgentManager(IAgentRepository agentRepository,
             IScheduleRepository scheduleRepository,
@@ -44,7 +45,8 @@ namespace OpenBots.Server.Business
             IJobManager jobManager,
             IWebhookPublisher webhookPublisher,
             IHttpContextAccessor httpContextAccessor,
-            IAgentGroupRepository agentGroupRepository)
+            IAgentGroupRepository agentGroupRepository,
+            IAgentSettingRepository agentSettingRepository)
         {
             _agentRepo = agentRepository;
             _scheduleRepo = scheduleRepository;
@@ -58,6 +60,7 @@ namespace OpenBots.Server.Business
             _jobManager = jobManager;
             _agentGroupRepository = agentGroupRepository;
             _webhookPublisher = webhookPublisher;
+            _agentSettingRepository = agentSettingRepository;
             _caller = ((httpContextAccessor.HttpContext != null) ? httpContextAccessor.HttpContext.User : new ClaimsPrincipal());
         }
 
@@ -118,6 +121,16 @@ namespace OpenBots.Server.Business
             {
                 _personRepo.Add(newPerson);
             }
+
+            //create agent setting if one was provided
+            if (request.AgentSetting != null)
+            {
+                AgentSettingViewModel settingViewModel = request.AgentSetting;
+                settingViewModel.AgentId = request.Id;
+                AgentSetting agentSetting = settingViewModel.Map(settingViewModel);
+
+                _agentSettingRepository.Add(agentSetting);
+            }
         }
 
         /// <summary>
@@ -169,7 +182,7 @@ namespace OpenBots.Server.Business
         /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>Updated Agent</returns>
-        public Agent UpdateAgent(string id, Agent request)
+        public Agent UpdateAgent(string id, UpdateAgentViewModel request)
         {
             Guid entityId = new Guid(id);
 
@@ -198,6 +211,27 @@ namespace OpenBots.Server.Business
             existingAgent.CredentialId = request.CredentialId;
             existingAgent.IPOption = request.IPOption;
             existingAgent.IsEnhancedSecurity = request.IsEnhancedSecurity;
+
+            if (request.AgentSetting != null)
+            {
+                AgentSettingViewModel settingViewModel = request.AgentSetting;
+                settingViewModel.AgentId = entityId;
+                AgentSetting agentSetting = settingViewModel.Map(settingViewModel);
+
+                var existingSetting = _agentSettingRepository.Find(null, s => s.AgentId == entityId);
+
+                //if setting exists, then update the setting
+                if (existingSetting != null)
+                {               
+                    _agentSettingRepository.Update(agentSetting);
+                }
+                //if setting does not exist, then create a new setting
+                else
+                {
+                    _agentSettingRepository.Add(agentSetting);
+                }
+
+            }
 
             return existingAgent;
         }

@@ -78,6 +78,7 @@ namespace OpenBots.Server.Web
             services.AddTransient(typeof(IAgentGroupRepository), typeof(AgentGroupRepository));
             services.AddTransient(typeof(IAgentGroupManager), typeof(AgentGroupManager));
             services.AddTransient(typeof(IAgentGroupMemberRepository), typeof(AgentGroupMemberRepository));
+            services.AddTransient(typeof(IAgentSettingRepository), typeof(AgentSettingRepository));
 
             //automations
             services.AddTransient(typeof(IAutomationRepository), typeof(AutomationRepository));

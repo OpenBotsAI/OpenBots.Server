@@ -309,7 +309,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Put(string id, [FromBody] Agent request)
+        public async Task<IActionResult> Put(string id, [FromBody] UpdateAgentViewModel request)
         {
             try
             {

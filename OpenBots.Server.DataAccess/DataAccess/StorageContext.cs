@@ -25,6 +25,7 @@ namespace OpenBots.Server.DataAccess
         public DbSet<AgentGroup> AgentGroups { get; set; }
         public DbSet<AgentGroupMember> AgentGroupMembers { get; set; }
         public DbSet<AgentHeartbeat> AgentHeartbeats { get; set; }
+        public DbSet<AgentSetting> AgentSettings { get; set; }
         public DbSet<Queue> Queues { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<Asset> Assets { get; set; }

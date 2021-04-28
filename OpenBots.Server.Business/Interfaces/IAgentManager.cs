@@ -11,7 +11,7 @@ namespace OpenBots.Server.Business
 
         void DeleteAgentDependencies(Agent agent);
 
-        Agent UpdateAgent(string id, Agent request);
+        Agent UpdateAgent(string id, UpdateAgentViewModel request);
 
         void UpdateAgentName(string oldName, string newName);
 
