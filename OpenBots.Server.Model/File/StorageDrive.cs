@@ -10,6 +10,6 @@ namespace OpenBots.Server.Model.File
         public string StoragePath { get; set; }
         public long? StorageSizeInBytes { get; set; }
         public long? MaxStorageAllowedInBytes { get; set; }
-
+        public bool IsDefault { get; set; }
     }
 }

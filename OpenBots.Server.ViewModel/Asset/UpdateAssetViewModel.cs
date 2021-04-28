@@ -13,6 +13,6 @@ namespace OpenBots.Server.ViewModel.ViewModels
         public string? JsonValue { get; set; }
         public Guid? FileId { get; set; }
         public IFormFile? File { get; set; }
-        public string? DriveName { get; set; }
+        public string? DriveId { get; set; }
     }
 }

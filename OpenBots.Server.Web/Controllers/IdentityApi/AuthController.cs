@@ -70,6 +70,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         readonly IOrganizationSettingRepository organizationSettingRepository;
         readonly IStorageDriveRepository storageDriveRepository;
         readonly IStorageFolderRepository storageFolderRepository;
+        readonly IDirectoryManager directoryManager;
 
         /// <summary>
         /// AuthController constructor
@@ -98,6 +99,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         /// <param name="termsConditionsManager"></param>
         /// <param name="storageDriveRepository"></param>
         /// <param name="storageFolderRepository"></param>
+        /// <param name="directoryManager"></param>
         public AuthController(
            ApplicationIdentityUserManager userManager,
            SignInManager<ApplicationUser> signInManager,
@@ -122,7 +124,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
            IHttpContextAccessor context,
            IOrganizationSettingRepository organizationSettingRepository,
            IStorageDriveRepository storageDriveRepository,
-           IStorageFolderRepository storageFolderRepository) : base(httpContextAccessor, userManager, membershipManager)
+           IStorageFolderRepository storageFolderRepository,
+           IDirectoryManager directoryManager) : base(httpContextAccessor, userManager, membershipManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -149,6 +152,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             this.organizationSettingRepository = organizationSettingRepository;
             this.storageDriveRepository = storageDriveRepository;
             this.storageFolderRepository = storageFolderRepository;
+            this.directoryManager = directoryManager;
         }
 
         /// <summary>
@@ -499,7 +503,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                 IPFencingMode = IPFencingMode.AllowMode,
                                 DisallowAllExecutions = false,
                                 CreatedBy = user.Name,
-                                CreatedOn = DateTime.UtcNow
+                                CreatedOn = DateTime.UtcNow,
+                                StorageLocation = "LocalFileStorage"
                             };
                             organizationSettingRepository.ForceIgnoreSecurity();
                             organizationSettingRepository.Add(orgSettings);
@@ -511,9 +516,14 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                             {
                                 if (newOrganization != null)
                                 {
+                                    //create organization folder
                                     Guid? organizationId = newOrganization.Id;
+                                    string orgId = organizationId.ToString();
+                                    directoryManager.CreateDirectory(orgId);
+
+                                    //create drive folder
                                     Guid driveId = new Guid("37a01356-7514-47a2-96ce-986faadd628e");
-                                    string storagePath = "Files";
+                                    string storagePath = Path.Combine(orgId, "Files");
                                     string emailAttachments = "Email Attachments";
                                     string queueItemAttachments = "Queue Item Attachments";
                                     string automations = "Automations";
@@ -528,7 +538,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                         CreatedBy = person.Name,
                                         CreatedOn = DateTime.UtcNow,
                                         StoragePath = storagePath,
-                                        StorageSizeInBytes = 0
+                                        StorageSizeInBytes = 0,
+                                        IsDefault = true
                                     };
 
                                     //add default storage drive
@@ -594,11 +605,6 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
 
                                     };
                                     storageFolderRepository.Add(automationsFolder);
-
-                                    //add component folders
-                                    List<string> componentList = new List<string>() { emailAttachments, queueItemAttachments, automations, assets };
-                                    foreach (var component in componentList)
-                                        Directory.CreateDirectory(Path.Combine(storagePath, component));
                                 }
                             }
                         }

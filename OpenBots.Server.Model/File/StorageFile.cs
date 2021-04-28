@@ -9,6 +9,7 @@ namespace OpenBots.Server.Model.File
         public Guid? StorageFolderId { get; set; }
         public string ContentType { get; set; }
         public string StoragePath { get; set; }
+        public string StorageLocation { get; set; }
         public string StorageProvider { get; set; }
         public long? SizeInBytes { get; set; }
         public string HashCode { get; set; }

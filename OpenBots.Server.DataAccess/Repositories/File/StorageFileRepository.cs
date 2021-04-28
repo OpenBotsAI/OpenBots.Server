@@ -7,6 +7,7 @@ using OpenBots.Server.Model.File;
 using OpenBots.Server.ViewModel.File;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace OpenBots.Server.DataAccess.Repositories.File
@@ -21,10 +22,17 @@ namespace OpenBots.Server.DataAccess.Repositories.File
             return dbContext.StorageFiles;
         }
 
-        public PaginatedList<FileFolderViewModel> FindAllView(Guid? driveId, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        public PaginatedList<FileFolderViewModel> FindAllView(Guid? driveId, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100, string path = null)
         {
             PaginatedList<FileFolderViewModel> paginatedList = new PaginatedList<FileFolderViewModel>();
-            var itemsList = base.Find(null, j => j.IsDeleted == false && j.StorageDriveId == driveId);
+            var itemsList = new PaginatedList<StorageFile>();
+            if (string.IsNullOrEmpty(path))
+                itemsList = base.Find(null, j => j.IsDeleted == false && j.StorageDriveId == driveId);
+            else
+            {
+                path = path + Path.DirectorySeparatorChar;
+                itemsList = base.Find(null, j => j.IsDeleted == false && j.StorageDriveId == driveId && j.StoragePath.Contains(path));
+            }
 
             if (itemsList != null && itemsList.Items != null && itemsList.Items.Count > 0)
             {
