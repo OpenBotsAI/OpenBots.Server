@@ -2,6 +2,7 @@
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.ViewModel.AgentViewModels;
+using System;
 
 namespace OpenBots.Server.Business
 {
@@ -19,9 +20,14 @@ namespace OpenBots.Server.Business
         
         bool CheckReferentialIntegrity(string id);
 
-        Agent GetConnectAgent(string agentId, string requestIp, ConnectAgentViewModel request);
+        ConnectedViewModel ConnectAgent(string agentId, string requestIp, ConnectAgentViewModel request);
+
+        void DisconnectAgent(Guid? agentId, string requestIp, ConnectAgentViewModel request);
+
         PaginatedList<AgentGroupMember> GetAllMembersInGroup(string agentId);
+
         AgentHeartbeat PerformAgentHeartbeat(HeartbeatViewModel request, string agentId);
+
         NextJobViewModel GetNextJob(string agentId);
     }
 }
