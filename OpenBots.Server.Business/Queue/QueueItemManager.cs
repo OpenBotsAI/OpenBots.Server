@@ -575,7 +575,7 @@ namespace OpenBots.Server.Business
                 if (size <= 0) throw new EntityOperationException($"File size of file {file.Name} cannot be 0");
 
                 //create queue item attachment file under queue item id folder
-                var path = Path.Combine(driveId, "Queue Item Attachments", queueItem.Id.ToString());
+                var path = Path.Combine(drive.Name, "Queue Item Attachments", queueItem.Id.ToString());
                 using (var stream = IOFile.OpenRead(fileToAdd.StorageLocation))
                 {
                     file.Files = new IFormFile[] { new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name)) };
@@ -615,7 +615,6 @@ namespace OpenBots.Server.Business
             if (files.Length == 0 || files == null) throw new EntityOperationException("No files found to attach");
 
             driveId = CheckDriveId(driveId);
-
             var drive = GetDrive(driveId);
             driveId = drive.Id.ToString();
 
@@ -719,6 +718,7 @@ namespace OpenBots.Server.Business
 
             UpdateExpiredItemsStates(existingQueueItem.QueueId.ToString());
 
+            //soft delete each queue item attachment entity and file entity that correlates to the queue item
             var attachments = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == existingQueueItem.Id)?.Items;
             if (attachments.Count != 0)
             {

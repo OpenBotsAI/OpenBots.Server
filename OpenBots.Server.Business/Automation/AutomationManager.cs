@@ -107,7 +107,7 @@ namespace OpenBots.Server.Business
             }
 
             var file = _fileManager.GetFileFolder(fileId, request.DriveId, "Files");
-            if (file == null) throw new EntityDoesNotExistException($"Automation file with id {fileId} could not be found");
+            if (file == null) throw new EntityDoesNotExistException($"Automation file with id {fileId} could not be found or does not exist");
 
             var response = AddAutomation(request);
             return response;
@@ -117,9 +117,9 @@ namespace OpenBots.Server.Business
         {
             //check if storage path exists; if it doesn't exist, create folder
             var folder = _fileManager.GetFileFolderByStoragePath(view.StoragePath, driveName);
-            CreateFolderIfEmpty(folder, request, driveName);
+            CreateFolderIfEmpty(folder, request, view.StoragePath);
             folder = _fileManager.GetFileFolderByStoragePath(view.FullStoragePath, driveName);
-            CreateFolderIfEmpty(folder, request, driveName);
+            CreateFolderIfEmpty(folder, request, view.FullStoragePath);
         }
 
         public Automation UpdateAutomation(string id, AutomationViewModel request)
@@ -175,10 +175,10 @@ namespace OpenBots.Server.Business
                 _fileManager.DeleteFileFolder(folder.Id.ToString(), driveId, "Folders");
             else _fileManager.RemoveBytesFromFoldersAndDrive(new List<FileFolderViewModel> { file });
 
-            //remove automation entity
+            //remove automation
             _repo.SoftDelete(automation.Id.Value);
 
-            //remove automation version entity associated with automation
+            //remove automation version associated with automation
             var automationVersion = _automationVersionRepository.Find(null, q => q.AutomationId == automation.Id).Items?.FirstOrDefault();
             _automationVersionRepository.SoftDelete(automationVersion.Id.Value);
             DeleteExistingParameters(automation.Id);
@@ -327,19 +327,6 @@ namespace OpenBots.Server.Business
             TagUI
         }
 
-        private string CheckDriveId(string driveId)
-        {
-            if (string.IsNullOrEmpty(driveId))
-            {
-                var drive = _storageDriveRepository.Find(null, q => q.IsDefault == true).Items?.FirstOrDefault();
-                if (drive == null)
-                    throw new EntityDoesNotExistException("Default drive could not be found or does not exist");
-                else
-                    driveId = drive.Id.ToString();
-            }
-            return driveId;
-        }
-
         private string CheckDriveIdByFileId(string id, string driveId)
         {
             if (string.IsNullOrEmpty(driveId))
@@ -350,12 +337,12 @@ namespace OpenBots.Server.Business
             return driveId;
         }
 
-        private void CreateFolderIfEmpty(FileFolderViewModel folder, AutomationViewModel request, string driveName)
+        private void CreateFolderIfEmpty(FileFolderViewModel folder, AutomationViewModel request, string storagePath)
         {
             if (string.IsNullOrEmpty(folder.Name))
             {
                 folder.Name = request.Id.ToString();
-                folder.StoragePath = Path.Combine(driveName, "Automations");
+                folder.StoragePath = storagePath;
                 folder.IsFile = false;
                 folder.Size = request.File.Length;
                 _fileManager.AddFileFolder(folder, request.DriveId);
