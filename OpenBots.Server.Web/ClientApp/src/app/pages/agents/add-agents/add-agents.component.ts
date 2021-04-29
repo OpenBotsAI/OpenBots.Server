@@ -22,6 +22,11 @@ export class AddAgentsComponent implements OnInit {
   ipVersion = 'V4';
   urlId: string;
   showAllAgents: any = [];
+  isAgentSettings = false;
+  sslCertificateArr = [
+    { name: 'Yes', value: true },
+    { name: 'No', value: false },
+  ];
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
@@ -56,11 +61,16 @@ export class AddAgentsComponent implements OnInit {
       macAddresses: [''],
       ipAddresses: [''],
       isEnabled: [true],
-      CredentialId: ['', [Validators.required]],
+      credentialId: ['', [Validators.required]],
       userName: this.urlId ? [''] : ['', [Validators.required]],
       password: this.urlId ? [''] : ['', [Validators.required]],
       ipOption: [''],
       isEnhancedSecurity: false,
+      agentSetting: this.formBuilder.group({
+        heartbeatInterval: null,
+        jobLoggingInterval: null,
+        verifySslCertificate: null,
+      }),
     });
   }
 
@@ -196,6 +206,13 @@ export class AddAgentsComponent implements OnInit {
       .getAgentbyID(this.urlId)
       .subscribe((data: HttpResponse<any>) => {
         if (data && data.body) {
+          if (
+            data.body.agentSetting &&
+            (data.body.agentSetting.heartbeatInterval ||
+              data.body.agentSetting.jobLoggingInterval ||
+              data.body.agentSetting.verifySslCertificate)
+          )
+            this.isAgentSettings = true;
           this.showAllAgents = data.body;
           if (data.body.ipOption === 'ipv6') {
             this.agentForm
@@ -216,11 +233,16 @@ export class AddAgentsComponent implements OnInit {
             this.agentForm.get('ipAddresses').updateValueAndValidity();
           }
           this.etag = data.headers.get('ETag').replace(/\"/g, '');
-          this.agentForm.patchValue(this.showAllAgents);
-          this.agentForm.patchValue({
-            CredentialId: this.showAllAgents.credentialId,
-          });
+          this.agentForm.patchValue(data.body);
+
+          // this.agentForm.patchValue({
+          //   CredentialId: this.showAllAgents.credentialId,
+          // });
         }
       });
+  }
+
+  agentSettings() {
+    this.isAgentSettings = !this.isAgentSettings;
   }
 }

@@ -1,55 +1,53 @@
- 
-  <div class="row">
-    <div class="col-md-12">
-      <nb-card>
-        <nb-card-header>
-          <div class="row">
-            <div class="col-md-8 col-lg-8 col-xxxl-6">
-              <h2>Job detail  </h2> 
-            </div>
-  
-            <div class="col-md-4 col-lg-4 col-xxxl-6 text-right">
-              <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn " (click)="gotoaudit()"  > 
-                <img class="img" src="../../../../assets/images/auditLog.svg"></button>
-            </div>
-          </div>
-        
-        
-        </nb-card-header>
-        <nb-card-body>
-          <form [formGroup]="showjobs"  >
-              <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group ">
-                      <label  class="label  col-form-label">Automation Name </label>
-                      
-                       <input type="input" nbInput fullWidth   formControlName="automationName"     style="color:#000000" >
-                        <p class="link">
-                          <a (click)="gotoprocess()">
-                           <u>View Automation details</u> 
-                           </a>
-                        </p>
-                         
-                      
-                      </div>
-                    </div>
-                    
-                        <div class="col-md-6">
-                          <div class="form-group ">
-                            <label   class="label  col-form-label">Agent Name </label>
-                           
-                             <input type="input" nbInput fullWidth id="agentname" formControlName="agentName"   style="color:#000000" >
-                             <p class="link">
-                              <a (click)="gotoagent()">
-                               <u>View Agent details</u> 
-                               </a>
-                            </p>
-                            </div>
-                          </div> 
-                       
-              </div>
-           
-              
+ <div class="row">
+   <div class="col-md-12">
+     <nb-card>
+       <nb-card-header>
+         <div class="row">
+           <div class="col-md-8 col-lg-8 col-xxxl-6">
+             <h2>Job detail </h2>
+           </div>
+
+           <div class="col-md-4 col-lg-4 col-xxxl-6 text-right">
+             <button type="button" nbTooltip="View Change Logs" nbTooltipPlacement="top" class="btn "
+               (click)="gotoaudit()">
+               <img class="img" src="../../../../assets/images/auditLog.svg"></button>
+           </div>
+         </div>
+
+
+       </nb-card-header>
+       <nb-card-body>
+         <form [formGroup]="showjobs">
+           <div class="row">
+             <div class="col-md-6">
+               <div class="form-group ">
+                 <label class="label  col-form-label">Automation Name </label>
+
+                 <input type="input" nbInput fullWidth formControlName="automationName" style="color:#000000">
+                 <p class="link">
+                   <a (click)="gotoprocess()">
+                     <u>View Automation details</u>
+                   </a>
+                 </p>
+
+
+               </div>
+             </div>
+
+             <div class="col-md-6">
+               <div class="form-group ">
+                 <label class="label  col-form-label">Agent Name </label>
+
+                 <input type="input" nbInput fullWidth id="agentname" formControlName="agentName" style="color:#000000">
+                 <p class="link">
+                   <a (click)="gotoagent()">
+                     <u>View Agent details</u>
+                   </a>
+                 </p>
+               </div>
+             </div>
+
+           </div>
 
 
 
@@ -57,83 +55,88 @@
 
 
 
-              <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group ">
-                      <label for="agentname" class="label  col-form-label">Start Time </label>
-                      
-                       <input type="input" nbInput fullWidth id="agentname" formControlName="startTime"    style="color:#000000" >
-                       
-                      </div>
-                    </div>
-                    
-                        <div class="col-md-6">
-                          <div class="form-group ">
-                            <label for="agentname" class="label  col-form-label">End Time  </label>
-                            
-                             <input type="input" nbInput fullWidth id="agentname" formControlName="endTime"     style="color:#000000" >
-                            </div>
-                          </div> 
-                       
-              </div>
+
+
+           <div class="row">
+             <div class="col-md-6">
+               <div class="form-group ">
+                 <label for="agentname" class="label  col-form-label">Start Time </label>
+
+                 <input type="input" nbInput fullWidth id="agentname" formControlName="startTime" style="color:#000000">
+
+               </div>
+             </div>
+
+             <div class="col-md-6">
+               <div class="form-group ">
+                 <label for="agentname" class="label  col-form-label">End Time </label>
+
+                 <input type="input" nbInput fullWidth id="agentname" formControlName="endTime" style="color:#000000">
+               </div>
+             </div>
+
+           </div>
 
 
 
-              <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group ">
-                      <label for="agentname" class="label  col-form-label">Enqueue Time </label>
-                      
-                       <input type="input" nbInput fullWidth id="agentname" formControlName="enqueueTime"    style="color:#000000" >
-                       
-                      </div>
-                    </div>
-                    
-                        <div class="col-md-6">
-                          <div class="form-group ">
-                            <label for="agentname" class="label  col-form-label">Dequeue Time  </label>
-                            
-                             <input type="input" nbInput fullWidth id="agentname" formControlName="dequeueTime"     style="color:#000000" >
-                            </div>
-                          </div> 
-                       
-              </div>
+           <div class="row">
+             <div class="col-md-6">
+               <div class="form-group ">
+                 <label for="agentname" class="label  col-form-label">Enqueue Time </label>
+
+                 <input type="input" nbInput fullWidth id="agentname" formControlName="enqueueTime"
+                   style="color:#000000">
+
+               </div>
+             </div>
+
+             <div class="col-md-6">
+               <div class="form-group ">
+                 <label for="agentname" class="label  col-form-label">Dequeue Time </label>
+
+                 <input type="input" nbInput fullWidth id="agentname" formControlName="dequeueTime"
+                   style="color:#000000">
+               </div>
+             </div>
+
+           </div>
 
 
 
-              <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group ">
-                      <label for="agentname" class="label  col-form-label">Job Status </label>
-                      
-                       <input type="input" nbInput fullWidth id="agentname" formControlName="jobStatus"    style="color:#000000" >
-                       
-                      </div>
-                    </div>
-                    
-                        <div class="col-md-6">
-                          <div class="form-group ">
-                            <label for="agentname" class="label  col-form-label">Is Successful  </label>
-                            
-                             <input type="input" nbInput fullWidth id="agentname" formControlName="isSuccessful"     style="color:#000000" >
-                            </div>
-                          </div> 
-                       
-              </div>
-              <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group ">
-                      <label for="agentname" class="label  col-form-label">Message </label>
-                      
-                       <textarea type="input" rows="10" nbInput fullWidth id="agentname" formControlName="message"    style="color:#000000" >
+           <div class="row">
+             <div class="col-md-6">
+               <div class="form-group ">
+                 <label for="agentname" class="label  col-form-label">Job Status </label>
+
+                 <input type="input" nbInput fullWidth id="agentname" formControlName="jobStatus" style="color:#000000">
+
+               </div>
+             </div>
+
+             <div class="col-md-6">
+               <div class="form-group ">
+                 <label for="agentname" class="label  col-form-label">Is Successful </label>
+
+                 <input type="input" nbInput fullWidth id="agentname" formControlName="isSuccessful"
+                   style="color:#000000">
+               </div>
+             </div>
+
+           </div>
+           <div class="row">
+             <div class="col-md-12">
+               <div class="form-group ">
+                 <label for="agentname" class="label  col-form-label">Message </label>
+
+                 <textarea type="input" rows="10" nbInput fullWidth formControlName="message" style="color:#000000">
                        </textarea>
 
-                      </div>
-                    </div>
-                    
-                         
-                       
-              </div>
+               </div>
+             </div>
+
+
+
+           </div>
 
 
 
@@ -141,15 +144,15 @@
 
 
 
-             
-             
 
- 
-              
-          </form>
-        </nb-card-body>
-      </nb-card>
-  
-      
-    </div>
-    </div>
+
+
+
+
+         </form>
+       </nb-card-body>
+     </nb-card>
+
+
+   </div>
+ </div>
