@@ -9,6 +9,8 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
 
         public string AgentName { get; set; }
 
+        public AgentSettingViewModel AgentSetting { get; set; }
+
         public ConnectedViewModel Map(Agent entity)
         {
             ConnectedViewModel connected = new ConnectedViewModel
