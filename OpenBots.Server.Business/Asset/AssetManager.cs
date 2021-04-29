@@ -83,7 +83,7 @@ namespace OpenBots.Server.Business
                 {
                     IFormFile[] fileArray = { file };
                     asset.Id = Guid.NewGuid();
-                    string shortPath = Path.Combine(drive.Name, "Assets", asset.Id.ToString();
+                    string shortPath = Path.Combine(drive.Name, "Assets", asset.Id.ToString());
                     var fileView = new FileFolderViewModel()
                     {
                         ContentType = file.ContentType,
