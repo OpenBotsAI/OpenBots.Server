@@ -395,16 +395,19 @@ namespace OpenBots.Server.Business
                 _agentRepo.Update(agent);
             }
 
-            //get agent settings detials
-            AgentSetting agentSetting = _agentSettingRepository.Find(null, s => s.AgentId == agent.Id).Items.FirstOrDefault();
-
-            AgentSettingViewModel settingViewModel = new AgentSettingViewModel();
-            settingViewModel = settingViewModel.MapFromModel(agentSetting);
-
             //populate connected view model
             ConnectedViewModel connectedViewModel = new ConnectedViewModel();
             connectedViewModel = connectedViewModel.Map(agent);
-            connectedViewModel.AgentSetting = settingViewModel;    
+
+            //get agent settings detials
+            AgentSetting agentSetting = _agentSettingRepository.Find(null, s => s.AgentId == agent.Id).Items.FirstOrDefault();
+
+            if (agentSetting != null)
+            {
+                AgentSettingViewModel settingViewModel = new AgentSettingViewModel();
+                settingViewModel = settingViewModel.MapFromModel(agentSetting);
+                connectedViewModel.AgentSetting = settingViewModel;
+            }          
 
             return connectedViewModel;
         }
