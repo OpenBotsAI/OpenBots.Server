@@ -126,8 +126,8 @@ namespace OpenBots.Server.Business
             if (request.AgentSetting != null)
             {
                 AgentSettingViewModel settingViewModel = request.AgentSetting;
-                settingViewModel.AgentId = request.Id;
                 AgentSetting agentSetting = settingViewModel.Map(settingViewModel);
+                agentSetting.AgentId = request.Id;
 
                 _agentSettingRepository.Add(agentSetting);
             }
@@ -222,15 +222,14 @@ namespace OpenBots.Server.Business
             if (request.AgentSetting != null)
             {
                 AgentSettingViewModel settingViewModel = request.AgentSetting;
-                settingViewModel.AgentId = entityId;
                 AgentSetting agentSetting = settingViewModel.Map(settingViewModel);
+                agentSetting.AgentId = entityId;
 
                 var existingSetting = _agentSettingRepository.Find(null, s => s.AgentId == entityId).Items.FirstOrDefault();
 
                 //if setting exists, then update the setting
                 if (existingSetting != null)
                 {
-                    existingSetting.AgentId = settingViewModel.AgentId;
                     existingSetting.HeartbeatInterval = settingViewModel.HeartbeatInterval;
                     existingSetting.JobLoggingInterval = settingViewModel.JobLoggingInterval;
                     existingSetting.VerifySslCertificate = settingViewModel.VerifySslCertificate;
@@ -306,9 +305,12 @@ namespace OpenBots.Server.Business
             //get agent settings detials
             AgentSetting agentSetting = _agentSettingRepository.Find(null, s => s.AgentId == agentView.Id).Items.FirstOrDefault();
 
-            AgentSettingViewModel settingViewModel = new AgentSettingViewModel();
-            settingViewModel = settingViewModel.MapFromModel(agentSetting);
-            agentView.AgentSetting = settingViewModel;
+            if (agentSetting != null)
+            {
+                AgentSettingViewModel settingViewModel = new AgentSettingViewModel();
+                settingViewModel = settingViewModel.MapFromModel(agentSetting);
+                agentView.AgentSetting = settingViewModel;
+            }
 
             return agentView;
         }
@@ -393,16 +395,19 @@ namespace OpenBots.Server.Business
                 _agentRepo.Update(agent);
             }
 
-            //get agent settings detials
-            AgentSetting agentSetting = _agentSettingRepository.Find(null, s => s.AgentId == agent.Id).Items.FirstOrDefault();
-
-            AgentSettingViewModel settingViewModel = new AgentSettingViewModel();
-            settingViewModel = settingViewModel.MapFromModel(agentSetting);
-
             //populate connected view model
             ConnectedViewModel connectedViewModel = new ConnectedViewModel();
             connectedViewModel = connectedViewModel.Map(agent);
-            connectedViewModel.AgentSetting = settingViewModel;    
+
+            //get agent settings detials
+            AgentSetting agentSetting = _agentSettingRepository.Find(null, s => s.AgentId == agent.Id).Items.FirstOrDefault();
+
+            if (agentSetting != null)
+            {
+                AgentSettingViewModel settingViewModel = new AgentSettingViewModel();
+                settingViewModel = settingViewModel.MapFromModel(agentSetting);
+                connectedViewModel.AgentSetting = settingViewModel;
+            }          
 
             return connectedViewModel;
         }

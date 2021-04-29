@@ -7,8 +7,6 @@ namespace OpenBots.Server.ViewModel
 {
     public class AgentSettingViewModel : IViewModel<AgentSettingViewModel, AgentSetting>
     {
-        public Guid? AgentId { get; set; }
-
         [Range(30, int.MaxValue, ErrorMessage = "Please enter valid a number greater than or equal to 30")]
         public int? HeartbeatInterval { get; set; }
 
@@ -21,7 +19,6 @@ namespace OpenBots.Server.ViewModel
         {
             AgentSetting agentSetting = new AgentSetting
             {
-                AgentId = viewModel.AgentId,
                 HeartbeatInterval = viewModel.HeartbeatInterval,
                 JobLoggingInterval = viewModel.JobLoggingInterval,
                 VerifySslCertificate = viewModel.VerifySslCertificate
@@ -33,7 +30,6 @@ namespace OpenBots.Server.ViewModel
         {
             AgentSettingViewModel viewModel = new AgentSettingViewModel
             {
-                AgentId = entity.AgentId,
                 HeartbeatInterval = entity.HeartbeatInterval,
                 JobLoggingInterval = entity.JobLoggingInterval,
                 VerifySslCertificate = entity.VerifySslCertificate
