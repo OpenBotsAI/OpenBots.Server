@@ -312,8 +312,6 @@ namespace OpenBots.Server.Business
                 settingViewModel = settingViewModel.MapFromModel(agentSetting);
                 agentView.AgentSetting = settingViewModel;
             }
-
-
             return agentView;
         }
 
@@ -372,6 +370,7 @@ namespace OpenBots.Server.Business
         {
             Agent agent = _agentRepo.GetOne(Guid.Parse(agentId));
             if (agent == null) throw new EntityDoesNotExistException("No Agent was found for the specified id");
+<<<<<<< HEAD
 
             if (agent.IsEnhancedSecurity == true)
             {
@@ -421,6 +420,8 @@ namespace OpenBots.Server.Business
         {
             Agent agent = _agentRepo.GetOne(agentId.Value);
             if (agent == null) throw new EntityDoesNotExistException("No Agent was found for the specified id");
+=======
+>>>>>>> 4e7566bc35abdca68058aafa2cd7c110c8ba5ef2
 
             if (agent.IsEnhancedSecurity == true)
             {
@@ -440,6 +441,58 @@ namespace OpenBots.Server.Business
             }
 
             //connect agent if it is not already connected
+<<<<<<< HEAD
+=======
+            if (agent.IsConnected == false)
+            {
+                agent.IsConnected = true;
+                _agentRepo.Update(agent);
+            }
+
+            //get agent settings detials
+            AgentSetting agentSetting = _agentSettingRepository.Find(null, s => s.AgentId == agent.Id).Items.FirstOrDefault();
+
+            AgentSettingViewModel settingViewModel = new AgentSettingViewModel();
+            settingViewModel = settingViewModel.MapFromModel(agentSetting);
+
+            //populate connected view model
+            ConnectedViewModel connectedViewModel = new ConnectedViewModel();
+            connectedViewModel = connectedViewModel.Map(agent);
+            connectedViewModel.AgentSetting = settingViewModel;    
+
+            return connectedViewModel;
+        }
+
+        /// <summary>
+        /// Disconnects the specified Agent if the provided details match what's stored in the Agent
+        /// </summary>
+        /// <param name="agentId"></param>
+        /// <param name="requestIp"></param>
+        /// <param name="request"></param>
+        public void DisconnectAgent(Guid? agentId, string requestIp, ConnectAgentViewModel request)
+        {
+            Agent agent = _agentRepo.GetOne(agentId.Value);
+            if (agent == null) throw new EntityDoesNotExistException("No Agent was found for the specified id");
+
+            if (agent.IsEnhancedSecurity == true)
+            {
+                if (agent.IPAddresses != requestIp)
+                {
+                    throw new UnauthorizedOperationException("The IP address provided does not match this agent's IP address", EntityOperationType.Update);
+                }
+                if (agent.MacAddresses != request.MacAddresses)
+                {
+                    throw new UnauthorizedOperationException("The MAC address provided does not match this agent's MAC address", EntityOperationType.Update);
+                }
+            }
+
+            if (agent.MachineName != request.MachineName)
+            {
+                throw new UnauthorizedOperationException("The machine name provided does not match this agent's machine name", EntityOperationType.Update);
+            }
+
+            //connect agent if it is not already connected
+>>>>>>> 4e7566bc35abdca68058aafa2cd7c110c8ba5ef2
             if (agent.IsConnected == true)
             {
                 agent.IsConnected = false;

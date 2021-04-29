@@ -203,7 +203,7 @@ namespace OpenBots.Server.Web.Controllers.Email
         /// </remarks>
         /// <param name="emailId"></param>
         /// <param name="requests"></param>
-        /// <param name="driveName"></param>
+        /// <param name="driveId"></param>
         /// <response code="200">Ok, new email attachments created and returned</response>
         /// <response code="400">Bad request, when the email attachment values are not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
@@ -218,11 +218,11 @@ namespace OpenBots.Server.Web.Controllers.Email
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Post(string emailId, [FromBody] string[] requests, string driveName = null)
+        public async Task<IActionResult> Post(string emailId, [FromBody] string[] requests, string driveId = null)
         {
             try
             {
-                var emailAttachments = _manager.AddFileAttachments(emailId, requests, driveName);
+                var emailAttachments = _manager.AddFileAttachments(emailId, requests, driveId);
                 return Ok(emailAttachments);
             }
             catch (Exception ex)
@@ -236,7 +236,7 @@ namespace OpenBots.Server.Web.Controllers.Email
         /// </summary>
         /// <param name="emailId"></param>
         /// <param name="files"></param>
-        /// <param name="driveName"></param>
+        /// <param name="driveId"></param>
         /// <response code="200">Ok, new binary object created and returned</response>
         /// <response code="400">Bad request, when the binary object value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
@@ -251,11 +251,11 @@ namespace OpenBots.Server.Web.Controllers.Email
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Attach(string emailId, [FromForm] IFormFile[] files, string driveName = null)
+        public async Task<IActionResult> Attach(string emailId, [FromForm] IFormFile[] files, string driveId = null)
         {
             try
             {
-                var emailAttachments = _manager.AddAttachments(files, Guid.Parse(emailId), driveName);
+                var emailAttachments = _manager.AddAttachments(files, Guid.Parse(emailId), driveId);
                 return Ok(emailAttachments);
             }
             catch (Exception ex)
@@ -272,7 +272,6 @@ namespace OpenBots.Server.Web.Controllers.Email
         /// </remarks>
         /// <param name="id">Email attachment id, produces bad request if id is null or ids don't match</param>
         /// <param name="request">Email attachment details to be updated</param>
-        /// <param name="driveName"></param>
         /// <response code="200">Ok, if the email attachment details for the given email attachment id have been updated</response>
         /// <response code="400">Bad request, if the email attachment id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
@@ -287,7 +286,7 @@ namespace OpenBots.Server.Web.Controllers.Email
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Put(string id, [FromBody] EmailAttachment request, string driveName = null)
+        public async Task<IActionResult> Put(string id, [FromBody] EmailAttachment request)
         {
             try
             {
@@ -373,7 +372,7 @@ namespace OpenBots.Server.Web.Controllers.Email
         /// Delete all email attachments with a specified email id from list of email attachments
         /// </summary>
         /// <param name="emailId">Email id to delete all email attachments from - throws bad request if null or empty Guid</param>
-        /// <param name="driveName"></param>
+        /// <param name="driveId"></param>
         /// <response code="200">Ok, when email attachments are soft deleted, (isDeleted flag is set to true in database)</response>
         /// <response code="400">Bad request, if email id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>
@@ -384,11 +383,11 @@ namespace OpenBots.Server.Web.Controllers.Email
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Delete(string emailId, string driveName = null)
+        public async Task<IActionResult> Delete(string emailId, string driveId = null)
         {
             try
             {
-                _manager.DeleteAll(emailId, driveName);
+                _manager.DeleteAll(emailId, driveId);
                 return Ok();
             }
             catch (Exception ex)
@@ -401,7 +400,7 @@ namespace OpenBots.Server.Web.Controllers.Email
         /// Delete specific email attachment from list of email attachments
         /// </summary>
         /// <param name="id">Email attachment id to be deleted - throws bad request if null or empty Guid/</param>
-        /// <param name="driveName"></param>
+        /// <param name="driveId"></param>
         /// <response code="200">Ok, when email attachment is soft deleted, (isDeleted flag is set to true in database)</response>
         /// <response code="400">Bad request, if email attachment id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>
@@ -412,11 +411,11 @@ namespace OpenBots.Server.Web.Controllers.Email
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> DeleteAttachment(string id, string driveName = null)
+        public async Task<IActionResult> DeleteAttachment(string id, string driveId = null)
         {
             try
             {
-                _manager.DeleteOne(id, driveName);
+                _manager.DeleteOne(id, driveId);
                 await base.DeleteEntity(id);
                 return Ok();
             }
@@ -430,7 +429,7 @@ namespace OpenBots.Server.Web.Controllers.Email
         /// Export/download an email attachment file
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="driveName"></param>
+        /// <param name="driveId"></param>
         /// <response code="200">Ok if an email attachment file exists with the given id</response>
         /// <response code="304">Not modified</response>
         /// <response code="400">Bad request, if email attachment id is not in proper format or proper Guid</response>
@@ -447,11 +446,11 @@ namespace OpenBots.Server.Web.Controllers.Email
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> ExportEmailAttachment(string id, string driveName = null)
+        public async Task<IActionResult> ExportEmailAttachment(string id, string driveId = null)
         {
             try
             {
-                var fileObject = _manager.Export(id, driveName);
+                var fileObject = _manager.Export(id, driveId);
                 return File(fileObject.Result?.Content, fileObject.Result?.ContentType, fileObject.Result?.Name);
             }
             catch (Exception ex)

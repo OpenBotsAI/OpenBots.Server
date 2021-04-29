@@ -265,7 +265,7 @@ namespace OpenBots.Server.Web.Controllers
         /// Deletes a queue item with a specified id from the queue items
         /// </summary>
         /// <param name="id">Queue item id to be deleted - throws bad request if null or empty Guid</param>
-        /// <param name="driveName"></param>
+        /// <param name="driveId"></param>
         /// <response code="200">Ok, when queue item is soft deleted, (isDeleted flag is set to true in database)</response>
         /// <response code="400">Bad request, if queue item id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>
@@ -276,12 +276,12 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Delete(string id, string driveName = null)
+        public async Task<IActionResult> Delete(string id, string driveId = null)
         {
             try
             {
                 var existingQueueItem = repository.GetOne(Guid.Parse(id));
-                _manager.DeleteQueueItem(existingQueueItem, driveName);
+                _manager.DeleteQueueItem(existingQueueItem, driveId);
 
                 var response = await base.DeleteEntity(id);
                 await _webhookPublisher.PublishAsync("QueueItems.QueueItemDeleted", existingQueueItem.Id.ToString(), existingQueueItem.Name).ConfigureAwait(false);
@@ -517,7 +517,7 @@ namespace OpenBots.Server.Web.Controllers
             }
         }
 
-        ///// <summary>
+        /// <summary>
         /// Update the queue item with file attachments
         /// </summary>
         /// <param name="request"></param>

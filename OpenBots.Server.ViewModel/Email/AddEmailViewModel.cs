@@ -14,7 +14,7 @@ namespace OpenBots.Server.ViewModel.Email
         public string? Status { get; set; }
         public string? Direction { get; set; }
         public IFormFile[]? Files { get; set; }
-        public string? DriveName { get; set; }
+        public string? DriveId { get; set; }
 
         public AddEmailViewModel Map(Model.Configuration.Email entity)
         {
