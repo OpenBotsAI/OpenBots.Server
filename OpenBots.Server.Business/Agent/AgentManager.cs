@@ -126,8 +126,8 @@ namespace OpenBots.Server.Business
             if (request.AgentSetting != null)
             {
                 AgentSettingViewModel settingViewModel = request.AgentSetting;
-                settingViewModel.AgentId = request.Id;
                 AgentSetting agentSetting = settingViewModel.Map(settingViewModel);
+                agentSetting.AgentId = request.Id;
 
                 _agentSettingRepository.Add(agentSetting);
             }
@@ -222,15 +222,14 @@ namespace OpenBots.Server.Business
             if (request.AgentSetting != null)
             {
                 AgentSettingViewModel settingViewModel = request.AgentSetting;
-                settingViewModel.AgentId = entityId;
                 AgentSetting agentSetting = settingViewModel.Map(settingViewModel);
+                agentSetting.AgentId = entityId;
 
                 var existingSetting = _agentSettingRepository.Find(null, s => s.AgentId == entityId).Items.FirstOrDefault();
 
                 //if setting exists, then update the setting
                 if (existingSetting != null)
                 {
-                    existingSetting.AgentId = settingViewModel.AgentId;
                     existingSetting.HeartbeatInterval = settingViewModel.HeartbeatInterval;
                     existingSetting.JobLoggingInterval = settingViewModel.JobLoggingInterval;
                     existingSetting.VerifySslCertificate = settingViewModel.VerifySslCertificate;
