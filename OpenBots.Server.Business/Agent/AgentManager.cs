@@ -306,9 +306,13 @@ namespace OpenBots.Server.Business
             //get agent settings detials
             AgentSetting agentSetting = _agentSettingRepository.Find(null, s => s.AgentId == agentView.Id).Items.FirstOrDefault();
 
-            AgentSettingViewModel settingViewModel = new AgentSettingViewModel();
-            settingViewModel = settingViewModel.MapFromModel(agentSetting);
-            agentView.AgentSetting = settingViewModel;
+            if (agentSetting != null)
+            {
+                AgentSettingViewModel settingViewModel = new AgentSettingViewModel();
+                settingViewModel = settingViewModel.MapFromModel(agentSetting);
+                agentView.AgentSetting = settingViewModel;
+            }
+
 
             return agentView;
         }
