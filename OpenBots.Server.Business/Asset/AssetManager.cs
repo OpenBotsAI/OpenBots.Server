@@ -5,6 +5,7 @@ using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
+using OpenBots.Server.Model.File;
 using OpenBots.Server.Model.Identity;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.ViewModel.File;
@@ -24,18 +25,21 @@ namespace OpenBots.Server.Business
         private readonly IPersonRepository _personRepository;
         private readonly IAgentRepository _agentRepository;
         private readonly IStorageFileRepository _storageFileRepository;
+        private readonly IStorageDriveRepository _storageDriveRepository;
 
         public AssetManager(IAssetRepository assetRepository,
             IFileManager fileManager, 
             IPersonRepository personRepository,
             IAgentRepository agentRepository,
-            IStorageFileRepository storageFileRepository)
+            IStorageFileRepository storageFileRepository,
+            IStorageDriveRepository storageDriveRepository)
         {
             _repo = assetRepository;
             _fileManager = fileManager;
             _personRepository = personRepository;
             _agentRepository = agentRepository;
             _storageFileRepository = storageFileRepository;
+            _storageDriveRepository = storageDriveRepository;
         }
 
         public Asset GetAsset(string id)
@@ -47,7 +51,7 @@ namespace OpenBots.Server.Business
             return asset;
         }
 
-        public Asset CreateAsset(Asset asset, IFormFile file, string driveName)
+        public Asset CreateAsset(Asset asset, IFormFile file, string driveId = null)
         {
             AssetNameAvailability(asset);
 
@@ -65,29 +69,36 @@ namespace OpenBots.Server.Business
             }
             else if (asset.Type == "File")
             {
-                if (driveName != "Files" && !string.IsNullOrEmpty(driveName))
-                    throw new EntityOperationException("Component files can only be saved in the Files drive");
-                else if (string.IsNullOrEmpty(driveName))
-                    driveName = "Files";
+                var drive = new StorageDrive();
+                if (string.IsNullOrEmpty(driveId))
+                    drive = _storageDriveRepository.Find(null).Items.Where(q => q.IsDefault == true).FirstOrDefault();
+                else drive = _fileManager.GetDriveById(driveId);
+
+                if (drive == null)
+                    throw new EntityDoesNotExistException("Default drive could not be found or does not exist");
+                else   
+                    driveId = drive.Id.ToString();
 
                 if (file != null)
                 {
                     IFormFile[] fileArray = { file };
                     asset.Id = Guid.NewGuid();
-
+                    string shortPath = Path.Combine(drive.Name, "Assets", asset.Id.ToString());
                     var fileView = new FileFolderViewModel()
                     {
                         ContentType = file.ContentType,
                         Files = fileArray,
-                        StoragePath = Path.Combine(driveName, "Assets", asset.Id.ToString()),
+                        StoragePath = shortPath,
                         IsFile = true
                     };
 
                     var request = new AgentAssetViewModel();
-                    request = request.Map(asset, file, driveName);
-                    CheckStoragePathExists(fileView, request, true);
+                    request = request.Map(asset, file, drive.Id);
+                    CheckStoragePathExists(fileView, request, false, drive);
+                    fileView.StoragePath = Path.Combine(shortPath, asset.Id.ToString());
+                    CheckStoragePathExists(fileView, request, true, drive);
 
-                    fileView = _fileManager.AddFileFolder(fileView, driveName)[0];
+                    fileView = _fileManager.AddFileFolder(fileView, driveId)[0];
                     asset.FileId = fileView.Id;
                     asset.SizeInBytes = file.Length;
                 }
@@ -149,15 +160,21 @@ namespace OpenBots.Server.Business
                     agentAsset = GetSizeInBytes(agentAsset);
                     break;
                 case "file":
-                    if (request.DriveName != "Files" && !string.IsNullOrEmpty(request.DriveName))
-                        throw new EntityOperationException("Component files can only be saved in the Files drive");
-                    else if (string.IsNullOrEmpty(request.DriveName))
-                        request.DriveName = "Files";
+                    var drive = new StorageDrive();
+                    string driveId = request.DriveId.ToString();
+                    if (string.IsNullOrEmpty(driveId))
+                        drive = _storageDriveRepository.Find(null).Items.Where(q => q.IsDefault == true).FirstOrDefault();
+                    else drive = _fileManager.GetDriveById(driveId);
+
+                    if (drive == null)
+                        throw new EntityDoesNotExistException("Default drive could not be found or does not exist");
+                    else
+                        driveId = drive.Id.ToString();
 
                     //if file is in request, use file; else, get file from global asset
                     IFormFile[] fileArray;
                     string agentIdStr = request.AgentId.ToString();
-                    string storagePath = Path.Combine(request.DriveName, "Assets", globalAsset.Id.ToString(), agentIdStr);
+                    string storagePath = Path.Combine(drive.Name, "Assets", globalAsset.Id.ToString(), agentIdStr);
 
                     if (request.File != null)
                     {
@@ -172,20 +189,20 @@ namespace OpenBots.Server.Business
                             FullStoragePath = fullStoragePath
                         };
 
-                        var folder = CheckStoragePathExists(fileView, request, true);
+                        CheckStoragePathExists(fileView, request, true, drive);
 
-                        fileView = _fileManager.AddFileFolder(fileView, request.DriveName)[0];
+                        fileView = _fileManager.AddFileFolder(fileView, driveId)[0];
                         agentAsset.FileId = fileView.Id;
                         agentAsset.SizeInBytes = request.File.Length;
                     }
                     else
                     {
-                        var fileViewModel = _fileManager.GetFileFolder(globalAsset.FileId.ToString(), request.DriveName);
+                        var fileViewModel = _fileManager.GetFileFolder(globalAsset.FileId.ToString(), driveId, "Files");
                         fileViewModel.StoragePath = storagePath;
 
-                        var folder = CheckStoragePathExists(fileViewModel, request, true);
+                        var folder = CheckStoragePathExists(fileViewModel, request, true, drive);
 
-                        fileViewModel = _fileManager.CopyFileFolder(fileViewModel.Id.ToString(), folder.Id.ToString(), request.DriveName);
+                        fileViewModel = _fileManager.CopyFileFolder(fileViewModel.Id.ToString(), folder.Id.ToString(), driveId, "Files");
                         agentAsset.FileId = fileViewModel.Id;
                         agentAsset.SizeInBytes = fileViewModel.Size;
                     }
@@ -195,10 +212,10 @@ namespace OpenBots.Server.Business
             return agentAsset;
         }
 
-        public FileFolderViewModel CheckStoragePathExists(FileFolderViewModel view, AgentAssetViewModel request, bool getShortPath)
+        public FileFolderViewModel CheckStoragePathExists(FileFolderViewModel view, AgentAssetViewModel request, bool getShortPath, StorageDrive drive)
         {
             //check if storage path exists; if it doesn't exist, create folder
-            var folder = _fileManager.GetFileFolderByStoragePath(view.StoragePath, request.DriveName);
+            var folder = _fileManager.GetFileFolderByStoragePath(view.StoragePath, drive.Name);
             if (folder.Name == null)
             {
                 string storagePath = view.StoragePath;
@@ -209,12 +226,12 @@ namespace OpenBots.Server.Business
                 folder.StoragePath = storagePath;
                 folder.IsFile = false;
                 folder.Size = (request.File == null) ? view.Size : request.File.Length;
-                folder = _fileManager.AddFileFolder(folder, request.DriveName)[0];
+                folder = _fileManager.AddFileFolder(folder, drive.Id.ToString())[0];
             }
             return folder;
         }
 
-        public async Task<FileFolderViewModel> Export(string id, string driveName)
+        public async Task<FileFolderViewModel> Export(string id, string driveId)
         {
             Guid assetId;
             Guid.TryParse(id, out assetId);
@@ -223,7 +240,9 @@ namespace OpenBots.Server.Business
             if (asset == null || asset.FileId == null || asset.FileId == Guid.Empty)
                 throw new EntityDoesNotExistException($"Asset with id {id} could not be found or doesn't exist");
 
-            var response = await _fileManager.ExportFileFolder(asset.FileId.ToString(), driveName);
+            driveId = CheckDriveIdByFileId(asset.FileId.ToString(), driveId);
+
+            var response = await _fileManager.ExportFileFolder(asset.FileId.ToString(), driveId);
             return response;
         }
 
@@ -264,7 +283,14 @@ namespace OpenBots.Server.Business
             var existingAsset = GetAsset(id);
 
             string fileId = existingAsset.FileId.ToString();
-            var file = _fileManager.GetFileFolder(fileId, request.DriveName);
+
+            if (string.IsNullOrEmpty(request.DriveId))
+            {
+                var fileToUpdate = _storageFileRepository.GetOne(existingAsset.FileId.Value);
+                request.DriveId = fileToUpdate.StorageDriveId.ToString();
+            }
+
+            var file = _fileManager.GetFileFolder(fileId, request.DriveId, "Files");
             if (file == null) throw new EntityDoesNotExistException($"Asset file with id {fileId} could not be found or doesn't exist");
 
             file.StoragePath = Path.Combine(file.StoragePath, request.File.FileName);
@@ -282,7 +308,7 @@ namespace OpenBots.Server.Business
             return existingAsset;
         }
 
-        public Asset DeleteAsset(string id, string driveName = null)
+        public Asset DeleteAsset(string id)
         {
             var asset = GetAsset(id);
 
@@ -297,10 +323,12 @@ namespace OpenBots.Server.Business
             //remove file associated with asset
             if (asset.Type == "File")
             {
-                var file = _fileManager.DeleteFileFolder(asset.FileId.ToString(), driveName);
-                var folder = _fileManager.GetFileFolder(file.ParentId.ToString(), driveName);
+                var fileToDelete = _storageFileRepository.GetOne(asset.FileId.Value);
+                string driveId = fileToDelete.StorageDriveId.ToString();
+                var file = _fileManager.DeleteFileFolder(fileToDelete.Id.ToString(), driveId, "Files");
+                var folder = _fileManager.GetFileFolder(file.ParentId.ToString(), driveId, "Folders");
                 if (!folder.HasChild.Value)
-                    _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
+                    _fileManager.DeleteFileFolder(folder.Id.ToString(), driveId, "Folders");
                 else _fileManager.RemoveBytesFromFoldersAndDrive(new List<FileFolderViewModel> { file });
             }
 
@@ -455,6 +483,16 @@ namespace OpenBots.Server.Business
             assetView.FileName = _storageFileRepository.Find(null, f => f.Id == assetView.FileId).Items?.FirstOrDefault()?.Name;
 
             return assetView;
+        }
+
+        private string CheckDriveIdByFileId(string id, string driveId)
+        {
+            if (string.IsNullOrEmpty(driveId))
+            {
+                var fileToExport = _storageFileRepository.GetOne(Guid.Parse(id));
+                driveId = fileToExport.StorageDriveId.ToString();
+            }
+            return driveId;
         }
     }
 }

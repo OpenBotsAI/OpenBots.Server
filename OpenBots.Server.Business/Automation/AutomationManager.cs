@@ -5,6 +5,7 @@ using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Core;
+using OpenBots.Server.Model.File;
 using OpenBots.Server.ViewModel;
 using OpenBots.Server.ViewModel.File;
 using System;
@@ -24,13 +25,17 @@ namespace OpenBots.Server.Business
         private readonly IAutomationParameterRepository _automationParameterRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ClaimsPrincipal _caller;
+        private readonly IStorageDriveRepository _storageDriveRepository;
+        private readonly IStorageFileRepository _storageFileRepository;
 
         public AutomationManager(
             IAutomationRepository repo,
             IFileManager fileManager,
             IAutomationVersionRepository automationVersionRepository,
             IAutomationParameterRepository automationParameterRepository,
-            IHttpContextAccessor httpContextAccessor
+            IHttpContextAccessor httpContextAccessor,
+            IStorageDriveRepository storageDriveRepository,
+            IStorageFileRepository storageFileRepository
             )
         {
             _repo = repo;
@@ -38,30 +43,39 @@ namespace OpenBots.Server.Business
             _automationVersionRepository = automationVersionRepository;
             _automationParameterRepository = automationParameterRepository;
             _httpContextAccessor = httpContextAccessor;
-            _caller = ((httpContextAccessor.HttpContext != null) ? httpContextAccessor.HttpContext.User : new ClaimsPrincipal());
+            _caller = (httpContextAccessor.HttpContext != null) ? httpContextAccessor.HttpContext.User : new ClaimsPrincipal();
+            _storageDriveRepository = storageDriveRepository;
+            _storageFileRepository = storageFileRepository;
         }
 
         public Automation AddAutomation(AutomationViewModel request)
         {
-            if (request.DriveName != "Files" && !string.IsNullOrEmpty(request.DriveName))
-                throw new EntityOperationException("Component files can only be saved in the Files drive");
-            else if (string.IsNullOrEmpty(request.DriveName))
-                request.DriveName = "Files";
+            var drive = new StorageDrive();
+            if (string.IsNullOrEmpty(request.DriveId))
+            {
+                drive = _storageDriveRepository.Find(null, q => q.IsDefault == true).Items?.FirstOrDefault();
+                if (drive == null)
+                    throw new EntityDoesNotExistException("Default drive does not exist or could not be found");
+                else
+                    request.DriveId = drive.Id.ToString();
+            }
+            else drive = _storageDriveRepository.GetOne(Guid.Parse(request.DriveId));
 
             IFormFile[] fileArray = { request.File };
-            string path = Path.Combine(request.DriveName, "Automations", request.Id.ToString());
+            string shortPath = Path.Combine(drive.Name, "Automations");
+            string path = Path.Combine(shortPath, request.Id.ToString());
 
             var fileView = new FileFolderViewModel()
             {
                 Files = fileArray,
-                StoragePath = path,
+                StoragePath = shortPath,
                 FullStoragePath = path,
                 ContentType = fileArray[0].ContentType,
                 IsFile = true
             };
 
-            CheckStoragePathExists(fileView, request);
-            fileView = _fileManager.AddFileFolder(fileView, request.DriveName)[0];
+            CheckStoragePathExists(fileView, request, drive.Name);
+            fileView = _fileManager.AddFileFolder(fileView, request.DriveId)[0];
 
             var automationEngine = GetAutomationEngine(request.AutomationEngine);
 
@@ -81,31 +95,31 @@ namespace OpenBots.Server.Business
 
         public Automation UpdateAutomationFile(string id, AutomationViewModel request)
         {
-             Guid entityId = new Guid(id);
-             var existingAutomation = _repo.GetOne(entityId);
-             if (existingAutomation == null) throw new EntityDoesNotExistException($"Automation with id {id} could not be found");
+            Guid entityId = new Guid(id);
+            var existingAutomation = _repo.GetOne(entityId);
+            if (existingAutomation == null) throw new EntityDoesNotExistException($"Automation with id {id} could not be found");
 
-             string fileId = existingAutomation.FileId.ToString();
-             var file = _fileManager.GetFileFolder(fileId, request.DriveName);
-             if (file == null) throw new EntityDoesNotExistException($"Automation file with id {fileId} could not be found");
+            string fileId = existingAutomation.FileId.ToString();
+            if (string.IsNullOrEmpty(request.DriveId))
+            {
+                var fileToUpdate = _storageFileRepository.GetOne(existingAutomation.FileId.Value);
+                request.DriveId = fileToUpdate.StorageDriveId.ToString();
+            }
 
-             var response = AddAutomation(request);
-             return response;
+            var file = _fileManager.GetFileFolder(fileId, request.DriveId, "Files");
+            if (file == null) throw new EntityDoesNotExistException($"Automation file with id {fileId} could not be found or does not exist");
+
+            var response = AddAutomation(request);
+            return response;
         }
 
-        public FileFolderViewModel CheckStoragePathExists(FileFolderViewModel view, AutomationViewModel request)
+        public void CheckStoragePathExists(FileFolderViewModel view, AutomationViewModel request, string driveName)
         {
             //check if storage path exists; if it doesn't exist, create folder
-            var folder = _fileManager.GetFileFolderByStoragePath(view.FullStoragePath, request.DriveName);
-            if (folder.Name == null)
-            {
-                folder.Name = request.Id.ToString();
-                folder.StoragePath = Path.Combine(request.DriveName, "Automations");
-                folder.IsFile = false;
-                folder.Size = request.File.Length;
-                folder = _fileManager.AddFileFolder(folder, request.DriveName)[0];
-            }
-            return folder;
+            var folder = _fileManager.GetFileFolderByStoragePath(view.StoragePath, driveName);
+            CreateFolderIfEmpty(folder, request, view.StoragePath);
+            folder = _fileManager.GetFileFolderByStoragePath(view.FullStoragePath, driveName);
+            CreateFolderIfEmpty(folder, request, view.FullStoragePath);
         }
 
         public Automation UpdateAutomation(string id, AutomationViewModel request)
@@ -132,7 +146,7 @@ namespace OpenBots.Server.Business
             return existingAutomation;
         }
 
-        public async Task<FileFolderViewModel> Export(string id, string driveName)
+        public async Task<FileFolderViewModel> Export(string id, string driveId)
         {
             Guid automationId;
             Guid.TryParse(id, out automationId);
@@ -142,24 +156,29 @@ namespace OpenBots.Server.Business
             if (automation == null || automation.FileId == null || automation.FileId == Guid.Empty)
                 throw new EntityDoesNotExistException($"Automation with id {id} could not be found");
 
-            var response = await _fileManager.ExportFileFolder(automation.FileId.ToString(), driveName);
+            driveId = CheckDriveIdByFileId(automation.FileId.ToString(), driveId);
+
+            var response = await _fileManager.ExportFileFolder(automation.FileId.ToString(), driveId);
             return response;
         }
 
-        public void DeleteAutomation(Automation automation, string driveName)
+        public void DeleteAutomation(Automation automation)
         {
+            var fileToDelete = _storageFileRepository.GetOne(automation.FileId.Value);
+            string driveId = fileToDelete.StorageDriveId.ToString();
+
             //remove file associated with automation
-            var file = _fileManager.GetFileFolder(automation.FileId.ToString(), driveName);
-            _fileManager.DeleteFileFolder(automation.FileId.ToString(), driveName);
-            var folder = _fileManager.GetFileFolder(file.ParentId.ToString(), driveName);
+            var file = _fileManager.GetFileFolder(automation.FileId.ToString(), driveId, "Files");
+            _fileManager.DeleteFileFolder(automation.FileId.ToString(), driveId, "Files");
+            var folder = _fileManager.GetFileFolder(file.ParentId.ToString(), driveId, "Folders");
             if (!folder.HasChild.Value)
-                _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
+                _fileManager.DeleteFileFolder(folder.Id.ToString(), driveId, "Folders");
             else _fileManager.RemoveBytesFromFoldersAndDrive(new List<FileFolderViewModel> { file });
 
-            //remove automation entity
+            //remove automation
             _repo.SoftDelete(automation.Id.Value);
 
-            //remove automation version entity associated with automation
+            //remove automation version associated with automation
             var automationVersion = _automationVersionRepository.Find(null, q => q.AutomationId == automation.Id).Items?.FirstOrDefault();
             _automationVersionRepository.SoftDelete(automationVersion.Id.Value);
             DeleteExistingParameters(automation.Id);
@@ -306,6 +325,28 @@ namespace OpenBots.Server.Business
             Python,
             CSScript,
             TagUI
+        }
+
+        private string CheckDriveIdByFileId(string id, string driveId)
+        {
+            if (string.IsNullOrEmpty(driveId))
+            {
+                var fileToExport = _storageFileRepository.GetOne(Guid.Parse(id));
+                driveId = fileToExport.StorageDriveId.ToString();
+            }
+            return driveId;
+        }
+
+        private void CreateFolderIfEmpty(FileFolderViewModel folder, AutomationViewModel request, string storagePath)
+        {
+            if (string.IsNullOrEmpty(folder.Name))
+            {
+                folder.Name = request.Id.ToString();
+                folder.StoragePath = storagePath;
+                folder.IsFile = false;
+                folder.Size = request.File.Length;
+                _fileManager.AddFileFolder(folder, request.DriveId);
+            }
         }
     }
 }

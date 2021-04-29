@@ -33,8 +33,6 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
     public class EmailsController : EntityController<EmailModel>
     {
         private readonly IEmailManager _manager;
-        private readonly IEmailAttachmentRepository _emailAttachmentRepository;
-        private readonly IFileManager _fileManager;
 
         /// <summary>
         /// EmailsController constructor
@@ -45,8 +43,6 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// <param name="httpContextAccessor"></param>
         /// <param name="configuration"></param>
         /// <param name="manager"></param>
-        /// <param name="emailAttachmentRepository"></param>
-        /// <param name="fileManager"></param>
         public EmailsController(
             IEmailRepository repository,
             IMembershipManager membershipManager,
@@ -58,8 +54,6 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
             IFileManager fileManager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             _manager = manager;
-            _emailAttachmentRepository = emailAttachmentRepository;
-            _fileManager = fileManager;
         }
 
         /// <summary>
@@ -234,7 +228,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
                 //create email attachments & binary objects entities; upload binary object files to server
                 var attachments = new List<EmailAttachment>();
                 if (request.Files != null)
-                    attachments = _manager.AddAttachments(request.Files, email.Id.Value, request.DriveName);
+                    attachments = _manager.AddAttachments(request.Files, email.Id.Value, request.DriveId);
 
                 EmailViewModel emailViewModel = _manager.GetEmailViewModel(email, attachments);
 
@@ -423,7 +417,7 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         /// Delete email with a specified id from list of emails
         /// </summary>
         /// <param name="id">Email id to be deleted - throws bad request if null or empty Guid/</param>
-        /// <param name="driveName"></param>
+        /// <param name="driveId"></param>
         /// <response code="200">Ok, when email is soft deleted, (isDeleted flag is set to true in database)</response>
         /// <response code="400">Bad request, if email id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>
@@ -434,11 +428,11 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Delete(string id, string driveName = null)
+        public async Task<IActionResult> Delete(string id, string driveId = null)
         {
             try
             {
-                _manager.DeleteAll(id, driveName);
+                _manager.DeleteAll(id, driveId);
                 return await base.DeleteEntity(id);
             }
             catch (Exception ex)

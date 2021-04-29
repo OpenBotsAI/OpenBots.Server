@@ -299,9 +299,9 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 var automation = _manager.UpdateAutomationFile(id, request);
-                var response = await base.PostEntity(automation);
+                await base.PostEntity(automation);
                 await _webhookPublisher.PublishAsync("Automations.NewAutomationCreated", automation.Id.ToString(), automation.Name).ConfigureAwait(false);
-                return Ok(response);
+                return Ok(automation);
             }
             catch (Exception ex)
             {
@@ -381,7 +381,7 @@ namespace OpenBots.Server.Web.Controllers
         /// Export/download an Automation
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="driveName"></param>
+        /// <param name="driveId"></param>
         /// <response code="200">Ok, if a Automation exists with the given id</response>
         /// <response code="304">Not modified</response>
         /// <response code="400">Bad request, if Automation id is not in proper format or a proper Guid</response>
@@ -398,11 +398,11 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Export(string id, string driveName = null)
+        public async Task<IActionResult> Export(string id, string driveId = null)
         {
             try
             {
-                var fileObject = _manager.Export(id, driveName);
+                var fileObject = _manager.Export(id, driveId);
                 return File(fileObject.Result?.Content, fileObject.Result?.ContentType, fileObject.Result?.Name);
             }
             catch (Exception ex)
@@ -415,7 +415,6 @@ namespace OpenBots.Server.Web.Controllers
         /// Delete Automation with a specified id from list of Automations
         /// </summary>
         /// <param name="id">Automation id to be deleted - throws bad request if null or empty Guid</param>
-        /// <param name="driveName"></param>
         /// <response code="200">Ok, when Automation is soft deleted, (isDeleted flag is set to true in database)</response>
         /// <response code="400">Bad request, if Automation id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>
@@ -426,7 +425,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Delete(string id, string driveName)
+        public async Task<IActionResult> Delete(string id)
         {
             try
             {
@@ -436,7 +435,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (existingAutomation == null) return NotFound();
 
                 await _webhookPublisher.PublishAsync("Automations.AutomationDeleted", existingAutomation.Id.ToString(), existingAutomation.Name).ConfigureAwait(false);
-                _manager.DeleteAutomation(existingAutomation, driveName);
+                _manager.DeleteAutomation(existingAutomation);
                 return Ok();
             }
             catch (Exception ex)
