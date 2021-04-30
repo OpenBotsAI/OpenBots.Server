@@ -190,6 +190,14 @@ const routes: Routes = [
         canActivate: [LoginGuard],
       },
       {
+        path: 'storagedrive',
+        loadChildren: () =>
+          import('./storage-drive/storage-drive.module').then(
+            (mod) => mod.StorageDriveModule
+          ),
+        canActivate: [LoginGuard],
+      },
+      {
         path: 'business-event',
         loadChildren: () =>
           import('./business-event/business-event.module').then(
@@ -222,4 +230,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class PagesRoutingModule { }
+export class PagesRoutingModule {}

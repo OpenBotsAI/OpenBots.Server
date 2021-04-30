@@ -15,11 +15,10 @@ export class PreventSpecialCharDirective implements OnInit {
   @HostListener('dragover', ['$event']) onDragover(evt) {
     evt.preventDefault();
   }
-  constructor(private el: ElementRef) { }
+  constructor(private el: ElementRef) {}
 
   ngOnInit() {
     this.el.nativeElement.onkeypress = (evt) => {
-      console.log(evt)
       if (this.appPreventSpecialChar == 'machineName') {
         this.machineName(evt);
       } else if (evt.keyCode != 95 && !this.preventSpecialCharacters(evt)) {
@@ -45,6 +44,5 @@ export class PreventSpecialCharDirective implements OnInit {
       return;
     } else if (event.target.value.length > 1 && event.keyCode === 220) {
     }
-
   }
 }
