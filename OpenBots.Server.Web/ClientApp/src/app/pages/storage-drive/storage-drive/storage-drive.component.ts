@@ -15,17 +15,33 @@ export class StorageDriveComponent implements OnInit {
   storageDriveForm: FormGroup;
   title = 'add';
   isSubmitted = false;
+  urlId: string;
   constructor(
     private fb: FormBuilder,
     private httpService: HttpService,
-    private dateService: NbDateService<Date>,
     private router: Router,
     private route: ActivatedRoute,
     private helperService: HelperService
   ) {}
 
   ngOnInit(): void {
+    this.urlId = this.route.snapshot.params['id'];
+    if (this.urlId) {
+      this.title = 'Update';
+      this.getStorageDriveById();
+    }
     this.storageDriveForm = this.initializeForm();
+  }
+  getStorageDriveById(): void {
+    this.httpService
+      .get(
+        `${StorageDriveApiUrl.storage}/${StorageDriveApiUrl.drives}/${StorageDriveApiUrl.driveDetails}/${this.urlId}`
+      )
+      .subscribe((response) => {
+        if (response) {
+          this.storageDriveForm.patchValue(response);
+        }
+      });
   }
   get formControls() {
     return this.storageDriveForm.controls;
@@ -52,7 +68,24 @@ export class StorageDriveComponent implements OnInit {
 
   onSubmit(): void {
     this.isSubmitted = true;
-    this.addStorageDrive();
+    if (this.urlId) this.updateStorageDrive();
+    else this.addStorageDrive();
+  }
+  updateStorageDrive(): void {
+    this.httpService
+      .put(
+        `${StorageDriveApiUrl.storage}/${StorageDriveApiUrl.drives}/${this.urlId}`,
+        this.storageDriveForm.value
+      )
+      .subscribe(
+        (response) => {
+          if (response) {
+            this.httpService.success('Storage drive created successfully');
+            this.router.navigate([`/pages/storagedrive`]);
+          }
+        },
+        () => (this.isSubmitted = false)
+      );
   }
   addStorageDrive(): void {
     this.httpService
