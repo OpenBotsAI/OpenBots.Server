@@ -283,7 +283,7 @@ namespace OpenBots.Server.Business.File
             //check if a new drive can be created for the current organization
             long? maxSizeInBytes = drive.MaxStorageAllowedInBytes;//size of new drive
             long? organizationStorage = GetTotalOrganizationStorage(organizationId);//sum of all drives for the current organization
-            long? orgMaxSizeInBytes = _organizationManager.GetMaxStorageInBytes();//max allowed storage for the current organization
+            long? orgMaxSizeInBytes = _organizationManager.GetMaxStorageInBytes(organizationId);//max allowed storage for the current organization
             long? updatedOrgStorage = maxSizeInBytes + organizationStorage;//sum of new drive and all existing drives
 
             if (orgMaxSizeInBytes != null && maxSizeInBytes > orgMaxSizeInBytes)
@@ -309,7 +309,8 @@ namespace OpenBots.Server.Business.File
                 CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
                 CreatedOn = DateTime.UtcNow,
                 StorageSizeInBytes = drive.StorageSizeInBytes ?? 0,
-                MaxStorageAllowedInBytes = drive.MaxStorageAllowedInBytes
+                MaxStorageAllowedInBytes = drive.MaxStorageAllowedInBytes,
+                IsDefault = drive.IsDefault
             };
             _storageDriveRepository.Add(storageDrive);
 
@@ -367,7 +368,7 @@ namespace OpenBots.Server.Business.File
 
             foreach (var drive in organizationDrives)
             {
-                sum += drive.StorageSizeInBytes;
+                sum += drive.MaxStorageAllowedInBytes;
             }
             return sum;
         }

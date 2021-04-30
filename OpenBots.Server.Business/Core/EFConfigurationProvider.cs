@@ -48,7 +48,7 @@ namespace OpenBots.Server.Business
                 { "App:EnableSwagger", "true"},
                 { "App:MaxExportRecords", "100"},
                 { "App:MaxReturnRecords", "100"},
-                { "Organization:MaxStorageInBytes", "100000000"},
+                { "Organization:MaxStorageInBytes", "100000000"}
             };
 
             foreach (var value in configValues)

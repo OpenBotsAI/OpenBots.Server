@@ -58,31 +58,22 @@ namespace OpenBots.Server.Business
             return organization;
         }
 
-        public long? GetMaxStorageInBytes(string organizationId = "")
+        public long? GetMaxStorageInBytes(Guid? organizationId = null)
         {
-            Guid entityId;
-            if (String.IsNullOrEmpty(organizationId))
-            {
+            Guid? entityId;
+            if (organizationId == null || organizationId == Guid.Empty)
                 entityId = GetDefaultOrganization()?.Id ?? Guid.Empty;
-            }
-            else
-            {
-                entityId = Guid.Parse(organizationId);
-            }
+            else entityId = organizationId;
 
-            Organization currentOrganization = _organizationRepository.GetOne(entityId);
+            Organization currentOrganization = _organizationRepository.GetOne(entityId.Value);
 
             long? maxOrgStorage = currentOrganization?.MaxStorageInBytes;
             long? defaultMaxStorage = long.Parse(_config["Organization:MaxStorageInBytes"]);
 
-            if (maxOrgStorage != null && maxOrgStorage !<= 0)
-            {
+            if (maxOrgStorage != null && maxOrgStorage > 0)
                 return maxOrgStorage.Value;
-            }
             else
-            {
                 return defaultMaxStorage ?? long.MaxValue;
-            }
         }
     }
 }
