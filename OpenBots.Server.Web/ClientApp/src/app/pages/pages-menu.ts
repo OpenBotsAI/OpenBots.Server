@@ -149,7 +149,7 @@ export class PagesMenu {
             link: '/pages/file-manager',
           },
           {
-            title: 'Storgae Drive',
+            title: 'Storage Drive',
             link: '/pages/storagedrive',
           },
           // {

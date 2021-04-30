@@ -2,7 +2,7 @@
     <div class="col-md-12">
         <nb-card>
             <nb-card-header>
-                <h2>{{title}} Queue</h2>
+                <h2>{{title}} Storage Drive</h2>
             </nb-card-header>
             <nb-card-body>
                 <form [formGroup]="storageDriveForm" autocomplete="off">
@@ -29,20 +29,28 @@
                         </div>
                     </div>
                     <div class="row rowTopPadding">
-                        <div class="col-md-12 col-lg-12 col-xxxl-12">
-                            <label for="storageSizeInBytes" class="label">Storage Drive Size</label>
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label for="maxStorageAllowedInBytes" class="label">Storage Drive Size</label>
                             <input type="number" nbInput fullWidth id="storageSizeInBytes"
-                                formControlName="storageSizeInBytes" placeholder="Please enter storage drive size"
-                                ngxSpecialChar trim="blur">
+                                formControlName="maxStorageAllowedInBytes" placeholder="Please enter storage drive size"
+                                ngxSpecialChar trim="blur" (keyup)="onChangesValue($event)">
 
-                            <div *ngIf="formControls.storageSizeInBytes.invalid && (formControls.storageSizeInBytes.dirty || formControls.storageSizeInBytes.touched)"
+                            <div *ngIf="formControls.maxStorageAllowedInBytes.invalid && (formControls.maxStorageAllowedInBytes.dirty || formControls.maxStorageAllowedInBytes.touched)"
                                 class="invalid-feedback-frm">
-                                <!-- 
-                                <div *ngIf="formControls.storageSizeInBytes.errors.pattern">
-                                    Max retry count value between 0-99
-                                </div> -->
+
+                                <div *ngIf="isMaxMb">
+                                    Max storage drive size 5000 MB
+                                </div>
+                                <div *ngIf="isMaxGb">
+                                    Max storage drive size 50 GB
+                                </div>
 
                             </div>
+                        </div>
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label class="label">Drive Size</label>
+                            <ng-select [items]="strageDriveSize" formControlName="driveSize" class="NgSelect">
+                            </ng-select>
                         </div>
                     </div>
                     <!-- <div class="row rowTopPadding">

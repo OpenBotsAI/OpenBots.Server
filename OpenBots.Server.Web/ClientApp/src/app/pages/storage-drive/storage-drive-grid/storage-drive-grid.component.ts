@@ -108,8 +108,8 @@ export class StorageDriveGridComponent implements OnInit {
     if (!item) return null;
     return index;
   }
-  viewStorageDrive(): void {
-    this.router.navigate([]);
+  viewStorageDrive(id: string): void {
+    this.router.navigate([`/pages/storagedrive/view/${id}`]);
   }
   editStorageDrive(id: string): void {
     this.router.navigate([`/pages/storagedrive/edit/${id}`]);
@@ -117,6 +117,7 @@ export class StorageDriveGridComponent implements OnInit {
   addStorageDrive(): void {
     this.router.navigate([`/pages/storagedrive/add`]);
   }
+
   deleteStorageDrive(ref): void {
     this.isDeleted = true;
     this.httpService
