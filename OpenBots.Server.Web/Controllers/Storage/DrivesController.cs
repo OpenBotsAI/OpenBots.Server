@@ -171,7 +171,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <response code="404">Not found, when no storage drive exists for the given name</response>
         /// <response code="422">Unprocessable entity</response>
         /// <returns>Storage drive details</returns>
-        [HttpGet("DriveDetails/{driveName}", Name = "GetDriveByName")]
+        [HttpGet("DriveDetailsByName/{driveName}", Name = "GetDriveByName")]
         [ProducesResponseType(typeof(StorageDrive), StatusCodes.Status200OK)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status304NotModified)]

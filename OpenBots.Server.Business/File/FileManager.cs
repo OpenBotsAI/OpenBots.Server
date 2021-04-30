@@ -291,6 +291,15 @@ namespace OpenBots.Server.Business.File
                 throw new UnauthorizedOperationException("Drive size would exceed the allowed storage space for this organization", EntityOperationType.Add);
             }
 
+            if (string.IsNullOrEmpty(drive.StoragePath))
+                drive.StoragePath = drive.Name;
+            if (drive.MaxStorageAllowedInBytes == null)
+                drive.MaxStorageAllowedInBytes = orgMaxSizeInBytes;
+            if (string.IsNullOrEmpty(drive.FileStorageAdapterType))
+                drive.FileStorageAdapterType = AdapterType.LocalFileStorage.ToString();
+            if (drive.IsDefault == null)
+                drive.IsDefault = false;
+
             var storageDrive = new StorageDrive()
             {
                 Name = drive.Name,
@@ -330,7 +339,7 @@ namespace OpenBots.Server.Business.File
 
         public void CheckDefaultDrive(StorageDrive drive, Guid? organizationId)
         {
-            if (drive.IsDefault)
+            if (drive.IsDefault.Value)
             {
                 var defaultDrive = _storageDriveRepository.Find(null).Items.Where(q => q.OrganizationId == organizationId && q.IsDefault == true).FirstOrDefault();
                 if (defaultDrive != null && defaultDrive.Name != drive.Name)
