@@ -83,7 +83,7 @@ namespace OpenBots.Server.Business
                 {
                     IFormFile[] fileArray = { file };
                     asset.Id = Guid.NewGuid();
-                    string shortPath = Path.Combine(drive.Name, "Assets", asset.Id.ToString());
+                    string shortPath = Path.Combine(drive.Name, "Assets");
                     var fileView = new FileFolderViewModel()
                     {
                         ContentType = file.ContentType,
@@ -94,7 +94,7 @@ namespace OpenBots.Server.Business
 
                     var request = new AgentAssetViewModel();
                     request = request.Map(asset, file, drive.Id);
-                    CheckStoragePathExists(fileView, request, false, drive);
+                    CheckStoragePathExists(fileView, request, true, drive);
                     fileView.StoragePath = Path.Combine(shortPath, asset.Id.ToString());
                     CheckStoragePathExists(fileView, request, true, drive);
 
