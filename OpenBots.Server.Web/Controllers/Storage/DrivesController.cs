@@ -253,6 +253,9 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
+                if (request.Id == null || request.Id == Guid.Empty)
+                    request.Id = Guid.Parse(id);
+
                 if (request.OrganizationId == null || request.OrganizationId == Guid.Empty)
                     request.OrganizationId = _organizationManager.GetDefaultOrganization().Id;
                 _manager.CheckDefaultDrive(request, request.OrganizationId);
