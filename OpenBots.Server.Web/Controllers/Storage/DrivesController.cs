@@ -253,8 +253,9 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                if (request.Id == null || request.Id == Guid.Empty)
-                    request.Id = Guid.Parse(id);
+                Guid? entityId = Guid.Parse(id);
+                if (request.Id == null || request.Id == Guid.Empty || request.Id != entityId)
+                    request.Id = entityId;
 
                 if (request.OrganizationId == null || request.OrganizationId == Guid.Empty)
                     request.OrganizationId = _organizationManager.GetDefaultOrganization().Id;
