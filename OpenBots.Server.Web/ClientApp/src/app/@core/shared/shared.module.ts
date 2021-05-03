@@ -25,6 +25,7 @@ import { TooltipComponent } from './tooltip/tooltip.component';
 import { BlockUIModule } from 'ng-block-ui';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { TimeZonePipe } from '../pipe/time-zone.pipe';
+import { AllFileSizePipe } from '../pipe/all-file-size.pipe';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { TimeZonePipe } from '../pipe/time-zone.pipe';
     TimeagoPipe,
     OrderByPipe,
     TimeZonePipe,
+    AllFileSizePipe,
   ],
   imports: [NbTooltipModule],
   exports: [
@@ -66,6 +68,7 @@ import { TimeZonePipe } from '../pipe/time-zone.pipe';
     OrderByPipe,
     NgSelectModule,
     TimeZonePipe,
+    AllFileSizePipe,
   ],
 })
 export class SharedModule {}

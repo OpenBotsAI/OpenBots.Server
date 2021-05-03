@@ -5,6 +5,7 @@ import { FileSizePipe } from 'ngx-filesize';
 import { Rule, Usage } from '../../interfaces/ipFencing';
 import { ItemsPerPage } from '../../interfaces/itemsPerPage';
 import { TimeDatePipe } from '../pipe';
+import { AllFileSizePipe } from '../pipe/all-file-size.pipe';
 import { TimeZonePipe } from '../pipe/time-zone.pipe';
 
 @Injectable({
@@ -77,5 +78,26 @@ export class HelperService {
 
   localToUTCTime(param: string) {
     return new Date(param);
+  }
+
+  bytesIntoMB(bytes: number): number {
+    return bytes / (1024 * 1024);
+  }
+
+  bytesIntoGB(bytes: number): number {
+    return bytes / (1024 * 1024 * 1024);
+  }
+
+  megaBytesIntiBytes(bytes: number): number {
+    return bytes * (1024 * 1024);
+  }
+
+  gegaBytesIntiBytes(bytes: number): number {
+    return bytes * (1024 * 1024 * 1024);
+  }
+
+  bytesIntoMBorGB(storageSize: number): string[] {
+    const data = new AllFileSizePipe();
+    return data.transform(storageSize).split(' ');
   }
 }

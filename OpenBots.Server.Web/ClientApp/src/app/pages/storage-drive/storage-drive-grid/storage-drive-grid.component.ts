@@ -122,11 +122,12 @@ export class StorageDriveGridComponent implements OnInit {
     this.isDeleted = true;
     this.httpService
       .delete(
-        `${StorageDriveApiUrl.storage}/${StorageDriveApiUrl.drives}/${this.deleteId}`
+        `${StorageDriveApiUrl.storage}/${StorageDriveApiUrl.drives}/${this.deleteId}`,
+        { observe: 'response' }
       )
       .subscribe(
         (response) => {
-          if (response) {
+          if (response && response.status == 200) {
             this.httpService.success('Storage drive deleted successfully');
             ref.close();
             this.isDeleted = false;

@@ -16,9 +16,10 @@ export class StorageDriveComponent implements OnInit {
   title = 'Add';
   isSubmitted = false;
   urlId: string;
-  strageDriveSize = ['GB'];
+  strageDriveSize = ['MB', 'GB'];
   isMaxMb = false;
   isMaxGb = false;
+  eTag: string;
   constructor(
     private fb: FormBuilder,
     private httpService: HttpService,
@@ -38,15 +39,20 @@ export class StorageDriveComponent implements OnInit {
   getStorageDriveById(): void {
     this.httpService
       .get(
-        `${StorageDriveApiUrl.storage}/${StorageDriveApiUrl.drives}/${StorageDriveApiUrl.driveDetails}/${this.urlId}`
+        `${StorageDriveApiUrl.storage}/${StorageDriveApiUrl.drives}/${StorageDriveApiUrl.driveDetails}/${this.urlId}`,
+        { observe: 'response' }
       )
       .subscribe((response) => {
         if (response) {
-          response.maxStorageAllowedInBytes = (
-            response.maxStorageAllowedInBytes /
-            (1024 * 1024 * 1024)
-          ).toFixed(2);
-          this.storageDriveForm.patchValue(response);
+          this.eTag = response.headers.get('etag');
+          let arr = this.helperService.bytesIntoMBorGB(
+            response.body.maxStorageAllowedInBytes
+          );
+          response.body.maxStorageAllowedInBytes = arr[0];
+          this.storageDriveForm.patchValue(response.body);
+          this.storageDriveForm.patchValue({
+            driveSize: arr[1],
+          });
         }
       });
   }
@@ -68,53 +74,45 @@ export class StorageDriveComponent implements OnInit {
       ],
       // fileStorageAdapterType: [''],
       // storageSizeInBytes: 0,
-      maxStorageAllowedInBytes: null,
-      driveSize: ['GB'],
+      maxStorageAllowedInBytes: [''],
+      driveSize: ['MB'],
       isDefault: [false],
     });
   }
 
   onSubmit(): void {
+    let storageSize;
     this.isSubmitted = true;
-    // if (this.storageDriveForm.value.driveSize == 'MB') {
-    //   this.storageDriveForm.value.maxStorageAllowedInBytes = (
-    //     this.storageDriveForm.value.maxStorageAllowedInBytes *
-    //     (1024 * 1024)
-    //   ).toFixed(2);
-    // } else
-    let value;
-    if (this.storageDriveForm.value.driveSize == 'GB') {
-      value = this.storageDriveForm.value.maxStorageAllowedInBytes;
-      console.log('before', value);
-      value = value * 1024 * 1024 * 1024;
-      console.log('after', value);
-      this.storageDriveForm.value.maxStorageAllowedInBytes = value;
-      // this.storageDriveForm.value.maxStorageAllowedInBytes = +this
-      //   .storageDriveForm.value.maxStorageAllowedInBytes;
+    if (this.storageDriveForm.value.driveSize == 'MB') {
+      storageSize = this.helperService.megaBytesIntiBytes(
+        +this.storageDriveForm.value.maxStorageAllowedInBytes
+      );
+    } else if (this.storageDriveForm.value.driveSize == 'GB') {
+      storageSize = this.helperService.gegaBytesIntiBytes(
+        +this.storageDriveForm.value.maxStorageAllowedInBytes
+      );
     }
-    if (!this.storageDriveForm.value.isDefault) {
-      this.storageDriveForm.get('isDefault').setValue(false);
-    }
-    console.log('values', this.storageDriveForm.value);
     delete this.storageDriveForm.value.driveSize;
     const obj = {
       name: this.storageDriveForm.value.name,
-      maxStorageAllowedInBytes: value,
+      maxStorageAllowedInBytes: storageSize,
       isDefault: false,
     };
     if (this.urlId) this.updateStorageDrive(obj);
     else this.addStorageDrive(obj);
   }
   updateStorageDrive(obj): void {
+    const headers = this.helperService.getETagHeaders(this.eTag);
     this.httpService
       .put(
         `${StorageDriveApiUrl.storage}/${StorageDriveApiUrl.drives}/${this.urlId}`,
-        obj
+        obj,
+        { observe: 'response', headers }
       )
       .subscribe(
         (response) => {
-          if (response) {
-            this.httpService.success('Storage drive created successfully');
+          if (response && response.status == 200) {
+            this.httpService.success('Storage drive updated successfully');
             this.router.navigate([`/pages/storagedrive`]);
           }
         },

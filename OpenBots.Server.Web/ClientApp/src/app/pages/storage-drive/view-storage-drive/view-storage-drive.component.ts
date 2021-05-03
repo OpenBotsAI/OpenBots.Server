@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { HelperService } from '../../../@core/services/helper.service';
 import { HttpService } from '../../../@core/services/http.service';
 import { StorageDriveApiUrl } from '../../../webApiUrls/storageDriveUrl';
 
@@ -12,11 +13,12 @@ import { StorageDriveApiUrl } from '../../../webApiUrls/storageDriveUrl';
 export class ViewStorageDriveComponent implements OnInit {
   storageDriveForm: FormGroup;
   urlId: string;
-  strageDriveSize = ['GB'];
+  strageDriveSize = ['MB', 'GB'];
   constructor(
     private fb: FormBuilder,
     private httpService: HttpService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private helperService: HelperService
   ) {}
 
   ngOnInit(): void {
@@ -33,11 +35,14 @@ export class ViewStorageDriveComponent implements OnInit {
       )
       .subscribe((response) => {
         if (response) {
-          response.maxStorageAllowedInBytes = (
-            response.maxStorageAllowedInBytes /
-            (1024 * 1024 * 1024)
-          ).toFixed(2);
+          let arr = this.helperService.bytesIntoMBorGB(
+            response.maxStorageAllowedInBytes
+          );
+          response.maxStorageAllowedInBytes = arr[0];
           this.storageDriveForm.patchValue(response);
+          this.storageDriveForm.patchValue({
+            driveSize: arr[1],
+          });
           this.storageDriveForm.disable();
         }
       });
@@ -56,8 +61,8 @@ export class ViewStorageDriveComponent implements OnInit {
       ],
       // fileStorageAdapterType: [''],
       // storageSizeInBytes: 0,
-      maxStorageAllowedInBytes: 0,
-      driveSize: ['GB'],
+      maxStorageAllowedInBytes: [''],
+      driveSize: ['MB'],
       // isDefault: true,
     });
   }
