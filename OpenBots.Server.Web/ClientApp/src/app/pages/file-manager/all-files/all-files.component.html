@@ -292,7 +292,6 @@
             <h6>File Upload</h6>
         </nb-card-header>
         <nb-card-body>
-
             <div class="upload-files uploadTempFiles">
                 <!-- <div class="drop-container" [ngClass]="{ 'is-drop-over': dragOver }"> -->
                 <div class="drop-container" ngFileDrop [options]="options" (uploadOutput)="onUploadOutput($event)"
@@ -306,6 +305,14 @@
                     <span>Browse</span>
                 </label>
             </div>
+            <!-- <div class="row">
+                <table>
+                    <tr *ngFor="let data of   this.uploadedFilesArr">
+                        <td>{{data.nativeFile.name}}</td>
+                    </tr>
+                </table>
+
+            </div> -->
         </nb-card-body>
         <nb-card-footer>
             <button class="btn btn-primary btnNoMargn" [disabled]="!uploadedFilesArr.length"

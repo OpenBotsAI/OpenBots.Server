@@ -581,7 +581,6 @@ export class AllFilesComponent implements OnInit {
   fileFolder(files) {
     this.HighlightRow = null;
     this.showDownloadbtn = false;
-    debugger;
     if (files && files.isFile == false) {
       if (this.floderName != files.name) {
         this.floderName = files.name;
