@@ -1895,7 +1895,7 @@
             Controller for storage drives
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.DrivesController.#ctor(OpenBots.Server.DataAccess.Repositories.Interfaces.IStorageDriveRepository,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.Business.Interfaces.IFileManager,OpenBots.Server.Web.Webhooks.IWebhookPublisher)">
+        <member name="M:OpenBots.Server.Web.Controllers.DrivesController.#ctor(OpenBots.Server.DataAccess.Repositories.Interfaces.IStorageDriveRepository,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.Business.Interfaces.IFileManager,OpenBots.Server.Web.Webhooks.IWebhookPublisher,OpenBots.Server.Business.IOrganizationManager)">
             <summary>
             DrivesController constructor
             </summary>
@@ -1906,6 +1906,7 @@
             <param name="configuration"></param>
             <param name="fileManager"></param>
             <param name="webhookPublisher"></param>
+            <param name="organizationManager"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.DrivesController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>

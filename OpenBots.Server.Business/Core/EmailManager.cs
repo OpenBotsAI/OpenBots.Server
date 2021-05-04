@@ -129,13 +129,15 @@ namespace OpenBots.Server.Business
 
                 foreach (var file in fileViewList)
                 {
+                    string[] fileNameArray = file.Name.Split(".");
+                    string extension = fileNameArray[1];
                     //create email attachment
                     EmailAttachment emailAttachment = new EmailAttachment()
                     {
                         Name = file.Name,
                         FileId = file.Id,
                         ContentType = file.ContentType,
-                        ContentStorageAddress = file.FullStoragePath,
+                        ContentStorageAddress = Path.Combine(drive.OrganizationId.ToString(), drive.Id.ToString(), $"{file.Id}.{extension}"),
                         SizeInBytes = file.Size,
                         EmailId = id,
                         CreatedOn = DateTime.UtcNow,

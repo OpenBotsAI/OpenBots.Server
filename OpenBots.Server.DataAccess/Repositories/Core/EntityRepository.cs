@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using OpenBots.Server.Model.Webhooks;
+using OpenBots.Server.Model.File;
 
 namespace OpenBots.Server.DataAccess.Repositories
 {
@@ -303,7 +304,7 @@ namespace OpenBots.Server.DataAccess.Repositories
 
                         foreach (var entry in ex.Entries)
                         {
-                            if (entry.Entity is Asset)
+                            if (entry.Entity is Asset || entry.Entity is StorageDrive)
                             {
                                 var databaseValues = entry.GetDatabaseValues();
 

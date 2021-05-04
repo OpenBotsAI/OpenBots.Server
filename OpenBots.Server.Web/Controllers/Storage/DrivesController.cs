@@ -33,6 +33,7 @@ namespace OpenBots.Server.Web.Controllers
         private readonly IStorageDriveRepository _repository;
         private readonly IFileManager _manager;
         private readonly IWebhookPublisher _webhookPublisher;
+        private readonly IOrganizationManager _organizationManager;
 
         /// <summary>
         /// DrivesController constructor
@@ -44,6 +45,7 @@ namespace OpenBots.Server.Web.Controllers
         /// <param name="configuration"></param>
         /// <param name="fileManager"></param>
         /// <param name="webhookPublisher"></param>
+        /// <param name="organizationManager"></param>
         public DrivesController(
             IStorageDriveRepository repository,
             ApplicationIdentityUserManager userManager,
@@ -51,11 +53,13 @@ namespace OpenBots.Server.Web.Controllers
             IMembershipManager membershipManager,
             IConfiguration configuration,
             IFileManager fileManager,
-            IWebhookPublisher webhookPublisher) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
+            IWebhookPublisher webhookPublisher,
+            IOrganizationManager organizationManager) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             _repository = repository;
             _manager = fileManager;
             _webhookPublisher = webhookPublisher;
+            _organizationManager = organizationManager;
         }
 
         /// <summary>
@@ -249,11 +253,19 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
+                Guid? entityId = Guid.Parse(id);
+                if (request.Id == null || request.Id == Guid.Empty || request.Id != entityId)
+                    request.Id = entityId;
+
+                if (request.OrganizationId == null || request.OrganizationId == Guid.Empty)
+                    request.OrganizationId = _organizationManager.GetDefaultOrganization().Id;
                 _manager.CheckDefaultDrive(request, request.OrganizationId);
 
-                base.PutEntity(id, request);
+                if (string.IsNullOrEmpty(request.StoragePath))
+                    request.StoragePath = request.Name;
+
                 await _webhookPublisher.PublishAsync("Files.DriveUpdated", id, request.Name).ConfigureAwait(false);
-                return Ok();
+                return await base.PutEntity(id, request);
             }
             catch (Exception ex)
             {
