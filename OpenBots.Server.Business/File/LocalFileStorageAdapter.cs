@@ -241,7 +241,8 @@ namespace OpenBots.Server.Business.File
                 string lastFolder = pathArray[pathArray.Length - 1];
                 if (Guid.TryParse(lastFolder, out Guid agentId))
                     path = GetShortPath(path);
-                AddBytesToParentFolders(path, filesSizeInBytes);
+                if (drive.StoragePath != path)
+                    AddBytesToParentFolders(path, filesSizeInBytes);
 
                 //add size in bytes to storage drive
                 AddBytesToStorageDrive(drive, filesSizeInBytes);
