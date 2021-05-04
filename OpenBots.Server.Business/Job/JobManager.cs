@@ -251,5 +251,28 @@ namespace OpenBots.Server.Business
                 }
             }
         }
+
+        public object GetJobTotals(List<Job> jobs)
+        {
+            long? executionTimeInMinutes = 0;
+            long? automationExecutionLogsCount = 0;
+            long? automationLogCount = 0;
+
+            foreach (var job in jobs)
+            {
+                executionTimeInMinutes += (job.ExecutionTimeInMinutes ?? 0);
+                automationExecutionLogsCount += job.AutomationExecutionLogCount;
+                automationLogCount += job.AutomationLogCount;
+            }
+
+            var jobTotals = new
+            {
+                ExecutionTimeInMinutesSum = executionTimeInMinutes,
+                AutomationExecutionLogCountSum = automationExecutionLogsCount,
+                AutomationLogCountSum = automationLogCount
+            };
+
+            return jobTotals;
+        }
     }
 }

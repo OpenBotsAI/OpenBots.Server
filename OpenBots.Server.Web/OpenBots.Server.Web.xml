@@ -3447,6 +3447,21 @@
             <response code="422">Unprocessable entity</response>
             <returns> Downloadable file</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.JobsController.Sum(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a view model list of all jobs
+            </summary>
+            <param name="top"></param>
+            <param name="skip"></param>
+            <param name="orderBy"></param>
+            <param name="filter"></param>
+            <response code="200">Ok, a paginated list of all jobs</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>  
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all jobs</returns>
+        </member>
         <member name="M:OpenBots.Server.Web.JobsController.Post(OpenBots.Server.ViewModel.CreateJobViewModel)">
              <summary>
              Adds a new job to the existing jobs
