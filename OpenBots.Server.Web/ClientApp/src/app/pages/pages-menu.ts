@@ -148,6 +148,10 @@ export class PagesMenu {
             title: 'Files Manager',
             link: '/pages/file-manager',
           },
+          {
+            title: 'Storage Drive',
+            link: '/pages/storagedrive',
+          },
           // {
           //   title: 'All Files',
           //   link: '/pages/file/list',
@@ -183,12 +187,11 @@ export class PagesMenu {
           },
           {
             title: 'Add Business Events',
-            link: '/pages/business-event/add'
+            link: '/pages/business-event/add',
           },
           {
             title: 'Raise Business Events',
-            link: '/pages/business-event/raise-event'
-
+            link: '/pages/business-event/raise-event',
           },
           {
             title: 'Subscriptions',

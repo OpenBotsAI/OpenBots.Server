@@ -40,10 +40,8 @@ export class GetJobIdComponent implements OnInit, OnDestroy {
     public signalRService: SignalRService,
     protected jobService: JobsService
   ) {
-
-    this.params_id = this.acroute.snapshot.params['id']
+    this.params_id = this.acroute.snapshot.params['id'];
     this.get_job(this.params_id);
-
   }
 
   ngOnInit(): void {
@@ -121,14 +119,18 @@ export class GetJobIdComponent implements OnInit, OnDestroy {
         data.dequeueTime,
         'MM-dd-yyyy HH:mm:ss a'
       );
-
       this.showjobs.patchValue(data);
+      if (data.jobStatus == 'Failed') {
+        this.showjobs.patchValue({ message: data.errorReason });
+      }
       this.showjobs.disable();
     });
   }
 
   gotoprocess() {
-    this.router.navigate([`/pages/automation/view/${this.showjobs.value.automationId}`]);
+    this.router.navigate([
+      `/pages/automation/view/${this.showjobs.value.automationId}`,
+    ]);
   }
   gotoagent() {
     this.router.navigate([`/pages/agents/view/${this.showjobs.value.agentId}`]);

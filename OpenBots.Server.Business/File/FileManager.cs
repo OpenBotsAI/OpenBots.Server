@@ -283,13 +283,22 @@ namespace OpenBots.Server.Business.File
             //check if a new drive can be created for the current organization
             long? maxSizeInBytes = drive.MaxStorageAllowedInBytes;//size of new drive
             long? organizationStorage = GetTotalOrganizationStorage(organizationId);//sum of all drives for the current organization
-            long? orgMaxSizeInBytes = _organizationManager.GetMaxStorageInBytes();//max allowed storage for the current organization
+            long? orgMaxSizeInBytes = _organizationManager.GetMaxStorageInBytes(organizationId);//max allowed storage for the current organization
             long? updatedOrgStorage = maxSizeInBytes + organizationStorage;//sum of new drive and all existing drives
 
             if (orgMaxSizeInBytes != null && maxSizeInBytes > orgMaxSizeInBytes)
             {
                 throw new UnauthorizedOperationException("Drive size would exceed the allowed storage space for this organization", EntityOperationType.Add);
             }
+
+            if (string.IsNullOrEmpty(drive.StoragePath))
+                drive.StoragePath = drive.Name;
+            if (drive.MaxStorageAllowedInBytes == null)
+                drive.MaxStorageAllowedInBytes = orgMaxSizeInBytes;
+            if (string.IsNullOrEmpty(drive.FileStorageAdapterType))
+                drive.FileStorageAdapterType = AdapterType.LocalFileStorage.ToString();
+            if (drive.IsDefault == null)
+                drive.IsDefault = false;
 
             var storageDrive = new StorageDrive()
             {
@@ -300,7 +309,8 @@ namespace OpenBots.Server.Business.File
                 CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
                 CreatedOn = DateTime.UtcNow,
                 StorageSizeInBytes = drive.StorageSizeInBytes ?? 0,
-                MaxStorageAllowedInBytes = drive.MaxStorageAllowedInBytes
+                MaxStorageAllowedInBytes = drive.MaxStorageAllowedInBytes,
+                IsDefault = drive.IsDefault
             };
             _storageDriveRepository.Add(storageDrive);
 
@@ -330,7 +340,7 @@ namespace OpenBots.Server.Business.File
 
         public void CheckDefaultDrive(StorageDrive drive, Guid? organizationId)
         {
-            if (drive.IsDefault)
+            if (drive.IsDefault.Value)
             {
                 var defaultDrive = _storageDriveRepository.Find(null).Items.Where(q => q.OrganizationId == organizationId && q.IsDefault == true).FirstOrDefault();
                 if (defaultDrive != null && defaultDrive.Name != drive.Name)
@@ -358,7 +368,7 @@ namespace OpenBots.Server.Business.File
 
             foreach (var drive in organizationDrives)
             {
-                sum += drive.StorageSizeInBytes;
+                sum += drive.MaxStorageAllowedInBytes;
             }
             return sum;
         }

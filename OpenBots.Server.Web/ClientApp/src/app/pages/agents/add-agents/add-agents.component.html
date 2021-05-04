@@ -125,12 +125,12 @@
                   </option>
                 </select> -->
                 <ng-select [items]="credentialArr" [searchable]="true" bindLabel="credentialName"
-                  formControlName="CredentialId" class="NgSelect" placeholder="Please select credential"
+                  formControlName="credentialId" class="NgSelect" placeholder="Please select credential"
                   [closeOnSelect]="true" bindValue="credentialId" [clearable]="false">
                 </ng-select>
-                <div *ngIf="formControl.CredentialId.touched && formControl.CredentialId.invalid"
+                <div *ngIf="formControl.credentialId.touched && formControl.credentialId.invalid"
                   class="invalid-feedback-frm">
-                  <div *ngIf="formControl.CredentialId.errors && formControl.CredentialId.errors.required"> Credential
+                  <div *ngIf="formControl.credentialId.errors && formControl.credentialId.errors.required"> Credential
                     is required.</div>
                 </div>
               </div>
@@ -173,6 +173,63 @@
               </div>
             </div>
           </div>
+          <div class="row">
+            <div class="col-md-12 col-sm-12 col-xxxl-12">
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary" style="float: right;" status="primary"
+                  (click)="agentSettings()" *ngIf="!isAgentSettings">Agent
+                  Settings</button>
+                <button type="submit" class="btn btn-primary" style="float: right;" status="primary"
+                  (click)="agentSettings()" *ngIf="isAgentSettings">Close
+                  Settings</button>
+              </div>
+            </div>
+          </div>
+          <ng-container *ngIf="isAgentSettings">
+            <form [formGroup]="agentForm.get('agentSetting')">
+              <div class="row">
+                <div class="col-md-6 col-sm-6 col-xxxl-6">
+                  <label for="heartbeatInterval" class="label">Heartbeat Interval </label>
+                  <input type="number" nbInput fullWidth formControlName="heartbeatInterval" class="form-control"
+                    placeholder="Please enter heartbeat interval">
+                  <!-- <div
+                  *ngIf="agentForm.get('AgentSetting.heartbeatInterval').touched && agentForm.get('AgentSetting.heartbeatInterval').invalid"
+                  class="invalid-feedback-frm">
+                  <div
+                    *ngIf="agentForm.get('AgentSetting.heartbeatInterval').errors && agentForm.get('AgentSetting.heartbeatInterval').errors.required">
+                    Heartbeat Interval is required.</div>
+
+                  <div *ngIf="agentForm.get('AgentSetting.heartbeatInterval')?.errors.pattern">
+                    Heartbeat Interval must be greater than or equal to 300ms.</div>
+                </div> -->
+                </div>
+                <div class="col-md-6 col-sm-6 col-xxxl-6">
+                  <label for="jobLoggingInterval" class="label">Job Logging Interval </label>
+                  <input type="number" nbInput fullWidth formControlName="jobLoggingInterval" class="form-control"
+                    placeholder="Please enter job logging interval">
+                  <!-- <div
+                  *ngIf="agentForm.get('AgentSetting.jobLoggingInterval').touched && agentForm.get('AgentSetting.jobLoggingInterval').invalid"
+                  class="invalid-feedback-frm">
+                  <div
+                    *ngIf="agentForm.get('AgentSetting.jobLoggingInterval').errors && agentForm.get('AgentSetting.jobLoggingInterval').errors.required">
+                    Heartbeat Interval is required.</div>
+                  <div *ngIf="agentForm.get('AgentSetting.jobLoggingInterval')?.errors.pattern">
+                    Job Logging Interval must be greater than or equal to 30ms.</div>
+                </div> -->
+                </div>
+              </div>
+              <br>
+              <div class="row">
+                <div class="col-md-4 col-sm-4 col-xxxl-4">
+                  <label for="jobLoggingInterval" class="label">Verify SSL Certificate </label>
+                  <ng-select [items]="sslCertificateArr" [searchable]="true" formControlName="verifySslCertificate"
+                    class="NgSelect" bindLabel="name" bindValue="value">
+                  </ng-select>
+                </div>
+              </div>
+            </form>
+          </ng-container>
+          <br>
           <div class="row">
             <div class="col-md-6 col-sm-6 col-xxxl-6">
               <div class="form-group">

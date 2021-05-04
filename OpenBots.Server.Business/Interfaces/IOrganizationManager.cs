@@ -1,4 +1,5 @@
 ﻿using OpenBots.Server.Model.Membership;
+using System;
 
 namespace OpenBots.Server.Business
 {
@@ -6,6 +7,6 @@ namespace OpenBots.Server.Business
     {
         Organization AddNewOrganization(Organization value);
         Organization GetDefaultOrganization();
-        long? GetMaxStorageInBytes(string organizationId = "");
+        long? GetMaxStorageInBytes(Guid? organizationId = null);
     }
 }
