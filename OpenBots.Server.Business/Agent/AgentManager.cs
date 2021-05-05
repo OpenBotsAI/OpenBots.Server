@@ -440,7 +440,7 @@ namespace OpenBots.Server.Business
                 throw new UnauthorizedOperationException("The machine name provided does not match this agent's machine name", EntityOperationType.Update);
             }
 
-            //disconnect agent if it is not already connected
+            //disconnect agent if it is already connected
             if (agent.IsConnected == true)
             {
                 agent.IsConnected = false;
