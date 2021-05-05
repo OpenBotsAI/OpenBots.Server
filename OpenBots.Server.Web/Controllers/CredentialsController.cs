@@ -221,7 +221,7 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> GetAssetByName(string credentialName)
+        public async Task<IActionResult> GetCredentialByName(string credentialName)
         {
             try
             {
