@@ -84,32 +84,26 @@ export class StorageDriveComponent implements OnInit {
   }
 
   onSubmit(): void {
-    let storageSize;
     this.isSubmitted = true;
     if (this.storageDriveForm.value.driveSize == 'MB') {
-      storageSize = this.helperService.megaBytesIntiBytes(
-        +this.storageDriveForm.value.maxStorageAllowedInBytes
+      this.storageDriveForm.value.maxStorageAllowedInBytes = this.helperService.megaBytesIntiBytes(
+        this.storageDriveForm.value.maxStorageAllowedInBytes
       );
     } else if (this.storageDriveForm.value.driveSize == 'GB') {
-      storageSize = this.helperService.gegaBytesIntiBytes(
-        +this.storageDriveForm.value.maxStorageAllowedInBytes
+      this.storageDriveForm.value.maxStorageAllowedInBytes = this.helperService.gegaBytesIntiBytes(
+        this.storageDriveForm.value.maxStorageAllowedInBytes
       );
     }
     delete this.storageDriveForm.value.driveSize;
-    const obj = {
-      name: this.storageDriveForm.value.name,
-      maxStorageAllowedInBytes: storageSize,
-      isDefault: false,
-    };
-    if (this.urlId) this.updateStorageDrive(obj);
-    else this.addStorageDrive(obj);
+    if (this.urlId) this.updateStorageDrive();
+    else this.addStorageDrive();
   }
-  updateStorageDrive(obj): void {
+  updateStorageDrive(): void {
     const headers = this.helperService.getETagHeaders(this.eTag);
     this.httpService
       .put(
         `${StorageDriveApiUrl.storage}/${StorageDriveApiUrl.drives}/${this.urlId}`,
-        obj,
+        this.storageDriveForm.value,
         { observe: 'response', headers }
       )
       .subscribe(
@@ -122,9 +116,12 @@ export class StorageDriveComponent implements OnInit {
         () => (this.isSubmitted = false)
       );
   }
-  addStorageDrive(obj): void {
+  addStorageDrive(): void {
     this.httpService
-      .post(`${StorageDriveApiUrl.storage}/${StorageDriveApiUrl.drives}`, obj)
+      .post(
+        `${StorageDriveApiUrl.storage}/${StorageDriveApiUrl.drives}`,
+        this.storageDriveForm.value
+      )
       .subscribe(
         (response) => {
           if (response) {
