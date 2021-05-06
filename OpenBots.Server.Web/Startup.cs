@@ -438,7 +438,6 @@ namespace OpenBots.Server.Web
             var bus = app.ApplicationServices.GetService<IQueueSubscriber>();
             if (bus != null)
                 bus.Register();
-
             app.UseSpa(spa =>
             {
                 //to learn more about options for serving an Angular SPA from ASP.NET Core,
@@ -451,6 +450,8 @@ namespace OpenBots.Server.Web
                     spa.UseAngularCliServer(npmScript: "start");
                 }
             });
+
+            AddOrUpdateAppSetting("ApplicationEncryption:Key", "1234");
         }
 
         private void ConfigureHealthcheck(IEndpointRouteBuilder endpoints, IApplicationBuilder app)
@@ -554,6 +555,35 @@ namespace OpenBots.Server.Web
             //use our custom middleware
             app.Map(new PathString(pathMatch), x => x.UseMiddleware<CustomHangfireDashboardMiddleware>(storage, options, routes));
             return app;
+        }
+
+        public static void AddOrUpdateAppSetting<T>(string key, T value)
+        {
+            try
+            {
+
+                var filePath = Path.Combine(AppContext.BaseDirectory, "appSettings.json");
+                string json = File.ReadAllText(filePath);
+                dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+
+                var sectionPath = key.Split(":")[0];
+                if (!string.IsNullOrEmpty(sectionPath))
+                {
+                    var keyPath = key.Split(":")[1];
+                    jsonObj[sectionPath][keyPath] = value;
+                }
+                else
+                {
+                    jsonObj[sectionPath] = value; // if no sectionpath just set the value
+                }
+                string output = Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented);
+                File.WriteAllText(filePath, output);
+
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error writing app settings");
+            }
         }
     }
 }

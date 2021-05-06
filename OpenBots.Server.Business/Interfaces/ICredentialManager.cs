@@ -12,6 +12,7 @@ namespace OpenBots.Server.Business
         Credential DeleteCredential(string id);
         void CredentialNameAvailability(Credential request);
         Credential GetMatchingCredential(string credentialName);
+        string GetPassword(string encryptedPassword);
     }
 }
 

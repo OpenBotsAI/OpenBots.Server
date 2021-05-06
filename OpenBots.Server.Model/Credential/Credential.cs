@@ -15,6 +15,7 @@ namespace OpenBots.Server.Model
         [DoNotAudit]
         public string? PasswordSecret { get; set; }
         public string? PasswordHash { get; set; }
+        public string? HashSalt { get; set; }
         public string? Certificate { get; set; }
         public Guid? AgentId { get; set; }
     }

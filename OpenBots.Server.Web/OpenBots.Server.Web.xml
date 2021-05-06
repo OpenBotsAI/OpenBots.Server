@@ -3152,7 +3152,7 @@
             Controller for credentials
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.CredentialsController.#ctor(OpenBots.Server.DataAccess.Repositories.ICredentialRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.ICredentialManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Web.Webhooks.IWebhookPublisher)">
+        <member name="M:OpenBots.Server.Web.CredentialsController.#ctor(OpenBots.Server.DataAccess.Repositories.ICredentialRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.ICredentialManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Web.Webhooks.IWebhookPublisher,OpenBots.Server.DataAccess.Repositories.ICredentialRepository)">
             <summary>
             CredentialsController constructor
             </summary>
@@ -3215,7 +3215,7 @@
             <response code="422">Unprocessable entity</response>
             <returns>Credential view details for the given id</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.CredentialsController.GetAssetByName(System.String)">
+        <member name="M:OpenBots.Server.Web.CredentialsController.GetCredentialByName(System.String)">
             <summary>
             Provides a Credential's details for a particular Credential name
             </summary>
@@ -3449,18 +3449,18 @@
         </member>
         <member name="M:OpenBots.Server.Web.JobsController.Sum(System.String,System.String,System.Int32,System.Int32)">
             <summary>
-            Provides a view model list of all jobs
+            Gets the sum of executionTimeInMinutes, automationExecutionLogCount and automationLogCount for the current jobs
             </summary>
             <param name="top"></param>
             <param name="skip"></param>
             <param name="orderBy"></param>
             <param name="filter"></param>
-            <response code="200">Ok, a paginated list of all jobs</response>
+            <response code="200">Ok, an object containing the sum of job properties</response>
             <response code="400">Bad request</response>
             <response code="403">Forbidden, unauthorized access</response>  
             <response code="404">Not found</response>
             <response code="422">Unprocessable entity</response>
-            <returns>Paginated list of all jobs</returns>
+            <returns>Object containing a key value pair for executionTimeInMinutes, automationExecutionLogCount and automationLogCount</returns>
         </member>
         <member name="M:OpenBots.Server.Web.JobsController.Post(OpenBots.Server.ViewModel.CreateJobViewModel)">
              <summary>

@@ -52,7 +52,7 @@ namespace XUnitTests
             var personRepo = new PersonRepository(context, personLogger, httpContextAccessor.Object);
             var agentRepo = new AgentRepository(context, agentLogger, httpContextAccessor.Object);
 
-            _manager = new CredentialManager(repo, personRepo, agentRepo);
+            //_manager = new CredentialManager(repo, personRepo, agentRepo);
         }
 
         //validates if the current date falls within date range
