@@ -31,25 +31,24 @@
                     <div class="row rowTopPadding">
                         <div class="col-md-6 col-lg-6 col-xxxl-6">
                             <label for="maxStorageAllowedInBytes" class="label">Storage Drive Size</label>
-                            <input type="text" nbInput fullWidth id="storageSizeInBytes"
-                                formControlName="maxStorageAllowedInBytes" placeholder="Please enter storage drive size"
-                                ngxSpecialChar trim="blur" (keyup)="onChangesValue($event)">
+                            <input type="number" nbInput fullWidth id="storageSizeInBytes"
+                                formControlName="maxStorageAllowedInBytes"
+                                placeholder="Please enter storage drive size">
 
                             <div *ngIf="formControls.maxStorageAllowedInBytes.invalid && (formControls.maxStorageAllowedInBytes.dirty || formControls.maxStorageAllowedInBytes.touched)"
                                 class="invalid-feedback-frm">
-
-                                <div *ngIf="isMaxMb">
-                                    Max storage drive size 5000 MB
+                                <div *ngIf="formControls.maxStorageAllowedInBytes.errors.pattern">
+                                    Only numbers allowed.
                                 </div>
-                                <div *ngIf="isMaxGb">
-                                    Max storage drive size 50 GB
+                                <div *ngIf="formControls.maxStorageAllowedInBytes.errors.max">
+                                    Max storage drive size 5000 MB or 50 GB
                                 </div>
-
                             </div>
                         </div>
                         <div class="col-md-6 col-lg-6 col-xxxl-6">
                             <label class="label">Drive Size</label>
-                            <ng-select [items]="strageDriveSize" formControlName="driveSize" class="NgSelect">
+                            <ng-select [items]="strageDriveSize" formControlName="driveSize" class="NgSelect"
+                                (change)="onChangeDriveSize($event)">
                             </ng-select>
                         </div>
                     </div>
@@ -62,7 +61,8 @@
             </div> -->
                     <div class="row rowTopPadding">
                         <div class="col-md-6 col-lg-6 col-xxxl-12"><button type="submit" class="btn btn-primary"
-                                status="primary" [disabled]="storageDriveForm.invalid || isSubmitted"
+                                status="primary"
+                                [disabled]="storageDriveForm.invalid || isSubmitted || isMaxMb || isMaxGb"
                                 (click)="onSubmit()">Save</button></div>
                         <div class="col-md-6 col-lg-6 col-xxxl-6"></div>
                     </div>

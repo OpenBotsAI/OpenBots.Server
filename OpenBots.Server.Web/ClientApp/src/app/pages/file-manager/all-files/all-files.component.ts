@@ -37,7 +37,7 @@ export class AllFilesComponent implements OnInit {
   filesCreateFolderFromgroup: FormGroup;
   fileManger: FileManager[] = [];
   fileID: any = [];
-  name: any = [];
+  fileName: string;
   size: any = [];
   contentType: any = [];
   createdOn: any = [];
@@ -67,7 +67,11 @@ export class AllFilesComponent implements OnInit {
   uploadedFilesArr: any[] = [];
   isHidden = true;
   renameId: string;
-
+  storageDriveArr: FileManager[] = [];
+  storageDriveForm: FormGroup;
+  savePageNumber = 1;
+  retrictedFilesarr = ['.bat', '.exe', '.com', '.vbs'];
+  isDownloadButton = false;
   constructor(
     private fileSaverService: FileSaverService,
     private formBuilder: FormBuilder,
@@ -83,8 +87,74 @@ export class AllFilesComponent implements OnInit {
   ngOnInit(): void {
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
-    this.getdriveName();
+    // this.getdriveName();
     this.itemsPerPage = this.helperService.getItemsPerPage();
+    this.getAllStorageDrives();
+    this.storageDriveForm = this.initializeForm();
+  }
+  initializeForm() {
+    return this.formBuilder.group({
+      id: [''],
+    });
+  }
+  getAllStorageDrives(): void {
+    this.httpService
+      .get(`${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}`)
+      .subscribe((response) => {
+        if (response && response.items && response.items.length) {
+          this.storageDriveArr = [...response.items];
+          this.driveId = this.storageDriveArr[0].id;
+          this.driveName = this.storageDriveArr[0].name;
+          this.storageDriveForm.patchValue(this.storageDriveArr[0]);
+        }
+        this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
+      });
+  }
+
+  getStorageDriveByDriveId(
+    pageNumber: number,
+    pageSize: number,
+    orderBy?: string
+  ): void {
+    const top = pageSize;
+    this.page.pageSize = pageSize;
+    const skip = (pageNumber - 1) * pageSize;
+    let url: string;
+    if (this.currentParentId) {
+      if (orderBy)
+        url = `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}?&$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${this.currentParentId}'`;
+      else
+        url = `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}?&$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${this.currentParentId}'`;
+    }
+    // url = `${FileManagerApiUrl.files}?driveName=${this.driveName}&$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
+    else {
+      if (orderBy)
+        url = `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}?&$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${this.driveId}'`;
+      else
+        url = `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}?&$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${this.driveId}'`;
+    }
+
+    // url = `${FileManagerApiUrl.files}?driveName=${this.driveName}&$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
+    this.httpService.get(url).subscribe((response) => {
+      this.page.totalCount = response.totalCount;
+      if (response && response.items && response.items.length) {
+        // this.bread = [];
+        this.fileManger = [];
+        this.fileManger = [...response.items];
+      } else this.fileManger = [];
+    });
+  }
+
+  onStorageDriveChange(event) {
+    if (event) {
+      this.driveId = event.id;
+      this.driveName = event.name;
+      this.currentParentId = null;
+      this.bread = [];
+      this.page.pageNumber = 1;
+      this.page.pageSize = 5;
+      this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
+    }
   }
 
   getdriveName(): void {
@@ -105,7 +175,7 @@ export class AllFilesComponent implements OnInit {
         }
       });
   }
-
+  // old function used for old user manager
   // this function get pagination using parent-id
   getFilterPagination(
     pageNumber: number,
@@ -133,7 +203,8 @@ export class AllFilesComponent implements OnInit {
     });
   }
 
-  gotodetail(file): void {
+  driveDocumentDetail(file): void {
+    console.log('file', file);
     if (file && file.isFile) {
       this.isHidden = false;
     } else {
@@ -142,12 +213,12 @@ export class AllFilesComponent implements OnInit {
     if (file) {
       this.showDownloadbtn = true;
       if (file.isFile == true) {
-        this.Downloadbtn = true;
+        this.isDownloadButton = true;
       } else if (file.isFile == false) {
-        this.Downloadbtn = false;
+        this.isDownloadButton = false;
       }
       this.fileID = file.id;
-      this.name = file.name;
+      this.fileName = file.name;
       this.size = file.size;
       this.contentType = file.contentType;
       this.createdOn = file.createdOn;
@@ -159,7 +230,7 @@ export class AllFilesComponent implements OnInit {
     this.bread = [];
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
-    this.getdriveName();
+    // this.getdriveName();
   }
 
   deleteFiles(ref: TemplateRef<any>): void {
@@ -169,7 +240,9 @@ export class AllFilesComponent implements OnInit {
     this.filesFormgroup = this.formBuilder.group({
       name: [''],
     });
-    this.filesFormgroup.patchValue({ name: this.name });
+    // this.fileName = this.fileName.split('.')[0];
+    // console.log('xtension', this.fileName);
+    this.filesFormgroup.patchValue({ name: this.fileName });
     this.dialogService.openDialog(ref);
   }
 
@@ -181,7 +254,6 @@ export class AllFilesComponent implements OnInit {
     });
     this.dialogService.openDialog(ref);
   }
-
   createFolder(ref) {
     let storagePath = '';
     this.bread.forEach((item) => (storagePath += '/' + item.name));
@@ -191,8 +263,8 @@ export class AllFilesComponent implements OnInit {
     formData.append('isFile', this.filesCreateFolderFromgroup.value.isFile);
     this.httpService
       .post(
-        // `${FileManagerApiUrl.files}?driveName=${this.driveName}`,
-        `${FileManagerApiUrl.files}`,
+        `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}/${FileManagerApiUrl.folders}`,
+        // `${FileManagerApiUrl.files}`,
         formData,
         {
           observe: 'response',
@@ -201,11 +273,7 @@ export class AllFilesComponent implements OnInit {
       .subscribe((data) => {
         if (data && data.status === 200) {
           if (this.bread && !this.bread.length)
-            this.getFilterPagination(
-              1,
-              this.page.pageSize,
-              this.currentParentId
-            );
+            this.getStorageDriveByDriveId(1, this.page.pageSize);
           else {
             this.getByIdFile(this.bread[this.bread.length - 1].id);
           }
@@ -214,6 +282,39 @@ export class AllFilesComponent implements OnInit {
         }
       });
   }
+
+  // createFolder(ref) {
+  //   let storagePath = '';
+  //   this.bread.forEach((item) => (storagePath += '/' + item.name));
+  //   let formData = new FormData();
+  //   formData.append('Name', this.filesCreateFolderFromgroup.value.name);
+  //   formData.append('StoragePath', `${this.driveName}` + storagePath);
+  //   formData.append('isFile', this.filesCreateFolderFromgroup.value.isFile);
+  //   this.httpService
+  //     .post(
+  //       ` ${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}/${FileManagerApiUrl.folders}`,
+  //       // `${FileManagerApiUrl.files}`,
+  //       formData,
+  //       {
+  //         observe: 'response',
+  //       }
+  //     )
+  //     .subscribe((data) => {
+  //       if (data && data.status === 200) {
+  //         if (this.bread && !this.bread.length)
+  //           this.getFilterPagination(
+  //             1,
+  //             this.page.pageSize,
+  //             this.currentParentId
+  //           );
+  //         else {
+  //           this.getByIdFile(this.bread[this.bread.length - 1].id);
+  //         }
+  //         this.httpService.success('New folder created successfully');
+  //         ref.close();
+  //       }
+  //     });
+  // }
 
   get fc() {
     return this.filesCreateFolderFromgroup.controls;
@@ -227,7 +328,7 @@ export class AllFilesComponent implements OnInit {
   }
 
   onUploadOutput(output: UploadOutput): void {
-    let uplaodFIle
+    let uplaodFIle;
     switch (output.type) {
       case 'addedToQueue':
         if (typeof output.file !== 'undefined') {
@@ -236,32 +337,46 @@ export class AllFilesComponent implements OnInit {
           } else {
             this.fileSize = false;
           }
-          uplaodFIle = output.file.name
-          if (uplaodFIle.includes('.BAT') || uplaodFIle.includes('.bat') || uplaodFIle.includes('.exe') || uplaodFIle.includes('.com') || uplaodFIle.includes('.VBS') || uplaodFIle.includes('.vbs') || uplaodFIle.includes('.COM')) {
+          console.log('file', output);
+          uplaodFIle = output.file.name;
+          // for (let extension of this.retrictedFilesarr) {
+          //   if (extension == output.file.name.includes()) {
+          //     this.httpService.error('This File format is not allowed');
+          //   }
+          // }
+
+          if (
+            uplaodFIle.includes('.BAT') ||
+            uplaodFIle.includes('.bat') ||
+            uplaodFIle.includes('.exe') ||
+            uplaodFIle.includes('.com') ||
+            uplaodFIle.includes('.VBS') ||
+            uplaodFIle.includes('.vbs') ||
+            uplaodFIle.includes('.COM')
+          ) {
             // this.submitted = false
             this.httpService.error('This File format is not allowed ');
-          }
-          else {
+          } else {
             this.uploadedFilesArr.push(output.file);
           }
         }
         break;
     }
   }
-
   UploadFile(ref): void {
     let storagePath = this.driveName;
     if (this.bread && this.bread.length)
       this.bread.forEach((item) => (storagePath += `/${item.name}`));
     let formData = new FormData();
+    formData.append('StoragePath', storagePath);
     for (let data of this.uploadedFilesArr) {
       formData.append('Files', data.nativeFile, data.nativeFile.name);
-      formData.append('StoragePath', storagePath);
     }
     this.httpService
       .post(
+        `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}/${FileManagerApiUrl.files}`,
         // `${FileManagerApiUrl.files}?driveName=${this.driveName}`,
-        `${FileManagerApiUrl.files}`,
+        // `${FileManagerApiUrl.files}`,
         formData,
         {
           observe: 'response',
@@ -270,23 +385,61 @@ export class AllFilesComponent implements OnInit {
       .subscribe((data: any) => {
         if (data && data.status === 200) {
           this.uploadedFilesArr = [];
-          if (this.bread.length) {
-            this.getFilterPagination(
-              this.page.pageNumber,
-              this.page.pageSize,
-              this.currentParentId
-            );
-          } else {
-            this.getFilterPagination(
-              this.page.pageNumber,
-              this.page.pageSize,
-              this.driveId
-            );
-          }
+          // if (this.bread.length) {
+          this.getStorageDriveByDriveId(
+            this.page.pageNumber,
+            this.page.pageSize
+          );
+          // } else {
+          // this.getFilterPagination(
+          //   this.page.pageNumber,
+          //   this.page.pageSize,
+          //   this.driveId
+          // );
+          // }
         }
         ref.close();
       });
   }
+  // UploadFile(ref): void {
+  //   let storagePath = this.driveName;
+  //   if (this.bread && this.bread.length)
+  //     this.bread.forEach((item) => (storagePath += `/${item.name}`));
+  //   let formData = new FormData();
+  //   for (let data of this.uploadedFilesArr) {
+  //     formData.append('Files', data.nativeFile, data.nativeFile.name);
+  //     formData.append('StoragePath', storagePath);
+  //   }
+  //   this.httpService
+  //     .post(
+  //       `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}/${FileManagerApiUrl.files}`,
+  //       // `${FileManagerApiUrl.files}?driveName=${this.driveName}`,
+  //       // `${FileManagerApiUrl.files}`,
+  //       formData,
+  //       {
+  //         observe: 'response',
+  //       }
+  //     )
+  //     .subscribe((data: any) => {
+  //       if (data && data.status === 200) {
+  //         this.uploadedFilesArr = [];
+  //         if (this.bread.length) {
+  //           this.getFilterPagination(
+  //             this.page.pageNumber,
+  //             this.page.pageSize,
+  //             this.currentParentId
+  //           );
+  //         } else {
+  //           this.getFilterPagination(
+  //             this.page.pageNumber,
+  //             this.page.pageSize,
+  //             this.driveId
+  //           );
+  //         }
+  //       }
+  //       ref.close();
+  //     });
+  // }
   cancelUpload(id: string): void {
     this.uploadInput.emit({ type: 'cancel', id: id });
   }
@@ -301,32 +454,63 @@ export class AllFilesComponent implements OnInit {
   renameFileName(ref) {
     this.httpService
       .put(
+        `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}/${FileManagerApiUrl.folders}/${this.fileID}/${FileManagerApiUrl.rename}`,
         // `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.rename}?driveName=${this.driveName}`,
-        `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.rename}`,
+        // `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.rename}`,
         this.filesFormgroup.value,
         { observe: 'response' }
       )
       .subscribe((response) => {
         if (response && response.status === 200) {
-          if (this.bread.length) {
-            this.getFilterPagination(
-              this.page.pageNumber,
-              this.page.pageSize,
-              this.bread[this.bread.length - 1].id
-            );
-          } else {
-            this.getFilterPagination(
-              this.page.pageNumber,
-              this.page.pageSize,
-              this.currentParentId
-            );
-          }
+          // if (this.bread.length) {
+          this.getStorageDriveByDriveId(
+            this.page.pageNumber,
+            this.page.pageSize
+          );
+          // } else {
+          // this.getFilterPagination(
+          //   this.page.pageNumber,
+          //   this.page.pageSize,
+          //   this.currentParentId
+          // );
+
+          // }
 
           this.httpService.success('Renamed successfully');
           ref.close();
         }
       });
   }
+
+  // renameFileName(ref) {
+  //   this.httpService
+  //     .put(
+  //       // `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.rename}?driveName=${this.driveName}`,
+  //       `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.rename}`,
+  //       this.filesFormgroup.value,
+  //       { observe: 'response' }
+  //     )
+  //     .subscribe((response) => {
+  //       if (response && response.status === 200) {
+  //         if (this.bread.length) {
+  //           this.getFilterPagination(
+  //             this.page.pageNumber,
+  //             this.page.pageSize,
+  //             this.bread[this.bread.length - 1].id
+  //           );
+  //         } else {
+  //           this.getFilterPagination(
+  //             this.page.pageNumber,
+  //             this.page.pageSize,
+  //             this.currentParentId
+  //           );
+  //         }
+
+  //         this.httpService.success('Renamed successfully');
+  //         ref.close();
+  //       }
+  //     });
+  // }
 
   onDown() {
     let fileName: string;
@@ -351,11 +535,13 @@ export class AllFilesComponent implements OnInit {
       });
   }
 
-  getFileId(i: number) {
-    for (let abc in this.bread) {
-      if (+abc > i) {
-        this.bread.splice(+abc, this.bread.length - i);
-        this.getFilterPagination(1, this.page.pageSize, this.bread[i].id);
+  getFileId(i: number): void {
+    for (let index in this.bread) {
+      if (+index > i) {
+        this.bread.splice(+index, this.bread.length - i);
+        this.currentParentId = this.bread[i].id;
+        this.getStorageDriveByDriveId(1, this.page.pageSize);
+        // this.getFilterPagination(1, this.page.pageSize, this.bread[i].id);
         this.floderName = this.bread[i].name;
       }
     }
@@ -365,18 +551,15 @@ export class AllFilesComponent implements OnInit {
     if (this.bread && this.bread.length > 1) {
       this.bread.splice(this.bread.length - 1, 1);
       this.floderName = this.bread[this.bread.length - 1].name;
-      this.getFilterPagination(
-        this.page.pageNumber,
-        this.page.pageSize,
-        this.bread[this.bread.length - 1].id
-      );
+      this.currentParentId = this.bread[this.bread.length - 1].id;
+      this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
     } else {
-      this.bread.splice(this.bread.length - 1, 1);
-      this.getFilterPagination(
-        this.page.pageNumber,
-        this.page.pageSize,
-        this.driveId
-      );
+      this.currentParentId = null;
+      this.page.pageNumber = this.savePageNumber;
+      this.floderName = null;
+      this.bread = [];
+      // this.bread.splice(this.bread.length - 1, 1);
+      this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
     }
   }
 
@@ -406,13 +589,10 @@ export class AllFilesComponent implements OnInit {
       this.FolderIDs = files.id;
       this.page.pageNumber = 1;
       this.currentParentId = files.id;
-      this.getFilterPagination(
-        this.page.pageNumber,
-        this.page.pageSize,
-        files.id
-      );
+      this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
     }
   }
+
   onSortClick(event, param: string): void {
     let target = event.currentTarget,
       classList = target.classList;
@@ -420,55 +600,146 @@ export class AllFilesComponent implements OnInit {
       classList.remove('fa-chevron-up');
       classList.add('fa-chevron-down');
       this.filterOrderBy = `${param}+asc`;
-      this.getFilterPagination(
+      this.getStorageDriveByDriveId(
         this.page.pageNumber,
         this.page.pageSize,
-        this.currentParentId,
         `${param}+asc`
       );
     } else {
       classList.remove('fa-chevron-down');
       classList.add('fa-chevron-up');
       this.filterOrderBy = `${param}+desc`;
-      this.getFilterPagination(
+      this.getStorageDriveByDriveId(
         this.page.pageNumber,
         this.page.pageSize,
-        this.currentParentId,
         `${param}+desc`
       );
     }
   }
 
   pageChanged(event): void {
+    if (this.bread && !this.bread.length) {
+      this.savePageNumber = event;
+    }
     this.page.pageNumber = event;
     if (this.filterOrderBy) {
-      this.getFilterPagination(
+      this.getStorageDriveByDriveId(
         event,
         this.page.pageSize,
-        this.currentParentId,
-        `${this.filterOrderBy}`
+        this.filterOrderBy
       );
     } else {
-      this.getFilterPagination(event, this.page.pageSize, this.currentParentId);
+      this.getStorageDriveByDriveId(event, this.page.pageSize);
     }
   }
+
+  // onClickUp() {
+  //   if (this.bread && this.bread.length > 1) {
+  //     this.bread.splice(this.bread.length - 1, 1);
+  //     this.floderName = this.bread[this.bread.length - 1].name;
+  //     this.getFilterPagination(
+  //       this.page.pageNumber,
+  //       this.page.pageSize,
+  //       this.bread[this.bread.length - 1].id
+  //     );
+  //   } else {
+  //     this.bread.splice(this.bread.length - 1, 1);
+  //     this.getFilterPagination(
+  //       this.page.pageNumber,
+  //       this.page.pageSize,
+  //       this.driveId
+  //     );
+  //   }
+  // }
+
+  // fileFolder(files) {
+  //   this.HighlightRow = null;
+  //   this.showDownloadbtn = false;
+  //   if (files && files.isFile == false) {
+  //     if (this.floderName != files.name) {
+  //       this.floderName = files.name;
+  //       this.bread.push(files);
+  //     }
+  //     this.FolderIDs = files.id;
+  //     this.page.pageNumber = 1;
+  //     this.currentParentId = files.id;
+  //     this.getFilterPagination(
+  //       this.page.pageNumber,
+  //       this.page.pageSize,
+  //       files.id
+  //     );
+  //   }
+  // }
+
+  // onSortClick(event, param: string): void {
+  //   let target = event.currentTarget,
+  //     classList = target.classList;
+  //   if (classList.contains('fa-chevron-up')) {
+  //     classList.remove('fa-chevron-up');
+  //     classList.add('fa-chevron-down');
+  //     this.filterOrderBy = `${param}+asc`;
+  //     this.getFilterPagination(
+  //       this.page.pageNumber,
+  //       this.page.pageSize,
+  //       this.currentParentId,
+  //       `${param}+asc`
+  //     );
+  //   } else {
+  //     classList.remove('fa-chevron-down');
+  //     classList.add('fa-chevron-up');
+  //     this.filterOrderBy = `${param}+desc`;
+  //     this.getFilterPagination(
+  //       this.page.pageNumber,
+  //       this.page.pageSize,
+  //       this.currentParentId,
+  //       `${param}+desc`
+  //     );
+  //   }
+  // }
+
+  // pageChanged(event): void {
+  //   this.page.pageNumber = event;
+  //   if (this.filterOrderBy) {
+  //     this.getFilterPagination(
+  //       event,
+  //       this.page.pageSize,
+  //       this.currentParentId,
+  //       `${this.filterOrderBy}`
+  //     );
+  //   } else {
+  //     this.getFilterPagination(event, this.page.pageSize, this.currentParentId);
+  //   }
+  // }
+
+  // selectChange(event): void {
+  //   this.page.pageSize = +event.target.value;
+  //   this.page.pageNumber = 1;
+  //   if (event.target.value && this.filterOrderBy) {
+  //     this.getFilterPagination(
+  //       this.page.pageNumber,
+  //       this.page.pageSize,
+  //       this.currentParentId,
+  //       this.filterOrderBy
+  //     );
+  //   } else
+  //     this.getFilterPagination(
+  //       this.page.pageNumber,
+  //       this.page.pageSize,
+  //       this.currentParentId
+  //     );
+  // }
 
   selectChange(event): void {
     this.page.pageSize = +event.target.value;
     this.page.pageNumber = 1;
     if (event.target.value && this.filterOrderBy) {
-      this.getFilterPagination(
+      this.getStorageDriveByDriveId(
         this.page.pageNumber,
         this.page.pageSize,
-        this.currentParentId,
         this.filterOrderBy
       );
     } else
-      this.getFilterPagination(
-        this.page.pageNumber,
-        this.page.pageSize,
-        this.currentParentId
-      );
+      this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
   }
 
   pagination(pageNumber: number, pageSize: number, orderBy?: string): void {
@@ -503,29 +774,64 @@ export class AllFilesComponent implements OnInit {
     this.uploadedFilesArr = [];
   }
 
+  // onDelete(ref) {
+  //   this.httpService
+  //     .delete(
+  //       // `${FileManagerApiUrl.files}/${this.fileID}?driveName=${this.driveName}`,
+  //       `${FileManagerApiUrl.files}/${this.fileID}?`,
+  //       {
+  //         observe: 'response',
+  //       }
+  //     )
+  //     .subscribe((response) => {
+  //       if (response && response.status === 200) {
+  //         if (!this.bread.length)
+  //           this.getFilterPagination(1, this.page.pageSize, this.driveId);
+  //         else {
+  //           this.getFilterPagination(
+  //             1,
+  //             this.page.pageSize,
+  //             this.currentParentId
+  //           );
+  //         }
+  //         this.httpService.success('Deleted successfully');
+  //         ref.close();
+  //       }
+  //     });
+  // }
+
   onDelete(ref) {
+    let contentType;
+    if (this.isHidden) contentType = FileManagerApiUrl.folders;
+    else contentType = FileManagerApiUrl.files;
     this.httpService
       .delete(
+        `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}/${contentType}/${this.fileID}`,
         // `${FileManagerApiUrl.files}/${this.fileID}?driveName=${this.driveName}`,
-        `${FileManagerApiUrl.files}/${this.fileID}?`,
+        // `${FileManagerApiUrl.files}/${this.fileID}?`,
         {
           observe: 'response',
         }
       )
       .subscribe((response) => {
         if (response && response.status === 200) {
-          if (!this.bread.length)
-            this.getFilterPagination(1, this.page.pageSize, this.driveId);
-          else {
-            this.getFilterPagination(
-              1,
-              this.page.pageSize,
-              this.currentParentId
-            );
-          }
-          this.httpService.success('Deleted successfully');
-          ref.close();
+          this.HighlightRow = null;
+          this.getStorageDriveByDriveId(
+            this.page.pageNumber,
+            this.page.pageSize
+          );
+          // if (!this.bread.length)
+          //   this.getFilterPagination(1, this.page.pageSize, this.driveId);
+          // else {
+          //   this.getFilterPagination(
+          //     1,
+          //     this.page.pageSize,
+          //     this.currentParentId
+          //   );
         }
+        this.httpService.success('Deleted successfully');
+        ref.close();
+        // }
       });
   }
 }

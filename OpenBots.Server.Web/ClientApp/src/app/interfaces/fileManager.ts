@@ -14,4 +14,13 @@ export interface FileManager {
   storageDriveId: string;
   storagePath: string;
   updatedOn?: any;
+  deleteOn?: string;
+  deletedBy?: string;
+  // below is the newly modified file manager model
+  fileStorageAdapterType?: string;
+  isDefault: boolean;
+  isDeleted?: boolean;
+  maxStorageAllowedInBytes?: number;
+  organizationId?: string;
+  storageSizeInBytes?: number;
 }
