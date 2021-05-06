@@ -165,7 +165,7 @@ namespace OpenBots.Server.Web
 
                 if (_credentialManager.ValidateRetrievalDate(existingCredential))
                 {
-                    existingCredential.PasswordSecret = _credentialManager.GetPassword(existingCredential.PasswordSecret);
+                    existingCredential.PasswordSecret = _credentialManager.GetPassword(existingCredential);
                     return Ok(existingCredential);
                 }
                 ModelState.AddModelError("Credential", "Current date does not fall withing the start and end date range");
@@ -285,7 +285,7 @@ namespace OpenBots.Server.Web
                     throw new EntityDoesNotExistException("No Credential was found for the specified id");
                 }
 
-                var passwordString = _credentialManager.GetPassword(existingCredential.PasswordSecret);
+                var passwordString = _credentialManager.GetPassword(existingCredential);
 
                 return Ok(passwordString);
             }
