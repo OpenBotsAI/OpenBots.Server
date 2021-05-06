@@ -391,41 +391,10 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                Guid entityId = new Guid(id);
+                Credential updatedCredential = _credentialManager.UpdateCredential(id, request);
 
-                var existingCredential = repository.GetOne(entityId);
-                if (existingCredential == null)
-                {
-                    ModelState.AddModelError("Credential", "Credential cannot be found or does not exist.");
-                    return NotFound(ModelState);
-                }
-
-                request.Id = entityId;
-                _credentialManager.CredentialNameAvailability(request);
-
-                if (!_credentialManager.ValidateStartAndEndDates(request))
-                {
-                    ModelState.AddModelError("Credential", "Start and End Date are not valid");
-                    return BadRequest(ModelState);
-                }
-
-                existingCredential.StartDate = request.StartDate;
-                existingCredential.EndDate = request.EndDate;
-                existingCredential.Domain = request.Domain;
-                existingCredential.UserName = request.UserName;
-                existingCredential.PasswordSecret = request.PasswordSecret;
-                existingCredential.PasswordHash = request.PasswordHash;
-                existingCredential.Certificate = request.Certificate;
-
-                applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
-
-                if (request.PasswordSecret != existingCredential.PasswordSecret && applicationUser != null)
-                {
-                    existingCredential.PasswordHash = userManager.PasswordHasher.HashPassword(applicationUser, request?.PasswordSecret);
-                }
-
-                await _webhookPublisher.PublishAsync("Credentials.CredentialUpdated", existingCredential.Id.ToString(), existingCredential.Name).ConfigureAwait(false);
-                return await base.PutEntity(id, existingCredential);
+                await _webhookPublisher.PublishAsync("Credentials.CredentialUpdated", updatedCredential.Id.ToString(), updatedCredential.Name).ConfigureAwait(false);
+                return await base.PutEntity(id, updatedCredential);
             }
             catch (Exception ex)
             {
@@ -503,10 +472,22 @@ namespace OpenBots.Server.Web
                     //generate new password hash
                     if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/passwordsecret")
                     {
-                        applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
+                        var encryptionKey = _credentialManager.GetEncryptionKey();
 
-                        var passwordHash = userManager.PasswordHasher.HashPassword(applicationUser, request.Operations[i].value.ToString());
-                        request.Replace(e => e.PasswordHash, passwordHash);
+                        if (!String.IsNullOrEmpty(request.Operations[i].value.ToString()))
+                        {
+                            //generate salt
+                            existingCredential.HashSalt = CredentialHasher.CreateSalt(32); //create 32 byte salt
+
+                            //generate hash
+                            existingCredential.PasswordHash = CredentialHasher.GenerateSaltedHash(request.Operations[i].value.ToString(), existingCredential.HashSalt);
+
+                            // Encrypt and decrypt the sample text via the Aes256CbcEncrypter class.
+                            existingCredential.PasswordSecret = CredentialsEncrypter.Encrypt(request.Operations[i].value.ToString(), encryptionKey);
+                        }
+                        request.Replace(e => e.HashSalt, existingCredential.HashSalt);
+                        request.Replace(e => e.PasswordHash, existingCredential.PasswordHash);
+                        request.Replace(e => e.PasswordSecret, existingCredential.PasswordSecret);
                     }
 
                     //verify start-end date range

@@ -108,14 +108,7 @@ namespace OpenBots.Server.Business
         {
             if (request.PasswordSecret != null)
             {
-                //get encryption key
-                var orgId = _organizationManager.GetDefaultOrganization().Id;
-                _organizationSettingRepository.ForceIgnoreSecurity();
-                var organizationKey2 = _organizationSettingRepository.Find(null, o => o.OrganizationId == orgId).Items.FirstOrDefault();
-
-                var organizationKey = _organizationSettingRepository.Find(null, o => o.OrganizationId == orgId).Items.FirstOrDefault().EncryptionKey;
-                var applicationKey = _configuration.GetSection("ApplicationEncryption:Key").Value;
-                var encryptionKey = applicationKey + organizationKey;
+                var encryptionKey = GetEncryptionKey();
 
                 //generate salt
                 request.HashSalt = CredentialHasher.CreateSalt(32); //create 32 byte salt
@@ -214,12 +207,88 @@ namespace OpenBots.Server.Business
             }
             
             var matchingCredential = credentials.Where(a => a.AgentId == null).FirstOrDefault();
-            matchingCredential.PasswordSecret = GetPassword(matchingCredential.PasswordSecret);
+            matchingCredential.PasswordSecret = GetPassword(matchingCredential);
 
             return matchingCredential;
         }
 
-        public string GetPassword(string encryptedPassword)
+        public string GetPassword(Credential request)
+        {
+            var encryptionKey = GetEncryptionKey();
+            string stringPassword = request.PasswordSecret;
+            if (!CredentialsEncrypter.IsBase64(request.PasswordSecret))//if encryption is not in base64
+            {
+                //encrypt existing password
+                request.HashSalt = CredentialHasher.CreateSalt(32); //create 32 byte salt
+
+                //generate hash
+                request.PasswordHash = CredentialHasher.GenerateSaltedHash(request.PasswordSecret, request.HashSalt);
+
+                // Encrypt and decrypt the sample text via the Aes256CbcEncrypter class.
+                request.PasswordSecret = CredentialsEncrypter.Encrypt(request.PasswordSecret, encryptionKey);
+
+                _repo.Update(request);
+
+                return stringPassword;
+            }  
+            return CredentialsEncrypter.Decrypt(request.PasswordSecret, encryptionKey);
+        }
+
+        public Credential UpdateCredential(string id, Credential request)
+        {
+            Guid entityId = new Guid(id);
+
+            var existingCredential = _repo.GetOne(entityId);
+            if (existingCredential == null)
+            {
+                throw new EntityDoesNotExistException("Credential could not be found or does not exist");
+            }
+
+            request.Id = entityId;
+            CredentialNameAvailability(request);
+
+            if (!ValidateStartAndEndDates(request))
+            {
+                throw new InvalidOperationException("");
+            }
+
+            existingCredential.StartDate = request.StartDate;
+            existingCredential.EndDate = request.EndDate;
+            existingCredential.Domain = request.Domain;
+            existingCredential.UserName = request.UserName;
+            existingCredential.Certificate = request.Certificate;
+
+            if (!String.IsNullOrEmpty(request.PasswordSecret))//password is not null
+            {
+                var encryptionKey = GetEncryptionKey();
+
+                if (CredentialsEncrypter.IsBase64(existingCredential.PasswordSecret))//if encryption is in base64
+                {
+                    existingCredential.PasswordSecret = CredentialsEncrypter.Decrypt(existingCredential.PasswordSecret, encryptionKey);
+                }
+
+                if (existingCredential.PasswordSecret != request.PasswordSecret)
+                {
+                    //generate salt
+                    existingCredential.HashSalt = CredentialHasher.CreateSalt(32); //create 32 byte salt
+
+                    //generate hash
+                    existingCredential.PasswordHash = CredentialHasher.GenerateSaltedHash(request.PasswordSecret, existingCredential.HashSalt);
+
+                    // Encrypt and decrypt the sample text via the Aes256CbcEncrypter class.
+                    existingCredential.PasswordSecret = CredentialsEncrypter.Encrypt(request.PasswordSecret, encryptionKey);
+                }        
+            }
+            else
+            {
+                existingCredential.HashSalt = null;
+                existingCredential.PasswordHash = null;
+                existingCredential.PasswordSecret = null;
+            }
+            return existingCredential;
+        }
+
+        public string GetEncryptionKey()
         {
             //get encryption key
             var orgId = _organizationManager.GetDefaultOrganization().Id;
@@ -227,9 +296,7 @@ namespace OpenBots.Server.Business
 
             var organizationKey = _organizationSettingRepository.Find(null, o => o.OrganizationId == orgId).Items.FirstOrDefault().EncryptionKey;
             var applicationKey = _configuration.GetSection("ApplicationEncryption:Key").Value;
-            var encryptionKey = applicationKey + organizationKey;
-
-            return CredentialsEncrypter.Decrypt(encryptedPassword, encryptionKey);
+            return applicationKey + organizationKey;
         }
     }
 }
