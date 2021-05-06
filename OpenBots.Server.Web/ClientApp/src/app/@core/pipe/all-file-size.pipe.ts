@@ -19,6 +19,7 @@ export class AllFileSizePipe implements PipeTransform {
       unit++;
     }
 
-    return bytes.toFixed(+precision) + ' ' + this.units[unit];
+    // return bytes.toFixed(+precision) + ' ' + this.units[unit];
+    return bytes + ' ' + this.units[unit];
   }
 }
