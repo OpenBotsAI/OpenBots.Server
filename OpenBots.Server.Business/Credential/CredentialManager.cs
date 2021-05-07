@@ -216,6 +216,12 @@ namespace OpenBots.Server.Business
         {
             var encryptionKey = GetEncryptionKey();
             string stringPassword = request.PasswordSecret;
+
+            if (String.IsNullOrEmpty(stringPassword))
+            {
+                return "";
+            }
+
             if (!CredentialsEncrypter.IsBase64(request.PasswordSecret))//if encryption is not in base64
             {
                 //encrypt existing password
