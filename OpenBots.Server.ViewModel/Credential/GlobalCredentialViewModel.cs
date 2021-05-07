@@ -20,6 +20,7 @@ namespace OpenBots.Server.ViewModel
         [DoNotAudit]
         public string? PasswordSecret { get; set; }
         public string? PasswordHash { get; set; }
+        public string? HashSalt { get; set; }
         public string? Certificate { get; set; }
     
         public Credential Map(GlobalCredentialViewModel? viewModel)
@@ -34,6 +35,7 @@ namespace OpenBots.Server.ViewModel
                 UserName = viewModel.UserName,
                 PasswordSecret = viewModel.PasswordSecret,
                 PasswordHash = viewModel.PasswordHash,
+                HashSalt = viewModel.HashSalt,
                 Certificate = viewModel.Certificate
             };
             return credential;

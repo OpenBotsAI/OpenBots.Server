@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using OpenBots.Server.Business;
+using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
 using OpenBots.Server.Model.Attributes;
@@ -15,6 +16,7 @@ using OpenBots.Server.WebAPI.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Web
@@ -31,6 +33,7 @@ namespace OpenBots.Server.Web
         private readonly ICredentialManager _credentialManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IWebhookPublisher _webhookPublisher;
+        private readonly ICredentialRepository _credentialRepository;
 
         /// <summary>
         /// CredentialsController constructor
@@ -49,12 +52,14 @@ namespace OpenBots.Server.Web
             ICredentialManager credentialManager,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
-            IWebhookPublisher webhookPublisher) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
+            IWebhookPublisher webhookPublisher,
+            ICredentialRepository credentialRepository) : base(repository, userManager, httpContextAccessor, membershipManager, configuration)
         {
             _httpContextAccessor = httpContextAccessor;
             _credentialManager = credentialManager;
             _credentialManager.SetContext(SecurityContext);
             _webhookPublisher = webhookPublisher;
+            _credentialRepository = credentialRepository;
         }
 
         /// <summary>
@@ -148,6 +153,11 @@ namespace OpenBots.Server.Web
         {
             try
             {
+                if (!HttpContext.Request.IsHttps)//if request is not https, then throw unauthorized exception
+                {
+                    throw new UnauthorizedAccessException("Request must be HTTPS");
+                }
+
                 Guid entityId = new Guid(id);
 
                 var existingCredential = repository.GetOne(entityId);
@@ -155,7 +165,8 @@ namespace OpenBots.Server.Web
 
                 if (_credentialManager.ValidateRetrievalDate(existingCredential))
                 {
-                    return await base.GetEntity(id);
+                    existingCredential.PasswordSecret = _credentialManager.GetPassword(existingCredential);
+                    return Ok(existingCredential);
                 }
                 ModelState.AddModelError("Credential", "Current date does not fall withing the start and end date range");
                 return BadRequest(ModelState);
@@ -221,10 +232,14 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> GetAssetByName(string credentialName)
+        public async Task<IActionResult> GetCredentialByName(string credentialName)
         {
             try
             {
+                if (!HttpContext.Request.IsHttps)//if request is not https, then throw unauthorized exception
+                {
+                    throw new UnauthorizedAccessException("Request must be HTTPS");
+                }
                 return Ok(_credentialManager.GetMatchingCredential(credentialName));
             }
             catch (Exception ex)
@@ -257,16 +272,22 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                IActionResult actionResult = await base.GetEntity(id);
-                OkObjectResult okResult = actionResult as OkObjectResult;
-
-                if (okResult != null)
+                if (!HttpContext.Request.IsHttps)//if request is not https, then throw unauthorized exception
                 {
-                    Credential credential = okResult.Value as Credential;
-                    okResult.Value = credential.PasswordSecret;
+                    throw new UnauthorizedAccessException("Request must be HTTPS");
                 }
 
-                return actionResult;
+                var credentialId = new Guid(id);
+                Credential existingCredential = _credentialRepository.GetOne(credentialId);
+
+                if (existingCredential == null)
+                {
+                    throw new EntityDoesNotExistException("No Credential was found for the specified id");
+                }
+
+                var passwordString = _credentialManager.GetPassword(existingCredential);
+
+                return Ok(passwordString);
             }
             catch (Exception ex)
             {
@@ -299,13 +320,6 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
-
-                if (request.PasswordSecret != null && applicationUser != null)
-                {
-                    request.PasswordHash = userManager.PasswordHasher.HashPassword(applicationUser, request.PasswordSecret);
-                }
-
                 Credential credential = _credentialManager.CreateGlobalCredential(request);
 
                 var result = await base.PostEntity(credential);
@@ -340,13 +354,6 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
-
-                if (request.PasswordSecret != null && applicationUser != null)
-                {
-                    request.PasswordHash = userManager.PasswordHasher.HashPassword(applicationUser, request.PasswordSecret);
-                }
-
                 Credential credential = _credentialManager.CreateAgentCredential(request);
 
                 var result = await base.PostEntity(credential);
@@ -384,41 +391,10 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                Guid entityId = new Guid(id);
+                Credential updatedCredential = _credentialManager.UpdateCredential(id, request);
 
-                var existingCredential = repository.GetOne(entityId);
-                if (existingCredential == null)
-                {
-                    ModelState.AddModelError("Credential", "Credential cannot be found or does not exist.");
-                    return NotFound(ModelState);
-                }
-
-                request.Id = entityId;
-                _credentialManager.CredentialNameAvailability(request);
-
-                if (!_credentialManager.ValidateStartAndEndDates(request))
-                {
-                    ModelState.AddModelError("Credential", "Start and End Date are not valid");
-                    return BadRequest(ModelState);
-                }
-
-                existingCredential.StartDate = request.StartDate;
-                existingCredential.EndDate = request.EndDate;
-                existingCredential.Domain = request.Domain;
-                existingCredential.UserName = request.UserName;
-                existingCredential.PasswordSecret = request.PasswordSecret;
-                existingCredential.PasswordHash = request.PasswordHash;
-                existingCredential.Certificate = request.Certificate;
-
-                applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
-
-                if (request.PasswordSecret != existingCredential.PasswordSecret && applicationUser != null)
-                {
-                    existingCredential.PasswordHash = userManager.PasswordHasher.HashPassword(applicationUser, request?.PasswordSecret);
-                }
-
-                await _webhookPublisher.PublishAsync("Credentials.CredentialUpdated", existingCredential.Id.ToString(), existingCredential.Name).ConfigureAwait(false);
-                return await base.PutEntity(id, existingCredential);
+                await _webhookPublisher.PublishAsync("Credentials.CredentialUpdated", updatedCredential.Id.ToString(), updatedCredential.Name).ConfigureAwait(false);
+                return await base.PutEntity(id, updatedCredential);
             }
             catch (Exception ex)
             {
@@ -496,10 +472,22 @@ namespace OpenBots.Server.Web
                     //generate new password hash
                     if (request.Operations[i].op.ToString().ToLower() == "replace" && request.Operations[i].path.ToString().ToLower() == "/passwordsecret")
                     {
-                        applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
+                        var encryptionKey = _credentialManager.GetEncryptionKey();
 
-                        var passwordHash = userManager.PasswordHasher.HashPassword(applicationUser, request.Operations[i].value.ToString());
-                        request.Replace(e => e.PasswordHash, passwordHash);
+                        if (!String.IsNullOrEmpty(request.Operations[i].value.ToString()))
+                        {
+                            //generate salt
+                            existingCredential.HashSalt = CredentialHasher.CreateSalt(32); //create 32 byte salt
+
+                            //generate hash
+                            existingCredential.PasswordHash = CredentialHasher.GenerateSaltedHash(request.Operations[i].value.ToString(), existingCredential.HashSalt);
+
+                            // Encrypt and decrypt the sample text via the Aes256CbcEncrypter class.
+                            existingCredential.PasswordSecret = CredentialsEncrypter.Encrypt(request.Operations[i].value.ToString(), encryptionKey);
+                        }
+                        request.Replace(e => e.HashSalt, existingCredential.HashSalt);
+                        request.Replace(e => e.PasswordHash, existingCredential.PasswordHash);
+                        request.Replace(e => e.PasswordSecret, existingCredential.PasswordSecret);
                     }
 
                     //verify start-end date range

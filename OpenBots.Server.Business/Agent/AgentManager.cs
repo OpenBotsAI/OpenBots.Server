@@ -302,7 +302,7 @@ namespace OpenBots.Server.Business
                 agentView.IsHealthy = agentHeartBeat.IsHealthy;
             }
 
-            //get agent settings detials
+            //get agent settings details
             AgentSetting agentSetting = _agentSettingRepository.Find(null, s => s.AgentId == agentView.Id).Items.FirstOrDefault();
 
             if (agentSetting != null)
@@ -399,7 +399,7 @@ namespace OpenBots.Server.Business
             ConnectedViewModel connectedViewModel = new ConnectedViewModel();
             connectedViewModel = connectedViewModel.Map(agent);
 
-            //get agent settings detials
+            //get agent settings details
             AgentSetting agentSetting = _agentSettingRepository.Find(null, s => s.AgentId == agent.Id).Items.FirstOrDefault();
 
             if (agentSetting != null)
@@ -440,7 +440,7 @@ namespace OpenBots.Server.Business
                 throw new UnauthorizedOperationException("The machine name provided does not match this agent's machine name", EntityOperationType.Update);
             }
 
-            //connect agent if it is not already connected
+            //disconnect agent if it is already connected
             if (agent.IsConnected == true)
             {
                 agent.IsConnected = false;

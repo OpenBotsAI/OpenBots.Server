@@ -35,6 +35,9 @@ namespace OpenBots.Server.Model.Membership
 
         [Display(Name = "DisallowAllExecutionsMessage ")]
         public string? DisallowAllExecutionsMessage { get; set; }
+
+        [Display(Name = "EncryptionKey")]
+        public string? EncryptionKey { get; set; }
     }
     public enum IPFencingMode : int
     {
