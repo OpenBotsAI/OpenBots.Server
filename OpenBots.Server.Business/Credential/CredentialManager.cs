@@ -71,7 +71,7 @@ namespace OpenBots.Server.Business
 
         public Credential CreateGlobalCredential(GlobalCredentialViewModel request)
         {
-            if (request.PasswordSecret != null)
+            if (String.IsNullOrEmpty(request.PasswordSecret))
             {
                 //get encryption key
                 var orgId = _organizationManager.GetDefaultOrganization().Id;
@@ -106,7 +106,7 @@ namespace OpenBots.Server.Business
 
         public Credential CreateAgentCredential(AgentCredentialViewModel request)
         {
-            if (request.PasswordSecret != null)
+            if (String.IsNullOrEmpty(request.PasswordSecret))
             {
                 var encryptionKey = GetEncryptionKey();
 
