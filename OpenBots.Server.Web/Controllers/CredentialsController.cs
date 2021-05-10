@@ -482,7 +482,7 @@ namespace OpenBots.Server.Web
                             //generate hash
                             existingCredential.PasswordHash = CredentialHasher.GenerateSaltedHash(request.Operations[i].value.ToString(), existingCredential.HashSalt);
 
-                            // Encrypt and decrypt the sample text via the Aes256CbcEncrypter class.
+                            //encrypt the provided password
                             existingCredential.PasswordSecret = CredentialsEncrypter.Encrypt(request.Operations[i].value.ToString(), encryptionKey);
                         }
                         request.Replace(e => e.HashSalt, existingCredential.HashSalt);
