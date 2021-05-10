@@ -42,6 +42,9 @@ namespace OpenBots.Server.Business.Interfaces
         FileFolderViewModel GetFileFolderByStoragePath(string storagePath, string driveName);
 
         StorageDrive AddStorageDrive(StorageDrive drive);
+
+        StorageDrive UpdateDrive(string id, StorageDrive drive, string organizationId);
+
         Dictionary<Guid?, string> GetDriveNames(string adapterType);
 
         string GetShortPath(string path);
