@@ -71,7 +71,7 @@ namespace OpenBots.Server.Business
 
         public Credential CreateGlobalCredential(GlobalCredentialViewModel request)
         {
-            if (request.PasswordSecret != null)
+            if (String.IsNullOrEmpty(request.PasswordSecret))
             {
                 //get encryption key
                 var orgId = _organizationManager.GetDefaultOrganization().Id;
@@ -106,7 +106,7 @@ namespace OpenBots.Server.Business
 
         public Credential CreateAgentCredential(AgentCredentialViewModel request)
         {
-            if (request.PasswordSecret != null)
+            if (String.IsNullOrEmpty(request.PasswordSecret))
             {
                 var encryptionKey = GetEncryptionKey();
 
@@ -230,7 +230,7 @@ namespace OpenBots.Server.Business
                 //generate hash
                 request.PasswordHash = CredentialHasher.GenerateSaltedHash(request.PasswordSecret, request.HashSalt);
 
-                // Encrypt and decrypt the sample text via the Aes256CbcEncrypter class.
+                //encrypt the provided password
                 request.PasswordSecret = CredentialsEncrypter.Encrypt(request.PasswordSecret, encryptionKey);
 
                 _repo.Update(request);
@@ -264,7 +264,7 @@ namespace OpenBots.Server.Business
             existingCredential.UserName = request.UserName;
             existingCredential.Certificate = request.Certificate;
 
-            if (!String.IsNullOrEmpty(request.PasswordSecret))//password is not null
+            if (!String.IsNullOrEmpty(request.PasswordSecret))//password is not null or empty, then set a new password
             {
                 var encryptionKey = GetEncryptionKey();
 
@@ -281,16 +281,18 @@ namespace OpenBots.Server.Business
                     //generate hash
                     existingCredential.PasswordHash = CredentialHasher.GenerateSaltedHash(request.PasswordSecret, existingCredential.HashSalt);
 
-                    // Encrypt and decrypt the sample text via the Aes256CbcEncrypter class.
+                    //encrypt the provided password
                     existingCredential.PasswordSecret = CredentialsEncrypter.Encrypt(request.PasswordSecret, encryptionKey);
                 }        
             }
-            else
+
+            if (request.PasswordSecret == "")//if password is an empty string, then remove password fields
             {
                 existingCredential.HashSalt = null;
                 existingCredential.PasswordHash = null;
                 existingCredential.PasswordSecret = null;
             }
+
             return existingCredential;
         }
 
