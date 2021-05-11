@@ -21,6 +21,8 @@ namespace OpenBots.Server.Business.File
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IWebhookPublisher _webhookPublisher;
         private readonly IDirectoryManager _directoryManager;
+        private readonly IStorageFileRepository _storageFileRepository;
+        private readonly IStorageFolderRepository _storageFolderRepository;
 
         public FileManager(
             ILocalFileStorageAdapter localFileStorageAdapter,
@@ -28,7 +30,9 @@ namespace OpenBots.Server.Business.File
             IOrganizationManager organizationManager,
             IHttpContextAccessor httpContextAccessor,
             IWebhookPublisher webhookPublisher,
-            IDirectoryManager directoryManager
+            IDirectoryManager directoryManager,
+            IStorageFileRepository storageFileRepository,
+            IStorageFolderRepository storageFolderRepository
 )
         {
             _localFileStorageAdapter = localFileStorageAdapter;
@@ -37,6 +41,8 @@ namespace OpenBots.Server.Business.File
             _httpContextAccessor = httpContextAccessor;
             _webhookPublisher = webhookPublisher;
             _directoryManager = directoryManager;
+            _storageFileRepository = storageFileRepository;
+            _storageFolderRepository = storageFolderRepository;
         }
 
         public PaginatedList<FileFolderViewModel> GetFilesFolders(string driveId, bool? isFile = null, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100, string path = null)
@@ -288,7 +294,7 @@ namespace OpenBots.Server.Business.File
 
             if (orgMaxSizeInBytes != null && maxSizeInBytes > orgMaxSizeInBytes)
             {
-                throw new UnauthorizedOperationException("Drive size would exceed the allowed storage space for this organization", EntityOperationType.Add);
+                throw new EntityOperationException("Drive size would exceed the allowed storage space for this organization");
             }
 
             if (string.IsNullOrEmpty(drive.StoragePath))
@@ -314,12 +320,66 @@ namespace OpenBots.Server.Business.File
             };
             _storageDriveRepository.Add(storageDrive);
 
-            if (adapterType == AdapterType.LocalFileStorage.ToString())
-                _directoryManager.CreateDirectory(drive.Name);
-
             _webhookPublisher.PublishAsync("Files.NewDriveCreated", storageDrive.Id.ToString(), storageDrive.Name);
 
             return storageDrive;
+        }
+
+        public StorageDrive UpdateDrive(string id, StorageDrive drive, string orgId)
+        {
+            Guid organizationId = Guid.Parse(orgId);
+            Guid entityId = Guid.Parse(id);
+            var existingDrive = _storageDriveRepository.Find(null, q => q.Id == entityId && q.OrganizationId == organizationId).Items.FirstOrDefault();
+            if (existingDrive == null)
+                throw new EntityDoesNotExistException("Storage drive could not be found or does not exist");
+
+            var existingDriveName = _storageDriveRepository.Find(null, q => q.Name.ToLower() == existingDrive.Name.ToLower() && q.Id != existingDrive.Id).Items.FirstOrDefault();
+            if (existingDriveName != null)
+                throw new EntityAlreadyExistsException("Storage drive with same name already exists");
+
+            if (drive.IsDefault == null)
+                drive.IsDefault = existingDrive.IsDefault;
+
+            CheckDefaultDrive(drive, organizationId);
+
+            var adapterType = drive.FileStorageAdapterType;
+            if (string.IsNullOrEmpty(adapterType))
+                adapterType = AdapterType.AzureBlobStorage.ToString();
+
+            //check if updated storage drive can be updated for the current organization
+            long? maxSizeInBytes = drive.MaxStorageAllowedInBytes;//size of updated drive
+            long? organizationStorage = GetTotalOrganizationStorage(organizationId);//sum of all drives for the current organization
+            long? orgMaxSizeInBytes = _organizationManager.GetMaxStorageInBytes();//max allowed storage for the current organization
+            long? updatedOrgStorage = maxSizeInBytes + (organizationStorage - existingDrive.MaxStorageAllowedInBytes);//sum of updated drive and all existing drives
+
+            if (orgMaxSizeInBytes != null && maxSizeInBytes > orgMaxSizeInBytes)
+            {
+                throw new EntityOperationException("Drive size would exceed the allowed storage space for this organization");
+            }
+
+            existingDrive.IsDefault = drive.IsDefault;
+            if (!string.IsNullOrEmpty(drive.FileStorageAdapterType))
+                existingDrive.FileStorageAdapterType = drive.FileStorageAdapterType;
+            if (drive.MaxStorageAllowedInBytes != null)
+                existingDrive.MaxStorageAllowedInBytes = drive.MaxStorageAllowedInBytes;
+
+            bool existingDriveHasChildren = false;
+            var existingFolders = _storageFolderRepository.Find(null, q => q.ParentFolderId == existingDrive.Id && q.OrganizationId == organizationId).Items;
+            var existingFiles = _storageFileRepository.Find(null, q => q.StorageFolderId == existingDrive.Id && q.OrganizationId == organizationId).Items;
+
+            if (existingFolders != null && existingFiles != null)
+                existingDriveHasChildren = true;
+
+            if (existingDriveHasChildren && drive.Name != existingDrive.Name)
+                throw new EntityOperationException("Drive name cannot be changed except when drive is empty");
+            else if (existingDrive.Name != drive.Name)
+                existingDrive.Name = drive.Name;
+
+            _storageDriveRepository.Update(existingDrive);
+
+            _webhookPublisher.PublishAsync("Files.DriveUpdated", drive.Id.ToString(), drive.Name);
+
+            return existingDrive;
         }
 
         public Dictionary<Guid?, string> GetDriveNames(string adapterType)

@@ -504,8 +504,9 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                 DisallowAllExecutions = false,
                                 CreatedBy = user.Name,
                                 CreatedOn = DateTime.UtcNow,
-                                StorageLocation = "LocalFileStorage"
-                            };
+                                StorageLocation = "LocalFileStorage",
+                                EncryptionKey = CredentialsEncrypter.GenerateKey(16)
+                        };
                             organizationSettingRepository.ForceIgnoreSecurity();
                             organizationSettingRepository.Add(orgSettings);
                             organizationSettingRepository.ForceSecurity();

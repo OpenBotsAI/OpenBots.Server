@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.Extensions.Configuration;
 using OpenBots.Server.DataAccess.Exceptions;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
@@ -15,15 +16,26 @@ namespace OpenBots.Server.Business
         private readonly ICredentialRepository _repo;
         private readonly IPersonRepository _personRepository;
         private readonly IAgentRepository _agentRepository;
+        private readonly IOrganizationSettingRepository _organizationSettingRepository;
+        private readonly IOrganizationManager _organizationManager;
+        private readonly IConfiguration _configuration;
 
-        public CredentialManager(ICredentialRepository repo, IPersonRepository personRepository, IAgentRepository agentRepository)
+        public CredentialManager(ICredentialRepository repo,
+            IPersonRepository personRepository, 
+            IAgentRepository agentRepository,
+            IOrganizationSettingRepository organizationSettingRepository,
+            IOrganizationManager organizationManager,
+            IConfiguration configuration)
         {
             _repo = repo;
             _personRepository = personRepository;
             _agentRepository = agentRepository;
+            _organizationSettingRepository = organizationSettingRepository;
+            _organizationManager = organizationManager;
+            _configuration = configuration;
         }
 
-        public bool ValidateRetrievalDate(Credential credential) //ensure current date falls within start-end date range
+        public bool ValidateRetrievalDate(Credential credential)//ensure current date falls within start-end date range
         {
             if (credential.StartDate != null)
             {
@@ -59,6 +71,26 @@ namespace OpenBots.Server.Business
 
         public Credential CreateGlobalCredential(GlobalCredentialViewModel request)
         {
+            if (!String.IsNullOrEmpty(request.PasswordSecret))
+            {
+                //get encryption key
+                var orgId = _organizationManager.GetDefaultOrganization().Id;
+                _organizationSettingRepository.ForceIgnoreSecurity();
+
+                var organizationKey = _organizationSettingRepository.Find(null, o => o.OrganizationId == orgId).Items.FirstOrDefault().EncryptionKey;
+                var applicationKey = _configuration.GetSection("ApplicationEncryption:Key").Value;
+                var encryptionKey = applicationKey + organizationKey;
+
+                //generate salt
+                request.HashSalt = CredentialHasher.CreateSalt(32); //create 32 byte salt
+
+                //generate hash
+                request.PasswordHash = CredentialHasher.GenerateSaltedHash(request.PasswordSecret, request.HashSalt);
+
+                // Encrypt and decrypt the sample text via the Aes256CbcEncrypter class.
+                request.PasswordSecret = CredentialsEncrypter.Encrypt(request.PasswordSecret, encryptionKey);               
+            }
+
             Credential credential = new Credential();
             credential = request.Map(request);
 
@@ -74,6 +106,20 @@ namespace OpenBots.Server.Business
 
         public Credential CreateAgentCredential(AgentCredentialViewModel request)
         {
+            if (!String.IsNullOrEmpty(request.PasswordSecret))
+            {
+                var encryptionKey = GetEncryptionKey();
+
+                //generate salt
+                request.HashSalt = CredentialHasher.CreateSalt(32); //create 32 byte salt
+
+                //generate hash
+                request.PasswordHash = CredentialHasher.GenerateSaltedHash(request.PasswordSecret, request.HashSalt);
+
+                // Encrypt and decrypt the sample text via the Aes256CbcEncrypter class.
+                request.PasswordSecret = CredentialsEncrypter.Encrypt(request.PasswordSecret, encryptionKey);
+            }
+
             Credential globalCredential = _repo.Find(null, a => a.Name == request.Name && a.AgentId == null).Items?.FirstOrDefault();
             Credential agentCredential = request.Map(request);
 
@@ -159,7 +205,106 @@ namespace OpenBots.Server.Business
                     return agentCredential;
                 }
             }
-            return credentials.Where(a => a.AgentId == null).FirstOrDefault();
+            
+            var matchingCredential = credentials.Where(a => a.AgentId == null).FirstOrDefault();
+            matchingCredential.PasswordSecret = GetPassword(matchingCredential);
+
+            return matchingCredential;
+        }
+
+        public string GetPassword(Credential request)
+        {
+            var encryptionKey = GetEncryptionKey();
+            string stringPassword = request.PasswordSecret;
+
+            if (String.IsNullOrEmpty(stringPassword))
+            {
+                return "";
+            }
+
+            if (!CredentialsEncrypter.IsBase64(request.PasswordSecret))//if encryption is not in base64
+            {
+                //encrypt existing password
+                request.HashSalt = CredentialHasher.CreateSalt(32); //create 32 byte salt
+
+                //generate hash
+                request.PasswordHash = CredentialHasher.GenerateSaltedHash(request.PasswordSecret, request.HashSalt);
+
+                //encrypt the provided password
+                request.PasswordSecret = CredentialsEncrypter.Encrypt(request.PasswordSecret, encryptionKey);
+
+                _repo.Update(request);
+
+                return stringPassword;
+            }  
+            return CredentialsEncrypter.Decrypt(request.PasswordSecret, encryptionKey);
+        }
+
+        public Credential UpdateCredential(string id, Credential request)
+        {
+            Guid entityId = new Guid(id);
+
+            var existingCredential = _repo.GetOne(entityId);
+            if (existingCredential == null)
+            {
+                throw new EntityDoesNotExistException("Credential could not be found or does not exist");
+            }
+
+            request.Id = entityId;
+            CredentialNameAvailability(request);
+
+            if (!ValidateStartAndEndDates(request))
+            {
+                throw new InvalidOperationException("");
+            }
+
+            existingCredential.StartDate = request.StartDate;
+            existingCredential.EndDate = request.EndDate;
+            existingCredential.Domain = request.Domain;
+            existingCredential.UserName = request.UserName;
+            existingCredential.Certificate = request.Certificate;
+
+            if (!String.IsNullOrEmpty(request.PasswordSecret))//password is not null or empty, then set a new password
+            {
+                var encryptionKey = GetEncryptionKey();
+
+                if (CredentialsEncrypter.IsBase64(existingCredential.PasswordSecret))//if encryption is in base64
+                {
+                    existingCredential.PasswordSecret = CredentialsEncrypter.Decrypt(existingCredential.PasswordSecret, encryptionKey);
+                }
+
+                if (existingCredential.PasswordSecret != request.PasswordSecret)
+                {
+                    //generate salt
+                    existingCredential.HashSalt = CredentialHasher.CreateSalt(32); //create 32 byte salt
+
+                    //generate hash
+                    existingCredential.PasswordHash = CredentialHasher.GenerateSaltedHash(request.PasswordSecret, existingCredential.HashSalt);
+
+                    //encrypt the provided password
+                    existingCredential.PasswordSecret = CredentialsEncrypter.Encrypt(request.PasswordSecret, encryptionKey);
+                }        
+            }
+
+            if (request.PasswordSecret == "")//if password is an empty string, then remove password fields
+            {
+                existingCredential.HashSalt = null;
+                existingCredential.PasswordHash = null;
+                existingCredential.PasswordSecret = null;
+            }
+
+            return existingCredential;
+        }
+
+        public string GetEncryptionKey()
+        {
+            //get encryption key
+            var orgId = _organizationManager.GetDefaultOrganization().Id;
+            _organizationSettingRepository.ForceIgnoreSecurity();
+
+            var organizationKey = _organizationSettingRepository.Find(null, o => o.OrganizationId == orgId).Items.FirstOrDefault().EncryptionKey;
+            var applicationKey = _configuration.GetSection("ApplicationEncryption:Key").Value;
+            return applicationKey + organizationKey;
         }
     }
 }

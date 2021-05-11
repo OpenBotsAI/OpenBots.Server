@@ -414,6 +414,47 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
+        /// Gets the sum of executionTimeInMinutes, automationExecutionLogCount and automationLogCount for the current jobs
+        /// </summary>
+        /// <param name="top"></param>
+        /// <param name="skip"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="filter"></param>
+        /// <response code="200">Ok, an object containing the sum of job properties</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response>  
+        /// <response code="404">Not found</response>
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Object containing a key value pair for executionTimeInMinutes, automationExecutionLogCount and automationLogCount</returns>
+        [HttpGet("sum")]
+        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> Sum(
+            [FromQuery(Name = "$filter")] string filter = "",
+            [FromQuery(Name = "$orderby")] string orderBy = "",
+            [FromQuery(Name = "$top")] int top = 100,
+            [FromQuery(Name = "$skip")] int skip = 0
+            )
+        {
+            try
+            {
+                var jobs = base.GetMany().Items;
+                var result = _jobManager.GetJobTotals(jobs);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
         /// Adds a new job to the existing jobs
         /// </summary>
         /// <remarks>

@@ -259,11 +259,11 @@ namespace OpenBots.Server.Web.Controllers
 
                 if (request.OrganizationId == null || request.OrganizationId == Guid.Empty)
                     request.OrganizationId = _organizationManager.GetDefaultOrganization().Id;
-                _manager.CheckDefaultDrive(request, request.OrganizationId);
 
                 if (string.IsNullOrEmpty(request.StoragePath))
                     request.StoragePath = request.Name;
 
+                _manager.UpdateDrive(id, request, request.OrganizationId.ToString());
                 await _webhookPublisher.PublishAsync("Files.DriveUpdated", id, request.Name).ConfigureAwait(false);
                 return await base.PutEntity(id, request);
             }
