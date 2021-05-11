@@ -38,7 +38,7 @@
                                 src="../../../../assets/images/folder-icon.png" />New Folder</button>
                         <button class="btnIcon btnUpload" (click)="openUploadFileDialog(uploaddialog)"><img
                                 src="../../../../assets/images/upload-icon.png" />Upload</button>
-                        <button class="btnIcon btnFolder" (click)="this.pagination(page.pageNumber, page.pageSize)"><img
+                        <button class="btnIcon btnFolder" (click)="refreshFileManager()"><img
                                 src="../../../../assets/images/fresh-icon.png" />Refresh</button>
                     </span>
                 </div>
@@ -65,7 +65,7 @@
                 <!-- <li class="lendhand"> <a [routerLink]="" (click)="onClickFiles()">{{driveName}}</a>
                 </li> -->
                 <li *ngFor="let breadcrumb of bread; index as i">
-                    <a [routerLink]="" *ngIf="breadcrumb.name !== floderName " (click)="getFileId(i)"><span
+                    <a [routerLink]="" *ngIf="breadcrumb.name !== floderName " (click)="onBreadCrumb(i)"><span
                             class="bbSlach">/</span> {{ breadcrumb?.name }} </a>
                     <a *ngIf="breadcrumb.name == floderName"><span class="bbSlach">/</span>{{ breadcrumb?.name }}
                     </a>
@@ -113,7 +113,7 @@
                                     </a>
                                 </td> -->
                                 <td scope="row" (click)="driveDocumentDetail(files)">
-                                    <a class="lendhand" *ngIf="!files.isFile" (dblclick)="fileFolder(files)">
+                                    <a class="lendhand" *ngIf="!files.isFile" (dblclick)="onDoubleClick(files)">
                                         <img src="../../../../assets/images/folder-icon.png" />
                                         {{files?.name}}
                                     </a>
@@ -231,7 +231,7 @@
             </nb-card-body>
             <nb-card-footer>
                 <!-- [disabled]="isDeleted" (click)="del_agent(ref)" -->
-                <button class="btn btn-primary" [disabled]="isSubmitted || !filesCreateFolderFromgroup.valid"
+                <button class="btn btn-primary" [disabled]="isFolderCreated || !filesCreateFolderFromgroup.valid"
                     (click)="createFolder(ref)">Save</button>
                 <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
                     Cancel
@@ -315,7 +315,7 @@
             </div> -->
         </nb-card-body>
         <nb-card-footer>
-            <button class="btn btn-primary btnNoMargn" [disabled]="!uploadedFilesArr.length"
+            <button class="btn btn-primary btnNoMargn" [disabled]="!uploadedFilesArr.length || isFileUploaded"
                 (click)="UploadFile(ref)">Upload</button>
             <button class="btn btn-light" style="margin-left: 11px" (click)="closeFileUploadPopup(ref)">
                 Cancel
@@ -337,7 +337,7 @@
             </div>
         </nb-card-body>
         <nb-card-footer>
-            <button class="btn btn-danger" (click)="onDelete(ref)">
+            <button class="btn btn-danger" (click)="onDelete(ref)" [disabled]="isDeleted">
                 Delete
             </button>
             <button nbButton style="margin-left: 11px" (click)="ref.close()">
