@@ -45,8 +45,8 @@ export class AddCredentialsComponent implements OnInit {
     private route: ActivatedRoute,
     private dateService: NbDateService<Date>,
     private helperService: HelperService,
-    private dialogService: DialogService,
-  ) { }
+    private dialogService: DialogService
+  ) {}
 
   ngOnInit(): void {
     this.min = new Date();
@@ -106,7 +106,7 @@ export class AddCredentialsComponent implements OnInit {
   initializeAgentCredentialForm() {
     return this.fb.group({
       name: [
-        ''
+        '',
         // [
         //   Validators.required,
         //   Validators.minLength(3),
@@ -151,7 +151,6 @@ export class AddCredentialsComponent implements OnInit {
     return this.agentCredentialForm.controls;
   }
 
-
   //// start code of add agent creditional///
 
   showAssetAgentBox() {
@@ -159,14 +158,19 @@ export class AddCredentialsComponent implements OnInit {
     this.hideAgentAssetBtn = true;
     this.showAgentAssetBtn = false;
 
-    this.httpService.get(`${AgentApiUrl.Agents}/${AgentApiUrl.getLookup}`).subscribe((response) => {
-      this.showLookUpagent = response;
-    })
-    this.httpService.get(`${CredentialsApiUrl.credentials}?$filter=name+eq+'${this.credentialForm.value.name}'and agentId+ne+null`).subscribe((response) => {
-      this.showCredAsstData = response.items
-      console.log(this.showCredAsstData)
-    });
-
+    this.httpService
+      .get(`${AgentApiUrl.Agents}/${AgentApiUrl.getLookup}`)
+      .subscribe((response) => {
+        this.showLookUpagent = response;
+      });
+    this.httpService
+      .get(
+        `${CredentialsApiUrl.credentials}?$filter=name+eq+'${this.credentialForm.value.name}'and agentId+ne+null`
+      )
+      .subscribe((response) => {
+        this.showCredAsstData = response.items;
+        console.log(this.showCredAsstData);
+      });
   }
 
   hideAssetAgentBox() {
@@ -176,24 +180,23 @@ export class AddCredentialsComponent implements OnInit {
   }
 
   editAssetAgent(credAgentValue) {
-    console.log(credAgentValue)
-    this.getCredAgent = credAgentValue.id
-    this.getAgentD = credAgentValue.agentId
+    console.log(credAgentValue);
+    this.getCredAgent = credAgentValue.id;
+    this.getAgentD = credAgentValue.agentId;
     this.agentCredentialForm.get('agentId').disable();
     this.agentCredentialForm.patchValue({ ...credAgentValue });
     this.showUpdateAssetAgentbutton = true;
     this.showSaveAssetAgentbutton = false;
-
   }
-
 
   UpdateCredAgent() {
     const headers = this.helperService.getETagHeaders(this.eTag);
     if (this.agentCredentialForm.value.startDate) {
-      this.agentCredentialForm.value.startDate = this.helperService.transformDate(
-        this.agentCredentialForm.value.startDate,
-        'lll'
-      );
+      this.agentCredentialForm.value.startDate =
+        this.helperService.transformDate(
+          this.agentCredentialForm.value.startDate,
+          'lll'
+        );
     }
     if (this.agentCredentialForm.value.endDate) {
       this.agentCredentialForm.value.endDate = this.helperService.transformDate(
@@ -230,18 +233,14 @@ export class AddCredentialsComponent implements OnInit {
       );
   }
 
-
-
-
-
-
   SaveCredAsset(): void {
-    console.log(this.agentCredentialForm.value)
+    console.log(this.agentCredentialForm.value);
     if (this.agentCredentialForm.value.startDate) {
-      this.agentCredentialForm.value.startDate = this.helperService.transformDate(
-        this.agentCredentialForm.value.startDate,
-        'lll'
-      );
+      this.agentCredentialForm.value.startDate =
+        this.helperService.transformDate(
+          this.agentCredentialForm.value.startDate,
+          'lll'
+        );
     }
     if (this.agentCredentialForm.value.endDate) {
       this.agentCredentialForm.value.endDate = this.helperService.transformDate(
@@ -251,24 +250,31 @@ export class AddCredentialsComponent implements OnInit {
     }
     this.agentCredentialForm.value.name = this.credentialForm.value.name;
     this.httpService
-      .post(`${CredentialsApiUrl.credentials}/${CredentialsApiUrl.AddAgentCredential}`, this.agentCredentialForm.value, {
-        observe: 'response',
-      })
+      .post(
+        `${CredentialsApiUrl.credentials}/${CredentialsApiUrl.AddAgentCredential}`,
+        this.agentCredentialForm.value,
+        {
+          observe: 'response',
+        }
+      )
       .subscribe(
         (response) => {
           if (response && response.status == 201) {
             this.httpService.success('Credential created successfully');
             this.isSubmitted = false;
             this.agentCredentialForm.reset();
-            this.httpService.get(`${CredentialsApiUrl.credentials}?$filter=name+eq+'${this.credentialForm.value.name}'and agentId+ne+null`).subscribe((response) => {
-              this.showCredAsstData = response.items
-            });
+            this.httpService
+              .get(
+                `${CredentialsApiUrl.credentials}?$filter=name+eq+'${this.credentialForm.value.name}'and agentId+ne+null`
+              )
+              .subscribe((response) => {
+                this.showCredAsstData = response.items;
+              });
           }
         },
         () => (this.isSubmitted = false)
       );
   }
-
 
   onSubmitCredential(): void {
     if (this.credentialForm.valid) {
@@ -277,7 +283,6 @@ export class AddCredentialsComponent implements OnInit {
       else this.addCredentials();
     }
   }
-
 
   addCredentials(): void {
     if (this.credentialForm.value.startDate) {
@@ -310,6 +315,13 @@ export class AddCredentialsComponent implements OnInit {
   }
 
   updateCredentials(): void {
+    if (!this.credentialForm.get('passwordSecret').touched)
+      this.credentialForm.get('passwordSecret').setValue(null);
+    else if (
+      this.credentialForm.get('passwordSecret').touched &&
+      !this.credentialForm.value.passwordSecret
+    )
+      this.credentialForm.get('passwordSecret').setValue('');
     const headers = this.helperService.getETagHeaders(this.eTag);
     if (this.credentialForm.value.startDate) {
       this.credentialForm.value.startDate = this.helperService.transformDate(
@@ -381,11 +393,14 @@ export class AddCredentialsComponent implements OnInit {
           ref.close();
           this.httpService.success('Deleted Successfully');
           this.isDeleted = false;
-          this.httpService.get(`${CredentialsApiUrl.credentials}?$filter=name+eq+'${this.credentialForm.value.name}'and agentId+ne+null`).subscribe((response) => {
-            this.showCredAsstData = response.items
-            console.log(this.showCredAsstData)
-          });
-
+          this.httpService
+            .get(
+              `${CredentialsApiUrl.credentials}?$filter=name+eq+'${this.credentialForm.value.name}'and agentId+ne+null`
+            )
+            .subscribe((response) => {
+              this.showCredAsstData = response.items;
+              console.log(this.showCredAsstData);
+            });
         },
         () => (this.isDeleted = false)
       );

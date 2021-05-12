@@ -20,8 +20,6 @@ import { FileManagerApiUrl } from '../../../webApiUrls';
   styleUrls: ['./all-files.component.scss'],
 })
 export class AllFilesComponent implements OnInit {
-  FolderIDs: any = [];
-  ChildFolderFlag: boolean;
   //// file upload declartion ////
   options: UploaderOptions;
   files: UploadFile[];
@@ -39,7 +37,7 @@ export class AllFilesComponent implements OnInit {
   contentType: string;
   createdOn: string;
   fullStoragePath: string;
-  floderName: any;
+  floderName: string;
   bread: FileManager[] = [];
   fileType: string;
   page: Page = {};
@@ -58,7 +56,7 @@ export class AllFilesComponent implements OnInit {
   renameId: string;
   storageDriveArr: FileManager[] = [];
   storageDriveForm: FormGroup;
-  // retrictedFilesarr = ['.bat', '.exe', '.com', '.vbs'];
+  retrictedFilesarr = ['.bat', '.exe', '.com', '.vbs'];
   isDownloadButton = false;
   pageNumberRecord: number[] = [];
   isFileUploaded = false;
@@ -249,22 +247,14 @@ export class AllFilesComponent implements OnInit {
           } else {
             this.fileSize = false;
           }
-          console.log('file', output);
           uplaodFIle = output.file.name;
-
-          if (
-            uplaodFIle.includes('.BAT') ||
-            uplaodFIle.includes('.bat') ||
-            uplaodFIle.includes('.exe') ||
-            uplaodFIle.includes('.com') ||
-            uplaodFIle.includes('.VBS') ||
-            uplaodFIle.includes('.vbs') ||
-            uplaodFIle.includes('.COM')
-          ) {
-            this.httpService.error('This File format is not allowed ');
-          } else {
-            this.uploadedFilesArr.push(output.file);
+          for (let extension of this.retrictedFilesarr) {
+            if (output.file.name.includes(extension)) {
+              this.httpService.error('This File format is not allowed');
+              return;
+            }
           }
+          this.uploadedFilesArr.push(output.file);
         }
         break;
     }
@@ -379,9 +369,10 @@ export class AllFilesComponent implements OnInit {
       this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
     } else {
       this.currentParentId = null;
-      this.page.pageNumber = 1;
+      this.page.pageNumber = this.pageNumberRecord[0];
       this.floderName = null;
       this.bread = [];
+      this.pageNumberRecord = [];
       this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
     }
   }
@@ -407,7 +398,6 @@ export class AllFilesComponent implements OnInit {
         this.bread.push(files);
         this.pageNumberRecord.push(this.page.pageNumber);
       }
-      this.FolderIDs = files.id;
       this.page.pageNumber = 1;
       this.currentParentId = files.id;
       this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
@@ -440,6 +430,9 @@ export class AllFilesComponent implements OnInit {
 
   pageChanged(event): void {
     this.page.pageNumber = event;
+    if (this.bread && !this.bread.length) {
+      this.pageNumberRecord.push(event);
+    }
     if (this.filterOrderBy) {
       this.getStorageDriveByDriveId(
         event,
@@ -509,8 +502,10 @@ export class AllFilesComponent implements OnInit {
       .subscribe(
         (response) => {
           if (response && response.status === 200) {
-            this.isDeleted = false;
             this.HighlightRow = null;
+            this.showDownloadbtn = false;
+            this.isDeleted = false;
+            this.isDownloadButton = false;
             this.getStorageDriveByDriveId(
               this.page.pageNumber,
               this.page.pageSize
