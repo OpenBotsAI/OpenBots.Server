@@ -153,6 +153,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             this.storageDriveRepository = storageDriveRepository;
             this.storageFolderRepository = storageFolderRepository;
             this.directoryManager = directoryManager;
+            this.configuration = configuration;
         }
 
         /// <summary>
@@ -512,7 +513,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                             organizationSettingRepository.ForceSecurity();
 
                             //create storage drive
-                            var drive = storageDriveRepository.Find(null).Items?.FirstOrDefault();
+                            var drive = storageDriveRepository.Find(null, q => q.OrganizationId == newOrganization.Id).Items?.FirstOrDefault();
                             if (drive == null)
                             {
                                 if (newOrganization != null)
@@ -524,7 +525,8 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
 
                                     //create drive folder
                                     Guid driveId = new Guid("37a01356-7514-47a2-96ce-986faadd628e");
-                                    string storagePath = Path.Combine(orgId, "Files");
+                                    string driveName = "Files";
+                                    string storagePath = Path.Combine(orgId, driveId.ToString());
                                     string emailAttachments = "Email Attachments";
                                     string queueItemAttachments = "Queue Item Attachments";
                                     string automations = "Automations";
@@ -534,13 +536,14 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                     {
                                         Id = driveId,
                                         FileStorageAdapterType = "LocalFileStorage",
-                                        Name = storagePath,
+                                        Name = driveName,
                                         OrganizationId = newOrganization.Id,
                                         CreatedBy = person.Name,
                                         CreatedOn = DateTime.UtcNow,
-                                        StoragePath = storagePath,
+                                        StoragePath = driveName,
                                         StorageSizeInBytes = 0,
-                                        IsDefault = true
+                                        IsDefault = true,
+                                        MaxStorageAllowedInBytes = long.Parse(configuration["Organization:MaxStorageInBytes"])
                                     };
 
                                     //add default storage drive
@@ -555,7 +558,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                         Name = emailAttachments,
                                         OrganizationId = newOrganization.Id,
                                         ParentFolderId = driveId,
-                                        StoragePath = Path.Combine(storagePath, emailAttachments),
+                                        StoragePath = Path.Combine(driveName, emailAttachments),
                                         SizeInBytes = 0,
                                         StorageDriveId = driveId
 
@@ -570,7 +573,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                         Name = queueItemAttachments,
                                         OrganizationId = newOrganization.Id,
                                         ParentFolderId = driveId,
-                                        StoragePath = Path.Combine(storagePath, queueItemAttachments),
+                                        StoragePath = Path.Combine(driveName, queueItemAttachments),
                                         SizeInBytes = 0,
                                         StorageDriveId = driveId
 
@@ -585,7 +588,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                         Name = assets,
                                         OrganizationId = newOrganization.Id,
                                         ParentFolderId = driveId,
-                                        StoragePath = Path.Combine(storagePath, assets),
+                                        StoragePath = Path.Combine(driveName, assets),
                                         SizeInBytes = 0,
                                         StorageDriveId = driveId
 
@@ -600,7 +603,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                                         Name = automations,
                                         OrganizationId = newOrganization.Id,
                                         ParentFolderId = driveId,
-                                        StoragePath = Path.Combine(storagePath, automations),
+                                        StoragePath = Path.Combine(driveName, automations),
                                         SizeInBytes = 0,
                                         StorageDriveId = driveId
 

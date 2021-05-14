@@ -118,11 +118,10 @@ namespace OpenBots.Server.Business
         {
             //check if storage path exists; if it doesn't exist, create folder
             var folder = _fileManager.GetFileFolderByStoragePath(view.StoragePath, driveName);
-            folder.StoragePath = _fileManager.GetShortPath(view.StoragePath);
-            CreateFolderIfEmpty(folder, request);
+            CreateFolderIfEmpty(folder, request, "Automations", view.StoragePath);
             folder = _fileManager.GetFileFolderByStoragePath(view.FullStoragePath, driveName);
             folder.StoragePath = view.StoragePath;
-            CreateFolderIfEmpty(folder, request);
+            CreateFolderIfEmpty(folder, request, request.Id.ToString(), view.StoragePath);
         }
 
         public Automation UpdateAutomation(string id, AutomationViewModel request)
@@ -340,13 +339,14 @@ namespace OpenBots.Server.Business
             return driveId;
         }
 
-        private void CreateFolderIfEmpty(FileFolderViewModel folder, AutomationViewModel request)
+        private void CreateFolderIfEmpty(FileFolderViewModel folder, AutomationViewModel request, string folderName, string storagePath)
         {
             if (string.IsNullOrEmpty(folder.Name))
             {
-                folder.Name = request.Id.ToString();
+                folder.Name = folderName;
                 folder.IsFile = false;
                 folder.Size = request.File.Length;
+                folder.StoragePath = storagePath;
                 _fileManager.AddFileFolder(folder, request.DriveId);
             }
         }

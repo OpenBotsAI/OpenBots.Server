@@ -34,6 +34,7 @@ namespace OpenBots.Server.Business
 
         public Organization AddNewOrganization(Organization value)
         {
+            value.MaxStorageInBytes = long.Parse(_config["Organization:MaxStorageInBytes"]);
             var organization = _organizationRepository.Add(value);
             if (organization != null)
             {
