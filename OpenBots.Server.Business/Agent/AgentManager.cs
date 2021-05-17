@@ -173,8 +173,6 @@ namespace OpenBots.Server.Business
                 _agentGroupMemberRepository.SoftDelete(member.Id ?? Guid.Empty);
             }
 
-            DeleteExistingHeartbeats(agent.Id ?? Guid.Empty);
-
             //delete agent settings
             var agentSettings = _agentSettingRepository.Find(null, s => s.AgentId == agent.Id)?.Items?.FirstOrDefault();
             if (agentSettings != null)
@@ -333,30 +331,6 @@ namespace OpenBots.Server.Business
               | j.JobStatus == JobStatusType.InProgress);
 
             return scheduleWithAgent.Count() > 0 || jobWithAgent.Count() > 0 ? true : false;
-        }
-
-        /// <summary>
-        /// Gets an enumerable of all agent heartbeats
-        /// </summary>
-        /// <param name="agentId"></param>
-        /// <returns></returns>
-        private IEnumerable<AgentHeartbeat> GetAgentHeartbeats(Guid agentId)
-        {
-            var agentHeartbeats = _agentHeartbeatRepo.Find(null, p => p.AgentId == agentId).Items;
-            return agentHeartbeats;
-        }
-
-        /// <summary>
-        /// Deletes any existing agent heartbeats for the specified agent
-        /// </summary>
-        /// <param name="agentId"></param>
-        private void DeleteExistingHeartbeats(Guid agentId)
-        {
-            var agentHeartbeats = GetAgentHeartbeats(agentId);
-            foreach (var heartbeat in agentHeartbeats)
-            {
-                _agentHeartbeatRepo.SoftDelete(heartbeat.Id.Value);
-            }
         }
 
         /// <summary>
