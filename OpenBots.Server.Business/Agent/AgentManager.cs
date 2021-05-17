@@ -153,7 +153,7 @@ namespace OpenBots.Server.Business
             }
             _personRepo.ForceSecurity();
 
-            var aspUser = _usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
+            var aspUser = _usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person?.Id)?.FirstOrDefault();
 
             if (aspUser != null)
             {
@@ -173,7 +173,7 @@ namespace OpenBots.Server.Business
                 _agentGroupMemberRepository.SoftDelete(member.Id ?? Guid.Empty);
             }
 
-            DeleteExistingHeartbeats(agent.Id ?? Guid.Empty);
+            //DeleteExistingHeartbeats(agent.Id ?? Guid.Empty);
 
             //delete agent settings
             var agentSettings = _agentSettingRepository.Find(null, s => s.AgentId == agent.Id)?.Items?.FirstOrDefault();
@@ -342,7 +342,7 @@ namespace OpenBots.Server.Business
         /// <returns></returns>
         private IEnumerable<AgentHeartbeat> GetAgentHeartbeats(Guid agentId)
         {
-            var agentHeartbeats = _agentHeartbeatRepo.Find(0, 1)?.Items?.Where(p => p.AgentId == agentId);
+            var agentHeartbeats = _agentHeartbeatRepo.Find(null, p => p.AgentId == agentId).Items;
             return agentHeartbeats;
         }
 
@@ -355,7 +355,7 @@ namespace OpenBots.Server.Business
             var agentHeartbeats = GetAgentHeartbeats(agentId);
             foreach (var heartbeat in agentHeartbeats)
             {
-                _agentHeartbeatRepo.SoftDelete(heartbeat.AgentId);
+                _agentHeartbeatRepo.SoftDelete(heartbeat.Id.Value);
             }
         }
 
