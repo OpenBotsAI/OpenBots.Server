@@ -173,7 +173,7 @@ namespace OpenBots.Server.Business
                 _agentGroupMemberRepository.SoftDelete(member.Id ?? Guid.Empty);
             }
 
-            //DeleteExistingHeartbeats(agent.Id ?? Guid.Empty);
+            DeleteExistingHeartbeats(agent.Id ?? Guid.Empty);
 
             //delete agent settings
             var agentSettings = _agentSettingRepository.Find(null, s => s.AgentId == agent.Id)?.Items?.FirstOrDefault();
