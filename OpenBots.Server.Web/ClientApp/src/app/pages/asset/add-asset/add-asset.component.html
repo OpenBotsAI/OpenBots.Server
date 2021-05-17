@@ -10,7 +10,7 @@
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="agentname" class="label"> Asset Name *</label>
               <input type="input" nbInput fullWidth id="agentname" formControlName="name" class="form-control"
-                trim="blur" ngxSpecialChar placeholder="Please enter asset name">
+                trim="blur" ngxSpecialChar placeholder="Please enter asset name" [attr.disabled]="urlId ? true : null">
               <div *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid" class="invalid-feedback-frm">
                 <div *ngIf="f.name.errors && f.name.errors.required"> Asset Name is required.</div>
                 <div *ngIf="f.name.errors.minlength">
