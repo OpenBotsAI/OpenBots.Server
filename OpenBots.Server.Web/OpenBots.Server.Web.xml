@@ -3216,7 +3216,7 @@
             <response code="422">Unprocessable entity</response>
             <returns>Credential details for the given id</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.CredentialsController.View(System.String)">
+        <member name="M:OpenBots.Server.Web.CredentialsController.View(System.Nullable{System.Guid})">
             <summary>
             Provides a credential's view details for a particular credential id
             </summary>

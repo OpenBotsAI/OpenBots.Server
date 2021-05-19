@@ -237,11 +237,12 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> View(string id)
+        public async Task<IActionResult> View(Guid? id)
         {
             try
             {
-                return await base.GetEntity<CredentialViewModel>(id);
+                CredentialViewModel resultView = _credentialManager.GetCredentialDetails(id);
+                return Ok(resultView);
             }
             catch (Exception ex)
             {
