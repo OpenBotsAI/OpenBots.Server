@@ -1,5 +1,6 @@
 ﻿using OpenBots.Server.Model;
 using OpenBots.Server.ViewModel;
+using System;
 
 namespace OpenBots.Server.Business
 {
@@ -15,6 +16,7 @@ namespace OpenBots.Server.Business
         string GetPassword(Credential request);
         Credential UpdateCredential(string id, Credential request);
         string GetEncryptionKey();
+        CredentialViewModel GetCredentialDetails(Guid? credentialId);
     }
 }
 
