@@ -16,6 +16,7 @@ namespace OpenBots.Server.ViewModel
         public string PasswordHash { get; set; }
         public string Certificate { get; set; }
         public Guid? AgentId { get; set; }
+        public string AgentName { get; set; }
 
         public CredentialViewModel Map(Credential entity)
         {

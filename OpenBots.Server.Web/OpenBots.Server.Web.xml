@@ -3178,6 +3178,20 @@
             <response code="422">Unprocessable entity</response>
             <returns>Paginated list of all credentials</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.CredentialsController.View(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all Credentials with additional view fields
+            </summary>
+            <param name="filter"></param>
+            <param name="orderBy"></param>
+            <param name="skip"></param>
+            <param name="top"></param>
+            <response code="200">Ok, a paginated list of all credentials</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>        
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all CredentialViewModelS</returns>
+        </member>
         <member name="M:OpenBots.Server.Web.CredentialsController.Count(System.String)">
             <summary>
             Provides a count of credentials 
