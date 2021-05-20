@@ -310,6 +310,12 @@ namespace OpenBots.Server.Business
         public CredentialViewModel GetCredentialDetails(Guid? credentialId)
         {
             Credential existingCredential = _repo.Find(null, c => c.Id == credentialId).Items.FirstOrDefault();
+
+            if (existingCredential == null)
+            {
+                throw new EntityDoesNotExistException("No credential was found for the specified id");
+            }
+
             CredentialViewModel credentialView = new CredentialViewModel();
 
             credentialView = credentialView.Map(existingCredential);
