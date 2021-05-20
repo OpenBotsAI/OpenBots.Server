@@ -98,7 +98,7 @@ namespace OpenBots.Server.Business
                     var jobId = BackgroundJob.Enqueue(() => _hubManager.ExecuteJob(jsonScheduleObj, Enumerable.Empty<ParametersViewModel>()));
                 }
             }         
-            UpdateExpiredItemsStates(item.QueueId.ToString());
+            UpdateItemsStates(item.QueueId.ToString());
 
             return item;
         }
@@ -108,7 +108,7 @@ namespace OpenBots.Server.Business
             string newState = QueueItemStateType.New.ToString();
             string inProgressState = QueueItemStateType.InProgress.ToString();
 
-            UpdateExpiredItemsStates(queueId);
+            UpdateItemsStates(queueId);
 
             var item = FindQueueItem(newState, queueId);
             if (item != null)
@@ -140,22 +140,40 @@ namespace OpenBots.Server.Business
             return item;
         }
 
-        public void UpdateExpiredItemsStates(string queueId)
+        public void UpdateItemsStates(string queueId)
         {
             string newState = QueueItemStateType.New.ToString();
             string inProgressState = QueueItemStateType.InProgress.ToString();
 
+            //update expired items 
             var expiredItems = _repo.Find(0, 1).Items
                 .Where(q => q.QueueId.ToString() == queueId)
                 .Where(q => q.State == newState || q.State == inProgressState)
                 .Where(q => !q.IsLocked)
-                .Where(q => q.IsDeleted == false)
                 .Where(q => q.ExpireOnUTC <= DateTime.UtcNow);
 
             foreach (var item in expiredItems)
             {
                 item.State = QueueItemStateType.Expired.ToString();
                 item.StateMessage = "Queue item has expired.";
+                item.IsLocked = false;
+                item.LockedBy = null;
+                item.LockedEndTimeUTC = null;
+                item.LockedUntilUTC = null;
+                item.LockTransactionKey = null;
+                _repo.Update(item);
+            }
+
+            //update locked items. Finds all inProgress items who's lock has expired and set their status to new
+            var lockedItems = _repo.Find(0, 1).Items
+                .Where(q => q.QueueId.ToString() == queueId)
+                .Where(q => q.State == inProgressState)
+                .Where(q => q.ExpireOnUTC > DateTime.UtcNow)
+                .Where(q => q.LockedUntilUTC <= DateTime.UtcNow);
+
+            foreach (var item in expiredItems)
+            {
+                item.State = QueueItemStateType.New.ToString();
                 item.IsLocked = false;
                 item.LockedBy = null;
                 item.LockedEndTimeUTC = null;
@@ -176,7 +194,7 @@ namespace OpenBots.Server.Business
             {
                 throw new EntityDoesNotExistException("QueueItem does not exist or you do not have authorized access.");
             }
-            UpdateExpiredItemsStates(item.QueueId.ToString());
+            UpdateItemsStates(item.QueueId.ToString());
 
             if (item.State == "New") throw new EntityOperationException("Queue item lock time has expired; adding back to queue and trying again");
 
@@ -223,7 +241,7 @@ namespace OpenBots.Server.Business
             {
                 throw new EntityDoesNotExistException("QueueItem does not exist or you do not have authorized access.");
             }
-            UpdateExpiredItemsStates(item.QueueId.ToString());
+            UpdateItemsStates(item.QueueId.ToString());
 
             if (item.State == "Failed") throw new EntityOperationException(item.StateMessage);
 
@@ -295,7 +313,7 @@ namespace OpenBots.Server.Business
             {
                 throw new EntityDoesNotExistException("QueueItem does not exist or you do not have authorized access.");
             }
-            UpdateExpiredItemsStates(item.QueueId.ToString());
+            UpdateItemsStates(item.QueueId.ToString());
 
             if (item.State == "New") throw new EntityOperationException("Queue item was not able to be extended; locked until time has passed, adding back to queue and trying again");
 
@@ -327,7 +345,7 @@ namespace OpenBots.Server.Business
             {
                 throw new EntityDoesNotExistException("QueueItem does not exist or you do not have authorized access.");
             }
-            UpdateExpiredItemsStates(item.QueueId.ToString());
+            UpdateItemsStates(item.QueueId.ToString());
 
             if (item.State == "New")
                 throw new EntityOperationException("Queue item state was not able to be updated; locked until time has passed, adding back to queue and trying again");
@@ -426,7 +444,7 @@ namespace OpenBots.Server.Business
         public QueueItemViewModel UpdateAttachedFiles(QueueItem queueItem, UpdateQueueItemViewModel request)
         {
             if (queueItem == null) throw new EntityDoesNotExistException("Queue item could not be found or does not exist");
-            UpdateExpiredItemsStates(queueItem.QueueId.ToString());
+            UpdateItemsStates(queueItem.QueueId.ToString());
 
             queueItem.DataJson = request.DataJson;
             queueItem.Event = request.Event;
@@ -716,7 +734,7 @@ namespace OpenBots.Server.Business
             if (existingQueueItem == null)
                 throw new EntityDoesNotExistException("Queue item does not exist or you do not have authorized access.");
 
-            UpdateExpiredItemsStates(existingQueueItem.QueueId.ToString());
+            UpdateItemsStates(existingQueueItem.QueueId.ToString());
 
             //soft delete each queue item attachment entity and file entity that correlates to the queue item
             var attachments = _queueItemAttachmentRepository.Find(null, q => q.QueueItemId == existingQueueItem.Id)?.Items;
