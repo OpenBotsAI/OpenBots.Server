@@ -582,7 +582,7 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                var credentialList = repository.Find(null, x => x.IsDeleted == false && x.Provider == "AD"); //"AD" is to get all active directory credentials
+                var credentialList = repository.Find(null, x => x.IsDeleted == false && x.AgentId == null && x.Provider == "AD"); //"AD" is to get all active directory credentials
                 var credentialLookup = from a in credentialList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
                                        select new CredentialsLookup
                                        {
