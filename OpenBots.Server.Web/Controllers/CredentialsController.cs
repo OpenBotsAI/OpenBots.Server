@@ -100,6 +100,46 @@ namespace OpenBots.Server.Web
         }
 
         /// <summary>
+        /// Provides a list of all Credentials with additional view fields
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="skip"></param>
+        /// <param name="top"></param>
+        /// <response code="200">Ok, a paginated list of all credentials</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response>        
+        /// <response code="422">Unprocessable entity</response>
+        /// <returns>Paginated list of all CredentialViewModelS</returns>
+        [HttpGet("view")]
+        [ProducesResponseType(typeof(PaginatedList<CredentialViewModel>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> View(
+            [FromQuery(Name = "$filter")] string filter = "",
+            [FromQuery(Name = "$orderby")] string orderBy = "",
+            [FromQuery(Name = "$top")] int top = 100,
+            [FromQuery(Name = "$skip")] int skip = 0
+            )
+        {
+            try
+            {
+                ODataHelper<CredentialViewModel> oDataHelper = new ODataHelper<CredentialViewModel>();
+                var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
+
+                return Ok(_credentialRepository.FindAllView(oData.Predicate, oData.PropertyName, oData.Direction, oData.Skip, oData.Take));
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
         /// Provides a count of credentials 
         /// </summary>
         /// <param name="filter"></param>
@@ -197,11 +237,12 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> View(string id)
+        public async Task<IActionResult> View(Guid? id)
         {
             try
             {
-                return await base.GetEntity<CredentialViewModel>(id);
+                CredentialViewModel resultView = _credentialManager.GetCredentialDetails(id);
+                return Ok(resultView);
             }
             catch (Exception ex)
             {
@@ -541,7 +582,7 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                var credentialList = repository.Find(null, x => x.IsDeleted == false && x.Provider == "AD"); //"AD" is to get all active directory credentials
+                var credentialList = repository.Find(null, x => x.IsDeleted == false && x.AgentId == null && x.Provider == "AD"); //"AD" is to get all active directory credentials
                 var credentialLookup = from a in credentialList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
                                        select new CredentialsLookup
                                        {

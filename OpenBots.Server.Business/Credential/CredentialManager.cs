@@ -306,5 +306,16 @@ namespace OpenBots.Server.Business
             var applicationKey = _configuration.GetSection("ApplicationEncryption:Key").Value;
             return applicationKey + organizationKey;
         }
+
+        public CredentialViewModel GetCredentialDetails(Guid? credentialId)
+        {
+            Credential existingCredential = _repo.Find(null, c => c.Id == credentialId).Items.FirstOrDefault();
+            CredentialViewModel credentialView = new CredentialViewModel();
+
+            credentialView = credentialView.Map(existingCredential);
+            credentialView.AgentName = _agentRepository.Find(null, a => a.Id == credentialView.AgentId).Items.FirstOrDefault()?.Name;
+
+            return credentialView;
+        }
     }
 }

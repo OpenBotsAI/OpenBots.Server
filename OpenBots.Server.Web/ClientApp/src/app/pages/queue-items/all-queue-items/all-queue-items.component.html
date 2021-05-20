@@ -73,17 +73,17 @@
             <i (click)="onSortClick($event, 'lockedBy')" [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
-            Start Time
+            Locked On
             <i (click)="onSortClick($event, 'lockedOnUTC')"
               [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
-            Expiration Time
+            Locked Until
             <i (click)="onSortClick($event, 'lockedUntilUTC')"
               [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
-            End Time
+            Lock End Time
             <i (click)="onSortClick($event, 'lockedEndTimeUTC')"
               [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
