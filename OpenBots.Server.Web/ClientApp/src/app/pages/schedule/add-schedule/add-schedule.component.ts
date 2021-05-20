@@ -305,6 +305,8 @@ export class AddScheduleComponent implements OnInit {
       this.scheduleForm.get('expiryDate').updateValueAndValidity();
       this.scheduleForm.get('cronExpressionTimeZone').clearValidators();
       this.scheduleForm.get('cronExpressionTimeZone').updateValueAndValidity();
+      this.scheduleForm.get('queueId').clearValidators();
+      this.scheduleForm.get('queueId').updateValueAndValidity();
     } else if (value === 'recurrence') {
       this.scheduleForm
         .get('cronExpressionTimeZone')
@@ -314,6 +316,8 @@ export class AddScheduleComponent implements OnInit {
       this.scheduleForm.get('startDate').updateValueAndValidity();
       this.scheduleForm.get('expiryDate').setValidators([Validators.required]);
       this.scheduleForm.get('expiryDate').updateValueAndValidity();
+      this.scheduleForm.get('queueId').clearValidators();
+      this.scheduleForm.get('queueId').updateValueAndValidity();
     } else if (value === 'manual') {
       this.scheduleForm.get('cronExpressionTimeZone').clearValidators();
       this.scheduleForm.get('cronExpressionTimeZone').updateValueAndValidity();
@@ -321,12 +325,14 @@ export class AddScheduleComponent implements OnInit {
       this.scheduleForm.get('startDate').updateValueAndValidity();
       this.scheduleForm.get('expiryDate').clearValidators();
       this.scheduleForm.get('expiryDate').updateValueAndValidity();
+      this.scheduleForm.get('queueId').clearValidators();
+      this.scheduleForm.get('queueId').updateValueAndValidity();
     } else if (value === 'queueArrival') {
       this.scheduleForm.get('cronExpressionTimeZone').clearValidators();
       this.scheduleForm.get('cronExpressionTimeZone').updateValueAndValidity();
       this.scheduleForm.get('startDate').setValidators([Validators.required]);
       this.scheduleForm.get('startDate').updateValueAndValidity();
-      this.scheduleForm.get('expiryDate').clearValidators();
+      this.scheduleForm.get('expiryDate').setValidators([Validators.required]);
       this.scheduleForm.get('expiryDate').updateValueAndValidity();
       this.scheduleForm.get('queueId').setValidators([Validators.required]);
       this.scheduleForm.get('queueId').updateValueAndValidity();
