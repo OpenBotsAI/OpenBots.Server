@@ -81,9 +81,6 @@ export class AddCredentialsComponent implements OnInit {
           Validators.pattern(
             '^([A-Za-z0-9]{1,63}(-[A-Za-z0-9]{1,63})*?(\\.[A-Za-z0-9]{2,3})?)$'
           ),
-          // Validators.pattern(
-          //   '^([A-Za-z0-9]{1,63}(-[A-Za-z0-9]{1,63})*\\.?)+([A-Za-z0-9]{3})?$'
-          // ),
         ],
       ],
       userName: [
@@ -105,14 +102,7 @@ export class AddCredentialsComponent implements OnInit {
 
   initializeAgentCredentialForm() {
     return this.fb.group({
-      name: [
-        '',
-        // [
-        //   Validators.required,
-        //   Validators.minLength(3),
-        //   Validators.maxLength(100),
-        // ],
-      ],
+      name: [''],
       agentId: [''],
       domain: [
         '',
@@ -122,9 +112,6 @@ export class AddCredentialsComponent implements OnInit {
           Validators.pattern(
             '^([A-Za-z0-9]{1,63}(-[A-Za-z0-9]{1,63})*?(\\.[A-Za-z0-9]{2,3})?)$'
           ),
-          // Validators.pattern(
-          //   '^([A-Za-z0-9]{1,63}(-[A-Za-z0-9]{1,63})*\\.?)+([A-Za-z0-9]{3})?$'
-          // ),
         ],
       ],
       userName: [
@@ -165,7 +152,7 @@ export class AddCredentialsComponent implements OnInit {
       });
     this.httpService
       .get(
-        `${CredentialsApiUrl.credentials}?$filter=name+eq+'${this.credentialForm.value.name}'and agentId+ne+null`
+        `${CredentialsApiUrl.credentials}/${CredentialsApiUrl.view}?$filter=name+eq+'${this.credentialForm.value.name}'and agentId+ne+null`
       )
       .subscribe((response) => {
         this.showCredAsstData = response.items;
@@ -180,16 +167,23 @@ export class AddCredentialsComponent implements OnInit {
   }
 
   editAssetAgent(credAgentValue) {
-    console.log(credAgentValue);
     this.getCredAgent = credAgentValue.id;
     this.getAgentD = credAgentValue.agentId;
     this.agentCredentialForm.get('agentId').disable();
     this.agentCredentialForm.patchValue({ ...credAgentValue });
+    this.agentCredentialForm.get('passwordSecret').setValue(null);
     this.showUpdateAssetAgentbutton = true;
     this.showSaveAssetAgentbutton = false;
   }
 
   UpdateCredAgent() {
+    if (!this.agentCredentialForm.get('passwordSecret').touched)
+      this.agentCredentialForm.get('passwordSecret').setValue(null);
+    else if (
+      this.agentCredentialForm.get('passwordSecret').touched &&
+      !this.agentCredentialForm.value.passwordSecret
+    )
+      this.agentCredentialForm.get('passwordSecret').setValue('');
     const headers = this.helperService.getETagHeaders(this.eTag);
     if (this.agentCredentialForm.value.startDate) {
       this.agentCredentialForm.value.startDate =
@@ -219,8 +213,6 @@ export class AddCredentialsComponent implements OnInit {
           if (response) {
             this.httpService.success('Credential updated successfully');
             this.isSubmitted = false;
-            // this.agentCredentialForm.reset();
-            // this.router.navigate(['/pages/credentials']);
           }
         },
         (error) => {
