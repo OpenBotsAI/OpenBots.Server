@@ -313,7 +313,7 @@ namespace OpenBots.Server.Business
             CredentialViewModel credentialView = new CredentialViewModel();
 
             credentialView = credentialView.Map(existingCredential);
-            credentialView.AgentName = _agentRepository.Find(null, a => a.Id == credentialView.AgentId).Items.FirstOrDefault().Name;
+            credentialView.AgentName = _agentRepository.Find(null, a => a.Id == credentialView.AgentId).Items.FirstOrDefault()?.Name;
 
             return credentialView;
         }
