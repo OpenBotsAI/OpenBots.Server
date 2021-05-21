@@ -8,8 +8,7 @@
                 <div class="LeftBgText">
                     <h2>Business Events</h2>
                     <p>
-                        List of Events that are raised by the system that can be used for Integrations.
-
+                        List of Events that are raised by the user that can be used for Integrations.
                     </p>
                 </div>
             </div>
@@ -81,15 +80,15 @@
                       totalItems: page.totalCount
                     };trackBy: trackByFn
             ">
-                    <td>
-                        <ngx-tooltip [data]="systemevent?.entityType" [size]="40"> </ngx-tooltip>
-                    </td>
                     <td scope="row">
                         <ngx-tooltip [data]="systemevent?.name" [size]="40"> </ngx-tooltip>
                     </td>
+                    <td>
+                        <ngx-tooltip [data]="systemevent?.entityType" [size]="40"> </ngx-tooltip>
+                    </td>
                     <!-- <td scope="row">
-                        <ngx-tooltip [data]="systemevent?.description" [size]="40"> </ngx-tooltip>
-                    </td> -->
+        <ngx-tooltip [data]="systemevent?.description" [size]="40"> </ngx-tooltip>
+    </td> -->
 
 
                     <td>
