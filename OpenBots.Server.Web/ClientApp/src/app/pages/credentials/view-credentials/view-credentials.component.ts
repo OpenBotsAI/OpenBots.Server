@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpService } from '../../../@core/services/http.service';
 import { TimeDatePipe } from '../../../@core/pipe';
 import { HelperService } from '../../../@core/services/helper.service';
+import { CredentialsApiUrl } from '../../../webApiUrls';
+import { Agents } from '../../../interfaces/agnets';
 
 @Component({
   selector: 'ngx-view-credentials',
@@ -14,6 +16,7 @@ export class ViewCredentialsComponent implements OnInit {
   credentialViewForm: FormGroup;
   currentUrlId: string;
   pipe: TimeDatePipe;
+  agentsArr: Agents[] = [];
   providerArr = [
     { id: 'AD', name: 'Active Directory' },
     { id: 'A', name: 'Application' },
@@ -24,7 +27,7 @@ export class ViewCredentialsComponent implements OnInit {
     private route: ActivatedRoute,
     private httpService: HttpService,
     private helperService: HelperService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.currentUrlId = this.route.snapshot.params['id'];
@@ -82,10 +85,24 @@ export class ViewCredentialsComponent implements OnInit {
           this.credentialViewForm.patchValue({ ...response.body });
           this.credentialViewForm.disable();
         }
+        this.getAgentValue(this.credentialViewForm.value.name);
+      });
+  }
+
+  getAgentValue(name): void {
+    this.httpService
+      .get(
+        `${CredentialsApiUrl.credentials}/${CredentialsApiUrl.view}?$filter=name+eq+'${name}'and agentId+ne+null`
+      )
+      .subscribe((response) => {
+        if (response) this.agentsArr = [...response.items];
+        console.log(response);
       });
   }
 
   navigateToAudit(): void {
-    this.router.navigate([`/pages/change-log/list/${'Credential'}/${this.currentUrlId}`]);
+    this.router.navigate([
+      `/pages/change-log/list/${'Credential'}/${this.currentUrlId}`,
+    ]);
   }
 }

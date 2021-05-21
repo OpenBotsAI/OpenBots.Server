@@ -14,31 +14,31 @@ export class SystemEventService {
   constructor(private http: HttpClient) { }
 
   get_AllSystemEvent(tpage: any, spage: any) {
-    let getagentUrl = `/${integrationUrl.IntegrationEvents}?$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/${integrationUrl.IntegrationEvents}?$filter=IsSystem+eq+true&$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
   getIntegrationEventName() {
-    let getagentUrl = `/${integrationUrl.IntegrationEvents}/${integrationUrl.IntegrationEventLookup}`;
+      let getagentUrl = `/${integrationUrl.IntegrationEvents}/${integrationUrl.IntegrationEventLookup}?$filter=IsSystem+eq+true`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
   filterIntegrationEventName(entityname: any, tpage: any, spage: any) {
-    let getagentUrl = `/${integrationUrl.IntegrationEvents}?$filter=${entityname}&$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
+      let getagentUrl = `/${integrationUrl.IntegrationEvents}?$filter=${entityname}and IsSystem+eq+true&$orderby=createdOn+desc&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
   filterEntityNameOrderby(entityname: any, tpage: any, spage: any, name) {
-    let getagentUrl = `/${integrationUrl.IntegrationEvents}?$filter=${entityname}&$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/${integrationUrl.IntegrationEvents}?$filter=${entityname}and IsSystem+eq+true&$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
   getAllIntegrationEventorder(tpage: any, spage: any, name) {
-    let getagentUrl = `/${integrationUrl.IntegrationEvents}?$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/${integrationUrl.IntegrationEvents}?$filter=IsSystem+eq+true&$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
   getAllorderbyEntityname(entityname, tpage: any, spage: any, name) {
-    let getagentUrl = `/${integrationUrl.IntegrationEvents}?$filter=${entityname}&$orderby=${name}&$top=${tpage}&$skip=${spage}`;
+    let getagentUrl = `/${integrationUrl.IntegrationEvents}?$filter=${entityname}and IsSystem+eq+true&$orderby=${name}&$top=${tpage}&$skip=${spage}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 

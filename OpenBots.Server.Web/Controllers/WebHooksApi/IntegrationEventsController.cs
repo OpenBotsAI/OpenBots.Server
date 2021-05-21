@@ -125,6 +125,10 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         /// <summary>
         /// Provides a list of all IntegrationEvent Entity names
         /// </summary>
+        /// <param name="top"></param>
+        /// <param name="skip"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="filter"></param>
         /// <response code="200">Ok, a list of all event Entity names</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden, unauthorized access</response>
@@ -139,11 +143,18 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> AllIntegrationEvents()
+        public async Task<IActionResult> AllIntegrationEvents(
+            [FromQuery(Name = "$filter")] string filter = "",
+            [FromQuery(Name = "$orderby")] string orderBy = "",
+            [FromQuery(Name = "$top")] int top = 100,
+            [FromQuery(Name = "$skip")] int skip = 0)
         {
             try
             {
-                var response = _repository.Find(null, x => x.IsDeleted == false);
+                ODataHelper<IntegrationEvent> oDataHelper = new ODataHelper<IntegrationEvent>();
+                var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
+
+                var response = _repository.Find(null, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip, oData.Top);
                 IntegrationEventEntitiesLookupViewModel eventLogList = new IntegrationEventEntitiesLookupViewModel();
 
                 if (response != null)
