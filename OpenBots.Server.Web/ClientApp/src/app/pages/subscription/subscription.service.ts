@@ -4,6 +4,7 @@ import { environment } from '../../../environments/environment';
 import { HelperService } from '../../@core/services/helper.service';
 import { SubscribeApiUrl } from '../../webApiUrls/SubscribeUrls';
 import { QueuesApiUrls } from '../../webApiUrls/queues';
+import { integrationUrl } from '../../webApiUrls/integrationUrl';
 @Injectable({
   providedIn: 'root',
 })
@@ -12,11 +13,16 @@ export class SubscriptionService {
     return environment.apiUrl;
   }
 
-  constructor(private http: HttpClient, private helperService: HelperService) {}
+  constructor(private http: HttpClient, private helperService: HelperService) { }
 
   addsubscription(obj) {
     let addassetUrl = `/${SubscribeApiUrl.IntegrationEventSubscriptions}`;
     return this.http.post(`${this.apiUrl}` + addassetUrl, obj);
+  }
+
+  getIntegrationEventName() {
+    let getagentUrl = `/${integrationUrl.IntegrationEvents}/IntegrationEventLookup?$filter=IsSystem+eq+false`;
+    return this.http.get(`${this.apiUrl}` + getagentUrl);
   }
 
   updateSubscription(obj, id, etag) {

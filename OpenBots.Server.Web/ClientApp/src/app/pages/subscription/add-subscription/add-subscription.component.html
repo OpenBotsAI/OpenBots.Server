@@ -27,10 +27,19 @@
               </div>
             </div>
           </div>
-
-
           <div class="row rowPadTOp">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <!-- <input type="checkbox" /> -->
+              <label class="label">Business Event </label>
+              <label class="upload-button">
+                <nb-checkbox (checkedChange)="check($event)"> Business Event
+                </nb-checkbox>
+              </label>
+            </div>
+          </div>
+
+          <div class="row rowPadTOp">
+            <div class="col-md-6 col-lg-6 col-xxxl-6" *ngIf="getEntityShow">
               <label for="agentname" class="label"> Entity </label>
               <select class="custom-select" formControlName="entityName" placeholder="Please choose automation engine"
                 (change)="getEntityName($event)">
@@ -66,21 +75,23 @@
           <div class="row rowPadTOp">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="integrationEventName" class="label"> Event * </label>
-              <!-- <input
-                type="input"
-                nbInput
-                fullWidth
-                id="integrationEventName"
-                formControlName="integrationEventName"
-                class="form-control"
-                placeholder="Please enter Event"
-              /> -->
-              <select class="custom-select" formControlName="integrationEventName" placeholder="Please choose Event">
+
+              <select class="custom-select" formControlName="integrationEventName" placeholder="Please choose Event"
+                *ngIf="!getbusiness">
                 <option value="" disabled="true" selected>
                   Please choose Event *
                 </option>
                 <option *ngFor="let item of EntityFilterValue" [value]="item.name">
                   {{ item.name }}
+                </option>
+              </select>
+              <select class="custom-select" formControlName="integrationEventName" placeholder="Please choose Event"
+                *ngIf="getbusiness">
+                <option value="" disabled="true" selected>
+                  Please choose Event *
+                </option>
+                <option *ngFor="let item of EntityFilterValue" [value]="item">
+                  {{ item }}
                 </option>
               </select>
               <div *ngIf="

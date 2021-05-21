@@ -25,6 +25,9 @@ export class AddSubscriptionComponent implements OnInit {
   title = 'Add';
   urlId: string;
   getSubscription: any = [];
+  getbusiness = false;
+  getEntityShow = true;
+
   constructor(
     private formBuilder: FormBuilder,
     private toastrService: NbToastrService,
@@ -54,7 +57,7 @@ export class AddSubscriptionComponent implements OnInit {
       entityType: [''],
       integrationEventName: [''],
       entityID: [''],
-      entityName: ['', [Validators.required]],
+      entityName: [''],//, [Validators.required]
       transportType: ['', [Validators.required]],
       httP_URL: [''],
       httP_AddHeader_Key: [''],
@@ -66,11 +69,14 @@ export class AddSubscriptionComponent implements OnInit {
     this.subscriptionForm.get('integrationEventName').disable();
   }
 
+
+
+
   getSubscriptionbyID(id) {
     this.SubscriptionService.getsubscribeID(id).subscribe(
       (data: HttpResponse<any>) => {
         this.getSubscription = data.body;
-        this.etag = data.headers.get('ETag').replace(/\"/g, '');
+        ///this.etag = data.headers.get('ETag').replace(/\"/g, '');
         this.getEntityName(this.getSubscription.entityName);
         if (data.body.queuE_QueueID == null) {
           this.showTabview = true;
@@ -98,6 +104,28 @@ export class AddSubscriptionComponent implements OnInit {
     this.SubscriptionService.getQueues().subscribe((data: any) => {
       this.showQueues = data.items;
     });
+  }
+
+
+  check(e) {
+    console.log(e)
+    if (e == true) {
+      this.getEntityShow = false;
+      this.SubscriptionService.getIntegrationEventName().subscribe((data: any) => {
+        console.log(data)
+        this.subscriptionForm.get('integrationEventName').enable();
+        this.getbusiness = true;
+
+        this.EntityFilterValue = data.entityNameList;
+      })
+
+    } else if (e == false) {
+      this.getbusiness = false;
+      this.EntityFilterValue = [];
+      this.getEntityShow = true;
+      this.subscriptionForm.get('integrationEventName').disable();
+    }
+
   }
 
   getEntityName(e) {
