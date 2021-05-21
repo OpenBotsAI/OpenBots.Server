@@ -172,7 +172,7 @@ namespace OpenBots.Server.Web.Controllers
                     throw new EntityDoesNotExistException("QueueItem does not exist or you do not have authorized access.");
                 }
 
-                _manager.UpdateExpiredItemsStates(entity.QueueId.ToString());
+                _manager.UpdateItemsStates(entity.QueueId.ToString());
                 return await base.GetEntity(id);
             }
             catch (Exception ex)
@@ -211,7 +211,7 @@ namespace OpenBots.Server.Web.Controllers
                     throw new EntityDoesNotExistException("QueueItem does not exist or you do not have authorized access.");
                 }
 
-                _manager.UpdateExpiredItemsStates(entity.QueueId.ToString());
+                _manager.UpdateItemsStates(entity.QueueId.ToString());
 
                 IActionResult actionResult = await base.GetEntity<QueueItemViewModel>(id);
                 OkObjectResult okResult = actionResult as OkObjectResult;
@@ -319,7 +319,7 @@ namespace OpenBots.Server.Web.Controllers
                 Guid queueItemId = new Guid(id);
                 QueueItem existingQueueItem = repository.GetOne(queueItemId);
                 if (existingQueueItem == null) throw new EntityDoesNotExistException("Queue item does not exist or cannot be found");
-                _manager.UpdateExpiredItemsStates(existingQueueItem.QueueId.ToString());
+                _manager.UpdateItemsStates(existingQueueItem.QueueId.ToString());
 
                 await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", existingQueueItem.Id.ToString(), existingQueueItem.Name).ConfigureAwait(false);
                 return await base.PatchEntity(id, request);

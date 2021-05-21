@@ -2305,10 +2305,14 @@
             <response code="422">Unprocessable entity</response>
             <returns>IntegrationEvent details for the given id</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.AllIntegrationEvents">
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.AllIntegrationEvents(System.String,System.String,System.Int32,System.Int32)">
             <summary>
             Provides a list of all IntegrationEvent Entity names
             </summary>
+            <param name="top"></param>
+            <param name="skip"></param>
+            <param name="orderBy"></param>
+            <param name="filter"></param>
             <response code="200">Ok, a list of all event Entity names</response>
             <response code="400">Bad request</response>
             <response code="403">Forbidden, unauthorized access</response>

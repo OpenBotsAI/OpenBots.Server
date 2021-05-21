@@ -15,7 +15,7 @@ namespace OpenBots.Server.Business
     {
         QueueItem Enqueue(QueueItem item);
         Task<QueueItem> Dequeue(string agentId, string queueId);
-        void UpdateExpiredItemsStates(string queueId);
+        void UpdateItemsStates(string queueId);
         Task<QueueItem> Commit(Guid transactionKey, string resultJSON);
         Task<QueueItem> Rollback(Guid transactionKey, string errorCode = null, string errorMessage = null, bool isFatal = false);
         Task<QueueItem> Extend(Guid transactionKey, int extendByMinutes = 60);
