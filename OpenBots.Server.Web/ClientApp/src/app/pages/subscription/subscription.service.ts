@@ -51,6 +51,7 @@ export class SubscriptionService {
   }
 
   filterIntegrationEventName(entityname: any) {
+    // IntegrationEvents/IntegrationEventLookup
     let getagentUrl = `/IntegrationEvents?$filter=${entityname}`;
     return this.http.get(`${this.apiUrl}` + getagentUrl);
   }

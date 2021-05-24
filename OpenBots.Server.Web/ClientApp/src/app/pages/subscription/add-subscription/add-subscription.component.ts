@@ -57,13 +57,14 @@ export class AddSubscriptionComponent implements OnInit {
       entityType: [''],
       integrationEventName: [''],
       entityID: [''],
-      entityName: [''],//, [Validators.required]
+      entityName: this.urlId ? [''] : ['', [Validators.required]],
       transportType: ['', [Validators.required]],
       httP_URL: [''],
       httP_AddHeader_Key: [''],
       httP_AddHeader_Value: [''],
       Max_RetryCount: [''],
       queuE_QueueID: [''],
+      getbusines: false
     });
     //  this.subscriptionForm.get('state').reset();
     this.subscriptionForm.get('integrationEventName').disable();
@@ -93,12 +94,13 @@ export class AddSubscriptionComponent implements OnInit {
       (data: HttpResponse<any>) => {
         this.getSubscription = data.body;
 
-        // this.etag = data.headers.get('ETag').replace(/\"/g, '');
+        this.etag = data.headers.get('ETag').replace(/\"/g, '');
         if (this.getSubscription.entityName == "" || this.getSubscription.entityName == '') {
           console.log('yes')
           this.getbusiness = false;
           this.subscriptionForm.get('integrationEventName').enable();
-          this.subscriptionForm.patchValue({ integrationEventName: this.getSubscription.integrationEventName });
+          this.check(true)
+          this.subscriptionForm.patchValue({ getbusines: true });
         }
         else {
           this.getEntityName(this.getSubscription.entityName);
@@ -125,6 +127,8 @@ export class AddSubscriptionComponent implements OnInit {
     console.log(e)
     if (e == true) {
       this.getEntityShow = false;
+      this.subscriptionForm.get('entityName').clearValidators();
+      this.subscriptionForm.get('entityName').updateValueAndValidity();
       this.SubscriptionService.getIntegrationEventName().subscribe((data: any) => {
         console.log(data)
         this.subscriptionForm.get('integrationEventName').enable();
@@ -133,6 +137,8 @@ export class AddSubscriptionComponent implements OnInit {
       })
 
     } else if (e == false) {
+      this.subscriptionForm.get('entityName').setValidators([Validators.required]);
+      this.subscriptionForm.get('entityName').updateValueAndValidity();
       this.getbusiness = false;
       this.EntityFilterValue = [];
       this.getEntityShow = true;
@@ -198,8 +204,7 @@ export class AddSubscriptionComponent implements OnInit {
   }
 
   UpdateSubscription() {
-    this.submitted = true;
-
+    // this.submitted = true;
     this.SubscriptionService.updateSubscription(
       this.subscriptionForm.value,
       this.urlId,
@@ -215,6 +220,7 @@ export class AddSubscriptionComponent implements OnInit {
       () => (this.submitted = false)
     );
   }
+
   showHTTP(val) {
     if (val == 'HTTPS') {
       this.showTabview = true;
