@@ -71,13 +71,39 @@ export class AddSubscriptionComponent implements OnInit {
 
 
 
+  get f() {
+    return this.subscriptionForm.controls;
+  }
+
+  getQueueAndEntity() {
+    this.SubscriptionService.get_EntityName().subscribe((data: any) => {
+      this.show_filter_entity = data.integrationEntityTypeList;
+      this.show_filter_event = data.integrationEventNameList;
+    });
+    this.SubscriptionService.getQueues().subscribe((data: any) => {
+      this.showQueues = data.items;
+    });
+  }
+
+
+
 
   getSubscriptionbyID(id) {
     this.SubscriptionService.getsubscribeID(id).subscribe(
       (data: HttpResponse<any>) => {
         this.getSubscription = data.body;
-        ///this.etag = data.headers.get('ETag').replace(/\"/g, '');
-        this.getEntityName(this.getSubscription.entityName);
+
+        // this.etag = data.headers.get('ETag').replace(/\"/g, '');
+        if (this.getSubscription.entityName == "" || this.getSubscription.entityName == '') {
+          console.log('yes')
+          this.getbusiness = false;
+          this.subscriptionForm.get('integrationEventName').enable();
+          this.subscriptionForm.patchValue({ integrationEventName: this.getSubscription.integrationEventName });
+        }
+        else {
+          this.getEntityName(this.getSubscription.entityName);
+        }
+
         if (data.body.queuE_QueueID == null) {
           this.showTabview = true;
         } else if (data.body.queuE_QueueID != null) {
@@ -93,18 +119,6 @@ export class AddSubscriptionComponent implements OnInit {
       }
     );
   }
-  get f() {
-    return this.subscriptionForm.controls;
-  }
-  getQueueAndEntity() {
-    this.SubscriptionService.get_EntityName().subscribe((data: any) => {
-      this.show_filter_entity = data.integrationEntityTypeList;
-      this.show_filter_event = data.integrationEventNameList;
-    });
-    this.SubscriptionService.getQueues().subscribe((data: any) => {
-      this.showQueues = data.items;
-    });
-  }
 
 
   check(e) {
@@ -115,7 +129,6 @@ export class AddSubscriptionComponent implements OnInit {
         console.log(data)
         this.subscriptionForm.get('integrationEventName').enable();
         this.getbusiness = true;
-
         this.EntityFilterValue = data.entityNameList;
       })
 
@@ -129,6 +142,7 @@ export class AddSubscriptionComponent implements OnInit {
   }
 
   getEntityName(e) {
+
     if (this.urlId) {
       if (e == this.getSubscription.entityName) {
         this.filterValue = e;
