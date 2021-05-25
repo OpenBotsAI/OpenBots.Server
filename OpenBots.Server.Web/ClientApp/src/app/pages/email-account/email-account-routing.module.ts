@@ -12,7 +12,7 @@ const routes: Routes = [
     component: AllEmailAccountComponent,
   },
   {
-    path: 'get-email-id',
+    path: 'view/:id',
     component: GetEmailIdComponent,
   },
   {

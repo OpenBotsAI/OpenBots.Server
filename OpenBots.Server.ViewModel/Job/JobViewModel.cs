@@ -12,10 +12,12 @@ namespace OpenBots.Server.ViewModel
         public string AgentName { get; set; }
         public string AgentGroupName { get; set; }
         public string AutomationName { get; set; }
+        public Guid? ScheduleId { get; set; }
         public Guid? AgentId { get; set; }
         public Guid? AgentGroupId { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
+        public long? ExecutionTimeInMinutes { get; set; }
         public DateTime? EnqueueTime { get; set; }
         public DateTime? DequeueTime { get; set; }  
         [Required]
@@ -32,6 +34,8 @@ namespace OpenBots.Server.ViewModel
         public string ErrorReason { get; set; }
         public string ErrorCode { get; set; }
         public string SerializedErrorString { get; set; }
+        public int AutomationLogCount { get; set; }
+        public int AutomationExecutionLogCount { get; set; }
         public IEnumerable<JobParameter>? JobParameters { get; set; }
 
         public JobViewModel Map(Job entity)
@@ -39,10 +43,12 @@ namespace OpenBots.Server.ViewModel
             JobViewModel jobViewModel = new JobViewModel
             {
                 Id = entity.Id,
+                ScheduleId = entity.ScheduleId,
                 AgentId = entity.AgentId,
                 AgentGroupId = entity.AgentGroupId,
                 StartTime = entity.StartTime,
                 EndTime = entity.EndTime,
+                ExecutionTimeInMinutes = entity.ExecutionTimeInMinutes,
                 EnqueueTime = entity.EnqueueTime,
                 DequeueTime = entity.DequeueTime,
                 AutomationId = entity.AutomationId,
@@ -55,7 +61,9 @@ namespace OpenBots.Server.ViewModel
                 CreatedBy = entity.CreatedBy,
                 ErrorReason = entity.ErrorReason,
                 ErrorCode = entity.ErrorCode,
-                SerializedErrorString = entity.SerializedErrorString 
+                SerializedErrorString = entity.SerializedErrorString,
+                AutomationExecutionLogCount = entity.AutomationExecutionLogCount,
+                AutomationLogCount = entity.AutomationLogCount
             };
 
             return jobViewModel;

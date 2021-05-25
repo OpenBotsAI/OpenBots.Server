@@ -27,7 +27,11 @@ export class GetAgentsIdComponent implements OnInit {
   perPageNum: any = [];
   itemsPerPage: ItemsPerPage[] = [];
   showGridHeatbeat: boolean;
-
+  sslCertificateArr = [
+    { name: 'Yes', value: true },
+    { name: 'No', value: false },
+  ];
+  isAgentSettings = false;
   constructor(
     private acroute: ActivatedRoute,
     protected router: Router,
@@ -35,10 +39,11 @@ export class GetAgentsIdComponent implements OnInit {
     private formBuilder: FormBuilder,
     private helperService: HelperService
   ) {
-    this.acroute.queryParams.subscribe((params) => {
-      this.ParmasAgentId = params.id;
+    this.ParmasAgentId = this.acroute.snapshot.params['id'];
+    if (this.ParmasAgentId) {
       this.getAgentId(this.ParmasAgentId);
-    });
+    }
+
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
     this.pagination(this.page.pageNumber, this.page.pageSize);
@@ -70,22 +75,29 @@ export class GetAgentsIdComponent implements OnInit {
       updatedOn: [''],
       isEnhancedSecurity: [],
       ipOption: [''],
+      agentSetting: this.formBuilder.group({
+        heartbeatInterval: null,
+        jobLoggingInterval: null,
+        verifySslCertificate: null,
+      }),
     });
   }
 
   getAgentId(id) {
     this.agentService.getAgentbyID(id).subscribe((data: any) => {
+      if (
+        data.body.agentSetting &&
+        (data.body.agentSetting.heartbeatInterval ||
+          data.body.agentSetting.jobLoggingInterval ||
+          data.body.agentSetting.verifySslCertificate)
+      )
+        this.isAgentSettings = true;
       this.showAllAgents = data.body;
       const filterPipe = new TimeDatePipe();
       this.showAllAgents.lastReportedOn = filterPipe.transform(
         this.showAllAgents.lastReportedOn,
         'lll'
       );
-      if (this.showAllAgents.isHealthy == true) {
-        this.showAllAgents.isHealthy = 'yes';
-      } else if (this.showAllAgents.isHealthy == false) {
-        this.showAllAgents.isHealthy = 'No';
-      }
       this.addagent.patchValue(this.showAllAgents);
       this.addagent.disable();
     });
@@ -113,9 +125,10 @@ export class GetAgentsIdComponent implements OnInit {
   }
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], {
-      queryParams: { PageName: 'Agent', id: this.showAllAgents.id },
-    });
+    //  queryParams: { PageName: 'Agent', id: this.showAllAgents.id },
+    this.router.navigate([
+      `/pages/change-log/list/${'Agent'}/${this.showAllAgents.id}`,
+    ]);
   }
 
   onSortClick(event, fil_val) {

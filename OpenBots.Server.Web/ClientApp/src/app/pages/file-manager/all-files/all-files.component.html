@@ -22,13 +22,23 @@
     <nb-card-body>
         <div class="toolPnl">
             <div class="row">
+                <div class="col-md-12 col-lg-12">
+                    <form [formGroup]="storageDriveForm">
+                        <ng-select [items]="storageDriveArr" [searchable]="true" bindLabel="name" formControlName="id"
+                            class="NgSelect" placeholder="Please select storage drive" [closeOnSelect]="true"
+                            bindValue="id" [clearable]="false" (change)="onStorageDriveChange($event)">
+                        </ng-select>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-md-4 col-lg-4">
                     <span *ngIf="isHidden">
                         <button class="btnIcon btnFolder" (click)="openCreateFolderDialog(createfolderdialog)"><img
                                 src="../../../../assets/images/folder-icon.png" />New Folder</button>
                         <button class="btnIcon btnUpload" (click)="openUploadFileDialog(uploaddialog)"><img
                                 src="../../../../assets/images/upload-icon.png" />Upload</button>
-                        <button class="btnIcon btnFolder" (click)="this.pagination(page.pageNumber, page.pageSize)"><img
+                        <button class="btnIcon btnFolder" (click)="refreshFileManager()"><img
                                 src="../../../../assets/images/fresh-icon.png" />Refresh</button>
                     </span>
                 </div>
@@ -41,7 +51,7 @@
                             src="../../../../assets/images/delete-icon.png" />Delete</button>
 
                 </div>
-                <div *ngIf="Downloadbtn" class="col-md-4 col-lg-4 download-btn text-right">
+                <div *ngIf="isDownloadButton" class="col-md-4 col-lg-4 download-btn text-right">
                     <button type="button" class="btnIcon btnDownload" (click)="onDown()"><img
                             src="../../../../assets/images/download-icon.png" />Download</button>
                 </div>
@@ -52,10 +62,10 @@
                 <li *ngIf="bread.length"><a [routerLink]="" (click)="onClickUp()"><img
                             src="../../../../assets/images/upload-icon.png" /></a>
                 </li>
-                <li class="lendhand"> <a [routerLink]="" (click)="onClickFiles()">{{driveName}}</a>
-                </li>
+                <!-- <li class="lendhand"> <a [routerLink]="" (click)="onClickFiles()">{{driveName}}</a>
+                </li> -->
                 <li *ngFor="let breadcrumb of bread; index as i">
-                    <a [routerLink]="" *ngIf="breadcrumb.name !== floderName " (click)="getFileId(i)"><span
+                    <a [routerLink]="" *ngIf="breadcrumb.name !== floderName " (click)="onBreadCrumb(i)"><span
                             class="bbSlach">/</span> {{ breadcrumb?.name }} </a>
                     <a *ngIf="breadcrumb.name == floderName"><span class="bbSlach">/</span>{{ breadcrumb?.name }}
                     </a>
@@ -102,8 +112,8 @@
                                         {{files?.name}}
                                     </a>
                                 </td> -->
-                                <td scope="row" (click)="gotodetail(files)">
-                                    <a class="lendhand" *ngIf="!files.isFile" (dblclick)="fileFolder(files)">
+                                <td scope="row" (click)="driveDocumentDetail(files)">
+                                    <a class="lendhand" *ngIf="!files.isFile" (dblclick)="onDoubleClick(files)">
                                         <img src="../../../../assets/images/folder-icon.png" />
                                         {{files?.name}}
                                     </a>
@@ -204,7 +214,7 @@
                 <div aria-labelledby="title">
                     <label>FolderName</label>
                     <input type="input" nbInput fullWidth id="name" formControlName="name" class="form-control"
-                        placeholder="Please enter  name" />
+                        placeholder="Please enter name" />
                     <div *ngIf="(fc.name.touched || fc.name.dirty) && fc.name.invalid" class="invalid-feedback-frm">
                         <div *ngIf="fc.name.errors && fc.name.errors.required"> Name is required.</div>
                         <div *ngIf="fc.name.errors.minlength">
@@ -221,7 +231,7 @@
             </nb-card-body>
             <nb-card-footer>
                 <!-- [disabled]="isDeleted" (click)="del_agent(ref)" -->
-                <button class="btn btn-primary" [disabled]="isSubmitted || !filesCreateFolderFromgroup.valid"
+                <button class="btn btn-primary" [disabled]="isFolderCreated || !filesCreateFolderFromgroup.valid"
                     (click)="createFolder(ref)">Save</button>
                 <button class="btn btn-light" style="margin-left: 11px" (click)="ref.close()">
                     Cancel
@@ -245,7 +255,7 @@
                 <div aria-labelledby="title">
 
                     <input type="input" nbInput fullWidth id="name" formControlName="name" class="form-control"
-                        placeholder="Please enter  name" />
+                        placeholder="Please enter  name" ngxSpecialChar trim="blur" />
                     <div *ngIf="(f.name.touched || f.name.dirty) && f.name.invalid" class="invalid-feedback-frm">
                         <div *ngIf="f.name.errors && f.name.errors.required"> Name is required.</div>
                         <div *ngIf="f.name.errors.minlength">
@@ -282,7 +292,6 @@
             <h6>File Upload</h6>
         </nb-card-header>
         <nb-card-body>
-
             <div class="upload-files uploadTempFiles">
                 <!-- <div class="drop-container" [ngClass]="{ 'is-drop-over': dragOver }"> -->
                 <div class="drop-container" ngFileDrop [options]="options" (uploadOutput)="onUploadOutput($event)"
@@ -296,9 +305,18 @@
                     <span>Browse</span>
                 </label>
             </div>
+            <!-- <div class="row">
+                <table>
+                    <tr *ngFor="let data of   this.uploadedFilesArr">
+                        <td>{{data.nativeFile.name}}</td>
+                    </tr>
+                </table>
+
+            </div> -->
         </nb-card-body>
         <nb-card-footer>
-            <button class="btn btn-primary btnNoMargn" (click)="UploadFile(ref)">Upload</button>
+            <button class="btn btn-primary btnNoMargn" [disabled]="!uploadedFilesArr.length || isFileUploaded"
+                (click)="UploadFile(ref)">Upload</button>
             <button class="btn btn-light" style="margin-left: 11px" (click)="closeFileUploadPopup(ref)">
                 Cancel
             </button>
@@ -319,7 +337,7 @@
             </div>
         </nb-card-body>
         <nb-card-footer>
-            <button class="btn btn-danger" (click)="onDelete(ref)">
+            <button class="btn btn-danger" (click)="onDelete(ref)" [disabled]="isDeleted">
                 Delete
             </button>
             <button nbButton style="margin-left: 11px" (click)="ref.close()">

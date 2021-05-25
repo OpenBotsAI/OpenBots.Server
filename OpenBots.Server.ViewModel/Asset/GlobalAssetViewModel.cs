@@ -17,8 +17,7 @@ namespace OpenBots.Server.ViewModel
         public double? NumberValue { get; set; }
         public string? JsonValue { get; set; }
         public Guid? FileId { get; set; }
-        public long? SizeInBytes { get; set; }
-        public string? DriveName { get; set; }
+        public string? DriveId { get; set; }
         public IFormFile? File { get; set; }
 
         public Asset Map(GlobalAssetViewModel? viewModel)
@@ -31,8 +30,7 @@ namespace OpenBots.Server.ViewModel
                 TextValue = viewModel.TextValue,
                 NumberValue = viewModel.NumberValue,
                 JsonValue = viewModel.JsonValue,
-                FileId = viewModel.FileId,
-                SizeInBytes = viewModel.SizeInBytes
+                FileId = viewModel.FileId
             };
             return asset;
         }

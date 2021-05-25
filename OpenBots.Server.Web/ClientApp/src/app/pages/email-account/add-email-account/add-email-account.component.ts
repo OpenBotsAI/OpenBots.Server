@@ -101,9 +101,8 @@ export class AddEmailAccountComponent implements OnInit {
     this.isSslEnabled = checkSSL;
   }
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], {
-      queryParams: { PageName: 'email', id: this.showEmail.id },
-    });
+
+    this.router.navigate([`/pages/change-log/list/${'email'}/${this.urlId}`])
   }
 
   onSubmit() {
@@ -135,7 +134,8 @@ export class AddEmailAccountComponent implements OnInit {
       .subscribe(
         () => {
           this.toastrService.success(
-            'Email Details Update Successfully',
+            'Email details Updated successfully',
+            //  'Update',
             'Success'
           );
           this.router.navigate(['pages/emailaccount/list']);

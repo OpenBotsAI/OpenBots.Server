@@ -19,14 +19,15 @@ export class GetChangelogIdComponent implements OnInit {
   showChangedToJson: boolean = false;
   showChangedFromJson: boolean = false;
   pipe: TimeDatePipe;
-  parmasServiceName: any = []
+  parmasServiceName: any = [];
+  parmasServiceID;
   constructor(private acroute: ActivatedRoute, private formBuilder: FormBuilder, protected router: Router,
     protected changelogService: ChangelogService) {
-    this.acroute.queryParams.subscribe(params => {
-      this.parmasServiceName = params.serviceName;
-      this.get_allagent(params.id)
+    // get-change-log-id/:PageName/:id
+    this.parmasServiceName = this.acroute.snapshot.params['PageName']
+    this.parmasServiceID = this.acroute.snapshot.params['id']
+    this.get_allagent(this.parmasServiceID)
 
-    });
   }
 
   ngOnInit(): void {
@@ -80,51 +81,38 @@ export class GetChangelogIdComponent implements OnInit {
   goto() {
     // this.show_allaudit.serviceName 
     if (this.show_allaudit.serviceName == 'Agent') {
-      this.router.navigate(['/pages/agents/get-agents-id'], {
-        queryParams: { id: this.show_allaudit.objectId },
-      });
+      this.router.navigate([`/pages/agents/view/${this.show_allaudit.objectId}`]);
+
     } else if (this.show_allaudit.serviceName == 'Schedule') {
-      this.router.navigate([
-        `/pages/schedules/view/${this.show_allaudit.objectId}`,
-      ]);
+      this.router.navigate([`/pages/schedules/view/${this.show_allaudit.objectId}`]);
+
     } else if (this.show_allaudit.serviceName == 'Asset') {
-      this.router.navigate(['/pages/asset/get-asset-id'], {
-        queryParams: { id: this.show_allaudit.objectId },
-      });
+      this.router.navigate([`/pages/asset/view/${this.show_allaudit.objectId}`]);
+
     } else if (this.show_allaudit.serviceName == 'Automation') {
-      this.router.navigate(['/pages/automation/get-automation-id'], {
-        queryParams: { id: this.show_allaudit.objectId },
-      });
+      this.router.navigate([`/pages/automation/view/${this.show_allaudit.objectId}`]);
+
     } else if (this.show_allaudit.serviceName == 'Job') {
-      this.router.navigate(['/pages/job/get-jobs-id'], {
-        queryParams: { id: this.show_allaudit.objectId },
-      });
+      this.router.navigate([`/pages/job/view/${this.show_allaudit.objectId}`]);
+
     } else if (this.show_allaudit.serviceName == 'QueueItem') {
-      this.router.navigate([
-        `/pages/queueitems/view/${this.show_allaudit.objectId}`,
-      ]);
+      this.router.navigate([`/pages/queueitems/view/${this.show_allaudit.objectId}`]);
+
     } else if (this.show_allaudit.serviceName == 'Credential') {
-      this.router.navigate([
-        `/pages/credentials/view/${this.show_allaudit.objectId}`,
-      ]);
+      this.router.navigate([`/pages/credentials/view/${this.show_allaudit.objectId}`]);
+
     } else if (this.show_allaudit.serviceName == 'Files') {
-      this.router.navigate([
-        `/pages/file/get-file-id/${this.show_allaudit.objectId}`,
-      ]);
-    } else if (
-      this.show_allaudit.serviceName == 'Configuration.ConfigurationValue'
-    ) {
-      this.router.navigate(['/pages/config/get-config-id'], {
-        queryParams: { id: this.show_allaudit.objectId },
-      });
+      this.router.navigate([`/pages/file/get-file-id/${this.show_allaudit.objectId}`]);
+
+    } else if (this.show_allaudit.serviceName == 'Configuration.ConfigurationValue') {
+      this.router.navigate([`/pages/config/view/${this.show_allaudit.objectId}`]);
+
+
     } else if (this.show_allaudit.serviceName == 'Configuration.EmailAccount') {
-      this.router.navigate(['/pages/emailaccount/get-email-id'], {
-        queryParams: { id: this.show_allaudit.objectId },
-      });
+      this.router.navigate([`/pages/emailaccount/view/${this.show_allaudit.objectId}`]);
+
     } else if (this.show_allaudit.serviceName == 'Configuration.Email') {
-      this.router.navigate(['/pages/emaillog/get-emaillog-id'], {
-        queryParams: { id: this.show_allaudit.objectId },
-      });
+      this.router.navigate([`/pages/emaillog/view/${this.show_allaudit.objectId}`]);
     }
 
 

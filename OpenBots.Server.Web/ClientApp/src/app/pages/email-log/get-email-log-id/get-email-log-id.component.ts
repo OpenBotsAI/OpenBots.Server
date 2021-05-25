@@ -17,6 +17,7 @@ export class GetEmailLogIdComponent implements OnInit {
   pipe = new DatePipe('en-US');
   now = Date();
   show_createdon: any = [];
+  urlId;
 
   constructor(
     private acroute: ActivatedRoute,
@@ -24,9 +25,10 @@ export class GetEmailLogIdComponent implements OnInit {
     private formBuilder: FormBuilder,
     protected router: Router
   ) {
-    this.acroute.queryParams.subscribe((params) => {
-      this.get_allagent(params.id);
-    });
+
+    this.urlId = this.acroute.snapshot.params['id'];
+    this.getallemail(this.urlId);
+
   }
 
   ngOnInit(): void {
@@ -51,7 +53,7 @@ export class GetEmailLogIdComponent implements OnInit {
     });
   }
 
-  get_allagent(id) {
+  getallemail(id) {
     this.elogService.getEmailbyId(id).subscribe((data: any) => {
       this.showEmail = data;
 
@@ -64,6 +66,8 @@ export class GetEmailLogIdComponent implements OnInit {
     });
   }
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], { queryParams: { PageName: 'Configuration.Email', id: this.showEmail.id } })
+    console.log()
+    this.router.navigate([`/pages/change-log/list/${'Configuration.Email'}/${this.urlId}`]);
+
   }
 }

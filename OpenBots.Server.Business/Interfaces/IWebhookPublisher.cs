@@ -4,6 +4,6 @@ namespace OpenBots.Server.Web.Webhooks
 {
     public interface IWebhookPublisher
     {
-        Task PublishAsync(string integrationEventName, string entityId = "", string entityName = "");
+        Task PublishAsync(string integrationEventName, string entityId = "", string entityName = "", string message = "", string payloadJSON = "");
     }
 }

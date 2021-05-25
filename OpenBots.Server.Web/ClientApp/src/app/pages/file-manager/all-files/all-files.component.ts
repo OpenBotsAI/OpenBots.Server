@@ -1,4 +1,3 @@
-import { HttpResponse } from '@angular/common/http';
 import { Component, EventEmitter, OnInit, TemplateRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { FileSaverService } from 'ngx-filesaver';
@@ -21,42 +20,30 @@ import { FileManagerApiUrl } from '../../../webApiUrls';
   styleUrls: ['./all-files.component.scss'],
 })
 export class AllFilesComponent implements OnInit {
-  FolderIDs: any = [];
-  ChildFolderFlag: boolean;
   //// file upload declartion ////
   options: UploaderOptions;
   files: UploadFile[];
   uploadInput: EventEmitter<UploadInput>;
   humanizeBytes: Function;
   dragOver: boolean;
-  native_file: any;
-  native_file_name: any;
   fileSize = false;
   ///// end declartion////
   filesFormgroup: FormGroup;
   filesCreateFolderFromgroup: FormGroup;
   fileManger: FileManager[] = [];
-  fileID: any = [];
-  name: any = [];
-  size: any = [];
-  contentType: any = [];
-  createdOn: any = [];
-  fullStoragePath: any = [];
-  floderName: any;
+  fileID: string;
+  fileName: string;
+  size: number;
+  contentType: string;
+  createdOn: string;
+  fullStoragePath: string;
+  floderName: string;
   bread: FileManager[] = [];
-  isSubmitted = false;
   fileType: string;
-  showpage: any = [];
-  sortDir = 1;
-  showData;
-  feild_name: any = [];
   page: Page = {};
-  get_perPage: boolean = false;
-  show_perpage_size: boolean = false;
-  per_page_num: any = [];
   itemsPerPage: ItemsPerPage[] = [];
-  showDownloadbtn: boolean = false;
-  Downloadbtn: boolean = false;
+  showDownloadbtn = false;
+  Downloadbtn = false;
   //// select row ///
   HighlightRow: number;
   ClickedRow: any;
@@ -67,7 +54,14 @@ export class AllFilesComponent implements OnInit {
   uploadedFilesArr: any[] = [];
   isHidden = true;
   renameId: string;
-
+  storageDriveArr: FileManager[] = [];
+  storageDriveForm: FormGroup;
+  retrictedFilesarr = ['.bat', '.exe', '.com', '.vbs'];
+  isDownloadButton = false;
+  pageNumberRecord: number[] = [];
+  isFileUploaded = false;
+  isFolderCreated = false;
+  isDeleted = false;
   constructor(
     private fileSaverService: FileSaverService,
     private formBuilder: FormBuilder,
@@ -83,57 +77,81 @@ export class AllFilesComponent implements OnInit {
   ngOnInit(): void {
     this.page.pageNumber = 1;
     this.page.pageSize = 5;
-    this.getdriveName();
     this.itemsPerPage = this.helperService.getItemsPerPage();
+    this.getAllStorageDrives();
+    this.storageDriveForm = this.initializeForm();
   }
-
-  getdriveName(): void {
+  initializeForm() {
+    return this.formBuilder.group({
+      id: [''],
+    });
+  }
+  getAllStorageDrives(): void {
     this.httpService
-      .get(`${FileManagerApiUrl.files}/${FileManagerApiUrl.drive}`, {
-        observe: 'response',
-      })
+      .get(`${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}`)
       .subscribe((response) => {
-        if (response && response.status === 200) {
-          this.driveName = response.body.name;
-          this.driveId = response.body.id;
-          this.currentParentId = response.body.id;
-          this.getFilterPagination(
-            this.page.pageNumber,
-            this.page.pageSize,
-            this.driveId
-          );
+        if (response && response.items && response.items.length) {
+          this.storageDriveArr = [...response.items];
+          this.driveId = this.storageDriveArr[0].id;
+          this.driveName = this.storageDriveArr[0].name;
+          this.storageDriveForm.patchValue(this.storageDriveArr[0]);
         }
+        this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
       });
   }
 
-  // this function get pagination using parent-id
-  getFilterPagination(
+  getStorageDriveByDriveId(
     pageNumber: number,
     pageSize: number,
-    id: string,
     orderBy?: string
   ): void {
     const top = pageSize;
     this.page.pageSize = pageSize;
     const skip = (pageNumber - 1) * pageSize;
     let url: string;
-    // url = `${FileManagerApiUrl.files}?driveName=${this.driveName}&$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
-    if (orderBy)
-      url = `${FileManagerApiUrl.files}?&$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
-    else
-      url = `${FileManagerApiUrl.files}?&$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
-    // url = `${FileManagerApiUrl.files}?driveName=${this.driveName}&$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${id}'`;
+    if (this.currentParentId) {
+      if (orderBy)
+        url = `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}?&$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${this.currentParentId}'`;
+      else
+        url = `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}?&$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${this.currentParentId}'`;
+    } else {
+      if (orderBy)
+        url = `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}?&$orderby=${orderBy}&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${this.driveId}'`;
+      else
+        url = `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}?&$orderby=createdOn+desc&$top=${top}&$skip=${skip}&$filter=ParentId+eq+guid'${this.driveId}'`;
+    }
+
     this.httpService.get(url).subscribe((response) => {
       this.page.totalCount = response.totalCount;
       if (response && response.items && response.items.length) {
-        // this.bread = [];
         this.fileManger = [];
         this.fileManger = [...response.items];
       } else this.fileManger = [];
     });
   }
 
-  gotodetail(file): void {
+  onStorageDriveChange(event) {
+    if (event) {
+      this.driveId = event.id;
+      this.driveName = event.name;
+      this.currentParentId = null;
+      this.bread = [];
+      this.pageNumberRecord = [];
+      this.page.pageNumber = 1;
+      this.page.pageSize = 5;
+      this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
+    }
+  }
+
+  refreshFileManager() {
+    this.currentParentId = null;
+    this.bread = [];
+    this.pageNumberRecord = [];
+    this.page.pageNumber = 1;
+    this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
+  }
+
+  driveDocumentDetail(file): void {
     if (file && file.isFile) {
       this.isHidden = false;
     } else {
@@ -142,24 +160,17 @@ export class AllFilesComponent implements OnInit {
     if (file) {
       this.showDownloadbtn = true;
       if (file.isFile == true) {
-        this.Downloadbtn = true;
+        this.isDownloadButton = true;
       } else if (file.isFile == false) {
-        this.Downloadbtn = false;
+        this.isDownloadButton = false;
       }
       this.fileID = file.id;
-      this.name = file.name;
+      this.fileName = file.name;
       this.size = file.size;
       this.contentType = file.contentType;
       this.createdOn = file.createdOn;
       this.fullStoragePath = file.fullStoragePath;
     }
-  }
-
-  onClickFiles(): void {
-    this.bread = [];
-    this.page.pageNumber = 1;
-    this.page.pageSize = 5;
-    this.getdriveName();
   }
 
   deleteFiles(ref: TemplateRef<any>): void {
@@ -169,7 +180,8 @@ export class AllFilesComponent implements OnInit {
     this.filesFormgroup = this.formBuilder.group({
       name: [''],
     });
-    this.filesFormgroup.patchValue({ name: this.name });
+    this.fileName = this.fileName.split('.')[0];
+    this.filesFormgroup.patchValue({ name: this.fileName });
     this.dialogService.openDialog(ref);
   }
 
@@ -181,8 +193,8 @@ export class AllFilesComponent implements OnInit {
     });
     this.dialogService.openDialog(ref);
   }
-
   createFolder(ref) {
+    this.isFolderCreated = true;
     let storagePath = '';
     this.bread.forEach((item) => (storagePath += '/' + item.name));
     let formData = new FormData();
@@ -191,28 +203,27 @@ export class AllFilesComponent implements OnInit {
     formData.append('isFile', this.filesCreateFolderFromgroup.value.isFile);
     this.httpService
       .post(
-        // `${FileManagerApiUrl.files}?driveName=${this.driveName}`,
-        `${FileManagerApiUrl.files}`,
+        `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}/${FileManagerApiUrl.folders}`,
         formData,
         {
           observe: 'response',
         }
       )
-      .subscribe((data) => {
-        if (data && data.status === 200) {
-          if (this.bread && !this.bread.length)
-            this.getFilterPagination(
-              1,
-              this.page.pageSize,
-              this.currentParentId
+      .subscribe(
+        (data) => {
+          if (data && data.status === 200) {
+            this.isFolderCreated = false;
+            this.page.pageNumber = 1;
+            this.getStorageDriveByDriveId(
+              this.page.pageNumber,
+              this.page.pageSize
             );
-          else {
-            this.getByIdFile(this.bread[this.bread.length - 1].id);
+            this.httpService.success('New folder created successfully');
+            ref.close();
           }
-          this.httpService.success('New folder created successfully');
-          ref.close();
-        }
-      });
+        },
+        () => (this.isFolderCreated = false)
+      );
   }
 
   get fc() {
@@ -227,6 +238,7 @@ export class AllFilesComponent implements OnInit {
   }
 
   onUploadOutput(output: UploadOutput): void {
+    let uplaodFIle;
     switch (output.type) {
       case 'addedToQueue':
         if (typeof output.file !== 'undefined') {
@@ -235,49 +247,52 @@ export class AllFilesComponent implements OnInit {
           } else {
             this.fileSize = false;
           }
+          uplaodFIle = output.file.name;
+          for (let extension of this.retrictedFilesarr) {
+            if (output.file.name.includes(extension)) {
+              this.httpService.error('This File format is not allowed');
+              return;
+            }
+          }
           this.uploadedFilesArr.push(output.file);
         }
         break;
     }
   }
   UploadFile(ref): void {
+    this.isFileUploaded = true;
     let storagePath = this.driveName;
     if (this.bread && this.bread.length)
       this.bread.forEach((item) => (storagePath += `/${item.name}`));
     let formData = new FormData();
+    formData.append('StoragePath', storagePath);
     for (let data of this.uploadedFilesArr) {
       formData.append('Files', data.nativeFile, data.nativeFile.name);
-      formData.append('StoragePath', storagePath);
     }
     this.httpService
       .post(
-        // `${FileManagerApiUrl.files}?driveName=${this.driveName}`,
-        `${FileManagerApiUrl.files}`,
+        `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}/${FileManagerApiUrl.files}`,
         formData,
         {
           observe: 'response',
         }
       )
-      .subscribe((data: any) => {
-        if (data && data.status === 200) {
-          this.uploadedFilesArr = [];
-          if (this.bread.length) {
-            this.getFilterPagination(
+      .subscribe(
+        (data: any) => {
+          if (data && data.status === 200) {
+            this.isFileUploaded = false;
+            this.uploadedFilesArr = [];
+            this.getStorageDriveByDriveId(
               this.page.pageNumber,
-              this.page.pageSize,
-              this.currentParentId
-            );
-          } else {
-            this.getFilterPagination(
-              this.page.pageNumber,
-              this.page.pageSize,
-              this.driveId
+              this.page.pageSize
             );
           }
-        }
-        ref.close();
-      });
+          ref.close();
+        },
+        () => (this.isFileUploaded = false)
+      );
   }
+
   cancelUpload(id: string): void {
     this.uploadInput.emit({ type: 'cancel', id: id });
   }
@@ -292,27 +307,16 @@ export class AllFilesComponent implements OnInit {
   renameFileName(ref) {
     this.httpService
       .put(
-        // `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.rename}?driveName=${this.driveName}`,
-        `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.rename}`,
+        `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}/${FileManagerApiUrl.folders}/${this.fileID}/${FileManagerApiUrl.rename}`,
         this.filesFormgroup.value,
         { observe: 'response' }
       )
       .subscribe((response) => {
         if (response && response.status === 200) {
-          if (this.bread.length) {
-            this.getFilterPagination(
-              this.page.pageNumber,
-              this.page.pageSize,
-              this.bread[this.bread.length - 1].id
-            );
-          } else {
-            this.getFilterPagination(
-              this.page.pageNumber,
-              this.page.pageSize,
-              this.currentParentId
-            );
-          }
-
+          this.getStorageDriveByDriveId(
+            this.page.pageNumber,
+            this.page.pageSize
+          );
           this.httpService.success('Renamed successfully');
           ref.close();
         }
@@ -320,10 +324,8 @@ export class AllFilesComponent implements OnInit {
   }
 
   onDown() {
-    let fileName: string;
     this.httpService
       .get(
-        // `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.download}?driveName=${this.driveName}`
         `${FileManagerApiUrl.files}/${this.fileID}/${FileManagerApiUrl.download}`,
         {
           responseType: 'blob',
@@ -342,11 +344,15 @@ export class AllFilesComponent implements OnInit {
       });
   }
 
-  getFileId(i: number) {
-    for (let abc in this.bread) {
-      if (+abc > i) {
-        this.bread.splice(+abc, this.bread.length - i);
-        this.getFilterPagination(1, this.page.pageSize, this.bread[i].id);
+  onBreadCrumb(i: number): void {
+    for (let index in this.bread) {
+      if (+index > i) {
+        this.bread.splice(+index, this.bread.length - i);
+        this.currentParentId = this.bread[i].id;
+        this.page.pageNumber =
+          this.pageNumberRecord[this.pageNumberRecord.length - 1];
+        this.pageNumberRecord.splice(+index, this.pageNumberRecord.length - 1);
+        this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
         this.floderName = this.bread[i].name;
       }
     }
@@ -356,27 +362,24 @@ export class AllFilesComponent implements OnInit {
     if (this.bread && this.bread.length > 1) {
       this.bread.splice(this.bread.length - 1, 1);
       this.floderName = this.bread[this.bread.length - 1].name;
-      this.getFilterPagination(
-        this.page.pageNumber,
-        this.page.pageSize,
-        this.bread[this.bread.length - 1].id
-      );
+      this.currentParentId = this.bread[this.bread.length - 1].id;
+      this.page.pageNumber =
+        this.pageNumberRecord[this.pageNumberRecord.length - 1];
+      this.pageNumberRecord.splice(this.pageNumberRecord.length - 1, 1);
+      this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
     } else {
-      this.bread.splice(this.bread.length - 1, 1);
-      this.getFilterPagination(
-        this.page.pageNumber,
-        this.page.pageSize,
-        this.driveId
-      );
+      this.currentParentId = null;
+      this.page.pageNumber = this.pageNumberRecord[0];
+      this.floderName = null;
+      this.bread = [];
+      this.pageNumberRecord = [];
+      this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
     }
   }
 
   getByIdFile(id: string): void {
     this.httpService
-      .get(
-        // `${FileManagerApiUrl.files}?driveName=${this.driveName}&$filter=ParentId+eq+guid'${id}'`
-        `${FileManagerApiUrl.files}?&$filter=ParentId+eq+guid'${id}'`
-      )
+      .get(`${FileManagerApiUrl.files}?&$filter=ParentId+eq+guid'${id}'`)
       .subscribe((response) => {
         if (response && response.items) {
           this.fileManger = [];
@@ -386,24 +389,21 @@ export class AllFilesComponent implements OnInit {
       });
   }
 
-  fileFolder(files) {
+  onDoubleClick(files) {
     this.HighlightRow = null;
     this.showDownloadbtn = false;
     if (files && files.isFile == false) {
       if (this.floderName != files.name) {
         this.floderName = files.name;
         this.bread.push(files);
+        this.pageNumberRecord.push(this.page.pageNumber);
       }
-      this.FolderIDs = files.id;
       this.page.pageNumber = 1;
       this.currentParentId = files.id;
-      this.getFilterPagination(
-        this.page.pageNumber,
-        this.page.pageSize,
-        files.id
-      );
+      this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
     }
   }
+
   onSortClick(event, param: string): void {
     let target = event.currentTarget,
       classList = target.classList;
@@ -411,20 +411,18 @@ export class AllFilesComponent implements OnInit {
       classList.remove('fa-chevron-up');
       classList.add('fa-chevron-down');
       this.filterOrderBy = `${param}+asc`;
-      this.getFilterPagination(
+      this.getStorageDriveByDriveId(
         this.page.pageNumber,
         this.page.pageSize,
-        this.currentParentId,
         `${param}+asc`
       );
     } else {
       classList.remove('fa-chevron-down');
       classList.add('fa-chevron-up');
       this.filterOrderBy = `${param}+desc`;
-      this.getFilterPagination(
+      this.getStorageDriveByDriveId(
         this.page.pageNumber,
         this.page.pageSize,
-        this.currentParentId,
         `${param}+desc`
       );
     }
@@ -432,15 +430,17 @@ export class AllFilesComponent implements OnInit {
 
   pageChanged(event): void {
     this.page.pageNumber = event;
+    if (this.bread && !this.bread.length) {
+      this.pageNumberRecord.push(event);
+    }
     if (this.filterOrderBy) {
-      this.getFilterPagination(
+      this.getStorageDriveByDriveId(
         event,
         this.page.pageSize,
-        this.currentParentId,
-        `${this.filterOrderBy}`
+        this.filterOrderBy
       );
     } else {
-      this.getFilterPagination(event, this.page.pageSize, this.currentParentId);
+      this.getStorageDriveByDriveId(event, this.page.pageSize);
     }
   }
 
@@ -448,18 +448,13 @@ export class AllFilesComponent implements OnInit {
     this.page.pageSize = +event.target.value;
     this.page.pageNumber = 1;
     if (event.target.value && this.filterOrderBy) {
-      this.getFilterPagination(
+      this.getStorageDriveByDriveId(
         this.page.pageNumber,
         this.page.pageSize,
-        this.currentParentId,
         this.filterOrderBy
       );
     } else
-      this.getFilterPagination(
-        this.page.pageNumber,
-        this.page.pageSize,
-        this.currentParentId
-      );
+      this.getStorageDriveByDriveId(this.page.pageNumber, this.page.pageSize);
   }
 
   pagination(pageNumber: number, pageSize: number, orderBy?: string): void {
@@ -471,12 +466,10 @@ export class AllFilesComponent implements OnInit {
 
   getAllFilesAndFdlders(top: number, skip: number, orderBy?: string): void {
     let url: string;
-    // url = `${FileManagerApiUrl.files}?driveName=${this.driveName}&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
     if (orderBy)
       url = `${FileManagerApiUrl.files}?&$orderby=${orderBy}&$top=${top}&$skip=${skip}`;
     else
       url = `${FileManagerApiUrl.files}?&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
-    // url = `${FileManagerApiUrl.files}?driveName=${this.driveName}&$orderby=createdOn+desc&$top=${top}&$skip=${skip}`;
     this.httpService.get(url).subscribe((response) => {
       if (response && response.items) {
         this.fileManger = [...response.items];
@@ -494,29 +487,34 @@ export class AllFilesComponent implements OnInit {
     this.uploadedFilesArr = [];
   }
 
-  onDelete(ref) {
+  onDelete(ref): void {
+    this.isDeleted = true;
+    let contentType;
+    if (this.isHidden) contentType = FileManagerApiUrl.folders;
+    else contentType = FileManagerApiUrl.files;
     this.httpService
       .delete(
-        // `${FileManagerApiUrl.files}/${this.fileID}?driveName=${this.driveName}`,
-        `${FileManagerApiUrl.files}/${this.fileID}?`,
+        `${FileManagerApiUrl.storage}/${FileManagerApiUrl.drives}/${this.driveId}/${contentType}/${this.fileID}`,
         {
           observe: 'response',
         }
       )
-      .subscribe((response) => {
-        if (response && response.status === 200) {
-          if (!this.bread.length)
-            this.getFilterPagination(1, this.page.pageSize, this.driveId);
-          else {
-            this.getFilterPagination(
-              1,
-              this.page.pageSize,
-              this.currentParentId
+      .subscribe(
+        (response) => {
+          if (response && response.status === 200) {
+            this.HighlightRow = null;
+            this.showDownloadbtn = false;
+            this.isDeleted = false;
+            this.isDownloadButton = false;
+            this.getStorageDriveByDriveId(
+              this.page.pageNumber,
+              this.page.pageSize
             );
           }
           this.httpService.success('Deleted successfully');
           ref.close();
-        }
-      });
+        },
+        () => (this.isDeleted = false)
+      );
   }
 }

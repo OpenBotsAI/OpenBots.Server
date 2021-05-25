@@ -9,7 +9,7 @@ namespace OpenBots.Server.ViewModel
     public class CreateJobViewModel : IViewModel<CreateJobViewModel, Job>
     {
         public Guid? Id { get; set; }
-        [Required]
+        public Guid? ScheduleId { get; set; }
         public Guid? AgentId { get; set; }
         public Guid? AgentGroupId { get; set; }
         public DateTime? StartTime { get; set; }
@@ -28,6 +28,7 @@ namespace OpenBots.Server.ViewModel
             Job job = new Job
             {
                 Id = viewModel.Id,
+                ScheduleId = viewModel.ScheduleId,
                 AgentId = viewModel.AgentId,
                 AgentGroupId = viewModel.AgentGroupId,
                 StartTime = viewModel.StartTime,

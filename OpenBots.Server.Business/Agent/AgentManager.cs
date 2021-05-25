@@ -31,6 +31,7 @@ namespace OpenBots.Server.Business
         private readonly IWebhookPublisher _webhookPublisher;
         private readonly ClaimsPrincipal _caller;
         private readonly IAgentGroupRepository _agentGroupRepository;
+        private readonly IAgentSettingRepository _agentSettingRepository;
 
         public AgentManager(IAgentRepository agentRepository,
             IScheduleRepository scheduleRepository,
@@ -44,7 +45,8 @@ namespace OpenBots.Server.Business
             IJobManager jobManager,
             IWebhookPublisher webhookPublisher,
             IHttpContextAccessor httpContextAccessor,
-            IAgentGroupRepository agentGroupRepository)
+            IAgentGroupRepository agentGroupRepository,
+            IAgentSettingRepository agentSettingRepository)
         {
             _agentRepo = agentRepository;
             _scheduleRepo = scheduleRepository;
@@ -58,6 +60,7 @@ namespace OpenBots.Server.Business
             _jobManager = jobManager;
             _agentGroupRepository = agentGroupRepository;
             _webhookPublisher = webhookPublisher;
+            _agentSettingRepository = agentSettingRepository;
             _caller = ((httpContextAccessor.HttpContext != null) ? httpContextAccessor.HttpContext.User : new ClaimsPrincipal());
         }
 
@@ -118,6 +121,16 @@ namespace OpenBots.Server.Business
             {
                 _personRepo.Add(newPerson);
             }
+
+            //create agent setting if one was provided
+            if (request.AgentSetting != null)
+            {
+                AgentSettingViewModel settingViewModel = request.AgentSetting;
+                AgentSetting agentSetting = settingViewModel.Map(settingViewModel);
+                agentSetting.AgentId = request.Id;
+
+                _agentSettingRepository.Add(agentSetting);
+            }
         }
 
         /// <summary>
@@ -140,7 +153,7 @@ namespace OpenBots.Server.Business
             }
             _personRepo.ForceSecurity();
 
-            var aspUser = _usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person.Id)?.FirstOrDefault();
+            var aspUser = _usersRepo.Find(0, 1).Items?.Where(u => u.PersonId == person?.Id)?.FirstOrDefault();
 
             if (aspUser != null)
             {
@@ -160,7 +173,12 @@ namespace OpenBots.Server.Business
                 _agentGroupMemberRepository.SoftDelete(member.Id ?? Guid.Empty);
             }
 
-            DeleteExistingHeartbeats(agent.Id ?? Guid.Empty);
+            //delete agent settings
+            var agentSettings = _agentSettingRepository.Find(null, s => s.AgentId == agent.Id)?.Items?.FirstOrDefault();
+            if (agentSettings != null)
+            {
+                _agentSettingRepository.SoftDelete(agentSettings.Id.Value);
+            }
         }
 
         /// <summary>
@@ -169,7 +187,7 @@ namespace OpenBots.Server.Business
         /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>Updated Agent</returns>
-        public Agent UpdateAgent(string id, Agent request)
+        public Agent UpdateAgent(string id, UpdateAgentViewModel request)
         {
             Guid entityId = new Guid(id);
 
@@ -198,6 +216,31 @@ namespace OpenBots.Server.Business
             existingAgent.CredentialId = request.CredentialId;
             existingAgent.IPOption = request.IPOption;
             existingAgent.IsEnhancedSecurity = request.IsEnhancedSecurity;
+
+            if (request.AgentSetting != null)
+            {
+                AgentSettingViewModel settingViewModel = request.AgentSetting;
+                AgentSetting agentSetting = settingViewModel.Map(settingViewModel);
+                agentSetting.AgentId = entityId;
+
+                var existingSetting = _agentSettingRepository.Find(null, s => s.AgentId == entityId).Items.FirstOrDefault();
+
+                //if setting exists, then update the setting
+                if (existingSetting != null)
+                {
+                    existingSetting.HeartbeatInterval = settingViewModel.HeartbeatInterval;
+                    existingSetting.JobLoggingInterval = settingViewModel.JobLoggingInterval;
+                    existingSetting.VerifySslCertificate = settingViewModel.VerifySslCertificate;
+
+                    _agentSettingRepository.Update(existingSetting);
+                }
+                //if setting does not exist, then create a new setting
+                else
+                {
+                    _agentSettingRepository.Add(agentSetting);
+                }
+
+            }
 
             return existingAgent;
         }
@@ -246,8 +289,8 @@ namespace OpenBots.Server.Business
             agentView.UserName = _usersRepo.Find(null, u => u.Name == agentView.Name).Items?.FirstOrDefault()?.UserName;
             agentView.CredentialName = _credentialRepo.GetOne(agentView.CredentialId ?? Guid.Empty)?.Name;
 
+            //get agent hearbeat details
             AgentHeartbeat agentHeartBeat = _agentHeartbeatRepo.Find(0, 1).Items?.Where(a => a.AgentId == agentView.Id).OrderByDescending(a => a.CreatedOn).FirstOrDefault();
-
             if (agentHeartBeat != null)
             {
                 agentView.LastReportedOn = agentHeartBeat.LastReportedOn;
@@ -255,6 +298,16 @@ namespace OpenBots.Server.Business
                 agentView.LastReportedWork = agentHeartBeat.LastReportedWork;
                 agentView.LastReportedMessage = agentHeartBeat.LastReportedMessage;
                 agentView.IsHealthy = agentHeartBeat.IsHealthy;
+            }
+
+            //get agent settings details
+            AgentSetting agentSetting = _agentSettingRepository.Find(null, s => s.AgentId == agentView.Id).Items.FirstOrDefault();
+
+            if (agentSetting != null)
+            {
+                AgentSettingViewModel settingViewModel = new AgentSettingViewModel();
+                settingViewModel = settingViewModel.MapFromModel(agentSetting);
+                agentView.AgentSetting = settingViewModel;
             }
 
             return agentView;
@@ -281,40 +334,16 @@ namespace OpenBots.Server.Business
         }
 
         /// <summary>
-        /// Gets an enumerable of all agent heartbeats
-        /// </summary>
-        /// <param name="agentId"></param>
-        /// <returns></returns>
-        private IEnumerable<AgentHeartbeat> GetAgentHeartbeats(Guid agentId)
-        {
-            var agentHeartbeats = _agentHeartbeatRepo.Find(0, 1)?.Items?.Where(p => p.AgentId == agentId);
-            return agentHeartbeats;
-        }
-
-        /// <summary>
-        /// Deletes any existing agent heartbeats for the specified agent
-        /// </summary>
-        /// <param name="agentId"></param>
-        private void DeleteExistingHeartbeats(Guid agentId)
-        {
-            var agentHeartbeats = GetAgentHeartbeats(agentId);
-            foreach (var heartbeat in agentHeartbeats)
-            {
-                _agentHeartbeatRepo.SoftDelete(heartbeat.AgentId);
-            }
-        }
-
-        /// <summary>
-        /// Returns the requested agent if the provided information matches what's stored in the agent
+        /// Connects the specified Agent and returns Agent details if the provided information matches what's stored in the Agent
         /// </summary>
         /// <param name="agentId"></param>
         /// <param name="requestIp"></param>
         /// <param name="request"></param>
         /// <returns>Specified Agent</returns>
-        public Agent GetConnectAgent(string agentId, string requestIp, ConnectAgentViewModel request)
+        public ConnectedViewModel ConnectAgent(string agentId, string requestIp, ConnectAgentViewModel request)
         {
             Agent agent = _agentRepo.GetOne(Guid.Parse(agentId));
-            if (agent == null) return agent;
+            if (agent == null) throw new EntityDoesNotExistException("No Agent was found for the specified id");
 
             if (agent.IsEnhancedSecurity == true)
             {
@@ -333,7 +362,64 @@ namespace OpenBots.Server.Business
                 throw new UnauthorizedOperationException("The machine name provided does not match this agent's machine name", EntityOperationType.Update);
             }
 
-            return agent;
+            //connect agent if it is not already connected
+            if (agent.IsConnected == false)
+            {
+                agent.IsConnected = true;
+                _agentRepo.Update(agent);
+            }
+
+            //populate connected view model
+            ConnectedViewModel connectedViewModel = new ConnectedViewModel();
+            connectedViewModel = connectedViewModel.Map(agent);
+
+            //get agent settings details
+            AgentSetting agentSetting = _agentSettingRepository.Find(null, s => s.AgentId == agent.Id).Items.FirstOrDefault();
+
+            if (agentSetting != null)
+            {
+                AgentSettingViewModel settingViewModel = new AgentSettingViewModel();
+                settingViewModel = settingViewModel.MapFromModel(agentSetting);
+                connectedViewModel.AgentSetting = settingViewModel;
+            }          
+
+            return connectedViewModel;
+        }
+
+        /// <summary>
+        /// Disconnects the specified Agent if the provided details match what's stored in the Agent
+        /// </summary>
+        /// <param name="agentId"></param>
+        /// <param name="requestIp"></param>
+        /// <param name="request"></param>
+        public void DisconnectAgent(Guid? agentId, string requestIp, ConnectAgentViewModel request)
+        {
+            Agent agent = _agentRepo.GetOne(agentId.Value);
+            if (agent == null) throw new EntityDoesNotExistException("No Agent was found for the specified id");
+
+            if (agent.IsEnhancedSecurity == true)
+            {
+                if (agent.IPAddresses != requestIp)
+                {
+                    throw new UnauthorizedOperationException("The IP address provided does not match this agent's IP address", EntityOperationType.Update);
+                }
+                if (agent.MacAddresses != request.MacAddresses)
+                {
+                    throw new UnauthorizedOperationException("The MAC address provided does not match this agent's MAC address", EntityOperationType.Update);
+                }
+            }
+
+            if (agent.MachineName != request.MachineName)
+            {
+                throw new UnauthorizedOperationException("The machine name provided does not match this agent's machine name", EntityOperationType.Update);
+            }
+
+            //disconnect agent if it is already connected
+            if (agent.IsConnected == true)
+            {
+                agent.IsConnected = false;
+                _agentRepo.Update(agent);
+            }
         }
 
         /// <summary>
@@ -404,7 +490,7 @@ namespace OpenBots.Server.Business
             }
 
             //get all new jobs of the agent group and assign the oldest one to the current agent
-            var job = GetAgentGroupJob(agentGuid);
+            var job = GetNextAgentJob(agentGuid);
 
             var jobParameters = _jobManager.GetJobParameters(job?.Id ?? Guid.Empty);
 
@@ -418,7 +504,12 @@ namespace OpenBots.Server.Business
             return nextJob;
         }
 
-        public Job GetAgentGroupJob(Guid agentGuid)
+        /// <summary>
+        /// Searches for all Jobs assigned to this Agent or any of its groups
+        /// </summary>
+        /// <param name="agentGuid"></param>
+        /// <returns>The oldest job with a new status</returns>
+        public Job GetNextAgentJob(Guid agentGuid)
         {
             List<Job> agentGroupJobs = new List<Job>();
             var agentGroupsMembers = GetAllMembersInGroup(agentGuid.ToString()).Items;

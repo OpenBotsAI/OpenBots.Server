@@ -30,7 +30,7 @@ export class AllConfigValueComponent implements OnInit {
     private router: Router,
     private configService: ConfigValueService,
     private helperService: HelperService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.page.pageNumber = 1;
@@ -46,9 +46,7 @@ export class AllConfigValueComponent implements OnInit {
   }
 
   gotodetail(id) {
-    this.router.navigate(['/pages/config/get-config-id'], {
-      queryParams: { id: id },
-    });
+    this.router.navigate([`/pages/config/view/${id}`]);
   }
 
   sort(filter_val, vale) {

@@ -9,20 +9,20 @@ namespace OpenBots.Server.Business.Interfaces
 {
     public interface IFileStorageAdapter
     {
-        public Task<FileFolderViewModel> ExportFile(string id, string driveName = null);
+        public Task<FileFolderViewModel> ExportFile(string id, string driveId);
 
-        public PaginatedList<FileFolderViewModel> GetFilesFolders(bool? isFile = null, string driveName = null, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
+        public PaginatedList<FileFolderViewModel> GetFilesFolders(string driveId, bool? isFile = null, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100, string path = null);
 
-        public FileFolderViewModel SaveFile(FileFolderViewModel viewModel, IFormFile file, ServerDrive drive);
+        public FileFolderViewModel SaveFile(FileFolderViewModel viewModel, IFormFile file, StorageDrive drive);
 
-        public void UpdateFile(FileFolderViewModel request);
+        public Task<FileFolderViewModel> UpdateFile(FileFolderViewModel request);
 
-        public FileFolderViewModel DeleteFileFolder(string id, string driveName = null);
+        public FileFolderViewModel DeleteFileFolder(string id, string driveId, string type);
 
-        public FileFolderViewModel RenameFileFolder(string id, string name, string driveName = null);
+        public FileFolderViewModel RenameFileFolder(string id, string name, string driveId, string type);
 
-        public FileFolderViewModel MoveFileFolder(string fileFolderId, string parentFolderId, string driveName = null);
+        public FileFolderViewModel MoveFileFolder(string fileFolderId, string parentFolderId, string driveId, string type);
 
-        public FileFolderViewModel CopyFileFolder(string fileFolderId, string parentFolderId, string driveName = null);
+        public FileFolderViewModel CopyFileFolder(string fileFolderId, string parentFolderId, string driveId, string type);
     }
 }

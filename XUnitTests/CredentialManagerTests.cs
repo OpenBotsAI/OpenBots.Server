@@ -6,6 +6,7 @@ using OpenBots.Server.Business;
 using OpenBots.Server.DataAccess;
 using OpenBots.Server.DataAccess.Repositories;
 using OpenBots.Server.Model;
+using OpenBots.Server.Model.Identity;
 using System;
 using System.Threading.Tasks;
 using Xunit;
@@ -40,12 +41,18 @@ namespace XUnitTests
                 EndDate = new DateTime(2010, 12, 31, 12, 00, 0),
             };
 
-            var logger = Mock.Of<ILogger<Credential>>();
+            var credentialLogger = Mock.Of<ILogger<Credential>>();
+            var personLogger = Mock.Of<ILogger<Person>>();
+            var agentLogger = Mock.Of<ILogger<Agent>>();
+
             var httpContextAccessor = new Mock<IHttpContextAccessor>();
             httpContextAccessor.Setup(req => req.HttpContext.User.Identity.Name).Returns(It.IsAny<string>());
 
-            var repo = new CredentialRepository(context, logger, httpContextAccessor.Object);
-            _manager = new CredentialManager(repo);
+            var repo = new CredentialRepository(context, credentialLogger, httpContextAccessor.Object);
+            var personRepo = new PersonRepository(context, personLogger, httpContextAccessor.Object);
+            var agentRepo = new AgentRepository(context, agentLogger, httpContextAccessor.Object);
+
+            //_manager = new CredentialManager(repo, personRepo, agentRepo);
         }
 
         //validates if the current date falls within date range

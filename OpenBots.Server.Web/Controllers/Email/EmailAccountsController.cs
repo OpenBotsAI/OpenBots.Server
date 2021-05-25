@@ -178,6 +178,13 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
                     return BadRequest(ModelState);
                 }
 
+                var defaultAccount = repository.Find(null, d => d.IsDefault == true && d.IsDeleted == false).Items?.FirstOrDefault();
+                if (request.IsDefault == true && defaultAccount != null)
+                {
+                    ModelState.AddModelError("Email Account", $"Default email account {defaultAccount.Name} already exists");
+                    return BadRequest(ModelState);
+                }
+
                 applicationUser = userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
                 if (request.EncryptedPassword != null && applicationUser != null)
                     request.PasswordHash = userManager.PasswordHasher.HashPassword(applicationUser, request.EncryptedPassword);
@@ -228,6 +235,13 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
                     return BadRequest(ModelState);
                 }
 
+                var defaultAccount = repository.Find(null, d => d.IsDefault == true && d.IsDeleted == false).Items?.FirstOrDefault();
+                if (request.IsDefault == true && defaultAccount != null && defaultAccount.Id.ToString() != id)
+                {
+                    ModelState.AddModelError("Email Account", $"Default email account {defaultAccount.Name} already exists");
+                    return BadRequest(ModelState);
+                }
+
                 existingEmailAccount.Name = request.Name;
                 existingEmailAccount.IsDisabled = request.IsDisabled;
                 existingEmailAccount.IsDefault = request.IsDefault;
@@ -257,12 +271,12 @@ namespace OpenBots.Server.Web.Controllers.EmailConfiguration
         }
 
         /// <summary>
-        /// Updates partial details of an email account.
+        /// Updates partial details of an email account
         /// </summary>
         /// <param name="id"></param>
         /// <param name="request"></param>
         /// <response code="200">Ok, if update of email account is successful</response>
-        /// <response code="400">Bad request, if the id is null or ids dont match.</response>
+        /// <response code="400">Bad request, if the id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
         /// <response code="422">Unprocessable entity, validation error</response>
         /// <returns>Ok response</returns>

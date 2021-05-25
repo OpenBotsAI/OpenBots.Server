@@ -26,10 +26,11 @@ export class GetSubscriptionIdComponent implements OnInit {
     protected router: Router,
     protected SubscriptionService: SubscriptionService
   ) {
-    this.acroute.queryParams.subscribe((params) => {
-      this.subscribeId = params.id;
-      this.getallEntity(params.id);
-    });
+
+
+    this.subscribeId = this.acroute.snapshot.params['id'];
+    this.getallEntity(this.subscribeId);
+
   }
 
   ngOnInit(): void {

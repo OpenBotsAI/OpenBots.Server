@@ -34,7 +34,7 @@ export class AllAutomationComponent implements OnInit {
     private toastrService: NbToastrService,
     private helperService: HelperService,
     protected automationService: AutomationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.page.pageNumber = 1;
@@ -44,9 +44,7 @@ export class AllAutomationComponent implements OnInit {
   }
 
   gotodetail(id) {
-    this.router.navigate(['/pages/automation/get-automation-id'], {
-      queryParams: { id: id },
-    });
+    this.router.navigate([`/pages/automation/view/${id}`]);
   }
   gotoedit(id) {
     this.router.navigate([`/pages/automation/edit/${id}`]);

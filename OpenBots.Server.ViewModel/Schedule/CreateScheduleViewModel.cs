@@ -2,6 +2,8 @@
 using OpenBots.Server.Model.Core;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace OpenBots.Server.ViewModel
 {
@@ -12,6 +14,7 @@ namespace OpenBots.Server.ViewModel
         public Guid? AgentId { get; set; }
         public Guid? AgentGroupId { get; set; }
         public string? CRONExpression { get; set; }
+        public string CRONExpressionTimeZone { get; set; }
         public DateTime? LastExecution { get; set; }
         public DateTime? NextExecution { get; set; }
         public bool? IsDisabled { get; set; }
@@ -22,6 +25,8 @@ namespace OpenBots.Server.ViewModel
         public DateTime? ExpiryDate { get; set; }
         public DateTime? StartDate { get; set; }
         public Guid? QueueId { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "Please enter valid a number greater than or equal to 1")]
+        public int? MaxRunningJobs { get; set; } 
         public IEnumerable<ParametersViewModel>? Parameters { get; set; }
 
         public Schedule Map(CreateScheduleViewModel viewModel)
@@ -33,6 +38,7 @@ namespace OpenBots.Server.ViewModel
                 AgentId = viewModel.AgentId,
                 AgentGroupId = viewModel.AgentGroupId,
                 CRONExpression = viewModel.CRONExpression,
+                CRONExpressionTimeZone = viewModel.CRONExpressionTimeZone,
                 LastExecution = viewModel.LastExecution,
                 NextExecution = viewModel.NextExecution,
                 IsDisabled = viewModel.IsDisabled,
@@ -43,6 +49,7 @@ namespace OpenBots.Server.ViewModel
                 ExpiryDate = viewModel.ExpiryDate,
                 StartDate = viewModel.StartDate,
                 QueueId = viewModel.QueueId,
+                MaxRunningJobs = viewModel.MaxRunningJobs
             };
 
             return schedule;

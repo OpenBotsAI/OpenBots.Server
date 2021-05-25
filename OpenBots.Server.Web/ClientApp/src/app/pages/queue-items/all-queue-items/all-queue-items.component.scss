@@ -265,6 +265,7 @@
 
 .customQueueForm {
   display: inline-block;
+  width:40%;
   vertical-align: middle;
   margin-right: 15px;
 }
@@ -285,7 +286,7 @@
 
 .queueForms {
   margin-bottom: 0px !important;
-  overflow: hidden;
+  // overflow: hidden;
   padding: 20px 0px;
   margin-top: 20px;
   // border-top: 1px solid #edf1f7;
@@ -298,6 +299,7 @@
 
 .watch {
   float: right;
+  width:auto;
 }
 
 @media only screen and (min-width: 10px)and (max-width: 736px) {

@@ -88,6 +88,7 @@
             </div>
 
           </div> -->
+
           <div class="row">
             <div class="col-md-6">
               <div class="form-group ">
@@ -106,9 +107,63 @@
                 </div>
               </div>
             </div>
-
-
           </div>
+          <div class="row">
+            <div class="col-md-12 col-sm-12 col-xxxl-12">
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary" style="float: right;" status="primary"
+                  *ngIf="!isAgentSettings" [disabled]="true">Agent
+                  Settings</button>
+                <button type="submit" class="btn btn-primary" style="float: right;" status="primary"
+                  *ngIf="isAgentSettings" [disabled]="true">Close
+                  Settings</button>
+              </div>
+            </div>
+          </div>
+          <ng-container *ngIf="isAgentSettings">
+            <form [formGroup]="addagent.get('agentSetting')">
+              <div class="row">
+                <div class="col-md-6 col-sm-6 col-xxxl-6">
+                  <label for="heartbeatInterval" class="label">Heartbeat Interval </label>
+                  <input type="number" nbInput fullWidth formControlName="heartbeatInterval" class="form-control"
+                    placeholder="Please enter heartbeat interval" style="color:#000000">
+                  <!-- <div
+                  *ngIf="agentForm.get('AgentSetting.heartbeatInterval').touched && agentForm.get('AgentSetting.heartbeatInterval').invalid"
+                  class="invalid-feedback-frm">
+                  <div
+                    *ngIf="agentForm.get('AgentSetting.heartbeatInterval').errors && agentForm.get('AgentSetting.heartbeatInterval').errors.required">
+                    Heartbeat Interval is required.</div>
+
+                  <div *ngIf="agentForm.get('AgentSetting.heartbeatInterval')?.errors.pattern">
+                    Heartbeat Interval must be greater than or equal to 300ms.</div>
+                </div> -->
+                </div>
+                <div class="col-md-6 col-sm-6 col-xxxl-6">
+                  <label for="jobLoggingInterval" class="label">Job Logging Interval </label>
+                  <input type="number" nbInput fullWidth formControlName="jobLoggingInterval" class="form-control"
+                    placeholder="Please enter job logging interval" style="color:#000000">
+                  <!-- <div
+                  *ngIf="agentForm.get('AgentSetting.jobLoggingInterval').touched && agentForm.get('AgentSetting.jobLoggingInterval').invalid"
+                  class="invalid-feedback-frm">
+                  <div
+                    *ngIf="agentForm.get('AgentSetting.jobLoggingInterval').errors && agentForm.get('AgentSetting.jobLoggingInterval').errors.required">
+                    Heartbeat Interval is required.</div>
+                  <div *ngIf="agentForm.get('AgentSetting.jobLoggingInterval')?.errors.pattern">
+                    Job Logging Interval must be greater than or equal to 30ms.</div>
+                </div> -->
+                </div>
+              </div>
+              <br>
+              <div class="row">
+                <div class="col-md-4 col-sm-4 col-xxxl-4">
+                  <label for="verifySslCertificate" class="label">Verify SSL Certificate </label>
+                  <ng-select [items]="sslCertificateArr" [searchable]="true" formControlName="verifySslCertificate"
+                    class="NgSelect" bindLabel="name" bindValue="value" style="color:#000000">
+                  </ng-select>
+                </div>
+              </div>
+            </form>
+          </ng-container>
           <hr>
           <div class="row">
             <div class="col-md-6">
@@ -146,10 +201,11 @@
           </div>
         </form>
         <hr *ngIf="showGridHeatbeat == true">
-             <nb-icon *ngIf="showGridHeatbeat == true"  nbTooltip="Refresh HeartBeat" icon="refresh" class="refresh-icon" (click)="refreshData()">
+        <nb-icon *ngIf="showGridHeatbeat == true" nbTooltip="Refresh HeartBeat" icon="refresh" class="refresh-icon"
+          (click)="refreshData()">
         </nb-icon>
-         <label class="refresh-icon" *ngIf="showGridHeatbeat == true"> Refresh HeartBeat</label>
-       
+        <label class="refresh-icon" *ngIf="showGridHeatbeat == true"> Refresh HeartBeat</label>
+
         <table class="table table-bordered" *ngIf="showGridHeatbeat == true">
           <thead>
             <tr>
@@ -208,9 +264,9 @@
                 <ngx-tooltip [data]="'Healthy'" [size]="40">
                 </ngx-tooltip>
               </td>
-                <td scope="row" *ngIf="agent.isHealthy == null">
-            <p></p>
-          </td>
+              <td scope="row" *ngIf="agent.isHealthy == null">
+                <p></p>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -224,14 +280,14 @@
               screenReaderCurrentLabel="You're on page"></pagination-controls>
           </div>
           <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="getPerPage">
-        <label class="label">Total {{ page.totalCount }} /</label>
+            <label class="label">Total {{ page.totalCount }} /</label>
 
-        <select class="custom-select per-page-drop" (change)="perPage($event.target.value)">
-          <option *ngFor="let item of itemsPerPage" [value]="item.id">
-            {{ item.name }}
-          </option>
-        </select>
-      </div>
+            <select class="custom-select per-page-drop" (change)="perPage($event.target.value)">
+              <option *ngFor="let item of itemsPerPage" [value]="item.id">
+                {{ item.name }}
+              </option>
+            </select>
+          </div>
         </div>
       </nb-card-body>
     </nb-card>

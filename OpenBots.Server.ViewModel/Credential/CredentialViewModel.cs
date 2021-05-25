@@ -15,6 +15,8 @@ namespace OpenBots.Server.ViewModel
         public string UserName { get; set; }
         public string PasswordHash { get; set; }
         public string Certificate { get; set; }
+        public Guid? AgentId { get; set; }
+        public string AgentName { get; set; }
 
         public CredentialViewModel Map(Credential entity)
         {
@@ -28,7 +30,8 @@ namespace OpenBots.Server.ViewModel
                 Domain = entity.Domain,
                 UserName = entity.UserName,
                 Certificate = entity.Certificate,
-                PasswordHash = entity.PasswordHash
+                PasswordHash = entity.PasswordHash,
+                AgentId = entity.AgentId
             };
 
             return credentialViewModel;

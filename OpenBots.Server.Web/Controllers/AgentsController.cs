@@ -40,8 +40,6 @@ namespace OpenBots.Server.Web.Controllers
         /// AgentsController constructor
         /// </summary>
         /// <param name="agentRepository"></param>
-        /// <param name="personRepository"></param>
-        /// <param name="usersRepository"></param>
         /// <param name="membershipManager"></param>
         /// <param name="userManager"></param>
         /// <param name="agentManager"></param>
@@ -311,7 +309,7 @@ namespace OpenBots.Server.Web.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Put(string id, [FromBody] Agent request)
+        public async Task<IActionResult> Put(string id, [FromBody] UpdateAgentViewModel request)
         {
             try
             {
@@ -428,25 +426,10 @@ namespace OpenBots.Server.Web.Controllers
             try
             {
                 Guid entityId = new Guid(agentID);
-
-                ConnectedViewModel connectedViewModel = new ConnectedViewModel();
                 var requestIp = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
-                var agent = _agentManager.GetConnectAgent(agentID, requestIp, request);
+                var connectedAgentDetails = _agentManager.ConnectAgent(agentID, requestIp, request);
 
-                if (agent == null)
-                {
-                    return NotFound();
-                }
-
-                if (agent.IsConnected == false)
-                {
-                    JsonPatchDocument<Agent> connectPatch = new JsonPatchDocument<Agent>();
-
-                    connectPatch.Replace(e => e.IsConnected, true);
-                    await base.PatchEntity(agent.Id.ToString(), connectPatch);
-                }
-
-                return new OkObjectResult(connectedViewModel.Map(agent));
+                return Ok(connectedAgentDetails);
             }
             catch (Exception ex)
             {
@@ -477,21 +460,8 @@ namespace OpenBots.Server.Web.Controllers
             {
                 Guid? agentGuid = new Guid(agentID);
                 var requestIp = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
-                var agent = _agentManager.GetConnectAgent(agentID, requestIp, request);
+                _agentManager.DisconnectAgent(agentGuid, requestIp, request);
 
-                if (agent == null)
-                {
-                    return NotFound();
-                }
-                if (agent.IsConnected == false)
-                {
-                    return Ok();
-                }
-
-                JsonPatchDocument<Agent> disconnectPatch = new JsonPatchDocument<Agent>();
-
-                disconnectPatch.Replace(e => e.IsConnected, false);
-                await base.PatchEntity(agentID, disconnectPatch);
                 return Ok();
 
             }

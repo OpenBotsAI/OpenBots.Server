@@ -9,7 +9,7 @@ const routes: Routes = [
     component: AllIntegrationLogsComponent,
   },
   {
-    path: 'get-integration-log-id',
+    path: 'view/:id',
     component: GetIntegrationLogsIdComponent,
   },
 ];
@@ -18,4 +18,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class IntegrationLogsRoutingModule {}
+export class IntegrationLogsRoutingModule { }

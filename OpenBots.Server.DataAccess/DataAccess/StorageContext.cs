@@ -6,6 +6,10 @@ using OpenBots.Server.Model.Configuration;
 using OpenBots.Server.Model.Webhooks;
 using System;
 using OpenBots.Server.Model.File;
+using System.IO;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace OpenBots.Server.DataAccess
 {
@@ -13,6 +17,7 @@ namespace OpenBots.Server.DataAccess
     {
         public DbSet<LookupValue> LookupValues { get; set; }
         public DbSet<ApplicationVersion> AppVersion { get; set; }
+        public DbSet<TimeZoneId> TimeZoneIds { get; set; }
         public DbSet<QueueItem> QueueItems { get; set; }
         public DbSet<QueueItemAttachment> QueueItemAttachments { get; set; }
         public DbSet<BinaryObject> BinaryObjects { get; set; }
@@ -20,6 +25,7 @@ namespace OpenBots.Server.DataAccess
         public DbSet<AgentGroup> AgentGroups { get; set; }
         public DbSet<AgentGroupMember> AgentGroupMembers { get; set; }
         public DbSet<AgentHeartbeat> AgentHeartbeats { get; set; }
+        public DbSet<AgentSetting> AgentSettings { get; set; }
         public DbSet<Queue> Queues { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<Asset> Assets { get; set; }
@@ -44,10 +50,10 @@ namespace OpenBots.Server.DataAccess
         public DbSet<IntegrationEventLog> IntegrationEventLogs { get; set; }
         public DbSet<IntegrationEventSubscription> IntegrationEventSubscriptions { get; set; }
         public DbSet<IntegrationEventSubscriptionAttempt> IntegrationEventSubscriptionAttempts { get; set; }
-        public DbSet<ServerDrive> ServerDrives { get; set; }
-        public DbSet<ServerFolder> ServerFolders { get; set; }
-        public DbSet<ServerFile> ServerFiles { get; set; }
-        public DbSet<FileAttribute> FileAttributes { get; set; }
+        public DbSet<StorageDrive> StorageDrives { get; set; }
+        public DbSet<StorageFolder> StorageFolders { get; set; }
+        public DbSet<StorageFile> StorageFiles { get; set; }
+        public DbSet<StorageDriveOperation> StorageDriveOperations { get; set; }
 
 
         public StorageContext(DbContextOptions<StorageContext> options)
@@ -60,11 +66,10 @@ namespace OpenBots.Server.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-        
+            SeedIntegrationEvents(modelBuilder);
             CreateMembershipModel(modelBuilder);
             CreateIdentityModel(modelBuilder);
             CreateCoreModel(modelBuilder);
-            SeedIntegrationEvents(modelBuilder);
         }
         #region core entitites
 
@@ -107,6 +112,7 @@ namespace OpenBots.Server.DataAccess
             new IntegrationEvent { Id = new Guid("76910164-6fda-4861-b1b5-7737370a8461"), Description = "An Agent has been added to the AgentGroup", EntityType = "AgentGroup", IsSystem = true, IsDeleted = false, Name = "AgentGroups.AgentGroupMemberUpdated" }
             );
         }
+
         protected void CreateCoreModel(ModelBuilder modelBuilder)
         {
             CreateLookupValueModel(modelBuilder.Entity<LookupValue>());
@@ -126,7 +132,6 @@ namespace OpenBots.Server.DataAccess
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("getutcdate()");
             entity.Property(e => e.Id).HasDefaultValueSql("newid()");
         }
-
 
         #endregion
     }

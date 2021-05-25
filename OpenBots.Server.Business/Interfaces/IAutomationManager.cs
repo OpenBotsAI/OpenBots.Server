@@ -13,8 +13,8 @@ namespace OpenBots.Server.Business
         Automation AddAutomation(AutomationViewModel automationViewModel);
         Automation UpdateAutomationFile(string id, AutomationViewModel request);
         Automation UpdateAutomation(string id, AutomationViewModel request);
-        Task<FileFolderViewModel> Export(string fileId, string driveName = null);
-        void DeleteAutomation(Automation automation, string driveName = null);
+        Task<FileFolderViewModel> Export(string fileId, string driveId = null);
+        void DeleteAutomation(Automation automation);
         void AddAutomationVersion(AutomationViewModel automation);
         PaginatedList<AllAutomationsViewModel> GetAutomationsAndAutomationVersions(Predicate<AllAutomationsViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100);
         AutomationViewModel GetAutomationView(AutomationViewModel automationView);

@@ -28,7 +28,6 @@ namespace OpenBots.Server.DataAccess.Repositories
             PaginatedList<AllQueueItemsViewModel> paginatedList = new PaginatedList<AllQueueItemsViewModel>();
 
             var itemsList = base.Find(null, j => j.IsDeleted == false);
-            List<Guid> binaryObjectIds = new List<Guid>();
             if (itemsList != null && itemsList.Items != null && itemsList.Items.Count > 0)
             {
                 var itemRecord = from q in itemsList.Items
@@ -55,7 +54,7 @@ namespace OpenBots.Server.DataAccess.Repositories
                                      QueueId = q?.QueueId,
                                      CreatedOn = q?.CreatedOn,
                                      PayloadSizeInBytes = q?.PayloadSizeInBytes,
-                                     //list of all binary object ids that correlate to the queue item
+                                     //list of all file ids that correlate to the queue item
                                      FileIds = _context.QueueItemAttachments.Where(a => a.QueueItemId == q.Id)?.Select(a  => a.FileId)?.ToList()
                                  };
 

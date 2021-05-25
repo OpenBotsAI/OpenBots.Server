@@ -57,8 +57,9 @@ export class AllEmailLogComponent implements OnInit {
     });
   }
   getEmailAccount(val) {
-    if (val) {
-      this.emailFIlterName = val;
+    console.log(val.emailAccountId)
+    if (val.emailAccountId) {
+      this.emailFIlterName = val.emailAccountId;
       const skip = (this.page.pageNumber - 1) * this.per_page_num;
       this.emailService
         .filter_emailaccount(
@@ -71,15 +72,13 @@ export class AllEmailLogComponent implements OnInit {
           this.showallEmail = data.items;
           this.page.totalCount = data.totalCount;
         });
-    } else if (val == null || val == '' || val == undefined) {
+    } else if (val.emailAccountId == null || val.emailAccountId == '' || val.emailAccountId == undefined) {
       this.pagination(this.page.pageNumber, this.page.pageSize);
     }
   }
 
   gotodetail(id) {
-    this.router.navigate(['/pages/emaillog/get-emaillog-id'], {
-      queryParams: { id: id },
-    });
+    this.router.navigate([`/pages/emaillog/view/${id}`]);
   }
 
   sort(filter_val, vale) {

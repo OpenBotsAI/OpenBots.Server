@@ -6,15 +6,15 @@
           <img class="img-head-logo" src="../../../../assets/icons/Job.svg">
         </div>
         <div class="LeftBgText">
-                 <h2>Event Subscriptions</h2>
+          <h2>Event Subscriptions</h2>
           <p>
-               Subscription of Events by External Applications or Automations
+            Subscription of Events by External Applications or Automations
           </p>
         </div>
       </div>
       <div class="titleRight">
-        <button type="button" class="btn btn-primary" (click)="gotoAdd()" >
-           Add Subscription
+        <button type="button" class="btn btn-primary" (click)="gotoAdd()">
+          Add Subscription
         </button>
       </div>
     </div>
@@ -24,60 +24,73 @@
       <div class="row filter-row">
         <div class="col-md-3 col-lg-3">
           <label for="queueitemtype" class="label col-form-label">Entity</label>
-          <select class="custom-select" (change)="common_Entity($event.target.value)" formControlName="agentId">
+          <!-- <select class="custom-select" (change)="common_Entity($event.target.value)" formControlName="agentId">
             <option selected></option>
              <option *ngFor="let item of show_filter_entity " [value]="item">
               {{ item }}
             </option>
            
-          </select>
+          </select> -->
+          <ng-select [items]="show_filter_entity" [searchable]="true" bindLabel="show_filter_entity"
+            formControlName="agentId" class="NgSelect" placeholder="Please select Entity"
+            (change)="common_Entity($event)" [closeOnSelect]="true" bindValue="show_filter_entity" [clearable]="false">
+          </ng-select>
         </div>
         <div class="col-md-3 col-lg-3">
           <label for="queueitemtype" class="label col-form-label">Event
           </label>
-          <select class="custom-select" (change)="comon_Event($event.target.value)" formControlName="automationId">
+          <!-- <select class="custom-select" (change)="comon_Event($event.target.value)" formControlName="automationId">
             <option selected> </option>
              <option *ngFor="let item of show_filter_event" [value]="item">
               {{ item}}
             </option>
             
-          </select>
+          </select> -->
+          <ng-select [items]="show_filter_event" [searchable]="true" bindLabel="show_filter_event"
+            formControlName="automationId" class="NgSelect" placeholder="Please select Event"
+            (change)="comon_Event($event)" [closeOnSelect]="true" bindValue="show_filter_event" [clearable]="false">
+          </ng-select>
         </div>
-        
+
       </div>
     </form>
     <table class="table table-bordered">
       <thead>
-        
-           <tr>
+
+        <tr>
           <th scope="col">
             Name
-            <i (click)="onSortClick($event, 'entityName')" [attr.class]="showalleventsubscription | chevron: page.totalCount">
+            <i (click)="onSortClick($event, 'entityName')"
+              [attr.class]="showalleventsubscription | chevron: page.totalCount">
             </i>
           </th>
           <th scope="col">
             Entity
-            <i (click)="onSortClick($event, 'entityType')" [attr.class]="showalleventsubscription | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'entityType')"
+              [attr.class]="showalleventsubscription | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             ID
-            <i (click)="onSortClick($event, 'entityID')" [attr.class]="showalleventsubscription | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'entityID')"
+              [attr.class]="showalleventsubscription | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Event
-            <i (click)="onSortClick($event, 'integrationEventName')" [attr.class]="showalleventsubscription | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'integrationEventName')"
+              [attr.class]="showalleventsubscription | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Transport
-            <i (click)="onSortClick($event, 'transportType')" [attr.class]="showalleventsubscription | chevron: page.totalCount"></i>
+            <i (click)="onSortClick($event, 'transportType')"
+              [attr.class]="showalleventsubscription | chevron: page.totalCount"></i>
           </th>
           <th scope="col">View</th>
-            <th scope="col">Edit</th>
-              <th scope="col">Delete</th>
+          <th scope="col">Edit</th>
+          <th scope="col">Delete</th>
         </tr>
       </thead>
       <tbody>
-         <tr *ngFor="
+        <tr *ngFor="
             let subscription of showalleventsubscription
               | paginate
                 : {
@@ -93,27 +106,27 @@
           <td scope="row">
             <ngx-tooltip [data]="subscription?.entityType" [size]="40"> </ngx-tooltip>
           </td>
-           <td scope="row">
+          <td scope="row">
             <ngx-tooltip [data]="subscription?.entityID" [size]="40"> </ngx-tooltip>
           </td>
           <td scope="row">
             <ngx-tooltip [data]="subscription?.integrationEventName" [size]="40"> </ngx-tooltip>
           </td>
-           <td scope="row" *ngIf="subscription?.transportType == 1">
+          <td scope="row" *ngIf="subscription?.transportType == 1">
             <ngx-tooltip data="HTTPS" [size]="40"> </ngx-tooltip>
           </td>
           <td scope="row" *ngIf="subscription?.transportType == 2">
             <ngx-tooltip data="Queue" [size]="40"> </ngx-tooltip>
           </td>
-          
+
           <td>
             <a (click)="gotodetail(subscription.id)">
-              
+
               <i class="fa fa-eye" aria-hidden="true"> </i>
             </a>
           </td>
-             <td>
-         <a (click)="gotoedit(subscription.id)">
+          <td>
+            <a (click)="gotoedit(subscription.id)">
               <i class="fa fa-edit"> </i>
             </a>
           </td>
@@ -122,9 +135,9 @@
               <img src="../../../assets/images/del-icon.png" alt="Delete Icon" />
             </a>
           </td>
-           
+
         </tr>
-         
+
       </tbody>
     </table>
   </nb-card-body>
@@ -138,7 +151,7 @@
           screenReaderCurrentLabel="You're on page"></pagination-controls>
       </div>
 
-      <div class="col-md-4 col-lg-4 text-right no-right-padding">
+      <div class="col-md-4 col-lg-4 text-right no-right-padding" *ngIf="page.totalCount >5">
         <label class="label">Total {{showpage.totalCount}} / </label>
         <select class="custom-select per-page-drop" (change)="per_page($event.target.value)">
           <option *ngFor="let item of itemsPerPage" [value]="item.id">

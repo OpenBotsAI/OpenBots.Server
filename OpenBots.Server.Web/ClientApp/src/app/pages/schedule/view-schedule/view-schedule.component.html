@@ -65,7 +65,7 @@
                                 </option>
                             </select>
                         </div>
-                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                        <div class="col-md-1 col-lg-1 col-xxxl-1">
                             <div class="form-group">
                                 <div class="checkbox checbox-switch switch-primary">
                                     <label class="label">Disabled</label><br>
@@ -76,9 +76,20 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-2 col-lg-2 col-xxxl-2" style="text-align: center;">
+                            <label for="retryCount" class="label">Max Jobs</label><br>
+                            <nb-checkbox formControlName="maxRetryChecked">
+                            </nb-checkbox>
+                        </div>
+                        <div class="col-md-3 col-lg-3 col-xxxl-3" *ngIf="scheduleForm.value.maxRetryChecked">
+                            <label for="retryCount" class="label">Max Running Jobs *</label>
+                            <input type="number" nbInput fullWidth id="retryCount" formControlName="maxRunningJobs"
+                                placeholder="Please enter max running jobs">
+                        </div>
                     </div>
+
                     <div class="row">
-                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                        <div class="col-md-12 col-lg-12 col-xxxl-12">
                             <div class="form-group">
                                 <label class="label">Starting Type</label>
                                 <nb-radio-group formControlName="startingType">
@@ -86,21 +97,43 @@
                                     <nb-radio class="startingtype" value="recurrence" [disabled]="true">Recurrence
                                     </nb-radio>
                                     <nb-radio class="startingtype" value="manual" [disabled]="true">Manual</nb-radio>
+                                    <nb-radio class="startingtype" value="queueArrival" [disabled]="true">
+                                        Queue Arrival
+                                    </nb-radio>
                                 </nb-radio-group>
                             </div>
                         </div>
 
                     </div>
+                    <div *ngIf="scheduleForm.value.startingType == 'queueArrival'" class="row">
+                        <div class="col-md-12 col-lg-12 col-xxxl-12">
+                            <label class="label">Queue *</label>
+                            <ng-select [items]="queuesArr" [searchable]="true" bindLabel="name"
+                                formControlName="queueId" class="NgSelect" [closeOnSelect]="true"
+                                placeholder="Please select queue" bindValue="id" [clearable]="false">
+                            </ng-select>
+                        </div>
+                    </div>
+                    <div *ngIf="scheduleForm.value.startingType == 'recurrence'" class="row">
+                        <div class="col-md-12 col-lg-12 col-xxxl-12">
+                            <label class="label">Select time zone *</label>
+                            <ng-select [items]="timeZoneArr" [searchable]="true" bindLabel="text"
+                                formControlName="cronExpressionTimeZone" class="NgSelect" [closeOnSelect]="true"
+                                placeholder="Please select time zone" bindValue="value" [clearable]="false">
+                            </ng-select>
+
+                        </div>
+                    </div>
                     <div class="row rowPadBottom">
                         <div class="col-md-6 col-lg-6 col-xxxl-6"
-                            *ngIf="scheduleForm.value.startingType == 'oneTime' || scheduleForm.value.startingType == 'recurrence'">
+                            *ngIf="scheduleForm.value.startingType == 'oneTime' || scheduleForm.value.startingType == 'recurrence' || scheduleForm.value.startingType == 'queueArrival'">
                             <div class="form-group">
                                 <label for="startDate" class="label">Start Date</label>
                                 <input id="startDate" nbInput fullWidth formControlName="startDate" />
                             </div>
                         </div>
                         <div class="col-md-6 col-lg-6 col-xxxl-6"
-                            *ngIf="scheduleForm.value.startingType == 'recurrence'">
+                            *ngIf="scheduleForm.value.startingType == 'recurrence' || scheduleForm.value.startingType == 'queueArrival'">
                             <div class="form-group">
                                 <label for="expiryDate" class="label">Expiry Date</label>
                                 <input nbInput fullWidth formControlName="expiryDate" />
@@ -173,7 +206,7 @@
                         <div [formGroupName]="i" style="padding-top: 5%;">
                             <div class="form-group">
                                 <label for="Name" class="label">Name *</label>
-                                <input id="Name" nbInput fullWidth formControlName="Name" />
+                                <input nbInput fullWidth formControlName="Name" />
                             </div>
                             <div class="form-group">
                                 <label for="DataType" class="label">Data type *</label>
@@ -185,8 +218,8 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="Value" class="label">Value *</label>
-                                <input id="Value" nbInput fullWidth formControlName="Value" />
+                                <label class="label">Value *</label>
+                                <input nbInput fullWidth formControlName="Value" />
                             </div>
                         </div>
                     </div>

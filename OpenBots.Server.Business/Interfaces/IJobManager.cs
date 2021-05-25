@@ -27,5 +27,7 @@ namespace OpenBots.Server.Business
         IEnumerable<JobParameter> AddJobParameters(IEnumerable<JobParameter> jobParameters, Guid? jobId);
         void DeleteExistingParameters(Guid? jobId);
         void CheckParameterNameAvailability(IEnumerable<JobParameter> jobParameters);
+
+        object GetJobTotals(List<Job> jobs);
     }
 }

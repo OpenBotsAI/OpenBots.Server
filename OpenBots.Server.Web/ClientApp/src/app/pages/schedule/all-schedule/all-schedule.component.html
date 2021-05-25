@@ -36,8 +36,11 @@
             <i (click)="onSortClick($event, 'name')" [attr.class]="allScehduleData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
-            Agent Name
+            Agent
             <i (click)="onSortClick($event, 'agentName')" [attr.class]="allScehduleData | chevron: page.totalCount"></i>
+            / Group
+            <i (click)="onSortClick($event, 'agentGroupName')"
+              [attr.class]="allScehduleData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
             Automation Name
@@ -62,6 +65,8 @@
           </td>
           <td>
             <ngx-tooltip [data]="data?.agentName" [size]="16">
+            </ngx-tooltip>
+            <ngx-tooltip [data]="data?.agentGroupName" [size]="16">
             </ngx-tooltip>
           </td>
           <td>

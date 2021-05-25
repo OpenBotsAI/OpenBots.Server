@@ -23,10 +23,10 @@ namespace OpenBots.Server.Model
         /// <summary>
         /// Average execution time in minutes of successful jobs that execute this process 
         /// </summary>
-        public double? AverageSuccessfulExecutionInMinutes { get; set; }
+        public long? AverageSuccessfulExecutionInMinutes { get; set; }
         /// <summary>
         /// Average execution time in minutes of unsuccessful jobs that execute this process 
         /// </summary>
-        public double? AverageUnSuccessfulExecutionInMinutes { get; set; }
+        public long? AverageUnSuccessfulExecutionInMinutes { get; set; }
     }
 }

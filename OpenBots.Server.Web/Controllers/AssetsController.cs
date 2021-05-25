@@ -205,7 +205,7 @@ namespace OpenBots.Server.Web
         /// Provides an Asset's view model details for a particular Asset id
         /// </summary>
         /// <param name="assetId"> Specifies the id of the Asset</param>
-        /// <response code="200">OK,if an Asset exists with the given id</response>
+        /// <response code="200">OK, if an Asset exists with the given id</response>
         /// <response code="304">Not modified</response>
         /// <response code="400">Bad request, if Asset id is not in proper format or proper Guid<response>
         /// <response code="403">Forbidden</response>
@@ -269,7 +269,7 @@ namespace OpenBots.Server.Web
         {
             try
             {
-                return Ok(_manager.GetMatchingAsset(assetName,assetType));
+                return Ok(_manager.GetMatchingAsset(assetName, assetType));
             }
             catch (Exception ex)
             {
@@ -301,7 +301,7 @@ namespace OpenBots.Server.Web
             {
                 Asset asset = new Asset();
                 asset = request.Map(request);
-                asset = _manager.CreateAsset(asset, request.File, request.DriveName);
+                asset = _manager.CreateAsset(asset, request.File, request.DriveId);
 
                 var response = await base.PostEntity(asset);
                 await _webhookPublisher.PublishAsync("Assets.NewAssetCreated", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
@@ -316,7 +316,7 @@ namespace OpenBots.Server.Web
         /// <summary>
         /// Adds a new agent Asset if a global Asset exists for the given name
         /// </summary>
-        /// <param name="request">New file to update Asset</param>
+        /// <param name="request">Agent Asset to create</param>
         /// <response code="200">Ok, Asset created and returned</response>
         /// <response code="400">Bad request, when the Asset value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
@@ -351,7 +351,7 @@ namespace OpenBots.Server.Web
         /// Export/download an Asset file
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="driveName"></param>
+        /// <param name="driveId"></param>
         /// <response code="200">Ok if an Asset file exists with the given id</response>
         /// <response code="304">Not modified</response>
         /// <response code="400">Bad request, if Asset id is not in proper format or proper Guid</response>
@@ -368,11 +368,11 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> ExportAsset(string id, string driveName = null)
+        public async Task<IActionResult> ExportAsset(string id, string driveId)
         {
             try
             {
-                var fileObject = _manager.Export(id, driveName);
+                var fileObject = _manager.Export(id, driveId);
                 return File(fileObject.Result?.Content, fileObject.Result?.ContentType, fileObject.Result?.Name);
             }
             catch (Exception ex)
@@ -471,11 +471,11 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Delete(string id, string driveName = null)
+        public async Task<IActionResult> Delete(string id)
         {
             try
             {
-                var asset = _manager.DeleteAsset(id, driveName);
+                var asset = _manager.DeleteAsset(id);
 
                 await _webhookPublisher.PublishAsync("Assets.AssetDeleted", asset.Id.ToString(), asset.Name).ConfigureAwait(false);
                 return await base.DeleteEntity(id);

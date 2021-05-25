@@ -211,7 +211,7 @@ namespace OpenBots.Server.Web.Controllers.Queue
         /// </remarks>
         /// <param name="queueItemId"></param>
         /// <param name="requests"></param>
-        /// <param name="driveName"></param>
+        /// <param name="driveId"></param>
         /// <response code="200">Ok, new queue item attachments created and returned</response>
         /// <response code="400">Bad request, when the queue item attachment values are not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
@@ -226,12 +226,12 @@ namespace OpenBots.Server.Web.Controllers.Queue
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Post(string queueItemId, [FromBody] string[] requests, string driveName = null)
+        public async Task<IActionResult> Post(string queueItemId, [FromBody] string[] requests, string driveId = null)
         {
             try
             {
                 var queueItem = _queueItemRepository.GetOne(Guid.Parse(queueItemId));
-                var queueItemAttachments = _manager.AddFileAttachments(queueItem, requests, driveName);
+                var queueItemAttachments = _manager.AddFileAttachments(queueItem, requests, driveId);
                 await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItemId, queueItem.Name).ConfigureAwait(false);
                 return Ok(queueItemAttachments);
             }
@@ -246,7 +246,7 @@ namespace OpenBots.Server.Web.Controllers.Queue
         /// </summary>
         /// <param name="queueItemId"></param>
         /// <param name="files"></param>
-        /// <param name="driveName"></param>
+        /// <param name="driveId"></param>
         /// <response code="200">Ok, new binary object created and returned</response>
         /// <response code="400">Bad request, when the binary object value is not in proper format</response>
         /// <response code="403">Forbidden, unauthorized access</response>
@@ -261,12 +261,12 @@ namespace OpenBots.Server.Web.Controllers.Queue
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Attach(string queueItemId, [FromForm] IFormFile[] files, string driveName = null)
+        public async Task<IActionResult> Attach(string queueItemId, [FromForm] IFormFile[] files, string driveId = null)
         {
             try
             {
                 var queueItem = _queueItemRepository.GetOne(Guid.Parse(queueItemId));
-                var queueItemAttachments = _manager.AddNewAttachments(queueItem, files, driveName);
+                var queueItemAttachments = _manager.AddNewAttachments(queueItem, files, driveId);
                 await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItemId, queueItem.Name).ConfigureAwait(false);
 
                 return Ok(queueItemAttachments);
@@ -286,7 +286,7 @@ namespace OpenBots.Server.Web.Controllers.Queue
         /// <param name="queueItemId">Queue item id</param>
         /// <param name="id">Queue item attachment id, produces bad request if id is null or ids don't match</param>
         /// <param name="file">New file to update queue item attachment</param>
-        /// <param name="driveName"></param>
+        /// <param name="driveId"></param>
         /// <response code="200">Ok, if the queue item attachment details for the given queue item attachment id have been updated</response>
         /// <response code="400">Bad request, if the queue item attachment id is null or ids don't match</response>
         /// <response code="403">Forbidden, unauthorized access</response>
@@ -300,12 +300,12 @@ namespace OpenBots.Server.Web.Controllers.Queue
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Put(string queueItemId, string id, [FromForm] IFormFile file, string driveName = null)
+        public async Task<IActionResult> Put(string queueItemId, string id, [FromForm] IFormFile file, string driveId = null)
         {
             try
             {
                 var queueItem = _queueItemRepository.GetOne(Guid.Parse(queueItemId));
-                var existingAttachment = _manager.UpdateAttachment(queueItem, id, file, driveName);
+                var existingAttachment = _manager.UpdateAttachment(queueItem, id, file, driveId);
                 await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
                 await base.PutEntity(id, existingAttachment);
                 return Ok(existingAttachment);
@@ -348,7 +348,7 @@ namespace OpenBots.Server.Web.Controllers.Queue
         /// Delete all queue item attachments with a specified queue item id from list of queue item attachments
         /// </summary>
         /// <param name="queueItemId">Queue item id to delete all queue item attachments from - throws bad request if null or empty Guid/</param>
-        /// <param name="driveName"></param>
+        /// <param name="driveId"></param>
         /// <response code="200">Ok, when queue item attachments are soft deleted, (isDeleted flag is set to true in database)</response>
         /// <response code="400">Bad request, if queue item id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>
@@ -359,12 +359,12 @@ namespace OpenBots.Server.Web.Controllers.Queue
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Delete(string queueItemId, string driveName = null)
+        public async Task<IActionResult> Delete(string queueItemId, string driveId = null)
         {
             try
             {
                 var queueItem = _queueItemRepository.GetOne(Guid.Parse(queueItemId));
-                _manager.DeleteAll(queueItem, driveName);
+                _manager.DeleteAll(queueItem, driveId);
                 await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
                 return Ok();
             }
@@ -378,7 +378,7 @@ namespace OpenBots.Server.Web.Controllers.Queue
         /// Delete specific queue item attachment from list of queue item attachments
         /// </summary>
         /// <param name="id">Queue item attachment id to be deleted - throws bad request if null or empty Guid/</param>
-        /// <param name="driveName"></param>
+        /// <param name="driveId"></param>
         /// <response code="200">Ok, when queue item attachment is soft deleted, (isDeleted flag is set to true in database)</response>
         /// <response code="400">Bad request, if queue item attachment id is null or empty Guid</response>
         /// <response code="403">Forbidden</response>
@@ -389,13 +389,13 @@ namespace OpenBots.Server.Web.Controllers.Queue
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> DeleteAttachment(string id, string driveName = null)
+        public async Task<IActionResult> DeleteAttachment(string id, string driveId = null)
         {
             try
             {
                 var attachment = repository.GetOne(Guid.Parse(id));
                 var queueItem = _queueItemRepository.Find(null).Items?.Where(q => q.Id == attachment.QueueItemId).FirstOrDefault();
-                _manager.DeleteOne(attachment, queueItem, driveName);
+                _manager.DeleteOne(attachment, queueItem, driveId);
                 await base.DeleteEntity(id);
                 await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItem.Id.ToString(), queueItem.Name).ConfigureAwait(false);
 
@@ -411,7 +411,7 @@ namespace OpenBots.Server.Web.Controllers.Queue
         /// Export/download a queue item attachment file
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="driveName"></param>
+        /// <param name="driveId"></param>
         /// <response code="200">Ok if a queue item attachment file exists with the given id</response>
         /// <response code="304">Not modified</response>
         /// <response code="400">Bad request, if queue item attachment id is not in proper format or proper Guid</response>
@@ -428,11 +428,11 @@ namespace OpenBots.Server.Web.Controllers.Queue
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> ExportQueueItemAttachment(string id, string driveName = null)
+        public async Task<IActionResult> ExportQueueItemAttachment(string id, string driveId = null)
         {
             try
             {
-                var fileObject = _manager.Export(id, driveName);
+                var fileObject = _manager.Export(id, driveId);
                 return File(fileObject.Result?.Content, fileObject.Result?.ContentType, fileObject.Result?.Name);
             }
             catch (Exception ex)

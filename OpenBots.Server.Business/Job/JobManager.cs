@@ -64,11 +64,12 @@ namespace OpenBots.Server.Business
             existingJob.AutomationVersion = automationVersion.VersionNumber;
             existingJob.AutomationVersionId = automationVersion.Id;
 
+            existingJob.ScheduleId = request.ScheduleId;
             existingJob.AgentId = request.AgentId;
             existingJob.AgentGroupId = request.AgentGroupId;
             existingJob.StartTime = request.StartTime;
             existingJob.EndTime = request.EndTime;
-            existingJob.ExecutionTimeInMinutes = (existingJob.EndTime.Value - existingJob.StartTime).Value.TotalMinutes;
+            existingJob.ExecutionTimeInMinutes = (long)(existingJob.EndTime.Value - existingJob.StartTime).Value.TotalMinutes;
             existingJob.DequeueTime = request.DequeueTime;
             existingJob.AutomationId = request.AutomationId;
             existingJob.JobStatus = request.JobStatus;
@@ -76,11 +77,6 @@ namespace OpenBots.Server.Business
             existingJob.IsSuccessful = request.IsSuccessful;
 
             UpdateJobParameters(request.JobParameters, existingJob.Id);
-
-            if (request.EndTime != null)
-            {
-                UpdateAutomationAverages(existingJob.Id);
-            }
 
             return existingJob;
         }
@@ -173,9 +169,9 @@ namespace OpenBots.Server.Business
         }
 
         //gets the average execution time for the provided jobs
-        public double? GetAverageExecutionTime(List<Job> sameAutomationJobs)
+        public long? GetAverageExecutionTime(List<Job> sameAutomationJobs)
         {
-            double? sum = 0;
+            long? sum = 0;
 
             foreach (var job in sameAutomationJobs)
             {
@@ -254,6 +250,29 @@ namespace OpenBots.Server.Business
                     throw new Exception($"Job parameter name \"{parameter.Name}\" already exists");
                 }
             }
+        }
+
+        public object GetJobTotals(List<Job> jobs)
+        {
+            long? executionTimeInMinutes = 0;
+            long? automationExecutionLogsCount = 0;
+            long? automationLogCount = 0;
+
+            foreach (var job in jobs)
+            {
+                executionTimeInMinutes += (job.ExecutionTimeInMinutes ?? 0);
+                automationExecutionLogsCount += job.AutomationExecutionLogCount;
+                automationLogCount += job.AutomationLogCount;
+            }
+
+            var jobTotals = new
+            {
+                ExecutionTimeInMinutesSum = executionTimeInMinutes,
+                AutomationExecutionLogCountSum = automationExecutionLogsCount,
+                AutomationLogCountSum = automationLogCount
+            };
+
+            return jobTotals;
         }
     }
 }

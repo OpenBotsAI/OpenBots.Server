@@ -22,6 +22,7 @@ using OpenBots.Server.Business.Interfaces;
 using OpenBots.Server.ViewModel.File;
 using IOFile = System.IO.File;
 using System.Text;
+using OpenBots.Server.Model.File;
 
 namespace OpenBots.Server.Business
 {
@@ -36,6 +37,8 @@ namespace OpenBots.Server.Business
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IEmailAttachmentRepository _emailAttachmentRepository;
         private readonly IFileManager _fileManager;
+        private readonly IStorageDriveRepository _storageDriveRepository;
+        private readonly IStorageFileRepository _storageFileRepository;
         private ApplicationUser _applicationUser { get; set; }
 
         public EmailManager(
@@ -47,7 +50,9 @@ namespace OpenBots.Server.Business
             IOrganizationManager organizationManager,
             IHttpContextAccessor httpContextAccessor,
             IEmailAttachmentRepository emailAttachmentRepository,
-            IFileManager fileManager)
+            IFileManager fileManager,
+            IStorageDriveRepository storageDriveRepository,
+            IStorageFileRepository storageFileRepository)
         {
             _personRepo = personRepo;
             _personEmailRepository = personEmailRepository;
@@ -58,6 +63,8 @@ namespace OpenBots.Server.Business
             _httpContextAccessor = httpContextAccessor;
             _emailAttachmentRepository = emailAttachmentRepository;
             _fileManager = fileManager;
+            _storageDriveRepository = storageDriveRepository;
+            _storageFileRepository = storageFileRepository;
         }
 
         public override void SetContext(UserSecurityContext userSecurityContext)
@@ -94,18 +101,17 @@ namespace OpenBots.Server.Business
             return emailViewModel;
         }
 
-        public List<EmailAttachment> AddAttachments(IFormFile[] files, Guid id, string driveName)
+        public List<EmailAttachment> AddAttachments(IFormFile[] files, Guid id, string driveId)
         {
-            if (driveName != "Files" && !string.IsNullOrEmpty(driveName))
-                throw new EntityOperationException("Component files can only be saved in the Files drive");
-            else if (string.IsNullOrEmpty(driveName))
-                driveName = "Files";
+            driveId = CheckDriveId(driveId);
+            var drive = GetDrive(driveId);
+            driveId = drive.Id.ToString();
 
             var attachments = new List<EmailAttachment>();
             if (files?.Length != 0 && files != null)
             {
                 //add files to drive
-                string storagePath = Path.Combine(driveName, "Email Attachments", id.ToString());
+                string storagePath = Path.Combine(drive.Name, "Email Attachments", id.ToString());
                 var fileView = new FileFolderViewModel()
                 {
                     StoragePath = storagePath,
@@ -118,18 +124,20 @@ namespace OpenBots.Server.Business
                 foreach (var file in files)
                     size += file.Length;
 
-                CheckStoragePathExists(fileView, size, id, driveName);
-                var fileViewList = _fileManager.AddFileFolder(fileView, driveName);
+                CheckStoragePathExists(fileView, size, id, driveId, drive.Name);
+                var fileViewList = _fileManager.AddFileFolder(fileView, driveId);
 
                 foreach (var file in fileViewList)
                 {
+                    string[] fileNameArray = file.Name.Split(".");
+                    string extension = fileNameArray[1];
                     //create email attachment
                     EmailAttachment emailAttachment = new EmailAttachment()
                     {
                         Name = file.Name,
                         FileId = file.Id,
                         ContentType = file.ContentType,
-                        ContentStorageAddress = file.FullStoragePath,
+                        ContentStorageAddress = Path.Combine(drive.OrganizationId.ToString(), drive.Id.ToString(), $"{file.Id}.{extension}"),
                         SizeInBytes = file.Size,
                         EmailId = id,
                         CreatedOn = DateTime.UtcNow,
@@ -142,96 +150,6 @@ namespace OpenBots.Server.Business
             else throw new EntityOperationException("No files found to attach");
 
             return attachments;
-        }
-
-        public FileFolderViewModel CheckStoragePathExists(FileFolderViewModel view, long? size, Guid? id, string driveName)
-        {
-            //check if storage path exists; if it doesn't exist, create folder
-            var folder = _fileManager.GetFileFolderByStoragePath(view.FullStoragePath, driveName);
-            if (folder.Name == null)
-            {
-                folder.Name = id.ToString();
-                folder.StoragePath = Path.Combine(driveName, "Email Attachments");
-                folder.IsFile = false;
-                folder.Size = size;
-                folder = _fileManager.AddFileFolder(folder, driveName)[0];
-            }
-            return folder;
-        }
-
-        public IFormFile[] CheckFiles(IFormFile[] files, string hash, List<EmailAttachment> attachments, string driveName)
-        {
-            if (files != null)
-            {
-                var filesList = files.ToList();
-                foreach (var attachment in attachments)
-                {
-                    var fileView = _fileManager.ExportFileFolder(attachment.FileId.ToString(), driveName).Result;
-                    //check if file with same hash and email id already exists
-                    foreach (var file in files)
-                    {
-                        hash = GetHash(hash, file);
-                        var originalHash = string.Empty;
-                        var stream = IOFile.OpenRead(fileView.StoragePath);
-                        using (stream)
-                        {
-                            IFormFile originalFile = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
-                            originalHash = GetHash(hash, originalFile);
-                            stream.FlushAsync();
-                            stream.DisposeAsync();
-                            stream.Close();
-                        }
-
-                        //if email attachment already exists and hash is the same: remove from files list
-                        if (fileView.ContentType == file.ContentType && originalHash == hash && fileView.Size == file.Length)
-                            filesList.Remove(file);
-
-                        //if email attachment exists but the hash is not the same: update the attachment and file, remove from files list
-                        else if (fileView.ContentType == file.ContentType && fileView.Name == file.FileName)
-                        {
-                            fileView = new FileFolderViewModel()
-                            {
-                                ContentType = file.ContentType,
-                                Files = new IFormFile[] { file },
-                                IsFile = true,
-                                StoragePath = fileView.StoragePath,
-                                Name = file.FileName,
-                                Id = fileView.Id
-                            };
-                            attachment.SizeInBytes = file.Length;
-                            _emailAttachmentRepository.Update(attachment);
-                            _fileManager.UpdateFile(fileView);
-                            filesList.Remove(file);
-                        }
-                    }
-                }
-                //if file doesn't exist, keep it in files list and return files to be attached
-                var filesArray = filesList.ToArray();
-                return filesArray;
-            }
-            else
-                return Array.Empty<IFormFile>();
-        }
-
-        public string GetHash(string hash, IFormFile file)
-        {
-            byte[] bytes = Array.Empty<byte>();
-            using (var ms = new MemoryStream())
-            {
-                file.CopyToAsync(ms);
-                bytes = ms.ToArray();
-            }
-
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                HashAlgorithm hashAlgorithm = sha256Hash;
-                byte[] data = hashAlgorithm.ComputeHash(bytes);
-                var sBuilder = new StringBuilder();
-                for (int i = 0; i < data.Length; i++)
-                    sBuilder.Append(data[i].ToString("x2"));
-                hash = sBuilder.ToString();
-            }
-            return hash;
         }
 
         public Task SendEmailAsync(EmailMessage emailMessage, string accountName = null, string id = null, string direction = null)
@@ -575,37 +493,37 @@ namespace OpenBots.Server.Business
             return _emailAttachmentRepository.FindAllView(emailId, predicate, sortColumn, direction, skip, take);
         }
 
-        public List<EmailAttachment> AddFileAttachments(string emailId, string[] requests, string driveName = null)
+        public List<EmailAttachment> AddFileAttachments(string emailId, string[] requests, string driveId = null)
         {
             if (requests.Length == 0 || requests == null) throw new EntityOperationException("No files found to attach");
 
-            if (driveName != "Files" && !string.IsNullOrEmpty(driveName))
-                throw new EntityOperationException("Component files can only be saved in the Files drive");
-            else if (string.IsNullOrEmpty(driveName))
-                driveName = "Files";
+            var drive = GetDrive(driveId);
+            driveId = drive.Id.ToString();
 
             var emailAttachments = new List<EmailAttachment>();
             var files = new List<FileFolderViewModel>();
 
             foreach (var request in requests)
             {
-                var file = _fileManager.ExportFileFolder(request, driveName).Result;
-                if (file == null) throw new EntityDoesNotExistException($"File could not be found");
+                var file = _fileManager.ExportFileFolder(request, driveId).Result;
+                if (file == null) throw new EntityDoesNotExistException("File could not be found");
 
                 long? size = file.Size;
                 if (size <= 0) throw new EntityOperationException($"File size of file {file.Name} cannot be 0");
 
                 //create email attachment file under email id folder
-                var path = Path.Combine(driveName, "Email Attachments", emailId);
-                using (var stream = IOFile.OpenRead(file.FullStoragePath))
+                var fileToCheck = _storageFileRepository.GetOne(file.Id.Value);
+                var orgId = _organizationManager.GetDefaultOrganization().Id.ToString();
+                using (var stream = IOFile.OpenRead(fileToCheck.StorageLocation))
                 {
                     file.Files = new IFormFile[] { new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name)) };
                 };
+                var path = Path.Combine(driveId, "Email Attachments", emailId);
                 file.StoragePath = path;
                 file.FullStoragePath = path;
 
-                CheckStoragePathExists(file, 0, Guid.Parse(emailId), "Files");
-                file = _fileManager.AddFileFolder(file, "Files")[0];
+                CheckStoragePathExists(file, 0, Guid.Parse(emailId), driveId, drive.Name);
+                file = _fileManager.AddFileFolder(file, driveId)[0];
                 files.Add(file);
 
                 //create email attachment
@@ -635,7 +553,10 @@ namespace OpenBots.Server.Business
             var existingAttachment = _emailAttachmentRepository.GetOne(entityId);
             if (existingAttachment == null) throw new EntityOperationException("No file found to update");
 
-            var file = _fileManager.GetFileFolder(existingAttachment.FileId.ToString(), request.DriveName);
+            request.DriveId = CheckDriveId(request.DriveId);
+            var drive = _storageDriveRepository.GetOne(Guid.Parse(request.DriveId));
+
+            var file = _fileManager.GetFileFolder(existingAttachment.FileId.ToString(), request.DriveId, "Files");
 
             if (file == null) throw new EntityDoesNotExistException($"File could not be found");
 
@@ -644,7 +565,7 @@ namespace OpenBots.Server.Business
 
             //update email attachment entity
             var formFile = request.File;
-            string storagePath = Path.Combine(request.DriveName, "Email Attachments", formFile.FileName);
+            string storagePath = Path.Combine(drive.Name, "Email Attachments", formFile.FileName);
             if (!string.IsNullOrEmpty(formFile.FileName))
                 existingAttachment.Name = formFile.FileName;
 
@@ -656,42 +577,53 @@ namespace OpenBots.Server.Business
             //update file entity and file
             file.Files = new IFormFile[] { formFile };
             file.StoragePath = storagePath;
-            var fileView = _fileManager.GetFileFolder(existingAttachment.FileId.ToString(), request.DriveName);
+            var fileView = _fileManager.GetFileFolder(existingAttachment.FileId.ToString(), request.DriveId, "Files");
             file.FullStoragePath = fileView.FullStoragePath;
             _fileManager.UpdateFile(file);
 
             return existingAttachment;
         }
 
-        public void DeleteAll(string emailId, string driveName)
+        public void DeleteAll(string emailId, string driveId)
         {
             var attachments = _emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(emailId))?.Items;
             if (attachments.Count != 0)
             {
+                if (string.IsNullOrEmpty(driveId))
+                {
+                    var fileToDelete = _storageFileRepository.GetOne(attachments[0].FileId.Value);
+                    driveId = fileToDelete.StorageDriveId.ToString();
+                }
+
                 var fileView = new FileFolderViewModel();
                 foreach (var attachment in attachments)
                 {
-                    fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
+                    fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveId, "Files");
                     _emailAttachmentRepository.SoftDelete(attachment.Id.Value);
                 }
-                var folder = _fileManager.GetFileFolder(fileView.ParentId.ToString(), driveName);
+                var folder = _fileManager.GetFileFolder(fileView.ParentId.ToString(), driveId, "Folders");
                 if (!folder.HasChild.Value)
-                    _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
-                else _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileView });
+                    _fileManager.DeleteFileFolder(folder.Id.ToString(), driveId, "Folders");
+                else _fileManager.RemoveBytesFromFoldersAndDrive(new List<FileFolderViewModel> { fileView });
             }
             else throw new EntityDoesNotExistException("No attachments found to delete");
         }
 
-        public void DeleteOne(string id, string driveName)
+        public void DeleteOne(string id, string driveId)
         {
             var attachment = _emailAttachmentRepository.Find(null, q => q.Id == Guid.Parse(id))?.Items?.FirstOrDefault();
             if (attachment != null)
             {
-                var fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveName);
-                var folder = _fileManager.GetFileFolder(fileView.ParentId.ToString(), driveName);
+                if (string.IsNullOrEmpty(driveId))
+                {
+                    var fileToDelete = _storageFileRepository.GetOne(attachment.FileId.Value);
+                    driveId = fileToDelete.StorageDriveId.ToString();
+                }
+                var fileView = _fileManager.DeleteFileFolder(attachment.FileId.ToString(), driveId, "Files");
+                var folder = _fileManager.GetFileFolder(fileView.ParentId.ToString(), driveId, "Folders");
                 if (!folder.HasChild.Value)
-                    _fileManager.DeleteFileFolder(folder.Id.ToString(), driveName);
-                else _fileManager.AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileView });
+                    _fileManager.DeleteFileFolder(folder.Id.ToString(), driveId, "Folders");
+                else _fileManager.RemoveBytesFromFoldersAndDrive(new List<FileFolderViewModel> { fileView });
             }
             else throw new EntityDoesNotExistException("Attachment could not be found");
         }
@@ -714,7 +646,7 @@ namespace OpenBots.Server.Business
                     emailMessage.Attachments = attachments;
                 else
                 {
-                    IFormFile[] filesArray = CheckFiles(request.Files, hash, attachments, request.DriveName);
+                    IFormFile[] filesArray = CheckFiles(request.Files, hash, attachments, request.DriveId);
                     emailAttachments = AddAttachments(filesArray, emailId, hash);
                     emailMessage.Attachments = emailAttachments;
                 }
@@ -740,8 +672,10 @@ namespace OpenBots.Server.Business
 
             if (request.Files != null)
             {
+                request.DriveId = CheckDriveId(request.DriveId);
+
                 //create email attachment entities for each file attachment
-                attachments = AddAttachments(request.Files, id, request.DriveName);
+                attachments = AddAttachments(request.Files, id, request.DriveId);
                 //add attachment entities to email message
                 emailMessage.Attachments = attachments;
             }
@@ -772,9 +706,16 @@ namespace OpenBots.Server.Business
 
             //if files don't exist in file manager: add file entity, upload file, and add email attachment attachment entity
             var attachments = _emailAttachmentRepository.Find(null, q => q.EmailId == Guid.Parse(id))?.Items;
+            if (string.IsNullOrEmpty(request.DriveId))
+            {
+                var fileToCheck = _storageFileRepository.GetOne(attachments[0].Id.Value);
+                var drive = _storageDriveRepository.GetOne(fileToCheck.StorageDriveId.Value);
+                request.DriveId = drive.Id.ToString();
+            }
+
             string hash = string.Empty;
-            IFormFile[] filesArray = CheckFiles(request.Files, hash, attachments, request.DriveName);
-            var emailAttachments = AddAttachments(filesArray, email.Id.Value, request.DriveName);
+            IFormFile[] filesArray = CheckFiles(request.Files, hash, attachments, request.DriveId);
+            var emailAttachments = AddAttachments(filesArray, email.Id.Value, request.DriveId);
 
             //update email
             _emailRepository.Update(email);
@@ -797,7 +738,7 @@ namespace OpenBots.Server.Business
             return emailViewModel;
         }
 
-        public async Task<FileFolderViewModel> Export(string id, string driveName)
+        public async Task<FileFolderViewModel> Export(string id, string driveId)
         {
             Guid attachmentId;
             Guid.TryParse(id, out attachmentId);
@@ -806,7 +747,9 @@ namespace OpenBots.Server.Business
             if (attachment == null || attachment.FileId == null || attachment.FileId == Guid.Empty)
                 throw new EntityDoesNotExistException($"Email attachment with id {id} could not be found or doesn't exist");
 
-            var response = await _fileManager.ExportFileFolder(attachment.FileId.ToString(), driveName);
+            driveId = CheckDriveIdByFileId(attachment.FileId.ToString(), driveId);
+
+            var response = await _fileManager.ExportFileFolder(attachment.FileId.ToString(), driveId);
             return response;
         }
 
@@ -824,6 +767,132 @@ namespace OpenBots.Server.Business
             Outgoing = 0,
             Incoming = 1,
             Unknown = 2
+        }
+
+        private string CheckDriveId(string driveId)
+        {
+            if (string.IsNullOrEmpty(driveId))
+            {
+                var drive = _storageDriveRepository.Find(null, q => q.IsDefault == true).Items?.FirstOrDefault();
+                if (drive == null)
+                    throw new EntityDoesNotExistException("Default drive could not be found or does not exist");
+                else
+                    driveId = drive.Id.ToString();
+            }
+            return driveId;
+        }
+
+        private FileFolderViewModel CheckStoragePathExists(FileFolderViewModel view, long? size, Guid? id, string driveId, string driveName)
+        {
+            //check if storage path exists; if it doesn't exist, create folder
+            var folder = _fileManager.GetFileFolderByStoragePath(view.FullStoragePath, driveName);
+            if (folder.Name == null)
+            {
+                folder.Name = id.ToString();
+                folder.StoragePath = Path.Combine(driveName, "Email Attachments");
+                folder.IsFile = false;
+                folder.Size = size;
+                folder = _fileManager.AddFileFolder(folder, driveId)[0];
+            }
+            return folder;
+        }
+
+        private IFormFile[] CheckFiles(IFormFile[] files, string hash, List<EmailAttachment> attachments, string driveId)
+        {
+            if (files != null)
+            {
+                var filesList = files.ToList();
+                
+                if (string.IsNullOrEmpty(driveId))
+                {
+                    var fileToCheck = _storageFileRepository.GetOne(attachments[0].FileId.Value);
+                    var drive = _storageDriveRepository.GetOne(fileToCheck.StorageDriveId.Value);
+                    driveId = drive.Id.ToString();
+                }
+
+                foreach (var attachment in attachments)
+                {
+                    var fileView = _fileManager.GetFileFolder(attachment.FileId.ToString(), driveId, "Files");
+                    var originalHash = fileView.Hash;
+
+                    //check if file with same hash and email id already exists
+                    foreach (var file in files)
+                    {
+                        hash = GetHash(hash, file);
+
+                        //if email attachment already exists and hash is the same: remove from files list
+                        if (fileView.ContentType == file.ContentType && originalHash == hash && fileView.Size == file.Length)
+                            filesList.Remove(file);
+
+                        //if email attachment exists but the hash is not the same: update the attachment and file, remove from files list
+                        else if (fileView.ContentType == file.ContentType && fileView.Name == file.FileName)
+                        {
+                            fileView = new FileFolderViewModel()
+                            {
+                                ContentType = file.ContentType,
+                                Files = new IFormFile[] { file },
+                                IsFile = true,
+                                StoragePath = fileView.StoragePath,
+                                Name = file.FileName,
+                                Id = fileView.Id
+                            };
+                            attachment.SizeInBytes = file.Length;
+                            _emailAttachmentRepository.Update(attachment);
+                            _fileManager.UpdateFile(fileView);
+                            filesList.Remove(file);
+                        }
+                    }
+                }
+                //if file doesn't exist, keep it in files list and return files to be attached
+                var filesArray = filesList.ToArray();
+                return filesArray;
+            }
+            else
+                return Array.Empty<IFormFile>();
+        }
+
+        private string GetHash(string hash, IFormFile file)
+        {
+            byte[] bytes = Array.Empty<byte>();
+            using (var ms = new MemoryStream())
+            {
+                file.CopyToAsync(ms);
+                bytes = ms.ToArray();
+            }
+
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                HashAlgorithm hashAlgorithm = sha256Hash;
+                byte[] data = hashAlgorithm.ComputeHash(bytes);
+                var sBuilder = new StringBuilder();
+                for (int i = 0; i < data.Length; i++)
+                    sBuilder.Append(data[i].ToString("x2"));
+                hash = sBuilder.ToString();
+            }
+            return hash;
+        }
+
+        private StorageDrive GetDrive(string driveId)
+        {
+            var drive = _storageDriveRepository.GetOne(Guid.Parse(driveId));
+            if (drive == null)
+            {
+                drive = _storageDriveRepository.Find(null, q => q.IsDefault == true).Items?.FirstOrDefault();
+
+                if (drive == null)
+                    throw new EntityDoesNotExistException("Default drive could not be found or does not exist");
+            }
+            return drive;
+        }
+
+        private string CheckDriveIdByFileId(string id, string driveId)
+        {
+            if (string.IsNullOrEmpty(driveId))
+            {
+                var fileToExport = _storageFileRepository.GetOne(Guid.Parse(id));
+                driveId = fileToExport.StorageDriveId.ToString();
+            }
+            return driveId;
         }
     }
 }

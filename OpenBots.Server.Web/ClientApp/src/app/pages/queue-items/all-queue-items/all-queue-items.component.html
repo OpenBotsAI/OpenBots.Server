@@ -20,12 +20,15 @@
     </div>
     <form [formGroup]="queueForm" class="form-group queueForms">
       <div class="customQueueForm">
-        <label for="queueitemtype" class="label">Queue:</label>
-        <select class="custom-select" (change)="selectChange($event, 'nothing')" formControlName="id">
+        <label>Queue</label>
+        <!-- <select class="custom-select"  formControlName="id">
           <option *ngFor="let item of queuesArr" [value]="item?.id">
             {{ item?.name }}
           </option>
-        </select>
+        </select> -->
+        <ng-select [items]="queuesArr" [searchable]="true" bindLabel="name" formControlName="id" class="NgSelect"
+          [closeOnSelect]="true" bindValue="id" (change)="selectChange($event, 'nothing')" [clearable]="false">
+        </ng-select>
       </div>
 
       <div class="customQueueForm watch">
@@ -70,17 +73,17 @@
             <i (click)="onSortClick($event, 'lockedBy')" [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
-            Start Time
+            Locked On
             <i (click)="onSortClick($event, 'lockedOnUTC')"
               [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
-            Expiration Time
+            Locked Until
             <i (click)="onSortClick($event, 'lockedUntilUTC')"
               [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
           <th scope="col">
-            End Time
+            Lock End Time
             <i (click)="onSortClick($event, 'lockedEndTimeUTC')"
               [attr.class]="allQueueItemData | chevron: page.totalCount"></i>
           </th>
