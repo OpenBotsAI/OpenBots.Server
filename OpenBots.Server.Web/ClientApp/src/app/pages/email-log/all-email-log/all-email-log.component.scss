@@ -19,6 +19,10 @@
      top: 10px
  }
  
+ ::ng-deep .ng-select.ng-select-single .ng-select-container {
+  height: 44px !important;
+  }
+ 
  ::ng-deep .ngx-pagination {
      padding-left: 0px !important;
      margin-bottom: 0px !important;

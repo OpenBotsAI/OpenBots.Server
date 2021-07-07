@@ -98,12 +98,13 @@ export class EditConfigValueComponent implements OnInit {
   }
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], {
-      queryParams: {
-        PageName: 'Configuration.ConfigurationValue',
-        id: this.showconfigValue.id,
-      },
-    });
+    // this.router.navigate(['/pages/change-log/list'], {
+    //   queryParams: {
+    //     PageName: 'Configuration.ConfigurationValue',
+    //     id: this.showconfigValue.id,
+    //   },
+    // });
+    this.router.navigate([`/pages/change-log/list/${'Configuration.ConfigurationValue'}/${this.showconfigValue.id}`])
   }
   gotoEmailTest() {
     this.router.navigate(['/pages/emailaccount/test-email'], {

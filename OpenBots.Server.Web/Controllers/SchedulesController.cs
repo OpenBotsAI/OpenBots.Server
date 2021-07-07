@@ -19,6 +19,7 @@ using OpenBots.Server.Model.Attributes;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Collections.Generic;
+using OpenBots.Server.DataAccess.Exceptions;
 
 namespace OpenBots.Server.Web.Controllers
 {
@@ -245,6 +246,10 @@ namespace OpenBots.Server.Web.Controllers
             //validate the cron expression
             if (!string.IsNullOrWhiteSpace(request.CRONExpression))
             {
+                if (string.IsNullOrWhiteSpace(request.CRONExpressionTimeZone))
+                {
+                    request.CRONExpressionTimeZone = "UTC";
+                }
                 try
                 {
                     CronExpression expression = CronExpression.Parse(request.CRONExpression, CronFormat.Standard);
@@ -262,7 +267,15 @@ namespace OpenBots.Server.Web.Controllers
 
             try
             {
-                Schedule requestObj = request.Map(request); //assign request to schedule entity
+                if (request.StartingType.ToLower() == "queuearrival")
+                {
+                    if (request.QueueId == null)
+                    {
+                        throw new EntityOperationException("Schedule of starting type \"QueueArrival\" must contain a Queue id");
+                    }
+                }
+
+                Schedule newSchedule = _manager.AddSchedule(request);
 
                 foreach (var parameter in request.Parameters ?? Enumerable.Empty<ParametersViewModel>())
                 {
@@ -279,16 +292,16 @@ namespace OpenBots.Server.Web.Controllers
                     _scheduleParameterRepository.Add(scheduleParameter);
                 }
 
-                var response = await base.PostEntity(requestObj);
+                var response = await base.PostEntity(newSchedule);
 
-                _recurringJobManager.RemoveIfExists(requestObj.Id?.ToString());
+                _recurringJobManager.RemoveIfExists(newSchedule.Id?.ToString());
 
-                if (request.IsDisabled == false && !request.StartingType.ToLower().Equals("manual"))
+                if (request.IsDisabled == false && !request.StartingType.ToLower().Equals("manual"))//if schedule is not a manual starting type
                 {
-                    var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(requestObj);
+                    var jsonScheduleObj = JsonSerializer.Serialize<Schedule>(newSchedule);
 
                     _backgroundJobClient.Schedule(() => _hubManager.ScheduleNewJob(jsonScheduleObj),
-                            new DateTimeOffset(requestObj.StartDate.Value));
+                            new DateTimeOffset(newSchedule.StartDate.Value));
                 }
 
                 return response;
@@ -330,6 +343,10 @@ namespace OpenBots.Server.Web.Controllers
                 //validate the cron expression
                 if (!string.IsNullOrWhiteSpace(request.CRONExpression))
                 {
+                    if (string.IsNullOrWhiteSpace(request.CRONExpressionTimeZone))
+                    {
+                        request.CRONExpressionTimeZone = "UTC";
+                    }
                     try
                     {
                         CronExpression expression = CronExpression.Parse(request.CRONExpression, CronFormat.Standard);
@@ -341,28 +358,10 @@ namespace OpenBots.Server.Web.Controllers
                     }
                 }
 
-                Guid entityId = new Guid(id);
-
-                var existingSchedule = repository.GetOne(entityId);
-                if (existingSchedule == null) return NotFound();
-
-                existingSchedule.Name = request.Name;
-                existingSchedule.AgentId = request.AgentId;
-                existingSchedule.AgentGroupId = request.AgentGroupId;
-                existingSchedule.CRONExpression = request.CRONExpression;
-                existingSchedule.LastExecution = request.LastExecution;
-                existingSchedule.NextExecution = request.NextExecution;
-                existingSchedule.IsDisabled = request.IsDisabled;
-                existingSchedule.ProjectId = request.ProjectId;
-                existingSchedule.StartingType = request.StartingType;
-                existingSchedule.Status = request.Status;
-                existingSchedule.ExpiryDate = request.ExpiryDate;
-                existingSchedule.StartDate = request.StartDate;
-                existingSchedule.AutomationId = request.AutomationId;
-
+                Schedule existingSchedule = _manager.UpdateSchedule(id, request);
                 var response = await base.PutEntity(id, existingSchedule);
 
-                _manager.DeleteExistingParameters(entityId);
+                _manager.DeleteExistingParameters(id);
 
                 var set = new HashSet<string>();
                 foreach (var parameter in request.Parameters ?? Enumerable.Empty<ParametersViewModel>())
@@ -379,7 +378,7 @@ namespace OpenBots.Server.Web.Controllers
                         Name = parameter.Name,
                         DataType = parameter.DataType,
                         Value = parameter.Value,
-                        ScheduleId = entityId,
+                        ScheduleId = existingSchedule.Id.Value,
                         CreatedBy = applicationUser?.UserName,
                         CreatedOn = DateTime.UtcNow,
                         Id = Guid.NewGuid()
@@ -429,7 +428,7 @@ namespace OpenBots.Server.Web.Controllers
                 if (existingSchedule == null) return NotFound();
 
                 _recurringJobManager.RemoveIfExists(existingSchedule.Id.Value.ToString());
-                _manager.DeleteExistingParameters(entityId);
+                _manager.DeleteExistingParameters(id);
 
                 return await base.DeleteEntity(id);
 
@@ -460,6 +459,7 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
+                _manager.AttemptPatchUpdate(request, id);
                 return await base.PatchEntity(id, request);
             }
             catch (Exception ex)
@@ -493,13 +493,13 @@ namespace OpenBots.Server.Web.Controllers
             {
                 ParametersViewModel.VerifyParameterNameAvailability(request.JobParameters);
 
-                Guid AutomationId = request.AutomationId;
-                Guid AgentId = request.AgentId;
-                Guid AgentGroupId = request.AgentGroupId;
+                Guid automationId = request.AutomationId;
+                Guid agentId = request.AgentId;
+                Guid agentGroupId = request.AgentGroupId;
 
                 Schedule schedule = new Schedule();
-                schedule.AgentId = AgentId;
-                schedule.AgentGroupId = AgentGroupId;
+                schedule.AgentId = agentId;
+                schedule.AgentGroupId = agentGroupId;
                 schedule.CRONExpression = "";
                 schedule.LastExecution = DateTime.UtcNow;
                 schedule.NextExecution = DateTime.UtcNow;
@@ -509,7 +509,7 @@ namespace OpenBots.Server.Web.Controllers
                 schedule.Status = "New";
                 schedule.ExpiryDate = DateTime.UtcNow.AddDays(1);
                 schedule.StartDate = DateTime.UtcNow;
-                schedule.AutomationId = AutomationId;
+                schedule.AutomationId = automationId;
                 schedule.CreatedOn = DateTime.UtcNow;
                 schedule.CreatedBy = applicationUser?.UserName;
 

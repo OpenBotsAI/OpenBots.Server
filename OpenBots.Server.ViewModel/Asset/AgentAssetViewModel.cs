@@ -14,16 +14,16 @@ namespace OpenBots.Server.ViewModel.ViewModels
         public string? JsonValue { get; set; }
         public Guid? FileId { get; set; }
         public IFormFile? File { get; set; }
-        public string? DriveName { get; set; }
+        public Guid? DriveId { get; set; }
         [Required]
         public Guid? AgentId { get; set; }
 
-        public AgentAssetViewModel Map(Asset asset, IFormFile file, string driveName)
+        public AgentAssetViewModel Map(Asset asset, IFormFile file, Guid? driveId)
         {
             var agentAssetView = new AgentAssetViewModel()
             {
                 AgentId = asset.Id,
-                DriveName = driveName,
+                DriveId = driveId,
                 File = file,
                 Name = asset.Name
             };

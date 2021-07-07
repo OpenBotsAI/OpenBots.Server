@@ -19,16 +19,21 @@
   <nb-card-body>
     <form [formGroup]="systemEventform">
       <div class="row row-fil">
-        <div class="col-md-8 col-lg-8">
+        <div class="col-md-4 col-lg-4">
           <label class="label-ser">Entity:</label>
-          <select class="custom-select service-name" (change)="getEntityname($event.target.value)"
+          <!-- <select class="custom-select service-name" (change)="getEntityname($event.target.value)"
             formControlName="page_name">
             <option value="" selected>All</option>
             <option *ngFor="let item of show_Entityname" [value]="item">
               {{ item }}
-              
             </option>
-          </select>
+          </select> -->
+
+          <ng-select [items]="show_Entityname" [searchable]="true" bindLabel="show_Entityname"
+          formControlName="page_name" class="NgSelect" placeholder="Please select Entity"
+           (change)="getEntityname($event)"
+          [closeOnSelect]="true" bindValue="show_Entityname" [clearable]="false">
+        </ng-select>
         </div>
       </div>
     </form>

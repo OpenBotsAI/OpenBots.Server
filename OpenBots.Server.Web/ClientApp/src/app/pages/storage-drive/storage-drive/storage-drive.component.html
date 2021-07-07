@@ -1,0 +1,73 @@
+<div class="row">
+    <div class="col-md-12">
+        <nb-card>
+            <nb-card-header>
+                <h2>{{title}} Storage Drive</h2>
+            </nb-card-header>
+            <nb-card-body>
+                <form [formGroup]="storageDriveForm" autocomplete="off">
+                    <div class="row rowPadding">
+                        <div class="col-md-12 col-lg-12 col-xxxl-12">
+                            <label for="name" class="label">Storage Drive Name *</label>
+                            <input type="input" nbInput fullWidth id="name" formControlName="name"
+                                placeholder="Please enter storage drive name" ngxSpecialChar trim="blur">
+                            <div *ngIf="formControls.name.invalid && (formControls.name.dirty || formControls.name.touched)"
+                                class="invalid-feedback-frm">
+                                <div *ngIf="formControls.name.errors.required">
+                                    Name is required.
+                                </div>
+                                <div *ngIf="formControls.name.errors.minlength">
+                                    Name must be at least 3 characters long.
+                                </div>
+                                <div *ngIf="formControls.name.errors.maxlength">
+                                    Name can be 100 characters long.
+                                </div>
+                                <!-- <div *ngIf="formControls.name.errors.pattern">
+                                    Name cannot contain white spaces.
+                                </div> -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row rowTopPadding">
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label for="maxStorageAllowedInBytes" class="label">Storage Drive Size</label>
+                            <input type="number" nbInput fullWidth id="storageSizeInBytes"
+                                formControlName="maxStorageAllowedInBytes"
+                                placeholder="Please enter storage drive size">
+
+                            <div *ngIf="formControls.maxStorageAllowedInBytes.invalid && (formControls.maxStorageAllowedInBytes.dirty || formControls.maxStorageAllowedInBytes.touched)"
+                                class="invalid-feedback-frm">
+                                <div *ngIf="formControls.maxStorageAllowedInBytes.errors.pattern">
+                                    Only numbers allowed.
+                                </div>
+                                <div *ngIf="formControls.maxStorageAllowedInBytes.errors.max">
+                                    Max storage drive size 5000 MB or 50 GB
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-6 col-xxxl-6">
+                            <label class="label">Drive Size</label>
+                            <ng-select [items]="strageDriveSize" formControlName="driveSize" class="NgSelect"
+                                (change)="onChangeDriveSize($event)">
+                            </ng-select>
+                        </div>
+                    </div>
+                    <!-- <div class="row rowTopPadding">
+              <div class="col-md-12 col-lg-12 col-xxxl-12">
+                <label for="description" class="label col-sm-2 col-form-label">Description</label>
+                <textarea type="input" nbInput rows="5" fullWidth id="description" formControlName="description"
+                  placeholder="Please enter description" ngxSpecialChar trim="blur"></textarea>
+              </div>
+            </div> -->
+                    <div class="row rowTopPadding">
+                        <div class="col-md-6 col-lg-6 col-xxxl-12"><button type="submit" class="btn btn-primary"
+                                status="primary"
+                                [disabled]="storageDriveForm.invalid || isSubmitted || isMaxMb || isMaxGb"
+                                (click)="onSubmit()">Save</button></div>
+                        <div class="col-md-6 col-lg-6 col-xxxl-6"></div>
+                    </div>
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
+</div>

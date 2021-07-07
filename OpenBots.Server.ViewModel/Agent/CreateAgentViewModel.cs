@@ -7,6 +7,11 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
 {
     public class CreateAgentViewModel : IViewModel<CreateAgentViewModel, Agent>
     {
+        public CreateAgentViewModel()
+        {
+            Id = Guid.NewGuid();
+        }
+
         public Guid? Id { get; set; }
         [RegularExpression("^[A-Za-z0-9_.-]{3,100}$", ErrorMessage = "Please enter valid Agent name.")] //alphanumeric with underscore, hyphen and dot only
         [Required(ErrorMessage = "Please enter an agent name.")]
@@ -27,6 +32,7 @@ namespace OpenBots.Server.ViewModel.AgentViewModels
         public string Password { get; set; }
         public string IPOption { get; set; }
         public bool IsEnhancedSecurity { get; set; }
+        public AgentSettingViewModel? AgentSetting { get; set; } 
 
         public Agent Map(CreateAgentViewModel viewModel)
         {

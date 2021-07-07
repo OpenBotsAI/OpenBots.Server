@@ -33,7 +33,7 @@ export class GetFileIdComponent implements OnInit {
     private FileSaverService: FileSaverService,
     private dialogService: DialogService,
     private helperService: HelperService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.currentUrlId = this.route.snapshot.params['id'];
@@ -97,12 +97,13 @@ export class GetFileIdComponent implements OnInit {
   }
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], {
-      queryParams: {
-        PageName: 'Files',
-        id: this.currentUrlId,
-      },
-    });
+    // this.router.navigate(['/pages/change-log/list'], {
+    //   queryParams: {
+    //     PageName: 'Files',
+    //     id: this.currentUrlId,
+    //   },
+    // });
+    this.router.navigate([`/pages/change-log/list/${'Files'}/${this.currentUrlId}`]);
   }
   onDown(): void {
     let fileName: string;

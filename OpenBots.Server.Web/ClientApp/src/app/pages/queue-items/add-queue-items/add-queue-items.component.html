@@ -30,12 +30,16 @@
           <div class="row rowPadding">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="queueId" class="label">Queue *</label>
-              <select class="custom-select" formControlName="queueId">
+              <!-- <select class="custom-select" formControlName="queueId">
                 <option value="" [disabled]="true">Please select Queue</option>
                 <option *ngFor="let item of queuesArr" [value]="item?.id">
                   {{ item?.name }}
                 </option>
-              </select>
+              </select> -->
+              <ng-select [items]="queuesArr" [searchable]="true" bindLabel="name" formControlName="queueId"
+                class="NgSelect" placeholder="Please select queue" [closeOnSelect]="true" bindValue="id"
+                [clearable]="false">
+              </ng-select>
               <div *ngIf="controls.queueId.invalid &&
                   (controls.queueId.dirty || controls.queueId.touched)" class="invalid-feedback-frm">
                 <div *ngIf="controls.queueId.errors.required">
@@ -93,19 +97,20 @@
             </div>
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="event" class="label">Event</label>
-              <input type="input" nbInput fullWidth id="event" formControlName="event" placeholder="Please enter event"
-                ngxSpecialChar trim="blur" />
+              <ng-select [items]="integrationEvents" [searchable]="true" formControlName="event" class="NgSelect"
+                placeholder="Please select event" [closeOnSelect]="true" [clearable]="false" [addTag]="true">
+              </ng-select>
               <div *ngIf="
                 controls.event.invalid &&
                 (controls.event.dirty || controls.event.touched)
               " class="invalid-feedback-frm">
 
-                <div *ngIf="controls.event.errors.minlength">
+                <!-- <div *ngIf="controls.event.errors.minlength">
                   Event must be at least 3 characters long.
                 </div>
                 <div *ngIf="controls.event.errors.maxlength">
                   Event can be 100 characters long.
-                </div>
+                </div> -->
               </div>
             </div>
           </div>

@@ -215,3 +215,7 @@ dp-day-calendar.dp-material .dp-selected {
     padding-bottom: 0px !important;
   }
 }
+
+::ng-deep .ng-select.ng-select-single .ng-select-container {
+  height: 40px !important;
+}

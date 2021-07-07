@@ -27,10 +27,9 @@ export class GetConfigValueComponent implements OnInit {
     private formBuilder: FormBuilder,
     protected router: Router
   ) {
-    this.acroute.queryParams.subscribe((params) => {
-      this.configId = params.id;
-      this.getConfigValueById(params.id);
-    });
+    this.configId = this.acroute.snapshot.params['id']
+    this.getConfigValueById(this.configId);
+
   }
 
   ngOnInit(): void {
@@ -75,11 +74,12 @@ export class GetConfigValueComponent implements OnInit {
   }
 
   gotoaudit() {
-    this.router.navigate(['/pages/change-log/list'], {
-      queryParams: {
-        PageName: 'Configuration.ConfigurationValue',
-        id: this.showconfigValue.id,
-      },
-    });
+    // this.router.navigate(['/pages/change-log/list'], {
+    //   queryParams: {
+    //     PageName: 'Configuration.ConfigurationValue',
+    //     id: this.showconfigValue.id,
+    //   },
+    // });
+    this.router.navigate([`/pages/change-log/list/${'Configuration.ConfigurationValue'}/${this.showconfigValue.id}`])
   }
 }

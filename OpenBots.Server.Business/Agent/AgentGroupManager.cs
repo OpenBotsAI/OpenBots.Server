@@ -130,7 +130,7 @@ namespace OpenBots.Server.Business
         /// Verifies that the patch update can be completed
         /// </summary>
         /// <param name="request"></param>
-        /// <param name="id"></param>
+        /// <param name="entityId"></param>
         public void AttemptPatchUpdate(JsonPatchDocument<AgentGroup> request, Guid entityId)
         {
             for (int i = 0; i < request.Operations.Count; i++)

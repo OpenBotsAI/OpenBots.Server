@@ -6,11 +6,12 @@ namespace OpenBots.Server.Model
 {
     public class Job : Entity, INonAuditable
     {
+        public Guid? ScheduleId { get; set; }
         public Guid? AgentId { get; set; }
         public Guid? AgentGroupId { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
-        public double? ExecutionTimeInMinutes { get; set; }
+        public long? ExecutionTimeInMinutes { get; set; }
         public DateTime? EnqueueTime { get; set; }
         public DateTime? DequeueTime { get; set; }
         [Required]
@@ -25,6 +26,8 @@ namespace OpenBots.Server.Model
         public string ErrorReason { get; set; }
         public string ErrorCode { get; set; }
         public string SerializedErrorString { get; set; } 
+        public int AutomationLogCount { get; set; }
+        public int AutomationExecutionLogCount { get; set; }
     }
 
     /// <summary>

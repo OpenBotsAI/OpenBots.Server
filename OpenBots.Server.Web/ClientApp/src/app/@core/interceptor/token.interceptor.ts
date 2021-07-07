@@ -26,7 +26,7 @@ export class TokenInterceptor implements HttpInterceptor {
     private router: Router,
     private httpService: HttpService,
     private spinnerService: SpinnerService
-  ) {}
+  ) { }
 
   intercept(
     request: HttpRequest<unknown>,
@@ -48,6 +48,8 @@ export class TokenInterceptor implements HttpInterceptor {
           }
         } else if (error.status == 409) {
           return throwError(error);
+        } else if (error.status == 422) {
+          this.toastrService.danger(`${error.error.serviceErrors[0]}`, 'Failed');
         } else if (error.status == 429) {
           if (error.headers.get('Retry-After')) {
             if (this.httpService.countapi !== 1) {
@@ -94,7 +96,7 @@ export class TokenInterceptor implements HttpInterceptor {
     // this.spinnerService.resetSpinner();
     let errorMessage = '';
     if (error.error instanceof HttpErrorResponse) {
-       // this.spinnerService.resetSpinner();
+      // this.spinnerService.resetSpinner();
       this.toastrService.danger(
         `${error.status} ${error.error.serviceErrors[0]}`
       );
@@ -103,9 +105,9 @@ export class TokenInterceptor implements HttpInterceptor {
         error.status == 400 &&
         error.error.serviceErrors &&
         error.error.serviceErrors[0] ==
-          'Token is no longer valid. Please log back in.'
+        'Token is no longer valid. Please log back in.'
       ) {
-         // this.spinnerService.resetSpinner();
+        // this.spinnerService.resetSpinner();
         this.toastrService.danger(`${error.error.serviceErrors[0]}`, 'Failed');
         this.router.navigate(['auth/login']);
         localStorage.clear();
@@ -114,7 +116,7 @@ export class TokenInterceptor implements HttpInterceptor {
         error.status == 400 &&
         error.error.serviceErrors &&
         error.error.serviceErrors[0] !=
-          'Token is no longer valid. Please log back in.'
+        'Token is no longer valid. Please log back in.'
       ) {
         //this.spinnerService.resetSpinner();
         this.toastrService.danger(`${error.error.serviceErrors[0]}`, 'Failed');

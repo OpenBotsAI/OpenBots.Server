@@ -14,7 +14,7 @@ const routes: Routes = [
     component: AddAssetComponent,
   },
   {
-    path: 'get-asset-id',
+    path: 'view/:id',
     component: GetAssetIdComponent,
   },
   {

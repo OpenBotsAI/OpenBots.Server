@@ -1,30 +1,56 @@
-﻿using OpenBots.Server.Business.Interfaces;
+﻿using Microsoft.AspNetCore.Http;
+using OpenBots.Server.Business.Interfaces;
 using OpenBots.Server.DataAccess.Exceptions;
+using OpenBots.Server.DataAccess.Repositories.Interfaces;
 using OpenBots.Server.Model.Core;
 using OpenBots.Server.Model.File;
 using OpenBots.Server.ViewModel.File;
+using OpenBots.Server.Web.Webhooks;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace OpenBots.Server.Business.File
 {
     public class FileManager : BaseManager, IFileManager
     {
-        private readonly LocalFileStorageAdapter _localFileStorageAdapter;
+        private readonly ILocalFileStorageAdapter _localFileStorageAdapter;
+        private readonly IStorageDriveRepository _storageDriveRepository;
+        private readonly IOrganizationManager _organizationManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IWebhookPublisher _webhookPublisher;
+        private readonly IDirectoryManager _directoryManager;
+        private readonly IStorageFileRepository _storageFileRepository;
+        private readonly IStorageFolderRepository _storageFolderRepository;
 
         public FileManager(
-            LocalFileStorageAdapter localFileStorageAdapter)
+            ILocalFileStorageAdapter localFileStorageAdapter,
+            IStorageDriveRepository storageDriveRepository,
+            IOrganizationManager organizationManager,
+            IHttpContextAccessor httpContextAccessor,
+            IWebhookPublisher webhookPublisher,
+            IDirectoryManager directoryManager,
+            IStorageFileRepository storageFileRepository,
+            IStorageFolderRepository storageFolderRepository
+)
         {
             _localFileStorageAdapter = localFileStorageAdapter;
+            _storageDriveRepository = storageDriveRepository;
+            _organizationManager = organizationManager;
+            _httpContextAccessor = httpContextAccessor;
+            _webhookPublisher = webhookPublisher;
+            _directoryManager = directoryManager;
+            _storageFileRepository = storageFileRepository;
+            _storageFolderRepository = storageFolderRepository;
         }
 
-        public PaginatedList<FileFolderViewModel> GetFilesFolders(bool? isFile = null, string driveName = null, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100)
+        public PaginatedList<FileFolderViewModel> GetFilesFolders(string driveId, bool? isFile = null, Predicate<FileFolderViewModel> predicate = null, string sortColumn = "", OrderByDirectionType direction = OrderByDirectionType.Ascending, int skip = 0, int take = 100, string path = null)
         {
-            string adapter = GetAdapterType(driveName);
+            string adapter = GetAdapterType(driveId);
 
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
-                return _localFileStorageAdapter.GetFilesFolders(isFile, driveName, predicate, sortColumn, direction, skip, take);
+                return _localFileStorageAdapter.GetFilesFolders(driveId, isFile, predicate, sortColumn, direction, skip, take, path);
             //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
             //    azureBlobStorageAdapter.SaveFile(request);
             //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
@@ -35,35 +61,35 @@ namespace OpenBots.Server.Business.File
 
         }
 
-        public int? GetFileCount(string driveName)
+        public int? GetFileCount(string driveId)
         {
-            string adapter = GetAdapterType(driveName);
+            string adapter = GetAdapterType(driveId);
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
             {
-                int? count = _localFileStorageAdapter.GetFileCount(driveName);
+                int? count = _localFileStorageAdapter.GetFileCount(driveId);
                 return count;
             }
             else throw new EntityOperationException("Configuration is not set up for local file storage");
         }
 
-        public int? GetFolderCount(string driveName)
+        public int? GetFolderCount(string driveId)
         {
-            string adapter = GetAdapterType(driveName);
+            string adapter = GetAdapterType(driveId);
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
             {
-                int? count = _localFileStorageAdapter.GetFolderCount(driveName);
+                int? count = _localFileStorageAdapter.GetFolderCount(driveId);
                 return count;
             }
             else throw new EntityOperationException("Configuration is not set up for local file storage");
         }
 
-        public FileFolderViewModel GetFileFolder(string id, string driveName = null)
+        public FileFolderViewModel GetFileFolder(string id, string driveId, string type)
         {
-            string adapter = GetAdapterType(driveName);
+            string adapter = GetAdapterType(driveId);
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
             {
-                var folder = _localFileStorageAdapter.GetFileFolderViewModel(id, driveName);
-                return folder;
+                var fileFolder = _localFileStorageAdapter.GetFileFolderViewModel(id, driveId, type);
+                return fileFolder;
             }
             //else if (adapter.Equals(AdapterType.AzureBlobStorageAdapter.ToString()))
             //    content = azureBlobStorageAdapter.DownloadFile(downloadInput);
@@ -74,9 +100,9 @@ namespace OpenBots.Server.Business.File
             else throw new EntityOperationException("Configuration is not set up for local file storage");
         }
 
-        public ServerDrive GetDrive(string driveName = null)
+        public StorageDrive GetDriveByName(string driveName = null)
         {
-            string adapter = GetAdapterType(driveName);
+            string adapter = GetAdapterTypeByDriveName(driveName);
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
             {
                 var drive = _localFileStorageAdapter.GetDriveByName(driveName);
@@ -85,13 +111,25 @@ namespace OpenBots.Server.Business.File
             else throw new EntityOperationException("Configuration is not set up for local file storage");
         }
 
-        public List<FileFolderViewModel> AddFileFolder(FileFolderViewModel request, string driveName = null)
+        public StorageDrive GetDriveById(string driveId = null)
+        {
+            string adapter = GetAdapterType(driveId);
+            if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
+            {
+                Guid? id = Guid.Parse(driveId);
+                var drive = _localFileStorageAdapter.GetDriveById(id);
+                return drive;
+            }
+            else throw new EntityOperationException("Configuration is not set up for local file storage");
+        }
+
+        public List<FileFolderViewModel> AddFileFolder(FileFolderViewModel request, string driveId)
         {
             var response = new List<FileFolderViewModel>();
-            string adapter = GetAdapterType(driveName);
+            string adapter = GetAdapterType(driveId);
 
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
-                response = _localFileStorageAdapter.AddFileFolder(request, driveName);
+                response = _localFileStorageAdapter.AddFileFolder(request, driveId);
             //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
             //    azureBlobStorageAdapter.SaveFile(request);
             //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
@@ -103,12 +141,12 @@ namespace OpenBots.Server.Business.File
             return response;
         }
 
-        public async Task<FileFolderViewModel> ExportFileFolder(string id, string driveName = null)
+        public async Task<FileFolderViewModel> ExportFileFolder(string id, string driveId)
         {
             var response = new FileFolderViewModel();
-            string adapter = GetAdapterType(driveName);
+            string adapter = GetAdapterType(driveId);
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
-                response = await _localFileStorageAdapter.ExportFile(id, driveName);
+                response = await _localFileStorageAdapter.ExportFile(id, driveId);
             //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
             //    azureBlobStorageAdapter.SaveFile(request);
             //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
@@ -120,12 +158,12 @@ namespace OpenBots.Server.Business.File
             return response;
         }
 
-        public FileFolderViewModel DeleteFileFolder(string id, string driveName = null)
+        public FileFolderViewModel DeleteFileFolder(string id, string driveId, string type)
         {
             FileFolderViewModel fileFolder = new FileFolderViewModel();
-            string adapter = GetAdapterType(driveName);
+            string adapter = GetAdapterType(driveId);
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
-                fileFolder = _localFileStorageAdapter.DeleteFileFolder(id, driveName);
+                fileFolder = _localFileStorageAdapter.DeleteFileFolder(id, driveId, type);
             //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
             //    azureBlobStorageAdapter.SaveFile(request);
             //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
@@ -139,24 +177,31 @@ namespace OpenBots.Server.Business.File
                 && !fileFolder.StoragePath.Contains("Automations") && !fileFolder.StoragePath.Contains("Assets") 
                 || fileFolder.IsFile == false && (fileFolder.StoragePath.Contains("Automations") || fileFolder.StoragePath.Contains("Assets")
                 || fileFolder.StoragePath.Contains("Email Attachments") || fileFolder.StoragePath.Contains("Queue Item Attachments"))))
-                AddBytesToFoldersAndDrive(new List<FileFolderViewModel> { fileFolder });
+                RemoveBytesFromFoldersAndDrive(new List<FileFolderViewModel> { fileFolder });
 
             return fileFolder;
         }
 
         public void AddBytesToFoldersAndDrive(List<FileFolderViewModel> files)
         {
-            string adapter = GetAdapterType("Files");
+            string adapter = GetAdapterType(files[0].StorageDriveId.ToString());
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
                 _localFileStorageAdapter.AddBytesToFoldersAndDrive(files);
         }
 
-        public FileFolderViewModel RenameFileFolder(string id, string name, string driveName = null)
+        public void RemoveBytesFromFoldersAndDrive(List<FileFolderViewModel> files)
+        {
+            string adapter = GetAdapterType(files[0].StorageDriveId.ToString());
+            if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
+                _localFileStorageAdapter.RemoveBytesFromFoldersAndDrive(files);
+        }
+
+        public FileFolderViewModel RenameFileFolder(string id, string name, string driveId, string type)
         {
             var response = new FileFolderViewModel();
-            string adapter = GetAdapterType(driveName);
+            string adapter = GetAdapterType(driveId);
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
-                response = _localFileStorageAdapter.RenameFileFolder(id, name, driveName);
+                response = _localFileStorageAdapter.RenameFileFolder(id, name, driveId, type);
             //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
             //    azureBlobStorageAdapter.SaveFile(request);
             //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
@@ -168,12 +213,12 @@ namespace OpenBots.Server.Business.File
             return response;
         }
 
-        public FileFolderViewModel MoveFileFolder(string fileFolderId, string parentFolderId, string driveName = null)
+        public FileFolderViewModel MoveFileFolder(string fileFolderId, string parentFolderId, string driveId, string type)
         {
             var response = new FileFolderViewModel();
-            string adapter = GetAdapterType(driveName);
+            string adapter = GetAdapterType(driveId);
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
-                response = _localFileStorageAdapter.MoveFileFolder(fileFolderId, parentFolderId, driveName);
+                response = _localFileStorageAdapter.MoveFileFolder(fileFolderId, parentFolderId, driveId, type);
             //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
             //    azureBlobStorageAdapter.SaveFile(request);
             //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
@@ -185,12 +230,12 @@ namespace OpenBots.Server.Business.File
             return response;
         }
 
-        public FileFolderViewModel CopyFileFolder(string fileFolderId, string parentFolderId, string driveName = null)
+        public FileFolderViewModel CopyFileFolder(string fileFolderId, string parentFolderId, string driveId, string type)
         {
             var response = new FileFolderViewModel();
-            string adapter = GetAdapterType(driveName);
+            string adapter = GetAdapterType(driveId);
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
-                response = _localFileStorageAdapter.CopyFileFolder(fileFolderId, parentFolderId, driveName);
+                response = _localFileStorageAdapter.CopyFileFolder(fileFolderId, parentFolderId, driveId, type);
             //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
             //    azureBlobStorageAdapter.SaveFile(request);
             //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
@@ -202,11 +247,11 @@ namespace OpenBots.Server.Business.File
             return response;
         }
 
-        public void UpdateFile(FileFolderViewModel request)
+        public FileFolderViewModel UpdateFile(FileFolderViewModel request)
         {
-            string adapter = GetAdapterType("Files");
+            string adapter = GetAdapterType(request.StorageDriveId.ToString());
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
-                _localFileStorageAdapter.UpdateFile(request);
+                return _localFileStorageAdapter.UpdateFile(request).Result;
             //else if (adapter.Equals("AzureBlobStorageAdapter") && storageProvider.Equals("FileSystem.Azure"))
             //    azureBlobStorageAdapter.SaveFile(request);
             //else if (adapter.Equals("AmazonEC2StorageAdapter") && storageProvider.Equals("FileSystem.Amazon"))
@@ -220,7 +265,7 @@ namespace OpenBots.Server.Business.File
         public FileFolderViewModel GetFileFolderByStoragePath(string storagePath, string driveName = null)
         {
             var response = new FileFolderViewModel();
-            string adapter = GetAdapterType(driveName);
+            string adapter = GetAdapterTypeByDriveName(driveName);
             if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
                 response = _localFileStorageAdapter.GetFileFolderByStoragePath(storagePath, driveName);
             else throw new EntityOperationException("Configuration is not set up for local file storage");
@@ -228,15 +273,113 @@ namespace OpenBots.Server.Business.File
             return response;
         }
 
-        public ServerDrive AddServerDrive(string driveName)
+        public StorageDrive AddStorageDrive(StorageDrive drive)
         {
-            var serverDrive = new ServerDrive();
-            string adapter = GetAdapterType(driveName);
-            if (adapter.Equals(AdapterType.LocalFileStorage.ToString()))
-                serverDrive = _localFileStorageAdapter.AddServerDrive(driveName);
-            else throw new EntityOperationException("Configuration is not set up for local file storage");
+            Guid? organizationId = _organizationManager.GetDefaultOrganization().Id;
+            var existingDrive = _storageDriveRepository.Find(null).Items?.Where(q => q.OrganizationId == organizationId && q.Name.ToLower() == drive.Name.ToLower()).FirstOrDefault();
+            if (existingDrive != null)
+                throw new EntityAlreadyExistsException($"Drive {drive.Name} already exists within this organization");
 
-            return serverDrive;
+            CheckDefaultDrive(drive, organizationId);
+
+            var adapterType = drive.FileStorageAdapterType;
+            if (string.IsNullOrEmpty(adapterType))
+                adapterType = AdapterType.LocalFileStorage.ToString();
+
+            //check if a new drive can be created for the current organization
+            long? maxSizeInBytes = drive.MaxStorageAllowedInBytes;//size of new drive
+            long? organizationStorage = GetTotalOrganizationStorage(organizationId);//sum of all drives for the current organization
+            long? orgMaxSizeInBytes = _organizationManager.GetMaxStorageInBytes(organizationId);//max allowed storage for the current organization
+            long? updatedOrgStorage = maxSizeInBytes + organizationStorage;//sum of new drive and all existing drives
+
+            if (orgMaxSizeInBytes != null && maxSizeInBytes > orgMaxSizeInBytes)
+            {
+                throw new EntityOperationException("Drive size would exceed the allowed storage space for this organization");
+            }
+
+            if (string.IsNullOrEmpty(drive.StoragePath))
+                drive.StoragePath = drive.Name;
+            if (drive.MaxStorageAllowedInBytes == null)
+                drive.MaxStorageAllowedInBytes = orgMaxSizeInBytes;
+            if (string.IsNullOrEmpty(drive.FileStorageAdapterType))
+                drive.FileStorageAdapterType = AdapterType.LocalFileStorage.ToString();
+            if (drive.IsDefault == null)
+                drive.IsDefault = false;
+
+            var storageDrive = new StorageDrive()
+            {
+                Name = drive.Name,
+                FileStorageAdapterType = drive.FileStorageAdapterType,
+                OrganizationId = organizationId,
+                StoragePath = drive.StoragePath,
+                CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
+                CreatedOn = DateTime.UtcNow,
+                StorageSizeInBytes = drive.StorageSizeInBytes ?? 0,
+                MaxStorageAllowedInBytes = drive.MaxStorageAllowedInBytes,
+                IsDefault = drive.IsDefault
+            };
+            _storageDriveRepository.Add(storageDrive);
+
+            _webhookPublisher.PublishAsync("Files.NewDriveCreated", storageDrive.Id.ToString(), storageDrive.Name);
+
+            return storageDrive;
+        }
+
+        public StorageDrive UpdateDrive(string id, StorageDrive drive, string orgId)
+        {
+            Guid organizationId = Guid.Parse(orgId);
+            Guid entityId = Guid.Parse(id);
+            var existingDrive = _storageDriveRepository.Find(null, q => q.Id == entityId && q.OrganizationId == organizationId).Items.FirstOrDefault();
+            if (existingDrive == null)
+                throw new EntityDoesNotExistException("Storage drive could not be found or does not exist");
+
+            var existingDriveName = _storageDriveRepository.Find(null, q => q.Name.ToLower() == existingDrive.Name.ToLower() && q.Id != existingDrive.Id).Items.FirstOrDefault();
+            if (existingDriveName != null)
+                throw new EntityAlreadyExistsException("Storage drive with same name already exists");
+
+            if (drive.IsDefault == null)
+                drive.IsDefault = existingDrive.IsDefault;
+
+            CheckDefaultDrive(drive, organizationId);
+
+            var adapterType = drive.FileStorageAdapterType;
+            if (string.IsNullOrEmpty(adapterType))
+                adapterType = AdapterType.AzureBlobStorage.ToString();
+
+            //check if updated storage drive can be updated for the current organization
+            long? maxSizeInBytes = drive.MaxStorageAllowedInBytes;//size of updated drive
+            long? organizationStorage = GetTotalOrganizationStorage(organizationId);//sum of all drives for the current organization
+            long? orgMaxSizeInBytes = _organizationManager.GetMaxStorageInBytes();//max allowed storage for the current organization
+            long? updatedOrgStorage = maxSizeInBytes + (organizationStorage - existingDrive.MaxStorageAllowedInBytes);//sum of updated drive and all existing drives
+
+            if (orgMaxSizeInBytes != null && maxSizeInBytes > orgMaxSizeInBytes)
+            {
+                throw new EntityOperationException("Drive size would exceed the allowed storage space for this organization");
+            }
+
+            existingDrive.IsDefault = drive.IsDefault;
+            if (!string.IsNullOrEmpty(drive.FileStorageAdapterType))
+                existingDrive.FileStorageAdapterType = drive.FileStorageAdapterType;
+            if (drive.MaxStorageAllowedInBytes != null)
+                existingDrive.MaxStorageAllowedInBytes = drive.MaxStorageAllowedInBytes;
+
+            bool existingDriveHasChildren = false;
+            var existingFolders = _storageFolderRepository.Find(null, q => q.ParentFolderId == existingDrive.Id && q.OrganizationId == organizationId).Items;
+            var existingFiles = _storageFileRepository.Find(null, q => q.StorageFolderId == existingDrive.Id && q.OrganizationId == organizationId).Items;
+
+            if (existingFolders != null && existingFiles != null)
+                existingDriveHasChildren = true;
+
+            if (existingDriveHasChildren && drive.Name != existingDrive.Name)
+                throw new EntityOperationException("Drive name cannot be changed except when drive is empty");
+            else if (existingDrive.Name != drive.Name)
+                existingDrive.Name = drive.Name;
+
+            _storageDriveRepository.Update(existingDrive);
+
+            _webhookPublisher.PublishAsync("Files.DriveUpdated", drive.Id.ToString(), drive.Name);
+
+            return existingDrive;
         }
 
         public Dictionary<Guid?, string> GetDriveNames(string adapterType)
@@ -250,10 +393,44 @@ namespace OpenBots.Server.Business.File
             return driveNames;
         }
 
-        public string GetAdapterType(string driveName)
+        public string GetShortPath(string path)
+        {
+            return _localFileStorageAdapter.GetShortPath(path);
+        }
+
+        public void CheckDefaultDrive(StorageDrive drive, Guid? organizationId)
+        {
+            if (drive.IsDefault.Value)
+            {
+                var defaultDrive = _storageDriveRepository.Find(null).Items.Where(q => q.OrganizationId == organizationId && q.IsDefault == true).FirstOrDefault();
+                if (defaultDrive != null && defaultDrive.Name != drive.Name)
+                    throw new EntityOperationException($"Default drive {defaultDrive.Name} already exists");
+            }
+        }
+
+        private string GetAdapterType(string driveId)
+        {
+            Guid id = Guid.Parse(driveId);
+            var drive = _localFileStorageAdapter.GetDriveById(id);
+            return drive.FileStorageAdapterType;
+        }
+
+        private string GetAdapterTypeByDriveName(string driveName)
         {
             var drive = _localFileStorageAdapter.GetDriveByName(driveName);
             return drive.FileStorageAdapterType;
+        }
+
+        private long? GetTotalOrganizationStorage(Guid? organizationId)
+        {
+            long? sum = 0;
+            var organizationDrives = _storageDriveRepository.Find(null, d => d.OrganizationId == organizationId).Items;
+
+            foreach (var drive in organizationDrives)
+            {
+                sum += drive.MaxStorageAllowedInBytes;
+            }
+            return sum;
         }
 
         public enum AdapterType

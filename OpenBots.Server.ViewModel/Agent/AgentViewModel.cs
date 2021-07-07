@@ -28,6 +28,7 @@ namespace OpenBots.Server.ViewModel
         public string CredentialName { get; set; }
         public string IPOption { get; set; }
         public bool IsEnhancedSecurity { get; set; }
+        public AgentSettingViewModel? AgentSetting { get; set; }
 
         public AgentViewModel Map(Agent entity)
         {

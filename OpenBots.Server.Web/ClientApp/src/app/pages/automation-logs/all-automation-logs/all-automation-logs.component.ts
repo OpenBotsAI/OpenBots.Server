@@ -40,7 +40,7 @@ export class AllAutomationLogsComponent implements OnInit {
     private route: ActivatedRoute,
     private helperService: HelperService,
     private filesaver: FileSaverService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.getAgentsLookup();
@@ -107,12 +107,12 @@ export class AllAutomationLogsComponent implements OnInit {
     });
   }
 
-  processAndAgentDropdown(name: string, value: string): void {
+  processAndAgentDropdown(name: string, value: any): void {
     if (name == 'process') {
-      this.processID = value;
+      this.processID = value.automationId;
       this.filterAgentProcess();
     } else if (name == 'agent') {
-      this.agentID = value;
+      this.agentID = value.agentId;
       this.filterAgentProcess();
     }
   }

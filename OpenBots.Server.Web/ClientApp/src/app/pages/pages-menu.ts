@@ -148,6 +148,10 @@ export class PagesMenu {
             title: 'Files Manager',
             link: '/pages/file-manager',
           },
+          {
+            title: 'Storage Drive',
+            link: '/pages/storagedrive',
+          },
           // {
           //   title: 'All Files',
           //   link: '/pages/file/list',
@@ -178,6 +182,18 @@ export class PagesMenu {
             link: '/pages/system-event/list',
           },
           {
+            title: 'Business Events',
+            link: '/pages/business-event/list',
+          },
+          {
+            title: 'Add Business Events',
+            link: '/pages/business-event/add',
+          },
+          {
+            title: 'Raise Business Events',
+            link: '/pages/business-event/raise-event',
+          },
+          {
             title: 'Subscriptions',
             link: '/pages/subscription/list',
           },
@@ -185,6 +201,7 @@ export class PagesMenu {
             title: 'Add Subscriptions',
             link: '/pages/subscription/add',
           },
+
           {
             title: 'Logs',
             link: '/pages/integration-logs/list',

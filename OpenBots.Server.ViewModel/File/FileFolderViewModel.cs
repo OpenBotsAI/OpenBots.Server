@@ -24,7 +24,7 @@ namespace OpenBots.Server.ViewModel.File
         public virtual IFormFile[]? Files { get; set; }
         public virtual string Hash { get; set; }
 
-        public FileFolderViewModel Map(ServerFile entity, string path)
+        public FileFolderViewModel Map(StorageFile entity, string path)
         {
             FileFolderViewModel fileFolderView = new FileFolderViewModel
             {
@@ -40,14 +40,14 @@ namespace OpenBots.Server.ViewModel.File
                 ParentId = entity.StorageFolderId,
                 StoragePath = path,
                 Size = entity.SizeInBytes,
-                StorageDriveId = entity.ServerDriveId,
+                StorageDriveId = entity.StorageDriveId,
                 Hash = entity.HashCode
             };
 
             return fileFolderView;
         }
 
-        public FileFolderViewModel Map(ServerFolder entity, string path, bool hasChild)
+        public FileFolderViewModel Map(StorageFolder entity, string path, bool hasChild)
         {
             FileFolderViewModel fileFolderView = new FileFolderViewModel
             {

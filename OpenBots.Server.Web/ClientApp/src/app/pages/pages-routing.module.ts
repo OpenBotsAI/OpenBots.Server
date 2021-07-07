@@ -190,6 +190,22 @@ const routes: Routes = [
         canActivate: [LoginGuard],
       },
       {
+        path: 'storagedrive',
+        loadChildren: () =>
+          import('./storage-drive/storage-drive.module').then(
+            (mod) => mod.StorageDriveModule
+          ),
+        canActivate: [LoginGuard],
+      },
+      {
+        path: 'business-event',
+        loadChildren: () =>
+          import('./business-event/business-event.module').then(
+            (mod) => mod.BusinessEventModule
+          ),
+        canActivate: [LoginGuard],
+      },
+      {
         path: 'miscellaneous',
         loadChildren: () =>
           import('./miscellaneous/miscellaneous.module').then(

@@ -35,7 +35,7 @@ export class PreventSpecialCharDirective implements OnInit {
       (k > 96 && k < 123) ||
       k == 8 ||
       k == 32 ||
-      (k >= 48 && k <= 57)
+      (k >= 45 && k <= 57)
     );
   }
 
@@ -44,6 +44,5 @@ export class PreventSpecialCharDirective implements OnInit {
       return;
     } else if (event.target.value.length > 1 && event.keyCode === 220) {
     }
-
   }
 }

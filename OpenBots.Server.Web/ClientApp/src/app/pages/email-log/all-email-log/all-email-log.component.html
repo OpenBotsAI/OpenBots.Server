@@ -18,15 +18,20 @@
     <nb-card-body>
         <form [formGroup]="emaillogfilter">
             <div class="row row-fil">
-                <div class="col-md-8 col-lg-8">
+                <div class="col-md-4 col-lg-4">
                     <label class="label-ser">Email Account :</label>
-                    <select class="custom-select service-name" (change)="getEmailAccount($event.target.value)"
+                    <!-- <select class="custom-select service-name" (change)="getEmailAccount($event.target.value)"
                         formControlName="page_name">
                         <option value="" selected>All</option>
                         <option *ngFor="let item of showallemailaccount | orderBy:'emailAccountName'" [value]="item.emailAccountId">
                             {{ item.emailAccountName }}
                         </option>
-                    </select>
+                    </select> -->
+                    <ng-select [items]="showallemailaccount" [searchable]="true" bindLabel="emailAccountName"
+          formControlName="page_name" class="NgSelect" placeholder="Please select Email Account"
+           (change)="getEmailAccount($event)"
+          [closeOnSelect]="true" bindValue="emailAccountId" [clearable]="false">
+        </ng-select>
                 </div>
             </div>
         </form>

@@ -61,9 +61,7 @@ export class AllSystemEventsComponent implements OnInit {
   }
 
   gotodetail(id) {
-    this.router.navigate(['/pages/system-event/get-system-event-id'], {
-      queryParams: { id: id },
-    });
+    this.router.navigate([`/pages/system-event/view/${id}`]);
   }
 
   ngOnInit(): void {

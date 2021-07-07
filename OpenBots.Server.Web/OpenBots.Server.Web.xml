@@ -131,8 +131,6 @@
             AgentsController constructor
             </summary>
             <param name="agentRepository"></param>
-            <param name="personRepository"></param>
-            <param name="usersRepository"></param>
             <param name="membershipManager"></param>
             <param name="userManager"></param>
             <param name="agentManager"></param>
@@ -210,7 +208,7 @@
             <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
             <returns>Newly created unique agent id with route name</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Put(System.String,OpenBots.Server.Model.Agent)">
+        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Put(System.String,OpenBots.Server.ViewModel.AgentViewModels.UpdateAgentViewModel)">
             <summary>
             Updates an Agent 
             </summary>
@@ -558,7 +556,7 @@
             Export/download an Automation
             </summary>
             <param name="id"></param>
-            <param name="driveName"></param>
+            <param name="driveId"></param>
             <response code="200">Ok, if a Automation exists with the given id</response>
             <response code="304">Not modified</response>
             <response code="400">Bad request, if Automation id is not in proper format or a proper Guid</response>
@@ -567,12 +565,11 @@
             <response code="422">Unprocessable entity</response>
             <returns>Downloaded Automation file</returns>        
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Delete(System.String,System.String)">
+        <member name="M:OpenBots.Server.Web.Controllers.AutomationsController.Delete(System.String)">
             <summary>
             Delete Automation with a specified id from list of Automations
             </summary>
             <param name="id">Automation id to be deleted - throws bad request if null or empty Guid</param>
-            <param name="driveName"></param>
             <response code="200">Ok, when Automation is soft deleted, (isDeleted flag is set to true in database)</response>
             <response code="400">Bad request, if Automation id is null or empty Guid</response>
             <response code="403">Forbidden</response>
@@ -812,12 +809,12 @@
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailAccountsController.Patch(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Configuration.EmailAccount})">
             <summary>
-            Updates partial details of an email account.
+            Updates partial details of an email account
             </summary>
             <param name="id"></param>
             <param name="request"></param>
             <response code="200">Ok, if update of email account is successful</response>
-            <response code="400">Bad request, if the id is null or ids dont match.</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response</returns>
@@ -858,8 +855,6 @@
             <param name="httpContextAccessor"></param>
             <param name="configuration"></param>
             <param name="manager"></param>
-            <param name="emailAttachmentRepository"></param>
-            <param name="fileManager"></param>
         </member>
         <member name="M:OpenBots.Server.Web.Controllers.EmailConfiguration.EmailsController.Get(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -1003,7 +998,7 @@
             Delete email with a specified id from list of emails
             </summary>
             <param name="id">Email id to be deleted - throws bad request if null or empty Guid/</param>
-            <param name="driveName"></param>
+            <param name="driveId"></param>
             <response code="200">Ok, when email is soft deleted, (isDeleted flag is set to true in database)</response>
             <response code="400">Bad request, if email id is null or empty Guid</response>
             <response code="403">Forbidden</response>
@@ -1197,7 +1192,7 @@
              </remarks>
              <param name="emailId"></param>
              <param name="requests"></param>
-             <param name="driveName"></param>
+             <param name="driveId"></param>
              <response code="200">Ok, new email attachments created and returned</response>
              <response code="400">Bad request, when the email attachment values are not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
@@ -1211,7 +1206,7 @@
              </summary>
              <param name="emailId"></param>
              <param name="files"></param>
-             <param name="driveName"></param>
+             <param name="driveId"></param>
              <response code="200">Ok, new binary object created and returned</response>
              <response code="400">Bad request, when the binary object value is not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
@@ -1219,7 +1214,7 @@
              <response code="422">Unprocessable Entity</response>
              <returns> Newly created unique file</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.Email.EmailAttachmentsController.Put(System.String,OpenBots.Server.Model.Core.EmailAttachment,System.String)">
+        <member name="M:OpenBots.Server.Web.Controllers.Email.EmailAttachmentsController.Put(System.String,OpenBots.Server.Model.Core.EmailAttachment)">
             <summary>
             Updates email attachment
             </summary>
@@ -1228,7 +1223,6 @@
             </remarks>
             <param name="id">Email attachment id, produces bad request if id is null or ids don't match</param>
             <param name="request">Email attachment details to be updated</param>
-            <param name="driveName"></param>
             <response code="200">Ok, if the email attachment details for the given email attachment id have been updated</response>
             <response code="400">Bad request, if the email attachment id is null or ids don't match</response>
             <response code="403">Forbidden, unauthorized access</response>
@@ -1268,7 +1262,7 @@
             Delete all email attachments with a specified email id from list of email attachments
             </summary>
             <param name="emailId">Email id to delete all email attachments from - throws bad request if null or empty Guid</param>
-            <param name="driveName"></param>
+            <param name="driveId"></param>
             <response code="200">Ok, when email attachments are soft deleted, (isDeleted flag is set to true in database)</response>
             <response code="400">Bad request, if email id is null or empty Guid</response>
             <response code="403">Forbidden</response>
@@ -1279,7 +1273,7 @@
             Delete specific email attachment from list of email attachments
             </summary>
             <param name="id">Email attachment id to be deleted - throws bad request if null or empty Guid/</param>
-            <param name="driveName"></param>
+            <param name="driveId"></param>
             <response code="200">Ok, when email attachment is soft deleted, (isDeleted flag is set to true in database)</response>
             <response code="400">Bad request, if email attachment id is null or empty Guid</response>
             <response code="403">Forbidden</response>
@@ -1290,7 +1284,7 @@
             Export/download an email attachment file
             </summary>
             <param name="id"></param>
-            <param name="driveName"></param>
+            <param name="driveId"></param>
             <response code="200">Ok if an email attachment file exists with the given id</response>
             <response code="304">Not modified</response>
             <response code="400">Bad request, if email attachment id is not in proper format or proper Guid</response>
@@ -1298,203 +1292,6 @@
             <response code="404">Not found, when no email attachment file exists for the given email attachment id</response>
             <response code="422">Unprocessable entity</response>
             <returns>Downloaded email attachment file</returns>
-        </member>
-        <member name="T:OpenBots.Server.Web.Controllers.FilesController">
-            <summary>
-            Controller for files
-            </summary>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.#ctor(OpenBots.Server.Business.Interfaces.IFileManager,OpenBots.Server.DataAccess.Repositories.Interfaces.IServerFileRepository,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration)">
-            <summary>
-            FilesController constructor
-            </summary>
-            <param name="manager"></param>
-            <param name="configuration"></param>
-            <param name="httpContextAccessor"></param>
-            <param name="membershipManager"></param>
-            <param name="userManager"></param>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Get(System.String,System.String,System.String,System.String,System.Int32,System.Int32)">
-            <summary>
-            Provides a list of all files/folders
-            </summary>
-            <param name="file">Determines whether to retrieve all files (true), folders (false), or both (null/empty)</param>
-            <param name="driveName"></param>
-            <param name="filter"></param>
-            <param name="orderBy"></param>
-            <param name="skip"></param>
-            <param name="top"></param>
-            <response code="200">Ok, a paginated list of all files/folders</response>
-            <response code="400">Bad request</response>
-            <response code="403">Forbidden, unauthorized access</response> 
-            <response code="404">Not found</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Paginated list of all files/folders</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetFileCount(System.String,System.String)">
-            <summary>
-            Gets count of server files in database
-            </summary>
-            <param name="driveName"></param>
-            <param name="filter"></param>
-            <response code="200">Ok, count of server files</response>
-            <response code="400">Bad request</response>
-            <response code="403">Forbidden</response>
-            <response code="404">Not found</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Count of all server files</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetFolderCount(System.String,System.String)">
-            <summary>
-            Gets count of server folders in database
-            </summary>
-            <param name="driveName"></param>
-            <param name="filter"></param>
-            <response code="200">Ok, count of server folders</response>
-            <response code="400">Bad request</response>
-            <response code="403">Forbidden</response>
-            <response code="404">Not found</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Count of all server folders</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetFileFolder(System.String,System.String)">
-            <summary>
-            Provides file/folder details for a particular file/folder
-            </summary>
-            <param name="driveName"></param>
-            <param name="id">File or folder id</param>
-            <response code="200">Ok, if a file/folder exists with the given id</response>
-            <response code="304">Not modified</response>
-            <response code="400">Bad request, if file/folder id is not in proper format</response>
-            <response code="403">Forbidden</response>
-            <response code="404">Not found, when no file/folder exists for the given file id</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>File details</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetDrive(System.String)">
-            <summary>
-            Provides server drive details for local storage
-            </summary>
-            <param name="driveName"></param>
-            <response code="200">Ok, if the server drive exists</response>
-            <response code="304">Not modified</response>
-            <response code="400">Bad request, if server drive entity is not in proper format</response>
-            <response code="403">Forbidden</response>
-            <response code="404">Not found, when no server drive exists</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Server drive details</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Post(OpenBots.Server.ViewModel.File.FileFolderViewModel,System.String)">
-            <summary>
-            Uploads new file/folder in server drive
-            </summary>
-            <param name="request"></param>
-            <response code="200">Ok, new file/folder entity created and returned</response>
-            <response code="400">Bad request, when the file/folder values are not in proper format</response>
-            <response code="403">Forbidden, unauthorized access</response>
-            <response code="409">Conflict, concurrency error</response> 
-            <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
-            <returns>Newly created file/folder details</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Download(System.String,System.String)">
-            <summary>
-            Export/Download a file
-            </summary>
-            <param name="driveName"></param>
-            <param name="id">File id</param>
-            <response code="200">Ok, if a file exists with the given id</response>
-            <response code="304">Not modified</response>
-            <response code="400">Bad request, if file id is not in proper format or a proper Guid</response>
-            <response code="403">Forbidden</response>
-            <response code="404">Not found, when no file exists for the given id</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Binary object file converted back to original file format</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Delete(System.String,System.String)">
-            <summary>
-            Deletes a file or empty folder with a specified id from the database
-            </summary>
-            <param name="id">File or empty folder id to be deleted - throws bad request if null or empty Guid</param>
-            <param name="driveName"></param>
-            <response code="200">Ok, when file or empty folder is soft deleted, (isDeleted flag is set to true in database)</response>
-            <response code="400">Bad request, if binary object id is null or empty Guid</response>
-            <response code="403">Forbidden</response>
-            <returns>Ok response</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Rename(System.String,OpenBots.Server.ViewModel.File.FileFolderViewModel,System.String)">
-            <summary>
-            Renames a folder or file 
-            </summary>
-            <remarks>
-            Provides an action to rename a folder or file, when the id and the new name are given
-            </remarks>
-            <param name="id">Folder or file id, produces bad request if id is null or ids don't match</param>
-            <param name="request">Name to be updated</param>
-            <param name="driveName"></param>
-            <response code="200">Ok, if the name for the given id has been updated</response>
-            <response code="400">Bad request, if the id is null or ids don't match</response>
-            <response code="403">Forbidden, unauthorized access</response>
-            <response code="409">Conflict</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Ok response with the updated value</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Move(System.String,System.String,System.String)">
-            <summary>
-            Moves a folder or file 
-            </summary>
-            <remarks>
-            Provides an action to move a folder or file, when the id and the parent folder id are given
-            </remarks>
-            <param name="id">Folder or file id, produces bad request if id is null or ids don't match</param>
-            <param name="parentId">Parent folder id to be moved to</param>
-            <param name="driveName"></param>
-            <response code="200">Ok, if the file or folder for the given id has been updated</response>
-            <response code="400">Bad request, if the id is null or ids don't match</response>
-            <response code="403">Forbidden, unauthorized access</response>
-            <response code="409">Conflict</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Ok response with the updated value</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Copy(System.String,System.String,System.String)">
-            <summary>
-            Copies a folder or file 
-            </summary>
-            <remarks>
-            Provides an action to copy a folder or file, when the id and the parent folder id are given
-            </remarks>
-            <param name="id">Folder or file id, produces bad request if id is null or ids don't match</param>
-            <param name="parentId">Parent folder id to be copied to</param>
-            <param name="driveName"></param>
-            <response code="200">Ok, if the file or folder for the given id has been copied</response>
-            <response code="400">Bad request, if the id is null or ids don't match</response>
-            <response code="403">Forbidden, unauthorized access</response>
-            <response code="409">Conflict</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Ok response with the copied file or folder value</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.PostDrive(System.String)">
-            <summary>
-            Creates new server drive
-            </summary>
-            <param name="driveName"></param>
-            <response code="200">Ok, new server drive entity created and returned</response>
-            <response code="400">Bad request, when the server drive values are not in proper format</response>
-            <response code="403">Forbidden, unauthorized access</response>
-            <response code="409">Conflict, concurrency error</response> 
-            <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
-            <returns>Newly created server drive details</returns>
-        </member>
-        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetDriveNames(System.String)">
-            <summary>
-            Provides server drive names
-            </summary>
-            <response code="200">Ok, if the server drive names exist</response>
-            <response code="304">Not modified</response>
-            <response code="400">Bad request, if server drive name is not in proper format</response>
-            <response code="403">Forbidden</response>
-            <response code="404">Not found, when no server drive names exist</response>
-            <response code="422">Unprocessable entity</response>
-            <returns>Server drive names</returns>
         </member>
         <member name="T:OpenBots.Server.Web.Controllers.Queue.QueueItemAttachmentsController">
             <summary>
@@ -1580,7 +1377,7 @@
              </remarks>
              <param name="queueItemId"></param>
              <param name="requests"></param>
-             <param name="driveName"></param>
+             <param name="driveId"></param>
              <response code="200">Ok, new queue item attachments created and returned</response>
              <response code="400">Bad request, when the queue item attachment values are not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
@@ -1594,7 +1391,7 @@
              </summary>
              <param name="queueItemId"></param>
              <param name="files"></param>
-             <param name="driveName"></param>
+             <param name="driveId"></param>
              <response code="200">Ok, new binary object created and returned</response>
              <response code="400">Bad request, when the binary object value is not in proper format</response>
              <response code="403">Forbidden, unauthorized access</response>
@@ -1612,7 +1409,7 @@
             <param name="queueItemId">Queue item id</param>
             <param name="id">Queue item attachment id, produces bad request if id is null or ids don't match</param>
             <param name="file">New file to update queue item attachment</param>
-            <param name="driveName"></param>
+            <param name="driveId"></param>
             <response code="200">Ok, if the queue item attachment details for the given queue item attachment id have been updated</response>
             <response code="400">Bad request, if the queue item attachment id is null or ids don't match</response>
             <response code="403">Forbidden, unauthorized access</response>
@@ -1636,7 +1433,7 @@
             Delete all queue item attachments with a specified queue item id from list of queue item attachments
             </summary>
             <param name="queueItemId">Queue item id to delete all queue item attachments from - throws bad request if null or empty Guid/</param>
-            <param name="driveName"></param>
+            <param name="driveId"></param>
             <response code="200">Ok, when queue item attachments are soft deleted, (isDeleted flag is set to true in database)</response>
             <response code="400">Bad request, if queue item id is null or empty Guid</response>
             <response code="403">Forbidden</response>
@@ -1647,7 +1444,7 @@
             Delete specific queue item attachment from list of queue item attachments
             </summary>
             <param name="id">Queue item attachment id to be deleted - throws bad request if null or empty Guid/</param>
-            <param name="driveName"></param>
+            <param name="driveId"></param>
             <response code="200">Ok, when queue item attachment is soft deleted, (isDeleted flag is set to true in database)</response>
             <response code="400">Bad request, if queue item attachment id is null or empty Guid</response>
             <response code="403">Forbidden</response>
@@ -1658,7 +1455,7 @@
             Export/download a queue item attachment file
             </summary>
             <param name="id"></param>
-            <param name="driveName"></param>
+            <param name="driveId"></param>
             <response code="200">Ok if a queue item attachment file exists with the given id</response>
             <response code="304">Not modified</response>
             <response code="400">Bad request, if queue item attachment id is not in proper format or proper Guid</response>
@@ -1755,7 +1552,7 @@
             Deletes a queue item with a specified id from the queue items
             </summary>
             <param name="id">Queue item id to be deleted - throws bad request if null or empty Guid</param>
-            <param name="driveName"></param>
+            <param name="driveId"></param>
             <response code="200">Ok, when queue item is soft deleted, (isDeleted flag is set to true in database)</response>
             <response code="400">Bad request, if queue item id is null or empty Guid</response>
             <response code="403">Forbidden</response>
@@ -1841,7 +1638,17 @@
             <response code="422">Unprocessable entity, validation error</response>
             <returns>Ok response</returns>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:OpenBots.Server.Web.Controllers.QueueItemsController.UpdateFiles(System.String,OpenBots.Server.ViewModel.QueueItem.UpdateQueueItemViewModel)" -->
+        <member name="M:OpenBots.Server.Web.Controllers.QueueItemsController.UpdateFiles(System.String,OpenBots.Server.ViewModel.QueueItem.UpdateQueueItemViewModel)">
+            <summary>
+            Update the queue item with file attachments
+            </summary>
+            <param name="request"></param>
+            <param name="id"></param>
+            <response code="200">Ok response</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity, validation error</response>
+            <returns>Ok response</returns>
+        </member>
         <member name="T:OpenBots.Server.Web.Controllers.QueuesController">
             <summary>
             Controller for Queues
@@ -2083,6 +1890,315 @@
             <response code="422">Unprocessable entity</response>
             <returns>Ok response</returns>
         </member>
+        <member name="T:OpenBots.Server.Web.Controllers.DrivesController">
+            <summary>
+            Controller for storage drives
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.DrivesController.#ctor(OpenBots.Server.DataAccess.Repositories.Interfaces.IStorageDriveRepository,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.Business.Interfaces.IFileManager,OpenBots.Server.Web.Webhooks.IWebhookPublisher,OpenBots.Server.Business.IOrganizationManager)">
+            <summary>
+            DrivesController constructor
+            </summary>
+            <param name="repository"></param>
+            <param name="userManager"></param>
+            <param name="httpContextAccessor"></param>
+            <param name="membershipManager"></param>
+            <param name="configuration"></param>
+            <param name="fileManager"></param>
+            <param name="webhookPublisher"></param>
+            <param name="organizationManager"></param>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.DrivesController.Get(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all storage drives
+            </summary>
+            <param name="filter"></param>
+            <param name="orderBy"></param>
+            <param name="skip"></param>
+            <param name="top"></param>
+            <response code="200">Ok, a paginated list of all storage drives</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response> 
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all storage drives</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.DrivesController.GetCount(System.String)">
+            <summary>
+            Gets count of storage drives in database
+            </summary>
+            <param name="filter"></param>
+            <response code="200">Ok, count of storage drives</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Count of all storage drives</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.DrivesController.GetDrive(System.String)">
+            <summary>
+            Provides storage drive details by drive id
+            </summary>
+            <param name="id">Storage drive id</param>
+            <response code="200">Ok, if a storage drive exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if storage drive id is not in proper format</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no storage drive exists for the given drive id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Storage drive details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.DrivesController.GetDriveByName(System.String)">
+            <summary>
+            Provides storage drive details by drive name
+            </summary>
+            <param name="driveName">Storage drive name</param>
+            <response code="200">Ok, if a storage drive exists with the given name</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if storage drive name is not in proper format</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no storage drive exists for the given name</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Storage drive details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.DrivesController.Post(OpenBots.Server.Model.File.StorageDrive)">
+            <summary>
+            Creates new storage drive
+            </summary>
+            <param name="drive"></param>
+            <response code="200">Ok, new storage drive entity created and returned</response>
+            <response code="400">Bad request, when the storage drive values are not in proper format</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+            <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+            <returns>Newly created storage drive details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.DrivesController.Put(System.String,OpenBots.Server.Model.File.StorageDrive)">
+            <summary>
+            Updates a storage drive
+            </summary>
+            <remarks>
+            Provides an action to update a storage drive, when the id is given
+            </remarks>
+            <param name="id">Storage drive id, produces bad request if id is null or ids don't match</param>
+            <param name="request">Storage drive to be updated</param>
+            <response code="200">Ok, if the storage drive for the given id has been updated</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Ok response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.DrivesController.Delete(System.String)">
+            <summary>
+            Deletes a storage drive with a specified id from the database
+            </summary>
+            <param name="id">Storage drive id to be deleted - throws bad request if null or empty Guid</param>
+            <response code="200">Ok, when empty storage drive is soft deleted, (isDeleted flag is set to true in database)</response>
+            <response code="400">Bad request, if storage drive id is null or empty Guid</response>
+            <response code="403">Forbidden</response>
+            <returns>Ok response</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.DrivesController.GetDriveNames(System.String)">
+            <summary>
+            Provides storage drive names
+            </summary>
+            <response code="200">Ok, if the storage drive names exist</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if storage drive name is not in proper format</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no storage drive names exist</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Storage drive names</returns>
+        </member>
+        <member name="T:OpenBots.Server.Web.Controllers.FilesController">
+            <summary>
+            Controller for files
+            </summary>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.#ctor(OpenBots.Server.Business.Interfaces.IFileManager,OpenBots.Server.DataAccess.Repositories.Interfaces.IStorageFileRepository,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IMembershipManager,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            FilesController constructor
+            </summary>
+            <param name="manager"></param>
+            <param name="configuration"></param>
+            <param name="httpContextAccessor"></param>
+            <param name="membershipManager"></param>
+            <param name="userManager"></param>
+            <param name="storageFileRepository"></param>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Get(System.String,System.String,System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all files/folders
+            </summary>
+            <param name="type">Determines whether to retrieve all files (Files), folders (Folders), or both (null/empty)</param>
+            <param name="driveId"></param>
+            <param name="filter"></param>
+            <param name="orderBy"></param>
+            <param name="skip"></param>
+            <param name="top"></param>
+            <response code="200">Ok, a paginated list of all files/folders</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response> 
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all files/folders</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetCount(System.String,System.String,System.String)">
+            <summary>
+            Gets count of storage files or folders in storage drive
+            </summary>
+            <param name="driveId"></param>
+            <param name="filter"></param>
+            <param name="type"></param>
+            <response code="200">Ok, count of storage files/folders</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Count of all storage files/folders</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetFileFolder(System.String,System.String,System.String)">
+            <summary>
+            Provides file/folder details for a particular file/folder
+            </summary>
+            <param name="driveId"></param>
+            <param name="id">File or folder id</param>
+            <param name="type"></param>
+            <response code="200">Ok, if a file/folder exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if file/folder id is not in proper format</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no file/folder exists for the given file/folder id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>File/folder details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.GetFileFolderByStoragePath(System.String,System.String)">
+            <summary>
+            Provides file or folder details for a particular file or folder by storage path
+            </summary>
+            <param name="driveName"></param>
+            <param name="path">File/folder path</param>
+            <response code="200">Ok, if a file/folder exists with the given path</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if file/folder path is not in proper format</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no file/folder exists for the given file/folder path</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>File/folder details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Post(OpenBots.Server.ViewModel.File.FileFolderViewModel,System.String,System.String)">
+            <summary>
+            Uploads new file/folder in storage drive
+            </summary>
+            <param name="request"></param>
+            <param name="driveId"></param>
+            <param name="type"></param>
+            <response code="200">Ok, new file/folder entity created and returned</response>
+            <response code="400">Bad request, when the file/folder values are not in proper format</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+            <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+            <returns>Newly created file/folder details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Download(System.String,System.String)">
+            <summary>
+            Export/Download a file
+            </summary>
+            <param name="driveId"></param>
+            <param name="id">File id</param>
+            <response code="200">Ok, if a file exists with the given id</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request, if file id is not in proper format or a proper Guid</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no file exists for the given id</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Binary object file converted back to original file format</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Delete(System.String,System.String,System.String)">
+            <summary>
+            Deletes a file or empty folder with a specified id from the database
+            </summary>
+            <param name="id">File or empty folder id to be deleted - throws bad request if null or empty Guid</param>
+            <param name="driveId"></param>
+            <param name="type"></param>
+            <response code="200">Ok, when file or empty folder is soft deleted, (isDeleted flag is set to true in database)</response>
+            <response code="400">Bad request, if binary object id is null or empty Guid</response>
+            <response code="403">Forbidden</response>
+            <returns>Ok response</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Rename(System.String,OpenBots.Server.ViewModel.File.FileFolderViewModel,System.String,System.String)">
+            <summary>
+            Renames a folder or file 
+            </summary>
+            <remarks>
+            Provides an action to rename a folder or file, when the id and the new name are given
+            </remarks>
+            <param name="id">Folder or file id, produces bad request if id is null or ids don't match</param>
+            <param name="request">Name to be updated</param>
+            <param name="driveId"></param>
+            <param name="type"></param>
+            <response code="200">Ok, if the name for the given id has been updated</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Ok response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Move(System.String,System.String,System.String,System.String)">
+            <summary>
+            Moves a folder or file 
+            </summary>
+            <remarks>
+            Provides an action to move a folder or file, when the id and the parent folder id are given
+            </remarks>
+            <param name="id">Folder or file id, produces bad request if id is null or ids don't match</param>
+            <param name="parentId">Parent folder id to be moved to</param>
+            <param name="driveId"></param>
+            <param name="type"></param>
+            <response code="200">Ok, if the file or folder for the given id has been updated</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Ok response with the updated value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Copy(System.String,System.String,System.String,System.String)">
+            <summary>
+            Copies a folder or file 
+            </summary>
+            <remarks>
+            Provides an action to copy a folder or file, when the id and the parent folder id are given
+            </remarks>
+            <param name="id">Folder or file id, produces bad request if id is null or ids don't match</param>
+            <param name="parentId">Parent folder id to be copied to</param>
+            <param name="driveId"></param>
+            <param name="type"></param>
+            <response code="200">Ok, if the file or folder for the given id has been copied</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Ok response with the copied file or folder value</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.FilesController.Replace(System.String,System.String,System.String,OpenBots.Server.ViewModel.File.FileFolderViewModel)">
+            <summary>
+            Replaces a file
+            </summary>
+            <remarks>
+            Provides an action to replace a file, when file id and new details of the file are given
+            </remarks>
+            <param name="id">File id, produces bad request if id is null or ids don't match</param>
+            <param name="request">File details to be updated</param>
+            <param name="driveId"></param>
+            <param name="type"></param>
+            <response code="200">Ok, if the file details for the given file id have been updated</response>
+            <response code="400">Bad request, if the file id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Ok response with the updated value</returns>
+        </member>
         <member name="T:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventLogsController">
             <summary>
             ReadOnlyController for IntegrationEventLog
@@ -2152,7 +2268,7 @@
             Controller for Integration events
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.#ctor(OpenBots.Server.DataAccess.Repositories.IIntegrationEventRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.#ctor(OpenBots.Server.DataAccess.Repositories.IIntegrationEventRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,OpenBots.Server.Business.IIntegrationEventManager,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
             <summary>
             IntegrationEventsController constructor
             </summary>
@@ -2189,16 +2305,86 @@
             <response code="422">Unprocessable entity</response>
             <returns>IntegrationEvent details for the given id</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.AllIntegrationEvents">
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.AllIntegrationEvents(System.String,System.String,System.Int32,System.Int32)">
             <summary>
             Provides a list of all IntegrationEvent Entity names
             </summary>
+            <param name="top"></param>
+            <param name="skip"></param>
+            <param name="orderBy"></param>
+            <param name="filter"></param>
             <response code="200">Ok, a list of all event Entity names</response>
             <response code="400">Bad request</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="404">Not found</response>
             <response code="422">Unprocessable entity</response>
             <returns>List of all names in IntegrationEvents table</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.PostBusinessEvent(OpenBots.Server.ViewModel.CreateBusinessEventViewModel)">
+             <summary>
+             Adds a new business event
+             </summary>
+             <remarks>
+             Adds a business event with a unique id to the existing IntegrationEvents
+             </remarks>
+             <param name="request"></param>
+             <response code="200">Ok, new event created and returned</response>
+             <response code="400">Bad request, when the event value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+             <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+             <returns>Newly created business event details</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.RaiseBusinessEvent(System.String,OpenBots.Server.ViewModel.RaiseBusinessEventViewModel)">
+             <summary>
+             Raise a new business event
+             </summary>
+             <param name="request">Request to raise new business event</param>
+             <param name="id">IntegrationEvent id, produces bad request if id is null or ids don't match</param>
+             <response code="200">Ok, new event raised and returned</response>
+             <response code="400">Bad request, when the event value is not in proper format</response>
+             <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+             <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+             <returns>Ok if business event was successfully raised</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.PutBusinessEvent(System.String,OpenBots.Server.ViewModel.CreateBusinessEventViewModel)">
+            <summary>
+            Update a business event
+            </summary>
+            <remarks>
+            Provides an action to update a business event, when IntegrationEvent id and the new details of the business event are given
+            </remarks>
+            <param name="id">IntegrationEvent id, produces bad request if id is null or ids don't match</param>
+            <param name="request">Business event details to be updated</param>
+            <response code="200">Ok, if the IntegrationEvent details for the given id have been updated</response>
+            <response code="400">Bad request, if the IntegrationEvent id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Ok response with the updated business event details for the IntegrationEvent</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.PatchBusinessEvent(System.String,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{OpenBots.Server.Model.Webhooks.IntegrationEvent})">
+            <summary>
+            Updates partial details of a business event
+            </summary>
+            <param name="id">IntegrationEvent identifier</param>
+            <param name="request">Value of the business event to be updated</param>
+            <response code="200">Ok, if update of business event is successful</response>
+            <response code="400">Bad request, if the id is null or ids don't match</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="422">Unprocessable entity ,validation error</response>
+            <returns>Ok response, if the partial business event values have been updated</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventsController.Delete(System.String)">
+            <summary>
+            Delete business event with a specified id from list of IntegrationEvents
+            </summary>
+            <param name="id">IntegrationEvent id to be deleted - throws bad request if null or empty Guid</param>
+            <param name="driveName"></param>
+            <response code="200">Ok, when business event is soft deleted, (isDeleted flag is set to true in database)</response>
+            <response code="400">Bad request, if IntegrationEvent id is null or empty Guid</response>
+            <response code="403">Forbidden</response>
+            <returns>Ok response if the business event was successfully deleted</returns>
         </member>
         <member name="T:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionAttemptsController">
             <summary>
@@ -2276,7 +2462,7 @@
             Controller for Integration Event Subscriptions
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.#ctor(OpenBots.Server.DataAccess.Repositories.IIntegrationEventSubscriptionRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+        <member name="M:OpenBots.Server.Web.Controllers.WebHooksApi.IntegrationEventSubscriptionsController.#ctor(OpenBots.Server.DataAccess.Repositories.IIntegrationEventSubscriptionRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Business.IIntegrationEventSubscriptionManager)">
             <summary>
             IntegrationEventSubscriptionsController constructor
             </summary>
@@ -2471,7 +2657,7 @@
             <summary>
             Adds a new agent Asset if a global Asset exists for the given name
             </summary>
-            <param name="request">New file to update Asset</param>
+            <param name="request">Agent Asset to create</param>
             <response code="200">Ok, Asset created and returned</response>
             <response code="400">Bad request, when the Asset value is not in proper format</response>
             <response code="403">Forbidden, unauthorized access</response>
@@ -2484,7 +2670,7 @@
             Export/download an Asset file
             </summary>
             <param name="id"></param>
-            <param name="driveName"></param>
+            <param name="driveId"></param>
             <response code="200">Ok if an Asset file exists with the given id</response>
             <response code="304">Not modified</response>
             <response code="400">Bad request, if Asset id is not in proper format or proper Guid</response>
@@ -2524,7 +2710,7 @@
             <response code="422">Unprocessable entity</response>
             <returns>Ok response with the updated Asset value</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.AssetsController.Delete(System.String,System.String)">
+        <member name="M:OpenBots.Server.Web.AssetsController.Delete(System.String)">
             <summary>
             Deletes an Asset with a specified id
             </summary>
@@ -2970,7 +3156,7 @@
             Controller for credentials
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.CredentialsController.#ctor(OpenBots.Server.DataAccess.Repositories.ICredentialRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.ICredentialManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Web.Webhooks.IWebhookPublisher)">
+        <member name="M:OpenBots.Server.Web.CredentialsController.#ctor(OpenBots.Server.DataAccess.Repositories.ICredentialRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.ICredentialManager,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.Web.Webhooks.IWebhookPublisher,OpenBots.Server.DataAccess.Repositories.ICredentialRepository)">
             <summary>
             CredentialsController constructor
             </summary>
@@ -2996,6 +3182,20 @@
             <response code="422">Unprocessable entity</response>
             <returns>Paginated list of all credentials</returns>
         </member>
+        <member name="M:OpenBots.Server.Web.CredentialsController.View(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Provides a list of all Credentials with additional view fields
+            </summary>
+            <param name="filter"></param>
+            <param name="orderBy"></param>
+            <param name="skip"></param>
+            <param name="top"></param>
+            <response code="200">Ok, a paginated list of all credentials</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>        
+            <response code="422">Unprocessable entity</response>
+            <returns>Paginated list of all CredentialViewModelS</returns>
+        </member>
         <member name="M:OpenBots.Server.Web.CredentialsController.Count(System.String)">
             <summary>
             Provides a count of credentials 
@@ -3020,7 +3220,7 @@
             <response code="422">Unprocessable entity</response>
             <returns>Credential details for the given id</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.CredentialsController.View(System.String)">
+        <member name="M:OpenBots.Server.Web.CredentialsController.View(System.Nullable{System.Guid})">
             <summary>
             Provides a credential's view details for a particular credential id
             </summary>
@@ -3032,6 +3232,22 @@
             <response code="404">Not found, when no credential exists for the given credential id</response>
             <response code="422">Unprocessable entity</response>
             <returns>Credential view details for the given id</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.CredentialsController.GetCredentialByName(System.String)">
+            <summary>
+            Provides a Credential's details for a particular Credential name
+            </summary>
+            <remarks>
+            If the requesting user is an Agent with an existing Credential, then that value will be returned
+            </remarks>
+            <param name="credentialName">Credential name</param>
+            <response code="200">Ok, if a Credential exists with the given name</response>
+            <response code="304">Not modified</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden</response>
+            <response code="404">Not found, when no Credential exists for the given Credential name</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Credential details for the given name</returns>
         </member>
         <member name="M:OpenBots.Server.Web.CredentialsController.GetPassword(System.String)">
             <summary>
@@ -3046,7 +3262,7 @@
             <response code="422">Unprocessable entity</response>
             <returns>Credential view details for the given id</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.CredentialsController.Post(OpenBots.Server.Model.Credential)">
+        <member name="M:OpenBots.Server.Web.CredentialsController.Post(OpenBots.Server.ViewModel.GlobalCredentialViewModel)">
             <summary>
             Adds a new credential to the existing credentials
             </summary>
@@ -3056,6 +3272,18 @@
             <param name="request"></param>
             <response code="200">Ok, new credential created and returned</response>
             <response code="400">Bad request, when the credential value is not in proper format</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+            <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+            <returns>Newly created unique credential</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.CredentialsController.AddAgentCredential(OpenBots.Server.ViewModel.AgentCredentialViewModel)">
+            <summary>
+            Adds a new Agent Credential if a global Credential exists for the given name
+            </summary>
+            <param name="request">New Agent Credential to create</param>
+            <response code="200">Ok, Credential created and returned</response>
+            <response code="400">Bad request, when the Credential value is not in proper format</response>
             <response code="403">Forbidden, unauthorized access</response>
             <response code="409">Conflict, concurrency error</response> 
             <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
@@ -3114,7 +3342,7 @@
             Controller for Jobs
             </summary>
         </member>
-        <member name="M:OpenBots.Server.Web.JobsController.#ctor(OpenBots.Server.DataAccess.Repositories.IJobRepository,OpenBots.Server.DataAccess.Repositories.IAutomationRepository,OpenBots.Server.DataAccess.Repositories.IJobParameterRepository,OpenBots.Server.DataAccess.Repositories.IJobCheckpointRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IJobManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.Interfaces.IAutomationVersionRepository,OpenBots.Server.Web.Webhooks.IWebhookPublisher)">
+        <member name="M:OpenBots.Server.Web.JobsController.#ctor(OpenBots.Server.DataAccess.Repositories.IJobRepository,OpenBots.Server.DataAccess.Repositories.IAutomationRepository,OpenBots.Server.DataAccess.Repositories.IJobParameterRepository,OpenBots.Server.DataAccess.Repositories.IJobCheckpointRepository,OpenBots.Server.Business.IMembershipManager,OpenBots.Server.Security.ApplicationIdentityUserManager,OpenBots.Server.Business.IJobManager,Microsoft.AspNetCore.SignalR.IHubContext{OpenBots.Server.Web.Hubs.NotificationHub},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.Interfaces.IAutomationVersionRepository,OpenBots.Server.Web.Webhooks.IWebhookPublisher,OpenBots.Server.DataAccess.Repositories.IAutomationExecutionLogRepository,OpenBots.Server.DataAccess.Repositories.IAutomationLogRepository)">
             <summary>
             JobsController constructor
             </summary>
@@ -3236,6 +3464,21 @@
             <response code="403">Forbidden, unauthorized access</response>
             <response code="422">Unprocessable entity</response>
             <returns> Downloadable file</returns>
+        </member>
+        <member name="M:OpenBots.Server.Web.JobsController.Sum(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Gets the sum of executionTimeInMinutes, automationExecutionLogCount and automationLogCount for the current jobs
+            </summary>
+            <param name="top"></param>
+            <param name="skip"></param>
+            <param name="orderBy"></param>
+            <param name="filter"></param>
+            <response code="200">Ok, an object containing the sum of job properties</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>  
+            <response code="404">Not found</response>
+            <response code="422">Unprocessable entity</response>
+            <returns>Object containing a key value pair for executionTimeInMinutes, automationExecutionLogCount and automationLogCount</returns>
         </member>
         <member name="M:OpenBots.Server.Web.JobsController.Post(OpenBots.Server.ViewModel.CreateJobViewModel)">
              <summary>
@@ -3659,7 +3902,7 @@
             Controller used for token generation
             </summary>
         </member>
-        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.#ctor(OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Identity.SignInManager{OpenBots.Server.Security.ApplicationUser},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController},OpenBots.Server.Business.IMembershipManager,OpenBots.Server.DataAccess.Repositories.IPersonRepository,OpenBots.Server.DataAccess.Repositories.IPersonEmailRepository,OpenBots.Server.DataAccess.Repositories.IEmailVerificationRepository,OpenBots.Server.DataAccess.Repositories.IPasswordPolicyRepository,OpenBots.Server.Business.IEmailManager,OpenBots.Server.Business.IOrganizationManager,OpenBots.Server.Business.IAccessRequestsManager,OpenBots.Server.DataAccess.Repositories.IAccessRequestRepository,OpenBots.Server.DataAccess.Repositories.IOrganizationMemberRepository,OpenBots.Server.DataAccess.Repositories.IAgentRepository,OpenBots.Server.Business.ITermsConditionsManager,OpenBots.Server.DataAccess.Repositories.IAuditLogRepository,OpenBots.Server.Business.IIPFencingManager,OpenBots.Server.DataAccess.Repositories.IIPFencingRepository,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IOrganizationSettingRepository,OpenBots.Server.DataAccess.Repositories.Interfaces.IServerDriveRepository,OpenBots.Server.DataAccess.Repositories.Interfaces.IServerFolderRepository)">
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.#ctor(OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Identity.SignInManager{OpenBots.Server.Security.ApplicationUser},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController},OpenBots.Server.Business.IMembershipManager,OpenBots.Server.DataAccess.Repositories.IPersonRepository,OpenBots.Server.DataAccess.Repositories.IPersonEmailRepository,OpenBots.Server.DataAccess.Repositories.IEmailVerificationRepository,OpenBots.Server.DataAccess.Repositories.IPasswordPolicyRepository,OpenBots.Server.Business.IEmailManager,OpenBots.Server.Business.IOrganizationManager,OpenBots.Server.Business.IAccessRequestsManager,OpenBots.Server.DataAccess.Repositories.IAccessRequestRepository,OpenBots.Server.DataAccess.Repositories.IOrganizationMemberRepository,OpenBots.Server.DataAccess.Repositories.IAgentRepository,OpenBots.Server.Business.ITermsConditionsManager,OpenBots.Server.DataAccess.Repositories.IAuditLogRepository,OpenBots.Server.Business.IIPFencingManager,OpenBots.Server.DataAccess.Repositories.IIPFencingRepository,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IOrganizationSettingRepository,OpenBots.Server.DataAccess.Repositories.Interfaces.IStorageDriveRepository,OpenBots.Server.DataAccess.Repositories.Interfaces.IStorageFolderRepository,OpenBots.Server.Business.IDirectoryManager)">
             <summary>
             AuthController constructor
             </summary>
@@ -3685,8 +3928,9 @@
             <param name="organizationMemberRepository"></param>
             <param name="passwordPolicyRepository"></param>
             <param name="termsConditionsManager"></param>
-            <param name="serverDriveRepository"></param>
-            <param name="serverFolderRepository"></param>
+            <param name="storageDriveRepository"></param>
+            <param name="storageFolderRepository"></param>
+            <param name="directoryManager"></param>
         </member>
         <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.CreateToken(OpenBots.Server.Model.Identity.Login)">
             <summary>

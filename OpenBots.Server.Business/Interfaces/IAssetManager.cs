@@ -13,12 +13,12 @@ namespace OpenBots.Server.Business.Interfaces
         Asset CreateAgentAsset(AgentAssetViewModel request);
         Asset GetMatchingAsset(string assetName, string assetType);
         void AssetNameAvailability(Asset request);
-        Asset CreateAsset(Asset asset, IFormFile file = null, string driveName = null);
-        Task<FileFolderViewModel> Export(string id, string driveName = null);
+        Asset CreateAsset(Asset asset, IFormFile file = null, string driveId = null);
+        Task<FileFolderViewModel> Export(string id, string driveId = null);
         Asset GetSizeInBytes(Asset asset);
         Asset UpdateAsset(string id, Asset asset);
         Asset UpdateAssetFile(string id, UpdateAssetViewModel request);
-        Asset DeleteAsset(string id, string driveName = null);
+        Asset DeleteAsset(string id);
         Asset PatchAsset(string id, JsonPatchDocument<Asset> request);
         Asset Increment(string id);
         Asset Decrement(string id);

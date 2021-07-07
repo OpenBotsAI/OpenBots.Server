@@ -24,32 +24,48 @@
       <div class="row filter-row">
         <div class="col-md-3 col-lg-3">
           <label for="queueitemtype" class="label col-form-label">Entity</label>
-          <select class="custom-select" (change)="common_Entity($event.target.value)" formControlName="agentId">
+          <!-- <select class="custom-select" (change)="common_Entity($event.target.value)" formControlName="agentId">
             <option selected></option>
             <option *ngFor="let item of show_filter_entity" [value]="item">
               {{ item }}
             </option>
-          </select>
+          </select> -->
+          <ng-select [items]="show_filter_entity" [searchable]="true" bindLabel="show_filter_entity"
+          formControlName="agentId" class="NgSelect" placeholder="Please select Entity"
+           (change)="common_Entity($event)"
+          [closeOnSelect]="true" bindValue="show_filter_entity" [clearable]="false">
+        </ng-select>
         </div>
         <div class="col-md-3 col-lg-3">
           <label for="queueitemtype" class="label col-form-label">Event
           </label>
-          <select class="custom-select" (change)="comon_Event($event.target.value)" formControlName="automationId">
+          <!-- <select class="custom-select" (change)="comon_Event($event.target.value)" formControlName="automationId">
             <option selected> </option>
             <option *ngFor="let item of show_filter_event" [value]="item">
               {{ item}}
             </option>
-          </select>
+          </select> -->
+          <ng-select [items]="show_filter_event" [searchable]="true" bindLabel="show_filter_event"
+          formControlName="automationId" class="NgSelect" placeholder="Please select Event"
+           (change)="comon_Event($event)"
+          [closeOnSelect]="true" bindValue="show_filter_event" [clearable]="false">
+        </ng-select>
+
         </div>
         <div class="col-md-3 col-lg-3">
           <label for="queueitemtype" class="label col-form-label">Status</label>
-          <select class="custom-select" (change)="comon_Status($event.target.value)">
+          <!-- <select class="custom-select" (change)="comon_Status($event.target.value)">
             <option></option>
             <option value="New">New</option>
             <option value="InProgress">InProgress</option>
             <option value="Completed">Completed</option>
             <option value="Failed">Failed</option>
-          </select>
+          </select> -->
+          <ng-select [items]="Status" [searchable]="true" bindLabel="name"
+           class="NgSelect" placeholder="Please select Status"
+           (change)="comon_Status($event)"
+          [closeOnSelect]="true" bindValue="id" [clearable]="false">
+        </ng-select>
         </div>
         <!-- <div class="col-md-3 col-lg-3">
           <label for="queueitemtype" class="label col-form-label">Successful</label>

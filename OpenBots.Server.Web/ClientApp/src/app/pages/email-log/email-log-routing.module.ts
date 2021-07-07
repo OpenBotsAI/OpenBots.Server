@@ -9,7 +9,7 @@ const routes: Routes = [{
   component: AllEmailLogComponent
 },
 {
-  path: 'get-emaillog-id',
+  path: 'view/:id',
   component: GetEmailLogIdComponent
 },
 ];
