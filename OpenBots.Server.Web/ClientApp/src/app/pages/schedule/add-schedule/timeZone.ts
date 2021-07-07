@@ -21,7 +21,8 @@ export var timeZonelist = [
     offset: -10,
     isdst: false,
     text: '(UTC-10:00) Hawaii',
-    timezone: 'US/Hawaii',
+    // timezone: 'US/Hawaii',
+    timezone: 'Pacific/Honolulu',
   },
   {
     value: 'Alaskan Standard Time',
@@ -29,7 +30,8 @@ export var timeZonelist = [
     offset: -9,
     isdst: true,
     text: '(UTC-09:00) Alaska',
-    timezone: 'US/Alaska',
+    // timezone: 'US/Alaska',
+    timezone: 'America/Anchorage',
   },
   {
     value: 'Pacific Standard Time (Mexico)',
@@ -37,7 +39,8 @@ export var timeZonelist = [
     offset: -8,
     isdst: true,
     text: '(UTC-08:00) Baja California',
-    timezone: 'America/Pacific',
+    // timezone: 'America/Pacific',
+    timezone: 'America/Tijuana',
   },
   {
     value: 'Pacific Standard Time',
@@ -45,7 +48,8 @@ export var timeZonelist = [
     offset: -8,
     isdst: true,
     text: '(UTC-08:00) Pacific Time (US & Canada)',
-    timezone: 'America/Pacific',
+    // timezone: 'America/Pacific',
+    timezone: 'America/Los_Angeles',
   },
   {
     value: 'US Mountain Standard Time',
@@ -53,7 +57,8 @@ export var timeZonelist = [
     offset: -7,
     isdst: false,
     text: '(UTC-07:00) Arizona',
-    timezone: 'America/Mountain',
+    // timezone: 'America/Mountain',
+    timezone: 'America/Phoenix',
   },
   {
     value: 'Mountain Standard Time (Mexico)',
@@ -69,7 +74,8 @@ export var timeZonelist = [
     offset: -7,
     isdst: true,
     text: '(UTC-07:00) Mountain Time (US & Canada)',
-    timezone: 'US/Mountain',
+    // timezone: 'US/Mountain',
+    timezone: 'America/Denver',
   },
   {
     value: 'Central America Standard Time',
@@ -77,7 +83,8 @@ export var timeZonelist = [
     offset: -6,
     isdst: false,
     text: '(UTC-06:00) Central America',
-    timezone: 'America/Managua',
+    // timezone: 'America/Managua',
+    timezone: 'America/Guatemala',
   },
   {
     value: 'Central Standard Time',
@@ -85,7 +92,8 @@ export var timeZonelist = [
     offset: -6,
     isdst: true,
     text: '(UTC-06:00) Central Time (US & Canada)',
-    timezone: 'US/Central',
+    // timezone: 'US/Central',
+    timezone: 'America/Chicago',
   },
   {
     value: 'Central Standard Time (Mexico)',
@@ -101,7 +109,8 @@ export var timeZonelist = [
     offset: -6,
     isdst: false,
     text: '(UTC-06:00) Saskatchewan',
-    timezone: 'Canada/Saskatchewan',
+    // timezone: 'Canada/Saskatchewan',
+    timezone: 'America/Regina',
   },
   {
     value: 'SA Pacific Standard Time',
@@ -109,7 +118,8 @@ export var timeZonelist = [
     offset: -5,
     isdst: false,
     text: '(UTC-05:00) Bogota, Lima, Quito',
-    timezone: 'America/Lima',
+    // timezone: 'America/Lima',
+    timezone: 'America/Bogota',
   },
   {
     value: 'Eastern Standard Time',
@@ -117,7 +127,8 @@ export var timeZonelist = [
     offset: -5,
     isdst: true,
     text: '(UTC-05:00) Eastern Time (US & Canada)',
-    timezone: 'US/Eastern',
+    // timezone: 'US/Eastern',
+    timezone: 'America/New_York',
   },
   {
     value: 'US Eastern Standard Time',
@@ -125,7 +136,8 @@ export var timeZonelist = [
     offset: -5,
     isdst: true,
     text: '(UTC-05:00) Indiana (East)',
-    timezone: 'US/East-Indiana',
+    // timezone: 'US/East-Indiana',
+    timezone: 'America/Indiana/Indianapolis',
   },
   {
     value: 'Venezuela Standard Time',
@@ -141,7 +153,8 @@ export var timeZonelist = [
     offset: -4,
     isdst: false,
     text: '(UTC-04:00) Asuncion',
-    timezone: 'America/Santiago',
+    // timezone: 'America/Santiago',
+    timezone: 'America/Asuncion',
   },
   {
     value: 'Atlantic Standard Time',
@@ -149,7 +162,8 @@ export var timeZonelist = [
     offset: -4,
     isdst: true,
     text: '(UTC-04:00) Atlantic Time (Canada)',
-    timezone: 'Canada/Atlantic',
+    // timezone: 'Canada/Atlantic',
+    timezone: 'America/Halifax',
   },
   {
     value: 'Central Brazilian Standard Time',
@@ -157,7 +171,8 @@ export var timeZonelist = [
     offset: -4,
     isdst: false,
     text: '(UTC-04:00) Cuiaba',
-    timezone: 'America/Sao_Paulo',
+    // timezone: 'America/Sao_Paulo',
+    timezone: 'America/Cuiaba',
   },
   {
     value: 'SA Western Standard Time',
@@ -181,7 +196,8 @@ export var timeZonelist = [
     offset: -3.5,
     isdst: true,
     text: '(UTC-03:30) Newfoundland',
-    timezone: 'Canada/Newfoundland',
+    // timezone: 'Canada/Newfoundland',
+    timezone: 'America/St_Johns',
   },
   {
     value: 'E. South America Standard Time',
@@ -229,7 +245,8 @@ export var timeZonelist = [
     offset: -3,
     isdst: false,
     text: '(UTC-03:00) Salvador',
-    timezone: 'America/Montevideo',
+    // timezone: 'America/Montevideo',
+    timezone: 'America/Bahia',
   },
   {
     value: 'UTC-02',
@@ -237,7 +254,8 @@ export var timeZonelist = [
     offset: -2,
     isdst: false,
     text: '(UTC-02:00) Coordinated Universal Time-02',
-    timezone: 'America/Godthab',
+    // timezone: 'America/Godthab',
+    timezone: 'Etc/GMT+2',
   },
   {
     value: 'Mid-Atlantic Standard Time',
@@ -245,7 +263,8 @@ export var timeZonelist = [
     offset: -2,
     isdst: true,
     text: '(UTC-02:00) Mid-Atlantic - Old',
-    timezone: 'America/Noronha',
+    // timezone: 'America/Noronha',
+    timezone: 'Etc/GMT+2',
   },
   {
     value: 'Azores Standard Time',
@@ -277,7 +296,8 @@ export var timeZonelist = [
     offset: 0,
     isdst: false,
     text: '(UTC) Coordinated Universal Time',
-    timezone: 'Etc/Greenwich',
+    // timezone: 'Etc/Greenwich',
+    timezone: 'Etc/UTC',
   },
   {
     value: 'GMT Standard Time',
@@ -293,7 +313,8 @@ export var timeZonelist = [
     offset: 0,
     isdst: false,
     text: '(UTC) Monrovia, Reykjavik',
-    timezone: 'Africa/Monrovia',
+    // timezone: 'Africa/Monrovia',
+    timezone: 'Atlantic/Reykjavik',
   },
   {
     value: 'W. Europe Standard Time',
@@ -301,7 +322,8 @@ export var timeZonelist = [
     offset: 1,
     isdst: true,
     text: '(UTC+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna',
-    timezone: 'Europe/Amsterdam',
+    // timezone: 'Europe/Amsterdam',
+    timezone: 'Europe/Berlin',
   },
   {
     value: 'Central Europe Standard Time',
@@ -349,7 +371,8 @@ export var timeZonelist = [
     offset: 2,
     isdst: true,
     text: '(UTC+02:00) Athens, Bucharest',
-    timezone: 'Europe/Athens',
+    // timezone: 'Europe/Athens',
+    timezone: 'Europe/Bucharest',
   },
   {
     value: 'Middle East Standard Time',
@@ -381,7 +404,8 @@ export var timeZonelist = [
     offset: 2,
     isdst: true,
     text: '(UTC+02:00) E. Europe',
-    timezone: 'Europe/London',
+    // timezone: 'Europe/London',
+    timezone: 'Europe/Chisinau',
   },
   {
     value: 'South Africa Standard Time',
@@ -389,7 +413,8 @@ export var timeZonelist = [
     offset: 2,
     isdst: false,
     text: '(UTC+02:00) Harare, Pretoria',
-    timezone: 'Africa/Harare',
+    //timezone: 'Africa/Harare',
+    timezone: 'Africa/Johannesburg',
   },
   {
     value: 'FLE Standard Time',
@@ -397,7 +422,8 @@ export var timeZonelist = [
     offset: 2,
     isdst: true,
     text: '(UTC+02:00) Helsinki, Kyiv, Riga, Sofia, Tallinn, Vilnius',
-    timezone: 'Europe/Helsinki',
+    //timezone: 'Europe/Helsinki',
+    timezone: 'Europe/Kiev',
   },
   {
     value: 'Turkey Standard Time',
@@ -413,7 +439,8 @@ export var timeZonelist = [
     offset: 2,
     isdst: true,
     text: '(UTC+02:00) Jerusalem',
-    timezone: 'Asia/Jerusalem',
+    //timezone: 'Asia/Jerusalem',
+    timezone: 'Europe/Istanbul',
   },
   {
     value: 'Libya Standard Time',
@@ -424,7 +451,8 @@ export var timeZonelist = [
     timezone: 'Africa/Tripoli',
   },
   {
-    value: ' Standard Time',
+    // did not check this one because there is no name to match
+    value: 'Standard Time',
     abbr: 'JST',
     offset: 3,
     isdst: false,
@@ -445,7 +473,8 @@ export var timeZonelist = [
     offset: 3,
     isdst: false,
     text: '(UTC+03:00) Kaliningrad, Minsk',
-    timezone: 'Europe/Minsk',
+    //timezone: 'Europe/Minsk',
+    timezone: 'Europe/Kaliningrad',
   },
   {
     value: 'Arab Standard Time',
@@ -453,7 +482,8 @@ export var timeZonelist = [
     offset: 3,
     isdst: false,
     text: '(UTC+03:00) Kuwait, Riyadh',
-    timezone: 'Asia/Kuwait',
+    //timezone: 'Asia/Kuwait',
+    timezone: 'Asia/Riyadh',
   },
   {
     value: 'E. Africa Standard Time',
@@ -477,7 +507,8 @@ export var timeZonelist = [
     offset: 4,
     isdst: false,
     text: '(UTC+04:00) Abu Dhabi, Muscat',
-    timezone: 'Asia/Muscat',
+    //timezone: 'Asia/Muscat',
+    timezone: 'Asia/Dubai',
   },
   {
     value: 'Azerbaijan Standard Time',
@@ -557,7 +588,8 @@ export var timeZonelist = [
     offset: 5.5,
     isdst: false,
     text: '(UTC+05:30) Sri Jayawardenepura',
-    timezone: 'Asia/Calcutta',
+    //timezone: 'Asia/Calcutta',
+    timezone: 'Asia/Colombo',
   },
   {
     value: 'Nepal Standard Time',
@@ -565,7 +597,7 @@ export var timeZonelist = [
     offset: 5.75,
     isdst: false,
     text: '(UTC+05:45) Kathmandu',
-    timezone: 'Asia/Katmandu',
+    timezone: 'Asia/Kathmandu',
   },
   {
     value: 'Central Asia Standard Time',
@@ -573,7 +605,8 @@ export var timeZonelist = [
     offset: 6,
     isdst: false,
     text: '(UTC+06:00) Astana',
-    timezone: 'Asia/Dhaka',
+    //timezone: 'Asia/Dhaka',
+    timezone: 'Asia/Almaty',
   },
   {
     value: 'Bangladesh Standard Time',
@@ -597,7 +630,8 @@ export var timeZonelist = [
     offset: 6.5,
     isdst: false,
     text: '(UTC+06:30) Yangon (Rangoon)',
-    timezone: 'Asia/Rangoon',
+    //timezone: 'Asia/Rangoon',
+    timezone: 'Asia/Yangon',
   },
   {
     value: 'SE Asia Standard Time',
@@ -621,7 +655,8 @@ export var timeZonelist = [
     offset: 8,
     isdst: false,
     text: '(UTC+08:00) Beijing, Chongqing, Hong Kong, Urumqi',
-    timezone: 'Asia/Hong_Kong',
+    //timezone: 'Asia/Hong_Kong',
+    timezone: 'Asia/Shanghai',
   },
   {
     value: 'North Asia Standard Time',
@@ -637,7 +672,8 @@ export var timeZonelist = [
     offset: 8,
     isdst: false,
     text: '(UTC+08:00) Kuala Lumpur, Singapore',
-    timezone: 'Asia/Kuala_Lumpur',
+    //timezone: 'Asia/Kuala_Lumpur',
+    timezone: 'Asia/Singapore',
   },
   {
     value: 'W. Australia Standard Time',
@@ -677,7 +713,8 @@ export var timeZonelist = [
     offset: 9,
     isdst: false,
     text: '(UTC+09:00) Osaka, Sapporo, Tokyo',
-    timezone: 'Asia/Tokyo',
+    //timezone: 'Asia/Tokyo',
+    timezone: 'Asia/Chita',
   },
   {
     value: 'Korea Standard Time',
@@ -717,7 +754,8 @@ export var timeZonelist = [
     offset: 10,
     isdst: false,
     text: '(UTC+10:00) Canberra, Melbourne, Sydney',
-    timezone: 'Australia/Melbourne',
+    //timezone: 'Australia/Melbourne',
+    timezone: 'Australia/Sydney',
   },
   {
     value: 'West Pacific Standard Time',
@@ -773,7 +811,8 @@ export var timeZonelist = [
     offset: 12,
     isdst: false,
     text: '(UTC+12:00) Coordinated Universal Time+12',
-    timezone: 'Pacific/Kwajalein',
+    //timezone: 'Pacific/Kwajalein',
+    timezone: 'Etc/GMT-12',
   },
   {
     value: 'Fiji Standard Time',
@@ -813,6 +852,7 @@ export var timeZonelist = [
     offset: 13,
     isdst: false,
     text: '(UTC+13:00) Samoa',
-    timezone: 'Pacific/Samoa',
+    //timezone: 'Pacific/Samoa',
+    timezone: 'Pacific/Apia',
   },
 ];

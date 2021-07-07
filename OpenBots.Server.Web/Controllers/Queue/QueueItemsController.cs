@@ -391,7 +391,7 @@ namespace OpenBots.Server.Web.Controllers
 
                 //send SignalR notification to all connected clients
                 await _hub.Clients.All.SendAsync("sendnotification", "Queue item dequeued.");
-
+                
                 var queueItemViewModel = _manager.GetQueueItemView(response);
                 await _webhookPublisher.PublishAsync("QueueItems.QueueItemUpdated", queueItemViewModel.Id.ToString(), queueItemViewModel.Name).ConfigureAwait(false);
                 return Ok(queueItemViewModel);

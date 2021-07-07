@@ -23,6 +23,7 @@ import { BinaryFile } from '../../../interfaces/file';
 import { FileSaverService } from 'ngx-filesaver';
 import {
   FilesApiUrl,
+  integrationUrl,
   QueueItemsApiUrl,
   QueuesApiUrls,
 } from '../../../webApiUrls';
@@ -170,10 +171,11 @@ export class AddQueueItemsComponent implements OnInit {
       );
     }
     if (this.queueItemForm.value.postponeUntilUTC) {
-      this.queueItemForm.value.postponeUntilUTC = this.helperService.transformDate(
-        this.queueItemForm.value.postponeUntilUTC,
-        'lll'
-      );
+      this.queueItemForm.value.postponeUntilUTC =
+        this.helperService.transformDate(
+          this.queueItemForm.value.postponeUntilUTC,
+          'lll'
+        );
     }
     if (this.queueItemId) this.updateItem();
     else this.addItem();
@@ -433,11 +435,18 @@ export class AddQueueItemsComponent implements OnInit {
   }
   getIntegrationEvents(): void {
     this.httpService
-      .get(`IntegrationEvents/IntegrationEventLookup`)
+      .get(
+        `${integrationUrl.IntegrationEvents}/${integrationUrl.IntegrationEventLookup}`
+      )
       .subscribe((response) => {
-        if (response && response.entityNameList) {
-          this.integrationEvents = [...response.entityNameList];
+        if (response) {
+          this.integrationEvents = [...response];
         }
       });
+  }
+
+  onSelectEvent(event): void {
+    this.queueItemForm.get('type').setValue('Json');
+    this.queueItemForm.patchValue({ jsonType: event.entityName });
   }
 }

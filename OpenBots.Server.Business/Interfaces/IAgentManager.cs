@@ -29,5 +29,7 @@ namespace OpenBots.Server.Business
         AgentHeartbeat PerformAgentHeartbeat(HeartbeatViewModel request, string agentId);
 
         NextJobViewModel GetNextJob(string agentId);
+
+        ResolvedAgentResponseViewModel ResolveAgent(ResolveAgentViewModel request);
     }
 }

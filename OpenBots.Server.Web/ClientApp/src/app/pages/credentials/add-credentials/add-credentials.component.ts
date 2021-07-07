@@ -46,7 +46,7 @@ export class AddCredentialsComponent implements OnInit {
     private dateService: NbDateService<Date>,
     private helperService: HelperService,
     private dialogService: DialogService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.min = new Date();
@@ -184,7 +184,7 @@ export class AddCredentialsComponent implements OnInit {
       !this.agentCredentialForm.value.passwordSecret
     )
       this.agentCredentialForm.get('passwordSecret').setValue('');
-    const headers = this.helperService.getETagHeaders(this.eTag);
+    // const headers = this.helperService.getETagHeaders(this.eTag);
     if (this.agentCredentialForm.value.startDate) {
       this.agentCredentialForm.value.startDate =
         this.helperService.transformDate(
@@ -205,7 +205,7 @@ export class AddCredentialsComponent implements OnInit {
         this.agentCredentialForm.value,
         {
           observe: 'response',
-          headers,
+          // headers,
         }
       )
       .subscribe(
@@ -226,7 +226,6 @@ export class AddCredentialsComponent implements OnInit {
   }
 
   SaveCredAsset(): void {
-    console.log(this.agentCredentialForm.value);
     if (this.agentCredentialForm.value.startDate) {
       this.agentCredentialForm.value.startDate =
         this.helperService.transformDate(
@@ -257,7 +256,7 @@ export class AddCredentialsComponent implements OnInit {
             this.agentCredentialForm.reset();
             this.httpService
               .get(
-                `${CredentialsApiUrl.credentials}?$filter=name+eq+'${this.credentialForm.value.name}'and agentId+ne+null`
+                `${CredentialsApiUrl.credentials}/${CredentialsApiUrl.view}?$filter=name+eq+'${this.credentialForm.value.name}'and agentId+ne+null`
               )
               .subscribe((response) => {
                 this.showCredAsstData = response.items;
@@ -387,7 +386,7 @@ export class AddCredentialsComponent implements OnInit {
           this.isDeleted = false;
           this.httpService
             .get(
-              `${CredentialsApiUrl.credentials}?$filter=name+eq+'${this.credentialForm.value.name}'and agentId+ne+null`
+              `${CredentialsApiUrl.credentials}/${CredentialsApiUrl.view}?$filter=name+eq+'${this.credentialForm.value.name}'and agentId+ne+null`
             )
             .subscribe((response) => {
               this.showCredAsstData = response.items;

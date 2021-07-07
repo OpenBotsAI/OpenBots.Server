@@ -249,6 +249,37 @@ namespace OpenBots.Server.Web.Controllers
         }
 
         /// <summary>
+        /// Fetches values for an Agent that matches the provided details
+        /// </summary>
+        /// <param name="request"></param>
+        /// <response code="200">Ok, resolved Agent</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden, unauthorized access</response>
+        /// <response code="409">Conflict, concurrency error</response> 
+        /// <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+        /// <returns>Agent details for the resolved Agent</returns>
+        [HttpPost("Resolve")]
+        [ProducesResponseType(typeof(ResolvedAgentResponseViewModel), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> Resolve(ResolveAgentViewModel request)
+        {
+            try
+            {
+                ResolvedAgentResponseViewModel response = _agentManager.ResolveAgent(request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return ex.GetActionResult();
+            }
+        }
+
+        /// <summary>
         /// Adds a new agent to the existing agents and create a new agent application user
         /// </summary>
         /// <remarks>

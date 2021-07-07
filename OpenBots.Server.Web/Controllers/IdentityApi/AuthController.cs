@@ -59,8 +59,6 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
         readonly IAccessRequestsManager accessRequestManager;
         readonly IAccessRequestRepository accessRequestRepository;
         readonly IOrganizationMemberRepository organizationMemberRepository;
-        readonly ITermsConditionsManager termsConditionsManager;
-        readonly IAgentRepository agentRepository;
         readonly IAuditLogRepository auditLogRepository;
         readonly WebAppUrlOptions webAppUrlOptions;
         readonly IIPFencingManager iPFencingManager;
@@ -116,8 +114,6 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
            IAccessRequestsManager accessRequestManager,
            IAccessRequestRepository accessRequestRepository,
            IOrganizationMemberRepository organizationMemberRepository,
-           IAgentRepository agentRepository,
-           ITermsConditionsManager termsConditionsManager,
            IAuditLogRepository auditLogRepository,
            IIPFencingManager iPFencingManager,
            IIPFencingRepository iPFencingRepository,
@@ -141,8 +137,6 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
             this.accessRequestManager = accessRequestManager;
             this.accessRequestRepository = accessRequestRepository;
             this.organizationMemberRepository = organizationMemberRepository;
-            this.termsConditionsManager = termsConditionsManager;
-            this.agentRepository = agentRepository;
             this.auditLogRepository = auditLogRepository;
             webAppUrlOptions = configuration.GetSection(WebAppUrlOptions.WebAppUrl).Get<WebAppUrlOptions>();
             this.iPFencingManager = iPFencingManager;
@@ -210,12 +204,6 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                     string authenticationToken = GetToken(user);
                     VerifyUserEmailAsync(user);
 
-                    var agentId = (Guid?)null;
-                    if (person.IsAgent)
-                    {
-                        agentId = agentRepository.Find(null, p => p.Name == person.Name)?.Items?.FirstOrDefault()?.Id;
-                    }
-
                     string startsWith = "";
                     int skip = 0;
                     int take = 100;
@@ -234,8 +222,7 @@ namespace OpenBots.Server.WebAPI.Controllers.IdentityApi
                         user.ForcedPasswordChange,
                         isUserConsentRequired,
                         IsJoinOrgRequestPending = (pendingAcessOrgs?.Items?.Count > 0) ? true : false,
-                        myOrganizations = personOrgs?.Items,
-                        agent = agentId
+                        myOrganizations = personOrgs?.Items
                     };
                     //save refresh token
                     await userManager.SetAuthenticationTokenAsync(user, userManager.Options.Tokens.AuthenticatorTokenProvider, "refresh", newRefreshToken).ConfigureAwait(false);

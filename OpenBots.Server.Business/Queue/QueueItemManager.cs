@@ -145,12 +145,8 @@ namespace OpenBots.Server.Business
             string newState = QueueItemStateType.New.ToString();
             string inProgressState = QueueItemStateType.InProgress.ToString();
 
-            //update expired items 
-            var expiredItems = _repo.Find(0, 1).Items
-                .Where(q => q.QueueId.ToString() == queueId)
-                .Where(q => q.State == newState || q.State == inProgressState)
-                .Where(q => !q.IsLocked)
-                .Where(q => q.ExpireOnUTC <= DateTime.UtcNow);
+            //finds all expired items who's status hasn't been updated
+            var expiredItems = _repo.Find(null, q => q.QueueId.ToString() == queueId && (q.State == newState || q.State == inProgressState) && !q.IsLocked && q.ExpireOnUTC <= DateTime.UtcNow).Items;
 
             foreach (var item in expiredItems)
             {
@@ -164,14 +160,10 @@ namespace OpenBots.Server.Business
                 _repo.Update(item);
             }
 
-            //update locked items. Finds all inProgress items who's lock has expired and set their status to new
-            var lockedItems = _repo.Find(0, 1).Items
-                .Where(q => q.QueueId.ToString() == queueId)
-                .Where(q => q.State == inProgressState)
-                .Where(q => q.ExpireOnUTC > DateTime.UtcNow)
-                .Where(q => q.LockedUntilUTC <= DateTime.UtcNow);
+            //finds all 'InProgress' items who's lock has expired and set their status to new
+            var lockedItems = _repo.Find(null, q => q.QueueId.ToString() == queueId && q.State == inProgressState && q.LockedUntilUTC <= DateTime.UtcNow).Items;
 
-            foreach (var item in expiredItems)
+            foreach (var item in lockedItems)
             {
                 item.State = QueueItemStateType.New.ToString();
                 item.IsLocked = false;
@@ -766,7 +758,6 @@ namespace OpenBots.Server.Business
                     _fileManager.DeleteFileFolder(folder.Id.ToString(), driveId, "Folders");
                 else _fileManager.RemoveBytesFromFoldersAndDrive(new List<FileFolderViewModel> { fileView });
             }
-            else throw new EntityDoesNotExistException("No attachments found to delete");
         }
 
         public void DeleteAll(QueueItem queueItem, string driveId)

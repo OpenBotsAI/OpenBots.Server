@@ -15,7 +15,6 @@ export class AppComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
   @BlockUI() blockUI: NgBlockUI;
   isConnectionAvailable: boolean = navigator.onLine;
-
   isConnected = true;
   noInternetConnection: boolean;
   constructor(

@@ -193,6 +193,18 @@
             <returns>Count of all agents</returns>
         </member>
         <!-- Badly formed XML comment ignored for member "M:OpenBots.Server.Web.Controllers.AgentsController.Get(System.String)" -->
+        <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Resolve(OpenBots.Server.ViewModel.ResolveAgentViewModel)">
+            <summary>
+            Fetches values for an Agent that matches the provided details
+            </summary>
+            <param name="request"></param>
+            <response code="200">Ok, resolved Agent</response>
+            <response code="400">Bad request</response>
+            <response code="403">Forbidden, unauthorized access</response>
+            <response code="409">Conflict, concurrency error</response> 
+            <response code="422">Unprocessable Entity, when a duplicate record is being entered</response>
+            <returns>Agent details for the resolved Agent</returns>
+        </member>
         <member name="M:OpenBots.Server.Web.Controllers.AgentsController.Post(OpenBots.Server.ViewModel.AgentViewModels.CreateAgentViewModel)">
             <summary>
             Adds a new agent to the existing agents and create a new agent application user
@@ -3220,7 +3232,7 @@
             <response code="422">Unprocessable entity</response>
             <returns>Credential details for the given id</returns>
         </member>
-        <member name="M:OpenBots.Server.Web.CredentialsController.View(System.Nullable{System.Guid})">
+        <member name="M:OpenBots.Server.Web.CredentialsController.View(System.String)">
             <summary>
             Provides a credential's view details for a particular credential id
             </summary>
@@ -3902,7 +3914,7 @@
             Controller used for token generation
             </summary>
         </member>
-        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.#ctor(OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Identity.SignInManager{OpenBots.Server.Security.ApplicationUser},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController},OpenBots.Server.Business.IMembershipManager,OpenBots.Server.DataAccess.Repositories.IPersonRepository,OpenBots.Server.DataAccess.Repositories.IPersonEmailRepository,OpenBots.Server.DataAccess.Repositories.IEmailVerificationRepository,OpenBots.Server.DataAccess.Repositories.IPasswordPolicyRepository,OpenBots.Server.Business.IEmailManager,OpenBots.Server.Business.IOrganizationManager,OpenBots.Server.Business.IAccessRequestsManager,OpenBots.Server.DataAccess.Repositories.IAccessRequestRepository,OpenBots.Server.DataAccess.Repositories.IOrganizationMemberRepository,OpenBots.Server.DataAccess.Repositories.IAgentRepository,OpenBots.Server.Business.ITermsConditionsManager,OpenBots.Server.DataAccess.Repositories.IAuditLogRepository,OpenBots.Server.Business.IIPFencingManager,OpenBots.Server.DataAccess.Repositories.IIPFencingRepository,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IOrganizationSettingRepository,OpenBots.Server.DataAccess.Repositories.Interfaces.IStorageDriveRepository,OpenBots.Server.DataAccess.Repositories.Interfaces.IStorageFolderRepository,OpenBots.Server.Business.IDirectoryManager)">
+        <member name="M:OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController.#ctor(OpenBots.Server.Security.ApplicationIdentityUserManager,Microsoft.AspNetCore.Identity.SignInManager{OpenBots.Server.Security.ApplicationUser},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Logging.ILogger{OpenBots.Server.WebAPI.Controllers.IdentityApi.AuthController},OpenBots.Server.Business.IMembershipManager,OpenBots.Server.DataAccess.Repositories.IPersonRepository,OpenBots.Server.DataAccess.Repositories.IPersonEmailRepository,OpenBots.Server.DataAccess.Repositories.IEmailVerificationRepository,OpenBots.Server.DataAccess.Repositories.IPasswordPolicyRepository,OpenBots.Server.Business.IEmailManager,OpenBots.Server.Business.IOrganizationManager,OpenBots.Server.Business.IAccessRequestsManager,OpenBots.Server.DataAccess.Repositories.IAccessRequestRepository,OpenBots.Server.DataAccess.Repositories.IOrganizationMemberRepository,OpenBots.Server.DataAccess.Repositories.IAuditLogRepository,OpenBots.Server.Business.IIPFencingManager,OpenBots.Server.DataAccess.Repositories.IIPFencingRepository,Microsoft.AspNetCore.Http.IHttpContextAccessor,OpenBots.Server.DataAccess.Repositories.IOrganizationSettingRepository,OpenBots.Server.DataAccess.Repositories.Interfaces.IStorageDriveRepository,OpenBots.Server.DataAccess.Repositories.Interfaces.IStorageFolderRepository,OpenBots.Server.Business.IDirectoryManager)">
             <summary>
             AuthController constructor
             </summary>

@@ -154,20 +154,15 @@ namespace OpenBots.Server.Web.Controllers.WebHooksApi
                 ODataHelper<IntegrationEvent> oDataHelper = new ODataHelper<IntegrationEvent>();
                 var oData = oDataHelper.GetOData(HttpContext, oDataHelper);
 
-                var response = _repository.Find(null, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip, oData.Top);
-                IntegrationEventEntitiesLookupViewModel eventLogList = new IntegrationEventEntitiesLookupViewModel();
+                var eventList = _repository.Find(null, oData.Filter, oData.Sort, oData.SortDirection, oData.Skip, oData.Top);
+                var eventLookUp = from e in eventList.Items.GroupBy(p => p.Id).Select(p => p.First()).ToList()
+                                  select new IntegrationEventEntitiesLookupViewModel
+                                  {
+                                      EventName = e.Name,
+                                      EntityName = e.EntityType
+                                  };
 
-                if (response != null)
-                {
-                    eventLogList.EntityNameList = new List<string>();
-
-                    foreach (var item in response.Items)
-                    {
-                        eventLogList.EntityNameList.Add(item.EntityType);
-                    }
-                    eventLogList.EntityNameList = eventLogList.EntityNameList.Distinct().ToList();
-                }
-                return Ok(eventLogList);
+                return Ok(eventLookUp.ToList());
             }
             catch (Exception ex)
             {

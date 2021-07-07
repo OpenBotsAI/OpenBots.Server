@@ -14,7 +14,7 @@ namespace OpenBots.Server.Model.Webhooks
 
         public string? EntityType { get; set; }
 
-        public Guid? EntityID { get; set; }
+        public string? EntityID { get; set; }
 
         [Required]
         public string? PayloadJSON { get; set; }

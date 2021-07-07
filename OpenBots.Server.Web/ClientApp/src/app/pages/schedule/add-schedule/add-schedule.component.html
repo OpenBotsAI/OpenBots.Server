@@ -194,7 +194,7 @@
               <label class="label">Select time zone *</label>
               <ng-select [items]="timeZoneArr" [searchable]="true" bindLabel="text"
                 formControlName="cronExpressionTimeZone" class="NgSelect" [closeOnSelect]="true"
-                placeholder="Please select time zone" bindValue="value" [clearable]="false">
+                placeholder="Please select time zone" bindValue="value" [clearable]="false" groupBy="value">
               </ng-select>
               <div
                 *ngIf="formControls.cronExpressionTimeZone.invalid &&(formControls.cronExpressionTimeZone.dirty || formControls.cronExpressionTimeZone.touched) "

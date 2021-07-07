@@ -4,6 +4,7 @@ namespace OpenBots.Server.ViewModel.Lookup
 {
     public class IntegrationEventEntitiesLookupViewModel
     {
-        public List<string> EntityNameList { get; set; }
+        public string EntityName { get; set; }
+        public string EventName { get; set; }
     }
 }

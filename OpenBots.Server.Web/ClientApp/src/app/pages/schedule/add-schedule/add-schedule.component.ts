@@ -19,6 +19,8 @@ import { AgentGroupLookUp } from '../../../interfaces/AgentGroupLookUp';
 import { timeZonelist } from './timeZone';
 import { TimeZone } from '../../../interfaces/timeZone';
 import { Queues } from '../../../interfaces/queues';
+import * as moment from 'moment-timezone';
+
 @Component({
   selector: 'ngx-add-schedule',
   templateUrl: './add-schedule.component.html',
@@ -48,6 +50,7 @@ export class AddScheduleComponent implements OnInit {
   isChecked = false;
   timeZoneArr: TimeZone[] = timeZonelist;
   queuesArr: Queues[] = [];
+  machineTimeZone: TimeZone[] = [];
   cronOptions: CronOptions = {
     formInputClass: 'form-control cron-editor-input',
     formSelectClass: 'form-control cron-editor-select',
@@ -91,6 +94,10 @@ export class AddScheduleComponent implements OnInit {
     }
     this.min = this.dateService.addMonth(this.dateService.today(), 0);
     this.max = this.dateService.addMonth(this.dateService.today(), 1);
+    console.log('zone', moment.tz.guess());
+    this.machineTimeZone = this.timeZoneArr.filter(
+      (x) => x.timezone === moment.tz.guess()
+    );
   }
 
   initScheduleForm() {
@@ -307,7 +314,13 @@ export class AddScheduleComponent implements OnInit {
       this.scheduleForm.get('cronExpressionTimeZone').updateValueAndValidity();
       this.scheduleForm.get('queueId').clearValidators();
       this.scheduleForm.get('queueId').updateValueAndValidity();
+      this.scheduleForm.get('cronExpressionTimeZone').setValue('');
     } else if (value === 'recurrence') {
+      if (this.machineTimeZone && this.machineTimeZone.length) {
+        this.scheduleForm
+          .get('cronExpressionTimeZone')
+          .setValue(this.machineTimeZone[0].value);
+      }
       this.scheduleForm
         .get('cronExpressionTimeZone')
         .setValidators([Validators.required]);
@@ -319,6 +332,7 @@ export class AddScheduleComponent implements OnInit {
       this.scheduleForm.get('queueId').clearValidators();
       this.scheduleForm.get('queueId').updateValueAndValidity();
     } else if (value === 'manual') {
+      this.scheduleForm.get('cronExpressionTimeZone').setValue('');
       this.scheduleForm.get('cronExpressionTimeZone').clearValidators();
       this.scheduleForm.get('cronExpressionTimeZone').updateValueAndValidity();
       this.scheduleForm.get('startDate').clearValidators();
@@ -328,6 +342,7 @@ export class AddScheduleComponent implements OnInit {
       this.scheduleForm.get('queueId').clearValidators();
       this.scheduleForm.get('queueId').updateValueAndValidity();
     } else if (value === 'queueArrival') {
+      this.scheduleForm.get('cronExpressionTimeZone').setValue('');
       this.scheduleForm.get('cronExpressionTimeZone').clearValidators();
       this.scheduleForm.get('cronExpressionTimeZone').updateValueAndValidity();
       this.scheduleForm.get('startDate').setValidators([Validators.required]);

@@ -27,15 +27,33 @@
               </div>
             </div>
           </div>
-          <div class="row rowPadTOp">
+          <!-- <div class="row rowPadTOp">
             <div class="col-md-6 col-lg-6 col-xxxl-6">
-              <!-- <input type="checkbox" /> -->
               <label class="label">Business Event </label>
               <label class="upload-button">
-                <!-- formControlName="getbusines" -->
-                <nb-checkbox (checkedChange)="check($event)" formControlName="getbusines"> Business Event
+                <nb-checkbox (checkedChange)="checkEvent($event)" formControlName="getbusines"> Business Event
                 </nb-checkbox>
               </label>
+            </div>
+          </div> -->
+
+          <div class="row rowPadTOp">
+            <div class="col-md-6 col-lg-6 col-xxxl-6">
+              <!-- <nb-radio-group formControlName="getbusines" >
+                <nb-radio *ngFor="let option of options" (click)="getCheckEvent(option.value)" [value]="option.value">
+                  {{ option.label }}
+                </nb-radio>
+              </nb-radio-group> -->
+              <label class="label" style="display: block;">Please select Event *</label>
+              <nb-radio-group formControlName="getbusines" class="upload-button">
+                <nb-radio class="ipOption" style="display: inline-block;" value="system"
+                  (click)="getCheckEvent('system')" required>System Event
+                </nb-radio>
+                <nb-radio class="ipOption" style="display: inline-block;" value="business"
+                  (click)="getCheckEvent('business')" required>
+                  Business Event
+                </nb-radio>
+              </nb-radio-group>
             </div>
           </div>
 

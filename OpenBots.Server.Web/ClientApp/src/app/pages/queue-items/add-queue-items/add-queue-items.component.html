@@ -97,8 +97,12 @@
             </div>
             <div class="col-md-6 col-lg-6 col-xxxl-6">
               <label for="event" class="label">Event</label>
-              <ng-select [items]="integrationEvents" [searchable]="true" formControlName="event" class="NgSelect"
+              <!-- <ng-select [items]="integrationEvents" [searchable]="true" formControlName="event" class="NgSelect"
                 placeholder="Please select event" [closeOnSelect]="true" [clearable]="false" [addTag]="true">
+              </ng-select> -->
+              <ng-select [items]="integrationEvents" [searchable]="true" formControlName="event" class="NgSelect"
+                placeholder="Please select event" [closeOnSelect]="true" [clearable]="false" [addTag]="true"
+                bindLabel="eventName" bindValue="eventName" (change)="onSelectEvent($event)">
               </ng-select>
               <div *ngIf="
                 controls.event.invalid &&

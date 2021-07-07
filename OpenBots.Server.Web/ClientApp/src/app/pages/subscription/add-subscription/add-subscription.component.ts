@@ -68,6 +68,7 @@ export class AddSubscriptionComponent implements OnInit {
     });
     //  this.subscriptionForm.get('state').reset();
     this.subscriptionForm.get('integrationEventName').disable();
+    this.subscriptionForm.controls['getbusines'].setValue('system');
   }
 
 
@@ -99,7 +100,7 @@ export class AddSubscriptionComponent implements OnInit {
           console.log('yes')
           this.getbusiness = false;
           this.subscriptionForm.get('integrationEventName').enable();
-          this.check(true)
+          this.checkEvent(true)
           this.subscriptionForm.patchValue({ getbusines: true });
         }
         else {
@@ -122,8 +123,16 @@ export class AddSubscriptionComponent implements OnInit {
     );
   }
 
+  getCheckEvent(e: string) {
 
-  check(e) {
+    if (e === 'business') {
+      this.checkEvent(true)
+    }
+    else if (e === 'system')
+      this.checkEvent(false)
+  }
+
+  checkEvent(e) {
     console.log(e)
     if (e == true) {
       this.getEntityShow = false;

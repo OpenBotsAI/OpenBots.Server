@@ -14,7 +14,7 @@ namespace OpenBots.Server.Model.Webhooks
 
         public string? EventName { get; set; }
 
-        public Guid? EntityID { get; set; }
+        public string? EntityID { get; set; }
 
         public string? EntityName { get; set; }
 

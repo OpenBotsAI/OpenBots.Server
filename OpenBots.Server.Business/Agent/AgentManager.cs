@@ -32,6 +32,7 @@ namespace OpenBots.Server.Business
         private readonly ClaimsPrincipal _caller;
         private readonly IAgentGroupRepository _agentGroupRepository;
         private readonly IAgentSettingRepository _agentSettingRepository;
+        private readonly IHttpContextAccessor _accessor;
 
         public AgentManager(IAgentRepository agentRepository,
             IScheduleRepository scheduleRepository,
@@ -46,7 +47,8 @@ namespace OpenBots.Server.Business
             IWebhookPublisher webhookPublisher,
             IHttpContextAccessor httpContextAccessor,
             IAgentGroupRepository agentGroupRepository,
-            IAgentSettingRepository agentSettingRepository)
+            IAgentSettingRepository agentSettingRepository,
+            IHttpContextAccessor accessor)
         {
             _agentRepo = agentRepository;
             _scheduleRepo = scheduleRepository;
@@ -62,6 +64,7 @@ namespace OpenBots.Server.Business
             _webhookPublisher = webhookPublisher;
             _agentSettingRepository = agentSettingRepository;
             _caller = ((httpContextAccessor.HttpContext != null) ? httpContextAccessor.HttpContext.User : new ClaimsPrincipal());
+            _accessor = accessor;
         }
 
         /// <summary>
@@ -543,6 +546,62 @@ namespace OpenBots.Server.Business
                 }
             }
             return job;
+        }
+
+        public ResolvedAgentResponseViewModel ResolveAgent(ResolveAgentViewModel request)
+        {
+            var accountName = _accessor.HttpContext.User.Identity.Name;
+            ApplicationUser user =  _userManager.FindByNameAsync(accountName)?.Result; 
+            Person person = _personRepo.Find(null, p => p.Id == user?.PersonId && p.IsAgent == true)?.Items.FirstOrDefault();
+
+            if (person == null)
+            {
+                throw new EntityOperationException("No Agent was resolved because the current account is not an Agent");
+            }
+
+            var requestIp = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
+
+            var matchingAgents = _agentRepo.Find(null, a => string.Equals(a.MachineName, request.HostMachineName, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(a.Name, person.Name, StringComparison.OrdinalIgnoreCase))?.Items;
+
+            //apply additional filters if they are provided
+            if (!String.IsNullOrEmpty(request.AgentName)) matchingAgents = matchingAgents.Where(a => string.Equals(a.Name, request.AgentName, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (!String.IsNullOrEmpty(request.MacAddressesCS))
+            {
+                List<string> macAddresses = request.MacAddressesCS.ToLower().Split(',').ToList<string>();
+                matchingAgents = matchingAgents.Where(a => macAddresses.Contains(a.MacAddresses.ToLower()) && string.Equals(a.IPAddresses, requestIp, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            if (matchingAgents.Count > 1)
+            {
+                throw new UnauthorizedOperationException("Unable to resolve Agent because mutiple Agents match the provided details");
+            }
+            else if (matchingAgents.Count == 0)
+            {
+                throw new EntityDoesNotExistException("No Agents were found that match the provided details");
+            }
+
+            Agent resolvedAgent = matchingAgents.FirstOrDefault();
+
+            //find all AgentGroups and create csv
+            var agentGroups = GetAllMembersInGroup(resolvedAgent.Id.ToString()).Items;
+            string agentGroupCs = string.Join(",", agentGroups);
+
+            //find agent settings for the resolved agent
+            AgentSetting agentSetting = _agentSettingRepository.Find(null, s => s.AgentId == resolvedAgent.Id).Items.FirstOrDefault();
+
+            ResolvedAgentResponseViewModel resolvedResponse = new ResolvedAgentResponseViewModel
+            {
+                AgentId = resolvedAgent.Id,
+                AgentName = resolvedAgent.Name,
+                AgentGroupsCS = agentGroupCs,
+                HeartbeatInterval = agentSetting?.HeartbeatInterval,
+                JobLoggingInterval = agentSetting?.JobLoggingInterval,
+                VerifySslCertificate = agentSetting?.VerifySslCertificate
+            };
+
+            return resolvedResponse;
         }
     }
 }

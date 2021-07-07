@@ -290,11 +290,6 @@ namespace OpenBots.Server.Web.Controllers
         {
             try
             {
-                var file = _manager.GetFileFolder(id, driveId, "Files");
-                if (file.StoragePath.Contains("Assets") || file.StoragePath.Contains("Automations") ||
-                    file.StoragePath.Contains("Email Attachments") || file.StoragePath.Contains("Queue Item Attachments"))
-                    throw new EntityOperationException("Component files and folders cannot be added or changed in File Manager");
-
                 var response = _manager.ExportFileFolder(id, driveId);
                 return File(response?.Result?.Content, response?.Result?.ContentType, response?.Result?.Name);
             }

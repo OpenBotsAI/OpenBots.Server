@@ -267,13 +267,14 @@ namespace OpenBots.Server.Business
             if (!String.IsNullOrEmpty(request.PasswordSecret))//password is not null or empty, then set a new password
             {
                 var encryptionKey = GetEncryptionKey();
+                string decryptedPassword = string.Empty;
 
                 if (CredentialsEncrypter.IsBase64(existingCredential.PasswordSecret))//if encryption is in base64
                 {
-                    existingCredential.PasswordSecret = CredentialsEncrypter.Decrypt(existingCredential.PasswordSecret, encryptionKey);
+                    decryptedPassword = CredentialsEncrypter.Decrypt(existingCredential.PasswordSecret, encryptionKey);
                 }
 
-                if (existingCredential.PasswordSecret != request.PasswordSecret)
+                if (decryptedPassword != request.PasswordSecret)
                 {
                     //generate salt
                     existingCredential.HashSalt = CredentialHasher.CreateSalt(32); //create 32 byte salt
@@ -283,7 +284,7 @@ namespace OpenBots.Server.Business
 
                     //encrypt the provided password
                     existingCredential.PasswordSecret = CredentialsEncrypter.Encrypt(request.PasswordSecret, encryptionKey);
-                }        
+                }
             }
 
             if (request.PasswordSecret == "")//if password is an empty string, then remove password fields
@@ -303,6 +304,10 @@ namespace OpenBots.Server.Business
             _organizationSettingRepository.ForceIgnoreSecurity();
 
             var organizationKey = _organizationSettingRepository.Find(null, o => o.OrganizationId == orgId).Items.FirstOrDefault().EncryptionKey;
+
+            if (string.IsNullOrEmpty(organizationKey))
+                throw new NullReferenceException("Organization encryption key does not exist");
+
             var applicationKey = _configuration.GetSection("ApplicationEncryption:Key").Value;
             return applicationKey + organizationKey;
         }

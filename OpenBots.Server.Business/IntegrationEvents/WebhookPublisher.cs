@@ -51,7 +51,7 @@ namespace OpenBots.Server.Web.Webhooks
         {
             //get all subscriptions for the event
             var eventSubscriptions = _eventSubscriptionRepository.Find(0, 1).Items?.
-                Where(s => s.IntegrationEventName == integrationEventName || s.EntityID == Guid.Parse(entityId)); 
+                Where(s => s.IntegrationEventName == integrationEventName || s.EntityID == entityId); 
 
             if (eventSubscriptions == null)
             {
@@ -75,7 +75,7 @@ namespace OpenBots.Server.Web.Webhooks
                 IntegrationEventName = integrationEventName,
                 OccuredOnUTC = DateTime.UtcNow,
                 EntityType = integrationEvent.EntityType,
-                EntityID = Guid.Parse(entityId),
+                EntityID = entityId,
                 PayloadJSON = payloadJSON,
                 CreatedOn = DateTime.UtcNow,
                 Message = message,
@@ -90,7 +90,7 @@ namespace OpenBots.Server.Web.Webhooks
             {
                 //handle subscriptions that should not get notified
                 if (!((eventSubscription.IntegrationEventName == integrationEventName || eventSubscription.IntegrationEventName == null)
-                    && (eventSubscription.EntityID == new Guid(entityId) || eventSubscription.EntityID == null)))
+                    && (eventSubscription.EntityID == entityId || eventSubscription.EntityID == null)))
                 {
                     continue; //do not create an attempt in this case
                 }
@@ -151,9 +151,9 @@ namespace OpenBots.Server.Web.Webhooks
                 EventId = integrationEvent.Id,
                 EntityType = integrationEvent.EntityType,
                 EventName = integrationEvent.Name,
-                EntityID = Guid.Parse(entityId),
+                EntityID = entityId,
                 EntityName = entityName,
-                OccuredOnUTC = DateTime.UtcNow,
+                OccuredOnUTC = DateTime.UtcNow
             };
 
             return newPayload;

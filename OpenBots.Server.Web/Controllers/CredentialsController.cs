@@ -198,18 +198,24 @@ namespace OpenBots.Server.Web
                     throw new UnauthorizedAccessException("Request must be HTTPS");
                 }
 
-                Guid entityId = new Guid(id);
+                IActionResult actionResult = await base.GetEntity(id);
+                OkObjectResult okResult = actionResult as OkObjectResult;
 
-                var existingCredential = repository.GetOne(entityId);
-                if (existingCredential == null) return NotFound();
-
-                if (_credentialManager.ValidateRetrievalDate(existingCredential))
+                if (okResult != null)
                 {
-                    existingCredential.PasswordSecret = _credentialManager.GetPassword(existingCredential);
-                    return Ok(existingCredential);
+                    Credential existingCredential = okResult.Value as Credential;
+
+                    if (existingCredential == null) return NotFound();
+
+                    if (_credentialManager.ValidateRetrievalDate(existingCredential))
+                    {
+                        existingCredential.PasswordSecret = _credentialManager.GetPassword(existingCredential);
+                        return actionResult;
+                    }
+                    ModelState.AddModelError("Credential", "Current date does not fall withing the start and end date range");
+                    return BadRequest(ModelState);
                 }
-                ModelState.AddModelError("Credential", "Current date does not fall withing the start and end date range");
-                return BadRequest(ModelState);
+                return actionResult;           
             }
             catch (Exception ex)
             {
@@ -237,12 +243,20 @@ namespace OpenBots.Server.Web
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> View(Guid? id)
+        public async Task<IActionResult> View(string id)
         {
             try
             {
-                CredentialViewModel resultView = _credentialManager.GetCredentialDetails(id);
-                return Ok(resultView);
+                IActionResult actionResult = await base.GetEntity<CredentialViewModel>(id);
+                OkObjectResult okResult = actionResult as OkObjectResult;
+
+                if (okResult != null)
+                {
+                    CredentialViewModel view = okResult.Value as CredentialViewModel;
+                    view = _credentialManager.GetCredentialDetails(Guid.Parse(id));
+                }
+
+                return actionResult;
             }
             catch (Exception ex)
             {

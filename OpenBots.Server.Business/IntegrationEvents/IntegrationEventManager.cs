@@ -100,7 +100,7 @@ namespace OpenBots.Server.Business
             var existingEvent = _integrationEventRepository.GetOne(entityId);
             VerifyBusinessEvent(existingEvent);
             
-            _webhookPublisher.PublishAsync(existingEvent.Name, request.EntityId.ToString(), request.EntityName, request.Message, request.PayloadJSON).ConfigureAwait(false);
+            _webhookPublisher.PublishAsync(existingEvent.Name, request.EntityId?.ToString(), request.EntityName, request.Message, request.PayloadJSON).ConfigureAwait(false);
 
         }
 

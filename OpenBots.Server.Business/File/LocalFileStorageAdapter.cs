@@ -821,36 +821,6 @@ namespace OpenBots.Server.Business.File
             AddBytesToStorageDrive(drive, size);
         }
 
-        public StorageDrive AddStorageDrive(string driveName)
-        {
-            Guid? organizationId = _organizationManager.GetDefaultOrganization().Id;
-
-            var existingStorageDrive = _storageDriveRepository.Find(null, q => q.Name == driveName).Items?.FirstOrDefault();
-            if (existingStorageDrive != null)
-                throw new EntityAlreadyExistsException($"Drive with name {driveName} already exists");
-
-            Guid? id = Guid.NewGuid();
-            string storagePath = Path.Combine(organizationId.ToString(), id.ToString());
-            var storageDrive = new StorageDrive()
-            {
-                Id = id,
-                FileStorageAdapterType = "LocalFileStorage",
-                CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name,
-                CreatedOn = DateTime.UtcNow,
-                Name = driveName,
-                OrganizationId = organizationId,
-                StoragePath = storagePath,
-                StorageSizeInBytes = 0,
-                IsDefault = false,
-            };
-            _storageDriveRepository.Add(storageDrive);
-            _directoryManager.CreateDirectory(storagePath);
-
-            _webhookPublisher.PublishAsync("Files.NewDriveCreated", storageDrive.Id.ToString(), storageDrive.Name);
-
-            return storageDrive;
-        }
-
         public string GetShortPath(string path)
         {
             var newPathArray = path.Split(Path.DirectorySeparatorChar);
